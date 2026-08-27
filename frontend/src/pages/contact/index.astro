@@ -1,0 +1,126 @@
+---
+/**
+ * Monroe Humane — Contact Us
+ * Dedicated, conversion-optimized contact hub (replacing homepage anchor jumps).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import { SITE } from '../../config/site';
+
+const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2972.3551528659124!2d-83.4299949233814!3d41.91640097123992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x883b63297a77e5e3%3A0x6b63c788dfcf85b2!2s911%20S%20Raisinville%20Rd%2C%20Monroe%2C%20MI%2048161!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus';
+---
+
+<BaseLayout
+  title={`Contact Us | ${SITE.name}`}
+  description="Get in touch with the Humane Society of Monroe County. View shelter location, hours of operation, phone numbers, and send a message."
+>
+  <InnerShell variant="contact">
+    <header class="monroe-native-hero">
+      <p class="monroe-native-eyebrow">Get in touch</p>
+      <h1>Contact Monroe Humane</h1>
+      <p class="monroe-native-lead">
+        We are here to help with adoptions, volunteer opportunities, donations, and general pet care inquiries in Monroe County.
+      </p>
+    </header>
+
+    <div class="monroe-contact-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 2.5rem;">
+      <!-- Contact Info Card -->
+      <section class="monroe-native-stack" style="margin: 0;">
+        <h2>Shelter Location &amp; Hours</h2>
+        <ul class="monroe-native-list" style="margin-bottom: 1.5rem;">
+          <li><strong>Address:</strong> <a href={SITE.contact.address.googleMapsUrl} target="_blank" rel="noopener noreferrer">{SITE.contact.address.full}</a></li>
+          <li><strong>Mailing Address:</strong> {SITE.contact.address.poBox}</li>
+          <li><strong>Phone:</strong> <a href={SITE.contact.phoneTel}>{SITE.contact.phoneFormatted}</a></li>
+          <li><strong>Email:</strong> <a href={SITE.contact.emailMailto}>{SITE.contact.email}</a></li>
+        </ul>
+
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem;">Adoption Hours</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem; margin-bottom: 1.5rem;">
+          <tbody>
+            <tr style="border-bottom: 1px solid rgba(15, 118, 110, 0.15);"><td style="padding: 0.5rem 0;"><strong>Tuesday – Friday</strong></td><td style="text-align: right; color: #0f766e;">{SITE.contact.hours.tuesdayToFriday}</td></tr>
+            <tr style="border-bottom: 1px solid rgba(15, 118, 110, 0.15);"><td style="padding: 0.5rem 0;"><strong>Saturday</strong></td><td style="text-align: right; color: #0f766e;">{SITE.contact.hours.saturday}</td></tr>
+            <tr><td style="padding: 0.5rem 0;"><strong>Sunday &amp; Monday</strong></td><td style="text-align: right; color: #64748b;">{SITE.contact.hours.sundayMonday}</td></tr>
+          </tbody>
+        </table>
+
+        <div class="monroe-native-actions">
+          <a class="monroe-btn" href={SITE.contact.phoneTel}>Call (734) 243-3669</a>
+          <a class="monroe-btn monroe-btn--outline" href={SITE.contact.address.googleMapsUrl} target="_blank" rel="noopener noreferrer">Get Directions</a>
+        </div>
+      </section>
+
+      <!-- Message Form Card -->
+      <section class="monroe-native-stack monroe-contact-form-wrap" style="margin: 0;">
+        <h2>Send Us a Message</h2>
+        <p style="margin-bottom: 1.25rem; color: #475569;">
+          Fill out this form and your default email app will open with your inquiry addressed directly to our team.
+        </p>
+
+        <form class="monroe-contact-form" data-monroe-contact-mailto data-email={SITE.contact.email} style="display: flex; flex-direction: column; gap: 1rem;">
+          <input type="text" name="monroe_contact_website" class="screen-reader-text" tabindex="-1" autocomplete="off" style="display: none;" />
+          
+          <div>
+            <label for="contact_name" style="display: block; font-weight: 600; margin-bottom: 0.35rem;">Name *</label>
+            <input type="text" id="contact_name" name="monroe_contact_name" required placeholder="Your full name" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px;" />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label for="contact_email" style="display: block; font-weight: 600; margin-bottom: 0.35rem;">Email *</label>
+              <input type="email" id="contact_email" name="monroe_contact_email" required placeholder="your@email.com" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px;" />
+            </div>
+            <div>
+              <label for="contact_phone" style="display: block; font-weight: 600; margin-bottom: 0.35rem;">Phone</label>
+              <input type="tel" id="contact_phone" name="monroe_contact_phone" placeholder="(734) 000-0000" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px;" />
+            </div>
+          </div>
+
+          <div>
+            <label for="contact_msg" style="display: block; font-weight: 600; margin-bottom: 0.35rem;">Message *</label>
+            <textarea id="contact_msg" name="monroe_contact_message" rows="4" required placeholder="How can we help you?" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px;"></textarea>
+          </div>
+
+          <button type="submit" class="monroe-btn" style="margin-top: 0.5rem; align-self: flex-start;">Send Email</button>
+          <p class="monroe-contact-form__feedback" style="color: #0f766e; font-weight: 600; font-size: 0.95rem; margin-top: 0.5rem;"></p>
+        </form>
+      </section>
+    </div>
+
+    <!-- Map Section -->
+    <section class="monroe-native-stack" style="padding: 1.5rem; overflow: hidden;">
+      <h2 style="margin-bottom: 1rem;">Find Us on the Map</h2>
+      <div style="width: 100%; height: 380px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(15, 118, 110, 0.2);">
+        <iframe
+          title="Monroe Humane Shelter Location Map"
+          src={GOOGLE_MAPS_EMBED}
+          width="100%"
+          height="100%"
+          style="border:0;"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </section>
+  </InnerShell>
+</BaseLayout>
+
+<script>
+  const contactForm = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
+  if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(contactForm);
+      if (data.get('monroe_contact_website')) return; // honeypot
+      const name = String(data.get('monroe_contact_name') || '');
+      const email = String(data.get('monroe_contact_email') || '');
+      const phone = String(data.get('monroe_contact_phone') || '');
+      const message = String(data.get('monroe_contact_message') || '');
+      const subject = encodeURIComponent(`Website contact from ${name}`);
+      const body = encodeURIComponent(`${message}\n\n— ${name}${phone ? ` (${phone})` : ''}\n${email}`);
+      const feedback = contactForm.querySelector<HTMLElement>('.monroe-contact-form__feedback');
+      if (feedback) feedback.textContent = 'Opening your email client to send your message. Thank you!';
+      window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
+    });
+  }
+</script>

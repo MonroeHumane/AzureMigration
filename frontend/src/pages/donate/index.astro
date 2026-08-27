@@ -12,31 +12,52 @@ const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
 >
   <InnerShell variant="donate-now">
     <header class="monroe-native-hero">
-      <p class="monroe-native-eyebrow">Give today</p>
-      <h1>Donate to HSMC</h1>
+      <p class="monroe-native-eyebrow">Support Our Mission</p>
+      <h1>Donate to Monroe Humane</h1>
       <p class="monroe-native-lead">
-        Your gift today buys medicine, food, and everyday supplies for the animals in our care.
+        Every dollar stays in Monroe County providing nourishing food, compassionate medical treatment, spay/neuter care, and safe shelter for dogs and cats waiting for their forever homes.
       </p>
     </header>
-    <section class="monroe-native-stack" aria-labelledby="monroe-donate-now-heading">
-      <h2 id="monroe-donate-now-heading">Fast checkout</h2>
-      <p>
-        Use our secure BetterUnite page for card gifts, or return to the homepage Donations section if you prefer PayPal.
-      </p>
-      <div class="monroe-native-actions">
-        <a class="monroe-btn" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate now</a>
-        <a class="monroe-btn monroe-btn--outline" href="/#Donations">More donation options</a>
-      </div>
-    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.75rem; margin-bottom: 2.5rem;">
+      <!-- BetterUnite Card Giving -->
+      <section class="monroe-native-stack" style="margin: 0; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h2>Online Card Donation</h2>
+          <p style="color: #475569; margin-bottom: 1.25rem;">
+            Make a one-time or monthly gift via credit card or debit card through our verified BetterUnite portal.
+          </p>
+        </div>
+        <div class="monroe-native-actions">
+          <a class="monroe-btn" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate with Card &rarr;</a>
+        </div>
+      </section>
+
+      <!-- PayPal Fund Giving -->
+      <section class="monroe-native-stack" style="margin: 0; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h2>PayPal Giving Fund</h2>
+          <p style="color: #475569; margin-bottom: 1.25rem;">
+            Donate securely with your PayPal balance or bank account with 100% of your donation going directly to shelter care.
+          </p>
+        </div>
+        <div class="monroe-native-actions">
+          <a class="monroe-btn monroe-btn--outline" href={SITE.integrations.payPal.generalFund} target="_blank" rel="noopener noreferrer">General Fund (PayPal)</a>
+          <a class="monroe-btn monroe-btn--outline" href={SITE.integrations.payPal.catRoomFund} target="_blank" rel="noopener noreferrer">Cat Room Expansion</a>
+        </div>
+      </section>
+    </div>
+
     <section class="monroe-native-stack" aria-labelledby="monroe-donations-ways-heading">
-      <h2 id="monroe-donations-ways-heading">Ways to give</h2>
-      <p>
-        Donate online through our fundraising partner, use PayPal from the homepage Donations band, or explore memorial and planned giving on our memorials page.
+      <h2 id="monroe-donations-ways-heading">More Ways to Champion Animals</h2>
+      <p style="color: #475569; margin-bottom: 1.5rem;">
+        Explore other meaningful ways you can stand with Monroe County shelter animals:
       </p>
       <div class="monroe-native-actions">
-        <a class="monroe-btn" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate online (BetterUnite)</a>
-        <a class="monroe-btn monroe-btn--outline" href="/#Donations">PayPal on homepage</a>
-        <a class="monroe-btn monroe-btn--outline" href="/memorials/give">Memorials &amp; planned giving</a>
+        <a class="monroe-btn monroe-btn--outline" href="/membership">Become a Member</a>
+        <a class="monroe-btn monroe-btn--outline" href="/memorials/give">Memorials &amp; Planned Giving</a>
+        <a class="monroe-btn monroe-btn--outline" href="/events">Attend a Fundraiser</a>
+        <a class="monroe-btn monroe-btn--outline" href="/shop">Shop Monroe Humane Swag</a>
       </div>
     </section>
   </InnerShell>

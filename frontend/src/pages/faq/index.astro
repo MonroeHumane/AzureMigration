@@ -1,0 +1,150 @@
+---
+/**
+ * Monroe Humane — FAQ Hub
+ * Dedicated, searchable FAQ destination (replacing homepage anchor jumps).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import { SITE } from '../../config/site';
+
+const faqs = [
+  {
+    category: 'Adoption & Visiting',
+    q: 'How does the adoption process work?',
+    a: 'We encourage you to browse our available pets online, fill out an adoption application, and visit during our open adoption hours. Our adoption counseling team will introduce you to the animal, answer any questions, and ensure a wonderful match for your home.',
+    link: '/adoptions',
+    linkText: 'View Adoption Process & Application',
+  },
+  {
+    category: 'Adoption & Visiting',
+    q: 'What are the adoption fees and what do they include?',
+    a: 'Adoption fees cover spaying/neutering, microchip identification, rabies vaccine, age-appropriate core vaccinations, flea/tick preventative, heartworm testing for dogs, and FeLV/FIV testing for cats.',
+    link: '/adoptions',
+    linkText: 'See Adoption Details',
+  },
+  {
+    category: 'Surrender & Stray Animals',
+    q: 'What do I do if I need to surrender my pet?',
+    a: 'If you are facing rehoming or hardship, please call our shelter directly at (734) 243-3669. We evaluate each situation to determine if we have open kennel space and resources, or provide rehoming guidance and pet food pantry support.',
+    link: '/resources',
+    linkText: 'View Community Resources',
+  },
+  {
+    category: 'Surrender & Stray Animals',
+    q: 'Who do I call for animal control or stray emergencies?',
+    a: 'For stray animal pickup, animal bites, or emergency animal control in Monroe County, call Monroe County Animal Control at (734) 240-7700 or the Sheriff dispatch.',
+    link: '/resources',
+    linkText: 'Emergency Numbers',
+  },
+  {
+    category: 'Donations & Giving',
+    q: 'How can I donate to support the shelter?',
+    a: 'You can make a direct, secure online donation via BetterUnite, support our Cat Room expansion on PayPal, become an annual/monthly member, sponsor an event, or donate physical items like Purina pet food, bleach, paper towels, and blankets.',
+    link: '/donate',
+    linkText: 'Donate Now',
+  },
+  {
+    category: 'Donations & Giving',
+    q: 'Can I dedicate a memorial brick or tribute in honor of a loved one?',
+    a: 'Yes! We have an active Memorials and Planned Giving program. You can dedicate gifts in memory of family members or beloved pets, and have their name commemorated on our live Honor Roll.',
+    link: '/memorials',
+    linkText: 'Visit Memorial Honor Roll',
+  },
+  {
+    category: 'Volunteering & Community',
+    q: 'How can I volunteer with Monroe Humane?',
+    a: 'We welcome volunteers for dog walking, cat socialization, kennel enrichment, event assistance, and community outreach. Complete our online volunteer application to get started with an orientation.',
+    link: '/volunteer-form',
+    linkText: 'Volunteer Application',
+  },
+  {
+    category: 'Volunteering & Community',
+    q: 'What is the "Doggie Day Out" program?',
+    a: 'Doggie Day Out allows approved community members and volunteers to take a shelter dog out for the day to enjoy a local park, get a pup cup, decompress from the shelter, and wear a "Adopt Me" vest to meet potential families!',
+    link: '/dog-and-cat-shelter',
+    linkText: 'Learn About Shelter Programs',
+  },
+];
+---
+
+<BaseLayout
+  title={`Frequently Asked Questions | ${SITE.name}`}
+  description="Find answers to common questions about animal adoptions, volunteer programs, pet surrenders, donations, and visiting Monroe Humane."
+>
+  <InnerShell variant="faq">
+    <header class="monroe-native-hero">
+      <p class="monroe-native-eyebrow">Help &amp; Answers</p>
+      <h1>Frequently Asked Questions</h1>
+      <p class="monroe-native-lead">
+        Find quick answers to common questions regarding pet adoptions, donations, shelter programs, and visiting hours.
+      </p>
+    </header>
+
+    <!-- Search Input -->
+    <div style="margin-bottom: 2rem;">
+      <input
+        type="search"
+        id="faqSearch"
+        placeholder="Search questions (e.g. fees, surrender, volunteer, hours)..."
+        style="width: 100%; max-width: 600px; padding: 0.85rem 1.25rem; font-size: 1.05rem; border: 2px solid rgba(15, 118, 110, 0.25); border-radius: 999px; outline: none; transition: border-color 0.2s;"
+      />
+    </div>
+
+    <!-- FAQ Accordion List -->
+    <div id="faqList" style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 3rem;">
+      {faqs.map((faq, idx) => (
+        <details class="faq-item monroe-native-stack" style="margin: 0; padding: 1.25rem 1.75rem; cursor: pointer;" data-faq-q={faq.q.toLowerCase()} data-faq-a={faq.a.toLowerCase()}>
+          <summary style="font-family: 'Abril Fatface', Georgia, serif; font-size: 1.35rem; color: #16302f; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+            <span>{faq.q}</span>
+            <span class="faq-icon" style="color: #0f766e; font-size: 1.5rem; transition: transform 0.2s;">＋</span>
+          </summary>
+          <div style="margin-top: 1rem; color: #334155; line-height: 1.65; font-size: 1.05rem; border-top: 1px dashed rgba(15, 118, 110, 0.2); padding-top: 1rem;">
+            <p>{faq.a}</p>
+            {faq.link && (
+              <p style="margin-top: 0.85rem;">
+                <a href={faq.link} class="monroe-btn monroe-btn--outline" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+                  {faq.linkText} &rarr;
+                </a>
+              </p>
+            )}
+          </div>
+        </details>
+      ))}
+    </div>
+
+    <!-- Contact Banner if Answer Not Found -->
+    <section class="monroe-native-stack" style="text-align: center; padding: 2.5rem 1.5rem;">
+      <h2>Still have questions?</h2>
+      <p style="max-width: 38rem; margin: 0 auto 1.5rem; color: #475569;">
+        Our adoption center team is happy to assist you by phone, email, or in person during shelter hours.
+      </p>
+      <div class="monroe-native-actions" style="justify-content: center;">
+        <a class="monroe-btn" href="/contact">Contact Our Team</a>
+        <a class="monroe-btn monroe-btn--outline" href={SITE.contact.phoneTel}>Call (734) 243-3669</a>
+      </div>
+    </section>
+  </InnerShell>
+</BaseLayout>
+
+<style>
+  details[open] summary .faq-icon {
+    transform: rotate(45deg);
+  }
+  #faqSearch:focus {
+    border-color: #0f766e !important;
+  }
+</style>
+
+<script>
+  const search = document.getElementById('faqSearch') as HTMLInputElement | null;
+  const items = Array.from(document.querySelectorAll<HTMLElement>('.faq-item'));
+
+  search?.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    items.forEach((item) => {
+      const match = !q || item.dataset.faqQ?.includes(q) || item.dataset.faqA?.includes(q);
+      item.style.display = match ? '' : 'none';
+      if (q && match) (item as HTMLDetailsElement).open = true;
+    });
+  });
+</script>

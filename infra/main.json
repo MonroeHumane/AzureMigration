@@ -1,0 +1,377 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "2794259817525633181"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Primary location for all Azure resources"
+      }
+    },
+    "environmentName": {
+      "type": "string",
+      "defaultValue": "prod",
+      "metadata": {
+        "description": "Environment prefix (e.g. prod, staging)"
+      }
+    },
+    "mysqlAdminUser": {
+      "type": "string",
+      "defaultValue": "monroeadmin",
+      "metadata": {
+        "description": "Administrator login name for MySQL Flexible Server"
+      }
+    },
+    "mysqlAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Administrator password for MySQL Flexible Server"
+      }
+    },
+    "directusAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Directus Admin Password"
+      }
+    }
+  },
+  "variables": {
+    "suffix": "[uniqueString(resourceGroup().id)]",
+    "storageAccountName": "[format('mchsstorage{0}', variables('suffix'))]",
+    "containerAppEnvName": "[format('mchs-aca-env-{0}', parameters('environmentName'))]",
+    "mysqlServerName": "[format('mchs-mysql-{0}', variables('suffix'))]",
+    "swaName": "[format('mchs-frontend-{0}', parameters('environmentName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "accessTier": "Hot",
+        "supportsHttpsTrafficOnly": true,
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}', variables('storageAccountName'), 'default')]",
+      "properties": {
+        "cors": {
+          "corsRules": [
+            {
+              "allowedOrigins": [
+                "https://monroe-humane.org",
+                "https://*.azurestaticapps.net",
+                "http://localhost:*"
+              ],
+              "allowedMethods": [
+                "GET",
+                "HEAD",
+                "OPTIONS"
+              ],
+              "allowedHeaders": [
+                "*"
+              ],
+              "exposedHeaders": [
+                "*"
+              ],
+              "maxAgeInSeconds": 3600
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', 'directus-uploads')]",
+      "properties": {
+        "publicAccess": "Blob"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2023-12-30",
+      "name": "[variables('mysqlServerName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_B1ms",
+        "tier": "Burstable"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('mysqlAdminUser')]",
+        "administratorLoginPassword": "[parameters('mysqlAdminPassword')]",
+        "version": "8.0.21",
+        "storage": {
+          "storageSizeGB": 20,
+          "iops": 360,
+          "autoGrow": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers/firewallRules",
+      "apiVersion": "2023-12-30",
+      "name": "[format('{0}/{1}', variables('mysqlServerName'), 'AllowAzureServices')]",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+      "apiVersion": "2023-12-30",
+      "name": "[format('{0}/{1}', variables('mysqlServerName'), 'directus_db')]",
+      "properties": {
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_unicode_ci"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+      "apiVersion": "2023-12-30",
+      "name": "[format('{0}/{1}', variables('mysqlServerName'), 'arcade_db')]",
+      "properties": {
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_unicode_ci"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2024-03-01",
+      "name": "[variables('containerAppEnvName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "zoneRedundant": false
+      }
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2024-03-01",
+      "name": "mchs-directus",
+      "location": "[parameters('location')]",
+      "properties": {
+        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvName'))]",
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "targetPort": 8055,
+            "transport": "auto"
+          }
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "directus",
+              "image": "directus/directus:11.5.0",
+              "resources": {
+                "cpu": "[json('0.5')]",
+                "memory": "1.0Gi"
+              },
+              "env": [
+                {
+                  "name": "DB_CLIENT",
+                  "value": "mysql"
+                },
+                {
+                  "name": "DB_HOST",
+                  "value": "[reference(resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName')), '2023-12-30').fullyQualifiedDomainName]"
+                },
+                {
+                  "name": "DB_PORT",
+                  "value": "3306"
+                },
+                {
+                  "name": "DB_DATABASE",
+                  "value": "directus_db"
+                },
+                {
+                  "name": "DB_USER",
+                  "value": "[parameters('mysqlAdminUser')]"
+                },
+                {
+                  "name": "DB_PASSWORD",
+                  "value": "[parameters('mysqlAdminPassword')]"
+                },
+                {
+                  "name": "ADMIN_EMAIL",
+                  "value": "admin@monroe-humane.org"
+                },
+                {
+                  "name": "ADMIN_PASSWORD",
+                  "value": "[parameters('directusAdminPassword')]"
+                },
+                {
+                  "name": "CORS_ENABLED",
+                  "value": "true"
+                },
+                {
+                  "name": "CORS_ORIGIN",
+                  "value": "true"
+                },
+                {
+                  "name": "KEY",
+                  "value": "7b92f954-4a25-4c07-b088-3904e5482329"
+                },
+                {
+                  "name": "SECRET",
+                  "value": "Mchs-Directus-Secret-Salt-2026-Xk9$"
+                },
+                {
+                  "name": "PUBLIC_URL",
+                  "value": "https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io"
+                },
+                {
+                  "name": "WEBSOCKETS_ENABLED",
+                  "value": "true"
+                },
+                {
+                  "name": "STORAGE_LOCATIONS",
+                  "value": "azure"
+                },
+                {
+                  "name": "STORAGE_AZURE_DRIVER",
+                  "value": "azure"
+                },
+                {
+                  "name": "STORAGE_AZURE_ACCOUNT_NAME",
+                  "value": "[variables('storageAccountName')]"
+                },
+                {
+                  "name": "STORAGE_AZURE_ACCOUNT_KEY",
+                  "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-01-01').keys[0].value]"
+                },
+                {
+                  "name": "STORAGE_AZURE_CONTAINER_NAME",
+                  "value": "directus-uploads"
+                },
+                {
+                  "name": "STORAGE_AZURE_PUBLIC_URL",
+                  "value": "[format('{0}directus-uploads', reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-01-01').primaryEndpoints.blob)]"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvName'))]",
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2024-03-01",
+      "name": "mchs-arcade-api",
+      "location": "[parameters('location')]",
+      "properties": {
+        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvName'))]",
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "targetPort": 80,
+            "transport": "auto"
+          }
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "arcade-api",
+              "image": "nginx:latest",
+              "resources": {
+                "cpu": "[json('0.25')]",
+                "memory": "0.5Gi"
+              },
+              "env": [
+                {
+                  "name": "DB_HOST",
+                  "value": "[reference(resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName')), '2023-12-30').fullyQualifiedDomainName]"
+                },
+                {
+                  "name": "DB_NAME",
+                  "value": "arcade_db"
+                },
+                {
+                  "name": "DB_USER",
+                  "value": "[parameters('mysqlAdminUser')]"
+                },
+                {
+                  "name": "DB_PASS",
+                  "value": "[parameters('mysqlAdminPassword')]"
+                },
+                {
+                  "name": "CORS_ALLOWED_ORIGINS",
+                  "value": "[format('https://monroe-humane.org,https://{0}.azurestaticapps.net', variables('swaName'))]"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvName'))]",
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2023-01-01",
+      "name": "[variables('swaName')]",
+      "location": "eastus2",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "properties": {
+        "allowConfigFileUpdates": true,
+        "stagingEnvironmentPolicy": "Enabled"
+      }
+    }
+  ],
+  "outputs": {
+    "directusUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', 'mchs-directus'), '2024-03-01').configuration.ingress.fqdn)]"
+    },
+    "arcadeApiUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', 'mchs-arcade-api'), '2024-03-01').configuration.ingress.fqdn)]"
+    },
+    "staticWebAppsUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/staticSites', variables('swaName')), '2023-01-01').defaultHostname)]"
+    }
+  }
+}
