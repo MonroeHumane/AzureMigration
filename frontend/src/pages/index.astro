@@ -84,10 +84,8 @@ const indexLabels: Record<string, string> = {
         loop
         playsinline
         autoplay
-        preload="none"
         poster={home.hero.video_poster}
-        data-src={home.hero.video_src}
-        data-monroe-lazy-video></video>
+        src={home.hero.video_src}></video>
       <div class="wp-block-cover__inner-container is-layout-flow">
         <div class="wp-block-group home-editable-hero-panel is-layout-constrained">
           <p class="home-editable-hero-display wp-block-paragraph">{home.hero.display}</p>
@@ -756,17 +754,6 @@ const indexLabels: Record<string, string> = {
 
 <script>
   function initHomePage() {
-    // Lazy hero video: swap data-src in once the page is idle.
-    document.querySelectorAll<HTMLVideoElement>('[data-monroe-lazy-video]').forEach((video) => {
-      const load = () => {
-        if (video.src) return;
-        video.src = video.dataset.src || '';
-        video.play().catch(() => {});
-      };
-      if ('requestIdleCallback' in window) requestIdleCallback(load);
-      else setTimeout(load, 800);
-    });
-
     // Featured pets: Expand view opens a <dialog> with the same cards.
     const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
     const fpwExpand = document.getElementById('fpwExpandBtn');
