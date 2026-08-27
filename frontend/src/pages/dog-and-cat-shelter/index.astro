@@ -33,76 +33,137 @@ const dayCards = [
   description="Trusted dog and cat shelter in Monroe County, Michigan. We care for dogs and cats until they find forever homes."
 >
   <InnerShell variant="dog-and-cat-shelter">
-    <header class="monroe-native-hero">
-      <p class="monroe-native-eyebrow">About our shelter</p>
-      <h1>Dog &amp; cat shelter</h1>
-      <p class="monroe-native-lead">
-        Trusted dog and cat shelter in Monroe County, Michigan. We care for dogs and cats until they find forever homes, playful kittens, loyal dogs, and everyone in between get the attention they need to thrive.
-      </p>
-      <div class="monroe-native-actions">
-        <a class="monroe-btn" href="/adopt">View adoptable pets</a>
-        <a class="monroe-btn monroe-btn--outline" href="tel:734-243-3669">Call us <span class="monroe-native-nowrap">734-243-3669</span></a>
-        <a class="monroe-btn monroe-btn--outline" href="/#Contact">Contact</a>
+    <!-- Hero Header -->
+    <header class="monroe-shelter-hero">
+      <div class="monroe-shelter-hero__copy">
+        <p class="monroe-native-eyebrow">About our shelter</p>
+        <h1>Dog &amp; cat shelter</h1>
+        <p class="monroe-native-lead">
+          Trusted dog and cat shelter in Monroe County, Michigan. We care for dogs and cats until they find forever homes — playful kittens, loyal dogs, and everyone in between get the individualized attention they need to thrive.
+        </p>
+        <div class="monroe-shelter-hero__actions">
+          <a class="monroe-shelter-button monroe-shelter-button--primary" href="/adopt">View adoptable pets</a>
+          <a class="monroe-shelter-button" href="tel:734-243-3669">Call 734-243-3669</a>
+          <a class="monroe-shelter-button" href="/#Contact">Contact</a>
+        </div>
+        <ul class="monroe-shelter-hero__facts">
+          <li>
+            <strong>Fear Free</strong>
+            <span>Certified shelter team</span>
+          </li>
+          <li>
+            <strong>Since 1954</strong>
+            <span>Monroe County, MI</span>
+          </li>
+          <li>
+            <strong>501(c)(3)</strong>
+            <span>Community nonprofit</span>
+          </li>
+        </ul>
+      </div>
+      <div class="monroe-shelter-hero__visual">
+        <figure class="monroe-shelter-hero__main-photo">
+          <img
+            src={`${IMG}/452546926_883292250498381_6921668243561390358_n-1920w.jpg`}
+            alt="Dog enjoying time with Monroe Humane volunteers"
+            loading="eager"
+            decoding="async"
+            width="600"
+            height="500"
+          />
+        </figure>
+        <figure class="monroe-shelter-hero__inset-photo">
+          <img
+            src={`${IMG}/444445234_867747615386178_1349564242973393587_n-af65a848-1920w.jpg`}
+            alt="Cat resting comfortably in shelter room"
+            loading="lazy"
+            decoding="async"
+            width="250"
+            height="250"
+          />
+        </figure>
+        <div class="monroe-shelter-hero__note">
+          <span>🐾</span> Warm, loving care every day
+        </div>
       </div>
     </header>
 
-    <nav class="monroe-inner-page-pills" aria-label="On this page">
-      <a class="monroe-inner-page-pills__link" href="#monroe-dog-cat-care-heading">How we care</a>
-      <a class="monroe-inner-page-pills__link" href="#monroe-dog-cat-mission-heading">Our story</a>
-      <a class="monroe-inner-page-pills__link" href="#monroe-dog-cat-day-heading">Day in the life</a>
-      <a class="monroe-inner-page-pills__link" href="#monroe-dog-cat-involved-heading">Get involved</a>
+    <!-- Navigation Pills -->
+    <nav class="monroe-shelter-pills monroe-inner-page-pills" aria-label="On this page">
+      <a class="monroe-inner-page-pills__link" href="#HowWeCare">How we care</a>
+      <a class="monroe-inner-page-pills__link" href="#OurStory">Our story</a>
+      <a class="monroe-inner-page-pills__link" href="#DayInLife">Day in the life</a>
+      <a class="monroe-inner-page-pills__link" href="#GetInvolved">Get involved</a>
     </nav>
 
-    <section class="monroe-native-stack monroe-native-anchor-section" aria-labelledby="monroe-dog-cat-care-heading">
-      <h2 id="monroe-dog-cat-care-heading">How we care for animals</h2>
-      <h3>Fear Free and The Please Program</h3>
-      <p>
-        We are a Fear Free shelter: our team is certified in the Fear Free program. We also incorporate The Please Program. Animals are asked to quiet and settle before coming out of their kennel and receiving a treat.
-      </p>
-      <h3>Playgroups, walks, and leash skills</h3>
-      <p>
-        We have found that dogs benefit more from playtime in groups than from traditional walks alone. We match dogs in groups of two to five so they can play together with supervision. Some dogs may go for walks after playtime, while others may not want to, we listen to each animal’s needs.
-      </p>
-      <p>
-        During walks, we encourage volunteers and staff to help dogs learn good leash manners and keep four feet on the ground at all times, preparing them for homes with elderly family members or children.
-      </p>
-      <h3>Doggy Day Out and home-like experiences</h3>
-      <p>
-        Through our Doggy Day Out program, volunteers take dogs out for the day, parks, local lakes, or visits to someone’s home. Some dogs enjoy car rides with the window down or drive-thrus that offer pup cups. Staff often take animals home overnight to give them a sense of home and help with adjustment.
-      </p>
-      <p>
-        We provide cuddle time for all animals and rotate them through office and community areas to relieve stress and prepare them for their forever homes.
-      </p>
-      <h3>Comfort in the building</h3>
-      <p>Our shelter has air conditioning in all the kennels and the cat room for the comfort of our animals.</p>
+    <!-- How We Care -->
+    <section class="monroe-shelter-care" id="HowWeCare" aria-labelledby="monroe-dog-cat-care-heading">
+      <div class="monroe-shelter-section-heading">
+        <h2 id="monroe-dog-cat-care-heading">How we care for animals</h2>
+        <p>Every pet receives low-stress handling, daily exercise, group play, and temperature-controlled comfort.</p>
+      </div>
+
+      <div class="monroe-shelter-care__grid">
+        <div class="monroe-shelter-care__card">
+          <div class="monroe-shelter-care__icon" aria-hidden="true">🌿</div>
+          <h3>Fear Free &amp; The Please Program</h3>
+          <p>
+            Our entire team is trained and certified in the Fear Free program. We also incorporate The Please Program so animals learn to settle calmly before leaving their kennel.
+          </p>
+        </div>
+
+        <div class="monroe-shelter-care__card">
+          <div class="monroe-shelter-care__icon" aria-hidden="true">🐕</div>
+          <h3>Playgroups, walks &amp; leash manners</h3>
+          <p>
+            Dogs benefit immensely from group playtime. We match dogs in supervised groups of two to five, and help them master leash manners with all four paws on the ground.
+          </p>
+        </div>
+
+        <div class="monroe-shelter-care__card">
+          <div class="monroe-shelter-care__icon" aria-hidden="true">🚗</div>
+          <h3>Doggy Day Out &amp; foster sleepovers</h3>
+          <p>
+            Volunteers take shelter dogs out for park strolls, lake visits, and pup cups. Staff often take pets home overnight to relieve kennel stress and assess household fit.
+          </p>
+        </div>
+
+        <div class="monroe-shelter-care__card">
+          <div class="monroe-shelter-care__icon" aria-hidden="true">❄️</div>
+          <h3>Climate-controlled comfort</h3>
+          <p>
+            Our facility features dedicated air conditioning and heating throughout all dog kennels, cat rooms, and cuddle offices so every animal stays safe and relaxed.
+          </p>
+        </div>
+      </div>
     </section>
 
-    <section class="monroe-native-stack" aria-labelledby="monroe-dog-cat-mission-heading">
-      <h2 id="monroe-dog-cat-mission-heading">A safe haven since 1954</h2>
-      <p>
-        For more than seventy years the Humane Society of Monroe County has rehabilitated and rehomed dogs, puppies, cats, and kittens while promoting responsible pet ownership. Our mission is to provide a safe haven with the love and daily care every homeless pet deserves until they find a forever home.
-      </p>
+    <!-- Story / Mission -->
+    <section class="monroe-shelter-story" id="OurStory" aria-labelledby="monroe-dog-cat-mission-heading">
+      <div style="padding: clamp(2rem, 5vw, 4rem); color: #fff;">
+        <p class="monroe-native-eyebrow" style="color: #f2bd61;">Our Legacy</p>
+        <h2 id="monroe-dog-cat-mission-heading" style="color: #fff; margin-bottom: 1rem;">A safe haven since 1954</h2>
+        <p style="color: rgba(255, 255, 255, 0.9); font-size: 1.15rem; line-height: 1.7; max-width: 600px;">
+          For more than seventy years the Humane Society of Monroe County has rehabilitated and rehomed dogs, puppies, cats, and kittens while promoting responsible pet ownership. Our mission is to provide a safe haven with the love and daily care every homeless pet deserves until they find a forever home.
+        </p>
+      </div>
+      <div style="min-height: 320px; position: relative;">
+        <img
+          src={`${IMG}/450429686_875396881287918_7603871138057923160_n-1920w.jpg`}
+          alt="Happy dog resting on grass"
+          loading="lazy"
+          decoding="async"
+          style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"
+        />
+      </div>
     </section>
 
-    <section class="monroe-trust-row" aria-label="Trust and credentials">
-      <ul class="monroe-trust-row__list">
-        <li class="monroe-trust-row__item">
-          <span class="monroe-trust-row__label">Fear Free certified</span>
-          <span class="monroe-trust-row__detail">Team trained in low-stress animal handling</span>
-        </li>
-        <li class="monroe-trust-row__item">
-          <span class="monroe-trust-row__label">Since 1954</span>
-          <span class="monroe-trust-row__detail">Serving Monroe County families and pets</span>
-        </li>
-        <li class="monroe-trust-row__item">
-          <span class="monroe-trust-row__label">Community nonprofit</span>
-          <span class="monroe-trust-row__detail">Supported by donors, volunteers, and partners</span>
-        </li>
-      </ul>
-    </section>
-
-    <section class="monroe-day-in-life" aria-labelledby="monroe-dog-cat-day-heading">
-      <h2 id="monroe-dog-cat-day-heading">A day in the life at our shelter</h2>
+    <!-- Day in the Life -->
+    <section class="monroe-day-in-life" id="DayInLife" aria-labelledby="monroe-dog-cat-day-heading">
+      <div class="monroe-shelter-section-heading">
+        <h2 id="monroe-dog-cat-day-heading">A day in the life at our shelter</h2>
+        <p>A peek inside our daily routines, enrichment programs, and volunteer outings.</p>
+      </div>
       <div class="monroe-day-in-life__grid">
         {dayCards.map((card) => (
           <article class="monroe-day-in-life__card">
@@ -116,24 +177,21 @@ const dayCards = [
       </div>
     </section>
 
-    <section class="monroe-native-stack monroe-native-anchor-section" aria-labelledby="monroe-dog-cat-involved-heading">
-      <h2 id="monroe-dog-cat-involved-heading">Get involved</h2>
-      <p>
-        Adoption, volunteering, and giving happen across our site, not duplicated here. Volunteers power playgroups, Doggy Day Out outings, and daily enrichment described above. When you are ready to adopt, apply, donate, or ask a question, use the links below.
-      </p>
-      <div class="monroe-native-actions">
-        <a class="monroe-btn" href="/adopt">Search adoptable pets</a>
-        <a class="monroe-btn monroe-btn--outline" href="/adoptions">Adoption policy &amp; application</a>
-        <a class="monroe-btn monroe-btn--outline" href="/volunteer-form">Volunteer application</a>
-        <a class="monroe-btn monroe-btn--outline" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
-        <a class="monroe-btn monroe-btn--outline" href="/resources">Shelter services</a>
+    <!-- Get Involved -->
+    <section class="monroe-shelter-involved" id="GetInvolved" aria-labelledby="monroe-dog-cat-involved-heading">
+      <div class="monroe-shelter-care__card" style="background: linear-gradient(135deg, #fff9ee 0%, #fff 100%);">
+        <h2 id="monroe-dog-cat-involved-heading" style="margin-top: 0; font-family: 'Abril Fatface', Georgia, serif; font-size: clamp(2rem, 4vw, 3rem); color: #0b4d42;">Get involved</h2>
+        <p style="font-size: 1.1rem; line-height: 1.7; max-width: 750px; color: #4b5563; margin-bottom: 2rem;">
+          Adoption, volunteering, and giving power everything we do. Volunteers lead playgroups, Doggy Day Out outings, and daily enrichment. When you are ready to adopt, apply, donate, or ask a question, connect with our team!
+        </p>
+        <div class="monroe-shelter-hero__actions">
+          <a class="monroe-shelter-button monroe-shelter-button--primary" href="/adopt">Search adoptable pets</a>
+          <a class="monroe-shelter-button" href="/adoptions">Adoption policy &amp; application</a>
+          <a class="monroe-shelter-button" href="/volunteer-form">Volunteer application</a>
+          <a class="monroe-shelter-button" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+          <a class="monroe-shelter-button" href="/resources">Shelter services</a>
+        </div>
       </div>
-      <ul class="monroe-native-list monroe-native-foot">
-        <li><a href="/#Contact">Contact form &amp; hours</a></li>
-        <li><a href="/#FAQ">Frequently asked questions</a></li>
-        <li><a href="/#FeaturedPets">Featured pets on the homepage</a></li>
-        <li><a href="/#Donations">Ways to give on the homepage</a></li>
-      </ul>
     </section>
   </InnerShell>
 </BaseLayout>

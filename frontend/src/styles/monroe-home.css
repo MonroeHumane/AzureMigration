@@ -8,6 +8,7 @@
  if the theme changes.
 */
 
+.home-editable-shell,
 .home-editable-shell > .wp-block-group__inner-container {
   display: flex;
   flex-direction: column;
@@ -167,15 +168,13 @@
   filter: brightness(1.05);
 }
 
-.home-editable-section {
-  padding: 0 var(--monroe-home-section-gutter);
-  box-sizing: border-box;
-}
-
+.home-editable-section,
+.home-editable-band,
 .home-editable-section > .wp-block-group__inner-container,
 .home-editable-band > .wp-block-group__inner-container {
   max-width: var(--monroe-home-content-max);
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
@@ -1250,6 +1249,10 @@ body.home .sponsor-widget-shell .sponsor-card {
   padding: var(--monroe-home-band-pad-y) var(--monroe-home-section-gutter)
     clamp(3rem, 7vw, 5rem);
   box-sizing: border-box;
+  max-width: var(--monroe-home-content-max);
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 .home-editable-sponsors > .wp-block-group__inner-container {
