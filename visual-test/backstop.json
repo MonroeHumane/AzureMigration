@@ -1,0 +1,58 @@
+{
+  "id": "monroe_humane",
+  "viewports": [
+    {
+      "label": "desktop_16_9",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "onBeforeScript": "puppet/onBefore.js",
+  "onReadyScript": "puppet/onReady.js",
+  "scenarios": [
+    {
+      "label": "Homepage",
+      "cookiePath": "backstop_data/engine_scripts/cookies.json",
+      "url": "https://delightful-dune-0d730f70f.7.azurestaticapps.net",
+      "referenceUrl": "https://monroe-humane.org",
+      "readyEvent": "",
+      "readySelector": "",
+      "delay": 2000,
+      "hideSelectors": [],
+      "removeSelectors": [".monroe-fb-embed", "[data-elfsight-app-lazy]"],
+      "hoverSelector": "",
+      "clickSelector": "",
+      "postInteractionWait": 1000,
+      "selectors": ["document"],
+      "selectorExpansion": true,
+      "expect": 0,
+      "misMatchThreshold": 0.1,
+      "requireSameDimensions": false
+    },
+    {
+      "label": "Contact Page",
+      "url": "https://delightful-dune-0d730f70f.7.azurestaticapps.net/contact",
+      "referenceUrl": "https://monroe-humane.org/contact",
+      "delay": 2000,
+      "selectors": ["document"],
+      "misMatchThreshold": 0.1,
+      "requireSameDimensions": false
+    }
+  ],
+  "paths": {
+    "bitmaps_reference": "backstop_data/bitmaps_reference",
+    "bitmaps_test": "backstop_data/bitmaps_test",
+    "engine_scripts": "backstop_data/engine_scripts",
+    "html_report": "backstop_data/html_report",
+    "ci_report": "backstop_data/ci_report"
+  },
+  "report": ["browser"],
+  "engine": "puppeteer",
+  "engineOptions": {
+    "args": ["--no-sandbox"]
+  },
+  "asyncCaptureLimit": 5,
+  "asyncCompareLimit": 50,
+  "debug": false,
+  "debugWindow": false
+}
