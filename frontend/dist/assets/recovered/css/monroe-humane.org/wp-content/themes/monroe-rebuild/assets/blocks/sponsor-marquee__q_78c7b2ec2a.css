@@ -1,102 +1,102 @@
-.monroe-sponsor-marquee {
-  width: 100%;
-  overflow: hidden;
-  padding: 0;
-  background: transparent;
-  --monroe-marquee-gap: 36px;
-  --monroe-marquee-speed: 30s;
-}
-
-.monroe-sponsor-marquee__slider {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.monroe-sponsor-marquee__slider::before,
-.monroe-sponsor-marquee__slider::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 90px;
-  height: 100%;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.monroe-sponsor-marquee__slider::before {
-  left: 0;
-  background: linear-gradient(to right, #fff, transparent);
-}
-
-.monroe-sponsor-marquee__slider::after {
-  right: 0;
-  background: linear-gradient(to left, #fff, transparent);
-}
-
-.monroe-sponsor-marquee__track {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  width: max-content;
-  will-change: transform;
-  animation: monroe-sponsor-marquee var(--monroe-marquee-speed) linear infinite;
-}
-
-.monroe-sponsor-marquee.is-pausable:hover .monroe-sponsor-marquee__track,
-.monroe-sponsor-marquee.is-pausable:focus-within .monroe-sponsor-marquee__track {
-  animation-play-state: paused;
-}
-
-.monroe-sponsor-marquee__set {
-  display: flex;
-  align-items: center;
-  gap: var(--monroe-marquee-gap);
-  padding-right: var(--monroe-marquee-gap);
-}
-
-.monroe-sponsor-marquee__track img,
-#sponsorMarqueeWidget .logo-set img {
-  display: block;
-  height: auto;
-  max-height: 120px;
-  width: auto;
-  max-width: 250px;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
-}
-
-@keyframes monroe-sponsor-marquee {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
-}
-
-@media (max-width: 768px) {
-  .monroe-sponsor-marquee__track img {
-    max-height: 70px;
-    max-width: 160px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .monroe-sponsor-marquee__track {
-    animation: none !important;
-    transform: translate3d(0, 0, 0) !important;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-  }
-  .monroe-sponsor-marquee__set {
-    padding-right: 0;
-  }
-  .monroe-sponsor-marquee__slider::before,
-  .monroe-sponsor-marquee__slider::after {
-    display: none;
-  }
-}
-
+.monroe-sponsor-marquee {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  --monroe-marquee-gap: 36px;
+  --monroe-marquee-speed: 30s;
+}
+
+.monroe-sponsor-marquee__slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.monroe-sponsor-marquee__slider::before,
+.monroe-sponsor-marquee__slider::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 90px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.monroe-sponsor-marquee__slider::before {
+  left: 0;
+  background: linear-gradient(to right, #fff, transparent);
+}
+
+.monroe-sponsor-marquee__slider::after {
+  right: 0;
+  background: linear-gradient(to left, #fff, transparent);
+}
+
+.monroe-sponsor-marquee__track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: monroe-sponsor-marquee var(--monroe-marquee-speed) linear infinite;
+}
+
+.monroe-sponsor-marquee.is-pausable:hover .monroe-sponsor-marquee__track,
+.monroe-sponsor-marquee.is-pausable:focus-within .monroe-sponsor-marquee__track {
+  animation-play-state: paused;
+}
+
+.monroe-sponsor-marquee__set {
+  display: flex;
+  align-items: center;
+  gap: var(--monroe-marquee-gap);
+  padding-right: var(--monroe-marquee-gap);
+}
+
+.monroe-sponsor-marquee__track img,
+#sponsorMarqueeWidget .logo-set img {
+  display: block;
+  height: auto;
+  max-height: 120px;
+  width: auto;
+  max-width: 250px;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+@keyframes monroe-sponsor-marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (max-width: 768px) {
+  .monroe-sponsor-marquee__track img {
+    max-height: 70px;
+    max-width: 160px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monroe-sponsor-marquee__track {
+    animation: none !important;
+    transform: translate3d(0, 0, 0) !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+  .monroe-sponsor-marquee__set {
+    padding-right: 0;
+  }
+  .monroe-sponsor-marquee__slider::before,
+  .monroe-sponsor-marquee__slider::after {
+    display: none;
+  }
+}
+
