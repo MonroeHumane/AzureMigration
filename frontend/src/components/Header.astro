@@ -175,9 +175,10 @@ const isCurrent = (item: NavItem) => {
 </header>
 
 <script>
-  const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
+  function initHeader() {
+    const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
+    if (!header) return;
 
-  if (header) {
     const root = document.documentElement;
     const toggle = header.querySelector<HTMLButtonElement>('.monroe-global-nav__menu-toggle');
     const backdrop = header.querySelector<HTMLButtonElement>('.monroe-global-nav__backdrop');
@@ -300,5 +301,7 @@ const isCurrent = (item: NavItem) => {
     window.addEventListener('resize', measure, { passive: true });
     window.addEventListener('scroll', setCondensed, { passive: true });
   }
+
+  document.addEventListener('astro:page-load', initHeader);
 </script>
 

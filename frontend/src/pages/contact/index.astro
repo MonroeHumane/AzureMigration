@@ -106,21 +106,24 @@ const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1
 </BaseLayout>
 
 <script>
-  const contactForm = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
-  if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const data = new FormData(contactForm);
-      if (data.get('monroe_contact_website')) return; // honeypot
-      const name = String(data.get('monroe_contact_name') || '');
-      const email = String(data.get('monroe_contact_email') || '');
-      const phone = String(data.get('monroe_contact_phone') || '');
-      const message = String(data.get('monroe_contact_message') || '');
-      const subject = encodeURIComponent(`Website contact from ${name}`);
-      const body = encodeURIComponent(`${message}\n\n— ${name}${phone ? ` (${phone})` : ''}\n${email}`);
-      const feedback = contactForm.querySelector<HTMLElement>('.monroe-contact-form__feedback');
-      if (feedback) feedback.textContent = 'Opening your email client to send your message. Thank you!';
-      window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
-    });
+  function initContactForm() {
+    const contactForm = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
+    if (contactForm) {
+      contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = new FormData(contactForm);
+        if (data.get('monroe_contact_website')) return; // honeypot
+        const name = String(data.get('monroe_contact_name') || '');
+        const email = String(data.get('monroe_contact_email') || '');
+        const phone = String(data.get('monroe_contact_phone') || '');
+        const message = String(data.get('monroe_contact_message') || '');
+        const subject = encodeURIComponent(`Website contact from ${name}`);
+        const body = encodeURIComponent(`${message}\n\n— ${name}${phone ? ` (${phone})` : ''}\n${email}`);
+        const feedback = contactForm.querySelector<HTMLElement>('.monroe-contact-form__feedback');
+        if (feedback) feedback.textContent = 'Opening your email client to send your message. Thank you!';
+        window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
+      });
+    }
   }
+  document.addEventListener('astro:page-load', initContactForm);
 </script>

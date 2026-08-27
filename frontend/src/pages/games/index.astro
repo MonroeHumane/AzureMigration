@@ -207,66 +207,71 @@ import '../../styles/monroe-games.css';
 </style>
 
 <script>
-  // Humane Games launcher: nickname gate + full-screen game overlay.
-  // Replaces the WP launcher JS with a minimal registry-driven island.
-  const GAME_URLS: Record<string, string> = {
-    roguelike: '/games/petsnakerouguelike.html?embed=1',
-    match: '/games/match/match.html?embed=1',
-    dex: '/games/dex/dex.html?embed=1',
-    tycoon: '/games/shelter-tycoon/index.html?embed=1',
-  };
+  function initGames() {
+    // Humane Games launcher: nickname gate + full-screen game overlay.
+    const GAME_URLS: Record<string, string> = {
+      roguelike: '/games/petsnakerouguelike.html?embed=1',
+      match: '/games/match/match.html?embed=1',
+      dex: '/games/dex/dex.html?embed=1',
+      tycoon: '/games/shelter-tycoon/index.html?embed=1',
+    };
 
-  const root = document.querySelector<HTMLElement>('[data-monroe-humane-games-root]');
-  const overlay = document.querySelector<HTMLElement>('[data-humane-games-overlay]');
-  const frame = overlay?.querySelector<HTMLIFrameElement>('[data-humane-games-frame]');
-  const titleEl = overlay?.querySelector<HTMLElement>('[data-humane-games-title]');
-  const input = document.getElementById('monroeDexUsername') as HTMLInputElement | null;
+    const root = document.querySelector<HTMLElement>('[data-monroe-humane-games-root]');
+    if (!root) return;
 
-  const savedName = () => localStorage.getItem('monroeDexUser') ?? '';
-  if (input && savedName()) input.value = savedName();
+    const overlay = document.querySelector<HTMLElement>('[data-humane-games-overlay]');
+    const frame = overlay?.querySelector<HTMLIFrameElement>('[data-humane-games-frame]');
+    const titleEl = overlay?.querySelector<HTMLElement>('[data-humane-games-title]');
+    const input = document.getElementById('monroeDexUsername') as HTMLInputElement | null;
 
-  const saveNick = () => {
-    const name = (input?.value ?? '').trim().slice(0, 24);
-    if (name) localStorage.setItem('monroeDexUser', name);
-  };
+    const savedName = () => localStorage.getItem('monroeDexUser') ?? '';
+    if (input && savedName()) input.value = savedName();
 
-  document.querySelectorAll<HTMLButtonElement>('[data-monroe-humane-games-nickname-save], .monroe-humane-games__dex-actions button').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      saveNick();
-      btn.closest('.monroe-humane-games__dex-gate')?.setAttribute('data-nickname-set', savedName() ? '1' : '0');
+    const saveNick = () => {
+      const name = (input?.value ?? '').trim().slice(0, 24);
+      if (name) localStorage.setItem('monroeDexUser', name);
+    };
+
+    document.querySelectorAll<HTMLButtonElement>('[data-monroe-humane-games-nickname-save], .monroe-humane-games__dex-actions button').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        saveNick();
+        btn.closest('.monroe-humane-games__dex-gate')?.setAttribute('data-nickname-set', savedName() ? '1' : '0');
+      });
     });
-  });
 
-  root?.querySelectorAll<HTMLButtonElement>('[data-monroe-humane-game]').forEach((card) => {
-    card.addEventListener('click', () => {
-      const id = card.dataset.monroeHumaneGame ?? '';
-      const url = GAME_URLS[id];
-      if (!url) {
-        alert('This game is being updated and will return soon. Try Pet Snake Adventure, Pet Match, Adoptédex, or Shelter Tycoon!');
-        return;
-      }
-      if (card.dataset.needsDex === '1' && !savedName()) {
-        input?.focus();
-        input?.closest('.monroe-humane-games__dex-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-      saveNick();
-      if (frame) frame.src = url;
-      const name = card.querySelector('.monroe-humane-games__card-title')?.textContent ?? 'Humane Games';
-      if (titleEl) titleEl.textContent = name;
-      overlay?.removeAttribute('hidden');
-      document.body.style.overflow = 'hidden';
+    root.querySelectorAll<HTMLButtonElement>('[data-monroe-humane-game]').forEach((card) => {
+      card.addEventListener('click', () => {
+        const id = card.dataset.monroeHumaneGame ?? '';
+        const url = GAME_URLS[id];
+        if (!url) {
+          alert('This game is being updated and will return soon. Try Pet Snake Adventure, Pet Match, Adoptédex, or Shelter Tycoon!');
+          return;
+        }
+        if (card.dataset.needsDex === '1' && !savedName()) {
+          input?.focus();
+          input?.closest('.monroe-humane-games__dex-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+        saveNick();
+        if (frame) frame.src = url;
+        const name = card.querySelector('.monroe-humane-games__card-title')?.textContent ?? 'Humane Games';
+        if (titleEl) titleEl.textContent = name;
+        overlay?.removeAttribute('hidden');
+        document.body.style.overflow = 'hidden';
+      });
     });
-  });
 
-  const close = () => {
-    overlay?.setAttribute('hidden', '');
-    if (frame) frame.src = 'about:blank';
-    document.body.style.overflow = '';
-  };
-  overlay?.querySelector('[data-humane-games-close]')?.addEventListener('click', close);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && overlay && !overlay.hidden) close();
-  });
+    const close = () => {
+      overlay?.setAttribute('hidden', '');
+      if (frame) frame.src = 'about:blank';
+      document.body.style.overflow = '';
+    };
+    overlay?.querySelector('[data-humane-games-close]')?.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay && !overlay.hidden) close();
+    });
+  }
+
+  document.addEventListener('astro:page-load', initGames);
 </script>

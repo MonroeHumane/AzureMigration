@@ -159,54 +159,59 @@ const PAW = `<svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="6.2" cy="
 </BaseLayout>
 
 <script>
-  // Honor roll: instant search + A–Z jump.
-  const board = document.querySelector<HTMLElement>('.monroe-tribute-board');
-  const search = board?.querySelector<HTMLInputElement>('[data-tribute-search]');
-  const clearBtn = board?.querySelector<HTMLButtonElement>('[data-tribute-clear]');
-  const count = board?.querySelector<HTMLElement>('[data-tribute-count]');
-  const plaques = Array.from(board?.querySelectorAll<HTMLElement>('.monroe-tribute-plaque') ?? []);
+  function initMemorials() {
+    // Honor roll: instant search + A–Z jump.
+    const board = document.querySelector<HTMLElement>('.monroe-tribute-board');
+    if (!board) return;
 
-  const applyFilter = () => {
-    const query = (search?.value ?? '').trim().toLowerCase();
-    let shown = 0;
-    plaques.forEach((plaque) => {
-      const match = !query || (plaque.dataset.tributeName ?? '').includes(query);
-      plaque.hidden = !match;
-      if (match) shown++;
-    });
-    board?.querySelectorAll<HTMLElement>('.monroe-tribute-section').forEach((section) => {
-      const anyVisible = section.querySelectorAll('.monroe-tribute-plaque:not([hidden])').length > 0;
-      (section as HTMLElement).hidden = !anyVisible;
-    });
-    board?.querySelectorAll<HTMLElement>('.monroe-tribute-letter').forEach((letter) => {
-      let el = letter.nextElementSibling as HTMLElement | null;
-      let anyVisible = false;
-      while (el && !el.classList.contains('monroe-tribute-letter')) {
-        if (el.classList.contains('monroe-tribute-plaque') && !el.hidden) anyVisible = true;
-        el = el.nextElementSibling;
+    const search = board.querySelector<HTMLInputElement>('[data-tribute-search]');
+    const clearBtn = board.querySelector<HTMLButtonElement>('[data-tribute-clear]');
+    const count = board.querySelector<HTMLElement>('[data-tribute-count]');
+    const plaques = Array.from(board.querySelectorAll<HTMLElement>('.monroe-tribute-plaque') ?? []);
+
+    const applyFilter = () => {
+      const query = (search?.value ?? '').trim().toLowerCase();
+      let shown = 0;
+      plaques.forEach((plaque) => {
+        const match = !query || (plaque.dataset.tributeName ?? '').includes(query);
+        plaque.hidden = !match;
+        if (match) shown++;
+      });
+      board.querySelectorAll<HTMLElement>('.monroe-tribute-section').forEach((section) => {
+        const anyVisible = section.querySelectorAll('.monroe-tribute-plaque:not([hidden])').length > 0;
+        (section as HTMLElement).hidden = !anyVisible;
+      });
+      board.querySelectorAll<HTMLElement>('.monroe-tribute-letter').forEach((letter) => {
+        let el = letter.nextElementSibling as HTMLElement | null;
+        let anyVisible = false;
+        while (el && !el.classList.contains('monroe-tribute-letter')) {
+          if (el.classList.contains('monroe-tribute-plaque') && !el.hidden) anyVisible = true;
+          el = el.nextElementSibling;
+        }
+        letter.hidden = !anyVisible;
+      });
+      if (count) {
+        count.textContent = query
+          ? `${shown} ${shown === 1 ? 'tribute' : 'tributes'} matching “${search?.value}”`
+          : `${plaques.length} tributes`;
       }
-      letter.hidden = !anyVisible;
-    });
-    if (count) {
-      count.textContent = query
-        ? `${shown} ${shown === 1 ? 'tribute' : 'tributes'} matching “${search?.value}”`
-        : `${plaques.length} tributes`;
-    }
-  };
+    };
 
-  search?.addEventListener('input', applyFilter);
-  clearBtn?.addEventListener('click', () => {
-    if (search) search.value = '';
+    search?.addEventListener('input', applyFilter);
+    clearBtn?.addEventListener('click', () => {
+      if (search) search.value = '';
+      applyFilter();
+      search?.focus();
+    });
+
+    board.querySelectorAll<HTMLButtonElement>('[data-tribute-jump]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = board.querySelector(`[data-tribute-letter="${btn.dataset.tributeJump}"]`);
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
     applyFilter();
-    search?.focus();
-  });
-
-  board?.querySelectorAll<HTMLButtonElement>('[data-tribute-jump]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const target = board.querySelector(`[data-tribute-letter="${btn.dataset.tributeJump}"]`);
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
-
-  applyFilter();
+  }
+  document.addEventListener('astro:page-load', initMemorials);
 </script>

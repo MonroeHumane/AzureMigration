@@ -754,118 +754,122 @@ const indexLabels: Record<string, string> = {
 <script is:inline async src="https://cdn.trustindex.io/loader.js?ver=1"></script>
 
 <script>
-  // Lazy hero video: swap data-src in once the page is idle.
-  document.querySelectorAll<HTMLVideoElement>('[data-monroe-lazy-video]').forEach((video) => {
-    const load = () => {
-      if (video.src) return;
-      video.src = video.dataset.src || '';
-      video.play().catch(() => {});
-    };
-    if ('requestIdleCallback' in window) requestIdleCallback(load);
-    else setTimeout(load, 800);
-  });
-
-  // Featured pets: Expand view opens a <dialog> with the same cards.
-  const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
-  const fpwExpand = document.getElementById('fpwExpandBtn');
-  if (fpwDialog && fpwExpand) {
-    fpwExpand.addEventListener('click', () => {
-      const mount = fpwDialog.querySelector('#fpw-fs-longest');
-      const row = document.getElementById('longestRow');
-      if (mount && row && !mount.childElementCount) {
-        mount.innerHTML = row.innerHTML;
-      }
-      fpwDialog.showModal();
+  function initHomePage() {
+    // Lazy hero video: swap data-src in once the page is idle.
+    document.querySelectorAll<HTMLVideoElement>('[data-monroe-lazy-video]').forEach((video) => {
+      const load = () => {
+        if (video.src) return;
+        video.src = video.dataset.src || '';
+        video.play().catch(() => {});
+      };
+      if ('requestIdleCallback' in window) requestIdleCallback(load);
+      else setTimeout(load, 800);
     });
-    fpwDialog.querySelector('.fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
-  }
 
-  // Newsletter lightbox.
-  const newsSection = document.querySelector<HTMLElement>('[data-hs-lightbox]');
-  if (newsSection) {
-    const lb = newsSection.querySelector<HTMLElement>('.hs-lightbox');
-    const lbImg = lb?.querySelector<HTMLImageElement>('[data-hs-lb-img]');
-    const thumbs = Array.from(newsSection.querySelectorAll<HTMLElement>('[data-hs-lb-src]'));
-    let current = 0;
-    const show = (i: number) => {
-      current = (i + thumbs.length) % thumbs.length;
-      const src = thumbs[current].dataset.hsLbSrc;
-      if (lbImg && src) lbImg.src = src;
-      lb?.setAttribute('aria-hidden', 'false');
-    };
-    thumbs.forEach((thumb, i) => {
-      const open = () => show(i);
-      thumb.addEventListener('click', open);
-      thumb.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          open();
+    // Featured pets: Expand view opens a <dialog> with the same cards.
+    const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
+    const fpwExpand = document.getElementById('fpwExpandBtn');
+    if (fpwDialog && fpwExpand) {
+      fpwExpand.addEventListener('click', () => {
+        const mount = fpwDialog.querySelector('#fpw-fs-longest');
+        const row = document.getElementById('longestRow');
+        if (mount && row && !mount.childElementCount) {
+          mount.innerHTML = row.innerHTML;
         }
+        fpwDialog.showModal();
       });
-    });
-    lb?.querySelector('.hs-lb-close')?.addEventListener('click', () => lb.setAttribute('aria-hidden', 'true'));
-    lb?.querySelector('.hs-lb-prev')?.addEventListener('click', () => show(current - 1));
-    lb?.querySelector('.hs-lb-next')?.addEventListener('click', () => show(current + 1));
-    document.addEventListener('keydown', (e) => {
-      if (lb?.getAttribute('aria-hidden') === 'true') return;
-      if (e.key === 'Escape') lb.setAttribute('aria-hidden', 'true');
-      if (e.key === 'ArrowLeft') show(current - 1);
-      if (e.key === 'ArrowRight') show(current + 1);
-    });
-  }
+      fpwDialog.querySelector('.fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
+    }
 
-  // Accomplishments tabs.
-  const accWidget = document.querySelector<HTMLElement>('[data-monroe-accomplishments-widget]');
-  if (accWidget) {
-    accWidget.querySelectorAll<HTMLButtonElement>('.monroe-accomplishments-widget__tab').forEach((tab) => {
-      tab.addEventListener('click', () => {
-        const year = tab.dataset.accomplishmentsYear;
-        accWidget.querySelectorAll('.monroe-accomplishments-widget__tab').forEach((t) => {
-          const active = t === tab;
-          t.classList.toggle('is-active', active);
-          t.setAttribute('aria-selected', String(active));
-        });
-        accWidget.querySelectorAll<HTMLElement>('.monroe-accomplishments-widget__panel').forEach((panel) => {
-          const active = panel.dataset.accomplishmentsPanel === year;
-          panel.classList.toggle('is-active', active);
-          panel.hidden = !active;
+    // Newsletter lightbox.
+    const newsSection = document.querySelector<HTMLElement>('[data-hs-lightbox]');
+    if (newsSection) {
+      const lb = newsSection.querySelector<HTMLElement>('.hs-lightbox');
+      const lbImg = lb?.querySelector<HTMLImageElement>('[data-hs-lb-img]');
+      const thumbs = Array.from(newsSection.querySelectorAll<HTMLElement>('[data-hs-lb-src]'));
+      let current = 0;
+      const show = (i: number) => {
+        current = (i + thumbs.length) % thumbs.length;
+        const src = thumbs[current].dataset.hsLbSrc;
+        if (lbImg && src) lbImg.src = src;
+        lb?.setAttribute('aria-hidden', 'false');
+      };
+      thumbs.forEach((thumb, i) => {
+        const open = () => show(i);
+        thumb.addEventListener('click', open);
+        thumb.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            open();
+          }
         });
       });
+      lb?.querySelector('.hs-lb-close')?.addEventListener('click', () => lb.setAttribute('aria-hidden', 'true'));
+      lb?.querySelector('.hs-lb-prev')?.addEventListener('click', () => show(current - 1));
+      lb?.querySelector('.hs-lb-next')?.addEventListener('click', () => show(current + 1));
+      document.addEventListener('keydown', (e) => {
+        if (lb?.getAttribute('aria-hidden') === 'true') return;
+        if (e.key === 'Escape') lb.setAttribute('aria-hidden', 'true');
+        if (e.key === 'ArrowLeft') show(current - 1);
+        if (e.key === 'ArrowRight') show(current + 1);
+      });
+    }
+
+    // Accomplishments tabs.
+    const accWidget = document.querySelector<HTMLElement>('[data-monroe-accomplishments-widget]');
+    if (accWidget) {
+      accWidget.querySelectorAll<HTMLButtonElement>('.monroe-accomplishments-widget__tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const year = tab.dataset.accomplishmentsYear;
+          accWidget.querySelectorAll('.monroe-accomplishments-widget__tab').forEach((t) => {
+            const active = t === tab;
+            t.classList.toggle('is-active', active);
+            t.setAttribute('aria-selected', String(active));
+          });
+          accWidget.querySelectorAll<HTMLElement>('.monroe-accomplishments-widget__panel').forEach((panel) => {
+            const active = panel.dataset.accomplishmentsPanel === year;
+            panel.classList.toggle('is-active', active);
+            panel.hidden = !active;
+          });
+        });
+      });
+    }
+
+    // Facebook feed: click-to-load facade (nothing leaves the page until asked).
+    document.querySelectorAll<HTMLIFrameElement>('[data-monroe-fb-facade]').forEach((iframe) => {
+      const viewport = iframe.closest('.home-editable-social-embed__viewport');
+      const load = () => {
+        if (iframe.src) return;
+        const href = iframe.dataset.fbHref || '';
+        iframe.src =
+          'https://www.facebook.com/plugins/page.php?href=' +
+          encodeURIComponent(href) +
+          '&tabs=timeline&width=500&height=1500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true';
+        iframe.closest('[data-fb-embed]')?.classList.add('is-loaded');
+      };
+      viewport?.addEventListener('click', load);
+      iframe.addEventListener('load', load);
     });
+
+    // Contact form: mailto submission (no backend on the static site).
+    const contactForm = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
+    if (contactForm) {
+      contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = new FormData(contactForm);
+        if (data.get('monroe_contact_website')) return; // honeypot
+        const name = String(data.get('monroe_contact_name') || '');
+        const email = String(data.get('monroe_contact_email') || '');
+        const phone = String(data.get('monroe_contact_phone') || '');
+        const message = String(data.get('monroe_contact_message') || '');
+        const subject = encodeURIComponent(`Website contact from ${name}`);
+        const body = encodeURIComponent(`${message}\n\n— ${name}${phone ? ` (${phone})` : ''}\n${email}`);
+        const feedback = contactForm.closest('.monroe-contact-form-wrap')?.querySelector<HTMLElement>('.monroe-contact-form__feedback');
+        if (feedback) feedback.textContent = 'Opening your email application so your message can be sent. Thank you!';
+        window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
+      });
+    }
   }
 
-  // Facebook feed: click-to-load facade (nothing leaves the page until asked).
-  document.querySelectorAll<HTMLIFrameElement>('[data-monroe-fb-facade]').forEach((iframe) => {
-    const viewport = iframe.closest('.home-editable-social-embed__viewport');
-    const load = () => {
-      if (iframe.src) return;
-      const href = iframe.dataset.fbHref || '';
-      iframe.src =
-        'https://www.facebook.com/plugins/page.php?href=' +
-        encodeURIComponent(href) +
-        '&tabs=timeline&width=500&height=1500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true';
-      iframe.closest('[data-fb-embed]')?.classList.add('is-loaded');
-    };
-    viewport?.addEventListener('click', load);
-    iframe.addEventListener('load', load);
-  });
-
-  // Contact form: mailto submission (no backend on the static site).
-  const contactForm = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
-  if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const data = new FormData(contactForm);
-      if (data.get('monroe_contact_website')) return; // honeypot
-      const name = String(data.get('monroe_contact_name') || '');
-      const email = String(data.get('monroe_contact_email') || '');
-      const phone = String(data.get('monroe_contact_phone') || '');
-      const message = String(data.get('monroe_contact_message') || '');
-      const subject = encodeURIComponent(`Website contact from ${name}`);
-      const body = encodeURIComponent(`${message}\n\n— ${name}${phone ? ` (${phone})` : ''}\n${email}`);
-      const feedback = contactForm.closest('.monroe-contact-form-wrap')?.querySelector<HTMLElement>('.monroe-contact-form__feedback');
-      if (feedback) feedback.textContent = 'Opening your email application so your message can be sent. Thank you!';
-      window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
-    });
-  }
+  document.addEventListener('astro:page-load', initHomePage);
 </script>

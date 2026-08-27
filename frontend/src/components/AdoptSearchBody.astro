@@ -237,228 +237,234 @@ const chips = (p: (typeof pets)[number]) =>
 </style>
 
 <script>
-  // Unified Client-Side Search, Filter, Sort, Deep-Linking & Live Directus SWR
-  const widget = document.querySelector<HTMLElement>('#masw');
-  const grid = widget?.querySelector<HTMLElement>('[data-adopt-grid]');
-  const summary = widget?.querySelector<HTMLElement>('[data-adopt-summary]');
-  const empty = widget?.querySelector<HTMLElement>('.results-empty');
-  const q = widget?.querySelector<HTMLInputElement>('#masw-q');
-  const typeSel = widget?.querySelector<HTMLSelectElement>('#masw-type');
-  const genderSel = widget?.querySelector<HTMLSelectElement>('#masw-gender');
-  const sortSel = widget?.querySelector<HTMLSelectElement>('#masw-sort');
-  const pillBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter-trigger]'));
+  function initAdoptSearch() {
+    // Unified Client-Side Search, Filter, Sort, Deep-Linking & Live Directus SWR
+    const widget = document.querySelector<HTMLElement>('#masw');
+    if (!widget) return;
 
-  // Modal Elements
-  const modal = document.getElementById('petModal') as HTMLDialogElement | null;
-  const modalCloseBtn = document.getElementById('modalCloseBtn');
-  const modalPetImg = document.getElementById('modalPetImg') as HTMLImageElement | null;
-  const modalPetName = document.getElementById('modalPetName');
-  const modalPetBreed = document.getElementById('modalPetBreed');
-  const modalSpeciesTag = document.getElementById('modalSpeciesTag');
-  const modalChips = document.getElementById('modalChips');
-  const modalPetBio = document.getElementById('modalPetBio');
-  const modalPetAboutName = document.getElementById('modalPetAboutName');
-  const modalBtnName = document.getElementById('modalBtnName');
-  const modalShareBtn = document.getElementById('modalShareBtn');
+    const grid = widget.querySelector<HTMLElement>('[data-adopt-grid]');
+    const summary = widget.querySelector<HTMLElement>('[data-adopt-summary]');
+    const empty = widget.querySelector<HTMLElement>('.results-empty');
+    const q = widget.querySelector<HTMLInputElement>('#masw-q');
+    const typeSel = widget.querySelector<HTMLSelectElement>('#masw-type');
+    const genderSel = widget.querySelector<HTMLSelectElement>('#masw-gender');
+    const sortSel = widget.querySelector<HTMLSelectElement>('#masw-sort');
+    const pillBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter-trigger]'));
 
-  // 1. URL Query Parameter Sync
-  const params = new URLSearchParams(window.location.search);
-  if (params.has('q') && q) q.value = params.get('q') || '';
-  if (params.has('gender') && genderSel) genderSel.value = params.get('gender') || '';
-  if (params.has('type') && typeSel) typeSel.value = params.get('type') || '';
-  if (params.has('sort') && sortSel) sortSel.value = params.get('sort') || 'name';
+    // Modal Elements
+    const modal = document.getElementById('petModal') as HTMLDialogElement | null;
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalPetImg = document.getElementById('modalPetImg') as HTMLImageElement | null;
+    const modalPetName = document.getElementById('modalPetName');
+    const modalPetBreed = document.getElementById('modalPetBreed');
+    const modalSpeciesTag = document.getElementById('modalSpeciesTag');
+    const modalChips = document.getElementById('modalChips');
+    const modalPetBio = document.getElementById('modalPetBio');
+    const modalPetAboutName = document.getElementById('modalPetAboutName');
+    const modalBtnName = document.getElementById('modalBtnName');
+    const modalShareBtn = document.getElementById('modalShareBtn');
 
-  const getCards = () => Array.from(grid?.querySelectorAll<HTMLElement>('.animal-card') ?? []);
+    // 1. URL Query Parameter Sync
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('q') && q) q.value = params.get('q') || '';
+    if (params.has('gender') && genderSel) genderSel.value = params.get('gender') || '';
+    if (params.has('type') && typeSel) typeSel.value = params.get('type') || '';
+    if (params.has('sort') && sortSel) sortSel.value = params.get('sort') || 'name';
 
-  const updatePillStates = (activeType: string) => {
+    const getCards = () => Array.from(grid?.querySelectorAll<HTMLElement>('.animal-card') ?? []);
+
+    const updatePillStates = (activeType: string) => {
+      pillBtns.forEach((btn) => {
+        const isTarget = btn.dataset.filterTrigger === activeType;
+        btn.classList.toggle('monroe-adopt-pill--current', isTarget);
+        btn.classList.toggle('active', isTarget);
+      });
+    };
+
+    const apply = (updateUrl = true) => {
+      const query = (q?.value ?? '').trim().toLowerCase();
+      const type = typeSel?.value ?? '';
+      const gender = genderSel?.value ?? '';
+      const sort = sortSel?.value ?? 'name';
+
+      updatePillStates(type);
+
+      if (updateUrl && window.history.replaceState) {
+        const url = new URL(window.location.href);
+        if (query) url.searchParams.set('q', query); else url.searchParams.delete('q');
+        if (type) url.searchParams.set('type', type); else url.searchParams.delete('type');
+        if (gender) url.searchParams.set('gender', gender); else url.searchParams.delete('gender');
+        if (sort && sort !== 'name') url.searchParams.set('sort', sort); else url.searchParams.delete('sort');
+        window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+      }
+
+      const visible = getCards().filter((card) => {
+        if (type && card.dataset.adoptType !== type) return false;
+        if (gender && card.dataset.adoptGender !== gender) return false;
+        if (query) {
+          const hay = `${card.dataset.adoptName} ${card.dataset.adoptBreed} ${card.dataset.adoptDesc}`.toLowerCase();
+          if (!hay.includes(query)) return false;
+        }
+        return true;
+      });
+
+      visible.sort((a, b) =>
+        sort === 'name'
+          ? (a.dataset.adoptName ?? '').localeCompare(b.dataset.adoptName ?? '')
+          : sort === 'breed'
+            ? (a.dataset.adoptBreed ?? '').localeCompare(b.dataset.adoptBreed ?? '')
+            : (a.dataset.adoptType ?? '').localeCompare(b.dataset.adoptType ?? '') || (a.dataset.adoptName ?? '').localeCompare(b.dataset.adoptName ?? '')
+      );
+
+      getCards().forEach((card) => {
+        const show = visible.includes(card);
+        card.style.display = show ? '' : 'none';
+        if (show) grid?.appendChild(card);
+      });
+
+      if (empty) empty.hidden = visible.length > 0;
+      if (summary) {
+        summary.textContent = `${visible.length} ${visible.length === 1 ? 'pet' : 'pets'} available for adoption`;
+      }
+    };
+
+    // Quick Filter Pill Click
     pillBtns.forEach((btn) => {
-      const isTarget = btn.dataset.filterTrigger === activeType;
-      btn.classList.toggle('monroe-adopt-pill--current', isTarget);
-      btn.classList.toggle('active', isTarget);
+      btn.addEventListener('click', () => {
+        const triggerType = btn.dataset.filterTrigger || '';
+        if (typeSel) typeSel.value = triggerType;
+        apply(true);
+      });
     });
-  };
 
-  const apply = (updateUrl = true) => {
-    const query = (q?.value ?? '').trim().toLowerCase();
-    const type = typeSel?.value ?? '';
-    const gender = genderSel?.value ?? '';
-    const sort = sortSel?.value ?? 'name';
+    [q, typeSel, genderSel, sortSel].forEach((el) => el?.addEventListener('input', () => apply(true)));
+    widget.querySelectorAll('[data-adopt-reset]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        if (q) q.value = '';
+        if (typeSel) typeSel.value = '';
+        if (genderSel) genderSel.value = '';
+        if (sortSel) sortSel.value = 'name';
+        apply(true);
+      })
+    );
 
-    updatePillStates(type);
+    // 2. Pet Detail Drawer Open/Close
+    function openPetModal(card: HTMLElement, updateHistory = true) {
+      if (!modal) return;
+      const id = card.dataset.adoptId || '';
+      const name = card.dataset.adoptRawName || 'Pet';
+      const breed = card.dataset.adoptRawBreed || 'Shelter Pet';
+      const type = card.dataset.adoptType || 'pet';
+      const age = card.dataset.adoptAge || '';
+      const gender = card.dataset.adoptGender || '';
+      const location = card.dataset.adoptLocation || 'Shelter';
+      const img = card.dataset.adoptImage || '';
 
-    if (updateUrl && window.history.replaceState) {
+      if (modalPetImg) {
+        modalPetImg.src = img;
+        modalPetImg.alt = name;
+      }
+      if (modalPetName) modalPetName.textContent = name;
+      if (modalPetBreed) modalPetBreed.textContent = breed;
+      if (modalSpeciesTag) modalSpeciesTag.textContent = type.toUpperCase();
+      if (modalPetAboutName) modalPetAboutName.textContent = name;
+      if (modalBtnName) modalBtnName.textContent = name;
+
+      if (modalChips) {
+        modalChips.innerHTML = `
+          <span style="background:#e0f2fe; color:#0369a1; padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.9rem;">🐾 ${type === 'cat' ? 'Cat' : 'Dog'}</span>
+          <span style="background:#fef3c7; color:#92400e; padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.9rem;">🎂 ${age || 'Unknown age'}</span>
+          <span style="background:#f3e8ff; color:#6b21a8; padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.9rem;">⚧ ${gender ? gender.toUpperCase() : 'Unknown'}</span>
+          <span style="background:#f1f5f9; color:#334155; padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.9rem;">📍 ${location}</span>
+        `;
+      }
+
+      if (modalPetBio) {
+        modalPetBio.textContent = `${name} is currently staying at our shelter in the ${location}. ${name} is looking for a loving forever home in Monroe County. Visit during shelter hours or submit an online adoption application today!`;
+      }
+
+      if (modalShareBtn) {
+        modalShareBtn.onclick = () => {
+          const shareUrl = `${window.location.origin}/adopt?pet=${id}`;
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            modalShareBtn.innerHTML = '<span>✓</span> Copied!';
+            setTimeout(() => { modalShareBtn.innerHTML = '<span>🔗</span> Share'; }, 2000);
+          }).catch(() => {});
+        };
+      }
+
+      if (updateHistory && window.history.pushState) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('pet', id);
+        window.history.pushState({ petId: id }, '', url.href);
+      }
+
+      modal.showModal();
+    }
+
+    function closePetModal() {
+      if (!modal) return;
+      modal.close();
       const url = new URL(window.location.href);
-      if (query) url.searchParams.set('q', query); else url.searchParams.delete('q');
-      if (type) url.searchParams.set('type', type); else url.searchParams.delete('type');
-      if (gender) url.searchParams.set('gender', gender); else url.searchParams.delete('gender');
-      if (sort && sort !== 'name') url.searchParams.set('sort', sort); else url.searchParams.delete('sort');
+      url.searchParams.delete('pet');
       window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
     }
 
-    const visible = getCards().filter((card) => {
-      if (type && card.dataset.adoptType !== type) return false;
-      if (gender && card.dataset.adoptGender !== gender) return false;
-      if (query) {
-        const hay = `${card.dataset.adoptName} ${card.dataset.adoptBreed} ${card.dataset.adoptDesc}`.toLowerCase();
-        if (!hay.includes(query)) return false;
-      }
-      return true;
+    modalCloseBtn?.addEventListener('click', closePetModal);
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closePetModal();
     });
 
-    visible.sort((a, b) =>
-      sort === 'name'
-        ? (a.dataset.adoptName ?? '').localeCompare(b.dataset.adoptName ?? '')
-        : sort === 'breed'
-          ? (a.dataset.adoptBreed ?? '').localeCompare(b.dataset.adoptBreed ?? '')
-          : (a.dataset.adoptType ?? '').localeCompare(b.dataset.adoptType ?? '') || (a.dataset.adoptName ?? '').localeCompare(b.dataset.adoptName ?? '')
-    );
-
-    getCards().forEach((card) => {
-      const show = visible.includes(card);
-      card.style.display = show ? '' : 'none';
-      if (show) grid?.appendChild(card);
-    });
-
-    if (empty) empty.hidden = visible.length > 0;
-    if (summary) {
-      summary.textContent = `${visible.length} ${visible.length === 1 ? 'pet' : 'pets'} available for adoption`;
-    }
-  };
-
-  // Quick Filter Pill Click
-  pillBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const triggerType = btn.dataset.filterTrigger || '';
-      if (typeSel) typeSel.value = triggerType;
-      apply(true);
-    });
-  });
-
-  [q, typeSel, genderSel, sortSel].forEach((el) => el?.addEventListener('input', () => apply(true)));
-  widget?.querySelectorAll('[data-adopt-reset]').forEach((btn) =>
-    btn.addEventListener('click', () => {
-      if (q) q.value = '';
-      if (typeSel) typeSel.value = '';
-      if (genderSel) genderSel.value = '';
-      if (sortSel) sortSel.value = 'name';
-      apply(true);
-    })
-  );
-
-  // 2. Pet Detail Drawer Open/Close
-  function openPetModal(card: HTMLElement, updateHistory = true) {
-    if (!modal) return;
-    const id = card.dataset.adoptId || '';
-    const name = card.dataset.adoptRawName || 'Pet';
-    const breed = card.dataset.adoptRawBreed || 'Shelter Pet';
-    const type = card.dataset.adoptType || 'pet';
-    const age = card.dataset.adoptAge || '';
-    const gender = card.dataset.adoptGender || '';
-    const location = card.dataset.adoptLocation || 'Shelter';
-    const img = card.dataset.adoptImage || '';
-
-    if (modalPetImg) {
-      modalPetImg.src = img;
-      modalPetImg.alt = name;
-    }
-    if (modalPetName) modalPetName.textContent = name;
-    if (modalPetBreed) modalPetBreed.textContent = breed;
-    if (modalSpeciesTag) modalSpeciesTag.textContent = type.toUpperCase();
-    if (modalPetAboutName) modalPetAboutName.textContent = name;
-    if (modalBtnName) modalBtnName.textContent = name;
-
-    if (modalChips) {
-      modalChips.innerHTML = `
-        <span style="background:#e0f2fe; color:#0369a1; padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.9rem;">🐾 ${type === 'cat' ? 'Cat' : 'Dog'}</span>
-        <span style="background:#fef3c7; color:#92400e; padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.9rem;">🎂 ${age || 'Unknown age'}</span>
-        <span style="background:#f3e8ff; color:#6b21a8; padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.9rem;">⚧ ${gender ? gender.toUpperCase() : 'Unknown'}</span>
-        <span style="background:#f1f5f9; color:#334155; padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.9rem;">📍 ${location}</span>
-      `;
-    }
-
-    if (modalPetBio) {
-      modalPetBio.textContent = `${name} is currently staying at our shelter in the ${location}. ${name} is looking for a loving forever home in Monroe County. Visit during shelter hours or submit an online adoption application today!`;
-    }
-
-    if (modalShareBtn) {
-      modalShareBtn.onclick = () => {
-        const shareUrl = `${window.location.origin}/adopt?pet=${id}`;
-        navigator.clipboard.writeText(shareUrl).then(() => {
-          modalShareBtn.innerHTML = '<span>✓</span> Copied!';
-          setTimeout(() => { modalShareBtn.innerHTML = '<span>🔗</span> Share'; }, 2000);
-        }).catch(() => {});
-      };
-    }
-
-    if (updateHistory && window.history.pushState) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('pet', id);
-      window.history.pushState({ petId: id }, '', url.href);
-    }
-
-    modal.showModal();
-  }
-
-  function closePetModal() {
-    if (!modal) return;
-    modal.close();
-    const url = new URL(window.location.href);
-    url.searchParams.delete('pet');
-    window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
-  }
-
-  modalCloseBtn?.addEventListener('click', closePetModal);
-  modal?.addEventListener('click', (e) => {
-    if (e.target === modal) closePetModal();
-  });
-
-  // Attach card click handlers
-  function bindCardEvents() {
-    getCards().forEach((card) => {
-      card.onclick = () => openPetModal(card);
-      card.onkeydown = (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openPetModal(card);
-        }
-      };
-    });
-  }
-  bindCardEvents();
-
-  // Check URL if a pet ID was requested directly (e.g. /adopt?pet=61220759)
-  if (params.has('pet')) {
-    const targetId = params.get('pet');
-    const targetCard = getCards().find(c => c.dataset.adoptId === targetId);
-    if (targetCard) {
-      setTimeout(() => openPetModal(targetCard, false), 150);
-    }
-  }
-
-  apply(false);
-
-  // 3. Live SWR Sync against Directus API (silent revalidation)
-  async function syncLiveDirectusPets() {
-    try {
-      const res = await fetch('https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/items/pets?filter[archived_at][_null]=true&limit=-1', {
-        signal: AbortSignal.timeout(4000),
+    // Attach card click handlers
+    function bindCardEvents() {
+      getCards().forEach((card) => {
+        card.onclick = () => openPetModal(card);
+        card.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openPetModal(card);
+          }
+        };
       });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.data && json.data.length > 0) {
-          const liveIds = new Set(json.data.map((p: any) => String(p.id)));
-          getCards().forEach((card) => {
-            const cardId = card.dataset.adoptId;
-            if (cardId && !liveIds.has(cardId)) {
-              card.remove(); // Pet adopted / archived
-            }
-          });
-          apply(false);
-        }
-      }
-    } catch (e) {
-      // Offline/cold start safe fallback
     }
+    bindCardEvents();
+
+    // Check URL if a pet ID was requested directly (e.g. /adopt?pet=61220759)
+    if (params.has('pet')) {
+      const targetId = params.get('pet');
+      const targetCard = getCards().find(c => c.dataset.adoptId === targetId);
+      if (targetCard) {
+        setTimeout(() => openPetModal(targetCard, false), 150);
+      }
+    }
+
+    apply(false);
+
+    // 3. Live SWR Sync against Directus API (silent revalidation)
+    async function syncLiveDirectusPets() {
+      try {
+        const res = await fetch('https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/items/pets?filter[archived_at][_null]=true&limit=-1', {
+          signal: AbortSignal.timeout(4000),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && json.data.length > 0) {
+            const liveIds = new Set(json.data.map((p: any) => String(p.id)));
+            getCards().forEach((card) => {
+              const cardId = card.dataset.adoptId;
+              if (cardId && !liveIds.has(cardId)) {
+                card.remove(); // Pet adopted / archived
+              }
+            });
+            apply(false);
+          }
+        }
+      } catch (e) {
+        // Offline/cold start safe fallback
+      }
+    }
+    syncLiveDirectusPets();
   }
-  syncLiveDirectusPets();
+
+  document.addEventListener('astro:page-load', initAdoptSearch);
 </script>

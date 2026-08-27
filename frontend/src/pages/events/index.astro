@@ -479,26 +479,29 @@ import '../../styles/monroe-events.css';
 </BaseLayout>
 
 <script>
-  // Flyer lightbox: cards carry their full image + metadata as data attributes.
-  const section = document.querySelector<HTMLElement>('[data-flyer-lightbox]');
-  if (section) {
-    const lb = section.querySelector<HTMLElement>('.monroe-event-flyers__lightbox');
-    const img = lb?.querySelector<HTMLImageElement>('[data-flyer-lb-img]');
-    const title = lb?.querySelector<HTMLElement>('[data-flyer-lb-title]');
-    const date = lb?.querySelector<HTMLElement>('[data-flyer-lb-date]');
-    const download = lb?.querySelector<HTMLAnchorElement>('[data-flyer-lb-download]');
-    section.querySelectorAll<HTMLButtonElement>('[data-flyer-open]').forEach((card) => {
-      card.addEventListener('click', () => {
-        if (img) img.src = card.dataset.flyerFull || '';
-        if (title) title.textContent = card.dataset.flyerTitle || '';
-        if (date) date.textContent = card.dataset.flyerDate || '';
-        if (download) download.href = card.dataset.flyerDownload || '#';
-        lb?.setAttribute('aria-hidden', 'false');
+  function initEvents() {
+    // Flyer lightbox: cards carry their full image + metadata as data attributes.
+    const section = document.querySelector<HTMLElement>('[data-flyer-lightbox]');
+    if (section) {
+      const lb = section.querySelector<HTMLElement>('.monroe-event-flyers__lightbox');
+      const img = lb?.querySelector<HTMLImageElement>('[data-flyer-lb-img]');
+      const title = lb?.querySelector<HTMLElement>('[data-flyer-lb-title]');
+      const date = lb?.querySelector<HTMLElement>('[data-flyer-lb-date]');
+      const download = lb?.querySelector<HTMLAnchorElement>('[data-flyer-lb-download]');
+      section.querySelectorAll<HTMLButtonElement>('[data-flyer-open]').forEach((card) => {
+        card.addEventListener('click', () => {
+          if (img) img.src = card.dataset.flyerFull || '';
+          if (title) title.textContent = card.dataset.flyerTitle || '';
+          if (date) date.textContent = card.dataset.flyerDate || '';
+          if (download) download.href = card.dataset.flyerDownload || '#';
+          lb?.setAttribute('aria-hidden', 'false');
+        });
       });
-    });
-    lb?.querySelector('[data-flyer-lb-close]')?.addEventListener('click', () => lb.setAttribute('aria-hidden', 'true'));
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') lb?.setAttribute('aria-hidden', 'true');
-    });
+      lb?.querySelector('[data-flyer-lb-close]')?.addEventListener('click', () => lb.setAttribute('aria-hidden', 'true'));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') lb?.setAttribute('aria-hidden', 'true');
+      });
+    }
   }
+  document.addEventListener('astro:page-load', initEvents);
 </script>
