@@ -11,7 +11,6 @@
     { "route": "/donate-now",        "redirect": "/donate",            "statusCode": 301 },
     { "route": "/donations",         "redirect": "/donate",            "statusCode": 301 },
     { "route": "/volunteer",         "redirect": "/volunteer-form",    "statusCode": 301 },
-    { "route": "/petdisplay",        "redirect": "/adopt",             "statusCode": 301 },
     { "route": "/home",              "redirect": "/",                  "statusCode": 301 },
 
     { "route": "/dog-and-cat-shelter/monroe-mi",         "redirect": "/dog-and-cat-shelter", "statusCode": 301 },

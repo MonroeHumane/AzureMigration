@@ -663,6 +663,15 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       const petUrl = `https://monroe-humane.org/adopt/pet/${pet.id}`;
       spotlightQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(petUrl)}&margin=4&color=0c2a26`;
 
+      // Preload next 3 images for zero-latency slide transitions
+      for (let i = 1; i <= 3; i++) {
+        const nextIdx = (currentIndex + i) % pets.length;
+        if (pets[nextIdx] && pets[nextIdx].image) {
+          const preloadImg = new Image();
+          preloadImg.src = pets[nextIdx].image;
+        }
+      }
+
       currentIndexLabel.textContent = `${currentIndex + 1} of ${pets.length}`;
 
       // Update Stream List active state

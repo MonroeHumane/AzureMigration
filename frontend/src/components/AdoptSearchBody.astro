@@ -180,21 +180,35 @@ const chips = (p: (typeof pets)[number]) =>
   const typeSel = widget?.querySelector<HTMLSelectElement>('#masw-type');
   const genderSel = widget?.querySelector<HTMLSelectElement>('#masw-gender');
   const sortSel = widget?.querySelector<HTMLSelectElement>('#masw-sort');
-  if (typeSel?.dataset.default) typeSel.value = typeSel.dataset.default;
+  // Read initial search params from URL (e.g. /adopt?q=luna&gender=female)
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('q') && q) q.value = params.get('q') || '';
+  if (params.has('gender') && genderSel) genderSel.value = params.get('gender') || '';
+  if (params.has('type') && typeSel) typeSel.value = params.get('type') || '';
+  if (params.has('sort') && sortSel) sortSel.value = params.get('sort') || 'name';
 
   const cards = () => Array.from(grid?.querySelectorAll<HTMLElement>('.animal-card') ?? []);
 
-  const apply = () => {
+  const apply = (updateUrl = true) => {
     const query = (q?.value ?? '').trim().toLowerCase();
     const type = typeSel?.value ?? '';
     const gender = genderSel?.value ?? '';
     const sort = sortSel?.value ?? 'name';
 
+    if (updateUrl && window.history.replaceState) {
+      const url = new URL(window.location.href);
+      if (query) url.searchParams.set('q', query); else url.searchParams.delete('q');
+      if (type && !typeSel?.dataset.default) url.searchParams.set('type', type); else if (!type) url.searchParams.delete('type');
+      if (gender) url.searchParams.set('gender', gender); else url.searchParams.delete('gender');
+      if (sort && sort !== 'name') url.searchParams.set('sort', sort); else url.searchParams.delete('sort');
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+    }
+
     const visible = cards().filter((card) => {
       if (type && card.dataset.adoptType !== type) return false;
       if (gender && card.dataset.adoptGender !== gender) return false;
       if (query) {
-        const hay = `${card.dataset.adoptName} ${card.dataset.adoptBreed} ${card.dataset.adoptDesc}`;
+        const hay = `${card.dataset.adoptName} ${card.dataset.adoptBreed} ${card.dataset.adoptDesc}`.toLowerCase();
         if (!hay.includes(query)) return false;
       }
       return true;
@@ -220,16 +234,16 @@ const chips = (p: (typeof pets)[number]) =>
     }
   };
 
-  [q, typeSel, genderSel, sortSel].forEach((el) => el?.addEventListener('input', apply));
+  [q, typeSel, genderSel, sortSel].forEach((el) => el?.addEventListener('input', () => apply(true)));
   widget?.querySelectorAll('[data-adopt-reset]').forEach((btn) =>
     btn.addEventListener('click', () => {
       if (q) q.value = '';
-      if (typeSel) typeSel.value = '';
+      if (typeSel) typeSel.value = typeSel.dataset.default || '';
       if (genderSel) genderSel.value = '';
       if (sortSel) sortSel.value = 'name';
-      apply();
+      apply(true);
     })
   );
-  apply();
+  apply(false);
 </script>
 
