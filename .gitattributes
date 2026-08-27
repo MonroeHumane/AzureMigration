@@ -1,0 +1,30 @@
+# Enforce consistent LF line endings across all platforms (Windows, Linux CI, Azure)
+* text=auto eol=lf
+
+# Explicitly ensure LF on configs, code, workflows
+*.json text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.astro text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.bicep text eol=lf
+*.php text eol=lf
+*.sql text eol=lf
+*.md text eol=lf
+Dockerfile text eol=lf
+
+# Binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.mp4 binary
