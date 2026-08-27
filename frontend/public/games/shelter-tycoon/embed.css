@@ -1,0 +1,15 @@
+html.humane-embed,
+html.humane-embed body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(165deg, #d4efff 0%, #b8dff5 45%, #8ecae6 100%);
+}
+
+html.humane-embed #game {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}

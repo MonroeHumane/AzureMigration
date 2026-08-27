@@ -1,0 +1,19 @@
+{
+  "name": "monroe-humane-backend",
+  "version": "1.0.0",
+  "description": "Directus Headless CMS for Monroe County Humane Society",
+  "main": "index.js",
+  "scripts": {
+    "start": "directus start",
+    "bootstrap": "directus bootstrap",
+    "schema:apply": "directus schema apply --yes ./schema/schema.json"
+  },
+  "dependencies": {
+    "@directus/storage-driver-azure": "^11.0.0",
+    "directus": "^11.5.0",
+    "mysql2": "^3.12.0"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}

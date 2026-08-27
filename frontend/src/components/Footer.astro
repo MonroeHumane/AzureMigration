@@ -1,0 +1,54 @@
+---
+/*
+ Site footer — markup carried over from the monroe-rebuild theme.
+ The Staff button opens Directus (the CMS that replaces the WP staff portal);
+ the URL is environment-driven so production never ships a localhost link.
+ */
+
+import { SITE } from '../config/site';
+
+const staffPortalUrl = import.meta.env.PUBLIC_DIRECTUS_URL ?? 'http://localhost:8055';
+const year = new Date().getFullYear();
+---
+
+<footer class="monroe-site-footer" role="contentinfo">
+  <div class="monroe-site-footer__inner">
+    <div class="monroe-site-footer__grid">
+      <div class="monroe-site-footer__brand">
+        <p class="monroe-site-footer__name">{SITE.name}</p>
+        <p class="monroe-site-footer__address">{SITE.contact.address.street}</p>
+        <p class="monroe-site-footer__address">{SITE.contact.address.poBox}</p>
+      </div>
+
+      <nav class="monroe-site-footer__nav" aria-label="Footer quick links">
+        <ul class="monroe-site-footer__links">
+          <li><a href="/adopt">Adopt</a></li>
+          <li><a href="/donate">Donate</a></li>
+          <li><a href="/volunteer-form">Volunteer</a></li>
+          <li><a href="/membership">Membership</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/newsletter">Newsletter</a></li>
+          <li><a href="/#Contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="monroe-site-footer__contact">
+        <p><a href={SITE.contact.phoneTel}>{SITE.contact.phoneFormatted}</a></p>
+        <p><a href={SITE.contact.emailMailto}>{SITE.contact.email}</a></p>
+        <p>
+          <a href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Follow on Facebook</a>
+        </p>
+        <p>
+          <a href="https://www.instagram.com/adopthsmc/" target="_blank" rel="noopener noreferrer">Follow on Instagram</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="monroe-site-footer__staff">
+      <a href={staffPortalUrl} class="monroe-site-footer__staff-btn">Staff</a>
+    </div>
+
+    <p class="monroe-site-footer__legal">&copy; {year} {SITE.name}. All rights reserved.</p>
+  </div>
+</footer>
+

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Humane Games Widget</title>
+	<style>
+		/* Humane Widget styles are scoped so they can drop into any host page. */
+		.humane-widget {
+			--fur: #fef6ea;
+			--treat: #ffb347;
+			--treat-deep: #ff7a3c;
+			--ink: #2c1c19;
+			--mint: #6bc4a6;
+			font-family: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+			background:
+				rgba(255, 248, 240, 0.96);
+			border: 1px solid rgba(44, 28, 25, 0.1);
+			border-radius: 24px;
+			padding: 24px;
+			max-width: 420px;
+			box-shadow: 0 24px 48px rgba(44, 28, 25, 0.2);
+			color: var(--ink);
+			line-height: 1.5;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.humane-widget::before,
+		.humane-widget::after {
+			content: "";
+			position: absolute;
+			inset: -40%;
+			background:
+				radial-gradient(circle at 20% 20%, rgba(255, 213, 196, 0.6), transparent 60%),
+				radial-gradient(circle at 80% 60%, rgba(199, 240, 214, 0.5), transparent 55%);
+			filter: blur(8px);
+			opacity: 0.45;
+			z-index: 0;
+		}
+
+		.humane-widget::after {
+			inset: auto;
+			bottom: -50%;
+			right: -30%;
+		}
+
+		.humane-widget__inner {
+			position: relative;
+			z-index: 1;
+			display: grid;
+			gap: 12px;
+		}
+
+		.humane-widget__eyebrow {
+			margin: 0;
+			text-transform: uppercase;
+			letter-spacing: 0.3em;
+			font-size: 0.75rem;
+			color: rgba(44, 28, 25, 0.65);
+		}
+
+		.humane-widget__title {
+			margin: 0;
+			font-size: clamp(1.6rem, 4vw, 2rem);
+		}
+
+		.humane-widget__body {
+			margin: 0;
+			color: rgba(44, 28, 25, 0.82);
+		}
+
+		.humane-widget__cta {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px 22px;
+			border-radius: 999px;
+			font-weight: 700;
+			text-decoration: none;
+			background: linear-gradient(140deg, #ffd39f, var(--treat));
+			color: var(--ink);
+			box-shadow: 0 14px 28px rgba(255, 138, 101, 0.35);
+			transition: transform 150ms ease, box-shadow 150ms ease;
+		}
+
+		.humane-widget__cta:hover,
+		.humane-widget__cta:focus-visible {
+			transform: translateY(-2px);
+			box-shadow: 0 22px 36px rgba(44, 28, 25, 0.2);
+			outline: none;
+		}
+
+		.humane-widget__badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 8px 12px;
+			border-radius: 999px;
+			background: rgba(107, 196, 166, 0.2);
+			color: #1c3d35;
+			font-weight: 700;
+			font-size: 0.85rem;
+		}
+
+		.humane-widget__footer {
+			margin: 0;
+			font-size: 0.8rem;
+			color: rgba(44, 28, 25, 0.7);
+		}
+
+		@media (max-width: 520px) {
+			.humane-widget {
+				padding: 20px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<!--
+		Embed instructions for Simplebiz or any host page:
+		1. Copy the <style> block alongside the .humane-widget-shell markup into the target page.
+		2. Keep all class names intact so gradients and spacing remain consistent.
+		3. Wrap the widget in a container that is at least 340px wide for best results.
+	-->
+	<div class="humane-widget-shell" style="display: inline-block; width: 100%; max-width: 440px;">
+		<div class="humane-widget" role="region" aria-labelledby="humane-widget-title">
+			<div class="humane-widget__inner">
+				<h2 class="humane-widget__title" id="humane-widget-title">Humane Games</h2>
+				<p class="humane-widget__body">Gentle little browser games that support Monroe Humane, tap in for a quick mood boost.</p>
+				<a class="humane-widget__cta" href="https://humanegames.netlify.app/#home" target="_blank" rel="noreferrer noopener">
+					Visit Humane Games
+					<span aria-hidden="true">→</span>
+				</a>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import { SITE } from '../../config/site';
+
+const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
+---
+
+<BaseLayout
+  title="Donate to HSMC | 734-243-3669"
+  description="Your gift today buys medicine, food, and everyday supplies for the animals in our care."
+>
+  <InnerShell variant="donate-now">
+    <header class="monroe-native-hero">
+      <p class="monroe-native-eyebrow">Give today</p>
+      <h1>Donate to HSMC</h1>
+      <p class="monroe-native-lead">
+        Your gift today buys medicine, food, and everyday supplies for the animals in our care.
+      </p>
+    </header>
+    <section class="monroe-native-stack" aria-labelledby="monroe-donate-now-heading">
+      <h2 id="monroe-donate-now-heading">Fast checkout</h2>
+      <p>
+        Use our secure BetterUnite page for card gifts, or return to the homepage Donations section if you prefer PayPal.
+      </p>
+      <div class="monroe-native-actions">
+        <a class="monroe-btn" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate now</a>
+        <a class="monroe-btn monroe-btn--outline" href="/#Donations">More donation options</a>
+      </div>
+    </section>
+    <section class="monroe-native-stack" aria-labelledby="monroe-donations-ways-heading">
+      <h2 id="monroe-donations-ways-heading">Ways to give</h2>
+      <p>
+        Donate online through our fundraising partner, use PayPal from the homepage Donations band, or explore memorial and planned giving on our memorials page.
+      </p>
+      <div class="monroe-native-actions">
+        <a class="monroe-btn" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate online (BetterUnite)</a>
+        <a class="monroe-btn monroe-btn--outline" href="/#Donations">PayPal on homepage</a>
+        <a class="monroe-btn monroe-btn--outline" href="/memorials/give">Memorials &amp; planned giving</a>
+      </div>
+    </section>
+  </InnerShell>
+</BaseLayout>

@@ -1,0 +1,21 @@
+{
+  "name": "Shelter Tycoon - Humane Society Simulator",
+  "short_name": "Shelter Tycoon",
+  "description": "Run your humane society shelter. Intake Monroe pets and find forever homes.",
+  "start_url": "./",
+  "display": "standalone",
+  "theme_color": "#e07030",
+  "background_color": "#0d0b0e",
+  "icons": [
+    {
+      "src": "og-image.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "og-image.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

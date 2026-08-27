@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import { SITE } from '../../config/site';
+import '../../styles/monroe-membership.css';
+
+const JOIN_URL = SITE.integrations.betterUnite.membership;
+const HERO_IMAGE =
+  '/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt/455279975_897310779096528_8326220811243597552_n-1920w.jpg';
+---
+
+<BaseLayout
+  title="Membership Plans | 734-243-3669"
+  description="Pick a tier that fits your support level. Each membership includes perks that help animals and thank you for standing with Monroe Humane."
+>
+  <InnerShell variant="membership">
+    <header class="monroe-membership-hero" aria-labelledby="monroe-membership-title">
+      <div class="monroe-membership-hero__media" aria-hidden="true">
+        <img src={HERO_IMAGE} alt="" decoding="async" />
+      </div>
+      <div class="monroe-membership-hero__copy">
+        <p class="monroe-native-eyebrow">Support &amp; community</p>
+        <h1 id="monroe-membership-title">Membership Plans</h1>
+        <p class="monroe-native-lead">
+          Pick a tier that fits your support level. Each membership includes perks that help animals and thank you for
+          standing with Monroe Humane.
+        </p>
+        <div class="monroe-native-actions">
+          <a class="monroe-btn" href={JOIN_URL} target="_blank" rel="noopener noreferrer">Join today</a>
+          <a class="monroe-btn monroe-btn--outline" href="/#Membership">See homepage section</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="monroe-membership-benefits" aria-label="Why become a member">
+      <article class="monroe-membership-benefit">
+        <h2>Lifesaving care</h2>
+        <p>Membership dollars fund food, medicine, enrichment, and everyday shelter needs for dogs and cats waiting for homes.</p>
+      </article>
+      <article class="monroe-membership-benefit">
+        <h2>Member perks</h2>
+        <p>Enjoy shirts, cards, stickers, event discounts, and swag savings — our thank-you for championing Monroe County animals.</p>
+      </article>
+      <article class="monroe-membership-benefit">
+        <h2>Stay connected</h2>
+        <p>Members hear about fundraisers, adoption highlights, and volunteer opportunities throughout the year.</p>
+      </article>
+    </section>
+
+    <section id="Plans" class="monroe-membership-plans monroe-membership-surface" aria-labelledby="monroe-membership-plans-heading" tabindex="-1">
+      <div class="monroe-membership-plans-shared monroe-membership-plans-shared--under-construction">
+        <div class="home-editable-membership-intro">
+          <p class="home-editable-section-label">Become a member</p>
+          <h2 id="monroe-membership-plans-heading">Membership plans</h2>
+        </div>
+        <div class="monroe-membership-under-construction" role="status">
+          <p>Membership plans are being updated. Please check back soon.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="monroe-native-stack monroe-membership-how" aria-labelledby="monroe-membership-how-heading">
+      <h2 id="monroe-membership-how-heading">How membership works</h2>
+      <ol class="monroe-membership-steps">
+        <li>Pick a tier and complete checkout on BetterUnite.</li>
+        <li>Receive your welcome packet with shirt, card, and stickers by mail or pickup.</li>
+        <li>Enjoy event discounts and swag savings all year while supporting shelter animals.</li>
+      </ol>
+      <p class="monroe-native-foot">
+        <a href="/resources">Shelter services &amp; contact</a> · <a href="/donate">Other ways to give</a>
+      </p>
+    </section>
+
+    <section class="monroe-membership-cta-band" aria-label="Join membership">
+      <h2>Ready to stand with Monroe animals?</h2>
+      <p>Your annual membership keeps pets healthy, safe, and loved while they wait for adoption.</p>
+      <div class="monroe-native-actions">
+        <a class="monroe-btn" href={JOIN_URL} target="_blank" rel="noopener noreferrer">Become a member</a>
+      </div>
+    </section>
+  </InnerShell>
+</BaseLayout>

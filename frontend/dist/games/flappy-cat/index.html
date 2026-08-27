@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Humane Arcade Host</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #game-container {
+      flex: 1;
+      position: relative;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    /* Dev/support tool, not player-facing UI - hidden unless ?debug=1 is on
+       the URL (see main.ts). Was previously unconditionally visible, which
+       meant every real player saw a raw profile-ID/sync-state readout
+       floating over the game. */
+    #diagnostics {
+      display: none;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #444;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      pointer-events: auto;
+      z-index: 1000;
+      flex-direction: column;
+      gap: 5px;
+    }
+    button {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+    button:hover { background: #444; }
+  </style>
+  <script type="module" crossorigin src="./assets/index-DkBTAN_t.js"></script>
+</head>
+<body>
+
+  <div id="game-container">
+    <iframe id="game-iframe" src="./game/index.html" sandbox="allow-scripts allow-same-origin"></iframe>
+  </div>
+
+  <div id="diagnostics">
+    <strong>Diagnostics Panel</strong>
+    <div id="diag-profile">Profile: Loading...</div>
+    <div id="diag-local-gen">Local Gen: --</div>
+    <div id="diag-cloud-rev">Cloud Rev: --</div>
+    <div id="diag-state">State: --</div>
+    <div id="diag-leader">Sync Leader: --</div>
+    <div id="diag-network">Network: --</div>
+    <button id="btn-sync">Request Sync</button>
+    <button id="btn-pause">Toggle Pause</button>
+  </div>
+
+</body>
+</html>

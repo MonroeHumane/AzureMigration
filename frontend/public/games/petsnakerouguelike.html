@@ -1,0 +1,5139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Humane Games – Pet Snake Adventure</title>
+	<script src="embed.js"></script>
+	<link rel="stylesheet" href="embed.css?v=10">
+	<link rel="stylesheet" href="adventure-hud.css?v=19">
+	<link rel="stylesheet" href="shared-styles.css">
+	<style>
+		:root {
+			/* === PHASE 5: DESIGN TOKEN SYSTEM === */
+			
+			/* Desktop Layout */
+			--viewport-min-width: 1280px;
+			--viewport-min-height: 720px;
+			--game-max-width: 1400px;
+			--game-padding: 24px;
+			--game-gap: 20px;
+			--game-radius: 18px;
+			
+			/* Board */
+			--board-size: 19;
+			--cell-size: 32px;
+			--cell-gap: 0px;
+			--board-padding: 16px;
+			
+			/* Panel */
+			--panel-width: 360px;
+			--panel-min-width: 320px;
+			--panel-max-width: 420px;
+			
+			/* Modals */
+			--modal-width-sm: 480px;
+			--modal-width-md: 680px;
+			--modal-width-lg: 900px;
+			
+			/* Spacing */
+			--space-xs: 4px;
+			--space-sm: 8px;
+			--space-md: 16px;
+			--space-lg: 24px;
+			--space-xl: 32px;
+			--space-2xl: 48px;
+			
+			/* Typography */
+			--font-family-display: Georgia, 'Times New Roman', serif;
+			--font-family-body: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+			--font-size-xs: 0.72rem;
+			--font-size-sm: 0.85rem;
+			--font-size-base: 1rem;
+			--font-size-lg: 1.1rem;
+			--font-size-xl: 1.35rem;
+			
+			/* Colors */
+			--color-parchment: #fffbf5;
+			--color-parchment-dark: #fff8ed;
+			--color-wood-light: #bcaaa4;
+			--color-wood-medium: #8d6e63;
+			--color-wood-dark: #5D4037;
+			--color-ink: #3E2723;
+			--color-forest: #2E7D32;
+			--color-accent: #ffb347;
+			--color-danger: #c62828;
+			--color-success: #2f9d62;
+			
+			/* Shadows */
+			--shadow-sm: 0 2px 8px rgba(44, 28, 25, 0.1);
+			--shadow-md: 0 8px 24px rgba(44, 28, 25, 0.15);
+			--shadow-lg: 0 16px 48px rgba(44, 28, 25, 0.2);
+			
+			/* Animation */
+			--ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+			--ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+			--duration-fast: 150ms;
+			--duration-normal: 300ms;
+			
+			/* Z-Index */
+			--z-board: 1;
+			--z-panel: 10;
+			--z-modal-backdrop: 50;
+			--z-modal: 60;
+			--z-nav: 100;
+			
+			/* Legacy tokens (for backwards compatibility) */
+			--adventure-panel-bg: #F8F5E6;
+			--adventure-panel-border: var(--color-wood-dark);
+			--adventure-panel-shadow:
+				5px 5px 0px rgba(0, 0, 0, 0.2),
+				0 18px 36px rgba(44, 28, 25, 0.15);
+			--adventure-accent: var(--color-accent);
+			--adventure-ink: var(--color-ink);
+			--adventure-header-height: 120px;
+			--adventure-forest-green: var(--color-forest);
+			--adventure-maroon: #880E4F;
+		}
+
+		/* === PHASE 5: DESKTOP LAYOUT BEM PATTERN === */
+		/* New structured layout using adventure-game as root block */
+		.adventure-game {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			gap: clamp(12px, 2vw, 20px);
+			padding: clamp(16px, 3vw, 28px);
+			max-height: 100%;
+			width: 100%;
+			overflow: hidden;
+			background:
+				radial-gradient(
+					ellipse 100% 80% at 30% 20%,
+					rgba(255, 230, 180, 0.3),
+					transparent 60%
+				),
+				linear-gradient(180deg, #fffbf5 0%, #fff8ed 100%);
+			border-radius: 18px;
+			border: 3px solid transparent;
+			background-clip: padding-box;
+			box-shadow:
+				0 0 0 6px #8d6e63,
+				0 0 0 8px #a1887f,
+				0 0 0 10px #bcaaa4,
+				0 28px 50px rgba(44, 28, 25, 0.25),
+				0 12px 24px rgba(44, 28, 25, 0.15),
+				inset 0 1px 0 rgba(255, 255, 255, 0.8),
+				inset 0 2px 4px rgba(255, 248, 225, 0.5);
+			box-sizing: border-box;
+			contain: layout style;
+		}
+
+		.adventure-game__body {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr);
+			gap: clamp(12px, 2vw, 20px);
+			align-items: stretch;
+			min-height: 0;
+			max-height: 100%;
+			flex: 1 1 auto;
+			width: 100%;
+			overflow: hidden;
+			contain: layout style;
+		}
+
+		.adventure-game__sidebar {
+			display: none;
+		}
+
+		/* === PHASE 5: UNIFIED BUTTON SYSTEM === */
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: var(--space-sm);
+			padding: var(--space-md) var(--space-lg);
+			font-family: var(--font-family-display);
+			font-weight: 700;
+			font-size: var(--font-size-base);
+			border-radius: 12px;
+			border: 3px solid transparent;
+			cursor: pointer;
+			transition: transform var(--duration-fast) var(--ease-bounce),
+			            box-shadow var(--duration-fast) var(--ease-smooth);
+		}
+		
+		.btn:active {
+			transform: translateY(2px);
+		}
+		
+		.btn--primary {
+			background: linear-gradient(135deg, var(--color-accent), #ffd67f);
+			border-color: var(--color-wood-medium);
+			color: var(--color-ink);
+			box-shadow: 0 4px 0 var(--color-wood-dark), var(--shadow-sm);
+		}
+		
+		@media (hover: hover) and (pointer: fine) {
+				.btn--primary:hover {
+					transform: translateY(-2px);
+					box-shadow: 0 6px 0 var(--color-wood-dark), var(--shadow-md);
+				}
+		}
+		
+		.btn--primary:active {
+			box-shadow: 0 2px 0 var(--color-wood-dark);
+		}
+		
+		.btn--secondary {
+			background: var(--color-parchment);
+			border-color: var(--color-wood-light);
+			color: var(--color-ink);
+			box-shadow: 0 3px 0 var(--color-wood-light), var(--shadow-sm);
+		}
+		
+		@media (hover: hover) and (pointer: fine) {
+				.btn--secondary:hover {
+					transform: translateY(-2px);
+					border-color: var(--color-wood-medium);
+					box-shadow: 0 5px 0 var(--color-wood-medium), var(--shadow-md);
+				}
+		}
+		
+		.btn--danger {
+			background: linear-gradient(135deg, #ffcdd2, #ef9a9a);
+			border-color: var(--color-danger);
+			color: var(--color-ink);
+			box-shadow: 0 4px 0 #b71c1c, var(--shadow-sm);
+		}
+		
+		@media (hover: hover) and (pointer: fine) {
+				.btn--danger:hover {
+					transform: translateY(-2px);
+					box-shadow: 0 6px 0 #b71c1c, var(--shadow-md);
+				}
+		}
+		
+		.btn--success {
+			background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+			border-color: var(--color-success);
+			color: var(--color-ink);
+			box-shadow: 0 4px 0 #1b5e20, var(--shadow-sm);
+		}
+		
+		@media (hover: hover) and (pointer: fine) {
+				.btn--success:hover {
+					transform: translateY(-2px);
+					box-shadow: 0 6px 0 #1b5e20, var(--shadow-md);
+				}
+		}
+
+		/* === GPU ACCELERATION - TARGETED TO ANIMATED ELEMENTS ONLY === */
+
+		/* Board container - may transform during scaling */
+		.cat-snake__board {
+			will-change: transform;
+			contain: layout style paint;
+		}
+
+		/* Only the head animates during gameplay */
+		.cat-snake__cell.is-head {
+			will-change: transform;
+			backface-visibility: hidden;
+			-webkit-backface-visibility: hidden;
+		}
+
+		/* Cells with active animations */
+		.cat-snake__cell.head-bounce,
+		.cat-snake__cell.is-eating,
+		.cat-snake__cell.is-vacuum-escaping {
+			will-change: transform;
+			backface-visibility: hidden;
+			-webkit-backface-visibility: hidden;
+		}
+
+		/* Modals animate in/out */
+		.adventure-end-card,
+		.adventure-route-cardboard {
+			will-change: transform, opacity;
+			backface-visibility: hidden;
+			-webkit-backface-visibility: hidden;
+		}
+
+		/* Panel doesn't need GPU acceleration - it's static */
+		.adventure-panel {
+			contain: layout style;
+		}
+
+		/* Reduced motion mode for better performance */
+		body.reduce-motion *,
+		body.reduce-motion *::before,
+		body.reduce-motion *::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+
+	/* Keep essential game animations even in reduced motion */
+	body.reduce-motion .cat-snake__cell.is-head {
+		animation: none !important;
+		transition: transform 0.08s cubic-bezier(0.4, 0, 0.2, 1) !important;
+	}
+
+	/* Native system preference for reduced motion (prefers-reduced-motion: reduce) */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+
+		/* Keep essential head movement for gameplay */
+		.cat-snake__cell.is-head {
+			transition: transform 0.05s linear !important;
+		}
+
+		/* Disable ambient background animations */
+		body.adventure-page::before {
+			animation: none !important;
+			opacity: 0.7 !important;
+		}
+
+		/* Disable campfire sprite animations */
+		.campfire,
+		.campfire-large,
+		.campfire-small {
+			animation: none !important;
+			background-position: 0 0 !important;
+		}
+
+		/* Reduce modal animations */
+		.adventure-end-overlay,
+		.adventure-route-overlay {
+			transition: opacity 0.01ms !important;
+		}
+	}	body.adventure-page {
+		/* Illustrated forest floor / garden backdrop - optimized to 5 layers */
+		background:
+			/* Combined dappled light (single layer instead of 4) */
+			radial-gradient(
+				ellipse 120% 80% at 50% 35%,
+				rgba(255, 248, 225, 0.35) 0%,
+				rgba(255, 235, 80, 0.1) 30%,
+				transparent 60%
+			),
+			/* Subtle warm glow accent */
+			radial-gradient(
+				circle at 20% 70%,
+				rgba(255, 193, 7, 0.08),
+				transparent 50%
+			),
+			/* Single organic texture overlay (combined pattern) */
+			repeating-linear-gradient(
+				105deg,
+				rgba(139, 195, 74, 0.025) 0px,
+				transparent 3px,
+				transparent 8px
+			),
+			/* Secondary directional texture */
+			repeating-linear-gradient(
+				-30deg,
+				rgba(104, 159, 56, 0.015) 0px,
+				transparent 4px,
+				transparent 10px
+			),
+			/* Base warm earth tone */
+			linear-gradient(135deg, #d4e7c5 0%, #c8ddb8 50%, #bdd3ab 100%);
+		color: var(--adventure-ink);
+		min-height: 100vh;
+		overflow: hidden;
+		--adventure-shell-pad: clamp(16px, 3vw, 32px);
+		position: relative;
+	}
+
+	/* Add subtle animated ambiance - GPU-optimized */
+	body.adventure-page::before {
+		content: "";
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background:
+			radial-gradient(
+				ellipse 80% 60% at 45% 45%,
+				rgba(255, 235, 59, 0.06),
+				transparent 60%
+			);
+		animation: ambient-glow 8s ease-in-out infinite alternate;
+		pointer-events: none;
+		z-index: 0;
+		/* GPU acceleration for smooth opacity animation */
+		will-change: opacity;
+		transform: translateZ(0);
+	}
+
+	@keyframes ambient-glow {
+		0% { opacity: 0.5; }
+		100% { opacity: 1; }
+	}
+
+	/* Campfire Sprite Animation - Cozy Atmosphere */
+	.campfire {
+		/* Size of ONE frame */
+		width: 36px;
+		height: 36px;
+
+		/* The sprite sheet */
+		background-image: url('Campfire36.png');
+		background-repeat: no-repeat;
+
+		/* Animation with steps for pixel-perfect snapping */
+		animation: campfire-flicker 0.6s steps(4) infinite;
+
+		/* Keep it crisp when scaling */
+		image-rendering: pixelated;
+
+		/* Optimized warm glow for atmosphere */
+		filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.6));
+	}
+
+	@keyframes campfire-flicker {
+		from { background-position: 0px; }
+		to { background-position: -144px; } /* Full width of sprite sheet */
+	}
+
+	/* Larger campfire variant (2x scale = 72px) */
+	.campfire-large {
+		width: 72px;
+		height: 72px;
+
+		/* Scale background to fit */
+		background-size: 288px 72px; /* (144*2) width, (36*2) height */
+		background-image: url('Campfire36.png');
+		background-repeat: no-repeat;
+
+		/* Animation */
+		animation: campfire-flicker-large 0.6s steps(4) infinite;
+
+		/* Crisp pixels */
+		image-rendering: pixelated;
+
+		/* Enhanced warm glow for larger size (2 shadows max) */
+		filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.7))
+		        drop-shadow(0 0 40px rgba(255, 100, 0, 0.4));
+	}
+
+	@keyframes campfire-flicker-large {
+		from { background-position: 0px; }
+		to { background-position: -288px; } /* Scaled width */
+	}
+
+	/* Small campfire variant (decorative, 24px) */
+	.campfire-small {
+		width: 24px;
+		height: 24px;
+
+		/* Scale background to fit */
+		background-size: 96px 24px; /* (144*0.67) width, (36*0.67) height */
+		background-image: url('Campfire36.png');
+		background-repeat: no-repeat;
+
+		/* Animation */
+		animation: campfire-flicker-small 0.6s steps(4) infinite;
+
+		/* Crisp pixels */
+		image-rendering: pixelated;
+
+		/* Optimized glow for small size */
+		filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.5));
+	}
+
+	@keyframes campfire-flicker-small {
+		from { background-position: 0px; }
+		to { background-position: -96px; } /* Scaled width */
+	}
+
+
+	body.adventure-page.is-adventure-fullscreen {
+		overflow: auto;
+	}
+
+	/* ========== ADVENTURE NAVIGATION ========== */
+	/* Compact, minimal navigation for Adventure Mode */
+	.adventure-nav {
+		position: fixed;
+		top: 12px;
+		left: 12px;
+		z-index: 100;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.adventure-nav__home {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		background: rgba(255, 250, 243, 0.92);
+		border: 2px solid rgba(139, 109, 99, 0.3);
+		font-size: 1.4rem;
+		line-height: 1;
+		text-decoration: none;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+		box-shadow: 0 4px 12px rgba(44, 28, 25, 0.15);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.adventure-nav__home:hover {
+			background: rgba(255, 250, 243, 0.98);
+			border-color: rgba(139, 109, 99, 0.5);
+			transform: translateY(-1px);
+			box-shadow: 0 6px 16px rgba(44, 28, 25, 0.2);
+		}
+	}
+
+	.adventure-nav__home:active {
+		transform: translateY(1px);
+		box-shadow: 0 2px 8px rgba(44, 28, 25, 0.1);
+	}
+
+	.adventure-nav__menu-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		background: rgba(255, 250, 243, 0.92);
+		border: 2px solid rgba(139, 109, 99, 0.3);
+		font-size: 1.4rem;
+		line-height: 1;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+		box-shadow: 0 4px 12px rgba(44, 28, 25, 0.15);
+		appearance: none;
+		padding: 0;
+		color: inherit;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.adventure-nav__menu-btn:hover {
+			background: rgba(255, 250, 243, 0.98);
+			border-color: rgba(139, 109, 99, 0.5);
+			transform: translateY(-1px);
+			box-shadow: 0 6px 16px rgba(44, 28, 25, 0.2);
+		}
+	}
+
+	/* Hide nav in fullscreen */
+	body.adventure-page.is-adventure-fullscreen .adventure-nav {
+		display: none;
+	}
+
+	.cat-snake-widget--adventure {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: clamp(12px, 2vw, 20px);
+		max-height: 100%;
+		width: 100%;
+		overflow: hidden;
+		box-sizing: border-box;
+		contain: layout style;
+	}
+
+	body.adventure-page .site-shell {
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+			position: relative;
+			z-index: 1;
+		}
+
+	body.adventure-page .site-main {
+		flex: 1 1 auto;
+		display: flex;
+		align-items: stretch;
+		justify-content: center;
+		padding: var(--adventure-shell-pad);
+		height: calc(100vh - (var(--adventure-shell-pad, 24px) * 2));
+		max-height: calc(100vh - (var(--adventure-shell-pad, 24px) * 2));
+		overflow: hidden;
+	}
+
+	body.adventure-page.is-adventure-fullscreen .site-main {
+		padding: 0;
+		overflow: auto;
+	}
+
+	body.adventure-page .section {
+		max-width: none;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		background: transparent;
+	}
+
+		.cat-snake__cell {
+			position: relative;
+			width: var(--cell-size, 28px);
+			height: var(--cell-size, 28px);
+			border-radius: 0; /* Remove rounded corners for seamless tiles */
+			/* Grass tile texture - display at 2x size to show quadrant detail */
+			background-image: url('biome-grass-tile.png');
+			background-size: calc(var(--cell-size, 28px) * 2) calc(var(--cell-size, 28px) * 2);
+			background-repeat: no-repeat;
+			background-position: 0 0; /* Default: top-left quadrant */
+			/* Crisp pixel art rendering */
+			image-rendering: pixelated;
+			image-rendering: crisp-edges;
+			/* Box-shadow removed - grid lines now rendered via board ::after pseudo-element */
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: calc(var(--cell-size, 28px) * 0.6);
+			transition: none;
+			color: var(--adventure-ink);
+		}
+
+		/* ========================================
+		   QUADRANT DISTRIBUTION VIA DATA ATTRIBUTES
+		   Uses data-quadrant set by JavaScript for fast, simple selectors
+		   Quadrants: tl (0,0), tr (-cell,0), bl (0,-cell), br (-cell,-cell)
+		   ======================================== */
+
+		/* Top-right quadrant */
+		.cat-snake__cell[data-quadrant="tr"] {
+			background-position: calc(-1 * var(--cell-size, 28px)) 0;
+		}
+
+		/* Bottom-left quadrant */
+		.cat-snake__cell[data-quadrant="bl"] {
+			background-position: 0 calc(-1 * var(--cell-size, 28px));
+		}
+
+		/* Bottom-right quadrant */
+		.cat-snake__cell[data-quadrant="br"] {
+			background-position: calc(-1 * var(--cell-size, 28px)) calc(-1 * var(--cell-size, 28px));
+		}
+
+		/* Prevent pseudo-elements on base cells */
+		.cat-snake__cell::after,
+		.cat-snake__cell::before {
+			content: none;
+		}
+
+		/* Enhanced cat head with cel-shading */
+		.cat-snake__cell.is-head {
+			background:
+				/* Cel-shading highlight */
+				radial-gradient(circle at 28% 28%, rgba(255, 255, 255, 0.9) 0%, transparent 35%),
+				/* Main gradient */
+				radial-gradient(circle at 30% 30%, #fff5e4, #ffd3a4);
+			color: var(--adventure-ink);
+			font-size: calc(var(--cell-size, 28px) * 0.75);
+			font-weight: 700;
+			border-radius: 50%; /* Round head for character */
+			/* Cel-shading outline */
+			box-shadow:
+				/* Bold dark outline (toon style) */
+				0 0 0 2px #5d4037,
+				0 0 0 3px #6d4c41,
+				/* Inner bright highlight */
+				inset 0 0 0 1px rgba(255, 255, 255, 0.95),
+				inset -2px -2px 4px rgba(255, 255, 255, 0.6),
+				/* Shadow for depth */
+				0 4px 12px rgba(44, 28, 25, 0.35),
+				0 2px 6px rgba(255, 179, 71, 0.4);
+			/* Smooth movement transitions - optimized for performance */
+			transition: transform 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+			/* Use GPU acceleration for better performance */
+			transform: translateZ(0);
+			will-change: transform;
+			z-index: 10;
+		}
+
+		/* Cat head bounce effect when collecting treats */
+		.cat-snake__cell.is-head.head-bounce {
+			animation: head-bounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		}
+
+		@keyframes head-bounce {
+			0% { transform: scale(1); }
+			30% { transform: scale(1.15); }
+			50% { transform: scale(0.95); }
+			70% { transform: scale(1.05); }
+			100% { transform: scale(1); }
+		}
+
+		/* Cat head image smooth rotation */
+		.cat-snake__cell.is-head img {
+			transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1) !important;
+		}
+
+		/* Input buffer visual feedback */
+		.cat-snake__cell.is-head.input-buffered {
+			animation: input-pulse 0.2s ease-out;
+		}
+
+		@keyframes input-pulse {
+			0% { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), 0 8px 16px rgba(44, 28, 25, 0.14); }
+			50% { box-shadow: inset 0 0 0 2px rgba(107, 196, 166, 0.6), 0 8px 20px rgba(107, 196, 166, 0.3); }
+			100% { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), 0 8px 16px rgba(44, 28, 25, 0.14); }
+		}
+
+		.cat-snake__cell.is-body .snake-body-glyph {
+			display: block;
+			font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+			font-size: calc(var(--cell-size, 28px) * 0.52);
+			line-height: 1;
+			pointer-events: none;
+			user-select: none;
+		}
+
+		.cat-snake__cell.is-body {
+			background:
+				/* Cel-shading highlight band */
+				linear-gradient(135deg,
+					rgba(255, 255, 255, 0.7) 0%,
+					rgba(255, 255, 255, 0.4) 25%,
+					transparent 50%
+				),
+				/* Main gradient */
+				linear-gradient(135deg, #ffe8cc, #ffcfa1);
+			color: #1d0600;
+			border-radius: 30%; /* Softer organic shape */
+			/* Cel-shading outline */
+			box-shadow:
+				/* Dark outline - inset only so glow does not bleed onto neighbor tiles */
+				0 0 0 1.5px #8d6e63,
+				0 0 0 2.5px #a1887f,
+				inset 0 0 0 1px rgba(255, 255, 255, 0.8),
+				inset -1px -1px 3px rgba(255, 255, 255, 0.5);
+			z-index: 5;
+			isolation: isolate;
+			/* Override base cell transition to prevent blur artifacts */
+			transition: none;
+		}
+
+		.cat-snake__cell.is-treat {
+			background:
+				/* Cel-shading highlight */
+				radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95) 0%, transparent 40%),
+				/* Main gradient */
+				radial-gradient(circle at 35% 35%, #fffef4, #fef3da);
+			color: #6f3b00;
+			border-radius: 40%; /* Organic treat shape */
+			/* Cel-shading outline */
+			box-shadow:
+				/* Bold dark outline */
+				0 0 0 2px #e65100,
+				0 0 0 3px #f57c00,
+				/* Inner bright rim */
+				inset 0 0 0 1px rgba(255, 255, 255, 0.95),
+				inset -2px -2px 4px rgba(255, 255, 255, 0.7),
+				/* Glow */
+				0 4px 10px rgba(255, 179, 71, 0.5),
+				0 0 16px rgba(255, 235, 59, 0.4);
+			z-index: 8;
+		}
+
+		.cat-snake__cell.is-power {
+			background:
+				/* Cel-shading highlight */
+				radial-gradient(circle at 28% 28%, rgba(255, 255, 255, 0.95) 0%, transparent 38%),
+				/* Main gradient */
+				radial-gradient(circle at 35% 35%, #e8f1ff, #d5e4ff);
+			color: #1d376d;
+			border-radius: 50%; /* Round powerup */
+			/* Cel-shading outline with animation */
+			box-shadow:
+				/* Bold dark outline */
+				0 0 0 2px #1565c0,
+				0 0 0 3px #1976d2,
+				/* Inner bright rim */
+				inset 0 0 0 1px rgba(255, 255, 255, 0.95),
+				inset -2px -2px 4px rgba(255, 255, 255, 0.7),
+				/* Glow */
+				0 4px 10px rgba(33, 150, 243, 0.5),
+				0 0 16px rgba(100, 181, 246, 0.6);
+			z-index: 8;
+			animation: powerup-glow 1.5s ease-in-out infinite;
+		}
+
+		@keyframes powerup-glow {
+			0%, 100% {
+				box-shadow:
+					0 0 0 2px #1565c0,
+					0 0 0 3px #1976d2,
+					inset 0 0 0 1px rgba(255, 255, 255, 0.95),
+					inset -2px -2px 4px rgba(255, 255, 255, 0.7),
+					0 4px 10px rgba(33, 150, 243, 0.5),
+					0 0 16px rgba(100, 181, 246, 0.6);
+			}
+			50% {
+				box-shadow:
+					0 0 0 2px #0d47a1,
+					0 0 0 3px #1565c0,
+					inset 0 0 0 1px rgba(255, 255, 255, 1),
+					inset -2px -2px 4px rgba(255, 255, 255, 0.9),
+					0 4px 14px rgba(33, 150, 243, 0.7),
+					0 0 28px rgba(100, 181, 246, 0.8);
+			}
+		}
+
+		.cat-snake__cell.is-bomb {
+			background:
+				/* Cel-shading highlight */
+				radial-gradient(circle at 32% 32%, rgba(255, 255, 255, 0.85) 0%, transparent 35%),
+				/* Main gradient */
+				radial-gradient(circle at 40% 35%, #ffe0e0, #ffb4b4);
+			color: #8f1b1b;
+			border-radius: 50%; /* Round bomb */
+			/* Cel-shading outline */
+			box-shadow:
+				/* Bold dark outline (danger!) */
+				0 0 0 2px #b71c1c,
+				0 0 0 3px #c62828,
+				/* Inner bright rim */
+				inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+				inset -2px -2px 4px rgba(255, 255, 255, 0.6),
+				/* Danger glow */
+				0 4px 10px rgba(211, 47, 47, 0.5),
+				0 0 16px rgba(244, 67, 54, 0.4);
+			z-index: 8;
+		}
+
+		/* Awareness Collar - bomb warning flash animation */
+		.cat-snake__cell.is-bomb.bomb-warning {
+			animation: bomb-warning-flash 0.3s ease-in-out infinite;
+		}
+
+		@keyframes bomb-warning-flash {
+			0%, 100% {
+				background:
+					radial-gradient(circle at 32% 32%, rgba(255, 255, 255, 0.85) 0%, transparent 35%),
+					radial-gradient(circle at 40% 35%, #ffe0e0, #ffb4b4);
+				box-shadow:
+					0 0 0 2px #b71c1c,
+					0 0 0 3px #c62828,
+					inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+					inset -2px -2px 4px rgba(255, 255, 255, 0.6),
+					0 4px 10px rgba(211, 47, 47, 0.5),
+					0 0 16px rgba(244, 67, 54, 0.4);
+			}
+			50% {
+				background:
+					radial-gradient(circle at 32% 32%, rgba(255, 255, 255, 1) 0%, transparent 40%),
+					radial-gradient(circle at 40% 35%, #ffff00, #ff6600);
+				box-shadow:
+					0 0 0 3px #ff0000,
+					0 0 0 5px #ffff00,
+					inset 0 0 0 2px rgba(255, 255, 255, 1),
+					inset -2px -2px 4px rgba(255, 255, 255, 0.8),
+					0 0 20px rgba(255, 200, 0, 0.9),
+					0 0 30px rgba(255, 100, 0, 0.7);
+				transform: scale(1.15);
+			}
+		}
+
+		/* Vacuum/Roomba Enemy with cel-shading */
+		.cat-snake__cell.is-vacuum {
+			position: relative;
+			background:
+				/* Cel-shading highlight */
+				radial-gradient(circle at 28% 28%, rgba(255, 255, 255, 0.4) 0%, transparent 35%),
+				/* Main gradient */
+				radial-gradient(circle at 30% 30%, #5a6268, #2d3436);
+			border-radius: 50%;
+			/* Cel-shading outline */
+			box-shadow:
+				/* Bold dark outline */
+				0 0 0 2px #1a1a1a,
+				0 0 0 3px #263238,
+				/* Cyan tech glow */
+				0 0 0 4px rgba(0, 206, 201, 0.6),
+				/* Inner highlight */
+				inset 0 2px 6px rgba(255, 255, 255, 0.4),
+				inset -2px -2px 4px rgba(255, 255, 255, 0.2),
+				/* Shadow */
+				0 4px 10px rgba(0, 0, 0, 0.4);
+			color: #00cec9;
+			font-size: 0.6em;
+			z-index: 2;
+			transition: transform 0.2s linear;
+			overflow: hidden;
+		}
+
+		/* Vacuum light bar - only shows on actual vacuum cells */
+		.cat-snake__cell.is-vacuum::after {
+			content: "";
+			display: block;
+			position: absolute;
+			top: 20%;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 40%;
+			height: 8%;
+			min-height: 2px;
+			max-height: 4px;
+			background: rgba(0, 206, 201, 0.8);
+			border-radius: 2px;
+			box-shadow: 0 0 4px rgba(0, 206, 201, 0.6);
+			pointer-events: none;
+		}
+
+		/* Vacuum struggling/escape animation when stuck */
+		.cat-snake__cell.is-vacuum.is-vacuum-escaping {
+			animation: vacuum-wiggle 0.4s ease-in-out;
+			box-shadow:
+				/* Bold dark outline */
+				0 0 0 2px #1a1a1a,
+				0 0 0 3px #263238,
+				/* Warning yellow glow instead of cyan */
+				0 0 0 4px rgba(255, 193, 7, 0.8),
+				0 0 12px rgba(255, 193, 7, 0.6),
+				/* Inner highlight */
+				inset 0 2px 6px rgba(255, 255, 255, 0.4),
+				inset -2px -2px 4px rgba(255, 255, 255, 0.2),
+				/* Shadow */
+				0 4px 10px rgba(0, 0, 0, 0.4);
+		}
+
+		@keyframes vacuum-wiggle {
+			0%, 100% { transform: translate(0, 0) rotate(0deg); }
+			20% { transform: translate(-3px, 0) rotate(-8deg); }
+			40% { transform: translate(3px, 0) rotate(8deg); }
+			60% { transform: translate(-3px, 0) rotate(-8deg); }
+			80% { transform: translate(3px, 0) rotate(8deg); }
+		}
+
+		.cat-snake__cell.is-vacuum-tail {
+			background:
+				linear-gradient(135deg,
+					rgba(255, 255, 255, 0.22) 0%,
+					rgba(255, 255, 255, 0.08) 40%,
+					transparent 70%
+				),
+				rgba(69, 90, 100, 0.38);
+			border-radius: 25%;
+			box-shadow:
+				0 0 0 1px rgba(38, 50, 56, 0.55),
+				inset 0 0 5px rgba(255, 255, 255, 0.2),
+				0 1px 3px rgba(38, 50, 56, 0.25);
+			z-index: 1;
+		}
+
+		.cat-snake__cell.is-vacuum-tail-tip {
+			box-shadow:
+				0 0 0 1px rgba(38, 50, 56, 0.65),
+				inset 0 0 8px rgba(255, 255, 255, 0.35),
+				0 0 6px rgba(0, 206, 201, 0.35),
+				0 2px 4px rgba(38, 50, 56, 0.3);
+		}
+
+		/* Obstacle (Various Emojis) - Highly Visible */
+		.cat-snake__cell.is-obstacle {
+			position: relative;
+			background:
+				/* Subtle background to make emoji stand out */
+				radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15), rgba(200, 200, 200, 0.2));
+			border-radius: 15%;
+			/* Prominent border for visibility */
+			box-shadow:
+				/* Bold outline */
+				0 0 0 2px rgba(0, 0, 0, 0.3),
+				/* Glow effect */
+				0 0 8px rgba(0, 0, 0, 0.2),
+				/* Shadow */
+				0 3px 6px rgba(0, 0, 0, 0.3);
+			z-index: 1;
+			/* Make emoji large and centered */
+			font-size: 1.8em;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			/* Add subtle animation to draw attention - slowed for performance */
+			animation: obstacle-pulse 4s ease-in-out infinite;
+		}
+
+		/* Subtle pulse animation for obstacles - optimized */
+		@keyframes obstacle-pulse {
+			0%, 100% {
+				transform: scale3d(1, 1, 1);
+				opacity: 1;
+			}
+			50% {
+				transform: scale3d(1.05, 1.05, 1);
+				opacity: 0.95;
+			}
+		}
+
+		/* Shield Active Effect - Glowing Bubble */
+		.cat-snake__cell.has-shield {
+			position: relative;
+			animation: shield-pulse 1.5s ease-in-out infinite;
+		}
+
+		/* Shield bubble overlay */
+		.cat-snake__cell.has-shield::after {
+			content: "";
+			position: absolute;
+			inset: -4px;
+			border-radius: 50%;
+			background:
+				radial-gradient(circle at 30% 30%, rgba(100, 200, 255, 0.4), transparent 70%),
+				radial-gradient(circle at 50% 50%, rgba(100, 200, 255, 0.2), transparent);
+			border: 2px solid rgba(100, 200, 255, 0.6);
+			box-shadow:
+				0 0 12px rgba(100, 200, 255, 0.8),
+				0 0 24px rgba(100, 200, 255, 0.4),
+				inset 0 0 12px rgba(255, 255, 255, 0.3);
+			pointer-events: none;
+			z-index: 10;
+		}
+
+		/* Shield pulse animation - optimized to box-shadow */
+		@keyframes shield-pulse {
+			0%, 100% {
+				box-shadow:
+					0 0 12px rgba(100, 200, 255, 0.8),
+					0 0 24px rgba(100, 200, 255, 0.4),
+					inset 0 0 12px rgba(255, 255, 255, 0.3),
+					0 0 8px rgba(100, 200, 255, 0.6);
+			}
+			50% {
+				box-shadow:
+					0 0 12px rgba(100, 200, 255, 0.8),
+					0 0 24px rgba(100, 200, 255, 0.4),
+					inset 0 0 12px rgba(255, 255, 255, 0.3),
+					0 0 16px rgba(100, 200, 255, 0.9);
+			}
+		}
+
+	.adventure-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: clamp(12px, 2vw, 20px);
+		align-items: stretch;
+		min-height: 0;
+		max-height: 100%;
+		flex: 1 1 auto;
+		width: 100%;
+		overflow: hidden;
+		contain: layout style;
+	}
+
+	/* Fullscreen desktop-optimized layout */
+	.cat-snake-widget--adventure.is-fullscreen {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		max-width: none;
+		max-height: none;
+		margin: 0;
+		border-radius: 0;
+		padding: 24px 32px;
+		z-index: 9999;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: row;
+		overflow: hidden;
+		gap: 24px;
+		background:
+			radial-gradient(140% 140% at 10% 10%, rgba(255, 210, 184, 0.5), rgba(255, 210, 184, 0)),
+			radial-gradient(150% 150% at 90% 15%, rgba(186, 227, 255, 0.45), rgba(186, 227, 255, 0)),
+			linear-gradient(180deg, rgba(255, 250, 243, 0.96), rgba(255, 240, 225, 0.9));
+	}
+
+	.cat-snake-widget--adventure.is-fullscreen .adventure-grid {
+		display: grid;
+		height: 100%;
+		min-height: 0;
+		width: 100%;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 16px;
+		align-items: stretch;
+		max-height: 100vh;
+		overflow: hidden;
+		flex: 1 1 auto;
+	}
+
+	.cat-snake-widget--adventure.is-fullscreen .adventure-panel:not(.cat-snake__board-wrap) {
+		display: none;
+	}
+
+	@media (max-width: 900px) {
+		.cat-snake-widget--adventure.is-fullscreen .adventure-grid {
+			grid-template-columns: 1fr;
+			grid-template-rows: minmax(0, 1fr);
+		}
+	}
+
+	.cat-snake-widget--adventure.is-fullscreen .cat-snake__play {
+		height: auto;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		max-height: 100vh;
+		overflow: hidden;
+	}
+
+	/* Board-wrap / HUD layout lives in adventure-hud.css */
+
+	.cat-snake__board {
+		display: grid;
+		grid-template-columns: repeat(var(--board-size, 19), var(--cell-size, 28px));
+		grid-auto-rows: var(--cell-size, 28px);
+		gap: var(--board-gap, 0); /* Flexible gap, defaults to seamless */
+		/* Let the wrapper and JS decide the size - centered by parent flexbox */
+		width: fit-content;
+		height: fit-content;
+		max-width: 100%;
+		max-height: 100%;
+		/* Minimal padding for cell content */
+		padding: clamp(4px, 1vw, 8px);
+		border-radius: 12px;
+		overflow: visible; /* Allow cel-shaded outlines to show */
+		/* Grass tile texture background */
+		background-image: url('biome-grass-tile.png');
+		background-size: calc(var(--cell-size, 28px) * 2) calc(var(--cell-size, 28px) * 2);
+		background-repeat: repeat;
+		background-position: 0 0;
+		/* Crisp pixel art rendering */
+		image-rendering: pixelated;
+		image-rendering: crisp-edges;
+		/* Simplified shadow - mat edge tuned in adventure-hud.css */
+		box-shadow: none;
+		box-sizing: content-box;
+		/* Position relative for grid overlay pseudo-element */
+		position: relative;
+	}
+
+	/* Grid lines overlay using pseudo-element instead of per-cell box-shadows */
+	.cat-snake__board::after {
+		content: "";
+		position: absolute;
+		inset: clamp(4px, 1vw, 8px); /* Match padding */
+		pointer-events: none;
+		z-index: 1;
+		/* Grid lines using repeating-linear-gradient */
+		background:
+			/* Vertical lines */
+			repeating-linear-gradient(
+				to right,
+				transparent 0,
+				transparent calc(var(--cell-size, 28px) - 2px),
+				rgba(27, 94, 32, 0.55) calc(var(--cell-size, 28px) - 2px),
+				rgba(27, 94, 32, 0.55) var(--cell-size, 28px)
+			),
+			/* Horizontal lines */
+			repeating-linear-gradient(
+				to bottom,
+				transparent 0,
+				transparent calc(var(--cell-size, 28px) - 2px),
+				rgba(27, 94, 32, 0.55) calc(var(--cell-size, 28px) - 2px),
+				rgba(27, 94, 32, 0.55) var(--cell-size, 28px)
+			);
+	}
+
+		.adventure-toolbar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1.25rem;
+		}
+
+		.adventure-toolbar__eyebrow {
+			text-transform: uppercase;
+			letter-spacing: 0.18em;
+			font-size: 0.75rem;
+			margin: 0;
+			opacity: 0.7;
+		}
+
+		.adventure-toolbar__title {
+			margin: 4px 0 0;
+			font-family: Georgia, 'Times New Roman', serif;
+			font-weight: 600;
+			color: #5d4037;
+			text-shadow:
+				0 1px 0 rgba(255, 255, 255, 0.8),
+				0 2px 4px rgba(93, 64, 55, 0.2);
+			letter-spacing: 0.02em;
+		}
+
+		.adventure-toolbar__actions {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		/* Fullscreen Button - Enhanced Styling */
+		.adventure-fullscreen-btn {
+			background: linear-gradient(135deg, #558b2f 0%, #689f38 100%);
+			border: 2px solid rgba(85, 139, 47, 0.4);
+			border-radius: 8px;
+			color: #fff;
+			cursor: pointer;
+			font-size: 1.4rem;
+			padding: 10px 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s ease-in-out;
+			box-shadow: 0 2px 8px rgba(85, 139, 47, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+				.adventure-fullscreen-btn:hover {
+					background: linear-gradient(135deg, #689f38 0%, #7cb342 100%);
+					box-shadow: 0 4px 12px rgba(85, 139, 47, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+					transform: translateY(-1px);
+				}
+		}
+
+		.adventure-fullscreen-btn:active {
+			box-shadow: 0 1px 4px rgba(85, 139, 47, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+			transform: translateY(0);
+		}
+
+		/* Fullscreen Icon */
+		.adventure-fullscreen-icon {
+			display: inline-block;
+			line-height: 1;
+		}
+
+		/* Legacy sidebar / panel grid - layout in adventure-hud.css */
+
+		.adventure-label {
+			font-family: Georgia, 'Times New Roman', serif;
+			font-size: 0.85rem;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: var(--adventure-forest-green);
+			font-weight: 700;
+			margin-bottom: 8px;
+			text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+			opacity: 1;
+		}
+
+		/* Bomb explosion animation on score (HUD chip) */
+		.board-hud #adventure-score.is-exploding {
+			animation: score-explosion 0.6s ease-out;
+		}
+
+		@keyframes score-explosion {
+			0% {
+				transform: scale(1);
+				color: var(--adventure-forest-green);
+				text-shadow:
+					0 1px 0 rgba(255, 255, 255, 0.9),
+					0 2px 0 rgba(46, 125, 50, 0.3),
+					0 3px 4px rgba(46, 125, 50, 0.2),
+					0 0 8px rgba(139, 195, 74, 0.3);
+			}
+			15% {
+				transform: scale(1.3) rotate(-5deg);
+				color: #ff6b00;
+				text-shadow:
+					0 0 20px rgba(255, 107, 0, 0.9),
+					0 0 40px rgba(255, 107, 0, 0.6),
+					0 0 60px rgba(255, 107, 0, 0.4),
+					0 4px 8px rgba(0, 0, 0, 0.5);
+			}
+			30% {
+				transform: scale(1.2) rotate(3deg);
+				color: #ff4500;
+				text-shadow:
+					0 0 25px rgba(255, 69, 0, 0.9),
+					0 0 50px rgba(255, 69, 0, 0.6),
+					0 0 75px rgba(255, 69, 0, 0.4),
+					0 4px 8px rgba(0, 0, 0, 0.5);
+			}
+			50% {
+				transform: scale(0.9) rotate(-2deg);
+				color: #d32f2f;
+				text-shadow:
+					0 0 15px rgba(211, 47, 47, 0.7),
+					0 0 30px rgba(211, 47, 47, 0.4),
+					0 4px 8px rgba(0, 0, 0, 0.4);
+			}
+			70% {
+				transform: scale(1.05) rotate(1deg);
+				color: #c62828;
+				text-shadow:
+					0 0 10px rgba(198, 40, 40, 0.5),
+					0 0 20px rgba(198, 40, 40, 0.3),
+					0 4px 8px rgba(0, 0, 0, 0.3);
+			}
+			100% {
+				transform: scale(1) rotate(0deg);
+				color: var(--adventure-forest-green);
+				text-shadow:
+					0 1px 0 rgba(255, 255, 255, 0.9),
+					0 2px 0 rgba(46, 125, 50, 0.3),
+					0 3px 4px rgba(46, 125, 50, 0.2),
+					0 0 8px rgba(139, 195, 74, 0.3);
+			}
+		}
+
+		#adventure-goal {
+			margin: 0;
+		}
+
+		.board-hud .adventure-hearts--hit {
+			animation: hud-hearts-hit 0.3s ease;
+		}
+
+		@keyframes hud-hearts-hit {
+			40% { transform: scale(1.15); color: #c62828; }
+			100% { transform: scale(1); }
+		}
+
+		/* Shine animation for score/treats */
+		.adventure-stat-shine {
+			position: relative;
+			overflow: hidden;
+		}
+
+		.adventure-stat-shine::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: -60%;
+			width: 40%;
+			height: 100%;
+			background: linear-gradient(120deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+			animation: stat-shine 480ms ease;
+			pointer-events: none;
+		}
+
+		@keyframes stat-shine {
+			0% {
+				transform: translateX(0) skewX(-15deg);
+				opacity: 0.2;
+			}
+			60% {
+				opacity: 0.7;
+			}
+			100% {
+				transform: translateX(260%) skewX(-15deg);
+				opacity: 0;
+			}
+		}
+
+		/* Phase 3: Enhanced Pop animation for stats with gold flash - optimized */
+		.adventure-stat-pop {
+			animation: stat-pop 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+		}
+
+		@keyframes stat-pop {
+			0% {
+				transform: scale(1);
+				color: inherit;
+				text-shadow: 0 0 0 transparent;
+			}
+			50% {
+				transform: scale(1.2);
+				color: #f9a825; /* Gold flash */
+				text-shadow: 0 0 10px rgba(255, 193, 7, 0.8);
+			}
+			100% {
+				transform: scale(1);
+				color: inherit;
+				text-shadow: 0 0 0 transparent;
+			}
+		}
+
+		.adventure-inline-stats {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 0.75rem;
+			font-size: 0.95rem;
+		}
+
+		/* Enhanced labels for inline stats */
+		.adventure-inline-stats > div {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.adventure-inline-stats span {
+			font-size: 0.78rem;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: rgba(62, 39, 35, 0.7);
+			font-family: Georgia, 'Times New Roman', serif;
+		}
+
+		.adventure-inline-stats strong {
+			font-size: 1.1rem;
+			position: relative;
+			display: inline-block;
+		}
+
+
+
+		.adventure-affix-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.35rem;
+		}
+
+		.adventure-affix-pill {
+			font-size: 0.72rem;
+			padding: 3px 8px;
+			border-radius: 999px;
+			background: rgba(44, 28, 25, 0.04);
+			border: 1px solid rgba(44, 28, 25, 0.08);
+		}
+
+		.adventure-affix-pill.is-empty {
+			opacity: 0.6;
+			font-style: italic;
+		}
+
+		#adventure-affix-notes {
+			margin: 0;
+			font-size: 0.85rem;
+			opacity: 0.8;
+		}
+
+		.adventure-controls {
+			display: flex;
+			flex-direction: column;
+			gap: 0.75rem;
+		}
+
+		/* Enhanced Run Summary - Compact & Polished */
+		.adventure-summary {
+			background:
+				/* Subtle paper texture */
+				repeating-linear-gradient(
+					0deg,
+					rgba(139, 119, 101, 0.015) 0px,
+					rgba(139, 119, 101, 0.015) 1px,
+					transparent 1px,
+					transparent 2px
+				),
+				/* Light parchment */
+				linear-gradient(135deg, #fffbf5 0%, #fff8ed 100%);
+			border-radius: 10px;
+			padding: 12px 14px;
+			font-size: 0.82rem;
+			line-height: 1.4;
+			border: 2px solid rgba(93, 64, 55, 0.15);
+			height: 100%;
+			box-shadow:
+				inset 0 1px 2px rgba(255, 255, 255, 0.8),
+				0 2px 4px rgba(44, 28, 25, 0.08);
+		}
+
+		#adventure-summary-body {
+			margin: 0 0 0.4rem;
+			font-weight: 600;
+			color: var(--adventure-forest-green);
+		}
+
+		#adventure-summary-list {
+			margin: 0.4rem 0 0;
+			padding-left: 1.1rem;
+			font-size: 0.78rem;
+			flex: 1 1 auto;
+			min-height: 0;
+			overflow-y: auto;
+			line-height: 1.5;
+		}
+
+		#adventure-summary-list li {
+			margin-bottom: 0.25rem;
+		}
+
+		@keyframes live-pulse {
+			0% { transform: scale(1); }
+			50% { transform: scale(1.02); }
+			100% { transform: scale(1); }
+		}
+
+		/* Enhanced Event Log - Terminal Style */
+		#adventure-log {
+			flex: 1 1 auto;
+			min-height: 0;
+			overflow-y: auto;
+			font-size: 0.78rem;
+			margin: 0;
+			padding: 8px 0 8px 1rem;
+			color: var(--adventure-ink);
+			line-height: 1.6;
+			/* Custom scrollbar for terminal feel */
+			scrollbar-width: thin;
+			scrollbar-color: rgba(93, 64, 55, 0.3) transparent;
+		}
+
+		#adventure-log::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		#adventure-log::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		#adventure-log::-webkit-scrollbar-thumb {
+			background: rgba(93, 64, 55, 0.3);
+			border-radius: 3px;
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+				#adventure-log::-webkit-scrollbar-thumb:hover {
+					background: rgba(93, 64, 55, 0.5);
+				}
+		}
+
+		#adventure-log li {
+			margin-bottom: 0.3rem;
+			opacity: 0.85;
+		}
+
+		#adventure-log li:last-child {
+			opacity: 1;
+			font-weight: 600;
+		}
+
+		/* Phase 3: Slide-in animation for new log entries */
+		#adventure-log li {
+			animation: log-slide-in 0.3s ease-out;
+		}
+
+		@keyframes log-slide-in {
+			from {
+				opacity: 0;
+				transform: translateX(-10px);
+			}
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		/* Howard Powered Games Watermark */
+		.adventure-watermark {
+			position: fixed;
+			bottom: 12px;
+			right: 16px;
+			z-index: 1;
+			pointer-events: none;
+		}
+
+		.adventure-watermark p {
+			margin: 0;
+			font-size: 0.7rem;
+			font-weight: 500;
+			letter-spacing: 0.05em;
+			color: rgba(44, 28, 25, 0.15);
+			text-transform: uppercase;
+			text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+		}
+
+		@media (max-width: 768px) {
+			.adventure-watermark {
+				bottom: 8px;
+				right: 12px;
+			}
+			.adventure-watermark p {
+				font-size: 0.6rem;
+			}
+		}
+	</style>
+	<!-- Loaded last so the app shell wins over the inline block without !important. -->
+	<link rel="stylesheet" href="adventure-shell.css?v=3">
+</head>
+<body class="pet-snake-page adventure-page">
+	<a class="skip-link" href="#main-content">Skip to main content</a>
+	<div class="site-shell">
+		<!-- Compact Adventure Navigation - Integrated into Layout -->
+		<nav class="adventure-nav" aria-label="Adventure controls">
+			<a class="adventure-nav__home" href="index.html" aria-label="Return to Humane Games" title="Home">&#127968;</a>
+			<button class="adventure-nav__menu-btn" type="button" data-launcher-open aria-label="Game Menu" title="Game Menu">&#127918;</button>
+		</nav>
+		<main class="site-main" id="main-content">
+			<section class="section" id="adventure-mode">
+				<div class="adventure-game cat-snake-widget cat-snake-widget--adventure" role="application" aria-label="Pet Snake Adventure run" data-adventure-widget data-game-state="idle">
+					<div class="adventure-toolbar">
+						<div>
+							<h2 class="adventure-toolbar__title">Pet Snake Adventure</h2>
+						</div>
+						<div class="adventure-toolbar__actions">
+							<button
+								type="button"
+								class="adventure-fullscreen-btn"
+								id="adventure-fullscreen"
+								aria-label="Toggle Fullscreen"
+								title="Fullscreen (F)"
+							>
+								<span aria-hidden="true" class="adventure-fullscreen-icon">⛶</span>
+							</button>
+						</div>
+					</div>
+						<div class="adventure-game__body adventure-grid">
+							<div class="cat-snake__play">
+								<div class="board-hud board-hud--top" aria-label="Run vitals">
+									<div class="board-hud__vitals">
+										<span class="hud-chip hud-chip--hearts" title="Hearts">
+											<span class="adventure-hearts" id="adventure-hearts" aria-live="polite">&#9829;&#9829;&#9829;</span>
+										</span>
+										<span class="hud-chip hud-chip--floor" title="Floor progress">
+											<strong id="adventure-floor">0 / 5</strong>
+											<progress class="hud-progress" id="adventure-floor-progress" value="0" max="1" aria-label="Floor progress"></progress>
+										</span>
+										<span class="hud-chip hud-chip--score" title="Score">
+											<span class="hud-chip__icon hud-chip__icon--score" aria-hidden="true">&#9733;</span>
+											<strong id="adventure-score">0</strong>
+										</span>
+										<span class="hud-chip hud-chip--coins" title="Coins">
+											<span class="hud-chip__icon hud-chip__icon--coins" aria-hidden="true">&#9678;</span>
+											<strong id="adventure-coins">0</strong>
+										</span>
+									</div>
+									<div class="board-hud__actions">
+										<button type="button" class="board-hud__toggle" data-hud-toggle="kit" aria-expanded="false" aria-controls="board-drawer-kit" title="Kit">Kit</button>
+										<button type="button" class="board-hud__toggle" data-hud-toggle="log" aria-expanded="false" aria-controls="board-drawer-log" title="Event log">Log</button>
+										<button type="button" class="board-hud__toggle" data-hud-toggle="settings" aria-expanded="false" aria-controls="board-drawer-settings" title="Settings">Set</button>
+									</div>
+								</div>
+								<div class="board-arena" data-board-arena>
+								<div class="cat-snake__board-wrap adventure-panel" data-board-wrap>
+									<div class="board-stage">
+										<div class="board-stage__play">
+								<div class="cat-snake__board" data-board aria-label="Adventure game board" role="grid"></div>
+								<div class="adventure-end-overlay board-mat-modal" id="adventure-end-overlay" hidden aria-hidden="true">
+									<div class="adventure-end-card board-mat-scroll" id="adventure-end-card" role="dialog" aria-modal="true" aria-labelledby="journal-run-name">
+										<div class="adventure-journal">
+											<div class="journal-header">
+												<div class="journal-title" id="journal-date">OBSERVATION LOG #0000</div>
+												<h3 class="journal-name" id="journal-run-name">Run Analysis</h3>
+												<div class="journal-stamp" id="journal-stamp">FAILED</div>
+											</div>
+											<div class="journal-grid">
+												<div class="journal-stat">
+													<small>Result</small>
+													<strong id="journal-cause">Unknown</strong>
+												</div>
+												<div class="journal-stat">
+													<small>Floor Reached</small>
+													<strong id="journal-floor">0 / 5</strong>
+												</div>
+												<div class="journal-stat">
+													<small>Final Score</small>
+													<strong id="journal-score">0</strong>
+												</div>
+												<div class="journal-stat">
+													<small>Coins Found</small>
+													<strong id="journal-coins">0</strong>
+												</div>
+												<div class="journal-stat">
+													<small>Treats Eaten</small>
+													<strong id="journal-treats">0</strong>
+												</div>
+											</div>
+											<div class="journal-evidence">
+												<div class="journal-stat">
+													<small>Kit Configuration</small>
+													<ul class="journal-evidence-list" id="journal-kit">
+														<li class="journal-tag" style="opacity:0.5">Standard Issue</li>
+													</ul>
+												</div>
+												<div class="journal-stat">
+													<small>Treat Breakdown</small>
+													<ul class="journal-evidence-list" id="journal-treat-breakdown">
+														<li class="journal-tag" style="opacity:0.5">No treats logged</li>
+													</ul>
+												</div>
+											</div>
+										</div>
+										<div class="board-mat-modal__actions">
+											<button type="button" class="board-mat-modal__btn board-mat-modal__btn--coin" id="adventure-end-continue">
+												<span>Continue (10 Coins)</span>
+											</button>
+											<button type="button" class="board-mat-modal__btn board-mat-modal__btn--primary" id="adventure-end-restart">
+												Return to Camp
+											</button>
+										</div>
+									</div>
+								</div>
+								<div class="adventure-route-overlay board-mat-modal" id="adventure-route-overlay" hidden aria-hidden="true">
+									<div class="adventure-route-cardboard board-mat-scroll" role="dialog" aria-modal="true" aria-labelledby="route-overlay-title">
+										<header class="adventure-route-headline">
+											<p class="adventure-label" id="adventure-modal-title">Floor Complete</p>
+											<h3 class="adventure-route-headline__title" id="route-overlay-title">Prepare for Next Floor</h3>
+										</header>
+										<div class="adventure-reward-body">
+											<section class="adventure-reward-section">
+												<div class="adventure-reward-section__header">
+													<strong>1. Choose Upgrade</strong>
+												</div>
+												<div class="adventure-upgrade-grid" id="adventure-upgrade-grid" role="group" aria-label="Choose upgrade"></div>
+											</section>
+											<section class="adventure-reward-section">
+												<div class="adventure-reward-section__header">
+													<strong id="route-section-label">2. Select Route</strong>
+													<button type="button" class="adventure-route-skip-btn" id="adventure-route-skip">Skip (+2 Coins)</button>
+												</div>
+												<div class="adventure-route-grid" id="adventure-route-grid" role="radiogroup" aria-labelledby="route-section-label"></div>
+											</section>
+										</div>
+										<div class="adventure-route-actions board-mat-modal__actions board-mat-modal__actions--row">
+											<button type="button" class="board-mat-modal__btn board-mat-modal__btn--danger" id="adventure-abort">Abort</button>
+											<button type="button" class="board-mat-modal__btn board-mat-modal__btn--primary" id="adventure-continue">Start Next Floor</button>
+										</div>
+									</div>
+								</div>
+										</div>
+									</div>
+								</div>
+								</div>
+								<div class="board-hud board-hud--bottom" aria-label="Objective">
+									<div class="board-hud__objective-row">
+										<p class="board-hud__goal" id="adventure-goal">Select Start to roll a floor.</p>
+										<progress class="hud-progress hud-progress--goal" id="adventure-goal-progress" value="0" max="1" aria-label="Goal progress"></progress>
+									</div>
+									<div id="adventure-grace-period" class="board-hud__grace">
+										<div id="adventure-grace-period-bar"></div>
+									</div>
+									<p id="adventure-status" class="board-hud__status" hidden></p>
+									<p id="adventure-live" class="board-hud__live" hidden aria-live="polite"></p>
+									<div class="board-hud__status-tags">
+										<span class="adventure-tag adventure-tag--modifier" id="adventure-status-modifier">Normal Start</span>
+										<span class="adventure-tag adventure-tag--mode">Adventure Mode</span>
+									</div>
+								</div>
+							</div>
+							<section class="screen screen--title" data-screen-panel="title" aria-label="Title screen">
+								<div class="title-mark">
+									<img class="title-mark__mascot" src="cathead.png" alt="" aria-hidden="true" width="256" height="256" decoding="async">
+									<p class="title-mark__small">Pet Snake</p>
+									<h1 class="title-mark__big">Adventure</h1>
+									<hr class="title-mark__rule">
+								</div>
+								<ul class="title-stats">
+									<li class="title-stat"><span class="title-stat__label">Best Score</span><span class="title-stat__value" data-title-stat="score">0</span></li>
+									<li class="title-stat"><span class="title-stat__label">Deepest Floor</span><span class="title-stat__value" data-title-stat="floor">0</span></li>
+									<li class="title-stat"><span class="title-stat__label">Coins</span><span class="title-stat__value" data-title-stat="coins">0</span></li>
+								</ul>
+								<div class="screen__actions">
+									<button type="button" class="screen-btn screen-btn--primary" data-screen-go="setup">Start Adventure</button>
+									<button type="button" class="screen-btn screen-btn--ghost" data-hud-toggle="settings">Settings &amp; Music</button>
+								</div>
+								<p class="title-hint">Arrow keys or WASD &middot; swipe to steer on touch</p>
+							</section>
+							<section class="screen screen--setup" data-screen-panel="setup" aria-label="Run setup">
+								<header class="setup__header">
+									<p class="setup__eyebrow">Prepare your run</p>
+									<h2 class="setup__title">Camp Setup</h2>
+								</header>
+								<div class="setup__body">
+									<section class="setup-group sidebar-section sidebar-section--modifiers adventure-modifiers">
+										<h3 class="sidebar-section__title">Starting Modifier</h3>
+										<div class="adventure-modifiers__list" id="adventure-modifier-list" role="radiogroup" aria-label="Starting modifier"></div>
+										<p class="adventure-modifier-desc" id="adventure-modifier-desc">
+											Select a starting modifier to begin your adventure.
+										</p>
+									</section>
+									<section class="setup-group">
+										<h3 class="setup-group__title">Expedition</h3>
+										<ul class="title-stats setup-brief">
+											<li class="title-stat"><span class="title-stat__label">Floors</span><span class="title-stat__value" data-setup-stat="floors">15</span></li>
+											<li class="title-stat"><span class="title-stat__label">Hearts</span><span class="title-stat__value" data-setup-stat="hearts">3</span></li>
+											<li class="title-stat"><span class="title-stat__label">Purse</span><span class="title-stat__value" data-setup-stat="coins">0</span></li>
+										</ul>
+									</section>
+								</div>
+								<div class="board-setup-card__footer">
+									<button type="button" class="board-run-cta board-run-cta--setup" id="adventure-start">
+										<span aria-hidden="true">&#9654;</span>
+										<span>Start Adventure</span>
+									</button>
+									<button type="button" class="board-setup-card__music-btn" data-hud-toggle="settings">Music settings</button>
+								</div>
+								<button type="button" class="screen-btn screen-btn--ghost" data-screen-go="title">Back to title</button>
+							</section>
+								<div class="board-drawers" aria-label="Adventure drawers">
+									<div class="board-drawer board-drawer--kit" id="board-drawer-kit" data-drawer="kit" hidden aria-hidden="true">
+										<div class="board-drawer__header">
+											<h3 class="board-drawer__title">Kit</h3>
+											<button type="button" class="board-drawer__close" data-drawer-close aria-label="Close kit">×</button>
+										</div>
+										<div class="kit-content">
+											<ul class="affix-list adventure-affix-list" id="adventure-affixes">
+												<li class="affix-item">No modifiers yet.</li>
+											</ul>
+											<p id="adventure-affix-notes"></p>
+										</div>
+									</div>
+									<div class="board-drawer board-drawer--log" id="board-drawer-log" data-drawer="log" hidden aria-hidden="true">
+										<div class="board-drawer__header">
+											<h3 class="board-drawer__title">Event Log</h3>
+											<button type="button" class="board-drawer__close" data-drawer-close aria-label="Close log">×</button>
+										</div>
+										<div class="log-feed">
+											<ol id="adventure-log"></ol>
+										</div>
+										<div class="adventure-summary" id="adventure-summary-body">
+											Finish a run to see breakdowns. Meta coins persist between sessions.
+										</div>
+										<ol id="adventure-summary-list"></ol>
+									</div>
+									<div class="board-drawer board-drawer--settings" id="board-drawer-settings" data-drawer="settings" hidden aria-hidden="true">
+										<div class="board-drawer__header">
+											<h3 class="board-drawer__title">Settings</h3>
+											<button type="button" class="board-drawer__close" data-drawer-close aria-label="Close settings">×</button>
+										</div>
+										<div class="board-drawer__body music-selector-wrapper">
+											<label for="music-selector" class="music-selector-label">Background Music</label>
+											<div class="music-dropdown-wrapper">
+												<select id="music-selector" aria-label="Select background music track"></select>
+											</div>
+										</div>
+									</div>
+								</div>
+						</div>
+				</div>
+			</section>
+		</main>
+		<footer class="adventure-watermark">
+			<p>Howard Powered Games</p>
+		</footer>
+	</div>
+	<script src="shared.js"></script>
+	<script type="module">
+	import { PetSnakeEngine } from "./engine/pet-snake-engine.js";
+	import { DomBoardRenderer } from "./engine/dom-board-renderer.js";
+	import ResponsiveBoardScaler from "./engine/responsive-board-scaler.js";
+	import { assignTileQuadrants } from "./engine/tile-quadrant-assigner.js";
+	import { GameStateManager, GAME_STATES } from "./engine/game-state-manager.js";
+	import { ScreenRouter, SCREENS } from "./engine/screen-router.js";
+	import { bindSwipeControls, createDirectionSink } from "./engine/input-controls.js";
+	import { DEFAULT_PLAN, ACTIVE_AFFIX_POOL, AFFIX_IMPACTS } from "./engine/adventure-plan.js";
+	import { applyAffixes, createTreatSpawnHook } from "./engine/adventure-affixes.js";
+
+	// Audio setup
+	const fallbackSfx = { start: () => {}, eat: () => {}, bonk: () => {}, pause: () => {}, resume: () => {} };
+	const fallbackMusic = { start: () => {}, stop: () => {}, pause: () => {}, resume: () => {} };
+	const audioSuite = window.HumaneAudio?.getSuite ? window.HumaneAudio.getSuite() : null;
+	const ensureAudio = audioSuite?.ensureAudio || (() => {});
+	const sfx = audioSuite?.sfx || fallbackSfx;
+	const music = audioSuite?.music || fallbackMusic;
+
+	// Animated counter function
+	const animateCounter = (element, start, end, duration = 600) => {
+		if (!element) return;
+		const safeStart = Number(start) || 0;
+		const safeEnd = Number(end) || 0;
+		if (safeStart === safeEnd) return;
+
+		let startTimestamp = null;
+		const step = (timestamp) => {
+			if (!startTimestamp) startTimestamp = timestamp;
+			const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+			const currentVal = Math.floor(progress * (safeEnd - safeStart) + safeStart);
+			if (element.textContent !== String(currentVal)) {
+				element.textContent = String(currentVal);
+			}
+			if (progress < 1) {
+				window.requestAnimationFrame(step);
+			}
+		};
+		window.requestAnimationFrame(step);
+	};
+
+	// Pulse stat with shine effect (using double-RAF to avoid forced reflow)
+	const pulseStat = (el) => {
+		if (!el) return;
+		el.classList.remove("adventure-stat-pop", "adventure-stat-shine");
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => {
+				el.classList.add("adventure-stat-pop", "adventure-stat-shine");
+			});
+		});
+		setTimeout(() => {
+			el.classList.remove("adventure-stat-pop", "adventure-stat-shine");
+		}, 700);
+	};
+
+	const BOARD_CHOICES = {
+		cozy: { label: "Cozy", size: 15 },
+		roomy: { label: "Roomy", size: 19 },
+		grand: { label: "Grand", size: 23 }
+	};
+
+	/* ========== MUSIC SELECTOR INITIALIZATION ========== */
+
+	let currentMusicTrack = null;
+	let audioElement = null;
+	let deathAudio = null;
+	let musicTracks = [];
+	let musicPlaybackGeneration = 0; // Tracks playback calls to prevent stale callbacks
+
+	const hideMusicControl = () => {
+		const wrapper = document.querySelector('.music-selector-wrapper');
+		if (wrapper) wrapper.hidden = true;
+		document.querySelector('.board-setup-card__music-btn')?.setAttribute('hidden', '');
+		currentMusicTrack = null;
+	};
+
+	// Resolve only to tracks that actually exist so the picker never offers broken audio.
+	const filterAvailableTracks = async (tracks) => {
+		const checks = await Promise.all(tracks.map(async (track) => {
+			try {
+				const res = await fetch(`music/${track}`, { method: 'HEAD' });
+				return res.ok ? track : null;
+			} catch (_e) {
+				return null;
+			}
+		}));
+		return checks.filter(Boolean);
+	};
+
+	const loadMusicTracks = async () => {
+		let manifest = [];
+		try {
+			const response = await fetch('music/music-tracks.json');
+			if (!response.ok) throw new Error('Failed to load music manifest');
+			manifest = await response.json();
+		} catch (_error) {
+			// No manifest: silently disable music rather than 404 on default tracks.
+			hideMusicControl();
+			return;
+		}
+		const candidates = manifest.filter((track) => track !== 'death.mp3');
+		musicTracks = (await filterAvailableTracks(candidates)).sort();
+		if (!musicTracks.length) {
+			hideMusicControl();
+			return;
+		}
+		populateMusicSelector();
+	};
+
+	const formatTrackName = (filename) => {
+		return filename
+			.replace(/\.mp3$/, '')
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
+	};
+
+	const populateMusicSelector = () => {
+		const selector = document.getElementById('music-selector');
+		if (!selector) return;
+
+		selector.innerHTML = '';
+
+		// Sort with defaults first
+		const defaults = musicTracks.filter(t => t.startsWith('default'));
+		const others = musicTracks.filter(t => !t.startsWith('default'));
+
+		[...defaults, ...others].forEach((track, index) => {
+			const option = document.createElement('option');
+			option.value = track;
+			const name = formatTrackName(track);
+			option.textContent = track.startsWith('default') ? `${name} (Default)` : name;
+			selector.appendChild(option);
+		});
+
+		// Set initial selection
+		const savedTrack = localStorage.getItem('selectedMusicTrack');
+		if (savedTrack && musicTracks.includes(savedTrack)) {
+			selector.value = savedTrack;
+			currentMusicTrack = savedTrack;
+		} else {
+			// Alternate between defaults on fresh load
+			const lastDefault = sessionStorage.getItem('lastDefaultTrack');
+			const nextDefault = lastDefault === 'default1.mp3' ? 'default2.mp3' : 'default1.mp3';
+			sessionStorage.setItem('lastDefaultTrack', nextDefault);
+			selector.value = nextDefault;
+			currentMusicTrack = nextDefault;
+		}
+	};
+
+	const playMusicTrack = (trackName, autoPlay = false) => {
+		// Increment generation to invalidate any pending callbacks from previous calls
+		const thisGeneration = ++musicPlaybackGeneration;
+
+		// Defensive early return
+		if (!trackName || !musicTracks.includes(trackName)) return;
+
+		// Stop any lingering death audio
+		if (deathAudio) {
+			deathAudio.pause();
+			deathAudio.currentTime = 0;
+			deathAudio = null;
+		}
+
+		// Stop existing audio immediately
+		if (audioElement) {
+			audioElement.pause();
+			audioElement.currentTime = 0;
+		}
+
+		// Create or reuse audio element
+		if (!audioElement) {
+			audioElement = new Audio();
+			audioElement.loop = true;
+		}
+
+		audioElement.src = `music/${trackName}`;
+		audioElement.currentTime = 0;
+		audioElement.volume = 0;
+
+		// Only auto-play if explicitly requested (e.g., on Start button)
+		if (autoPlay) {
+			let playAttempted = false;
+
+			// Wait for canplay event or timeout before attempting play
+			const playHandler = () => {
+				// Check generation to ensure this callback is still valid
+				if (musicPlaybackGeneration !== thisGeneration) return;
+				if (playAttempted) return;
+				playAttempted = true;
+				audioElement.play().catch(() => {});
+				audioElement.removeEventListener('canplay', playHandler);
+			};
+			audioElement.addEventListener('canplay', playHandler);
+
+			// Fallback: try to play after 100ms if canplay didn't fire
+			setTimeout(() => {
+				if (musicPlaybackGeneration !== thisGeneration) return;
+				if (audioElement && audioElement.src.includes(trackName) && !playAttempted) {
+					playAttempted = true;
+					audioElement.play().catch(() => {});
+					audioElement.removeEventListener('canplay', playHandler);
+				}
+			}, 100);
+		}
+
+		// Fade in
+		setTimeout(() => {
+			if (musicPlaybackGeneration !== thisGeneration) return;
+			if (audioElement && audioElement.src.includes(trackName)) {
+				audioElement.volume = 0.45;
+			}
+		}, 50);
+
+		currentMusicTrack = trackName;
+		localStorage.setItem('selectedMusicTrack', trackName);
+	};
+
+	const stopMusicTrack = () => {
+		if (audioElement) {
+			audioElement.style.transition = 'volume 0.2s ease';
+			audioElement.volume = 0;
+			setTimeout(() => {
+				if (audioElement) {
+					audioElement.pause();
+					audioElement.currentTime = 0;
+				}
+			}, 200);
+		}
+	};
+
+	const playDeathMusic = () => {
+		stopMusicTrack();
+		// Stop any existing death audio
+		if (deathAudio) {
+			deathAudio.pause();
+			deathAudio.currentTime = 0;
+		}
+		deathAudio = new Audio('music/death.mp3');
+		deathAudio.volume = 0.6;
+		// Missing file or blocked autoplay should fail silently.
+		deathAudio.addEventListener('error', () => { deathAudio = null; }, { once: true });
+		deathAudio.play().catch(() => {});
+	};
+
+	const stopDeathMusic = () => {
+		return new Promise((resolve) => {
+			if (deathAudio) {
+				deathAudio.style.transition = 'volume 0.2s ease';
+				deathAudio.volume = 0;
+				setTimeout(() => {
+					if (deathAudio) {
+						deathAudio.pause();
+						deathAudio.currentTime = 0;
+						deathAudio = null;
+					}
+					resolve();
+				}, 200);
+			} else {
+				resolve();
+			}
+		});
+	};
+
+	// Initialize music selector on page load
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', loadMusicTracks, { once: true });
+	} else {
+		loadMusicTracks();
+	}
+
+	// Music selector change handler - prepare track but don't auto-play
+	const musicSelector = document.getElementById('music-selector');
+	if (musicSelector) {
+		musicSelector.addEventListener('change', (e) => {
+			// Prepare the track (load it, save preference)
+			// It will start playing when the user clicks Start Adventure
+			playMusicTrack(e.target.value, false);
+		});
+	}
+
+	const DIFFICULTY_PRESETS = {
+		chill: { label: "Chill", tick: 230, gracePeriodMs: 3000 },
+		normal: { label: "Normal", tick: 200, gracePeriodMs: 2000 },
+		spicy: { label: "Spicy", tick: 150, gracePeriodMs: 1500 },
+		superSpicy: { label: "Super Spicy", tick: 120, obstacleDensity: 0.15, gracePeriodMs: 1000 } // 15% obstacles, faster tick
+	};
+
+	const MODE_VARIANTS = {
+		classic: { label: "Classic", super: false },
+		super: { label: "Super", super: true }
+	};
+
+	const STORAGE_KEYS = {
+		coinsLegacy: "petSnakeAdventureCoins",
+		meta: "petSnakeAdventureMeta"
+	};
+
+	const HEADER_SIZE_VAR = "--adventure-header-height";
+	const HEADER_MIN_HEIGHT = 72;
+	const headerSizeState = {
+		observer: null,
+		raf: null,
+		last: null
+	};
+
+	const setDocumentVar = (prop, value) => {
+		const root = document.documentElement;
+		if (!root || !prop) return;
+		root.style.setProperty(prop, value);
+	};
+
+	const scheduleHeaderMeasurement = (header) => {
+		if (!header) return;
+		if (headerSizeState.raf) return;
+		const raf = typeof window !== "undefined" && typeof window.requestAnimationFrame === "function"
+			? window.requestAnimationFrame
+			: (cb) => setTimeout(cb, 16);
+		headerSizeState.raf = raf(() => {
+			headerSizeState.raf = null;
+			const rect = header.getBoundingClientRect();
+			const measured = Math.max(HEADER_MIN_HEIGHT, Math.round(rect.height));
+			if (measured === headerSizeState.last) return;
+			headerSizeState.last = measured;
+			setDocumentVar(HEADER_SIZE_VAR, `${measured}px`);
+		});
+	};
+
+	const initHeaderResizeWatcher = () => {
+		const header = document.querySelector(".site-header");
+		if (!header) return;
+		scheduleHeaderMeasurement(header);
+		if (typeof ResizeObserver !== "undefined") {
+			headerSizeState.observer = new ResizeObserver(() => scheduleHeaderMeasurement(header));
+			headerSizeState.observer.observe(header);
+		} else {
+			window.addEventListener("resize", () => scheduleHeaderMeasurement(header));
+		}
+		const viewport = window.visualViewport;
+		if (viewport) {
+			viewport.addEventListener("resize", () => scheduleHeaderMeasurement(header));
+		}
+		window.addEventListener("orientationchange", () => scheduleHeaderMeasurement(header));
+	};
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", initHeaderResizeWatcher, { once: true });
+	} else {
+		initHeaderResizeWatcher();
+	}
+
+	// DEFAULT_PLAN, ACTIVE_AFFIX_POOL, AFFIX_IMPACTS imported from ./engine/adventure-plan.js
+
+	const STARTING_MODIFIERS = [
+		{
+			key: "normal",
+			name: "Normal Start",
+			description: "Standard adventure run",
+			pill: "Balanced",
+			curse: {},
+			bonus: {}
+		},
+		{
+			key: "fragile",
+			name: "Fragile Start",
+			description: "Start with only 1 heart",
+			pill: "-1 Heart, +Coins & Score",
+			curse: { baseHearts: 1 },
+			bonus: { coinMultiplier: 2.0, scoreMultiplier: 1.5 }
+		},
+		{
+			key: "speedDemon",
+			name: "Speed Demon",
+			description: "Everything moves 30% faster",
+			pill: "Faster game, +Upgrades",
+			curse: { permanentTickScalar: 0.7 },
+			bonus: { upgradeDiscount: 0.8, extraUpgrades: 1 }
+		},
+		{
+			key: "enemySwarm",
+			name: "Enemy Swarm",
+			description: "Enemies spawn 50% more frequently",
+			pill: "More hazards, +Recovery",
+			curse: { enemySpawnRate: 1.5 },
+			bonus: { heartRecovery: true, bombImmunity: true }
+		},
+		{
+			key: "resourceScarce",
+			name: "Resource Scarce",
+			description: "Treats spawn 40% less often",
+			pill: "Fewer snacks, bigger rewards",
+			curse: { treatSpawnChance: 0.6 },
+			bonus: { treatValue: 2.0, streakBonus: 2 }
+		}
+	];
+
+	const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+	const KEY_TO_DIRECTION = {
+		arrowup: "up",
+		up: "up",
+		w: "up",
+		keyw: "up",
+		arrowdown: "down",
+		down: "down",
+		s: "down",
+		keys: "down",
+		arrowleft: "left",
+		left: "left",
+		a: "left",
+		keya: "left",
+		arrowright: "right",
+		right: "right",
+		d: "right",
+		keyd: "right"
+	};
+
+	const normalizeKey = (value) => (typeof value === "string" ? value.toLowerCase() : "");
+
+	const directionFromEvent = (event) => {
+		const keyMatch = KEY_TO_DIRECTION[normalizeKey(event.key)];
+		if (keyMatch) return keyMatch;
+		return KEY_TO_DIRECTION[normalizeKey(event.code)] || null;
+	};
+
+	const bindKeyboardControls = (engine, { onTogglePause, shouldAcceptDirection } = {}) => {
+		if (!engine || typeof engine.enqueueDirection !== "function") return () => {};
+
+		// Buffering, debouncing and the head-cell pulse live in engine/input-controls.js
+		// so the keyboard and swipe paths behave identically.
+		const pushDirection = createDirectionSink(engine, { shouldAcceptDirection });
+
+		const handler = (event) => {
+			const dir = directionFromEvent(event);
+			if (dir) {
+				if (typeof shouldAcceptDirection === "function" && !shouldAcceptDirection()) {
+					return;
+				}
+				event.preventDefault();
+				pushDirection(dir);
+				return;
+			}
+			const key = normalizeKey(event.key);
+			const code = normalizeKey(event.code);
+			const isSpace = key === " " || key === "space" || key === "spacebar" || code === "space";
+			if (isSpace && typeof onTogglePause === "function") {
+				event.preventDefault();
+				onTogglePause();
+			}
+		};
+		document.addEventListener("keydown", handler);
+		return () => document.removeEventListener("keydown", handler);
+	};
+
+	// createTreatSpawnHook imported from ./engine/adventure-affixes.js
+
+	const randomItem = (list = [], fallback = null) => {
+		if (!Array.isArray(list) || !list.length) return fallback;
+		const index = Math.floor(Math.random() * list.length);
+		return list[index] ?? fallback;
+	};
+
+	const randomInt = (min, max) => {
+		const low = Math.ceil(Math.min(min, max));
+		const high = Math.floor(Math.max(min, max));
+		return Math.floor(Math.random() * (high - low + 1)) + low;
+	};
+
+	const buildInitialSnake = (size) => {
+		const mid = Math.floor(size / 2);
+		const headX = Math.min(size - 1, mid + 1);
+		return [
+			{ x: headX, y: mid },
+			{ x: mid, y: mid },
+			{ x: Math.max(0, mid - 1), y: mid }
+		];
+	};
+
+	/**
+	 * Calculate obstacle density based on floor number
+	 * Floor 1: 1% of tiles
+	 * Floors 2-15: Linear progression from 1% to 10%
+	 * Floor 15+: Cap at 10%
+	 * @param {number} floorNumber - Current floor (1-based)
+	 * @param {number} customDensity - Optional override density (e.g., 0.15 for Super Spicy)
+	 * @returns {number} Density as decimal (0.01 = 1%, 0.10 = 10%)
+	 */
+	const calculateObstacleDensity = (floorNumber, customDensity = null) => {
+		if (customDensity !== null) return customDensity;
+		if (floorNumber <= 1) return 0.01; // 1% for floor 1
+		if (floorNumber >= 15) return 0.10; // 10% cap at floor 15+
+		// Linear interpolation from 1% to 10% over floors 1-15
+		return 0.01 + ((floorNumber - 1) / 14) * 0.09;
+	};
+
+	const calculateGracePeriod = (difficulty, floorNumber, isCursedRun = false) => {
+		const baseGrace = DIFFICULTY_PRESETS[difficulty]?.gracePeriodMs || 2000;
+		// Apply curse reduction: -25% grace for cursed runs
+		const curseReduction = isCursedRun ? 0.75 : 1.0;
+		// Apply floor decay: -10% per 3 floors
+		const floorDecay = Math.floor((floorNumber - 1) / 3) * 0.1;
+		const scaledGrace = baseGrace * (1 - floorDecay) * curseReduction;
+		return Math.max(500, Math.round(scaledGrace)); // Minimum 500ms
+	};
+
+	/**
+	 * Generate obstacle positions for a given board
+	 * @param {number} boardSize - Size of the board (e.g., 19 for 19x19)
+	 * @param {number} density - Obstacle density (0.01 = 1%, 0.10 = 10%)
+	 * @param {Array} initialSnake - Snake starting positions to avoid
+	 * @param {number} seed - Optional seed for deterministic generation
+	 * @returns {Array} Array of {x, y} obstacle positions
+	 */
+	const generateObstacles = (boardSize, density, initialSnake = [], seed = null) => {
+		const totalCells = boardSize * boardSize;
+		const obstacleCount = Math.floor(totalCells * density);
+		const obstacles = [];
+		const occupied = new Set();
+
+		// Mark snake starting positions as occupied with expanded 5x5 safe zone
+		initialSnake.forEach(segment => {
+			occupied.add(`${segment.x},${segment.y}`);
+			// Mark 5x5 cells around snake to give safe spawn area (expanded from 3x3)
+			for (let dx = -2; dx <= 2; dx++) {
+				for (let dy = -2; dy <= 2; dy++) {
+					const nx = segment.x + dx;
+					const ny = segment.y + dy;
+					if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardSize) {
+						occupied.add(`${nx},${ny}`);
+					}
+				}
+			}
+		});
+
+		// Generate random obstacle positions
+		let attempts = 0;
+		const maxAttempts = obstacleCount * 10; // Prevent infinite loop
+
+		while (obstacles.length < obstacleCount && attempts < maxAttempts) {
+			const x = Math.floor(Math.random() * boardSize);
+			const y = Math.floor(Math.random() * boardSize);
+			const key = `${x},${y}`;
+
+			if (!occupied.has(key)) {
+				obstacles.push({ x, y });
+				occupied.add(key);
+			}
+			attempts++;
+		}
+
+		return obstacles;
+	};
+
+	const createEmptyRenderState = () => ({
+		snake: [],
+		treat: null,
+		powerup: null,
+		bomb: null,
+		vacuum: null,
+		vacuumTail: [],
+		obstacles: [], // â† ADD OBSTACLES
+		direction: { x: 1, y: 0 }
+	});
+
+	const loadPlan = async () => {
+		try {
+			const response = await fetch("./roguelike-guideline.json", { cache: "no-store" });
+			if (!response.ok) return DEFAULT_PLAN;
+			const data = await response.json();
+			return data;
+		} catch (error) {
+			console.warn("Adventure plan not found, falling back to defaults", error);
+			return DEFAULT_PLAN;
+		}
+	};
+
+	class AdventureRunDirector {
+		constructor({ engine, board, ui, plan, startingModifier }) {
+			this.engine = engine;
+			this.board = board;
+			this.ui = ui;
+			this.plan = plan || DEFAULT_PLAN;
+			this.startingModifier = startingModifier || STARTING_MODIFIERS[0];
+			this.maxFloors = this.plan?.runStructure?.floorsPerRun || 5;
+			this.meta = this.loadMeta() || {};
+			this.baseHearts = Math.round((this.plan?.heartsAndFailure?.baseHearts || 3) * (this.startingModifier.curse.baseHearts || 1));
+			// Apply permanent unlocks
+			if (this.meta && this.meta.unlocks && this.meta.unlocks.heartBonus) {
+				this.baseHearts += 1;
+			}
+			this.effects = {};
+			this.state = this.createInitialState();
+			this.handlers = [];
+			this.goalTimer = null;
+			this.goalTimerId = null;
+			this.chaosTimerId = null;
+			this.bossPhaseTimers = [];
+			this.pendingUpgradeOptions = [];
+			// Track previous values for animations
+			this.lastRenderedScore = 0;
+			this.lastRenderedCoins = 0;
+			
+			// Phase 5: Initialize GameStateManager for centralized state
+			this.gameStateManager = new GameStateManager(this.ui.widget);
+			this._modalTrapCleanup = null;
+			this.gameStateManager.onStateChange(({ next }) => this.repositionStartButton(next));
+		}
+
+		repositionStartButton(state = this.gameStateManager.getState()) {
+			const btn = this.ui.startBtn;
+			const setupFooter = document.querySelector(".board-setup-card__footer");
+			const hudActions = document.querySelector(".board-hud__actions");
+			if (!btn) return;
+			const playHud = state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED;
+			if (playHud && hudActions) {
+				if (btn.parentElement !== hudActions) {
+					hudActions.insertBefore(btn, hudActions.firstChild);
+				}
+				btn.classList.remove("board-run-cta--setup");
+				btn.classList.add("board-run-cta--hud");
+			} else if (setupFooter) {
+				if (btn.parentElement !== setupFooter) {
+					setupFooter.insertBefore(btn, setupFooter.firstChild);
+				}
+				btn.classList.remove("board-run-cta--hud");
+				btn.classList.add("board-run-cta--setup");
+			}
+		}
+
+		closeHudDrawers() {
+			if (typeof this.ui.closeHudDrawers === "function") {
+				this.ui.closeHudDrawers();
+			}
+		}
+
+		trapModalFocus(overlayEl, dialogEl, { onEscape } = {}) {
+			this.releaseModalFocus();
+			if (!overlayEl || !dialogEl || overlayEl.hidden) return;
+			const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+			const previousFocus = document.activeElement;
+			const getFocusable = () => Array.from(dialogEl.querySelectorAll(focusableSelector)).filter((el) => !el.disabled && el.offsetParent !== null);
+			const handleKeydown = (event) => {
+				if (event.key === "Escape") {
+					event.preventDefault();
+					if (typeof onEscape === "function") onEscape();
+					return;
+				}
+				if (event.key !== "Tab") return;
+				const focusable = getFocusable();
+				if (!focusable.length) return;
+				const first = focusable[0];
+				const last = focusable[focusable.length - 1];
+				if (event.shiftKey && document.activeElement === first) {
+					event.preventDefault();
+					last.focus();
+				} else if (!event.shiftKey && document.activeElement === last) {
+					event.preventDefault();
+					first.focus();
+				}
+			};
+			overlayEl.addEventListener("keydown", handleKeydown);
+			this._modalTrapCleanup = () => {
+				overlayEl.removeEventListener("keydown", handleKeydown);
+				if (previousFocus && typeof previousFocus.focus === "function") {
+					previousFocus.focus();
+				}
+			};
+			const focusable = getFocusable();
+			if (focusable.length) focusable[0].focus();
+		}
+
+		releaseModalFocus() {
+			if (this._modalTrapCleanup) {
+				this._modalTrapCleanup();
+				this._modalTrapCleanup = null;
+			}
+		}
+
+		createInitialState() {
+			return {
+				runActive: false,
+				phase: "idle",
+				paused: false,
+				startingModifierKey: this.meta?.lastModifier || "normal",
+				modifierLocked: false,
+				hearts: this.baseHearts,
+				maxHearts: this.baseHearts,
+				floorIndex: -1,
+				floors: [],
+				currentFloor: null,
+				goal: null,
+				scoreBase: 0,
+				score: 0,
+				floorScore: 0,
+				floorTreats: 0,
+				runTreats: { fish: 0, bone: 0, biscuit: 0, steak: 0 },
+				coinsBanked: this.loadCoins(),
+				coinsEarned: 0,
+				floorHistory: [],
+				routeHistory: [],
+				pendingRoutes: [],
+				selectedRouteIndex: null,
+				routeSkipRewarded: false,
+				choseUpgradeThisFloor: false,
+				midFloorVacuumPending: false,
+				upgrades: [],
+				flags: {
+					// Existing collars
+					zoomieCollar: false,
+					therapyCollar: false,
+					therapyProgress: 0,
+					// New collars
+					luckyCollar: false,
+					ironCollar: false,
+					ironShieldActive: false,
+					awarenessCollar: false,
+					// Existing toys
+					vacuumToy: false,
+					bombPlushie: false,
+					featherWand: false,
+					featherCharge: 0,
+					// New toys
+					catnipMouse: false,
+					catnipTreatTimes: [],
+					scratchingPost: false,
+					scratchingPostCharge: 0,
+					cozyBlanket: false,
+					// Existing treat perks
+					gourmetPalate: false,
+					snackStreaks: false,
+					treatMagnet: false,
+					// New treat perks
+					scavenger: false,
+					secondHelping: false,
+					efficientDigestion: false,
+					efficientDigestionCount: 0
+				},
+				persistentModifiers: {
+					tickScalar: this.startingModifier.curse.permanentTickScalar || 1,
+					treatSpawnChance: this.startingModifier.curse.treatSpawnChance || 1,
+					enemySpawnRate: this.startingModifier.curse.enemySpawnRate || 1
+				},
+				startingBonuses: {
+					coinMultiplier: this.startingModifier.bonus.coinMultiplier || 1,
+					scoreMultiplier: this.startingModifier.bonus.scoreMultiplier || 1,
+					treatValue: this.startingModifier.bonus.treatValue || 1,
+					streakBonus: this.startingModifier.bonus.streakBonus || 1,
+					upgradeDiscount: this.startingModifier.bonus.upgradeDiscount || 1,
+					extraUpgrades: this.startingModifier.bonus.extraUpgrades || 0,
+					heartRecovery: this.startingModifier.bonus.heartRecovery || false,
+					bombImmunity: this.startingModifier.bonus.bombImmunity || false
+				},
+				heartRecoveryCounter: 0,
+				streak: { count: 0, best: 0 },
+				latestSummary: null,
+				gracePeriodMs: 0,
+				gracePeriodMax: 0,
+				graceActive: false
+			};
+		}
+
+		init() {
+			this.bindUi();
+			this.bindEngine();
+			this.renderModifierButtons();
+			this.updateModifierUi();
+			this.renderHud();
+			this.hideEndScreen();
+			this.repositionStartButton();
+		}
+
+		bindUi() {
+			this.ui.startBtn?.addEventListener("click", () => {
+				if (this.state.runActive) {
+					this.abortRun();
+				} else {
+					this.startRun();
+				}
+			});
+			this.ui.continueBtn?.addEventListener("click", () => {
+				if (this.state.phase === "reward") {
+					this.applyPendingRouteSelection();
+					this.hideUpgradePanel();
+					this.advanceFloor();
+				}
+			});
+			this.ui.abortBtn?.addEventListener("click", () => {
+				if (this.state.runActive) {
+					this.abortRun();
+				}
+			});
+			this.ui.routeSkipBtn?.addEventListener("click", () => this.handleRouteSkip());
+			this.ui.endContinueBtn?.addEventListener("click", () => {
+				if (this.state.runActive) return;
+				this.handleContinue();
+			});
+			this.ui.endRestartBtn?.addEventListener("click", () => {
+				if (this.state.runActive) return;
+				this.hideEndScreen();
+			});
+
+			// Bind modifier selection
+			if (this.ui.modifierList) {
+				this.ui.modifierList.addEventListener('click', (e) => {
+					const btn = e.target.closest('.adventure-modifier__btn');
+					if (btn && btn.dataset.modifier) {
+						this.setStartingModifier(btn.dataset.modifier);
+					}
+				});
+			}
+		}
+
+		bindEngine() {
+			this.handlers.push(this.engine.on("score", (payload) => this.handleScore(payload)));
+			this.handlers.push(this.engine.on("treat:eat", (payload) => this.handleTreat(payload)));
+			this.handlers.push(this.engine.on("bomb:clear", (payload) => this.handleBomb(payload)));
+			this.handlers.push(this.engine.on("run:fail", (payload) => this.handleFail(payload)));
+			this.handlers.push(this.engine.on("run:start", () => this.handleRunStart()));
+			this.handlers.push(this.engine.on("run:stop", () => this.handleRunStop()));
+			this.handlers.push(this.engine.on("run:pause", () => this.handleRunPause()));
+			this.handlers.push(this.engine.on("run:resume", () => this.handleRunResume()));
+			this.handlers.push(this.engine.on("live", (payload) => this.handleLive(payload)));
+			this.handlers.push(this.engine.on("vacuum:escape", (payload) => this.handleVacuumEscape(payload)));
+		}
+
+		handleVacuumEscape(payload) {
+			// Trigger visual wiggle animation on the vacuum cell
+			if (this.board && typeof this.board.flashVacuumEscape === "function") {
+				this.board.flashVacuumEscape(payload.x, payload.y);
+			}
+		}
+
+		// Modifier Management Methods
+		setStartingModifier(key) {
+			if (this.state.runActive || this.state.modifierLocked) return;
+			const modifier = STARTING_MODIFIERS.find(m => m.key === key);
+			if (!modifier) return;
+
+			this.state.startingModifierKey = key;
+			this.updateModifierUi();
+
+			// Remember choice in meta
+			if (this.meta) {
+				this.meta.lastModifier = key;
+				this.saveMeta();
+			}
+		}
+
+		lockModifier() {
+			this.state.modifierLocked = true;
+			this.updateModifierUi();
+		}
+
+		unlockModifier() {
+			this.state.modifierLocked = false;
+			this.updateModifierUi();
+		}
+
+		renderModifierButtons() {
+			const list = this.ui.modifierList;
+			if (!list) return;
+
+			list.innerHTML = '';
+			STARTING_MODIFIERS.forEach(modifier => {
+				const btn = document.createElement('button');
+				btn.type = 'button';
+				btn.className = 'adventure-modifier__btn';
+				btn.setAttribute('role', 'radio');
+				btn.setAttribute('aria-checked', 'false');
+				btn.dataset.modifier = modifier.key;
+
+				const nameSpan = document.createElement('span');
+				nameSpan.className = 'adventure-modifier__name';
+				nameSpan.textContent = modifier.name;
+
+				const pillSpan = document.createElement('span');
+				pillSpan.className = 'adventure-modifier__pill';
+				pillSpan.textContent = modifier.pill;
+
+				btn.appendChild(nameSpan);
+				btn.appendChild(pillSpan);
+				list.appendChild(btn);
+			});
+		}
+
+		updateModifierUi() {
+			const list = this.ui.modifierList;
+			const desc = this.ui.modifierDesc;
+			if (!list) return;
+
+			const activeKey = this.state.startingModifierKey || "normal";
+			const isLocked = this.state.modifierLocked;
+
+			list.querySelectorAll(".adventure-modifier__btn").forEach((btn) => {
+				const key = btn.dataset.modifier;
+				const isActive = key === activeKey;
+				btn.classList.toggle("is-active", isActive);
+				btn.classList.toggle("is-locked", isLocked && isActive);
+				btn.setAttribute("aria-checked", isActive ? "true" : "false");
+				btn.disabled = isLocked || this.state.runActive;
+			});
+
+			const modifier = STARTING_MODIFIERS.find(m => m.key === activeKey);
+			if (desc && modifier) {
+				desc.textContent = modifier.description;
+			}
+
+			// Update status tag if it exists (will add in Phase 5)
+			if (this.ui.statusModifierTag && modifier) {
+				this.ui.statusModifierTag.textContent = modifier.name;
+			}
+		}
+
+		applyStartingModifier(modifier) {
+			const { curse, bonus } = modifier;
+
+			// Apply curses
+			if (curse.baseHearts !== undefined) {
+				this.baseHearts = curse.baseHearts;
+				this.state.maxHearts = curse.baseHearts;
+				this.state.hearts = curse.baseHearts;
+			}
+
+			if (curse.permanentTickScalar !== undefined) {
+				this.state.persistentModifiers.tickScalar = curse.permanentTickScalar;
+			}
+
+			if (curse.enemySpawnRate !== undefined) {
+				this.state.persistentModifiers.enemySpawnRate = curse.enemySpawnRate;
+			}
+
+			if (curse.treatSpawnChance !== undefined) {
+				this.state.persistentModifiers.treatSpawnChance = curse.treatSpawnChance;
+			}
+
+			// Apply bonuses
+			this.state.startingBonuses.coinMultiplier = bonus.coinMultiplier || 1.0;
+			this.state.startingBonuses.scoreMultiplier = bonus.scoreMultiplier || 1.0;
+			this.state.startingBonuses.treatValue = bonus.treatValue || 1.0;
+			this.state.startingBonuses.streakBonus = bonus.streakBonus || 1;
+			this.state.startingBonuses.upgradeDiscount = bonus.upgradeDiscount || 1.0;
+			this.state.startingBonuses.extraUpgrades = bonus.extraUpgrades || 0;
+			this.state.startingBonuses.heartRecovery = bonus.heartRecovery || false;
+			this.state.startingBonuses.bombImmunity = bonus.bombImmunity || false;
+		}
+
+		setEffects(effects = {}) {
+			this.effects = { ...effects };
+		}
+
+		loadCoins() {
+			if (!this.meta) {
+				this.meta = this.loadMeta();
+			}
+			return this.meta.coins;
+		}
+
+		saveCoins(value) {
+			if (!this.meta) {
+				this.meta = { coins: 0, unlocks: {} };
+			}
+			this.meta.coins = value;
+			this.saveMeta(this.meta);
+		}
+
+		loadMeta() {
+			try {
+				const raw = localStorage.getItem(STORAGE_KEYS.meta);
+				if (raw) {
+					const parsed = JSON.parse(raw);
+					const coins = Number(parsed?.coins) || 0;
+					const unlocks = parsed?.unlocks && typeof parsed.unlocks === "object" ? parsed.unlocks : {};
+					const modifierCompletions = parsed?.modifierCompletions && typeof parsed.modifierCompletions === "object" ? parsed.modifierCompletions : {};
+					const bestScore = Number(parsed?.bestScore) || 0;
+					const bestFloor = Number(parsed?.bestFloor) || 0;
+					return { coins, unlocks, modifierCompletions, bestScore, bestFloor };
+				}
+			} catch (error) {
+				console.warn("Failed to parse adventure meta; using defaults", error);
+			}
+			return { coins: this.loadLegacyCoins(), unlocks: {}, modifierCompletions: {}, bestScore: 0, bestFloor: 0 };
+		}
+
+		saveMeta(meta = this.meta) {
+			try {
+				localStorage.setItem(STORAGE_KEYS.meta, JSON.stringify(meta));
+				localStorage.setItem(STORAGE_KEYS.coinsLegacy, String(meta.coins));
+			} catch (error) {
+				console.warn("Failed to persist adventure meta", error);
+			}
+		}
+
+		loadLegacyCoins() {
+			const value = Number(localStorage.getItem(STORAGE_KEYS.coinsLegacy) || 0);
+			return Number.isFinite(value) ? value : 0;
+		}
+
+		startRun() {
+			this.state = this.createInitialState();
+			this.state.coinsBanked = this.meta?.coins ?? this.state.coinsBanked;
+			this.state.runActive = true;
+			this.state.phase = "floor";
+
+			// Apply starting modifier
+			const modifierKey = this.state.startingModifierKey || "normal";
+			const modifier = STARTING_MODIFIERS.find(m => m.key === modifierKey);
+			if (modifier) {
+				this.applyStartingModifier(modifier);
+			}
+
+			this.state.floors = this.buildFloorScript();
+
+			// Lock modifier for this run
+			this.lockModifier();
+
+		// Add game-active class to panel for UI animations
+		if (this.ui.panelEl) {
+			this.ui.panelEl.classList.add('is-game-active');
+		}
+		
+		// Phase 5: Update game state via manager
+		this.gameStateManager.setState(GAME_STATES.PLAYING);
+
+		// Start background music on first interaction
+		if (currentMusicTrack) {
+			playMusicTrack(currentMusicTrack, true);
+		}
+
+		// Play start sound
+		ensureAudio();
+		sfx.start();			this.updateStatus(`Adventure started · ${modifier ? modifier.name : "Normal Start"}`);
+			this.renderHud();
+			this.hideEndScreen();
+			this.advanceFloor();
+		}
+
+		abortRun() {
+			this.stopSurvivalTimer();
+			this.stopChaosEvents();
+			this.clearBossPhases();
+			this.state.midFloorVacuumPending = false;
+			this.ui.boardWrap?.classList.remove("adventure-dim-room");
+			this.engine.stop();
+			this.state.runActive = false;
+			this.state.phase = "idle";
+
+			// Unlock modifier
+			this.unlockModifier();
+
+			// Remove game-active class to restore modifier section
+			if (this.ui.panelEl) {
+				this.ui.panelEl.classList.remove('is-game-active');
+			}
+			
+			// Phase 5: Reset game state via manager
+			this.gameStateManager.setState(GAME_STATES.IDLE);
+
+			this.updateStatus("Run aborted. Press Start to try again.");
+			const startLabel = this.ui.startBtn?.querySelector("span:last-child");
+			if (startLabel) startLabel.textContent = "Start Adventure";
+			this.renderHud();
+			this.hideRoutePanel();
+			this.hideEndScreen();
+		}
+
+		buildFloorScript() {
+			// Scripted 15-floor structure as per the expansion plan
+			const script = [
+				// Act 1: Tutorial/Intro
+				{ floor: 1, board: "roomy", difficulty: "normal", modeVariant: "classic", goal: { type: "forage", target: 10 }, affixCount: 0, events: [] },
+				{ floor: 2, board: "roomy", difficulty: "normal", modeVariant: "classic", goal: { type: "forage", target: 12 }, affixCount: 1, events: [] },
+				{ floor: 3, board: "roomy", difficulty: "normal", modeVariant: "classic", goal: { type: "forage", target: 14 }, affixCount: 1, events: [] },
+				{ floor: 4, board: "roomy", difficulty: "normal", modeVariant: "classic", goal: { type: "forage", target: 16 }, affixCount: 2, events: [] },
+				// First vacuum introduction - easy difficulty
+				{ floor: 5, board: "roomy", difficulty: "normal", modeVariant: "super", goal: { type: "forage", target: 18 }, affixCount: 2, vacuum: { difficulty: "chill", count: 1 }, events: [] },
+				// Act 2: Mid-game - vacuums become regular
+				{ floor: 6, board: "roomy", difficulty: "hard", modeVariant: "classic", goal: { type: "rescue", target: 12 }, affixCount: 2, events: [] },
+				{ floor: 7, board: "roomy", difficulty: "hard", modeVariant: "super", goal: { type: "forage", target: 22 }, affixCount: 3, vacuum: { difficulty: "normal", count: 1 }, events: [] },
+				{ floor: 8, board: "roomy", difficulty: "hard", modeVariant: "classic", goal: { type: "forage", target: 24 }, affixCount: 3, events: [] },
+				{ floor: 9, board: "roomy", difficulty: "hard", modeVariant: "super", goal: { type: "forage", target: 26 }, affixCount: 3, vacuum: { difficulty: "normal", count: 1 }, events: [] },
+				{ floor: 10, board: "roomy", difficulty: "hard", modeVariant: "super", goal: { type: "survive", targetMs: 45000 }, affixCount: 3, vacuum: { difficulty: "spicy", count: 1 }, events: [] },
+				// Act 3: Endgame - vacuums are constant threat
+				{ floor: 11, board: "roomy", difficulty: "hard", modeVariant: "super", goal: { type: "vacuumHunt", targetMs: 45000 }, affixCount: 3, vacuum: { difficulty: "spicy", count: 1 }, events: [] },
+				{ floor: 12, board: "roomy", difficulty: "hard", modeVariant: "super", goal: { type: "survive", targetMs: 55000 }, affixCount: 3, vacuum: { difficulty: "hard", count: 1 }, events: [] },
+				{ floor: 13, board: "roomy", difficulty: "hard", modeVariant: "super", goal: { type: "survive", targetMs: 60000 }, affixCount: 3, vacuum: { difficulty: "hard", count: 1 }, events: [] },
+				{ floor: 14, board: "roomy", difficulty: "hard", modeVariant: "super", goal: { type: "survive", targetMs: 65000 }, affixCount: 3, vacuum: { difficulty: "hard", count: 1 }, events: [] },
+				{ floor: 15, board: "roomy", difficulty: "hard", modeVariant: "super", goal: { type: "boss", targetMs: 60000 }, affixCount: 3, vacuum: { difficulty: "boss", count: 1 }, events: [] }
+			];
+			return script.map((floor) => ({ ...floor, affixes: this.drawAffixes(floor.affixCount) }));
+		}
+
+		drawAffixes(count = 1) {
+			const pool = this.plan.floorAffixes?.filter((affix) => ACTIVE_AFFIX_POOL.includes(affix.key)) || DEFAULT_PLAN.floorAffixes;
+			
+			if (count <= 0) return [];
+			if (count === 1) {
+				// Single affix - can be any
+				return [pool[Math.floor(Math.random() * pool.length)].key];
+			}
+			
+			// For multiple affixes, aim for balance
+			const positives = pool.filter(a => (AFFIX_IMPACTS[a.key] || 0) > 0);
+			const negatives = pool.filter(a => (AFFIX_IMPACTS[a.key] || 0) < 0);
+			const neutrals = pool.filter(a => (AFFIX_IMPACTS[a.key] || 0) === 0);
+			
+			const picks = [];
+			let totalImpact = 0;
+			
+			// Alternate between positive and negative where possible
+			for (let i = 0; i < count && picks.length < pool.length; i++) {
+				let candidates;
+				if (i % 2 === 0) {
+					// Prefer positive on even indices, but allow negative if needed
+					candidates = positives.length > 0 ? positives : negatives;
+				} else {
+					// Prefer negative on odd indices, but allow positive if needed  
+					candidates = negatives.length > 0 ? negatives : positives;
+				}
+				
+				// If no candidates in preferred category, use any remaining
+				if (candidates.length === 0) {
+					candidates = [...positives, ...negatives, ...neutrals].filter(a => !picks.includes(a.key));
+				}
+				
+				if (candidates.length === 0) break;
+				
+				const pick = candidates[Math.floor(Math.random() * candidates.length)];
+				picks.push(pick.key);
+				totalImpact += AFFIX_IMPACTS[pick.key] || 0;
+				
+				// Remove from available pools
+				const removeFromPool = (arr, key) => arr.filter(a => a.key !== key);
+				positives.splice(positives.findIndex(a => a.key === pick.key), 1);
+				negatives.splice(negatives.findIndex(a => a.key === pick.key), 1);
+				neutrals.splice(neutrals.findIndex(a => a.key === pick.key), 1);
+			}
+			
+			// If we ended up with extreme imbalance, try to swap one affix
+			if (Math.abs(totalImpact) > 1.5 && picks.length >= 2) {
+				const imbalanceDirection = totalImpact > 0 ? 1 : -1;
+				const swapCandidates = pool.filter(a => 
+					!picks.includes(a.key) && 
+					(AFFIX_IMPACTS[a.key] || 0) * imbalanceDirection < 0
+				);
+				
+				if (swapCandidates.length > 0) {
+					const toReplace = picks.find(key => (AFFIX_IMPACTS[key] || 0) * imbalanceDirection > 0);
+					if (toReplace) {
+						const replaceIndex = picks.indexOf(toReplace);
+						picks[replaceIndex] = swapCandidates[Math.floor(Math.random() * swapCandidates.length)].key;
+					}
+				}
+			}
+			
+			return picks;
+		}
+
+		advanceFloor() {
+			this.stopSurvivalTimer();
+			const nextIndex = this.state.floorIndex + 1;
+			if (nextIndex >= this.state.floors.length) {
+				this.endRun(true);
+				return;
+			}
+			this.state.floorIndex = nextIndex;
+			const floor = this.state.floors[nextIndex];
+			this.startFloor(floor, { retry: false });
+		}
+
+		startFloor(floor, { retry } = {}) {
+			this.state.paused = false;
+			this.state.choseUpgradeThisFloor = false;
+			this.stopChaosEvents();
+			this.clearBossPhases();
+			this.state.midFloorVacuumPending = false;
+			// Clear vacuum artifacts from previous floor
+			if (this.board && typeof this.board.clearArtifacts === "function") {
+				this.board.clearArtifacts();
+			}
+			const boardKey = floor.board || "roomy";
+			this.board?.setBoard({ key: boardKey });
+			const boardSize = BOARD_CHOICES[boardKey]?.size || 19;
+			const difficulty = floor.difficulty || "normal";
+			const modeVariant = floor.modeVariant || "classic";
+			const baseTick = DIFFICULTY_PRESETS[difficulty]?.tick || 200;
+			this.state.currentFloor = floor;
+			this.state.phase = "floor";
+			this.state.floorTreats = 0;
+			this.state.scoreBase = this.state.score;
+			this.state.floorScore = 0;
+			const affixSummary = applyAffixes(floor.affixes || []);
+			const tickScalar = affixSummary.tickScalar * this.state.persistentModifiers.tickScalar * (1 / affixSummary.playerSpeed);
+			const tickMs = Math.max(90, Math.round(baseTick * tickScalar));
+			const runGoal = this.createGoal(floor.goal);
+			this.state.goal = { ...runGoal, affixSummary };
+			// Apply affix effects
+			this.state.maxHearts = Math.round(this.baseHearts * affixSummary.playerHealth);
+			this.state.hearts = Math.min(this.state.hearts, this.state.maxHearts);
+			// initialTreats (Abundance/Scarcity): bank starting forage/rescue progress or raise the target.
+			if ((this.state.goal.type === "forage" || this.state.goal.type === "rescue") && affixSummary.initialTreats !== 1) {
+				if (affixSummary.initialTreats > 1) {
+					const banked = Math.min(this.state.goal.target - 1, Math.round((affixSummary.initialTreats - 1) * 4));
+					if (banked > 0) {
+						this.state.goal.progress = banked;
+						this.state.floorTreats += banked;
+					}
+				} else {
+					this.state.goal.target += Math.round((1 - affixSummary.initialTreats) * 4);
+				}
+			}
+			if (floor.goal?.type === "boss" && modeVariant !== "super") {
+				floor.modeVariant = "super";
+			}
+			// Reset per-floor upgrade charges
+			this.state.flags.featherCharge = this.state.flags.featherWand ? 1 : 0;
+			this.state.flags.ironShieldActive = this.state.flags.ironCollar;
+			this.state.flags.scratchingPostCharge = this.state.flags.scratchingPost ? 1 : 0;
+			this.state.flags.catnipTreatTimes = [];
+			this.resetStreak("floor-start");
+			const treatSpawnBehavior = this.buildTreatSpawnBehavior(floor, affixSummary);
+			this.hideRoutePanel();
+			if (retry) {
+				this.updateStatus("Retrying floor...");
+				setTimeout(() => this.setTransientStatus(null), 2200);
+			} else {
+				this.setTransientStatus(null);
+			}
+			this.renderHud();
+
+			// Calculate grace period based on difficulty and floor, reduced for cursed runs
+			const isCursedRun = this.state.startingModifierKey !== "normal";
+			let gracePeriodMs = calculateGracePeriod(difficulty, floor.floor, isCursedRun);
+			// Cozy Blanket: +50% grace period
+			if (this.state.flags.cozyBlanket) {
+				gracePeriodMs = Math.round(gracePeriodMs * 1.5);
+			}
+			this.state.gracePeriodMs = gracePeriodMs;
+			this.state.gracePeriodMax = gracePeriodMs;
+			this.state.graceActive = true;
+			startGraceUpdater();
+
+			// Generate obstacles based on floor number and difficulty
+			const initialSnake = buildInitialSnake(boardSize);
+			// Use difficulty's custom density (e.g., Super Spicy = 15%) or floor-based scaling
+			const difficultyPreset = DIFFICULTY_PRESETS[difficulty];
+			const customDensity = difficultyPreset?.obstacleDensity || floor.obstacleDensity;
+			const obstacleDensity = calculateObstacleDensity(floor.floor, customDensity);
+			const obstacles = floor.obstacles || generateObstacles(boardSize, obstacleDensity, initialSnake);
+
+			// Determine vacuum configuration from floor or modeVariant
+			// Vacuum Hunt always runs with an active, more aggressive vacuum.
+			const isVacuumHunt = runGoal.type === "vacuumHunt";
+			const hasVacuum = isVacuumHunt || floor.vacuum || Boolean(MODE_VARIANTS[modeVariant]?.super);
+			const vacuumConfig = floor.vacuum || {};
+			const vacuumDifficulty = vacuumConfig.difficulty || (isVacuumHunt ? "spicy" : difficulty);
+
+			// Single-vacuum engine: enemyCount (Predator/Sanctuary) manifests as a more/less
+			// aggressive vacuum in super mode, and as more/fewer bombs in classic mode.
+			const enemyCountScale = affixSummary.enemyCount || 1;
+			const vacuumBehaviorScale = (affixSummary.enemySpeed || 1)
+				* (hasVacuum ? Math.sqrt(enemyCountScale) : 1)
+				* (isVacuumHunt ? 1.4 : 1);
+			let bombSpawnRate = affixSummary.bombSpawnRate * (hasVacuum ? 1 : enemyCountScale);
+			let powerupSpawnRate = affixSummary.powerupSpawnRate;
+			if (affixSummary.noRandomEvents) {
+				bombSpawnRate = 0;
+				powerupSpawnRate = 0;
+			}
+			// Donation Night: treats give half score (the shelter takes the difference as coins).
+			const donationScale = affixSummary.donationNight ? 0.5 : 1;
+			const runScoreMultiplier = (affixSummary.treatValue || 1)
+				* (affixSummary.scoreMultiplier || 1)
+				* donationScale
+				* (this.state.startingBonuses.treatValue || 1)
+				* (this.state.startingBonuses.scoreMultiplier || 1);
+			this.state.donationNightActive = Boolean(affixSummary.donationNight);
+
+			// Dim Room: low-light overlay on the board (removed when the floor ends).
+			if (this.ui.boardWrap) {
+				this.ui.boardWrap.classList.toggle("adventure-dim-room", Boolean(affixSummary.dimRoom));
+			}
+
+			this.engine.startRun({
+				boardSize,
+				difficulty,
+				superMode: hasVacuum,
+				vacuumDifficulty,
+				vacuumBehaviorScale,
+				vacuumTurnScale: affixSummary.vacuumTurnScale || 1,
+				scoreMultiplier: runScoreMultiplier,
+				tickMs,
+				initialSnake,
+				treatSpawnBehavior,
+				bombSpawnRate,
+				powerupSpawnRate,
+				gracePeriodMs: gracePeriodMs
+			});
+
+			// Spawn obstacles after engine starts
+			this.engine.spawnObstacles(obstacles);
+
+			// Vacuum Warning affix: arm a mid-floor vacuum if this floor has none yet.
+			this.state.midFloorVacuumPending = Boolean(affixSummary.midFloorVacuum) && !hasVacuum;
+			// Chaos affix: random powerup/bomb pulses until the floor ends.
+			this.startChaosEvents(Boolean(affixSummary.randomEffects));
+
+			this.refreshCollisionInterceptor();
+			if (runGoal.type === "survive" || runGoal.type === "boss" || runGoal.type === "vacuumHunt") {
+				this.startSurvivalTimer(runGoal);
+			}
+			if (runGoal.type === "boss") {
+				this.startBossPhases(runGoal);
+			}
+		}
+
+		startChaosEvents(active) {
+			this.stopChaosEvents();
+			if (!active || !this.engine) return;
+			const pulse = () => {
+				if (!this.state.runActive || this.state.phase !== "floor" || this.state.paused) return;
+				const roll = Math.random();
+				if (roll < 0.4 && typeof this.engine.applyEffect === "function") {
+					const effect = Math.random() < 0.5 ? "speed" : "score";
+					this.engine.applyEffect(effect, 2500);
+					this.pushLog(`Chaos: ${effect} surge!`);
+				} else if (roll < 0.7 && typeof this.engine.spawnPowerup === "function") {
+					this.engine.spawnPowerup();
+				} else if (typeof this.engine.spawnBomb === "function") {
+					this.engine.spawnBomb();
+				}
+			};
+			this.chaosTimerId = setInterval(pulse, 9000 + Math.floor(Math.random() * 3000));
+		}
+
+		stopChaosEvents() {
+			if (this.chaosTimerId) {
+				clearInterval(this.chaosTimerId);
+				this.chaosTimerId = null;
+			}
+		}
+
+		triggerMidFloorVacuum() {
+			if (!this.state.midFloorVacuumPending) return;
+			if (!this.engine || typeof this.engine.enableVacuum !== "function") return;
+			if (this.engine.enableVacuum()) {
+				this.state.midFloorVacuumPending = false;
+				this.pushLog("Vacuum Warning: a sweep has begun!");
+			}
+		}
+
+		// applyAffixes() lives in ./engine/adventure-affixes.js (imported above).
+
+		buildTreatSpawnBehavior(floor = {}, affixSummary = {}) {
+			const affixes = floor.affixes || [];
+			const hasNarrow = affixes.includes("narrowHalls");
+			const hasShortage = affixes.includes("snackShortage");
+			const centerBias = hasNarrow ? 0.55 : 0;
+			const headBias = this.state.flags.treatMagnet ? 0.7 : 0;
+			let respawnDelayMs = 0;
+			if (hasShortage) respawnDelayMs += 950;
+			const treatSpawnChance = (affixSummary.treatSpawnChance || 1) * this.state.persistentModifiers.treatSpawnChance;
+			if (treatSpawnChance < 1) {
+				respawnDelayMs += 1000 * (1 / treatSpawnChance - 1);
+			}
+			const hook = createTreatSpawnHook({ centerBias, headBias });
+			if (!hook && respawnDelayMs <= 0) return null;
+			return { hook, respawnDelayMs };
+		}
+
+		refreshCollisionInterceptor() {
+			if (!this.engine || typeof this.engine.setCollisionInterceptor !== "function") return;
+			if (!this.state.flags.featherWand) {
+				this.engine.setCollisionInterceptor(null);
+				return;
+			}
+			this.engine.setCollisionInterceptor(({ reason }) => {
+				if (reason === "self" && this.state.flags.featherCharge > 0) {
+					this.state.flags.featherCharge -= 1;
+					this.pushLog("Feather Wand granted a ghost-step.");
+					return true;
+				}
+				return false;
+			});
+		}
+
+		resetStreak(reason = "reset") {
+			if (!this.state.flags.snackStreaks) return;
+			if (this.state.streak.count > 0 && reason !== "floor-start") {
+				this.pushLog("Snack streak reset.");
+			}
+			this.state.streak.count = 0;
+		}
+
+		incrementSnackStreak() {
+			if (!this.state.flags.snackStreaks) return;
+			this.state.streak.count += 1;
+			this.state.streak.best = Math.max(this.state.streak.best, this.state.streak.count);
+			const bonusTier = Math.floor((this.state.streak.count - 1) / 3);
+			if (bonusTier > 0) {
+				this.engine.addScore(bonusTier * this.state.startingBonuses.streakBonus);
+				this.pushLog(`Snack streak x${this.state.streak.count}! +${bonusTier * this.state.startingBonuses.streakBonus} bonus.`);
+			}
+			
+			// Heart recovery for certain modifiers
+			if (this.state.startingBonuses.heartRecovery) {
+				this.state.heartRecoveryCounter += 1;
+				if (this.state.heartRecoveryCounter >= 8) { // Heal every 8 treats
+					if (this.state.hearts < this.state.maxHearts) {
+						this.state.hearts = Math.min(this.state.maxHearts, this.state.hearts + 1);
+						this.pushLog("Heart recovered from treats!");
+						this.renderHearts();
+					}
+					this.state.heartRecoveryCounter = 0;
+				}
+			}
+		}
+
+		friendlyFailReason(reason) {
+			const map = {
+				wall: "Bonked into a wall.",
+				self: "Chomped your own tail.",
+				vacuum: "The vacuum caught you.",
+				"vacuum-tail": "Trapped in the vacuum trail.",
+				bomb: "A bomb exploded."
+			};
+			if (!reason) return "Ran out of hearts.";
+			return map[reason] || `Ran out of hearts (${reason}).`;
+		}
+
+		generateRunName() {
+			const upgrades = (this.state.upgrades || []).map((u) => (u.name || "").toLowerCase());
+			let adj = "Wandering";
+			if (upgrades.some((n) => n.includes("zoomie") || n.includes("speed"))) adj = "Zooming";
+			else if (upgrades.some((n) => n.includes("shield") || n.includes("safety"))) adj = "Armored";
+			else if (upgrades.some((n) => n.includes("therapy") || n.includes("heal"))) adj = "Resilient";
+			else if (upgrades.some((n) => n.includes("gourmet") || n.includes("feast"))) adj = "Hungry";
+			else if (upgrades.some((n) => n.includes("bomb"))) adj = "Explosive";
+			else if (upgrades.some((n) => n.includes("vacuum"))) adj = "Clean";
+			else if (this.state.score > 100) adj = "Greedy";
+			const noun = "Snake";
+			const floor = this.state.floorIndex + 1;
+			const location = floor >= this.maxFloors ? "of Legend" : `of Floor ${floor}`;
+			return `The ${adj} ${noun} ${location}`;
+		}
+
+		getTotalTreats() {
+			const historyTreats = (this.state.floorHistory || []).reduce((sum, floor) => sum + (floor.treats || 0), 0);
+			const runTreatSum = Object.values(this.state.runTreats || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+			return Math.max(historyTreats + (this.state.floorTreats || 0), runTreatSum);
+		}
+
+		animateStat(el, targetValue, { duration = 700 } = {}) {
+			if (!el) return;
+			const prefersReduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+			const endValue = Number(targetValue) || 0;
+			if (prefersReduced) {
+				el.textContent = String(endValue);
+				el.dataset.count = String(endValue);
+				return;
+			}
+			const startValue = 0;
+			const startTime = performance.now();
+			el.dataset.count = String(endValue);
+			const step = (now) => {
+				const t = Math.min(1, (now - startTime) / duration);
+				const eased = t * (2 - t); // easeOutQuad
+				const current = Math.round(startValue + (endValue - startValue) * eased);
+				el.textContent = String(current);
+				if (t < 1) requestAnimationFrame(step);
+			};
+			requestAnimationFrame(step);
+		}
+
+		resetEndCardAnimation() {
+			const card = this.ui.endCard;
+			if (!card) return;
+			card.classList.remove("is-animate");
+			// Double RAF for clean animation restart
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					card.classList.add("is-animate");
+				});
+			});
+		}
+
+		showEndScreen({ reason, success = false } = {}) {
+			if (!this.ui.endOverlay) return;
+			const runName = this.generateRunName();
+			if (this.ui.journalRunName) this.ui.journalRunName.textContent = runName;
+			const runId = Math.floor(Math.random() * 8999) + 1000;
+			if (this.ui.journalDate) this.ui.journalDate.textContent = `OBSERVATION LOG #${runId}`;
+
+			const stampEl = this.ui.journalStamp;
+			const successRun = success || (this.state.floorIndex + 1 >= this.maxFloors && this.state.hearts > 0);
+			if (stampEl) {
+				stampEl.classList.remove("is-animate");
+				// Double RAF for clean animation restart without inline styles
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						stampEl.classList.add("is-animate");
+					});
+				});
+				if (successRun) {
+					stampEl.textContent = "VERIFIED";
+					stampEl.className = "journal-stamp is-success";
+				} else {
+					const stampMap = {
+						wall: "BONKED",
+						self: "TANGLED",
+						vacuum: "VACUUMED",
+						"vacuum-tail": "TANGLED",
+						bomb: "BLASTED"
+					};
+					stampEl.textContent = stampMap[reason] || "FAILED";
+					stampEl.className = "journal-stamp";
+				}
+			}
+
+			const friendly = this.friendlyFailReason(reason);
+			if (this.ui.journalCause) this.ui.journalCause.textContent = successRun ? "Adventure Complete" : friendly;
+
+			const floorsCleared = successRun ? this.maxFloors : Math.max(0, this.state.floorIndex + 1);
+			if (this.ui.journalFloor) this.ui.journalFloor.textContent = `${floorsCleared} / ${this.maxFloors}`;
+			if (this.ui.journalScore) this.ui.journalScore.textContent = this.state.score;
+			if (this.ui.journalCoins) this.ui.journalCoins.textContent = this.state.coinsEarned;
+			const totalTreats = this.getTotalTreats();
+			if (this.ui.journalTreats) this.animateStat(this.ui.journalTreats, totalTreats, { duration: 700 });
+			if (this.ui.journalTreatBreakdown) {
+				const list = this.ui.journalTreatBreakdown;
+				list.innerHTML = "";
+				const treatIcons = { fish: "Fish", bone: "Bone", biscuit: "Biscuit", steak: "Steak" };
+				const entries = Object.entries(this.state.runTreats || {}).filter(([, count]) => count > 0);
+				if (!entries.length) {
+					const li = document.createElement("li");
+					li.className = "journal-tag";
+					li.style.opacity = "0.5";
+					li.textContent = "No treats logged";
+					list.appendChild(li);
+				} else {
+					entries
+						.sort((a, b) => b[1] - a[1])
+						.forEach(([key, count], index) => {
+							const li = document.createElement("li");
+							const label = treatIcons[key] || key.charAt(0).toUpperCase() + key.slice(1);
+							li.className = "journal-tag journal-tag--treat";
+							li.style.animationDelay = `${index * 90}ms`;
+							li.innerHTML = `<span>${label}</span><strong style="margin-left:6px;" data-count="0">0</strong>`;
+							list.appendChild(li);
+							const counter = li.querySelector("strong");
+							if (counter) this.animateStat(counter, count, { duration: 600 });
+						});
+				}
+			}
+
+			if (this.ui.journalKit) {
+				const list = this.ui.journalKit;
+				list.innerHTML = "";
+				const upgrades = this.state.upgrades || [];
+				if (!upgrades.length) {
+					const li = document.createElement("li");
+					li.className = "journal-tag";
+					li.style.opacity = "0.6";
+					li.textContent = "Subject had no equipment";
+					list.appendChild(li);
+				} else {
+					upgrades.forEach((u) => {
+						const li = document.createElement("li");
+						li.className = "journal-tag";
+						li.textContent = u.name;
+						list.appendChild(li);
+					});
+				}
+			}
+
+			// Enable/disable continue button based on coins
+			const CONTINUE_COST = 10;
+			if (this.ui.endContinueBtn) {
+				const totalCoins = this.state.coinsBanked + this.state.coinsEarned;
+				const hasEnoughCoins = totalCoins >= CONTINUE_COST;
+				this.ui.endContinueBtn.disabled = !hasEnoughCoins;
+
+				// Update button text to show current coins
+				const btnText = this.ui.endContinueBtn.querySelector("span") || this.ui.endContinueBtn;
+				if (btnText) {
+					if (hasEnoughCoins) {
+						btnText.textContent = `Continue (${CONTINUE_COST} Coins)`;
+					} else {
+						btnText.textContent = `Continue (Need ${CONTINUE_COST}, Have ${totalCoins})`;
+					}
+				}
+			}
+
+			this.closeHudDrawers();
+			this.ui.endOverlay.hidden = false;
+			this.ui.endOverlay.setAttribute("aria-hidden", "false");
+			this.resetEndCardAnimation();
+			this.trapModalFocus(this.ui.endOverlay, this.ui.endCard, {
+				onEscape: () => this.ui.endRestartBtn?.click()
+			});
+			if (this.ui.endContinueBtn) {
+				this.ui.endContinueBtn.focus();
+			}
+		}
+
+	hideEndScreen() {
+		if (!this.ui.endOverlay) return;
+		this.releaseModalFocus();
+		this.ui.endOverlay.hidden = true;
+		this.ui.endOverlay.setAttribute("aria-hidden", "true");
+		
+		// Phase 5: Reset to idle state when end screen is closed (unless continuing)
+		if (!this.state.runActive) {
+			this.gameStateManager.setState(GAME_STATES.IDLE);
+		}
+		
+		// Stop death music when closing end screen
+		return stopDeathMusic();
+	}
+
+		handleContinue() {
+			const CONTINUE_COST = 10;
+			const totalCoins = this.state.coinsBanked + this.state.coinsEarned;
+
+			if (totalCoins < CONTINUE_COST) {
+				this.pushLog(`Not enough coins to continue. Need ${CONTINUE_COST}, have ${totalCoins}.`);
+				return;
+			}
+
+			// Deduct coins (prioritize coinsEarned, then coinsBanked)
+			if (this.state.coinsEarned >= CONTINUE_COST) {
+				this.state.coinsEarned -= CONTINUE_COST;
+			} else {
+				const remaining = CONTINUE_COST - this.state.coinsEarned;
+				this.state.coinsEarned = 0;
+				this.state.coinsBanked -= remaining;
+			}
+
+			// Restore panel layout before measuring board
+			if (this.ui.panelEl) {
+				this.ui.panelEl.classList.add('is-game-active');
+			}
+			
+			this.state.runActive = true;
+			this.state.phase = "floor";
+
+			// Phase 5: Update game state via manager
+			this.gameStateManager.setState(GAME_STATES.PLAYING);
+
+			// Wait for death music to stop before restarting background music
+			this.hideEndScreen().then(() => {
+				// Restart background music after death music fade completes
+				if (currentMusicTrack) {
+					playMusicTrack(currentMusicTrack, true);
+				}
+			}).catch(() => {});
+
+			const currentFloor = this.state.currentFloor;
+			if (currentFloor) {
+				this.pushLog(`Continued with ${CONTINUE_COST} coins. Health restored! Retrying floor ${currentFloor.floor}...`);
+
+				this.engine.stop();
+				this.state.hearts = this.baseHearts;
+
+				// Let layout settle before setting up board
+				setTimeout(() => {
+					if (this.board && typeof this.board.setBoard === "function") {
+						const boardKey = currentFloor.board || "roomy";
+						this.board.setBoard({ key: boardKey });
+					}
+
+					this.startFloor(currentFloor, { retry: true });
+					this.renderHearts();
+					this.renderHud();
+
+					// Final resize after render
+					setTimeout(() => {
+						if (this.board && typeof this.board.forceResize === "function") {
+							this.board.forceResize();
+						}
+					}, 50);
+				}, 16);
+			} else {
+				this.pushLog("No floor to continue. Returning to HUD.");
+			}
+		}
+
+		createGoal(goal) {
+			if (!goal) {
+				return { type: "forage", target: 10, progress: 0, label: "Collect 10 treats" };
+			}
+			if (goal.type === "survive" || goal.type === "boss" || goal.type === "vacuumHunt") {
+				const defaults = { boss: 60000, vacuumHunt: 40000, survive: 45000 };
+				const targetMs = goal.targetMs || defaults[goal.type];
+				const labels = {
+					boss: "Vacuum boss: outlast the onslaught",
+					vacuumHunt: `Vacuum hunt: survive ${Math.round(targetMs / 1000)}s of the sweep`,
+					survive: `Survive ${Math.round(targetMs / 1000)}s`
+				};
+				return { type: goal.type, target: targetMs, progress: 0, label: labels[goal.type] };
+			}
+			if (goal.type === "rescue") {
+				const target = goal.target || 6;
+				return { type: "rescue", target, progress: 0, label: `Rescue ${target} trapped pals` };
+			}
+			return {
+				type: "forage",
+				target: goal.target || 12,
+				progress: 0,
+				label: `Collect ${goal.target || 12} treats`
+			};
+		}
+
+		startSurvivalTimer(goal) {
+			if (!goal) return;
+			this.stopSurvivalTimer();
+			const target = goal.target;
+			const existingProgress = Math.min(goal.progress || 0, target);
+			const resolveNow = () => (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now());
+			const tick = () => {
+				if (!this.state.runActive || this.state.phase !== "floor") return;
+				const now = resolveNow();
+				const elapsed = now - this.goalTimer.start;
+				this.state.goal.progress = elapsed;
+				this.updateGoalProgress();
+				if (elapsed >= target) {
+					this.completeFloor("goal");
+					return;
+				}
+				this.goalTimerId = requestAnimationFrame(tick);
+			};
+			this.goalTimer = { start: resolveNow() - existingProgress };
+			this.goalTimerId = requestAnimationFrame(tick);
+		}
+
+		stopSurvivalTimer() {
+			if (this.goalTimerId) cancelAnimationFrame(this.goalTimerId);
+			this.goalTimerId = null;
+			this.goalTimer = null;
+		}
+
+		// Floor 15 boss escalates in three phases across the survival timer.
+		startBossPhases(goal) {
+			this.clearBossPhases();
+			if (!goal || !this.engine) return;
+			const schedule = (ms, fn) => {
+				const id = setTimeout(() => {
+					if (!this.state.runActive || this.state.phase !== "floor") return;
+					fn();
+				}, ms);
+				this.bossPhaseTimers.push(id);
+			};
+			// Phase 2 (~1/3 in): dust piles + a more aggressive vacuum.
+			schedule(Math.round(goal.target / 3), () => {
+				this.engine.vacuumBehaviorScale = (this.engine.vacuumBehaviorScale || 1) * 1.25;
+				const piles = generateObstacles(this.engine.boardSize, 0.06, this.engine.snake || []);
+				this.engine.spawnObstacles(piles);
+				this.pushLog("Boss Phase 2: dust piles erupt!");
+				this.updateStatus("Boss Phase 2 - dust piles!");
+			});
+			// Phase 3 (~2/3 in): faster tick, longer tail, relentless pursuit.
+			schedule(Math.round((goal.target * 2) / 3), () => {
+				this.engine.vacuumBehaviorScale = (this.engine.vacuumBehaviorScale || 1) * 1.25;
+				this.engine.vacuumTailTarget = (this.engine.vacuumTailTarget || 4) + 4;
+				const faster = Math.max(80, Math.round((this.engine.baseTick || this.engine.tick) * 0.85));
+				this.engine.baseTick = faster;
+				this.engine.tick = faster;
+				if (typeof this.engine.restartLoopTiming === "function") {
+					this.engine.restartLoopTiming();
+				}
+				this.pushLog("Boss Phase 3: the vacuum is relentless!");
+				this.updateStatus("Boss Phase 3 - relentless!");
+			});
+		}
+
+		clearBossPhases() {
+			if (this.bossPhaseTimers) {
+				this.bossPhaseTimers.forEach(clearTimeout);
+			}
+			this.bossPhaseTimers = [];
+		}
+
+		handleRunStart() {
+			const btn = this.ui.startBtn;
+			if (btn) {
+				const label = btn.querySelector("span:last-child");
+				const icon = btn.querySelector("span:first-child");
+				if (label) label.textContent = "Abort Run";
+				if (icon) icon.textContent = "\u23F8";
+				btn.setAttribute("data-status", "running");
+			}
+		}
+
+		handleRunStop() {
+			if (!this.state.runActive) {
+				const btn = this.ui.startBtn;
+				const label = btn?.querySelector("span:last-child");
+				const icon = btn?.querySelector("span:first-child");
+				if (label) label.textContent = "Start Adventure";
+				if (icon) icon.textContent = "\u25B6";
+				if (btn) btn.removeAttribute("data-status");
+			}
+		}
+
+		handleRunPause() {
+			this.state.paused = true;
+			this.stopSurvivalTimer();
+			
+			// Phase 5: Update game state via manager
+			this.gameStateManager.setState(GAME_STATES.PAUSED);
+			
+			const floorLabel = this.state.currentFloor?.floor ? `Floor ${this.state.currentFloor.floor}` : "Run";
+			this.updateStatus(`${floorLabel} paused. Press Space to resume.`);
+		}
+
+		handleRunResume() {
+			this.state.paused = false;
+			
+			// Phase 5: Update game state via manager
+			this.gameStateManager.setState(GAME_STATES.PLAYING);
+			
+			if (this.state.phase === "floor" && this.state.goal && (this.state.goal.type === "survive" || this.state.goal.type === "boss" || this.state.goal.type === "vacuumHunt")) {
+				this.startSurvivalTimer(this.state.goal);
+			}
+			const floorLabel = this.state.currentFloor?.floor ? `Floor ${this.state.currentFloor.floor}` : "Run";
+			this.updateStatus(`${floorLabel} resumed. Stay sharp.`);
+			setTimeout(() => this.setTransientStatus(null), 2500);
+		}
+
+		togglePauseHotkey() {
+			if (!this.engine) return;
+			if (!this.state.runActive) {
+				this.startRun();
+				return;
+			}
+			if (this.state.phase !== "floor") return;
+			if (this.state.paused) {
+				this.engine.resume();
+			} else {
+				this.engine.pause();
+			}
+		}
+
+		handleScore({ score, delta }) {
+			this.state.score = score;
+			this.state.floorScore = Math.max(0, score - (this.state.scoreBase || 0));
+			this.renderScore();
+
+			// Trigger explosion animation if score decreased (bomb hit)
+			if (delta && delta < 0) {
+				const scoreEl = this.ui.scoreEl;
+				if (scoreEl) {
+					scoreEl.classList.add('is-exploding');
+					setTimeout(() => {
+						scoreEl.classList.remove('is-exploding');
+					}, 600); // Match animation duration
+				}
+			}
+		}
+
+		handleTreat({ treat }) {
+			this.state.floorTreats += 1;
+			if (treat?.key) {
+				if (!this.state.runTreats[treat.key]) {
+					this.state.runTreats[treat.key] = 0;
+				}
+				this.state.runTreats[treat.key] += 1;
+			}
+
+			// Trigger cat head bounce animation
+			this.triggerHeadBounce();
+
+			if (this.state.goal?.type === "forage" || this.state.goal?.type === "rescue") {
+				this.state.goal.progress += 1;
+				if (this.state.goal.progress >= this.state.goal.target) {
+					this.completeFloor("goal");
+				}
+			}
+			if (this.state.goal?.affixSummary?.treatScoreBonus) {
+				this.engine.addScore(this.state.goal.affixSummary.treatScoreBonus);
+			}
+			if (this.state.flags.zoomieCollar && this.effects.speed) {
+				this.engine.addScore(1);
+			}
+			if (this.state.flags.gourmetPalate && (treat?.key === "steak" || treat?.key === "biscuit")) {
+				this.engine.addScore(treat.key === "steak" ? 4 : 2);
+			}
+			if (this.state.flags.therapyCollar) {
+				this.state.flags.therapyProgress += 1;
+				if (this.state.flags.therapyProgress >= 8 && this.state.hearts < this.state.maxHearts) {
+					this.state.flags.therapyProgress = 0;
+					this.state.hearts = Math.min(this.state.maxHearts, this.state.hearts + 1);
+					this.pushLog("Therapy Collar restored a heart.");
+					this.renderHearts();
+				}
+			}
+			// Catnip Mouse: Track treat times, grant speed boost if 3 treats in 4 seconds
+			if (this.state.flags.catnipMouse) {
+				const now = Date.now();
+				this.state.flags.catnipTreatTimes.push(now);
+				// Keep only treats within last 4 seconds
+				this.state.flags.catnipTreatTimes = this.state.flags.catnipTreatTimes.filter(t => now - t <= 4000);
+				if (this.state.flags.catnipTreatTimes.length >= 3) {
+					this.state.flags.catnipTreatTimes = []; // Reset after triggering
+					if (this.engine && typeof this.engine.applyEffect === "function") {
+						this.engine.applyEffect("speed", 2000);
+						this.pushLog("Catnip Mouse triggered a speed boost!");
+					}
+				}
+			}
+			// Scavenger: 20% chance to drop a coin
+			if (this.state.flags.scavenger && Math.random() < 0.2) {
+				this.state.coinsEarned += 1;
+				this.pushLog("Scavenger found a bonus coin!");
+				this.renderCoins();
+			}
+			// Second Helping: 15% chance to spawn another treat nearby
+			if (this.state.flags.secondHelping && Math.random() < 0.15) {
+				if (this.engine && typeof this.engine.spawnTreat === "function") {
+					this.engine.spawnTreat();
+					this.pushLog("Second Helping spawned a bonus treat!");
+				}
+			}
+			// Efficient Digestion: Every 6th treat heals 1 heart
+			if (this.state.flags.efficientDigestion) {
+				this.state.flags.efficientDigestionCount += 1;
+				if (this.state.flags.efficientDigestionCount >= 6 && this.state.hearts < this.state.maxHearts) {
+					this.state.flags.efficientDigestionCount = 0;
+					this.state.hearts = Math.min(this.state.maxHearts, this.state.hearts + 1);
+					this.pushLog("Efficient Digestion restored a heart!");
+					this.renderHearts();
+				}
+			}
+			this.incrementSnackStreak();
+			this.updateGoalProgress();
+		}
+
+		handleBomb({ reason }) {
+			if (reason === "shield" && this.state.flags.bombPlushie) {
+				this.engine.addScore(3);
+				this.pushLog("Bomb Plushie converted a shield into bonus points.");
+			}
+			if (reason === "explode") {
+				this.resetStreak("bomb");
+			}
+		}
+
+		handleLive({ text }) {
+			if (text && this.ui.liveEl) {
+				this.ui.liveEl.textContent = text;
+				this.ui.liveEl.hidden = false;
+				this.pushLog(text);
+
+				this.ui.liveEl.classList.add('is-updated');
+				clearTimeout(this._liveHideTimer);
+				this._liveHideTimer = setTimeout(() => {
+					this.ui.liveEl.classList.remove('is-updated');
+					this.ui.liveEl.hidden = true;
+					this.ui.liveEl.textContent = "";
+				}, 4000);
+
+				if (this.state.flags.vacuumToy && text.toLowerCase().includes("vacuum stole")) {
+					if (typeof this.engine.spawnPowerup === "function") {
+						this.engine.spawnPowerup();
+						this.pushLog("Vacuum Toy dropped a consolation powerup.");
+					}
+				}
+			}
+		}
+
+		handleFail({ reason }) {
+			if (!this.state.runActive) return;
+			this.resetStreak("fail");
+
+			// Check for bomb immunity
+			if (reason === "bomb" && this.state.startingBonuses.bombImmunity) {
+				this.pushLog("Bomb immunity activated! No heart lost.");
+				setTimeout(() => this.startFloor(this.state.currentFloor, { retry: true }), 900);
+				return;
+			}
+
+			// Iron Collar - temp shield absorbs first hit each floor
+			if (this.state.flags.ironShieldActive) {
+				this.state.flags.ironShieldActive = false;
+				this.pushLog("Iron Collar's shield absorbed the hit!");
+				sfx.bonk(); // Still play sound for feedback
+				setTimeout(() => this.startFloor(this.state.currentFloor, { retry: true }), 900);
+				return;
+			}
+
+			// Scratching Post - auto-deflect one bomb per floor
+			if (reason === "bomb" && this.state.flags.scratchingPostCharge > 0) {
+				this.state.flags.scratchingPostCharge -= 1;
+				this.pushLog("Scratching Post deflected the bomb!");
+				sfx.bonk();
+				setTimeout(() => this.startFloor(this.state.currentFloor, { retry: true }), 900);
+				return;
+			}
+
+			// Lucky Collar - 20% chance to negate bomb damage
+			if (reason === "bomb" && this.state.flags.luckyCollar) {
+				if (Math.random() < 0.2) {
+					this.pushLog("Lucky Collar negated the bomb damage!");
+					sfx.bonk();
+					setTimeout(() => this.startFloor(this.state.currentFloor, { retry: true }), 900);
+					return;
+				}
+			}
+
+			// Play bonk sound
+			sfx.bonk();
+
+			if (this.state.hearts > 1) {
+				this.state.hearts -= 1;
+				this.pushLog(`Lost a heart (${reason}). ${this.state.hearts} left.`);
+				this.flashHearts("hit");
+				this.renderHearts();
+				setTimeout(() => this.startFloor(this.state.currentFloor, { retry: true }), 900);
+			} else {
+				this.state.hearts = 0;
+				this.flashHearts("hit");
+				this.renderHearts();
+				this.endRun(false, reason);
+			}
+		}
+
+		flashHearts(type) {
+			const el = this.ui.heartsEl;
+			if (!el) return;
+			el.classList.remove("adventure-hearts--hit");
+			// Use double-RAF to trigger animation restart without forced reflow
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					if (type === "hit") el.classList.add("adventure-hearts--hit");
+				});
+			});
+		}
+
+		triggerHeadBounce() {
+			// Find the cat head cell and trigger bounce animation
+			const headCell = document.querySelector(".cat-snake__cell.is-head");
+			if (!headCell) return;
+			headCell.classList.remove("head-bounce");
+			// Use double-RAF to trigger animation restart without forced reflow
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					headCell.classList.add("head-bounce");
+				});
+			});
+			setTimeout(() => {
+				headCell.classList.remove("head-bounce");
+			}, 300);
+		}
+
+		completeFloor(trigger) {
+			if (this.state.phase !== "floor") return;
+			this.stopSurvivalTimer();
+			this.stopChaosEvents();
+			this.clearBossPhases();
+			this.state.midFloorVacuumPending = false;
+			this.state.phase = "reward";
+			this.engine.stop();
+			
+			// Phase 5: Update game state via manager
+			this.gameStateManager.setState(GAME_STATES.FLOOR_COMPLETE);
+			
+			const floorNumber = this.state.currentFloor?.floor || this.state.floorIndex + 1;
+			const summary = {
+				floor: floorNumber,
+				score: this.state.floorScore,
+				treats: this.state.floorTreats,
+				goal: this.state.goal?.label,
+				trigger
+			};
+			this.state.latestSummary = summary;
+			this.state.floorHistory.push(summary);
+			this.resetStreak("floor-complete");
+			let floorCoins = Math.max(1, Math.round(summary.score / 5 * this.state.startingBonuses.coinMultiplier));
+			if (this.state.donationNightActive) {
+				// Donation Night converts the forgone score into bonus shelter coins.
+				floorCoins *= 2;
+				this.pushLog("Donation Night: the shelter received bonus coins!");
+			}
+			this.state.coinsEarned += floorCoins;
+			if (floorNumber < this.maxFloors) {
+				this.prepareRouteChoices(floorNumber + 1);
+			} else {
+				this.prepareRouteChoices(null);
+			}
+			if (floorNumber >= this.maxFloors) {
+				this.endRun(true);
+				return;
+			}
+			this.showUpgradePanel(summary);
+		}
+
+		showUpgradePanel(summary) {
+			if (this.ui.modalTitle) {
+				this.ui.modalTitle.textContent = `Floor ${summary.floor} clear! Pick an upgrade.`;
+			}
+			const options = this.pickUpgrades(3);
+			this.pendingUpgradeOptions = options;
+			this.renderUpgradeOptions(options);
+			this.state.choseUpgradeThisFloor = options.length === 0;
+			this.closeHudDrawers();
+			if (this.ui.routePanel) {
+				this.ui.routePanel.hidden = false;
+				this.ui.routePanel.setAttribute("aria-hidden", "false");
+			}
+			if (this.ui.continueBtn) {
+				this.ui.continueBtn.hidden = false;
+			}
+			this.updateRewardContinueState();
+			const routeDialog = this.ui.routePanel?.querySelector(".adventure-route-cardboard");
+			this.trapModalFocus(this.ui.routePanel, routeDialog);
+			const firstPick = this.ui.upgradeGrid?.querySelector(".adventure-upgrade-card")
+				|| this.ui.routeGrid?.querySelector(".adventure-route-card");
+			if (firstPick) firstPick.focus();
+		}
+
+		hideUpgradePanel() {
+			this.hideRoutePanel();
+			
+			// Phase 5: Resume playing state when upgrade panel is hidden
+			if (this.state.runActive && this.state.phase !== "summary") {
+				this.gameStateManager.setState(GAME_STATES.PLAYING);
+			}
+		}
+
+		pickUpgrades(count) {
+			const baseCount = count + (this.state.startingBonuses.extraUpgrades || 0);
+			const pools = [
+				...(this.plan.upgrades?.collars || DEFAULT_PLAN.upgrades.collars),
+				...(this.plan.upgrades?.toys || DEFAULT_PLAN.upgrades.toys),
+				...(this.plan.upgrades?.treatPerks || DEFAULT_PLAN.upgrades.treatPerks)
+			];
+			const filtered = pools.filter((upgrade) => !this.state.upgrades.some((taken) => taken.name === upgrade.name));
+			return filtered.sort(() => Math.random() - 0.5).slice(0, baseCount);
+		}
+
+		renderUpgradeOptions(options) {
+			const grid = this.ui.upgradeGrid;
+			if (!grid) return;
+			grid.innerHTML = "";
+			if (!options.length) {
+				const empty = document.createElement("p");
+				empty.textContent = "No new upgrades available; continuing with your current kit.";
+				empty.style.margin = "0";
+				empty.style.opacity = "0.75";
+				grid.appendChild(empty);
+				return;
+			}
+			options.forEach((option, index) => {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = "adventure-upgrade-card";
+				button.innerHTML = `<strong>${option.name}</strong><p>${option.effect}</p>`;
+				button.setAttribute("role", "button");
+				button.setAttribute("aria-pressed", "false");
+				button.addEventListener("click", () => this.selectUpgrade(index, button));
+				grid.appendChild(button);
+			});
+		}
+
+		prepareRouteChoices(nextFloorNumber) {
+			if (!nextFloorNumber || nextFloorNumber > this.maxFloors) {
+				this.state.pendingRoutes = [];
+				this.state.selectedRouteIndex = null;
+				this.hideRoutePanel();
+				return;
+			}
+			this.state.pendingRoutes = this.buildRouteChoices({ floorNumber: nextFloorNumber });
+			this.state.selectedRouteIndex = null;
+			this.state.routeSkipRewarded = false;
+			this.renderRouteChoices();
+		}
+
+		buildRouteChoices({ floorNumber }) {
+			const params = this.plan.floorParameters || {};
+			const boards = params.board || Object.keys(BOARD_CHOICES);
+			let diffs = params.difficulty || Object.keys(DIFFICULTY_PRESETS);
+			const modes = params.modeVariant || Object.keys(MODE_VARIANTS);
+			const goals = params.goals || [
+				{ type: "forage", description: "Collect treats" },
+				{ type: "survive", description: "Survive the clock" }
+			];
+
+			// 15% chance to replace "spicy" with "superSpicy"
+			if (Math.random() < 0.15 && diffs.includes("spicy")) {
+				diffs = diffs.filter(d => d !== "spicy");
+				diffs.push("superSpicy");
+			}
+
+			const choices = [];
+
+			// Generate shared obstacle configuration for both routes
+			// This ensures Classic and Super modes have the same terrain
+			const sharedBoard = randomItem(boards, "roomy");
+			const sharedBoardSize = BOARD_CHOICES[sharedBoard]?.size || 19;
+			const sharedInitialSnake = buildInitialSnake(sharedBoardSize);
+
+			// Select difficulty for this route pair
+			const selectedDifficulty = randomItem(diffs, "normal");
+			const difficultyPreset = DIFFICULTY_PRESETS[selectedDifficulty];
+
+			// Use custom obstacle density if Super Spicy, otherwise use floor-based
+			const sharedObstacleDensity = difficultyPreset?.obstacleDensity || calculateObstacleDensity(floorNumber);
+			const sharedObstacles = generateObstacles(sharedBoardSize, sharedObstacleDensity, sharedInitialSnake);
+
+			for (let i = 0; i < 2; i += 1) {
+				const goalSeed = randomItem(goals);
+				const goal = this.normalizeGoalDescriptor(goalSeed, floorNumber);
+				choices.push({
+					id: `${floorNumber}-${Date.now()}-${i}`,
+					board: sharedBoard, // Both routes use same board
+					difficulty: selectedDifficulty, // Both routes use same difficulty
+					modeVariant: randomItem(modes, "classic"),
+					goal,
+					affixes: this.drawAffixes(randomInt(1, 2)),
+					obstacles: sharedObstacles, // Both routes share same obstacles
+					obstacleDensity: sharedObstacleDensity // Store for display/debugging
+				});
+			}
+			return choices;
+		}
+
+		normalizeGoalDescriptor(descriptor = {}, floorNumber = 1) {
+			const type = descriptor.type || "forage";
+			if (type === "survive" || type === "boss") {
+				const base = type === "boss" ? 60000 : 30000 + floorNumber * 2000;
+				return { type, targetMs: descriptor.targetMs || base };
+			}
+			if (type === "vacuumHunt") {
+				return { type: "survive", targetMs: 35000 + floorNumber * 1500 };
+			}
+			return { type: "forage", target: descriptor.target || (12 + floorNumber * 2) };
+		}
+
+		renderRouteChoices() {
+			if (!this.ui.routeGrid) return;
+			const hasRoutes = Array.isArray(this.state.pendingRoutes) && this.state.pendingRoutes.length > 0;
+			if (this.ui.routeSkipBtn) {
+				this.ui.routeSkipBtn.hidden = this.state.routeSkipRewarded || !hasRoutes;
+				this.ui.routeSkipBtn.disabled = this.state.routeSkipRewarded;
+			}
+			this.ui.routeGrid.innerHTML = "";
+			if (!hasRoutes) {
+				const message = document.createElement("p");
+				message.className = "adventure-route-empty";
+				message.textContent = this.state.routeSkipRewarded
+					? "Route selection skipped. +2 coins added to your pouch."
+					: "No alternate routes rolled. Default script will continue.";
+				this.ui.routeGrid.appendChild(message);
+				this.updateRewardContinueState();
+				return;
+			}
+			this.state.pendingRoutes.forEach((choice, index) => {
+				const button = document.createElement("button");
+				button.type = "button";
+				// Add --super class for Super mode cards
+				const isSuperMode = MODE_VARIANTS[choice.modeVariant]?.super;
+				button.className = isSuperMode ? "adventure-route-card adventure-route-card--super" : "adventure-route-card";
+				button.setAttribute("role", "radio");
+				button.setAttribute("aria-checked", this.state.selectedRouteIndex === index ? "true" : "false");
+				button.innerHTML = `
+					<h4>${(BOARD_CHOICES[choice.board]?.label || choice.board)} · ${DIFFICULTY_PRESETS[choice.difficulty]?.label || choice.difficulty}</h4>
+					<ul>
+						<li>Goal: ${choice.goal?.type === "forage" ? `Collect ${choice.goal.target}` : `Survive ${Math.round((choice.goal?.targetMs || 0) / 1000)}s`}</li>
+						<li>Mode: ${MODE_VARIANTS[choice.modeVariant]?.label || choice.modeVariant}</li>
+						<li>Affixes: ${(choice.affixes || []).join(", ") || "None"}</li>
+					</ul>
+				`;
+				button.addEventListener("click", () => this.selectRouteChoice(index));
+				this.ui.routeGrid.appendChild(button);
+			});
+			this.updateRewardContinueState();
+		}
+
+		updateRewardContinueState() {
+			if (!this.ui.continueBtn) return;
+			const upgradeReady = this.state.choseUpgradeThisFloor || this.pendingUpgradeOptions.length === 0;
+			const noRoutes = !Array.isArray(this.state.pendingRoutes) || this.state.pendingRoutes.length === 0;
+			const routeReady = this.state.routeSkipRewarded || noRoutes || this.state.selectedRouteIndex !== null;
+			this.ui.continueBtn.disabled = !(upgradeReady && routeReady);
+		}
+
+		selectRouteChoice(index) {
+			if (!this.state.pendingRoutes[index]) return;
+			this.state.selectedRouteIndex = index;
+			this.renderRouteChoices();
+		}
+
+		handleRouteSkip() {
+			if (!Array.isArray(this.state.pendingRoutes) || !this.state.pendingRoutes.length) return;
+			this.state.selectedRouteIndex = null;
+			this.state.routeSkipRewarded = true;
+			this.state.pendingRoutes = [];
+			this.state.coinsEarned += Math.round(2 * this.state.startingBonuses.coinMultiplier);
+			this.renderScore();
+			this.pushLog("Skipped route selection for +2 coins.");
+			this.renderRouteChoices();
+		}
+
+		applyPendingRouteSelection() {
+			if (!Array.isArray(this.state.pendingRoutes) || !this.state.pendingRoutes.length) return;
+			if (this.state.routeSkipRewarded) return;
+			const choice = this.state.pendingRoutes[this.state.selectedRouteIndex ?? 0];
+			if (!choice) return;
+			const nextIndex = this.state.floorIndex + 1;
+			if (this.state.floors[nextIndex]) {
+				this.state.floors[nextIndex] = {
+					...this.state.floors[nextIndex],
+					board: choice.board,
+					difficulty: choice.difficulty,
+					modeVariant: choice.modeVariant,
+					goal: choice.goal,
+					affixes: [...(choice.affixes || [])]
+				};
+			}
+			this.state.routeHistory.push({ floor: nextIndex + 1, ...choice });
+			this.state.pendingRoutes = [];
+		}
+
+		hideRoutePanel() {
+			this.releaseModalFocus();
+			if (this.ui.routePanel) {
+				this.ui.routePanel.hidden = true;
+				this.ui.routePanel.setAttribute("aria-hidden", "true");
+			}
+			if (this.ui.routeGrid) this.ui.routeGrid.innerHTML = "";
+			if (this.ui.routeSkipBtn) {
+				this.ui.routeSkipBtn.hidden = true;
+				this.ui.routeSkipBtn.disabled = false;
+			}
+			if (this.ui.continueBtn) {
+				this.ui.continueBtn.hidden = true;
+				this.ui.continueBtn.disabled = true;
+			}
+			this.pendingUpgradeOptions = [];
+			this.state.pendingRoutes = [];
+			this.state.selectedRouteIndex = null;
+			this.state.routeSkipRewarded = false;
+			this.state.choseUpgradeThisFloor = false;
+		}
+
+		selectUpgrade(index, button) {
+			if (!this.ui.upgradeGrid) return;
+			const option = this.pendingUpgradeOptions[index];
+			if (!option) return;
+			Array.from(this.ui.upgradeGrid.children).forEach((node) => node.setAttribute("aria-pressed", "false"));
+			button.setAttribute("aria-pressed", "true");
+			this.applyUpgrade(option);
+			this.state.upgrades.push(option);
+			this.state.choseUpgradeThisFloor = true;
+			this.updateRewardContinueState();
+		}
+
+		applyUpgrade(upgrade) {
+			this.pushLog(`Picked ${upgrade.name}.`);
+			// === COLLARS ===
+			if (upgrade.name === "Safety Collar") {
+				this.state.maxHearts += 1;
+				this.state.hearts = Math.min(this.state.maxHearts, this.state.hearts + 1);
+				this.renderHearts();
+			} else if (upgrade.name === "Zoomie Collar") {
+				this.state.persistentModifiers.tickScalar *= 0.9;
+				this.state.flags.zoomieCollar = true;
+			} else if (upgrade.name === "Therapy Collar") {
+				this.state.flags.therapyCollar = true;
+				this.state.flags.therapyProgress = 0;
+			} else if (upgrade.name === "Lucky Collar") {
+				this.state.flags.luckyCollar = true;
+			} else if (upgrade.name === "Iron Collar") {
+				this.state.flags.ironCollar = true;
+				this.state.flags.ironShieldActive = true; // Activate immediately
+			} else if (upgrade.name === "Awareness Collar") {
+				this.state.flags.awarenessCollar = true;
+			// === TOYS ===
+			} else if (upgrade.name === "Vacuum Toy") {
+				this.state.flags.vacuumToy = true;
+			} else if (upgrade.name === "Bomb Plushie") {
+				this.state.flags.bombPlushie = true;
+			} else if (upgrade.name === "Feather Wand") {
+				this.state.flags.featherWand = true;
+				this.state.flags.featherCharge = 1;
+			} else if (upgrade.name === "Catnip Mouse") {
+				this.state.flags.catnipMouse = true;
+				this.state.flags.catnipTreatTimes = [];
+			} else if (upgrade.name === "Scratching Post") {
+				this.state.flags.scratchingPost = true;
+				this.state.flags.scratchingPostCharge = 1; // Activate immediately
+			} else if (upgrade.name === "Cozy Blanket") {
+				this.state.flags.cozyBlanket = true;
+			// === TREAT PERKS ===
+			} else if (upgrade.name === "Snack Streaks") {
+				this.state.flags.snackStreaks = true;
+			} else if (upgrade.name === "Treat Magnet") {
+				this.state.flags.treatMagnet = true;
+			} else if (upgrade.name === "Gourmet Palate") {
+				this.state.flags.gourmetPalate = true;
+			} else if (upgrade.name === "Scavenger") {
+				this.state.flags.scavenger = true;
+			} else if (upgrade.name === "Second Helping") {
+				this.state.flags.secondHelping = true;
+			} else if (upgrade.name === "Efficient Digestion") {
+				this.state.flags.efficientDigestion = true;
+				this.state.flags.efficientDigestionCount = 0;
+			}
+		}
+
+		updateGoalProgress() {
+			const goal = this.state.goal;
+			if (!goal) return;
+			const max = goal.target || 1;
+			const value = Math.min(max, goal.progress);
+			// Vacuum Warning: unleash the mid-floor sweep once the goal is half done.
+			if (this.state.midFloorVacuumPending && value / max >= 0.5) {
+				this.triggerMidFloorVacuum();
+			}
+			const progressEl = this.ui.progressEl;
+			if (!progressEl) return;
+			progressEl.max = max;
+			progressEl.value = value;
+			progressEl.setAttribute("aria-valuenow", value);
+			progressEl.setAttribute("aria-valuemax", max);
+		}
+
+		renderHearts() {
+			const heartFull = "\u2665";
+			const heartEmpty = "\u2661";
+			const full = heartFull.repeat(this.state.hearts);
+			const empty = heartEmpty.repeat(Math.max(0, this.state.maxHearts - this.state.hearts));
+			this.ui.heartsEl.textContent = `${full}${empty}` || heartEmpty;
+		}
+
+		renderScore() {
+			const newScore = this.state.score;
+			const newCoins = this.state.coinsBanked + this.state.coinsEarned;
+
+			// Animate score if it changed
+			if (newScore !== this.lastRenderedScore) {
+				if (newScore > this.lastRenderedScore) {
+					pulseStat(this.ui.scoreEl);
+					sfx.eat();
+				}
+				animateCounter(this.ui.scoreEl, this.lastRenderedScore, newScore, 400);
+				this.lastRenderedScore = newScore;
+			}
+
+			// Animate coins if they changed
+			if (newCoins !== this.lastRenderedCoins) {
+				if (newCoins > this.lastRenderedCoins) {
+					pulseStat(this.ui.coinsEl);
+				}
+				animateCounter(this.ui.coinsEl, this.lastRenderedCoins, newCoins, 400);
+				this.lastRenderedCoins = newCoins;
+			}
+		}
+
+		renderAffixes() {
+			const list = this.ui.affixList;
+			const goal = this.state.goal;
+			if (!list) return;
+			list.innerHTML = "";
+			const affixes = this.state.currentFloor?.affixes || [];
+			if (!affixes.length) {
+				const li = document.createElement("li");
+				li.className = "adventure-affix-pill is-empty";
+				li.textContent = "No modifiers";
+				list.appendChild(li);
+			} else {
+				affixes.forEach((key) => {
+					const li = document.createElement("li");
+					li.className = "adventure-affix-pill";
+					li.textContent = key;
+					list.appendChild(li);
+				});
+			}
+			this.ui.affixNotes.textContent = goal?.affixSummary?.notes?.join(" ") || "";
+		}
+
+		renderGoal() {
+			if (!this.state.goal) {
+				this.ui.goalEl.textContent = "Roll a floor to see objectives.";
+				return;
+			}
+			const floorNum = this.state.currentFloor?.floor ?? Math.max(1, this.state.floorIndex + 1);
+			if (this.state.runActive && this.state.phase === "floor") {
+				this.ui.goalEl.textContent = `Floor ${floorNum}: ${this.state.goal.label}`;
+			} else {
+				this.ui.goalEl.textContent = this.state.goal.label;
+			}
+			this.updateGoalProgress();
+		}
+
+		renderHud() {
+			const current = Math.max(0, this.state.floorIndex + 1);
+			const total = this.maxFloors;
+			this.ui.floorEl.textContent = `${current} / ${total}`;
+
+			// Update floor progress bar
+			if (this.ui.floorProgressEl) {
+				this.ui.floorProgressEl.value = total ? current / total : 0;
+			}
+
+			// Update grace period bar
+			if (this.state.graceActive && this.state.gracePeriodMax > 0) {
+				const graceProgress = Math.max(0, this.state.gracePeriodMs) / this.state.gracePeriodMax;
+				if (this.ui.graceEl) {
+					this.ui.graceEl.classList.add("grace-active");
+					this.ui.graceBarEl.style.width = `${graceProgress * 100}%`;
+				}
+			} else {
+				if (this.ui.graceEl) {
+					this.ui.graceEl.classList.remove("grace-active");
+				}
+			}
+
+			this.renderHearts();
+			this.renderScore();
+			this.renderAffixes();
+			this.renderGoal();
+		}
+
+		setTransientStatus(text) {
+			if (!this.ui.statusEl) return;
+			if (text) {
+				this.ui.statusEl.textContent = text;
+				this.ui.statusEl.hidden = false;
+			} else {
+				this.ui.statusEl.textContent = "";
+				this.ui.statusEl.hidden = true;
+			}
+		}
+
+		updateStatus(text) {
+			this.setTransientStatus(text);
+		}
+
+		pushLog(text) {
+			if (!text || !this.ui.logEl) return;
+			const entry = document.createElement("li");
+			entry.textContent = text;
+			this.ui.logEl.prepend(entry);
+			while (this.ui.logEl.children.length > 6) {
+				this.ui.logEl.removeChild(this.ui.logEl.lastChild);
+			}
+		}
+
+	endRun(success, reason) {
+		this.stopSurvivalTimer();
+		this.stopChaosEvents();
+		this.clearBossPhases();
+		this.state.midFloorVacuumPending = false;
+		this.ui.boardWrap?.classList.remove("adventure-dim-room");
+		stopGraceUpdater();
+		this.engine.stop();
+		if (this.board && typeof this.board.clearArtifacts === "function") {
+			this.board.clearArtifacts();
+		}
+		this.state.runActive = false;
+		this.state.phase = "summary";
+
+		// Play death music if failed, stop background music if succeeded
+		if (!success) {
+			playDeathMusic();
+		} else {
+			stopMusicTrack();
+		}
+
+		this.unlockModifier();
+		
+		if (this.ui.panelEl) {
+			this.ui.panelEl.classList.remove('is-game-active');
+		}
+		
+		// Phase 5: Update game state via manager
+		this.gameStateManager.setState(success ? GAME_STATES.RUN_VICTORY : GAME_STATES.RUN_DEFEAT);
+
+		const totalCoins = this.state.coinsBanked + this.state.coinsEarned;
+			this.saveCoins(totalCoins);
+			const label = this.ui.startBtn?.querySelector("span:last-child");
+			if (label) label.textContent = "Start Adventure";
+			const headline = success ? "Adventure complete!" : `Run failed (${reason || "out of hearts"}).`;
+			this.updateStatus(headline);
+			this.renderSummary(success, reason);
+			this.renderScore();
+			this.hideUpgradePanel();
+
+			// Track modifier completion for meta progression
+			const modifierKey = this.state.startingModifierKey || "normal";
+			if (success && modifierKey !== "normal") {
+				this.meta.modifierCompletions = this.meta.modifierCompletions || {};
+				this.meta.modifierCompletions[modifierKey] = (this.meta.modifierCompletions[modifierKey] || 0) + 1;
+				this.saveMeta();
+				this.checkModifierUnlocks();
+			}
+
+			this.showEndScreen({ reason, success });
+		}
+
+		checkModifierUnlocks() {
+			const completions = this.meta.modifierCompletions || {};
+			
+			// Fragile Start unlocks
+			if (completions.fragile >= 3 && !this.meta.unlocks.heartBonus) {
+				this.meta.unlocks.heartBonus = true;
+				this.pushLog("Meta unlock: Permanent +1 max heart!");
+			}
+			
+			// Speed Demon unlocks
+			if (completions.speedDemon >= 5 && !this.meta.unlocks.turboMode) {
+				this.meta.unlocks.turboMode = true;
+				this.pushLog("Meta unlock: Turbo Mode upgrade unlocked!");
+			}
+			
+			// Enemy Swarm unlocks
+			if (completions.enemySwarm >= 10 && !this.meta.unlocks.ironSnake) {
+				this.meta.unlocks.ironSnake = true;
+				this.pushLog("Meta unlock: Iron Snake cosmetic unlocked!");
+			}
+			
+			// Resource Scarce unlocks
+			if (completions.resourceScarce >= 7 && !this.meta.unlocks.gourmet) {
+				this.meta.unlocks.gourmet = true;
+				this.pushLog("Meta unlock: Gourmet Palate upgrade unlocked!");
+			}
+			
+			this.saveMeta();
+		}
+
+		renderSummary(success, reason) {
+			const block = this.ui.summaryEl;
+			const floorsCleared = success ? this.maxFloors : Math.max(0, this.state.floorIndex);
+			block.innerHTML = `
+				<p><strong>${success ? "Victory" : "Defeat"}:</strong> ${reason || (success ? "You outlasted all floors." : "Out of hearts.")}</p>
+				<p>Floors cleared: ${floorsCleared} / ${this.maxFloors}</p>
+				<p>Total score: ${this.state.score}</p>
+				<p>Coins banked: ${this.state.coinsBanked + this.state.coinsEarned}</p>
+			`;
+		}
+	}
+
+	// Grace period updater functions - module level scope
+	let gameDirector = null; // Module-level reference for grace updater
+	let graceUpdateInterval = null;
+	const startGraceUpdater = () => {
+		if (graceUpdateInterval) clearInterval(graceUpdateInterval);
+		graceUpdateInterval = setInterval(() => {
+			if (gameDirector && gameDirector.state && gameDirector.state.graceActive && gameDirector.state.gracePeriodMs > 0) {
+				gameDirector.state.gracePeriodMs = Math.max(0, gameDirector.state.gracePeriodMs - 16);
+				if (gameDirector.state.gracePeriodMs <= 0) {
+					gameDirector.state.graceActive = false;
+				}
+				gameDirector.renderHud();
+			}
+		}, 16);
+	};
+
+	const stopGraceUpdater = () => {
+		if (graceUpdateInterval) {
+			clearInterval(graceUpdateInterval);
+			graceUpdateInterval = null;
+		}
+	};
+
+	const initializeAdventure = async () => {
+		const plan = await loadPlan();
+		const widget = document.querySelector("[data-adventure-widget]");
+		const boardWrap = document.querySelector("[data-board-wrap]");
+		const boardEl = document.querySelector("[data-board]");
+		const panelEl = document.querySelector(".adventure-panel");
+		const heartsEl = document.getElementById("adventure-hearts");
+		const floorEl = document.getElementById("adventure-floor");
+		const floorProgressEl = document.getElementById("adventure-floor-progress");
+		const goalEl = document.getElementById("adventure-goal");
+		const progressEl = document.getElementById("adventure-goal-progress");
+		const graceEl = document.getElementById("adventure-grace-period");
+		const graceBarEl = document.getElementById("adventure-grace-period-bar");
+		const affixList = document.getElementById("adventure-affixes");
+		const affixNotes = document.getElementById("adventure-affix-notes");
+		const statusEl = document.getElementById("adventure-status");
+		const liveEl = document.getElementById("adventure-live");
+		const logEl = document.getElementById("adventure-log");
+		const startBtn = document.getElementById("adventure-start");
+		const continueBtn = document.getElementById("adventure-continue");
+		const abortBtn = document.getElementById("adventure-abort");
+		const upgradeGrid = document.getElementById("adventure-upgrade-grid");
+		const modalTitle = document.getElementById("adventure-modal-title");
+		const summaryEl = document.getElementById("adventure-summary-body");
+		const summaryList = document.getElementById("adventure-summary-list");
+		const routePanel = document.getElementById("adventure-route-overlay");
+		const routeGrid = document.getElementById("adventure-route-grid");
+		const routeSkipBtn = document.getElementById("adventure-route-skip");
+		const scoreEl = document.getElementById("adventure-score");
+		const coinsEl = document.getElementById("adventure-coins");
+		const endOverlay = document.getElementById("adventure-end-overlay");
+		const endCard = document.getElementById("adventure-end-card");
+		const endContinueBtn = document.getElementById("adventure-end-continue");
+		const endRestartBtn = document.getElementById("adventure-end-restart");
+		const journalDate = document.getElementById("journal-date");
+		const journalRunName = document.getElementById("journal-run-name");
+		const journalStamp = document.getElementById("journal-stamp");
+		const journalCause = document.getElementById("journal-cause");
+		const journalFloor = document.getElementById("journal-floor");
+		const journalScore = document.getElementById("journal-score");
+		const journalCoins = document.getElementById("journal-coins");
+		const journalKit = document.getElementById("journal-kit");
+		const journalTreats = document.getElementById("journal-treats");
+		const journalTreatBreakdown = document.getElementById("journal-treat-breakdown");
+		const fullscreenBtn = document.getElementById("adventure-fullscreen");
+		const boardState = { key: "roomy", size: BOARD_CHOICES.roomy.size };
+		const cells = [];
+
+		// Initialize responsive board scaler - handles zoom, fullscreen, responsive resizing
+		let boardScaler = null;
+		// The arena is the fixed-size box the board must fit inside. Its padding is
+		// the coded frame's thickness, so measuring its content box gives exactly
+		// the space available to the grid - and the frame then wraps that grid.
+		const boardArena = document.querySelector("[data-board-arena]") || boardWrap;
+		const boardPlayArea = boardWrap?.querySelector(".board-stage__play") || boardWrap;
+		const initializeBoardScaler = () => {
+			boardScaler = new ResponsiveBoardScaler({
+				boardEl,
+				boardWrapEl: boardArena,
+				boardSize: boardState.size,
+				// The mat now gets the whole viewport, so the cell size should be
+				// bound by available space, not by an arbitrary cap.
+				minCellSize: 12,
+				maxCellSize: 128,
+				padding: 0,
+				onMetricsChange: (metrics) => {
+					// Metrics have been automatically applied via CSS variables
+					// Just log for debugging if needed
+					if (window.__HUMANE_GAMES_DEBUG__) {
+						console.log('Board metrics updated:', metrics);
+					}
+				}
+			});
+		};
+		const CAT_PAW_GLYPH = "\u{1F43E}";
+		const pets = {
+			cat: { head: "", body: CAT_PAW_GLYPH, headClass: "pet-cat-head", bodyClass: "pet-cat-body", useImage: true }
+		};
+
+		let activeEffects = {};
+		let lastRender = createEmptyRenderState();
+		const applyRenderSnapshot = (target, source = {}) => {
+			target.snake = Array.isArray(source.snake) ? source.snake : [];
+			target.treat = source.treat || null;
+			target.powerup = source.powerup || null;
+			target.bomb = source.bomb || null;
+			target.vacuum = source.vacuum || null;
+			target.vacuumTail = Array.isArray(source.vacuumTail) ? source.vacuumTail : [];
+			target.obstacles = Array.isArray(source.obstacles) ? source.obstacles : [];
+			target.direction = source.direction || { x: 1, y: 0 };
+		};
+		const replayRender = () => {
+			if (!renderer) return;
+			lastRender.activeEffects = activeEffects;
+			renderer.render(lastRender);
+			// Awareness Collar: Add warning flash to bomb when snake head is nearby
+			if (gameDirector?.state?.flags?.awarenessCollar && lastRender.bomb && lastRender.snake?.length) {
+				const head = lastRender.snake[0];
+				const bomb = lastRender.bomb;
+				const distance = Math.abs(head.x - bomb.x) + Math.abs(head.y - bomb.y); // Manhattan distance
+				const bombIndex = bomb.y * boardState.size + bomb.x;
+				const bombCell = cells[bombIndex];
+				if (bombCell) {
+					if (distance <= 4) {
+						bombCell.classList.add("bomb-warning");
+					} else {
+						bombCell.classList.remove("bomb-warning");
+					}
+				}
+			}
+		};
+		const renderWithEffects = (state = {}) => {
+			applyRenderSnapshot(lastRender, state);
+			replayRender();
+		};
+		const clearVacuumArtifacts = () => {
+			lastRender.vacuum = null;
+			lastRender.vacuumTail = [];
+			// Aggressively clear any lingering vacuum classes from DOM
+			if (cells && cells.length) {
+				cells.forEach(cell => {
+					if (cell && cell.classList) {
+						cell.classList.remove("is-vacuum", "is-vacuum-tail", "is-vacuum-tail-tip");
+					}
+				});
+			}
+			replayRender();
+		};
+
+		const buildBoard = () => {
+			boardEl.innerHTML = "";
+			cells.length = 0;
+			for (let i = 0; i < boardState.size * boardState.size; i += 1) {
+				const cell = document.createElement("div");
+				cell.className = "cat-snake__cell";
+				cell.setAttribute("role", "gridcell");
+				cells.push(cell);
+				boardEl.appendChild(cell);
+			}
+			// Assign pseudo-random tile quadrants once during board creation
+			assignTileQuadrants(cells);
+			applyRenderSnapshot(lastRender, createEmptyRenderState());
+			lastRender.activeEffects = activeEffects;
+		};
+
+		buildBoard();
+		initializeBoardScaler();
+
+		if (fullscreenBtn && widget) {
+			fullscreenBtn.addEventListener("click", () => {
+				if (!document.fullscreenElement) {
+					if (widget.requestFullscreen) {
+						widget.requestFullscreen().catch((err) => console.warn(err));
+					}
+				} else {
+					if (typeof document.exitFullscreen === "function") {
+						document.exitFullscreen().catch((err) => console.warn(err));
+					}
+				}
+			});
+		}
+
+		const handleFullscreenChange = () => {
+			const isFull = document.fullscreenElement === widget;
+			widget?.classList.toggle("is-fullscreen", isFull);
+			document.body?.classList.toggle("is-adventure-fullscreen", isFull);
+			// Resize after fullscreen transition settles
+			if (boardScaler) {
+				setTimeout(() => boardScaler.forceRecalculate(), 100);
+			}
+		};
+
+		document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+		const renderer = new DomBoardRenderer({ cells, size: boardState.size, pets, petKey: "cat" });
+
+		const renderAdapter = (state = {}) => {
+			renderWithEffects(state);
+		};
+
+		const engine = new PetSnakeEngine({
+			config: {
+				boardSize: boardState.size,
+				difficulty: "normal",
+				superMode: false,
+				tickMs: 200,
+				initialSnake: buildInitialSnake(boardState.size)
+			},
+			renderAdapter
+		});
+
+		const boardApi = {
+			setBoard({ key }) {
+				if (key && BOARD_CHOICES[key]) {
+					boardState.key = key;
+					boardState.size = BOARD_CHOICES[key].size;
+				}
+				buildBoard();
+				renderer.setCells(cells);
+				renderer.setSize(boardState.size);
+				renderer.clearCaches();
+				if (boardScaler) {
+					boardScaler.setBoardSize(boardState.size);
+				}
+			},
+			forceResize() {
+				if (boardScaler) {
+					boardScaler.forceRecalculate();
+				}
+			},
+			clearArtifacts() {
+				clearVacuumArtifacts();
+			},
+			flashVacuumEscape(x, y) {
+				if (!cells || !cells.length) return;
+				const index = y * boardState.size + x;
+				const cell = cells[index];
+				if (!cell) return;
+				cell.classList.add('is-vacuum-escaping');
+				setTimeout(() => {
+					cell.classList.remove('is-vacuum-escaping');
+				}, 400);
+			}
+		};
+
+		// Set up modifier UI elements
+		const modifierList = document.getElementById("adventure-modifier-list");
+		const modifierDesc = document.getElementById("adventure-modifier-desc");
+		const statusModifierTag = document.getElementById("adventure-status-modifier");
+
+		const director = new AdventureRunDirector({
+			engine,
+			board: boardApi,
+			plan,
+			startingModifier: STARTING_MODIFIERS[0],
+			ui: {
+				widget,
+				panelEl,
+				boardEl,
+				boardWrap,
+				boardStage: document.querySelector(".board-stage"),
+				closeHudDrawers: null,
+				heartsEl,
+				floorEl,
+				floorProgressEl,
+				goalEl,
+				progressEl,
+				graceEl,
+				graceBarEl,
+				affixList,
+				affixNotes,
+				statusEl,
+				liveEl,
+				logEl,
+				startBtn,
+				continueBtn,
+				abortBtn,
+				upgradeGrid,
+				modalTitle,
+				summaryEl,
+				summaryList,
+				routePanel,
+				routeGrid,
+				routeSkipBtn,
+				scoreEl,
+				coinsEl,
+				endOverlay,
+				endCard,
+				endContinueBtn,
+				endRestartBtn,
+				journalDate,
+				journalRunName,
+				journalStamp,
+				journalCause,
+				journalFloor,
+				journalScore,
+				journalCoins,
+				journalKit,
+				journalTreats,
+				journalTreatBreakdown,
+				modifierList,
+				modifierDesc,
+				statusModifierTag
+			}
+		});
+
+		// Set the global reference for board metrics check
+		gameDirector = director;
+
+		engine.on("effects", ({ active }) => {
+			activeEffects = active || {};
+			director.setEffects(activeEffects);
+			replayRender();
+		});
+
+		const initHudDrawers = () => {
+			const hudBoardWrap = document.querySelector('[data-board-wrap]');
+			const hudToggles = document.querySelectorAll('[data-hud-toggle]');
+			const hudDrawers = document.querySelectorAll('.board-drawer');
+
+			let drawerRestoreFocus = null;
+
+			const closeHudDrawers = () => {
+				hudDrawers.forEach((drawer) => {
+					drawer.hidden = true;
+					drawer.setAttribute('aria-hidden', 'true');
+					drawer.classList.remove('is-open');
+				});
+				hudToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', 'false'));
+				if (drawerRestoreFocus && typeof drawerRestoreFocus.focus === 'function') {
+					drawerRestoreFocus.focus();
+				}
+				drawerRestoreFocus = null;
+			};
+
+			const openHudDrawer = (name) => {
+				closeHudDrawers();
+				drawerRestoreFocus = document.activeElement;
+				const drawer = document.querySelector(`.board-drawer[data-drawer="${name}"]`);
+				const toggle = document.querySelector(`[data-hud-toggle="${name}"]`);
+				if (drawer) {
+					drawer.hidden = false;
+					drawer.setAttribute('aria-hidden', 'false');
+					drawer.classList.add('is-open');
+					const focusTarget = drawer.querySelector('.board-drawer__close') || drawer.querySelector('button, select, [href]');
+					if (focusTarget) focusTarget.focus();
+				}
+				if (toggle) toggle.setAttribute('aria-expanded', 'true');
+			};
+
+			hudToggles.forEach((btn) => {
+				btn.addEventListener('click', (event) => {
+					event.stopPropagation();
+					const name = btn.getAttribute('data-hud-toggle');
+					if (!name) return;
+					const drawer = document.querySelector(`.board-drawer[data-drawer="${name}"]`);
+					const isOpen = drawer && !drawer.hidden && drawer.classList.contains('is-open');
+					if (isOpen) closeHudDrawers();
+					else openHudDrawer(name);
+				});
+			});
+
+			document.querySelectorAll('[data-drawer-close]').forEach((btn) => {
+				btn.addEventListener('click', closeHudDrawers);
+			});
+
+			document.addEventListener('keydown', (event) => {
+				if (event.key !== 'Escape') return;
+				const state = widget?.getAttribute('data-game-state');
+				if (['floor-complete', 'run-victory', 'run-defeat'].includes(state)) return;
+				closeHudDrawers();
+			});
+
+			hudBoardWrap?.addEventListener('click', (event) => {
+				if (event.target.closest('.board-drawer') || event.target.closest('[data-hud-toggle]')) return;
+				closeHudDrawers();
+			});
+
+			if (widget) {
+				const stateObserver = new MutationObserver(() => {
+					const state = widget.getAttribute('data-game-state');
+					if (state !== 'playing' && state !== 'paused') closeHudDrawers();
+				});
+				stateObserver.observe(widget, { attributes: true, attributeFilter: ['data-game-state'] });
+			}
+
+			return { closeHudDrawers };
+		};
+
+		const { closeHudDrawers } = initHudDrawers();
+		director.ui.closeHudDrawers = closeHudDrawers;
+		director.init();
+
+		/* ========== SCREENS: title -> setup -> run ========== */
+
+		const screenRouter = new ScreenRouter(widget, SCREENS.TITLE);
+
+		const readMeta = () => {
+			if (!director.meta) director.meta = director.loadMeta();
+			return director.meta;
+		};
+
+		const setStat = (attr, name, value) => {
+			document.querySelectorAll(`[data-${attr}-stat="${name}"]`).forEach((el) => {
+				el.textContent = String(value);
+			});
+		};
+
+		const refreshScreenStats = () => {
+			const meta = readMeta();
+			setStat("title", "score", meta.bestScore || 0);
+			setStat("title", "floor", meta.bestFloor || 0);
+			setStat("title", "coins", meta.coins || 0);
+			setStat("setup", "floors", plan?.runStructure?.floorsPerRun || 15);
+			setStat("setup", "hearts", director.state?.maxHearts ?? 3);
+			setStat("setup", "coins", meta.coins || 0);
+		};
+
+		// Personal bests are what make the title screen worth returning to.
+		const recordBest = () => {
+			const meta = readMeta();
+			const score = Number(director.state?.score) || 0;
+			const floor = Math.max(0, (Number(director.state?.floorIndex) || 0) + 1);
+			let dirty = false;
+			if (score > (meta.bestScore || 0)) { meta.bestScore = score; dirty = true; }
+			if (floor > (meta.bestFloor || 0)) { meta.bestFloor = floor; dirty = true; }
+			if (dirty) director.saveMeta(meta);
+		};
+
+		document.querySelectorAll("[data-screen-go]").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const target = btn.getAttribute("data-screen-go");
+				if (!target) return;
+				closeHudDrawers();
+				refreshScreenStats();
+				screenRouter.setScreen(target);
+			});
+		});
+
+		// The screen follows run state rather than the Start button's click.
+		// Listening on the button does not work: director.bindUi() registers its
+		// own click handler first, so startRun() has already flipped runActive by
+		// the time a second handler runs - leaving the setup menu covering a
+		// running board. Reacting to the state change is order-independent, and
+		// it also covers resume and continue-with-coins.
+		director.gameStateManager.onStateChange(({ next }) => {
+			if (next === GAME_STATES.PLAYING) {
+				screenRouter.setScreen(SCREENS.RUN);
+			}
+			if (next === GAME_STATES.RUN_VICTORY || next === GAME_STATES.RUN_DEFEAT) {
+				recordBest();
+			}
+			// Abort, or closing the end-of-run journal, drops back to the title.
+			if (next === GAME_STATES.IDLE) {
+				refreshScreenStats();
+				screenRouter.setScreen(SCREENS.TITLE);
+			}
+		});
+
+		refreshScreenStats();
+
+		/* ========== INPUT ========== */
+
+		const canSteer = () => {
+			if (screenRouter.getScreen() !== SCREENS.RUN) return false;
+			if (director.gameStateManager?.isModal?.()) return false;
+			if (director.state?.phase === "reward") return false;
+			return true;
+		};
+
+		bindKeyboardControls(engine, {
+			onTogglePause: () => director.togglePauseHotkey(),
+			shouldAcceptDirection: canSteer
+		});
+
+		// Swipe is the whole mobile control scheme - there is no on-screen D-pad,
+		// so the whole arena (board plus frame) is a valid gesture surface.
+		bindSwipeControls(boardArena, engine, {
+			shouldAcceptDirection: canSteer,
+			onTap: () => {
+				if (screenRouter.getScreen() !== SCREENS.RUN) return;
+				if (director.gameStateManager?.isModal?.()) return;
+				director.togglePauseHotkey();
+			}
+		});
+
+		const isAiPlayerMode = (() => {
+			try { return new URLSearchParams(window.location.search).get('bot') === '1'; } catch (_e) { return false; }
+		})();
+
+		function startSnakeAiPlayer() {
+			const pickDirection = () => {
+				const head = engine.snake?.[0];
+				if (!head) return null;
+				const treat = engine.treat || { x: engine.boardSize / 2, y: engine.boardSize / 2 };
+				const cur = engine.direction;
+				const vectors = {
+					up: { x: 0, y: -1, key: 'up' },
+					down: { x: 0, y: 1, key: 'down' },
+					left: { x: -1, y: 0, key: 'left' },
+					right: { x: 1, y: 0, key: 'right' }
+				};
+				const cellBlocked = (x, y) => {
+					if (x < 0 || y < 0 || x >= engine.boardSize || y >= engine.boardSize) return true;
+					if (engine._hasSnakePosition?.(x, y)) return true;
+					if (engine.hasObstacle?.(x, y)) return true;
+					if (engine.isVacuumTailCell?.(x, y)) return true;
+					if (engine.vacuum && engine.vacuum.x === x && engine.vacuum.y === y) return true;
+					return false;
+				};
+				const options = Object.values(vectors).filter((v) => !(v.x === -cur.x && v.y === -cur.y));
+				const safe = options
+					.map((v) => ({
+						key: v.key,
+						dist: Math.abs(head.x + v.x - treat.x) + Math.abs(head.y + v.y - treat.y)
+					}))
+					.filter((v) => !cellBlocked(head.x + vectors[v.key].x, head.y + vectors[v.key].y));
+				if (!safe.length) return options.length ? options[Math.floor(Math.random() * options.length)].key : null;
+				safe.sort((a, b) => a.dist - b.dist);
+				return safe[0].key;
+			};
+
+			if (!director.state.runActive) {
+				// The screen follows the PLAYING state change; no need to set it here.
+				director.startRun();
+			}
+
+			let hud = document.getElementById('snake-ai-player-hud');
+			if (!hud) {
+				hud = document.createElement('div');
+				hud.id = 'snake-ai-player-hud';
+				hud.setAttribute('role', 'status');
+				hud.innerHTML = '<div style="font-weight:700;margin-bottom:0.3rem;color:#5d4037;">AI player</div><div data-snake-ai-stats>Starting…</div>';
+				document.body.appendChild(hud);
+			}
+
+			const timerId = window.setInterval(() => {
+				if (!director.state.runActive || director.state.paused || director.state.phase !== 'floor') return;
+				const dir = pickDirection();
+				if (dir) engine.enqueueDirection(dir);
+				const stats = hud.querySelector('[data-snake-ai-stats]');
+				if (stats) {
+					const floor = Math.max(1, director.state.floorIndex + 1);
+					stats.textContent = `Floor ${floor} · Score ${director.state.score} · ♥ ${director.state.hearts}`;
+				}
+			}, 130);
+			window.__petSnakeAiPlayer = { stop: () => clearInterval(timerId) };
+		}
+
+		if (isAiPlayerMode) {
+			startSnakeAiPlayer();
+		}
+
+		// Performance toggle stays available for users; debug cheats/help are dev-only.
+		window.performanceMode = (enabled = true) => {
+			document.body.classList.toggle('reduce-motion', !!enabled);
+			return !!enabled;
+		};
+
+		let devMode = /(?:^|[?&])dev=1(?:&|$)/.test(window.location.search);
+		if (!devMode) {
+			try { devMode = localStorage.getItem('petSnakeDev') === '1'; } catch (_e) { devMode = false; }
+		}
+		if (devMode) {
+			window.gameDirector = director;
+			window.coins = (amount) => {
+				if (typeof amount !== 'number' || isNaN(amount)) {
+					console.error('Usage: coins(amount) - amount must be a number');
+					return;
+				}
+				const before = director.state.coinsBanked + director.state.coinsEarned;
+				director.state.coinsBanked += amount;
+				const after = director.state.coinsBanked + director.state.coinsEarned;
+				director.renderHud();
+				console.log(`Added ${amount} coins. Total: ${before} -> ${after}`);
+			};
+			console.log('Debug commands available:');
+			console.log('  coins(amount) - Add coins (e.g., coins(70))');
+			console.log('  performanceMode(true/false) - Toggle reduced animations for better FPS');
+			console.log('  gameDirector - Access game director object');
+		}
+	};
+
+	initializeAdventure();
+	</script>
+
+	<div class="launcher-overlay" data-launcher aria-hidden="true">
+		<div class="launcher-overlay__backdrop" data-launcher-close></div>
+		<div class="launcher-overlay__panel" role="dialog" aria-modal="true" aria-labelledby="launcher-title">
+			<button class="launcher-overlay__close" type="button" data-launcher-close aria-label="Close game menu">
+				<span aria-hidden="true">&#215;</span>
+			</button>
+			<div class="launcher-overlay__header">
+				<p class="launcher-overlay__eyebrow">Pick a game</p>
+				<h2 id="launcher-title">Humane Games Menu</h2>
+			</div>
+			<div class="game-grid" aria-label="Available games">
+				<a class="game-card" href="petsnake.html">
+					<span class="game-card__icon" aria-hidden="true">&#x1F40D;</span>
+					<h3 class="game-card__title">Pet Snake</h3>
+					<p class="game-card__desc">Play as a cat or dog, grab treats, dodge bombs, and chase a new personal best.</p>
+					<span class="game-card__cta">Start run &#8594;</span>
+				</a>
+				<a class="game-card" href="petsnakerouguelike.html">
+					<span class="game-card__icon" aria-hidden="true">&#x1F5FA;&#xFE0F;</span>
+					<h3 class="game-card__title">Pet Snake Adventure</h3>
+					<p class="game-card__desc">Embark on a 15-floor roguelike journey with upgrades, affixes, and a vacuum boss.</p>
+					<span class="game-card__cta">Start adventure &#8594;</span>
+				</a>
+				<a class="game-card" href="../shelter-tycoon-main/">
+					<span class="game-card__icon" aria-hidden="true">&#x1F3E1;</span>
+					<h3 class="game-card__title">Shelter Tycoon</h3>
+					<p class="game-card__desc">Build and manage a thriving animal shelter. Rescue pets, hire volunteers, and grow your donations.</p>
+					<span class="game-card__cta">Play Shelter Tycoon &#8594;</span>
+				</a>
+				<a class="game-card" href="https://www.monroe-humane.org" target="_blank" rel="noreferrer noopener">
+					<span class="game-card__icon" aria-hidden="true">&#x1F3E0;</span>
+					<h3 class="game-card__title">Main Shelter Site</h3>
+					<p class="game-card__desc">Browse pets, donate, check events, and see what Monroe Humane is up to.</p>
+					<span class="game-card__cta">Visit site &#8594;</span>
+				</a>
+			</div>
+			<p class="launcher-overlay__hint">Use keyboard, mouse, or touch. Press Escape to close this menu.</p>
+		</div>
+	</div>
+
+	<script>
+	(() => {
+		const overlay = document.querySelector("[data-launcher]");
+		if (!overlay) return;
+		const panel = overlay.querySelector(".launcher-overlay__panel");
+		const openers = document.querySelectorAll("[data-launcher-open]");
+		const closers = overlay.querySelectorAll("[data-launcher-close]");
+		const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+		let restoreFocus = null;
+		const trapFocus = (e) => {
+			const focusable = panel.querySelectorAll(focusableSelector);
+			if (!focusable.length) return;
+			const first = focusable[0], last = focusable[focusable.length - 1];
+			if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+			else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+		};
+		const handleKeydown = (e) => {
+			if (e.key === "Escape") { e.preventDefault(); close(); return; }
+			if (e.key === "Tab") trapFocus(e);
+		};
+		const close = () => {
+			if (!overlay.classList.contains("is-active")) return;
+			overlay.classList.remove("is-active");
+			overlay.setAttribute("aria-hidden", "true");
+			panel.removeAttribute("tabindex");
+			document.body.classList.remove("is-launcher-open");
+			overlay.removeEventListener("keydown", handleKeydown);
+			if (restoreFocus) { restoreFocus.focus(); restoreFocus = null; }
+		};
+		const open = (e) => {
+			if (e) e.preventDefault();
+			restoreFocus = document.activeElement;
+			overlay.classList.add("is-active");
+			overlay.setAttribute("aria-hidden", "false");
+			document.body.classList.add("is-launcher-open");
+			panel.setAttribute("tabindex", "-1");
+			panel.focus();
+			overlay.addEventListener("keydown", handleKeydown);
+		};
+		openers.forEach((btn) => btn.addEventListener("click", open));
+		closers.forEach((btn) => btn.addEventListener("click", close));
+		overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+	})();
+	</script>
+</body>
+</html>

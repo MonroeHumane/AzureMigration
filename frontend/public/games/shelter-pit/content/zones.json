@@ -1,0 +1,8 @@
+[
+  { "id": "stray_alley", "name": "Stray Alley", "rows": 5, "density": 0.5, "rowSpeedMod": 1, "descendMs": 9000 },
+  { "id": "winter_intake", "name": "Winter Intake", "rows": 6, "density": 0.55, "rowSpeedMod": 1.1, "descendMs": 8000 },
+  { "id": "adoption_rush", "name": "Adoption Rush", "rows": 6, "density": 0.6, "rowSpeedMod": 1.15, "descendMs": 7500 },
+  { "id": "quiet_wing", "name": "Quiet Wing", "rows": 7, "density": 0.5, "rowSpeedMod": 1.2, "descendMs": 7000 },
+  { "id": "sunny_yard", "name": "Sunny Yard", "rows": 7, "density": 0.58, "rowSpeedMod": 1.25, "descendMs": 6500 },
+  { "id": "grand_opening", "name": "Grand Opening", "rows": 8, "density": 0.62, "rowSpeedMod": 1.3, "descendMs": 6000, "miniboss": true }
+]

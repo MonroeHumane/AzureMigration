@@ -1,0 +1,478 @@
+{
+  "version": 1,
+  "directus": "11.5.0",
+  "collections": [
+    {
+      "collection": "pets",
+      "meta": {
+        "collection": "pets",
+        "icon": "pets",
+        "note": "Adoptable shelter animals synchronized daily from shelter Google Sheet",
+        "display_template": "{{name}} ({{type}})",
+        "hidden": false,
+        "singleton": false,
+        "archive_field": "archived_at",
+        "archive_value": "true",
+        "unarchive_value": "false"
+      },
+      "schema": {
+        "name": "pets"
+      }
+    },
+    {
+      "collection": "event_flyers",
+      "meta": {
+        "collection": "event_flyers",
+        "icon": "event",
+        "note": "Upcoming event flyers and announcements",
+        "display_template": "{{title}}",
+        "hidden": false,
+        "singleton": false
+      },
+      "schema": {
+        "name": "event_flyers"
+      }
+    },
+    {
+      "collection": "memorial_tributes",
+      "meta": {
+        "collection": "memorial_tributes",
+        "icon": "favorite",
+        "note": "Memorial honor roll plaques and tributes",
+        "display_template": "{{title}} ({{year}})",
+        "hidden": false,
+        "singleton": false
+      },
+      "schema": {
+        "name": "memorial_tributes"
+      }
+    },
+    {
+      "collection": "newsletter_issues",
+      "meta": {
+        "collection": "newsletter_issues",
+        "icon": "newspaper",
+        "note": "Shelter newsletters and seasonal updates",
+        "display_template": "{{title}} - {{issue_date}}",
+        "hidden": false,
+        "singleton": false
+      },
+      "schema": {
+        "name": "newsletter_issues"
+      }
+    },
+    {
+      "collection": "site_settings",
+      "meta": {
+        "collection": "site_settings",
+        "icon": "settings",
+        "note": "Global shelter statistics and homepage accomplishments counter",
+        "hidden": false,
+        "singleton": true
+      },
+      "schema": {
+        "name": "site_settings"
+      }
+    },
+    {
+      "collection": "testimonials",
+      "meta": {
+        "collection": "testimonials",
+        "icon": "format_quote",
+        "note": "Adopter success stories and community testimonials",
+        "display_template": "{{author}} - {{pet_name}}",
+        "hidden": false,
+        "singleton": false
+      },
+      "schema": {
+        "name": "testimonials"
+      }
+    },
+    {
+      "collection": "membership_tiers",
+      "meta": {
+        "collection": "membership_tiers",
+        "icon": "card_membership",
+        "note": "Shelter membership levels and Stripe links",
+        "display_template": "{{name}} - ${{price_annual}}/yr",
+        "hidden": false,
+        "singleton": false
+      },
+      "schema": {
+        "name": "membership_tiers"
+      }
+    }
+  ],
+  "fields": [
+    {
+      "collection": "pets",
+      "field": "id",
+      "type": "string",
+      "meta": { "primary_key": true, "required": true, "note": "Pet ID from shelter management system" },
+      "schema": { "is_primary_key": true, "length": 32 }
+    },
+    {
+      "collection": "pets",
+      "field": "name",
+      "type": "string",
+      "meta": { "required": true },
+      "schema": { "length": 191 }
+    },
+    {
+      "collection": "pets",
+      "field": "type",
+      "type": "string",
+      "meta": { "options": { "choices": [{ "text": "Dog", "value": "dog" }, { "text": "Cat", "value": "cat" }, { "text": "Other", "value": "other" }] } },
+      "schema": { "length": 32 }
+    },
+    {
+      "collection": "pets",
+      "field": "species_label",
+      "type": "string",
+      "schema": { "length": 64 }
+    },
+    {
+      "collection": "pets",
+      "field": "breed",
+      "type": "string",
+      "schema": { "length": 191 }
+    },
+    {
+      "collection": "pets",
+      "field": "age",
+      "type": "string",
+      "schema": { "length": 32 }
+    },
+    {
+      "collection": "pets",
+      "field": "age_display",
+      "type": "string",
+      "schema": { "length": 64 }
+    },
+    {
+      "collection": "pets",
+      "field": "size",
+      "type": "string",
+      "schema": { "length": 32 }
+    },
+    {
+      "collection": "pets",
+      "field": "gender",
+      "type": "string",
+      "schema": { "length": 32 }
+    },
+    {
+      "collection": "pets",
+      "field": "location",
+      "type": "string",
+      "schema": { "length": 128 }
+    },
+    {
+      "collection": "pets",
+      "field": "image_url",
+      "type": "string",
+      "schema": { "length": 512 }
+    },
+    {
+      "collection": "pets",
+      "field": "url",
+      "type": "string",
+      "schema": { "length": 512 }
+    },
+    {
+      "collection": "pets",
+      "field": "description",
+      "type": "text",
+      "meta": { "interface": "input-multiline" },
+      "schema": {}
+    },
+    {
+      "collection": "pets",
+      "field": "intake_date",
+      "type": "string",
+      "schema": { "length": 64 }
+    },
+    {
+      "collection": "pets",
+      "field": "first_seen_at",
+      "type": "dateTime",
+      "schema": {}
+    },
+    {
+      "collection": "pets",
+      "field": "last_seen_at",
+      "type": "dateTime",
+      "schema": {}
+    },
+    {
+      "collection": "pets",
+      "field": "archived_at",
+      "type": "dateTime",
+      "schema": {}
+    },
+    {
+      "collection": "event_flyers",
+      "field": "id",
+      "type": "integer",
+      "meta": { "primary_key": true },
+      "schema": { "is_primary_key": true, "has_auto_increment": true }
+    },
+    {
+      "collection": "event_flyers",
+      "field": "status",
+      "type": "string",
+      "meta": { "interface": "select-dropdown", "options": { "choices": [{ "text": "Published", "value": "published" }, { "text": "Draft", "value": "draft" }] } },
+      "schema": { "default_value": "published", "length": 16 }
+    },
+    {
+      "collection": "event_flyers",
+      "field": "title",
+      "type": "string",
+      "meta": { "required": true },
+      "schema": { "length": 255 }
+    },
+    {
+      "collection": "event_flyers",
+      "field": "event_date",
+      "type": "date",
+      "schema": {}
+    },
+    {
+      "collection": "event_flyers",
+      "field": "link_url",
+      "type": "string",
+      "schema": { "length": 512 }
+    },
+    {
+      "collection": "event_flyers",
+      "field": "description",
+      "type": "text",
+      "meta": { "interface": "input-rich-text-html" },
+      "schema": {}
+    },
+    {
+      "collection": "event_flyers",
+      "field": "sort_order",
+      "type": "integer",
+      "schema": { "default_value": 0 }
+    },
+    {
+      "collection": "memorial_tributes",
+      "field": "id",
+      "type": "integer",
+      "meta": { "primary_key": true },
+      "schema": { "is_primary_key": true, "has_auto_increment": true }
+    },
+    {
+      "collection": "memorial_tributes",
+      "field": "status",
+      "type": "string",
+      "meta": { "options": { "choices": [{ "text": "Published", "value": "published" }, { "text": "Draft", "value": "draft" }] } },
+      "schema": { "default_value": "published", "length": 16 }
+    },
+    {
+      "collection": "memorial_tributes",
+      "field": "title",
+      "type": "string",
+      "meta": { "required": true, "note": "Honoree / Pet Name" },
+      "schema": { "length": 255 }
+    },
+    {
+      "collection": "memorial_tributes",
+      "field": "line_key",
+      "type": "string",
+      "meta": { "options": { "choices": [
+        { "text": "In Memory Of", "value": "in_memory" },
+        { "text": "In Loving Memory Of", "value": "in_loving" },
+        { "text": "In Honor Of", "value": "in_honor" },
+        { "text": "In Memory & Honor Of", "value": "in_memory_honor" },
+        { "text": "Happy Birthday", "value": "happy_birthday" }
+      ] } },
+      "schema": { "default_value": "in_memory", "length": 32 }
+    },
+    {
+      "collection": "memorial_tributes",
+      "field": "variant",
+      "type": "string",
+      "meta": { "options": { "choices": [
+        { "text": "Standard", "value": "default" },
+        { "text": "Honor (Green)", "value": "honor" },
+        { "text": "Birthday", "value": "birthday" }
+      ] } },
+      "schema": { "default_value": "default", "length": 16 }
+    },
+    {
+      "collection": "memorial_tributes",
+      "field": "year",
+      "type": "string",
+      "schema": { "length": 16 }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "id",
+      "type": "integer",
+      "meta": { "primary_key": true },
+      "schema": { "is_primary_key": true, "has_auto_increment": true }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "status",
+      "type": "string",
+      "meta": { "options": { "choices": [{ "text": "Published", "value": "published" }, { "text": "Draft", "value": "draft" }] } },
+      "schema": { "default_value": "published", "length": 16 }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "title",
+      "type": "string",
+      "meta": { "required": true },
+      "schema": { "length": 255 }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "slug",
+      "type": "string",
+      "meta": { "required": true },
+      "schema": { "length": 255 }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "issue_date",
+      "type": "string",
+      "schema": { "length": 64 }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "heading",
+      "type": "string",
+      "schema": { "length": 255 }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "lead",
+      "type": "text",
+      "schema": {}
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "byline",
+      "type": "string",
+      "schema": { "length": 128 }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "blocks",
+      "type": "json",
+      "meta": { "interface": "input-code", "options": { "language": "json" } },
+      "schema": {}
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "featured",
+      "type": "boolean",
+      "schema": { "default_value": false }
+    },
+    {
+      "collection": "site_settings",
+      "field": "id",
+      "type": "integer",
+      "meta": { "primary_key": true },
+      "schema": { "is_primary_key": true, "has_auto_increment": true }
+    },
+    {
+      "collection": "site_settings",
+      "field": "adoptions_count",
+      "type": "integer",
+      "schema": { "default_value": 750 }
+    },
+    {
+      "collection": "site_settings",
+      "field": "spay_neuter_count",
+      "type": "integer",
+      "schema": { "default_value": 1200 }
+    },
+    {
+      "collection": "site_settings",
+      "field": "meals_served_count",
+      "type": "integer",
+      "schema": { "default_value": 15000 }
+    },
+    {
+      "collection": "site_settings",
+      "field": "emergency_phone",
+      "type": "string",
+      "schema": { "default_value": "734-243-3669", "length": 32 }
+    },
+    {
+      "collection": "testimonials",
+      "field": "id",
+      "type": "integer",
+      "meta": { "primary_key": true },
+      "schema": { "is_primary_key": true, "has_auto_increment": true }
+    },
+    {
+      "collection": "testimonials",
+      "field": "author",
+      "type": "string",
+      "meta": { "required": true },
+      "schema": { "length": 128 }
+    },
+    {
+      "collection": "testimonials",
+      "field": "quote",
+      "type": "text",
+      "meta": { "required": true },
+      "schema": {}
+    },
+    {
+      "collection": "testimonials",
+      "field": "pet_name",
+      "type": "string",
+      "schema": { "length": 64 }
+    },
+    {
+      "collection": "membership_tiers",
+      "field": "id",
+      "type": "integer",
+      "meta": { "primary_key": true },
+      "schema": { "is_primary_key": true, "has_auto_increment": true }
+    },
+    {
+      "collection": "membership_tiers",
+      "field": "name",
+      "type": "string",
+      "meta": { "required": true },
+      "schema": { "length": 64 }
+    },
+    {
+      "collection": "membership_tiers",
+      "field": "price_annual",
+      "type": "integer",
+      "schema": { "default_value": 25 }
+    },
+    {
+      "collection": "membership_tiers",
+      "field": "price_monthly",
+      "type": "integer",
+      "schema": { "default_value": 5 }
+    },
+    {
+      "collection": "membership_tiers",
+      "field": "perks",
+      "type": "json",
+      "schema": {}
+    },
+    {
+      "collection": "membership_tiers",
+      "field": "stripe_link",
+      "type": "string",
+      "schema": { "length": 512 }
+    },
+    {
+      "collection": "membership_tiers",
+      "field": "sort_order",
+      "type": "integer",
+      "schema": { "default_value": 0 }
+    }
+  ]
+}

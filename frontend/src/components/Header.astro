@@ -1,0 +1,303 @@
+---
+/*
+ Global navigation — markup and behavior carried over from the monroe-rebuild
+ theme's unified nav. One data model drives desktop flyouts and the mobile
+ drawer; JS only toggles state classes also used by touch/keyboard users.
+ */
+
+interface NavChild {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+interface NavItem {
+  label: string;
+  href?: string;
+  overviewHref?: string;
+  children?: NavChild[];
+}
+
+import { SITE } from '../config/site';
+
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+
+const LOGO_SRC = SITE.assets.logo;
+const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
+const MEMBERSHIP_URL = SITE.integrations.betterUnite.membership;
+
+const NAV: NavItem[] = [
+  { label: 'Home', href: '/' },
+  {
+    label: 'Services',
+    overviewHref: '/dog-and-cat-shelter',
+    children: [
+      { label: 'Adoptable Pets', href: '/adopt' },
+      { label: 'About Our Shelter', href: '/dog-and-cat-shelter' },
+      { label: 'Hero Fence', href: '/#hs-hero-fence-widget' },
+      { label: 'Games', href: '/games' },
+    ],
+  },
+  {
+    label: 'Adopt',
+    overviewHref: '/adoptions',
+    children: [
+      { label: 'Available Pets', href: '/adopt' },
+      { label: 'Adoption Policy', href: '/adoptions/#AdoptionPolicy' },
+      { label: 'Application', href: '/adoptions/#Application' },
+    ],
+  },
+  {
+    label: 'Resources',
+    overviewHref: '/resources',
+    children: [
+      { label: 'Shop', href: '/shop' },
+      { label: 'Membership plans', href: '/membership' },
+      { label: 'Join online (BetterUnite)', href: MEMBERSHIP_URL, external: true },
+      { label: 'FAQ', href: '/#FAQ' },
+      { label: 'Newsletter archive', href: '/newsletter' },
+      { label: '25 in Review', href: '/newsletter/issue/2025-in-review' },
+      { label: 'Fundraisers', href: DONATE_URL, external: true },
+      { label: 'Volunteer', href: '/volunteer-form' },
+    ],
+  },
+  {
+    label: 'Events',
+    overviewHref: '/events',
+    children: [
+      { label: 'Vote for shirt design', href: '/artwork-contest' },
+      { label: 'Event flyers', href: '/events' },
+      { label: 'Calendar', href: '/events#Calendar' },
+      { label: 'Special Sponsors', href: '/specialsponsors' },
+    ],
+  },
+  {
+    label: 'Donations',
+    overviewHref: '/#Donations',
+    children: [
+      { label: 'Memorial & tributes', href: '/memorials' },
+      { label: 'Memorials', href: '/memorials/give' },
+    ],
+  },
+  { label: 'Contact', href: '/#Contact' },
+];
+
+const firstSegment = (href: string) => '/' + href.replace(/^https?:\/\/[^/]+/, '').split('/')[1];
+const currentSegment = firstSegment(currentPath);
+
+const isCurrent = (item: NavItem) => {
+  if (item.href) {
+    if (item.href === '/' || currentPath === '/') return currentPath === item.href;
+    return firstSegment(item.href) === currentSegment;
+  }
+  const candidates = [item.overviewHref ?? '/', ...(item.children?.map((c) => c.href) ?? [])];
+  return candidates.some((href) => firstSegment(href) === currentSegment);
+};
+---
+
+<header class="monroe-global-nav" data-monroe-global-nav data-monroe-nav-drawer-max={SITE.ui.mobileDrawerBreakpoint}>
+  <button type="button" class="monroe-global-nav__backdrop" aria-label="Close menu" tabindex="-1" hidden></button>
+  <div class="monroe-global-nav__inner">
+    <div class="monroe-global-nav__bar">
+      <div class="monroe-global-nav__bar-cta">
+        <a class="monroe-global-nav__bar-adopt" href="/adopt">Adopt</a>
+        <a class="monroe-global-nav__bar-donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+      </div>
+      <a class="monroe-global-nav__brand" href="/" aria-label={`${SITE.name}, home`}>
+        <img src={LOGO_SRC} alt="" decoding="async" width="320" height="120" />
+      </a>
+
+      <button class="monroe-global-nav__menu-toggle" type="button" aria-expanded="false" aria-controls="monroe-global-nav-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span class="screen-reader-text">Toggle navigation</span>
+      </button>
+    </div>
+
+    <nav class="monroe-global-nav__panel" id="monroe-global-nav-menu" aria-label="Primary navigation">
+      <ul class="monroe-global-nav__list">
+        {NAV.map((item, i) =>
+          item.children ? (
+            <li class:list={['monroe-global-nav__item', 'has-children', { 'is-current': isCurrent(item) }]}>
+              <button
+                class="monroe-global-nav__trigger"
+                type="button"
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-controls={`monroe-nav-dd-${i}`}
+              >
+                <span>{item.label}</span>
+                <span class="monroe-global-nav__chevron" aria-hidden="true" />
+              </button>
+              <div id={`monroe-nav-dd-${i}`} class="monroe-global-nav__dropdown" role="region" aria-label={`${item.label} submenu`}>
+                <a class="monroe-global-nav__dropdown-link monroe-global-nav__dropdown-link--top" href={item.overviewHref}>
+                  <span>{item.label}</span>
+                  <span class="monroe-global-nav__dropdown-overview">Overview</span>
+                </a>
+                <ul class="monroe-global-nav__submenu">
+                  {item.children.map((child) => (
+                    <li class="monroe-global-nav__item">
+                      <a
+                        class="monroe-global-nav__link"
+                        href={child.href}
+                        {...(child.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      >
+                        {child.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ) : (
+            <li class:list={['monroe-global-nav__item', { 'is-current': isCurrent(item) }]}>
+              <a class="monroe-global-nav__link" href={item.href} aria-current={isCurrent(item) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          )
+        )}
+      </ul>
+      <div class="monroe-global-nav__cta-row">
+        <a class="monroe-global-nav__member" href="/membership">Membership</a>
+        <a class="monroe-global-nav__donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+        <a class="monroe-global-nav__call" href={SITE.contact.phoneTel}>Call Us</a>
+        <a class="monroe-global-nav__application" href="/adoptions">Application</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
+
+  if (header) {
+    const root = document.documentElement;
+    const toggle = header.querySelector<HTMLButtonElement>('.monroe-global-nav__menu-toggle');
+    const backdrop = header.querySelector<HTMLButtonElement>('.monroe-global-nav__backdrop');
+    const mql = window.matchMedia('(max-width: 1200px)');
+
+    // Publish the closed-header height so body padding and anchors track it exactly.
+    const measure = () => {
+      if (header.classList.contains('is-open')) return;
+      root.style.setProperty('--monroe-nav-height', `${Math.round(header.getBoundingClientRect().height)}px`);
+    };
+
+    const setCondensed = () => header.classList.toggle('is-condensed', window.scrollY > 12);
+
+    const closeAllDropdowns = () => {
+      header.querySelectorAll('.monroe-global-nav__item.is-open').forEach((li) => {
+        li.classList.remove('is-open');
+        li.querySelector('.monroe-global-nav__trigger')?.setAttribute('aria-expanded', 'false');
+      });
+      syncInert();
+    };
+
+    // Collapsed submenus stay out of the tab order (drawer accordion + closed desktop flyouts).
+    const syncInert = () => {
+      header.querySelectorAll<HTMLElement>('.monroe-global-nav__dropdown').forEach((dd) => {
+        const isMobile = mql.matches;
+        if (isMobile) {
+          const open = dd.closest('.monroe-global-nav__item')?.classList.contains('is-open') ?? false;
+          dd.inert = !open;
+        } else {
+          dd.inert = false;
+        }
+      });
+    };
+
+    const closeDrawer = () => {
+      header.classList.remove('is-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      closeAllDropdowns();
+    };
+
+    toggle?.addEventListener('click', () => {
+      const open = header.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', String(open));
+      if (open) {
+        syncInert();
+        header.querySelector<HTMLElement>('.monroe-global-nav__link')?.focus();
+      } else {
+        closeDrawer();
+      }
+    });
+
+    backdrop?.addEventListener('click', closeDrawer);
+
+    // Close on Escape or click outside
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllDropdowns();
+        if (header.classList.contains('is-open')) {
+          closeDrawer();
+          toggle?.focus();
+        }
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!header.contains(e.target as Node)) {
+        closeAllDropdowns();
+      }
+    });
+
+    // Dropdown items: clean hover and click handlers
+    header.querySelectorAll<HTMLElement>('.monroe-global-nav__item.has-children').forEach((item) => {
+      const trigger = item.querySelector<HTMLButtonElement>('.monroe-global-nav__trigger');
+
+      // Desktop: mouseleave immediately closes any stuck open state
+      item.addEventListener('mouseleave', () => {
+        if (!mql.matches) {
+          item.classList.remove('is-open');
+          trigger?.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Mouseenter on another item closes adjacent open ones
+      item.addEventListener('mouseenter', () => {
+        if (!mql.matches) {
+          item.parentElement?.querySelectorAll(':scope > .monroe-global-nav__item.is-open').forEach((other) => {
+            if (other !== item) {
+              other.classList.remove('is-open');
+              other.querySelector('.monroe-global-nav__trigger')?.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+      });
+
+      trigger?.addEventListener('click', (e) => {
+        const wasOpen = item.classList.contains('is-open');
+        // Accordion: one flyout open at a time within the same menu level
+        item.parentElement?.querySelectorAll(':scope > .monroe-global-nav__item.is-open').forEach((other) => {
+          if (other !== item) {
+            other.classList.remove('is-open');
+            other.querySelector('.monroe-global-nav__trigger')?.setAttribute('aria-expanded', 'false');
+          }
+        });
+        item.classList.toggle('is-open', !wasOpen);
+        trigger.setAttribute('aria-expanded', String(!wasOpen));
+        syncInert();
+      });
+    });
+
+    // Leaving drawer territory closes it.
+    mql.addEventListener('change', (e) => {
+      closeDrawer();
+      measure();
+      syncInert();
+    });
+
+    measure();
+    setCondensed();
+    syncInert();
+    window.addEventListener('resize', measure, { passive: true });
+    window.addEventListener('scroll', setCondensed, { passive: true });
+  }
+</script>
+

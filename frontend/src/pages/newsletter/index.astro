@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import { getNewsletterIssues } from '../../lib/directus';
+
+/*
+ Newsletter archive — the real "2025 in Review" issue (also featured on
+ the homepage) renders from the same content that powers the issue page.
+*/
+
+const issues = await getNewsletterIssues();
+const THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png';
+const THUMB_300 = '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667-300x150.png';
+---
+
+<BaseLayout
+  title="36th Annual Funds for Furry Friends | 734-243-3669"
+  description="Read past shelter newsletters and see the latest issue highlighted on our homepage."
+>
+  <InnerShell variant="newsletter">
+    <header class="monroe-native-hero">
+      <p class="monroe-native-eyebrow">Stay in touch</p>
+      <h1>36th Annual Funds for Furry Friends</h1>
+      <p class="monroe-native-lead">
+        Read past shelter newsletters and see the latest issue highlighted on our homepage.
+      </p>
+    </header>
+    <section class="monroe-native-anchor-section monroe-native-stack" aria-labelledby="monroe-newsletter-archive-heading">
+      <h2 id="monroe-newsletter-archive-heading">Newsletter archive</h2>
+      <p>
+        Select an issue below to read the full newsletter. The featured issue also appears on the homepage.
+      </p>
+      <ul class="monroe-newsletter-archive__grid">
+        {issues.map((issue) => (
+          <li class="monroe-newsletter-archive__item">
+            <a class="monroe-newsletter-archive__card" href={`/newsletter/issue/${issue.slug}`}>
+              <img
+                width="561"
+                height="280"
+                src={THUMB}
+                class="monroe-newsletter-archive__thumb wp-post-image"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                srcset={`${THUMB} 561w, ${THUMB_300} 300w`}
+                sizes="auto, (max-width: 561px) 100vw, 561px"
+              />
+              <span class="monroe-newsletter-archive__body">
+                <span class="monroe-newsletter-archive__badge">On homepage</span>
+                <span class="monroe-newsletter-archive__title">{issue.title}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="monroe-native-actions">
+        <a class="monroe-btn" href="/#Newsletter">Featured issue on homepage</a>
+      </div>
+    </section>
+  </InnerShell>
+</BaseLayout>

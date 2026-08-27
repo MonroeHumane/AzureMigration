@@ -1,0 +1,12 @@
+{
+  "name": "monroe-found-cat-platformer",
+  "private": true,
+  "description": "Found - stray cat platformer for Monroe Humane Society",
+  "scripts": {
+    "test:playability": "node tools/playability-test.mjs",
+    "test:playability:verbose": "node tools/playability-test.mjs --verbose",
+    "test:golden": "node tools/playability-test.mjs --golden",
+    "test:balance": "node tools/balance-found.mjs --trials 24",
+    "test": "npm run test:golden && npm run test:playability"
+  }
+}

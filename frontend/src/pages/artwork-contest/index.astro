@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import { SITE } from '../../config/site';
+
+const ZEFFY_URL = SITE.integrations.zeffy.shirtContest;
+---
+
+<BaseLayout
+  title="Membership Shirt Design Contest | Vote for Your Favorite | 734-243-3669"
+  description="Vote for your favorite Monroe Humane membership shirt design! Browse all 12 designs and cast your vote online via Zeffy or in person at the shelter."
+>
+  <InnerShell variant="artwork-contest">
+    <header class="monroe-native-hero">
+      <p class="monroe-native-eyebrow">Community vote</p>
+      <h1>Membership Shirt Design Contest</h1>
+      <p class="monroe-native-lead">
+        Browse the 12 designs below and vote for your favorite membership shirt design for the Humane Society of Monroe County. Voting is open online and in person at the shelter.
+      </p>
+      <div class="monroe-native-actions">
+        <a class="monroe-btn" href={ZEFFY_URL} target="_blank" rel="noopener noreferrer">Vote online via Zeffy</a>
+        <a class="monroe-btn monroe-btn--outline" href="/vote-confirmed">Vote confirmation</a>
+      </div>
+    </header>
+
+    <section class="monroe-native-stack" aria-labelledby="monroe-contest-designs-heading">
+      <h2 id="monroe-contest-designs-heading">The 12 designs</h2>
+      <p>
+        Each design below is a submission from the Monroe County community. Review all 12 and then cast your vote — one vote per person. Voting closes at the shelter's final in-person event.
+      </p>
+      <p>
+        <strong>Note:</strong> Design images will appear here once the contest gallery assets are uploaded to <code>/public/assets/contest/</code>.
+        Until then, use the Zeffy voting link above to view and vote online.
+      </p>
+    </section>
+
+    <section class="monroe-native-stack" aria-labelledby="monroe-contest-voting-heading">
+      <h2 id="monroe-contest-voting-heading">Vote online</h2>
+      <p>
+        Use the secure Zeffy link to submit your online vote (1 vote per person). A small Zeffy ticket fee of $1 supports shelter animals directly.
+      </p>
+      <div class="monroe-native-actions">
+        <a class="monroe-btn" href={ZEFFY_URL} target="_blank" rel="noopener noreferrer">Cast your vote on Zeffy</a>
+      </div>
+      <div class="monroe-google-form-embed" style="margin-top: 1.5rem; border: 1px solid rgba(15,118,110,0.22); border-radius: 18px; background: #ffffff; overflow: hidden; box-shadow: 0 14px 34px rgba(23,54,53,0.08);">
+        <iframe
+          title="Membership shirt design contest — Zeffy voting"
+          src={ZEFFY_URL + '?embed=1'}
+          width="100%"
+          height="640"
+          frameborder="0"
+          loading="lazy"
+          allow="payment"
+        ></iframe>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+        If the embed does not display, <a href={ZEFFY_URL} target="_blank" rel="noopener noreferrer">open the voting page on Zeffy directly</a>.
+      </p>
+    </section>
+
+    <section class="monroe-native-stack" aria-labelledby="monroe-contest-inperson-heading">
+      <h2 id="monroe-contest-inperson-heading">In-person voting</h2>
+      <p>
+        Visit the shelter during open hours and ask a staff member to vote in person. Printed ballots are available at the front desk.
+      </p>
+      <ul class="monroe-native-list">
+        <li>Tuesday – Friday: 11:00 AM – 4:00 PM</li>
+        <li>Saturday: 11:00 AM – 3:00 PM</li>
+        <li>Sunday & Monday: Closed</li>
+        <li>Location: <a href={SITE.contact.address.googleMapsUrl} target="_blank" rel="noopener noreferrer">{SITE.contact.address.street}, Monroe, MI {SITE.contact.address.zip}</a></li>
+      </ul>
+      <div class="monroe-native-actions" style="margin-top: 1rem;">
+        <a class="monroe-btn monroe-btn--outline" href={SITE.contact.phoneTel}>{SITE.contact.phoneFormatted}</a>
+        <a class="monroe-btn monroe-btn--outline" href="/events">Upcoming shelter events</a>
+      </div>
+    </section>
+  </InnerShell>
+</BaseLayout>

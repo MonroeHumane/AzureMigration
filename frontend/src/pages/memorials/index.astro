@@ -1,0 +1,212 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import tributesData from '../../data/memorial-tributes.json';
+import '../../styles/monroe-memorial-tribute.css';
+
+/*
+ Memorial honor roll — 1:1 port of the live tribute wall. All 111 names
+ extracted from the live site (data/memorial-tributes.json, mirror-sourced);
+ search + A–Z jump rail run client-side.
+*/
+
+interface Tribute {
+  variant: 'default' | 'honor' | 'birthday';
+  line: string;
+  name: string;
+  year?: string;
+}
+
+const tributes = tributesData as Tribute[];
+
+const SECTIONS = [
+  {
+    key: 'memory',
+    variant: 'default',
+    title: 'In memory',
+    sub: 'Gifts given in remembrance of someone dearly loved.',
+    id: 'monroe-tribute-memory-heading',
+  },
+  {
+    key: 'honor',
+    variant: 'honor',
+    title: 'In honor',
+    sub: 'Celebrating people and pets who are still with us.',
+    id: 'monroe-tribute-honor-heading',
+  },
+  {
+    key: 'birthday',
+    variant: 'birthday',
+    title: 'Birthday tributes',
+    sub: 'Gifts made to mark a special day.',
+    id: 'monroe-tribute-birthday-heading',
+  },
+] as const;
+
+const sections = SECTIONS.map((s) => ({
+  ...s,
+  items: tributes.filter((t) => t.variant === s.variant).sort((a, b) => a.name.localeCompare(b.name)),
+}));
+
+const letters = [...new Set(sections[0].items.map((t) => t.name[0].toUpperCase()))].sort();
+const BETTERUNITE_MEMORIAL = 'https://app.betterunite.com/adopthsmc-donationsforhumanesocietyofmonroecounty';
+
+const PAW = `<svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="6.2" cy="7.8" rx="2" ry="2.8" transform="rotate(-25 6.2 7.8)"/><ellipse cx="10.2" cy="5.4" rx="2" ry="2.8" transform="rotate(-8 10.2 5.4)"/><ellipse cx="14.5" cy="5.4" rx="2" ry="2.8" transform="rotate(8 14.5 5.4)"/><ellipse cx="18.2" cy="7.9" rx="2" ry="2.8" transform="rotate(25 18.2 7.9)"/><path d="M12.2 10.1c-3.9 0-6.7 3.3-6.7 6.6 0 2.2 1.5 3.7 3.5 3.7 1.2 0 2.2-.7 3.2-.7s2 .7 3.2.7c2 0 3.5-1.5 3.5-3.7 0-3.3-2.8-6.6-6.7-6.6Z"/></svg>`;
+---
+
+<BaseLayout
+  title="Memorials & Tributes | 734-243-3669"
+  description="We are deeply grateful for the generous support of our community. The following gifts were made to honor those special people."
+>
+  <InnerShell variant="memorial-tribute">
+    <section class="monroe-tribute-board" aria-labelledby="monroe-tribute-title">
+        <header class="monroe-tribute-hero">
+          <div class="monroe-tribute-hero__inner">
+            <p class="monroe-tribute-hero__eyebrow">We remember &amp; thank you</p>
+            <h1 class="monroe-tribute-hero__title" id="monroe-tribute-title">Memorials &amp; tributes</h1>
+            <div class="monroe-tribute-hero__rule" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 21c0-6 3-9 8-10-1 6-4 9-8 10Z"></path><path d="M12 21c0-6-3-9-8-10 1 6 4 9 8 10Z"></path><path d="M12 21v-7"/>
+              </svg>
+            </div>
+            <p class="monroe-tribute-hero__stat">{tributes.length} tributes</p>
+          </div>
+        </header>
+
+        <div class="monroe-tribute-intro">
+          <p class="monroe-tribute-intro__text">
+            We are deeply grateful for the generous support of our community. The following gifts were made to the Humane Society of Monroe County to honor those special people.
+          </p>
+          <p class="monroe-tribute-intro__note">
+            This list is updated as new memorial gifts arrive. Contact us if you have a question about a tribute or would like to add a name.
+          </p>
+          <div class="monroe-tribute-intro__actions">
+            <a class="monroe-tribute-btn monroe-tribute-btn--primary" href={BETTERUNITE_MEMORIAL} target="_blank" rel="noopener noreferrer">Donate online</a>
+            <a class="monroe-tribute-btn monroe-tribute-btn--ghost" href="/memorials/give">Memorial &amp; planned giving</a>
+          </div>
+        </div>
+
+        <div class="monroe-tribute-toolbar">
+          <div class="monroe-tribute-toolbar__row">
+            <div class="monroe-tribute-search" data-tribute-search-wrap>
+              <span class="monroe-tribute-search__icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              </span>
+              <label class="screen-reader-text" for="monroe-tribute-search">Search tributes by name</label>
+              <input
+                class="monroe-tribute-search__input"
+                id="monroe-tribute-search"
+                type="search"
+                autocomplete="off"
+                placeholder="Search for a name…"
+                data-tribute-search
+              />
+              <button class="monroe-tribute-search__clear" type="button" data-tribute-clear aria-label="Clear search">&times;</button>
+            </div>
+            <p class="monroe-tribute-toolbar__count" data-tribute-count role="status" aria-live="polite"></p>
+          </div>
+
+          <div class="monroe-tribute-azrail" data-tribute-azrail role="group" aria-label="Jump to letter">
+            {letters.map((letter) => (
+              <button class="monroe-tribute-azrail__btn" type="button" data-tribute-jump={letter}>{letter}</button>
+            ))}
+          </div>
+        </div>
+
+        {sections.map((section) => (
+          <section class="monroe-tribute-section" aria-labelledby={section.id}>
+            <div class="monroe-tribute-section__head">
+              <span class:list={['monroe-tribute-section__mark', `monroe-tribute-section__mark--${section.key}`]} aria-hidden="true"></span>
+              <h2 class="monroe-tribute-section__title" id={section.id}>{section.title}</h2>
+              <p class="monroe-tribute-section__sub">{section.sub}</p>
+            </div>
+            <div class="monroe-tribute-grid" role="list">
+              {section.items.map((tribute, i) => {
+                const letter = tribute.name[0].toUpperCase();
+                const prev = section.items[i - 1];
+                return (
+                  <>
+                    {(!prev || prev.name[0].toUpperCase() !== letter) && (
+                      <div class="monroe-tribute-letter" id={`monroe-tribute-letter-${letter}`} data-tribute-letter={letter} aria-hidden="true">
+                        <span class="monroe-tribute-letter__glyph">{letter}</span>
+                        <span class="monroe-tribute-letter__rule"></span>
+                      </div>
+                    )}
+                    <article
+                      class:list={['monroe-tribute-plaque', `monroe-tribute-plaque--${section.key}`]}
+                      role="listitem"
+                      data-tribute-name={tribute.name.toLowerCase()}
+                      aria-label={`${tribute.line} ${tribute.name}`}
+                    >
+                      <span class="monroe-tribute-plaque__watermark" aria-hidden="true" set:html={PAW} />
+                      <h3 class="monroe-tribute-plaque__name">{tribute.name}</h3>
+                      <p class="monroe-tribute-plaque__meta">
+                        {tribute.line}{tribute.year ? ` · ${tribute.year}` : ''}
+                      </p>
+                    </article>
+                  </>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+
+        <div class="monroe-tribute-intro__actions" style="justify-content:center">
+          <a class="monroe-tribute-btn monroe-tribute-btn--ghost" href="mailto:support@monroe-humane.org">Add a name to the honor roll</a>
+        </div>
+      </section>
+  </InnerShell>
+</BaseLayout>
+
+<script>
+  // Honor roll: instant search + A–Z jump.
+  const board = document.querySelector<HTMLElement>('.monroe-tribute-board');
+  const search = board?.querySelector<HTMLInputElement>('[data-tribute-search]');
+  const clearBtn = board?.querySelector<HTMLButtonElement>('[data-tribute-clear]');
+  const count = board?.querySelector<HTMLElement>('[data-tribute-count]');
+  const plaques = Array.from(board?.querySelectorAll<HTMLElement>('.monroe-tribute-plaque') ?? []);
+
+  const applyFilter = () => {
+    const query = (search?.value ?? '').trim().toLowerCase();
+    let shown = 0;
+    plaques.forEach((plaque) => {
+      const match = !query || (plaque.dataset.tributeName ?? '').includes(query);
+      plaque.hidden = !match;
+      if (match) shown++;
+    });
+    board?.querySelectorAll<HTMLElement>('.monroe-tribute-section').forEach((section) => {
+      const anyVisible = section.querySelectorAll('.monroe-tribute-plaque:not([hidden])').length > 0;
+      (section as HTMLElement).hidden = !anyVisible;
+    });
+    board?.querySelectorAll<HTMLElement>('.monroe-tribute-letter').forEach((letter) => {
+      let el = letter.nextElementSibling as HTMLElement | null;
+      let anyVisible = false;
+      while (el && !el.classList.contains('monroe-tribute-letter')) {
+        if (el.classList.contains('monroe-tribute-plaque') && !el.hidden) anyVisible = true;
+        el = el.nextElementSibling;
+      }
+      letter.hidden = !anyVisible;
+    });
+    if (count) {
+      count.textContent = query
+        ? `${shown} ${shown === 1 ? 'tribute' : 'tributes'} matching “${search?.value}”`
+        : `${plaques.length} tributes`;
+    }
+  };
+
+  search?.addEventListener('input', applyFilter);
+  clearBtn?.addEventListener('click', () => {
+    if (search) search.value = '';
+    applyFilter();
+    search?.focus();
+  });
+
+  board?.querySelectorAll<HTMLButtonElement>('[data-tribute-jump]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = board.querySelector(`[data-tribute-letter="${btn.dataset.tributeJump}"]`);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  applyFilter();
+</script>

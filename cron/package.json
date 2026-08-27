@@ -1,0 +1,22 @@
+{
+  "name": "monroe-humane-petsync",
+  "version": "1.0.0",
+  "description": "PetSync Scheduled Ingestion Pipeline for Monroe County Humane Society",
+  "main": "dist/sync-pets.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/sync-pets.js",
+    "dev": "tsx src/sync-pets.ts"
+  },
+  "dependencies": {
+    "@directus/sdk": "^18.0.0",
+    "csv-parse": "^5.6.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

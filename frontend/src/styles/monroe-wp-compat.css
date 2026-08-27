@@ -1,0 +1,201 @@
+/*
+ WordPress block-layout compatibility layer (first-party, minimal).
+ The theme's markup uses WP block classes (wp-block-columns / -cover / -buttons,
+ is-layout-flex / -constrained, alignwide / alignfull) whose base layout rules
+ came from the WP block library. This reproduces exactly the behaviors our
+ markup relies on — values taken from the WP core block library and the live
+ site's global-styles output (content size 1320px, flex gap 0.5em, column
+ collapse at 781px). Loaded BEFORE the theme styles so theme rules win.
+*/
+
+:root {
+  --wp--style--global--content-size: 1320px;
+  --wp--style--global--wide-size: 1320px;
+}
+
+/* Constrained groups center their children at the content width */
+.is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+  max-width: var(--wp--style--global--content-size);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.alignwide {
+  max-width: var(--wp--style--global--wide-size);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.alignfull {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Flex layout primitive used by buttons rows and columns */
+.is-layout-flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+:where(.is-layout-flex) {
+  gap: 0.5em;
+}
+
+/* Columns: side-by-side on desktop, stacked on small screens */
+.wp-block-columns {
+  display: flex;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+.wp-block-columns > .wp-block-column {
+  box-sizing: border-box;
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+@media (max-width: 781px) {
+  .wp-block-columns:not(.is-not-stacked-on-mobile) > .wp-block-column {
+    flex-basis: 100% !important;
+  }
+}
+
+/* Cover block (hero): layered background video + overlay + content */
+.wp-block-cover {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.wp-block-cover__background {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.wp-block-cover__video-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.wp-block-cover__inner-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Buttons rows */
+.wp-block-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.wp-block-buttons.aligncenter {
+  justify-content: center;
+}
+
+.is-content-justification-center {
+  justify-content: center;
+}
+
+/* Text alignment utilities */
+.has-text-align-center {
+  text-align: center;
+}
+
+.has-text-align-left {
+  text-align: left;
+}
+
+.has-text-align-right {
+  text-align: right;
+}
+
+/* Images */
+.wp-block-image {
+  margin: 0;
+}
+
+.wp-block-image img {
+  display: block;
+  max-width: 100%;
+}
+
+/* WordPress Global Styles Color Presets */
+.has-vivid-cyan-blue-background-color {
+  background-color: #0693e3 !important;
+}
+
+.has-vivid-cyan-blue-color {
+  color: #0693e3 !important;
+}
+
+.has-contrast-background-color {
+  background-color: #173a39 !important;
+}
+
+.has-contrast-color {
+  color: #173a39 !important;
+}
+
+.has-base-background-color {
+  background-color: #ffffff !important;
+}
+
+.has-base-color {
+  color: #ffffff !important;
+}
+
+.has-secondary-background-color {
+  background-color: #0f766e !important;
+}
+
+.has-secondary-color {
+  color: #0f766e !important;
+}
+
+.has-accent-background-color {
+  background-color: #e76f51 !important;
+}
+
+.has-accent-color {
+  color: #e76f51 !important;
+}
+
+.has-text-color {
+  /* Inherits current color or explicitly set utility */
+}
+
+.has-background {
+  /* Declares background element */
+}
+
+/* WP Block Button Link Base */
+.wp-block-button__link {
+  display: inline-block;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.wp-block-button__link:hover,
+.wp-block-button__link:focus {
+  opacity: 0.92;
+  text-decoration: none;
+}
+

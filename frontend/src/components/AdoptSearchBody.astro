@@ -1,0 +1,235 @@
+---
+import { getPets } from '../lib/directus';
+import InnerShell from './InnerShell.astro';
+import '../styles/monroe-adopt.css';
+import '../styles/monroe-adopt-extra.css';
+
+/*
+ Shared adopt search page body — WP markup (renewed adopt page +
+ animal-search-widget). Pets render at build time; filters/sort run
+ client-side over the rendered cards.
+*/
+
+interface Props {
+  heading: string;
+  current: 'all' | 'dogs' | 'cats';
+  defaultType?: string;
+}
+
+const { heading, current, defaultType = '' } = Astro.props;
+const pets = await getPets();
+const chips = (p: (typeof pets)[number]) =>
+  [p.species_label || p.type, p.gender, p.age_display, p.location].filter(Boolean);
+---
+
+<InnerShell variant="adopt">
+  <header class="monroe-adopt-hero">
+        <div class="monroe-adopt-hero__copy">
+          <p class="monroe-adopt-eyebrow">Adoption</p>
+          <h1>{heading}</h1>
+          <p class="monroe-adopt-lead">
+            Meet dogs and cats waiting for homes in Monroe County. Filter below, or jump straight to dogs, cats, our shelter listing, and adoption paperwork.
+          </p>
+        </div>
+      </header>
+
+      <nav class="monroe-adopt-quick" aria-label="Browse adoptable animals">
+        <a class:list={["monroe-adopt-pill", "monroe-adopt-pill--primary", { "monroe-adopt-pill--current": current === "dogs" }]} href="/adopt/dogs">Dogs</a><a class:list={["monroe-adopt-pill", "monroe-adopt-pill--primary", { "monroe-adopt-pill--current": current === "cats" }]} href="/adopt/cats">Cats</a><a class:list={["monroe-adopt-pill", "monroe-adopt-pill--primary", { "monroe-adopt-pill--current": current === "all" }]} href="/adopt" aria-current={current === "all" ? "page" : undefined}>All pets</a>
+        <a class="monroe-adopt-pill monroe-adopt-pill--ghost" href="/adoptions">Adoption info &amp; application</a>
+      </nav>
+
+      <section class="monroe-adopt-search" aria-label="Browse available animals">
+        <div id="masw" class="monroe-animal-search-widget monroe-animal-search-widget--no-header monroe-animal-search-widget--compact">
+          <div class="animal-search-filters">
+            <div class="animal-search-controls" role="search" aria-labelledby="masw-search-legend">
+              <p id="masw-search-legend" class="screen-reader-text">Find a pet</p>
+
+              <div class="animal-search-toolbar">
+                <div class="animal-search-query-row">
+                  <label for="masw-q" class="screen-reader-text">Search by name, breed, or description</label>
+                  <div class="animal-search-query-combo">
+                    <input type="search" id="masw-q" class="animal-search-q" autocomplete="off"
+                      placeholder="Search by name, breed, or description…" />
+                    <button type="button" class="animal-search-submit" aria-label="Search pets">
+                      <span class="search-icon" aria-hidden="true">🔍</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="filter-row filter-row--primary">
+                  <div class="filter-group">
+                    <label for="masw-type">Type</label>
+                    <select id="masw-type" class="animal-filter" data-filter-key="type" data-default={defaultType}>
+                      <option value="">All types</option>
+                      <option value="dog">Dogs</option>
+                      <option value="cat">Cats</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div class="filter-group">
+                    <label for="masw-gender">Gender</label>
+                    <select id="masw-gender" class="animal-filter" data-filter-key="gender">
+                      <option value="">Any gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="animal-search-sort-row">
+                  <label for="masw-sort">Sort by</label>
+                  <select id="masw-sort" class="animal-sort">
+                    <option value="name">Name (A–Z)</option>
+                    <option value="type">Type</option>
+                    <option value="breed">Breed</option>
+                  </select>
+                </div>
+
+                <div class="animal-search-toolbar-actions">
+                  <button type="button" class="reset-button reset-button--compact" data-adopt-reset>Reset</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="animal-search-results">
+            <p class="animal-search-summary" data-adopt-summary aria-live="polite"></p>
+
+            <div class="results-empty" hidden aria-hidden="true">
+              <div class="empty-state">
+                <div class="empty-icon">🐾</div>
+                <h4>No pets found</h4>
+                <p>Try adjusting your search criteria or check back later for new arrivals.</p>
+                <button type="button" class="cta-button empty-state-reset" data-adopt-reset>Reset filters</button>
+              </div>
+            </div>
+
+            <div class="results-grid monroe-pet-results monroe-pet-results--grid" data-adopt-grid>
+              {pets.map((pet) => (
+                <div
+                  class="animal-card animal-card--interactive"
+                  data-adopt-type={pet.type}
+                  data-adopt-gender={(pet.gender ?? '').toLowerCase()}
+                  data-adopt-name={pet.name.toLowerCase()}
+                  data-adopt-breed={(pet.breed ?? '').toLowerCase()}
+                  data-adopt-desc={(pet.description ?? '').toLowerCase()}
+                >
+                  <div class="animal-image">
+                    <img src={pet.image} alt={pet.name} loading="lazy" decoding="async" />
+                  </div>
+                  <div class="animal-info">
+                    <h4 class="animal-name">{pet.name}</h4>
+                    <div class="animal-breed">{pet.breed}</div>
+                    <div class="animal-chip-row">
+                      {chips(pet).map((chip) => <span class="animal-chip">{chip}</span>)}
+                    </div>
+                    <a class="animal-view-profile animal-action-btn" href={pet.url} target="_blank" rel="noopener noreferrer">
+                      View Profile
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="animal-search-footer">
+            <p class="adoption-info">
+              Ready to adopt? <a href="/adoptions">Learn about our adoption process</a> or
+              <a href="tel:734-243-3669">call us at 734-243-3669</a>
+            </p>
+          </div>
+        </div>
+        <p class="monroe-adopt-search__note">
+          <span aria-hidden="true">&#128062;</span>
+          New friends arrive often. If you do not see your match today, please check back soon.
+        </p>
+      </section>
+
+      <section class="monroe-adopt-next" aria-labelledby="monroe-adopt-next-heading">
+        <div class="monroe-adopt-next__copy">
+          <p class="monroe-adopt-next__eyebrow">Here when you are ready</p>
+          <h2 id="monroe-adopt-next-heading">Questions before you apply?</h2>
+          <p>
+            Review adoption steps, fees, and what to bring when you visit. Our team can help match the right pet to your home.
+          </p>
+          <div class="monroe-adopt-next__buttons">
+            <a class="monroe-adopt-next__button monroe-adopt-next__button--primary" href="/adoptions">
+              See the adoption process <span aria-hidden="true">&rarr;</span>
+            </a>
+            <a class="monroe-adopt-next__button monroe-adopt-next__button--secondary" href="tel:734-243-3669">
+              Call 734-243-3669
+            </a>
+          </div>
+        </div>
+        <div class="monroe-adopt-next__reassurance">
+          <p><span aria-hidden="true">&#10003;</span><strong>A thoughtful match</strong><small>We want the fit to feel right for you and the animal.</small></p>
+          <p><span aria-hidden="true">&#10003;</span><strong>Real people to help</strong><small>Our shelter team can answer questions before you apply.</small></p>
+          <p><span aria-hidden="true">&#10003;</span><strong>A lifetime of support</strong><small>Resources and guidance continue after adoption day.</small></p>
+        </div>
+      </section>
+</InnerShell>
+
+<script>
+  // Client-side search/filter/sort over the build-time rendered cards.
+  const widget = document.querySelector<HTMLElement>('#masw');
+  const grid = widget?.querySelector<HTMLElement>('[data-adopt-grid]');
+  const summary = widget?.querySelector<HTMLElement>('[data-adopt-summary]');
+  const empty = widget?.querySelector<HTMLElement>('.results-empty');
+  const q = widget?.querySelector<HTMLInputElement>('#masw-q');
+  const typeSel = widget?.querySelector<HTMLSelectElement>('#masw-type');
+  const genderSel = widget?.querySelector<HTMLSelectElement>('#masw-gender');
+  const sortSel = widget?.querySelector<HTMLSelectElement>('#masw-sort');
+  if (typeSel?.dataset.default) typeSel.value = typeSel.dataset.default;
+
+  const cards = () => Array.from(grid?.querySelectorAll<HTMLElement>('.animal-card') ?? []);
+
+  const apply = () => {
+    const query = (q?.value ?? '').trim().toLowerCase();
+    const type = typeSel?.value ?? '';
+    const gender = genderSel?.value ?? '';
+    const sort = sortSel?.value ?? 'name';
+
+    const visible = cards().filter((card) => {
+      if (type && card.dataset.adoptType !== type) return false;
+      if (gender && card.dataset.adoptGender !== gender) return false;
+      if (query) {
+        const hay = `${card.dataset.adoptName} ${card.dataset.adoptBreed} ${card.dataset.adoptDesc}`;
+        if (!hay.includes(query)) return false;
+      }
+      return true;
+    });
+
+    visible.sort((a, b) =>
+      sort === 'name'
+        ? (a.dataset.adoptName ?? '').localeCompare(b.dataset.adoptName ?? '')
+        : sort === 'breed'
+          ? (a.dataset.adoptBreed ?? '').localeCompare(b.dataset.adoptBreed ?? '')
+          : (a.dataset.adoptType ?? '').localeCompare(b.dataset.adoptType ?? '') || (a.dataset.adoptName ?? '').localeCompare(b.dataset.adoptName ?? '')
+    );
+
+    cards().forEach((card) => {
+      const show = visible.includes(card);
+      card.style.display = show ? '' : 'none';
+      if (show) grid?.appendChild(card); // re-append in sorted order
+    });
+
+    if (empty) empty.hidden = visible.length > 0;
+    if (summary) {
+      summary.textContent = `${visible.length} ${visible.length === 1 ? 'pet' : 'pets'} available`;
+    }
+  };
+
+  [q, typeSel, genderSel, sortSel].forEach((el) => el?.addEventListener('input', apply));
+  widget?.querySelectorAll('[data-adopt-reset]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      if (q) q.value = '';
+      if (typeSel) typeSel.value = '';
+      if (genderSel) genderSel.value = '';
+      if (sortSel) sortSel.value = 'name';
+      apply();
+    })
+  );
+  apply();
+</script>
+

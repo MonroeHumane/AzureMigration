@@ -1,0 +1,109 @@
+services:
+  mysql:
+    image: mariadb:11
+    container_name: monroe-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./infra/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - monroe-network
+
+  directus:
+    image: directus/directus:11.5.0
+    container_name: monroe-directus
+    restart: unless-stopped
+    ports:
+      - "8055:8055"
+    depends_on:
+      - mysql
+    environment:
+      KEY: "monroe-directus-key-secret-12345"
+      SECRET: "monroe-directus-secret-abcdef"
+      ADMIN_EMAIL: "admin@monroe-humane.org"
+      ADMIN_PASSWORD: "AdminPassword123!"
+      DB_CLIENT: "mysql"
+      DB_HOST: "mysql"
+      DB_PORT: "3306"
+      DB_DATABASE: "directus_db"
+      DB_USER: "root"
+      DB_PASSWORD: "root"
+      PUBLIC_URL: "http://localhost:8055"
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "true"
+      STORAGE_LOCATIONS: "local"
+      STORAGE_LOCAL_DRIVER: "local"
+      STORAGE_LOCAL_ROOT: "/directus/uploads"
+    volumes:
+      - directus-uploads:/directus/uploads
+    networks:
+      - monroe-network
+
+  arcade-api:
+    build:
+      context: ./arcade
+      dockerfile: Dockerfile
+    container_name: monroe-arcade-api
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: "mysql"
+      DB_USER: "root"
+      DB_PASS: "root"
+      DB_NAME: "arcade_db"
+      CORS_ALLOWED_ORIGINS: "http://localhost:4321,http://localhost:5173,http://localhost:8060,http://localhost:3000"
+      CLEANUP_SECRET: "dev-cleanup-secret-123"
+    volumes:
+      - ./arcade:/var/www/html
+    networks:
+      - monroe-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: monroe-frontend
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    depends_on:
+      - directus
+      - arcade-api
+    environment:
+      DIRECTUS_URL: "http://directus:8055"
+      ARCADE_API_BASE: "http://localhost:8081/v1"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - monroe-network
+
+  petsync:
+    build:
+      context: ./cron
+      dockerfile: Dockerfile
+    container_name: monroe-petsync
+    restart: "no"
+    depends_on:
+      - directus
+    environment:
+      DIRECTUS_URL: "http://directus:8055"
+      DIRECTUS_STATIC_TOKEN: "admin-static-token"
+      GOOGLE_SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQeJ5vC9u2A_example/pub?output=csv"
+    networks:
+      - monroe-network
+
+networks:
+  monroe-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  directus-uploads:

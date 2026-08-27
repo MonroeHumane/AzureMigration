@@ -1,0 +1,123 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../config/site';
+import '../styles/monroe-wp-compat.css';
+import '../styles/monroe-theme.css';
+import '../styles/monroe-inner-page.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  /** Extra body classes (e.g. page slug hooks). Inner-page padding applies unless overridden. */
+  bodyClass?: string;
+}
+
+const {
+  title = `${SITE.name} | Animal Shelter & Adoptions`,
+  description = `${SITE.name} - animal shelter, adoptions, and community resources in Monroe, Michigan.`,
+  image = SITE.assets.defaultOgImage,
+  bodyClass = 'monroe-inner-page',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE.url);
+
+const schemaOrg = {
+  '@context': 'https://schema.org',
+  '@type': 'AnimalShelter',
+  'name': SITE.name,
+  'alternateName': SITE.shortName,
+  'description': description,
+  'url': SITE.url,
+  'logo': new URL(SITE.assets.logo, SITE.url).href,
+  'image': new URL(image, SITE.url).href,
+  'telephone': '+1-734-243-3669',
+  'email': SITE.contact.email,
+  'address': {
+    '@type': 'PostalAddress',
+    'streetAddress': SITE.contact.address.street,
+    'addressLocality': SITE.contact.address.city,
+    'addressRegion': SITE.contact.address.state,
+    'postalCode': SITE.contact.address.zip,
+    'addressCountry': 'US',
+  },
+  'geo': {
+    '@type': 'GeoCoordinates',
+    'latitude': 41.9164,
+    'longitude': -83.4278,
+  },
+  'openingHoursSpecification': [
+    {
+      '@type': 'OpeningHoursSpecification',
+      'dayOfWeek': ['Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      'opens': '11:00',
+      'closes': '16:00',
+    },
+    {
+      '@type': 'OpeningHoursSpecification',
+      'dayOfWeek': ['Saturday'],
+      'opens': '11:00',
+      'closes': '15:00',
+    },
+  ],
+  'sameAs': [
+    SITE.integrations.social.facebook,
+    'https://www.instagram.com/adopthsmc/',
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f766e" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- Preload the logo — it is the first visible image on every page -->
+    <link rel="preload" as="image" href={SITE.assets.logo} />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO Meta -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL.href} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Humane Society of Monroe County" />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    <!-- Structured Data (Schema.org) -->
+    <script type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
+
+    <!-- Theme fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bebas+Neue&family=Jost:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Questrial&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class:list={['monroe-rebuild-theme', bodyClass]}>
+    <a class="monroe-skip-link" href="#monroe-main">Skip to content</a>
+
+    <Header currentPath={Astro.url.pathname} />
+
+    <main id="monroe-main" tabindex="-1">
+      <slot />
+    </main>
+
+    <Footer />
+  </body>
+</html>

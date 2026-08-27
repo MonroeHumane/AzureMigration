@@ -1,0 +1,175 @@
+/*
+ Membership page styles — Astro port of the monroe-membership rules from
+ the theme's home-editable.css. The legacy tier-grid rules
+ (.home-editable-membership-grid / -card) are deliberately NOT migrated:
+ the live WP page ships the "plans are being updated" state only, and the
+ tier data stays on BetterUnite checkout (decision 2026-08-27).
+ */
+
+.monroe-membership-under-construction {
+  margin: 0;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem) clamp(1.25rem, 3vw, 2rem);
+  border-radius: 16px;
+  border: 1px solid rgba(23, 58, 57, 0.14);
+  background: linear-gradient(180deg, rgba(47, 125, 11, 0.07), rgba(47, 125, 11, 0.03));
+  box-shadow: 0 12px 28px rgba(17, 41, 41, 0.06);
+  text-align: center;
+}
+
+.monroe-membership-under-construction p {
+  margin: 0;
+  max-width: 52ch;
+  margin-inline: auto;
+  font-size: clamp(1rem, 1.05rem + 0.2vw, 1.125rem);
+  line-height: 1.65;
+  color: #334155;
+}
+
+.monroe-membership-plans-shared--under-construction .home-editable-membership-intro {
+  margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+.monroe-native-inner--membership .home-editable-section-label {
+  margin: 0 0 0.75rem;
+  color: #0f766e;
+  font: 700 0.8rem/1.2 'Jost', 'Segoe UI', sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.monroe-native-inner--membership .monroe-membership-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: center;
+  margin: 0 0 clamp(2rem, 4vw, 3rem);
+  padding: clamp(1.35rem, 3vw, 2rem);
+  border-radius: 28px;
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(43, 184, 243, 0.14), transparent 55%),
+    radial-gradient(90% 80% at 100% 100%, rgba(15, 118, 110, 0.16), transparent 50%),
+    linear-gradient(145deg, #f7fbf9 0%, #eef6f4 48%, #fffaf2 100%);
+  box-shadow: 0 22px 50px rgba(17, 41, 41, 0.08);
+  overflow: hidden;
+}
+
+.monroe-native-inner--membership .monroe-membership-hero__media {
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 260px;
+  box-shadow: 0 16px 40px rgba(17, 41, 41, 0.12);
+}
+
+.monroe-native-inner--membership .monroe-membership-hero__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .monroe-native-inner--membership .monroe-membership-hero__media,
+  .monroe-native-inner--membership .monroe-membership-hero__media img {
+    min-height: 180px;
+  }
+}
+
+.monroe-native-inner--membership .monroe-membership-hero__copy h1 {
+  margin: 0 0 0.65rem;
+  font-family: 'Abril Fatface', Georgia, serif;
+  font-size: clamp(2rem, 4.8vw, 2.85rem);
+  line-height: 1.08;
+  color: #153635;
+}
+
+.monroe-native-inner--membership .monroe-membership-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  margin: 0 0 clamp(2rem, 4vw, 2.75rem);
+}
+
+.monroe-native-inner--membership .monroe-membership-benefit {
+  padding: clamp(1.1rem, 2.5vw, 1.45rem);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(36, 72, 67, 0.12);
+  box-shadow: 0 12px 28px rgba(17, 41, 41, 0.06);
+}
+
+.monroe-native-inner--membership .monroe-membership-benefit h2 {
+  margin: 0 0 0.45rem;
+  font-family: 'Jost', 'Segoe UI', sans-serif;
+  font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+  color: #0f766e;
+}
+
+.monroe-native-inner--membership .monroe-membership-benefit p {
+  margin: 0;
+  color: #405757;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.monroe-native-inner--membership .monroe-membership-plans {
+  margin: 0 0 clamp(2rem, 4vw, 2.75rem);
+  padding: clamp(1.5rem, 3.5vw, 2.25rem);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 251, 249, 0.98) 100%);
+  border: 1px solid rgba(36, 72, 67, 0.1);
+  box-shadow: 0 20px 48px rgba(17, 41, 41, 0.07);
+}
+
+.monroe-native-inner--membership .monroe-membership-how {
+  max-width: 52rem;
+}
+
+.monroe-native-inner--membership .monroe-membership-steps {
+  margin: 0.75rem 0 0;
+  padding-left: 1.35rem;
+  color: #2a3d3d;
+}
+
+.monroe-native-inner--membership .monroe-membership-steps li {
+  margin-bottom: 0.65rem;
+  line-height: 1.5;
+}
+
+.monroe-native-inner--membership .monroe-membership-cta-band {
+  margin: clamp(2rem, 4vw, 3rem) 0 0;
+  padding: clamp(1.75rem, 4vw, 2.5rem);
+  border-radius: 24px;
+  text-align: center;
+  background: linear-gradient(135deg, #0f766e 0%, #134e4a 55%, #163433 100%);
+  color: #fff;
+  box-shadow: 0 24px 52px rgba(15, 118, 110, 0.22);
+}
+
+.monroe-native-inner--membership .monroe-membership-cta-band h2 {
+  margin: 0 0 0.5rem;
+  font-family: 'Abril Fatface', Georgia, serif;
+  font-size: clamp(1.65rem, 3.5vw, 2.2rem);
+  color: #fff;
+}
+
+.monroe-native-inner--membership .monroe-membership-cta-band p {
+  margin: 0 auto 1.25rem;
+  max-width: 36rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.monroe-native-inner--membership #Plans {
+  scroll-margin-top: calc(var(--monroe-nav-height, 96px) + 12px);
+}
+
+@media (max-width: 1100px) {
+  .monroe-native-inner--membership .monroe-membership-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .monroe-native-inner--membership .monroe-membership-benefits {
+    grid-template-columns: 1fr;
+  }
+}

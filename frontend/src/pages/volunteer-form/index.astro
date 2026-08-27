@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import { SITE } from '../../config/site';
+
+const VOLUNTEER_FORM_URL = SITE.integrations.googleForms.volunteerApp;
+---
+
+<BaseLayout
+  title="Volunteer Form | 734-243-3669"
+  description="Your time can make a world of difference, walking dogs, socializing cats, helping at events, and more. Complete the volunteer form below to get started."
+>
+  <InnerShell variant="volunteer-form">
+    <header class="monroe-native-hero">
+      <p class="monroe-native-eyebrow">Volunteer</p>
+      <h1>Volunteer Form</h1>
+      <p class="monroe-native-lead">
+        Your time can make a world of difference, walking dogs, socializing cats, helping at events, and more. Complete the volunteer form below to get started.
+      </p>
+    </header>
+    <section class="monroe-native-stack monroe-native-form-apply" aria-labelledby="monroe-volunteer-form-heading">
+      <h2 id="monroe-volunteer-form-heading">Volunteer application</h2>
+      <div class="monroe-native-actions">
+        <a class="monroe-btn" href={VOLUNTEER_FORM_URL} target="_blank" rel="noopener noreferrer">Open form in new tab</a>
+        <a class="monroe-btn monroe-btn--outline" href="/#Volunteer">Volunteer on the homepage</a>
+      </div>
+      <div
+        class="monroe-google-form-embed monroe-adopt-form-embed monroe-google-form-embed--volunteer"
+        style="--monroe-form-embed-h:780px;--monroe-form-embed-h-mobile:960px;--monroe-form-embed-h-active:780px;"
+        data-form-height="780"
+        data-form-height-mobile="960"
+        data-thank-you-height="480"
+      >
+        <iframe
+          title="Volunteer application form"
+          src={`${VOLUNTEER_FORM_URL}?embedded=true`}
+          width="640"
+          height="780"
+          frameborder="0"
+          loading="lazy"></iframe>
+      </div>
+      <p class="monroe-google-form-embed__hint">
+        Google Forms cannot auto-size in iframes. If the form is cut off or has extra space below, use Open form in new tab.
+      </p>
+    </section>
+    <section class="monroe-native-stack" aria-labelledby="monroe-volunteer-form-alt-heading">
+      <h2 id="monroe-volunteer-form-alt-heading">Questions?</h2>
+      <ul class="monroe-native-list">
+        <li><a href="tel:734-243-3669">734-243-3669</a></li>
+        <li><a href="mailto:info@monroe-humane.org">info@monroe-humane.org</a></li>
+      </ul>
+    </section>
+  </InnerShell>
+</BaseLayout>

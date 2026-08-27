@@ -1,0 +1,42 @@
+/* eslint-disable no-var */
+var CFG = {
+  WIDTH: 1280,
+  HEIGHT: 720,
+  GRAVITY: 0,
+  HD_MUL: 2,
+  CELL: 32,
+  HD_CELL: 64,
+  FONT: '"Fredoka", "Segoe UI", system-ui, sans-serif',
+  PIT: {
+    left: 48,
+    right: 1232,
+    top: 80,
+    floor: 600,
+    rowStep: 68,
+    descendMs: 8000,
+    catchZoneH: 36,
+  },
+  RUN: {
+    rows: 6,
+    cols: 8,
+    ballSpeed: 520,
+    shootCooldownMs: 180,
+    shiftDurationSec: 120,
+    heartXpToLevel: 8,
+    enrichmentDropChance: 0.35,
+    rowClearEnrichmentChance: 0.5,
+  },
+  CAMPUS: {
+    gridW: 12,
+    gridH: 8,
+    tilePx: 48,
+    regrowMinutes: 5,
+    buildingCosts: { pantry: { kibble: 3 }, laundry: { towel: 3 }, toy_room: { supply: 3 }, volunteer_home: { kibble: 2, supply: 2 } },
+  },
+  BUILDING_BONUSES: {
+    pantry: { damage: 1 },
+    laundry: { timerGrace: 5 },
+    toy_room: { extraBall: 1 },
+    volunteer_home: { unlockVolunteer: true },
+  },
+};

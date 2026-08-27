@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import { SITE } from '../../config/site';
+import '../../styles/monroe-shop.css';
+
+const SQUARE_URL = SITE.integrations.squareStore.url;
+const SHOP_ASSETS = '/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/shop';
+
+const products = [
+  {
+    title: 'Volunteer message tee',
+    price: '$28',
+    blurb: 'Soft tee with a bold volunteer graphic - great for events and dog walks.',
+    image: `${SHOP_ASSETS}/volunteer-tee-back.png`,
+    alt: 'Powder blue t-shirt, back view, with volunteer lettering and humane society style artwork.',
+  },
+  {
+    title: 'Classic crew tee',
+    price: '$26',
+    blurb: 'Clean crewneck for everyday wear - pair with shelter swag or layer under a hoodie.',
+    image: `${SHOP_ASSETS}/classic-tee-flatlay.jpg`,
+    alt: 'White short-sleeve crewneck t-shirt on a neutral background.',
+  },
+  {
+    title: 'Merch & gifts',
+    price: 'From $12',
+    blurb: 'Hats, drinkware, apparel, and more - browse the full catalog on our Square store.',
+    image: `${SHOP_ASSETS}/merch-store-banner.png`,
+    alt: 'Illustration showing hats, mugs, and folded shirts in a merchandise collage.',
+    contain: true,
+  },
+];
+---
+
+<BaseLayout title="Shop | 734-243-3669" description="Every purchase helps tails wag and whiskers purr. Browse featured styles, then complete checkout on our secure Square store.">
+  <InnerShell>
+    <div class="monroe-shop-page">
+      <aside class="monroe-shop-under-construction" role="status" aria-live="polite">
+        <p class="monroe-shop-under-construction__emoji" aria-hidden="true">🚧 🐾 ✨</p>
+        <p class="monroe-shop-under-construction__title">Paws pause - shop makeover in progress!</p>
+        <p class="monroe-shop-under-construction__text">We’re fluffing up our merch nook. You can still peek at featured items below, or hop over to our Square store anytime!</p>
+      </aside>
+
+      <section class="monroe-shop-hero monroe-shop-hero--banner monroe-shop-hero--split" aria-labelledby="monroe-shop-title">
+        <div class="monroe-shop-hero__grid">
+          <div class="monroe-shop-hero__copy">
+            <p class="monroe-shop-hero__kicker" aria-hidden="true">🐾 Support the shelter</p>
+            <h1 id="monroe-shop-title">Monroe Humane Society Shop</h1>
+            <p class="monroe-shop-hero__lead">Every purchase helps tails wag and whiskers purr. Browse featured styles below, then complete checkout on our secure Square store.</p>
+            <div class="monroe-shop-hero__actions">
+              <a class="monroe-shop-btn monroe-shop-btn--primary" href="#monroe-shop-catalog">Browse featured items</a>
+              <a class="monroe-shop-btn monroe-shop-btn--ghost" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Open Square store</a>
+            </div>
+          </div>
+          <figure class="monroe-shop-hero__visual">
+            <img src={`${SHOP_ASSETS}/merch-store-banner.png`} alt="Illustration of hats, mugs, and folded shirts in a merchandise collage." width="860" height="860" loading="eager" decoding="async" />
+          </figure>
+        </div>
+      </section>
+
+      <section id="monroe-shop-catalog" class="monroe-shop-section monroe-shop-section--demo">
+        <div class="monroe-shop-section__inner">
+          <div class="monroe-shop-demo-intro">
+            <span class="monroe-shop-badge">Featured</span>
+            <h2>Popular picks</h2>
+            <p>Inventory, pricing, and shipping are managed on Square. Select an item to open the live store in a new tab.</p>
+          </div>
+
+          <ul class="monroe-shop-product-grid">
+            {products.map((p) => (
+              <li class:list={['monroe-shop-product-card', { 'monroe-shop-product-card--media-contain': p.contain }]}>
+                <div class="monroe-shop-product-card__media">
+                  <img src={p.image} alt={p.alt} loading="lazy" decoding="async" width="480" height="480" />
+                </div>
+                <div class="monroe-shop-product-card__body">
+                  <h3 class="monroe-shop-product-card__title">{p.title}</h3>
+                  <p class="monroe-shop-product-card__price">{p.price}</p>
+                  <p class="monroe-shop-product-card__blurb">{p.blurb}</p>
+                  <a class="monroe-shop-product-card__cta" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Shop on Square</a>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section id="shop-products" class="monroe-shop-section monroe-shop-section--checkout">
+        <div class="monroe-shop-section__inner monroe-shop-checkout-layout">
+          <div class="monroe-shop-checkout-panel">
+            <h2>Checkout on Square</h2>
+            <p>Taxes, shipping, and payment are handled securely by Square.</p>
+            <a class="monroe-shop-btn monroe-shop-btn--primary monroe-shop-btn--stretch" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Visit the online store</a>
+            <div class="monroe-shop-embed-wrap" aria-hidden="false">
+              <iframe class="monroe-shop-embed" title="Square online store" src={SQUARE_URL} loading="lazy"></iframe>
+              <p class="monroe-shop-embed-fallback">If the preview is blank, use the button above - some browsers block store embeds.</p>
+            </div>
+          </div>
+          <aside class="monroe-shop-sidebar" aria-labelledby="monroe-shop-why-title">
+            <h3 id="monroe-shop-why-title">Why shop with us?</h3>
+            <ul>
+              <li>Proceeds fund shelter care &amp; adoption programs</li>
+              <li>Secure payments via Square</li>
+              <li>Perfect gifts for fosters &amp; volunteers</li>
+            </ul>
+            <div class="monroe-shop-sidebar-note">Questions about an order? Call the shelter at 734-243-3669.</div>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </InnerShell>
+</BaseLayout>

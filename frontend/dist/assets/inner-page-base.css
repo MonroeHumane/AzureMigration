@@ -1,0 +1,483 @@
+/*
+ * Inner page design layer - monroe-rebuild theme.
+ * Styles the native inner landing pages (template-parts/native-inner-landing.php
+ * and friends) that previously rendered with base typography, plain stacks, and
+ * WordPress default vivid-cyan buttons.
+ *
+ * Scoped under .monroe-inner-page-shell so the homepage and the bespoke
+ * interior designs (dog-and-cat-shelter, memorial, adopt, games) are untouched;
+ * their per-page rules are more specific and keep winning where they overlap.
+ *
+ * Loaded after home-editable.css + home-embed-widgets.css (see functions.php).
+ */
+
+/* ---------------------------------------------------------------------------
+ * 1. Brand typography - interior pages get the homepage's display voice
+ * ------------------------------------------------------------------------- */
+
+.monroe-inner-page-shell h1,
+.monroe-inner-page-shell h2,
+.monroe-inner-page-shell h3 {
+  font-family: "Bebas Neue", "Montserrat", "Segoe UI", sans-serif;
+  letter-spacing: 0.02em;
+  line-height: 1.08;
+}
+
+.monroe-inner-page-shell .monroe-native-hero h1 {
+  font-size: clamp(2.9rem, 7vw, 4.3rem);
+  margin: 0 0 0.75rem;
+  color: #173635;
+}
+
+.monroe-inner-page-shell h2 {
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  color: #16302f;
+  margin: 0 0 0.9rem;
+}
+
+.monroe-inner-page-shell h3 {
+  font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+  letter-spacing: 0.03em;
+  color: #1c3a39;
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. Buttons - replace WP vivid-cyan default with the brand system
+ * ------------------------------------------------------------------------- */
+
+.monroe-inner-page-shell .wp-block-button__link,
+.monroe-inner-page-shell .monroe-native-actions a.wp-element-button {
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  padding: 0.85rem 1.6rem;
+  transition: background-color 0.18s ease, color 0.18s ease,
+    box-shadow 0.18s ease, transform 0.18s ease;
+  box-shadow: 0 10px 24px rgba(15, 118, 110, 0.22);
+}
+
+.monroe-inner-page-shell .wp-block-button__link.has-vivid-cyan-blue-background-color,
+.monroe-inner-page-shell .monroe-native-actions .wp-block-button:not(.is-style-outline) .wp-block-button__link {
+  background-color: #0f766e !important;
+  color: #ffffff !important;
+}
+
+.monroe-inner-page-shell .wp-block-button__link.has-vivid-cyan-blue-background-color:hover,
+.monroe-inner-page-shell .monroe-native-actions .wp-block-button:not(.is-style-outline) .wp-block-button__link:hover {
+  background-color: #0c5f59 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(15, 118, 110, 0.3);
+}
+
+.monroe-inner-page-shell .wp-block-button.is-style-outline .wp-block-button__link,
+.monroe-inner-page-shell .monroe-native-actions .wp-block-button.is-style-outline .wp-block-button__link {
+  background: transparent !important;
+  color: #0f766e !important;
+  border: 2px solid rgba(15, 118, 110, 0.45) !important;
+  box-shadow: none !important;
+}
+
+.monroe-inner-page-shell .wp-block-button.is-style-outline .wp-block-button__link:hover,
+.monroe-inner-page-shell .monroe-native-actions .wp-block-button.is-style-outline .wp-block-button__link:hover {
+  border-color: #0f766e !important;
+  background: rgba(15, 118, 110, 0.08) !important;
+  color: #0c5f59 !important;
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------------------------
+ * 3. Hero band - paw-print veil + eyebrow chip, matching homepage surfaces
+ * ------------------------------------------------------------------------- */
+
+.monroe-inner-page-shell .monroe-native-hero {
+  position: relative;
+  margin: 0 0 clamp(2rem, 4vw, 3rem);
+  padding: clamp(1.75rem, 4vw, 3rem) clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  border-radius: 22px;
+  background-image: var(--monroe-paw-veil), var(--monroe-paw-tile);
+  background-size: cover, var(--monroe-paw-tile-size);
+  background-position: center, bottom right;
+  background-repeat: no-repeat, no-repeat;
+  box-shadow: 0 18px 44px rgba(23, 54, 53, 0.08);
+  overflow: hidden;
+}
+
+.monroe-inner-page-shell .monroe-native-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--monroe-paw-teal-wash);
+  pointer-events: none;
+}
+
+.monroe-inner-page-shell .monroe-native-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.monroe-inner-page-shell .monroe-native-hero .monroe-native-eyebrow {
+  display: inline-block;
+  background: rgba(15, 118, 110, 0.12);
+  color: #0c5f59;
+  border-radius: 999px;
+  padding: 0.32rem 0.85rem;
+  font-size: 0.74rem;
+  margin: 0 0 0.9rem;
+}
+
+.monroe-inner-page-shell .monroe-native-hero .monroe-native-lead {
+  font-size: clamp(1.02rem, 2vw, 1.15rem);
+  color: #2a3d3d;
+  max-width: 46rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * 4. Section rhythm - stacks become soft cards, lists get brand markers
+ * ------------------------------------------------------------------------- */
+
+.monroe-inner-page-shell .monroe-native-stack {
+  background: #ffffff;
+  border: 1px solid rgba(23, 54, 53, 0.1);
+  border-radius: 18px;
+  padding: clamp(1.5rem, 3.5vw, 2.4rem);
+  box-shadow: 0 10px 28px rgba(23, 54, 53, 0.06);
+  margin: clamp(1.75rem, 3.5vw, 2.5rem) 0;
+}
+
+.monroe-inner-page-shell .monroe-native-stack > h2:first-child {
+  position: relative;
+  padding-bottom: 0.55rem;
+}
+
+.monroe-inner-page-shell .monroe-native-stack > h2:first-child::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #0f766e, #65a69f);
+}
+
+.monroe-inner-page-shell .monroe-native-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.monroe-inner-page-shell .monroe-native-list li {
+  position: relative;
+  padding-left: 1.6rem;
+  margin: 0.5rem 0;
+}
+
+.monroe-inner-page-shell .monroe-native-list li::before {
+  content: "";
+  position: absolute;
+  left: 0.15rem;
+  top: 0.62em;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: rgba(15, 118, 110, 0.35);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.monroe-inner-page-shell .monroe-native-actions {
+  margin-top: 1.4rem;
+}
+
+.monroe-inner-page-shell .monroe-native-foot {
+  margin-top: 1.6rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed rgba(15, 118, 110, 0.25);
+}
+
+/* On-page pills (used by pages with anchor sections).
+ * :not(.monroe-shelter-pills) keeps the dog-and-cat-shelter page's own
+ * pill-bar treatment in charge. */
+.monroe-inner-page-shell .monroe-inner-page-pills:not(.monroe-shelter-pills) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.monroe-inner-page-shell .monroe-inner-page-pills:not(.monroe-shelter-pills) .monroe-inner-page-pills__link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1.05rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 118, 110, 0.28);
+  color: #0f766e;
+  font: 600 0.82rem/1.2 "Montserrat", "Segoe UI", sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(23, 54, 53, 0.07);
+  transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.monroe-inner-page-shell .monroe-inner-page-pills:not(.monroe-shelter-pills) .monroe-inner-page-pills__link:hover {
+  background: #0f766e;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------------------------
+ * 5. Donate-now - the fast-checkout page becomes a donation panel
+ * ------------------------------------------------------------------------- */
+
+.monroe-native-inner--donate-now .monroe-native-stack > h2:first-child {
+  color: #ffffff;
+}
+
+.monroe-native-inner--donate-now .monroe-native-stack > h2:first-child::after {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.monroe-native-inner--donate-now .monroe-native-stack {
+  position: relative;
+  background: linear-gradient(150deg, #0f766e 0%, #116060 55%, #16302f 100%);
+  border-color: rgba(15, 118, 110, 0.5);
+  color: #eefaf8;
+  overflow: hidden;
+}
+
+.monroe-native-inner--donate-now .monroe-native-stack::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--monroe-paw-tile);
+  background-size: var(--monroe-paw-tile-size);
+  background-position: top right;
+  background-repeat: no-repeat;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.monroe-native-inner--donate-now .monroe-native-stack > * {
+  position: relative;
+}
+
+.monroe-native-inner--donate-now .monroe-native-stack p {
+  color: rgba(238, 250, 248, 0.92);
+  max-width: 40rem;
+}
+
+.monroe-native-inner--donate-now .monroe-native-actions .wp-block-button__link {
+  background: #ffffff;
+  color: #0c5f59;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.monroe-native-inner--donate-now .monroe-native-actions .wp-block-button__link:hover {
+  background: #f0fdfa;
+  color: #0b4d47;
+}
+
+.monroe-native-inner--donate-now .monroe-native-actions .wp-block-button.is-style-outline .wp-block-button__link {
+  background: transparent !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  box-shadow: none !important;
+}
+
+.monroe-native-inner--donate-now .monroe-native-actions .wp-block-button.is-style-outline .wp-block-button__link:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------------------------
+ * 6. Donations - ways to give as an option-board of cards
+ * ------------------------------------------------------------------------- */
+
+.monroe-native-inner--donations .monroe-native-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.9rem;
+}
+
+.monroe-native-inner--donations .monroe-native-actions .wp-block-button {
+  width: 100%;
+}
+
+.monroe-native-inner--donations .monroe-native-actions .wp-block-button__link {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  padding: 1.05rem 1.2rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * 7. Newsletter archive - issue cards with thumbnails
+ * ------------------------------------------------------------------------- */
+
+.monroe-native-inner--newsletter .monroe-newsletter-archive__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.1rem;
+  margin-top: 1.4rem;
+}
+
+.monroe-native-inner--newsletter .monroe-newsletter-archive__card {
+  background: #ffffff;
+  border: 1px solid rgba(23, 54, 53, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(23, 54, 53, 0.07);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.monroe-native-inner--newsletter .monroe-newsletter-archive__card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px rgba(23, 54, 53, 0.12);
+}
+
+.monroe-native-inner--newsletter .monroe-newsletter-archive__thumb {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.monroe-native-inner--newsletter .monroe-newsletter-archive__body {
+  padding: 1rem 1.15rem 1.2rem;
+}
+
+.monroe-native-inner--newsletter .monroe-newsletter-archive__badge {
+  display: inline-block;
+  background: rgba(15, 118, 110, 0.12);
+  color: #0c5f59;
+  border-radius: 999px;
+  font: 700 0.68rem/1 "Montserrat", "Segoe UI", sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 0.32rem 0.7rem;
+  margin-bottom: 0.55rem;
+}
+
+.monroe-native-inner--newsletter .monroe-newsletter-archive__title {
+  font-size: 1.05rem;
+  margin: 0;
+  color: #173635;
+}
+
+/* ---------------------------------------------------------------------------
+ * 8. Volunteer form - framed, friendly application panel
+ * ------------------------------------------------------------------------- */
+
+.monroe-native-inner--volunteer-form .monroe-native-form-apply .monroe-google-form-embed {
+  margin-top: 1.5rem;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(23, 54, 53, 0.08);
+  overflow: hidden;
+}
+
+.monroe-native-inner--volunteer-form .monroe-google-form-embed__hint {
+  display: inline-block;
+  background: rgba(15, 118, 110, 0.1);
+  color: #0c5f59;
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * 9. Vote confirmed - celebration band
+ * ------------------------------------------------------------------------- */
+
+.monroe-native-inner--vote-confirmed .monroe-native-hero::before {
+  content: "\2713";
+  position: absolute;
+  top: clamp(1rem, 2.5vw, 1.8rem);
+  right: clamp(1.1rem, 3vw, 2rem);
+  width: 3.4rem;
+  height: 3.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #0f766e;
+  color: #ffffff;
+  font: 700 1.9rem/1 "Montserrat", "Segoe UI", sans-serif;
+  box-shadow: 0 12px 26px rgba(15, 118, 110, 0.35);
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * 10. Small page fits
+ * ------------------------------------------------------------------------- */
+
+/* Special sponsors: centered thank-you framing */
+.monroe-native-inner--specialsponsors .monroe-native-hero,
+.monroe-native-inner--specialsponsors .monroe-native-stack {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.monroe-native-inner--specialsponsors .monroe-native-hero .monroe-native-lead,
+.monroe-native-inner--specialsponsors .monroe-native-stack p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.monroe-native-inner--specialsponsors .monroe-native-stack > h2:first-child::after {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.monroe-native-inner--specialsponsors .monroe-native-actions {
+  justify-content: center;
+}
+
+/* Resources: contact list reads as reachable actions */
+.monroe-native-inner--resources .monroe-native-list a {
+  font-weight: 600;
+}
+
+/* Artwork contest: normalize the shrunken h1 to the interior scale */
+.monroe-native-inner--artwork-contest .monroe-artwork-contest-hero__copy h1,
+.monroe-native-inner--artwork-contest .monroe-native-hero h1 {
+  font-size: clamp(2.6rem, 6.5vw, 3.9rem);
+}
+
+/* Membership: its bespoke hero sets a recovered-serif h1; match the
+ * interior display voice instead */
+.monroe-native-inner--membership .monroe-membership-hero__copy h1 {
+  font-family: "Bebas Neue", "Montserrat", "Segoe UI", sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------------------------------------------------------
+ * 11. Responsive
+ * ------------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .monroe-inner-page-shell .monroe-native-hero {
+    border-radius: 16px;
+    padding: 1.5rem 1.15rem;
+  }
+
+  .monroe-inner-page-shell .monroe-native-stack {
+    padding: 1.25rem 1.1rem 1.5rem;
+    border-radius: 14px;
+  }
+
+  .monroe-inner-page-shell .monroe-native-actions .wp-block-button__link {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .monroe-native-inner--donations .monroe-native-actions {
+    grid-template-columns: 1fr;
+  }
+}

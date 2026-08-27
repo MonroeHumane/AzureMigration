@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+---
+
+<BaseLayout
+  title="Resources | 734-243-3669"
+  description="Practical services that support pets and people in Monroe County - from nail trims and microchipping to membership and volunteer opportunities."
+>
+  <InnerShell variant="resources">
+    <header class="monroe-native-hero">
+      <p class="monroe-native-eyebrow">Services</p>
+      <h1>Resources | Monroe County</h1>
+      <p class="monroe-native-lead">
+        Practical services that support pets and people in Monroe County - from nail trims and microchipping to membership and volunteer opportunities.
+      </p>
+    </header>
+    <section class="monroe-native-stack" aria-labelledby="monroe-resources-services-heading">
+      <h2 id="monroe-resources-services-heading">Shelter services</h2>
+      <p>
+        We offer pet nail trims and microchipping by appointment. Call the shelter to schedule, ask about pricing, or learn what to bring the day of your visit.
+      </p>
+      <ul class="monroe-native-list">
+        <li><a href="tel:734-243-3669">734-243-3669</a></li>
+        <li><a href="/#Contact">Contact form &amp; hours</a></li>
+      </ul>
+    </section>
+    <section class="monroe-native-stack" aria-labelledby="monroe-resources-more-heading">
+      <h2 id="monroe-resources-more-heading">Ways to get involved</h2>
+      <p>
+        Become a member, browse fundraisers, read our FAQ, or explore volunteer needs from the homepage sections linked below.
+      </p>
+      <div class="monroe-native-actions">
+        <a class="monroe-btn" href="/membership">Membership plans</a>
+        <a class="monroe-btn monroe-btn--outline" href="https://www.betterunite.com/hsmc-becomeamembertoday" target="_blank" rel="noopener noreferrer">Join online</a>
+        <a class="monroe-btn monroe-btn--outline" href="/#FAQ">FAQ on homepage</a>
+        <a class="monroe-btn monroe-btn--outline" href="/volunteer-form">Volunteer</a>
+      </div>
+    </section>
+  </InnerShell>
+</BaseLayout>

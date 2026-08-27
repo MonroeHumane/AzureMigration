@@ -1,0 +1,85 @@
+/* Humane Games launcher popup - lock to iframe viewport (Pet Match pattern) */
+
+html.humane-embed,
+html.humane-embed body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+html.humane-embed {
+  font-size: clamp(15px, 0.45vw + 14px, 18px);
+}
+
+html.humane-embed #embed-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+html.humane-embed #app {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+
+html.humane-embed #left-panel {
+  flex: 0 0 32% !important;
+  width: 32% !important;
+  min-width: 200px !important;
+  max-width: 320px !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  position: relative !important;
+  top: auto !important;
+  overflow-y: auto !important;
+}
+
+html.humane-embed #right-panel {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+html.humane-embed #content-toolbar,
+html.humane-embed #multiplier-bar {
+  flex-shrink: 0;
+}
+
+html.humane-embed #tab-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+html.humane-embed #shelter-brand {
+  display: none;
+}
+
+html.humane-embed #adoption-section {
+  display: flex !important;
+}
+
+/* Desktop embed only (>900px): side-by-side. Phones/tablets use mobile.css column layout. */

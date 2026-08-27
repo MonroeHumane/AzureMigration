@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getNewsletterIssues } from '../../../lib/directus';
+import '../../../styles/monroe-home-widgets.css';
+
+/*
+ Newsletter issue — renders in the same hs-news-section markup the homepage
+ "2025 in Review" feature uses. Content comes from getNewsletterIssues()
+ (Directus, or the mirror-sourced fallback).
+*/
+
+export function getStaticPaths() {
+  return getNewsletterIssues().then((issues) =>
+    issues.map((issue) => ({
+      params: { slug: issue.slug },
+      props: { issue },
+    }))
+  );
+}
+
+const { issue } = Astro.props;
+---
+
+<BaseLayout title={`${issue.title} | 734-243-3669`} description={`Monroe Humane Society Newsletter — ${issue.title}.`}>
+  <div class="monroe-inner-page-shell monroe-native-inner monroe-native-inner--newsletter">
+    <div class="monroe-inner-page-shell__content">
+      <div class="monroe-home-newsletter-slot">
+        <section id={`hs-news-${issue.slug}`} class="hs-news-section" aria-labelledby="hs-news-issue-title">
+          <div class="hs-wrap">
+            <div class="hs-card" role="region" aria-label={issue.title}>
+              <div class="hs-hero">
+                <img src={issue.hero_image} alt={issue.title} width="1200" height="400" decoding="async" loading="lazy" />
+                <div class="hs-hero-overlay"></div>
+                <div class="hs-hero-text">
+                  <div class="hs-eyebrow">PO Box 1457 • Monroe, MI</div>
+                  <h1 class="hs-hero-title">{issue.title}</h1>
+                </div>
+              </div>
+              <div class="hs-head">
+                <div>
+                  <h2 id="hs-news-issue-title" class="hs-title">Monroe Humane Society Newsletter</h2>
+                  <div class="hs-sub">{issue.byline || 'Humane Society of Monroe County'}</div>
+                </div>
+                <div class="hs-actions" role="group" aria-label="Quick pet filters">
+                  <a href="/adopt/dogs" class="hs-btn">See Adoptable Dogs</a>
+                  <a href="/adopt/cats" class="hs-btn">See Adoptable Cats</a>
+                  <a href="/adopt" class="hs-btn ghost">See All Pets</a>
+                </div>
+              </div>
+              <div class="hs-body">
+                <div class="hs-grid">
+                  {issue.blocks?.filter((b) => b.type === 'story').map((block) => (
+                    <div class="hs-box">
+                      <div class="hs-letter">
+                        <h3 class="hs-section-title">{block.title}</h3>
+                        {(block.body ?? '').split('\n').filter(Boolean).map((para) => <p>{para}</p>)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <nav class="monroe-memorials-related" aria-label="Related pages" style="display:flex;gap:0.75rem;justify-content:center;margin-top:1.5rem;">
+        <a href="/newsletter">Newsletter archive</a>
+        <a href="/">Back to home</a>
+      </nav>
+    </div>
+  </div>
+</BaseLayout>

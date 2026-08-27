@@ -1,0 +1,2721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Humane Games – Pet Snake</title>
+	<script src="embed.js"></script>
+	<link rel="stylesheet" href="embed.css">
+	<link rel="stylesheet" href="shared-styles.css">
+	<style>
+		.site-header {
+			position: sticky;
+			top: 0;
+			z-index: 1000;
+		}
+		body.pet-snake-page {
+			background:
+				radial-gradient(120% 120% at 15% 15%, rgba(255, 210, 184, 0.55), rgba(255, 210, 184, 0)) ,
+				radial-gradient(150% 150% at 85% 25%, rgba(186, 227, 255, 0.45), rgba(186, 227, 255, 0)) ,
+				radial-gradient(180% 180% at 50% 80%, rgba(255, 185, 234, 0.35), rgba(255, 185, 234, 0)) ,
+				radial-gradient(100% 100% at 50% 50%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0)) ,
+				#f9f6ff;
+			background-attachment: fixed;
+		}
+		.cat-snake-widget {
+			position: relative;
+			z-index: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 18px;
+			width: 100%;
+			margin: 0 auto;
+			padding: clamp(16px, 2vw, 28px);
+			background: linear-gradient(140deg, rgba(255, 250, 243, 0.96), rgba(255, 230, 207, 0.9));
+			border-radius: 18px;
+			box-shadow: 0 25px 60px rgba(44, 28, 25, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+		}
+		.cat-snake__play {
+			position: relative;
+			display: grid;
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-areas:
+				"board"
+				"panel";
+			row-gap: clamp(16px, 2vw, 24px);
+			column-gap: clamp(16px, 3vw, 32px);
+			justify-items: stretch;
+			align-items: start;
+			min-height: clamp(360px, 60vh, 680px);
+			width: 100%;
+		}
+		.cat-snake__panel {
+			grid-area: panel;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			padding: clamp(12px, 2vw, 18px);
+			border-radius: 22px;
+			background: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(255, 237, 218, 0.95));
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			box-shadow: 0 18px 32px rgba(44, 28, 25, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+			min-height: clamp(280px, 42vh, 460px);
+			align-self: stretch;
+			width: 100%;
+			position: relative;
+			z-index: 5;
+		}
+		.cat-snake__stat {
+			position: relative;
+		}
+		.cat-snake__panel-head {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: stretch;
+			justify-content: space-between;
+			gap: 12px;
+			row-gap: 16px;
+			padding: 12px;
+			border-radius: 16px;
+			background: rgba(255, 255, 255, 0.8);
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+		}
+		.cat-snake__scores {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+			gap: 10px;
+			flex: 1 1 220px;
+		}
+		.cat-snake__stat span {
+			font-size: 0.72rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: rgba(44, 28, 25, 0.6);
+		}
+		.cat-snake__stat strong {
+			display: block;
+			font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+			font-variant-numeric: tabular-nums;
+			line-height: 1.1;
+		}
+		.cat-snake__panel-controls {
+			display: flex;
+			gap: 8px;
+			flex: 0 0 auto;
+		}
+		.cat-snake__icon-btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			padding: 8px 12px;
+			min-width: unset;
+			font-size: 0.9rem;
+			border-radius: 14px;
+		}
+		.cat-snake__icon-btn span[aria-hidden="true"] {
+			font-size: 1.1rem;
+		}
+		.cat-snake__icon-btn-label {
+			font-weight: 700;
+		}
+		.cat-snake__board-wrap {
+			position: relative;
+			flex: 1 1 auto;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: clamp(14px, 2.4vw, 26px);
+			width: min(100%, var(--board-measured-width, 100%));
+			max-width: 100%;
+			margin: 0 auto;
+			overflow: hidden;
+			min-height: max(
+				clamp(380px, 60vh, 640px),
+				var(--board-measured-height, 0px),
+				var(--menu-measured-height, 0px)
+			);
+			border-radius: 26px;
+			background: transparent;
+			box-shadow: none;
+			grid-area: board;
+			justify-self: stretch;
+			z-index: 2;
+			touch-action: none; /* prevent page scroll while swiping to steer */
+		}
+		.cat-snake-widget.is-menu .cat-snake__board-wrap,
+		.cat-snake-widget.is-game-over .cat-snake__board-wrap {
+			overflow: visible;
+		}
+		.cat-snake__board {
+			position: relative;
+			display: grid;
+			grid-template-columns: repeat(var(--size, 19), var(--cell, 32px));
+			grid-auto-rows: var(--cell, 32px);
+			gap: var(--gap, 4px);
+			width: fit-content;
+			max-width: 100%;
+			justify-content: center;
+			margin: 0 auto;
+			padding: clamp(8px, 1.4vw, 18px);
+			background: rgba(255, 250, 243, 0.65);
+			backdrop-filter: blur(4px);
+			border-radius: 18px;
+			box-shadow: none;
+			z-index: 1;
+		}
+		.cat-snake__cell {
+			width: var(--cell, 32px);
+			height: var(--cell, 32px);
+			border-radius: var(--radius, 10px);
+			background: linear-gradient(145deg, #fff9ee, #ffe3bd);
+			box-shadow: inset 0 0 0 1px rgba(44, 28, 25, 0.08), inset 0 -3px 6px rgba(44, 28, 25, 0.04), 0 4px 10px rgba(44, 28, 25, 0.08);
+			display: grid;
+			place-items: center;
+			font-size: calc(var(--cell, 32px) * 0.8);
+			line-height: 1;
+			position: relative;
+		}
+		.cat-snake__cell.is-head {
+			background: radial-gradient(circle at 25% 35%, #fff5d9, #ffc889);
+			color: #2c1c19;
+			border: 1px solid rgba(44, 28, 25, 0.18);
+			box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.86), 0 8px 16px rgba(44, 28, 25, 0.16);
+			animation: bob 260ms ease;
+		}
+		.cat-snake__stat.is-shine::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: -60%;
+			width: 40%;
+			height: 100%;
+			background: linear-gradient(120deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+			animation: cat-snake-stat-shine 480ms ease;
+		}
+
+		.cat-snake__cell.is-body {
+			background: linear-gradient(135deg, #ffe8cc, #ffcfa1);
+			color: rgba(44, 28, 25, 0.9);
+			box-shadow: inset 0 0 0 1px rgba(44, 28, 25, 0.1), inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+		}
+		.cat-snake__cell.is-head.pet-cat-head {
+			background: radial-gradient(circle at 25% 35%, #fff5e8, #ffd18f);
+		}
+		.cat-snake__cell.is-body.pet-cat-body {
+			background: linear-gradient(145deg, #ffeedd, #ffd9ae);
+		}
+		.cat-snake__cell.is-head.pet-dog-head {
+			background: radial-gradient(circle at 20% 30%, #fffdf8, #f5d3a6);
+		}
+		.cat-snake__cell.is-body.pet-dog-body {
+			background: linear-gradient(145deg, #f6e4cc, #e2c295);
+		}
+		.cat-snake__cell.is-treat {
+			background: linear-gradient(130deg, #fff, #eef8ff);
+			color: #1a7b5d;
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9), 0 8px 12px rgba(107, 196, 166, 0.32);
+		}
+		.cat-snake__cell.is-treat.treat-fish {
+			background: linear-gradient(135deg, #e3fff5, #c9f5e3);
+			border-color: rgba(73, 182, 140, 0.6);
+			color: #1b8c62;
+		}
+		.cat-snake__cell.is-treat.treat-bone {
+			background: linear-gradient(135deg, #fff7e8, #f2dfc2);
+			border-color: rgba(173, 128, 77, 0.6);
+			color: #8f5a2e;
+		}
+		.cat-snake__cell.is-treat.treat-biscuit {
+			background: linear-gradient(135deg, #fff1f7, #ffd9e8);
+			border-color: rgba(200, 96, 138, 0.5);
+			color: #a5426d;
+		}
+		.cat-snake__cell.is-treat.treat-steak {
+			background: linear-gradient(135deg, #ffecec, #ffcfbf);
+			border-color: rgba(190, 80, 60, 0.6);
+			color: #a0382f;
+		}
+		.cat-snake__cell.is-power {
+			background: linear-gradient(135deg, #e8f1ff, #d5e4ff);
+			border-color: rgba(70, 120, 200, 0.6);
+			color: #2c4ea0;
+			font-weight: 800;
+		}
+		.cat-snake__cell.is-power.fx-speed {
+			box-shadow: 0 0 10px rgba(255, 191, 0, 0.8), inset 0 0 6px rgba(255, 191, 0, 0.6);
+		}
+		.cat-snake__cell.is-power.fx-score {
+			box-shadow: 0 0 10px rgba(107, 196, 166, 0.8), inset 0 0 6px rgba(107, 196, 166, 0.6);
+		}
+		.cat-snake__cell.is-power.fx-shield {
+			box-shadow: 0 0 10px rgba(90, 140, 255, 0.8), inset 0 0 6px rgba(90, 140, 255, 0.6);
+		}
+		.cat-snake__cell.fx-speed-active {
+			box-shadow: 0 0 10px rgba(255, 191, 0, 0.6), 0 0 16px rgba(255, 191, 0, 0.4), inset 0 0 4px rgba(255, 191, 0, 0.4);
+		}
+		.cat-snake__cell.fx-score-active {
+			box-shadow: 0 0 10px rgba(107, 196, 166, 0.6), 0 0 16px rgba(107, 196, 166, 0.4), inset 0 0 4px rgba(107, 196, 166, 0.4);
+		}
+		.cat-snake__cell.fx-shield-active {
+			box-shadow: 0 0 12px rgba(80, 130, 255, 0.7), 0 0 20px rgba(80, 130, 255, 0.45), inset 0 0 6px rgba(80, 130, 255, 0.5);
+			border: 1px solid rgba(80, 130, 255, 0.6);
+		}
+		.cat-snake__cell.is-bomb {
+			background: radial-gradient(circle at 30% 30%, #ffdbd2, #f5a6a1);
+			border-color: rgba(200, 70, 70, 0.7);
+			color: #c23434;
+			font-weight: 800;
+		}
+		/* The Vacuum Entity */
+		.cat-snake__cell.is-vacuum {
+			background: radial-gradient(circle at 30% 30%, #5a6268, #2d3436);
+			border-radius: 50%;
+			box-shadow:
+				inset 0 2px 4px rgba(255, 255, 255, 0.3),
+				0 4px 8px rgba(0, 0, 0, 0.2);
+			border: 2px solid #b2bec3;
+			color: #00cec9;
+			font-size: 0.6em;
+			z-index: 2;
+			transition: transform 0.2s linear;
+		}
+		.cat-snake__cell.is-vacuum-tail {
+			background: rgba(168, 85, 247, 0.35);
+			box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.25);
+		}
+		.cat-snake__cell.is-vacuum-tail-tip {
+			box-shadow:
+				inset 0 0 10px rgba(255, 255, 255, 0.6),
+				0 0 6px rgba(168, 85, 247, 0.7);
+		}
+		.cat-snake__cell.is-vacuum::after {
+			content: "";
+			position: absolute;
+			top: 20%;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 6px;
+			height: 6px;
+			background-color: #ff7675;
+			border-radius: 50%;
+			box-shadow: 0 0 4px #ff7675;
+		}
+		.cat-snake__menu {
+			position: absolute;
+			inset: 0;
+			display: grid;
+			place-items: center;
+			padding: clamp(12px, 3vw, 28px);
+			background: rgba(253, 247, 240, 0.92);
+			backdrop-filter: blur(8px);
+			border-radius: inherit;
+			transition: opacity 160ms ease, visibility 160ms ease;
+			z-index: 2;
+		}
+		.cat-snake-widget:not(.is-menu) .cat-snake__menu {
+			opacity: 0;
+			visibility: hidden;
+			pointer-events: none;
+		}
+		.cat-snake__menu-card {
+			background: rgba(255, 255, 255, 0.96);
+			border-radius: 24px;
+			padding: clamp(20px, 3vw, 30px);
+			text-align: center;
+			box-shadow: 0 20px 50px rgba(44, 28, 25, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			position: relative;
+			overflow: hidden;
+			overflow-y: auto;
+		}
+
+		/* --- RESULT CARD STYLES --- */
+		.cat-snake-widget.is-game-over .cat-snake__menu-card { display: none; }
+		.cat-snake-widget.is-game-over .cat-snake__result-card { display: flex; }
+
+		.cat-snake__result-card {
+			display: none;
+			flex-direction: column;
+			gap: 20px;
+			width: min(480px, 100%);
+			max-height: min(90vh, 640px);
+			background: rgba(255, 255, 255, 0.96);
+			border-radius: 24px;
+			padding: clamp(20px, 3vw, 30px);
+			text-align: center;
+			box-shadow: 0 20px 50px rgba(44, 28, 25, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			position: relative;
+			overflow: hidden;
+			animation: card-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+			pointer-events: auto;
+		}
+
+
+
+		.cat-snake__result-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 12px;
+		}
+
+		.cat-snake__result-stat {
+			background: rgba(255, 250, 243, 0.5);
+			border: 1px solid rgba(44, 28, 25, 0.06);
+			border-radius: 16px;
+			padding: 12px;
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+
+		.cat-snake__result-stat.is-primary {
+			background: linear-gradient(145deg, #fff9ee, #ffe3bd);
+			grid-column: span 2;
+			padding: 16px;
+			border-color: rgba(44, 28, 25, 0.1);
+		}
+
+		.cat-snake__result-label {
+			font-size: 0.75rem;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			color: rgba(44, 28, 25, 0.5);
+			font-weight: 700;
+		}
+
+		.cat-snake__result-val {
+			font-size: 1.4rem;
+			font-weight: 800;
+			font-variant-numeric: tabular-nums;
+			color: #2c1c19;
+		}
+
+		.cat-snake__result-stat.is-primary .cat-snake__result-val {
+			font-size: 2.8rem;
+			line-height: 1;
+		}
+
+		.cat-snake__new-best {
+			position: absolute;
+			top: 12px;
+			right: 12px;
+			background: linear-gradient(135deg, #ffd39f, #ff9f6a);
+			color: #fff;
+			padding: 4px 10px;
+			border-radius: 8px;
+			font-size: 0.75rem;
+			font-weight: 800;
+			text-transform: uppercase;
+			box-shadow: 0 4px 12px rgba(255, 159, 106, 0.4);
+			transform: scale(0);
+			transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+		}
+
+		.cat-snake-widget.is-new-record .cat-snake__new-best {
+			transform: scale(1) rotate(6deg);
+		}
+
+		.cat-snake__result-actions {
+			display: flex;
+			gap: 10px;
+			margin-top: 8px;
+		}
+
+		.cat-snake__replay-btn {
+			flex: 2;
+			background: #2c1c19;
+			color: #fff;
+			border: none;
+			padding: 14px;
+			border-radius: 14px;
+			font-size: 1rem;
+			font-weight: 700;
+			cursor: pointer;
+			box-shadow: 0 8px 20px rgba(44, 28, 25, 0.15);
+			transition: transform 0.1s;
+		}
+
+		.cat-snake__replay-btn:hover { transform: translateY(-2px); }
+		.cat-snake__replay-btn:active { transform: translateY(0); }
+
+		.cat-snake__confetti {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 0;
+			height: 0;
+			pointer-events: none;
+			z-index: 10;
+		}
+
+		.cat-snake__confetti i {
+			position: absolute;
+			width: 8px;
+			height: 16px;
+			background: #ffd39f;
+			opacity: 0;
+		}
+
+		.cat-snake-widget.is-new-record .cat-snake__confetti i {
+			animation: explode 0.8s ease-out forwards;
+		}
+
+		.cat-snake__confetti i:nth-child(1) { --x: -60px; --y: -90px; background: #ff9f6a; }
+		.cat-snake__confetti i:nth-child(2) { --x: 60px; --y: -90px; background: #6bc4a6; }
+		.cat-snake__confetti i:nth-child(3) { --x: -90px; --y: -20px; background: #ffd39f; }
+		.cat-snake__confetti i:nth-child(4) { --x: 90px; --y: -20px; background: #ff7675; }
+		.cat-snake__confetti i:nth-child(5) { --x: -50px; --y: 70px; background: #74b9ff; }
+		.cat-snake__confetti i:nth-child(6) { --x: 50px; --y: 70px; background: #a29bfe; }
+		.cat-snake__confetti i:nth-child(7) { --x: -20px; --y: -110px; background: #ffeaa7; }
+		.cat-snake__confetti i:nth-child(8) { --x: 20px; --y: -110px; background: #fab1a0; }
+
+		@keyframes card-pop {
+			0% { transform: scale(0.9) translateY(30px); opacity: 0; }
+			100% { transform: scale(1) translateY(0); opacity: 1; }
+		}
+
+		@keyframes icon-shake {
+			0%, 100% { transform: rotate(0); }
+			25% { transform: rotate(-15deg); }
+			75% { transform: rotate(15deg); }
+		}
+
+		@keyframes explode {
+			0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+			100% { transform: translate(var(--x), var(--y)) rotate(720deg); opacity: 0; }
+		}
+		.cat-snake__menu h1 {
+			margin: 8px 0 2px;
+			font-size: 1.8rem;
+		}
+		.cat-snake__menu-tagline {
+			margin: 0 0 10px;
+			color: rgba(44, 28, 25, 0.78);
+		}
+		.cat-snake__menu-note,
+		.cat-snake__menu-shortcut {
+			margin: 0 0 10px;
+			font-size: 0.9rem;
+			color: rgba(44, 28, 25, 0.68);
+		}
+		.cat-snake__menu-shortcut {
+			font-size: 0.85rem;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+		}
+		.cat-snake__watermark {
+			margin-top: 18px;
+			text-align: right;
+			text-transform: uppercase;
+			letter-spacing: 0.16em;
+			font-size: 0.75rem;
+			color: rgba(44, 28, 25, 0.2);
+		}
+		.cat-snake__menu-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+			gap: clamp(12px, 3vw, 24px);
+			margin: 16px 0 0;
+			align-items: start;
+		}
+		.cat-snake__menu-controls {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+		.cat-snake__control-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			gap: 10px;
+		}
+		.cat-snake__menu-card .cat-snake__stat {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			padding: 8px 10px;
+			border-radius: 14px;
+			background: rgba(255, 255, 255, 0.78);
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+		}
+		.cat-snake__stat-label {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 0.78rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: rgba(44, 28, 25, 0.6);
+		}
+		.cat-snake__choice-group,
+		.cat-snake__pet-picker {
+			display: flex;
+			gap: 6px;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+		}
+		.cat-snake__choice-group button,
+		.cat-snake__pet-picker button,
+		.cat-snake__choice-group button:focus-visible,
+		.cat-snake__pet-picker button:focus-visible {
+			border-radius: 14px;
+			border: 1px solid rgba(44, 28, 25, 0.18);
+			background: rgba(255, 255, 255, 0.65);
+			padding: 6px 10px;
+			font-weight: 600;
+			font-size: 0.9rem;
+			color: rgba(44, 28, 25, 0.7);
+			transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+			flex: 1 1 auto;
+			min-width: 0;
+		}
+		.cat-snake__choice-group button.is-disabled,
+		.cat-snake__choice-group button[disabled] {
+			opacity: 0.45;
+			pointer-events: none;
+			background: rgba(255, 255, 255, 0.6);
+			box-shadow: none;
+		}
+		.cat-snake__choice-group button[aria-pressed="true"],
+		.cat-snake__pet-picker button[aria-pressed="true"] {
+			background: linear-gradient(140deg, #ffd7b0, #ffb784);
+			color: #3f2314;
+			border-color: rgba(255, 165, 120, 0.9);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 18px rgba(255, 165, 120, 0.35);
+		}
+		.cat-snake__choice-group button:not([aria-pressed="true"]),
+		.cat-snake__pet-picker button:not([aria-pressed="true"]) {
+			color: rgba(44, 28, 25, 0.6);
+		}
+		.cat-snake__menu-start {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			width: 100%;
+			border: none;
+			border-radius: 14px;
+			padding: 10px 14px;
+			font-size: 0.95rem;
+			font-weight: 800;
+			background: linear-gradient(140deg, #2c1c19, #513129);
+			color: #fffaf3;
+			box-shadow: 0 12px 24px rgba(44, 28, 25, 0.25);
+			cursor: pointer;
+		}
+		.cat-snake__menu-start span {
+			font-size: 1.2rem;
+		}
+		.cat-snake__menu-start:hover,
+		.cat-snake__menu-start:focus-visible {
+			transform: translateY(-1px);
+			box-shadow: 0 20px 36px rgba(44, 28, 25, 0.28);
+			outline: none;
+		}
+		.cat-snake__menu-side {
+			padding: 12px;
+			border-radius: 16px;
+			background: rgba(255, 255, 255, 0.85);
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+		.cat-snake__treats-title {
+			margin: 0;
+			text-transform: uppercase;
+			letter-spacing: 0.12em;
+			font-size: 0.72rem;
+			color: rgba(44, 28, 25, 0.55);
+		}
+		.cat-snake__treats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+			gap: 8px;
+		}
+		.cat-snake__treat-card {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 8px;
+			padding: 8px 10px;
+			border-radius: 12px;
+			border: 1px solid rgba(44, 28, 25, 0.08);
+		}
+		.cat-snake__treat-card.treat-positive {
+			background: rgba(107, 196, 166, 0.15);
+			border-color: rgba(107, 196, 166, 0.35);
+		}
+		.cat-snake__treat-card.treat-negative {
+			background: rgba(255, 182, 166, 0.18);
+			border-color: rgba(255, 182, 166, 0.4);
+		}
+		.cat-snake__treat-icon {
+			font-size: 1.2rem;
+		}
+		.cat-snake__treat-copy {
+			display: flex;
+			align-items: baseline;
+			gap: 4px;
+			font-weight: 700;
+		}
+		.cat-snake__treat-copy span {
+			font-size: 0.8rem;
+			color: rgba(44, 28, 25, 0.7);
+		}
+		.cat-snake__treat-copy strong {
+			font-size: 1rem;
+			font-weight: 800;
+		}
+		.cat-snake__badges {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+			justify-content: flex-start;
+			margin: 0;
+		}
+		.cat-snake__badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 4px 10px;
+			border-radius: 999px;
+			background: rgba(44, 28, 25, 0.08);
+			color: var(--ink);
+			font-size: 0.8rem;
+			font-weight: 700;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+		}
+		.cat-snake__message {
+			margin: 4px 0 0;
+			padding: 10px 12px;
+			background: rgba(255, 255, 255, 0.9);
+			border-radius: 12px;
+			border: 1px dashed rgba(44, 28, 25, 0.2);
+			font-weight: 600;
+			min-height: 2em;
+		}
+		.cat-snake__hint {
+			margin: 0;
+			font-size: 0.82rem;
+			color: rgba(44, 28, 25, 0.6);
+			line-height: 1.4;
+		}
+		.cat-snake__meters {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			width: 100%;
+			max-width: 100%;
+			margin: clamp(6px, 1vw, 12px) 0 0;
+			padding: 0;
+			pointer-events: none;
+		}
+		.cat-snake__meter {
+			background: rgba(255, 250, 243, 0.9);
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			border-radius: 12px;
+			padding: 6px 8px;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 6px 12px rgba(44, 28, 25, 0.12);
+			pointer-events: auto;
+		}
+		.cat-snake__meter-label {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-weight: 700;
+			font-size: 0.9rem;
+			margin-bottom: 4px;
+		}
+		.cat-snake__meter-bar {
+			position: relative;
+			height: 8px;
+			border-radius: 8px;
+			background: rgba(44, 28, 25, 0.1);
+			overflow: hidden;
+		}
+		.cat-snake__meter-bar span {
+			display: block;
+			height: 100%;
+			background: linear-gradient(90deg, #ffd39f, #ff9f6a);
+			width: 0%;
+		}
+		.cat-snake-widget.is-fullscreen {
+			position: fixed;
+			inset: 0;
+			margin: 0;
+			max-width: none;
+			width: 100%;
+			height: 100vh;
+			z-index: 999;
+			border-radius: 0;
+			padding: clamp(8px, 1.5vw, 18px);
+		}
+		.cat-snake-widget.is-fullscreen .cat-snake__play {
+			height: 100%;
+			grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+			grid-template-rows: 1fr auto;
+			grid-template-areas:
+				"board panel"
+				"hud panel";
+			align-items: stretch;
+		}
+		.cat-snake-widget.is-fullscreen .cat-snake__board-wrap {
+			min-height: 0;
+			max-height: none;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: min(100%, var(--board-measured-width, 100%));
+			margin: 0 auto;
+			padding: clamp(8px, 1.2vw, 16px);
+		}
+		.cat-snake-widget.is-fullscreen .cat-snake__board {
+			height: 100%;
+			align-content: center;
+		}
+		.cat-snake-widget.is-fullscreen .cat-snake__panel {
+			position: relative;
+			align-self: start;
+			justify-self: stretch;
+			max-width: 360px;
+			width: min(100%, 360px);
+			z-index: 4;
+			margin-left: clamp(8px, 1vw, 16px);
+		}
+		.cat-snake__result-summary {
+			margin-top: 18px;
+			padding-top: 18px;
+			border-top: 1px dashed rgba(44, 28, 25, 0.2);
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			flex: 1 1 auto;
+		}
+		.cat-snake__summary-head {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+		.cat-snake__summary-eyebrow {
+			text-transform: uppercase;
+			letter-spacing: 0.14em;
+			font-size: 0.78rem;
+			margin: 0;
+			color: rgba(44, 28, 25, 0.65);
+		}
+		.cat-snake__summary-score {
+			margin: 0;
+			font-size: 1.4rem;
+			font-weight: 700;
+			color: #2b1911;
+		}
+		.cat-snake__summary-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+			gap: 14px;
+		}
+		.cat-snake__summary-block {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+		.cat-snake__summary-label {
+			margin: 0;
+			font-size: 0.85rem;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: rgba(44, 28, 25, 0.6);
+		}
+		.cat-snake__summary-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+		.cat-snake__summary-item {
+			display: grid;
+			grid-template-columns: auto 1fr auto;
+			align-items: center;
+			gap: 12px;
+			padding: 10px 12px;
+			border-radius: 16px;
+			border: 1px solid rgba(44, 28, 25, 0.08);
+			background: rgba(255, 255, 255, 0.9);
+			box-shadow: 0 8px 18px rgba(44, 28, 25, 0.09);
+			transform: translateY(14px) scale(0.95);
+			opacity: 0;
+			animation: stat-pop-in 460ms cubic-bezier(0.16, 0.85, 0.35, 1.25) forwards;
+			animation-delay: var(--row-delay, 0ms);
+		}
+		.cat-snake__summary-item[data-theme="treat"] {
+			background: linear-gradient(120deg, rgba(255, 247, 238, 0.9), rgba(255, 224, 196, 0.8));
+		}
+		.cat-snake__summary-item[data-theme="powerup"] {
+			background: linear-gradient(120deg, rgba(235, 248, 255, 0.9), rgba(205, 236, 255, 0.8));
+		}
+		.cat-snake__summary-item[data-theme="bomb"] {
+			background: linear-gradient(120deg, rgba(254, 239, 247, 0.9), rgba(255, 210, 223, 0.78));
+		}
+		.summary-item__icon {
+			width: 42px;
+			height: 42px;
+			border-radius: 12px;
+			background: rgba(255, 255, 255, 0.65);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.5rem;
+			box-shadow: inset 0 2px 6px rgba(44, 28, 25, 0.15);
+		}
+		.summary-item__copy {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+		.summary-item__label {
+			font-weight: 600;
+			font-size: 0.95rem;
+			color: rgba(44, 28, 25, 0.85);
+		}
+		.summary-item__meta {
+			font-size: 0.75rem;
+			color: rgba(44, 28, 25, 0.65);
+		}
+		.summary-item__value {
+			font-size: 1.6rem;
+			font-weight: 700;
+			color: #2b1911;
+			font-variant-numeric: tabular-nums;
+		}
+		.cat-snake__summary-empty {
+			font-style: italic;
+			color: rgba(44, 28, 25, 0.6);
+			border: 1px dashed rgba(44, 28, 25, 0.2);
+			border-radius: 14px;
+			padding: 18px;
+			text-align: center;
+			background: rgba(255, 255, 255, 0.5);
+		}
+		@keyframes stat-pop-in {
+			0% {
+				opacity: 0;
+				transform: translateY(18px) scale(0.9);
+			}
+			60% {
+				opacity: 1;
+				transform: translateY(-4px) scale(1.03);
+			}
+			100% {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+			}
+		}
+		.cat-snake-widget:not(.is-menu) .cat-snake__options,
+		.cat-snake-widget:not(.is-menu) .cat-snake__legend {
+			display: none;
+		}
+		.cat-snake__message {
+			margin: 0;
+			padding: 12px 14px;
+			text-align: left;
+			font-weight: 700;
+			color: rgba(44, 28, 25, 0.82);
+			min-height: 2.2em;
+			border-radius: 14px;
+			background: rgba(44, 28, 25, 0.04);
+			border: 1px dashed rgba(44, 28, 25, 0.18);
+		}
+		.cat-snake__hint {
+			text-align: left;
+			color: rgba(44, 28, 25, 0.65);
+			margin: 0;
+			font-size: 0.85rem;
+			line-height: 1.4;
+		}
+		.cat-snake__live {
+			position: absolute;
+			left: -9999px;
+			top: auto;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+		}
+		@keyframes cat-snake-stat-shine {
+			0% {
+				transform: translateX(0) skewX(-15deg);
+				opacity: 0.2;
+			}
+			60% {
+				opacity: 0.7;
+			}
+			100% {
+				transform: translateX(260%) skewX(-15deg);
+				opacity: 0;
+			}
+		}
+		@media (min-width: 1024px) {
+			.cat-snake-widget:not(.is-fullscreen) .cat-snake__play {
+				grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+				grid-template-areas:
+					"board panel";
+				min-height: clamp(460px, 62vh, 820px);
+			}
+			.cat-snake-widget:not(.is-fullscreen) .cat-snake__panel {
+				position: sticky;
+				top: clamp(16px, 4vh, 36px);
+				align-self: start;
+			}
+		}
+		@media (max-width: 980px) {
+			.cat-snake__play {
+				grid-template-columns: 1fr;
+				grid-template-areas:
+					"board"
+					"panel";
+			}
+			.cat-snake__panel {
+				position: static;
+			}
+			.cat-snake__badges {
+				justify-content: center;
+			}
+			.cat-snake__panel-head {
+				flex-direction: column;
+				align-items: stretch;
+			}
+			.cat-snake__panel-controls {
+				width: 100%;
+				justify-content: stretch;
+			}
+			.cat-snake__icon-btn {
+				flex: 1;
+			}
+			.cat-snake-widget:not(.is-menu):not(.is-game-over):not(.is-fullscreen) .cat-snake__board-wrap {
+				max-height: calc(100vh - 160px);
+				padding: clamp(8px, 4vw, 14px);
+			}
+			.cat-snake-widget.is-menu:not(.is-fullscreen) .cat-snake__board-wrap,
+			.cat-snake-widget.is-game-over:not(.is-fullscreen) .cat-snake__board-wrap {
+				max-height: none;
+				padding: clamp(8px, 4vw, 14px);
+			}
+		}
+		@media (max-width: 720px) {
+			.cat-snake__board {
+				--cell: clamp(18px, 5.5vw, 24px);
+			}
+		}
+		@media (max-width: 720px) and (orientation: portrait) {
+			.cat-snake__play {
+				gap: clamp(12px, 4vw, 20px);
+			}
+			.cat-snake__board-wrap {
+				min-height: max(
+					clamp(400px, 76vh, 700px),
+					var(--board-measured-height, 0px),
+					var(--menu-measured-height, 0px)
+				);
+				padding: clamp(12px, 4.4vw, 22px);
+			}
+			.cat-snake__panel {
+				position: static;
+			}
+		}
+		@media (max-width: 720px) and (orientation: landscape) {
+			.cat-snake__board-wrap {
+				min-height: max(
+					clamp(300px, 70vh, 460px),
+					var(--board-measured-height, 0px),
+					var(--menu-measured-height, 0px)
+				);
+				padding: clamp(10px, 3.4vw, 18px);
+			}
+			.cat-snake__play {
+				gap: clamp(10px, 3vw, 16px);
+			}
+			.cat-snake__panel {
+				max-width: none;
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+<body class="pet-snake-page">
+	<div class="site-shell">
+		<header class="site-header">
+			<div class="site-header__inner">
+				<a class="brand" href="index.html">
+					<span class="brand__mark" aria-hidden="true">🐾</span>
+					Humane Games
+				</a>
+				<nav class="nav" aria-label="Primary">
+					<button class="nav__launcher-btn" type="button" data-launcher-open>Game Menu</button>
+					<a href="index.html">Home</a>
+				</nav>
+			</div>
+		</header>
+		<main class="site-main">
+			<section class="section" id="pet-snake">
+				<div class="section__header">
+					<div>
+						<p class="section__eyebrow">Arcade</p>
+						<h2 class="section__title">Pet Snake</h2>
+					</div>
+					<a class="back-link" href="index.html">
+						<span aria-hidden="true">←</span>
+						Back to launcher
+					</a>
+				</div>
+				<p>Pick a pet, dial in the board, and chase a chill leaderboard climb. Keyboard, touch, and fullscreen controls are all supported.</p>
+				<div class="cat-snake-widget" role="application" aria-label="Pet Snake mini game">
+					<div class="cat-snake__play">
+						<div class="cat-snake__board-wrap">
+							<div class="cat-snake__menu" id="cat-snake-menu">
+									<div class="cat-snake__menu-card">
+										<h1>Pet Snake</h1>
+										<p class="cat-snake__menu-tagline">Quick cozy runs with cats or dogs.</p>
+										<p class="cat-snake__menu-note" data-menu-primary>Set your pet, board, and vibe. Space starts the run.</p>
+										<p class="cat-snake__menu-shortcut" data-menu-secondary>Space: start / pause · Arrows / WASD: move</p>
+										<div class="cat-snake__menu-grid">
+											<div class="cat-snake__menu-controls">
+												<div class="cat-snake__control-grid">
+													<div class="cat-snake__stat cat-snake__stat--pet">
+														<span class="cat-snake__stat-label"><span aria-hidden="true">🐾</span>Pet</span>
+														<div class="cat-snake__pet-picker" role="group" aria-label="Choose pet">
+															<button type="button" data-pet="cat" aria-pressed="true"><span aria-hidden="true">😺</span> Cat</button>
+															<button type="button" data-pet="dog" aria-pressed="false"><span aria-hidden="true">🐶</span> Dog</button>
+														</div>
+													</div>
+													<div class="cat-snake__stat">
+														<span class="cat-snake__stat-label"><span aria-hidden="true">🗺️</span>Board</span>
+														<div class="cat-snake__choice-group" role="group" aria-label="Choose board size">
+															<button type="button" data-board-size="cozy" aria-pressed="false">Cozy</button>
+															<button type="button" data-board-size="roomy" aria-pressed="true">Roomy</button>
+															<button type="button" data-board-size="grand" aria-pressed="false">Grand</button>
+														</div>
+													</div>
+													<div class="cat-snake__stat">
+														<span class="cat-snake__stat-label"><span aria-hidden="true">⤢</span>Scale</span>
+														<div class="cat-snake__choice-group" role="group" aria-label="Choose board scale">
+															<button type="button" data-scale="0.9" aria-pressed="false">Small</button>
+															<button type="button" data-scale="1" aria-pressed="true">Medium</button>
+															<button type="button" data-scale="1.15" aria-pressed="false">Large</button>
+														</div>
+													</div>
+													<div class="cat-snake__stat">
+														<span class="cat-snake__stat-label"><span aria-hidden="true">⚙</span>Difficulty</span>
+														<div class="cat-snake__choice-group" role="group" aria-label="Choose difficulty">
+															<button type="button" data-diff="chill" aria-pressed="false">Chill</button>
+															<button type="button" data-diff="normal" aria-pressed="true">Normal</button>
+															<button type="button" data-diff="spicy" aria-pressed="false">Spicy</button>
+														</div>
+													</div>
+													<div class="cat-snake__stat">
+														<span class="cat-snake__stat-label">Mode</span>
+														<div class="cat-snake__choice-group" role="group" aria-label="Choose mode">
+															<button type="button" data-mode="classic" aria-pressed="true">Classic</button>
+															<button type="button" data-mode="super" aria-pressed="false">Super</button>
+														</div>
+													</div>
+												</div>
+												<button type="button" class="cat-snake__menu-start" data-menu-start>
+													<span aria-hidden="true">▶</span>
+													Start run
+												</button>
+											</div>
+											<div class="cat-snake__menu-side" aria-hidden="true">
+												<p class="cat-snake__treats-title">Treat values</p>
+												<div class="cat-snake__treats-grid">
+													<div class="cat-snake__treat-card treat-positive">
+														<span class="cat-snake__treat-icon">🐟</span>
+														<div class="cat-snake__treat-copy">
+															<span>Fish</span>
+															<strong>+1</strong>
+														</div>
+													</div>
+													<div class="cat-snake__treat-card treat-negative">
+														<span class="cat-snake__treat-icon">🦴</span>
+														<div class="cat-snake__treat-copy">
+															<span>Bone</span>
+															<strong>-2</strong>
+														</div>
+													</div>
+													<div class="cat-snake__treat-card treat-positive">
+														<span class="cat-snake__treat-icon">🍪</span>
+														<div class="cat-snake__treat-copy">
+															<span>Biscuit</span>
+															<strong>+1</strong>
+														</div>
+													</div>
+													<div class="cat-snake__treat-card treat-negative">
+														<span class="cat-snake__treat-icon">🥩</span>
+														<div class="cat-snake__treat-copy">
+															<span>Steak</span>
+															<strong>-3</strong>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="cat-snake__watermark" aria-hidden="true">Howard Powered Games</div>
+									</div>
+									<div class="cat-snake__result-card" id="cat-snake-result">
+								<div class="cat-snake__confetti">
+									<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+								</div>
+									<div class="cat-snake__result-grid">
+										<div class="cat-snake__result-stat is-primary">
+											<span class="cat-snake__result-label">Run Score</span>
+											<div class="cat-snake__result-val" id="result-score-val">0</div>
+											<div class="cat-snake__new-best" id="result-new-best">New Record!</div>
+										</div>
+										<div class="cat-snake__result-stat">
+											<span class="cat-snake__result-label">Lifetime Treats</span>
+											<div class="cat-snake__result-val" id="result-total-val">0</div>
+										</div>
+									</div>
+									<div class="cat-snake__result-summary" id="cat-snake-summary">
+										<div class="cat-snake__summary-head">
+											<p class="cat-snake__summary-eyebrow">Run breakdown</p>
+											<p class="cat-snake__summary-score" id="cat-snake-summary-score">Score 0</p>
+										</div>
+										<div class="cat-snake__summary-grid">
+											<div class="cat-snake__summary-block">
+												<p class="cat-snake__summary-label">Treats</p>
+												<ul class="cat-snake__summary-list" id="cat-snake-summary-treats">
+													<li class="cat-snake__summary-empty">No data yet.</li>
+												</ul>
+											</div>
+											<div class="cat-snake__summary-block">
+												<p class="cat-snake__summary-label">Powerups</p>
+												<ul class="cat-snake__summary-list" id="cat-snake-summary-powerups">
+													<li class="cat-snake__summary-empty">No data yet.</li>
+												</ul>
+											</div>
+											<div class="cat-snake__summary-block">
+												<p class="cat-snake__summary-label">Bombs</p>
+												<ul class="cat-snake__summary-list" id="cat-snake-summary-bombs">
+													<li class="cat-snake__summary-empty">No data yet.</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+									<div class="cat-snake__result-actions">
+										<button type="button" class="cat-snake__replay-btn" id="btn-replay">
+											↺ Play Again <small>(Space)</small>
+										</button>
+										<button type="button" class="cat-snake__icon-btn" id="btn-menu">
+											Settings
+										</button>
+									</div>
+								</div>
+								</div>
+								<div class="cat-snake__board" data-board aria-label="Pet Snake playfield" role="grid"></div>
+							</div>
+							<aside class="cat-snake__panel" aria-label="Run control panel">
+								<div class="cat-snake__panel-head">
+									<div class="cat-snake__scores">
+										<div class="cat-snake__stat">
+											<span>Score</span>
+											<strong id="cat-snake-score">0</strong>
+										</div>
+										<div class="cat-snake__stat">
+											<span>Best</span>
+											<strong id="cat-snake-best">0</strong>
+										</div>
+									</div>
+									<div class="cat-snake__panel-controls">
+										<button id="cat-snake-start" type="button" class="cat-snake__icon-btn cat-snake__icon-btn--primary" aria-label="Start or pause the run">
+											<span aria-hidden="true">▶</span>
+											<span class="cat-snake__icon-btn-label">Start</span>
+										</button>
+										<button id="cat-snake-fullscreen" type="button" class="cat-snake__icon-btn" aria-pressed="false" aria-label="Toggle fullscreen">
+											<span aria-hidden="true">⤢</span>
+											<span class="cat-snake__icon-btn-label">Full</span>
+										</button>
+									</div>
+								</div>
+								<div class="cat-snake__meters" id="cat-snake-meters" aria-live="polite"></div>
+								<div class="cat-snake__badges" aria-label="Current run setup">
+									<span class="cat-snake__badge" id="cat-snake-badge-pet">😺 Cat</span>
+									<span class="cat-snake__badge" id="cat-snake-badge-mode">Classic</span>
+									<span class="cat-snake__badge" id="cat-snake-badge-board">Roomy</span>
+									<span class="cat-snake__badge" id="cat-snake-badge-diff">Normal</span>
+								</div>
+								<div class="cat-snake__message" id="cat-snake-message">Pick a pet, then press Space to start.</div>
+								<p class="cat-snake__hint">Pick Cat or Dog, choose difficulty/board. Arrow Keys/WASD or swipe to move. Space starts/pauses. Super mode adds powerups and bombs.</p>
+							</aside>
+						</div>
+						<div class="cat-snake__live" aria-live="polite" id="cat-snake-live"></div>
+					</div>
+				</div>
+			</section>
+		</main>
+	</div>
+	<script src="shared.js"></script>
+	<script type="module">
+	import { PetSnakeEngine } from "./engine/pet-snake-engine.js";
+	import { DomBoardRenderer } from "./engine/dom-board-renderer.js";
+	import { computeBoardMetrics as calculateBoardMetrics, BOARD_CELL_BASE } from "./engine/board-sizing.js";
+	import { loadBestScore, saveBestScore } from "./engine/best-score-store.js";
+	(() => {
+		const fallbackSfx = { start: () => {}, eat: () => {}, bonk: () => {}, pause: () => {}, resume: () => {} };
+		const fallbackMusic = { start: () => {}, stop: () => {}, pause: () => {}, resume: () => {} };
+		const audioSuite = window.HumaneAudio?.getSuite ? window.HumaneAudio.getSuite() : null;
+		const ensureAudio = audioSuite?.ensureAudio || (() => {});
+		const sfx = audioSuite?.sfx || fallbackSfx;
+		const music = audioSuite?.music || fallbackMusic;
+
+		const boardEl = document.querySelector("[data-board]");
+		const widgetEl = document.querySelector(".cat-snake-widget");
+		const boardWrap = document.querySelector(".cat-snake__board-wrap");
+		const playEl = document.querySelector(".cat-snake__play");
+		const panelEl = document.querySelector(".cat-snake__panel");
+		const scoreEl = document.getElementById("cat-snake-score");
+		const bestEl = document.getElementById("cat-snake-best");
+		const scoreCard = scoreEl ? scoreEl.closest(".cat-snake__stat") : null;
+		const bestCard = bestEl ? bestEl.closest(".cat-snake__stat") : null;
+		const messageEl = document.getElementById("cat-snake-message");
+		const liveEl = document.getElementById("cat-snake-live");
+		const menuEl = document.getElementById("cat-snake-menu");
+		const menuCard = menuEl ? menuEl.querySelector(".cat-snake__menu-card") : null;
+		const menuPrimary = menuEl ? menuEl.querySelector("[data-menu-primary]") : null;
+		const menuSecondary = menuEl ? menuEl.querySelector("[data-menu-secondary]") : null;
+		const badgePetEl = document.getElementById("cat-snake-badge-pet");
+		const badgeModeEl = document.getElementById("cat-snake-badge-mode");
+		const badgeBoardEl = document.getElementById("cat-snake-badge-board");
+		const badgeDiffEl = document.getElementById("cat-snake-badge-diff");
+		const summaryScoreEl = document.getElementById("cat-snake-summary-score");
+		const summaryTreatsEl = document.getElementById("cat-snake-summary-treats");
+		const summaryPowerupsEl = document.getElementById("cat-snake-summary-powerups");
+		const summaryBombsEl = document.getElementById("cat-snake-summary-bombs");
+		const resultCard = document.getElementById("cat-snake-result");
+		const resultScoreVal = document.getElementById("result-score-val");
+		const resultTotalVal = document.getElementById("result-total-val");
+		const resultNewBest = document.getElementById("result-new-best");
+		const btnReplay = document.getElementById("btn-replay");
+		const btnMenu = document.getElementById("btn-menu");
+		const startBtn = document.getElementById("cat-snake-start");
+		const menuStartBtn = document.querySelector("[data-menu-start]");
+		const scaleSlider = null;
+		const scaleValueEl = null;
+		const fullscreenBtn = document.getElementById("cat-snake-fullscreen");
+		const metersEl = document.getElementById("cat-snake-meters");
+		const petButtons = Array.from(document.querySelectorAll("[data-pet]"));
+		const diffButtons = Array.from(document.querySelectorAll("[data-diff]"));
+		const boardButtons = Array.from(document.querySelectorAll("[data-board-size]"));
+		const modeButtons = Array.from(document.querySelectorAll("[data-mode]"));
+		const scaleButtons = Array.from(document.querySelectorAll("[data-scale]"));
+		const varHost = () => widgetEl || document.documentElement;
+		const setWidgetVar = (prop, value) => {
+			varHost().style.setProperty(prop, value);
+		};
+		const boardOptions = {
+			cozy: { label: "Cozy", size: 15 },
+			roomy: { label: "Roomy", size: 19 },
+			grand: { label: "Grand", size: 23 }
+		};
+		const difficulties = {
+			chill: { label: "Chill", tick: 230 },
+			normal: { label: "Normal", tick: 200 },
+			spicy: { label: "Spicy", tick: 150 }
+		};
+		const superModes = {
+			classic: { label: "Classic", super: false },
+			super: { label: "Super", super: true }
+		};
+		const directionVectors = {
+			up: { x: 0, y: -1 },
+			down: { x: 0, y: 1 },
+			left: { x: -1, y: 0 },
+			right: { x: 1, y: 0 }
+		};
+		const pets = {
+			cat: { label: "Cat", head: "😺", body: "🐾", headClass: "pet-cat-head", bodyClass: "pet-cat-body" },
+			dog: { label: "Dog", head: "🐶", body: "●", headClass: "pet-dog-head", bodyClass: "pet-dog-body" }
+		};
+		let resizeObserver = null;
+
+		const cells = [];
+		let engine = null;
+		let boardRenderer = null;
+		let engineEventOffs = [];
+		let engineDriving = false;
+		const createEmptyRenderState = () => ({
+			snake: [],
+			treat: null,
+			powerup: null,
+			bomb: null,
+			vacuum: null,
+			vacuumTail: []
+		});
+		let lastRenderState = createEmptyRenderState();
+		let score = 0;
+		let best = 0;
+		let boardChoice = "roomy";
+		let size = boardOptions[boardChoice].size;
+		let difficulty = "normal";
+		let paused = false;
+		let inPlay = false;
+		let pet = "cat";
+		let mode = "classic";
+		let eligibleBoards = Object.keys(boardOptions);
+		const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+		let menuFocusables = [];
+		let uiScale = 1;
+		let activeEffects = {};
+		const totalTreatsKey = "petSnakeTotalTreats";
+		const MENU_HEIGHT_VAR = "--menu-measured-height";
+		const setMenuHeightVar = (value = 0) => {
+			if (!boardWrap) return;
+			const safeValue = Math.max(0, Number(value) || 0);
+			boardWrap.style.setProperty(MENU_HEIGHT_VAR, `${safeValue}px`);
+		};
+		const isOverlayShown = () => {
+			if (!widgetEl) return false;
+			return widgetEl.classList.contains("is-menu") || widgetEl.classList.contains("is-game-over");
+		};
+		const getActiveOverlayCard = () => {
+			if (!menuEl) return null;
+			if (widgetEl?.classList.contains("is-game-over") && resultCard) return resultCard;
+			return menuCard;
+		};
+		const syncMenuHeight = () => {
+			if (!boardWrap || !menuEl) return;
+			if (!isOverlayShown()) {
+				setMenuHeightVar(0);
+				return;
+			}
+			const activeCard = getActiveOverlayCard();
+			if (!activeCard) {
+				setMenuHeightVar(0);
+				return;
+			}
+			const cardRect = activeCard.getBoundingClientRect();
+			const wrapStyle = getComputedStyle(boardWrap);
+			const wrapPaddingTop = Number.parseFloat(wrapStyle.paddingTop) || 0;
+			const wrapPaddingBottom = Number.parseFloat(wrapStyle.paddingBottom) || 0;
+			const menuStyle = getComputedStyle(menuEl);
+			const menuPaddingTop = Number.parseFloat(menuStyle.paddingTop) || 0;
+			const menuPaddingBottom = Number.parseFloat(menuStyle.paddingBottom) || 0;
+			const totalHeight = cardRect.height + wrapPaddingTop + wrapPaddingBottom + menuPaddingTop + menuPaddingBottom;
+			setMenuHeightVar(totalHeight);
+		};
+		let menuHeightRaf = null;
+		const scheduleMenuHeightSync = () => {
+			const raf = typeof window !== "undefined" ? window.requestAnimationFrame : null;
+			if (!raf) {
+				syncMenuHeight();
+				return;
+			}
+			if (menuHeightRaf !== null) return;
+			menuHeightRaf = raf(() => {
+				menuHeightRaf = null;
+				syncMenuHeight();
+			});
+		};
+		const menuResizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => {
+			// Animated counters and async DOM updates can change overlay height; resync when they do.
+			scheduleMenuHeightSync();
+		}) : null;
+		if (menuResizeObserver) {
+			if (menuCard) menuResizeObserver.observe(menuCard);
+			if (resultCard) menuResizeObserver.observe(resultCard);
+		}
+
+		const bestStoreConfig = () => ({ pet, difficulty, board: boardChoice, mode });
+		const loadBest = () => loadBestScore(bestStoreConfig());
+		const saveBest = () => {
+			saveBestScore({ ...bestStoreConfig(), score: best });
+		};
+
+		const MOBILE_MAX_WIDTH = 720;
+		const STACKED_MAX_WIDTH = 980;
+		const orientationMedia = window.matchMedia ? window.matchMedia("(orientation: portrait)") : null;
+		const mobileMedia = window.matchMedia ? window.matchMedia(`(max-width: ${MOBILE_MAX_WIDTH}px)`) : null;
+		const stackedLayoutMedia = window.matchMedia ? window.matchMedia(`(max-width: ${STACKED_MAX_WIDTH}px)`) : null;
+		const isFullscreen = () => Boolean(widgetEl?.classList.contains("is-fullscreen"));
+		const isMobileViewport = () => (mobileMedia ? mobileMedia.matches : window.innerWidth <= MOBILE_MAX_WIDTH);
+		const isStackedLayout = () => {
+			const stackedViaMedia = stackedLayoutMedia ? stackedLayoutMedia.matches : window.innerWidth <= STACKED_MAX_WIDTH;
+			return stackedViaMedia && !isFullscreen();
+		};
+		const getOrientation = () => {
+			if (orientationMedia) {
+				return orientationMedia.matches ? "portrait" : "landscape";
+			}
+			return window.innerHeight >= window.innerWidth ? "portrait" : "landscape";
+		};
+		const getBoardWrapMetrics = () => {
+			if (!boardWrap) {
+				return {
+					innerWidth: window.innerWidth,
+					innerHeight: window.innerHeight,
+					paddingX: 0,
+					paddingY: 0
+				};
+			}
+			const style = getComputedStyle(boardWrap);
+			const paddingLeft = Number.parseFloat(style.paddingLeft) || 0;
+			const paddingRight = Number.parseFloat(style.paddingRight) || 0;
+			const paddingTop = Number.parseFloat(style.paddingTop) || 0;
+			const paddingBottom = Number.parseFloat(style.paddingBottom) || 0;
+			const paddingX = paddingLeft + paddingRight;
+			const paddingY = paddingTop + paddingBottom;
+			const layoutWidth = playEl?.clientWidth || boardWrap.parentElement?.clientWidth || widgetEl?.clientWidth || window.innerWidth;
+			let availableWidth = layoutWidth;
+			if (!isStackedLayout()) {
+				const gap = playEl ? Number.parseFloat(getComputedStyle(playEl).columnGap) || 0 : 0;
+				const panelWidth = panelEl && getComputedStyle(panelEl).display !== "none" ? panelEl.offsetWidth : 0;
+				availableWidth = Math.max(0, availableWidth - panelWidth - gap);
+			}
+			const innerWidth = Math.max(0, availableWidth - paddingX);
+			const wrapRect = boardWrap.getBoundingClientRect();
+			const innerHeight = Math.max(0, wrapRect.height - paddingY);
+			return { innerWidth, innerHeight, paddingX, paddingY };
+		};
+		const getBoardChrome = () => {
+			if (!boardEl) {
+				return { totalX: 0, totalY: 0 };
+			}
+			const style = getComputedStyle(boardEl);
+			const paddingLeft = Number.parseFloat(style.paddingLeft) || 0;
+			const paddingRight = Number.parseFloat(style.paddingRight) || 0;
+			const paddingTop = Number.parseFloat(style.paddingTop) || 0;
+			const paddingBottom = Number.parseFloat(style.paddingBottom) || 0;
+			const borderLeft = Number.parseFloat(style.borderLeftWidth) || 0;
+			const borderRight = Number.parseFloat(style.borderRightWidth) || 0;
+			const borderTop = Number.parseFloat(style.borderTopWidth) || 0;
+			const borderBottom = Number.parseFloat(style.borderBottomWidth) || 0;
+			return {
+				totalX: paddingLeft + paddingRight + borderLeft + borderRight,
+				totalY: paddingTop + paddingBottom + borderTop + borderBottom
+			};
+		};
+		const powerupTypes = [
+			{ key: "speed", icon: "⚡", duration: 9000 },
+			{ key: "score", icon: "⭐", duration: 9000 },
+			{ key: "shield", icon: "🛡", duration: 12000 }
+		];
+		const treatInfo = {
+			fish: { label: "Fresh Fish", icon: "🐟", rarity: "Favorite", flavor: "Juicy +1 nibble." },
+			bone: { label: "Chew Bone", icon: "🦴", rarity: "Hearty", flavor: "Crunchy +2 boost." },
+			biscuit: { label: "Crunch Biscuit", icon: "🍪", rarity: "Everyday", flavor: "Cozy +1 snack." },
+			steak: { label: "Prime Steak", icon: "🥩", rarity: "Epic", flavor: "+3 feast for champs." },
+			other: { label: "Mystery Treat", icon: "❓", rarity: "???", flavor: "Limited-time nibble." }
+		};
+		const powerMetaDefaults = {
+			speed: { label: "Speed Burst", rarity: "Rare", flavor: "Zoom with lightning paws." },
+			score: { label: "Treasure Fever", rarity: "Epic", flavor: "Doubles treats for a bit." },
+			shield: { label: "Bubble Shield", rarity: "Clutch", flavor: "Blocks one inevitable bonk." }
+		};
+		const powerInfo = powerupTypes.reduce((acc, item) => {
+			const cfg = powerMetaDefaults[item.key] || {};
+			acc[item.key] = {
+				label: cfg.label || `${item.key.charAt(0).toUpperCase() + item.key.slice(1)} Boost`,
+				icon: item.icon || cfg.icon || "✨",
+				rarity: cfg.rarity || "Rare",
+				flavor: cfg.flavor || "Temporary perk that spices up the run."
+			};
+			return acc;
+		}, {
+			other: { label: "Mystery Power", icon: "🎁", rarity: "???", flavor: "Uncataloged perk from the void." }
+		});
+		const bombInfo = {
+			explode: { label: "Bonks Endured", icon: "💥", rarity: "Risky", flavor: "Times you smacked walls or tails." },
+			shield: { label: "Shield Saves", icon: "🛡", rarity: "Clutch", flavor: "Bubble rescues that kept the run alive." },
+			vacuum: { label: "Vacuum Escapes", icon: "🧹", rarity: "Spooky", flavor: "Moments you dodged the mean vacuum." },
+			other: { label: "Unknown Hazard", icon: "❗", rarity: "???", flavor: "Weird mishaps still being named." }
+		};
+		const zeroCountsFor = (keys = []) => keys.reduce((acc, key) => {
+			acc[key] = 0;
+			return acc;
+		}, {});
+		const createRunStats = () => ({
+			treats: { ...zeroCountsFor(["fish", "bone", "biscuit", "steak"]), other: 0 },
+			powerups: { ...zeroCountsFor(powerupTypes.map((p) => p.key)), other: 0 },
+			bombs: { explode: 0, shield: 0, vacuum: 0 }
+		});
+		const pulseStat = (el) => {
+			if (!el) return;
+			el.classList.remove("is-pop", "is-shine");
+			void el.offsetWidth;
+			el.classList.add("is-pop", "is-shine");
+			setTimeout(() => {
+				el.classList.remove("is-pop", "is-shine");
+			}, 700);
+		};
+		let runStats = createRunStats();
+		let lastRunSummary = null;
+		const resetRunStats = () => {
+			runStats = createRunStats();
+		};
+		const incrementBucket = (bucket, key, fallback = "other") => {
+			const target = key && key in bucket ? key : fallback;
+			bucket[target] += 1;
+		};
+		const recordTreat = (key) => {
+			incrementBucket(runStats.treats, key, "other");
+		};
+		const recordPowerup = (key) => {
+			incrementBucket(runStats.powerups, key, "other");
+		};
+		const recordBomb = (reason) => {
+			const normalized = reason && reason in runStats.bombs ? reason : "explode";
+			runStats.bombs[normalized] += 1;
+		};
+		const summarizeRunStats = () => ({
+			score,
+			treats: { ...runStats.treats },
+			powerups: { ...runStats.powerups },
+			bombs: { ...runStats.bombs }
+		});
+		const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+		const animateValue = ({ element, start = 0, end = 0, duration = 800, delay = 0, formatter } = {}) => {
+			const safeStart = Number.isFinite(start) ? start : 0;
+			const safeEnd = Number.isFinite(end) ? end : 0;
+			const writer = (value) => {
+				if (typeof formatter === "function") {
+					formatter(value);
+				} else if (element) {
+					element.textContent = String(value);
+				}
+			};
+			const run = () => {
+				let startTs = null;
+				const step = (timestamp) => {
+					if (!startTs) startTs = timestamp;
+					const progress = Math.min((timestamp - startTs) / Math.max(1, duration), 1);
+					const eased = easeOutQuart(progress);
+					const current = Math.round(safeStart + (safeEnd - safeStart) * eased);
+					writer(current);
+					if (progress < 1) {
+						window.requestAnimationFrame(step);
+					} else {
+						writer(safeEnd);
+					}
+				};
+				window.requestAnimationFrame(step);
+			};
+			if (delay > 0) {
+				window.setTimeout(run, delay);
+			} else {
+				run();
+			}
+		};
+		const emptySummaryMarkup = '<li class="cat-snake__summary-empty">No data yet.</li>';
+		const renderSummaryList = (target, data = {}, metadata = {}, { theme = "treat", delayOffset = 0 } = {}) => {
+			if (!target) return;
+			const rows = Object.entries(data)
+				.filter(([, value]) => value > 0)
+				.sort((a, b) => b[1] - a[1]);
+			if (!rows.length) {
+				target.innerHTML = emptySummaryMarkup;
+				return;
+			}
+			target.innerHTML = "";
+			const frag = document.createDocumentFragment();
+			rows.forEach(([key, value], index) => {
+				const info = metadata[key] || metadata.other || { label: key, icon: "✨", rarity: "Common", flavor: "Fresh pull." };
+				const row = document.createElement("li");
+				row.className = "cat-snake__summary-item";
+				row.dataset.theme = theme;
+				const delay = delayOffset + index * 140;
+				row.style.setProperty("--row-delay", `${delay}ms`);
+				const iconEl = document.createElement("div");
+				iconEl.className = "summary-item__icon";
+				iconEl.textContent = info.icon || "✨";
+				const copyEl = document.createElement("div");
+				copyEl.className = "summary-item__copy";
+				const labelEl = document.createElement("span");
+				labelEl.className = "summary-item__label";
+				labelEl.textContent = info.label || key;
+				const detail = (info.flavor || info.meta || info.rarity || "").trim();
+				if (detail) {
+					const metaEl = document.createElement("span");
+					metaEl.className = "summary-item__meta";
+					metaEl.textContent = detail;
+					copyEl.append(labelEl, metaEl);
+				} else {
+					copyEl.append(labelEl);
+				}
+				const valueEl = document.createElement("strong");
+				valueEl.className = "summary-item__value";
+				valueEl.textContent = "0";
+				row.append(iconEl, copyEl, valueEl);
+				frag.append(row);
+				animateValue({
+					element: valueEl,
+					start: 0,
+					end: value,
+					delay: delay + 180,
+					duration: 720,
+					formatter: (val) => {
+						valueEl.textContent = val.toLocaleString();
+					}
+				});
+			});
+			target.appendChild(frag);
+		};
+		const renderPostRunSummary = () => {
+			const hasSummary = Boolean(lastRunSummary);
+			if (!hasSummary) {
+				if (summaryScoreEl) {
+					summaryScoreEl.textContent = "Score 0";
+				}
+				renderSummaryList(summaryTreatsEl, {}, treatInfo, { theme: "treat" });
+				renderSummaryList(summaryPowerupsEl, {}, powerInfo, { theme: "powerup" });
+				renderSummaryList(summaryBombsEl, {}, bombInfo, { theme: "bomb" });
+				return;
+			}
+			if (summaryScoreEl) {
+				animateValue({
+					element: summaryScoreEl,
+					start: 0,
+					end: lastRunSummary.score,
+					duration: 900,
+					formatter: (val) => {
+						summaryScoreEl.textContent = `Score ${val.toLocaleString()}`;
+					}
+				});
+			}
+			renderSummaryList(summaryTreatsEl, lastRunSummary.treats, treatInfo, { theme: "treat", delayOffset: 200 });
+			renderSummaryList(summaryPowerupsEl, lastRunSummary.powerups, powerInfo, { theme: "powerup", delayOffset: 520 });
+			renderSummaryList(summaryBombsEl, lastRunSummary.bombs, bombInfo, { theme: "bomb", delayOffset: 840 });
+		};
+
+		const getLifetimeTreats = () => Number(localStorage.getItem(totalTreatsKey) || 0);
+
+		const animateCounter = (element, start, end, duration) => {
+			if (!element) return;
+			const safeStart = Number(start) || 0;
+			const safeEnd = Number(end) || 0;
+			let startTimestamp = null;
+			const step = (timestamp) => {
+				if (!startTimestamp) startTimestamp = timestamp;
+				const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+				const currentVal = Math.floor(progress * (safeEnd - safeStart) + safeStart);
+				if (element.textContent !== String(currentVal)) {
+					element.textContent = String(currentVal);
+					if (currentVal % 2 === 0) {
+						sfx.eat();
+					}
+				}
+				if (progress < 1) {
+					window.requestAnimationFrame(step);
+				} else if (safeEnd > safeStart) {
+					sfx.start();
+				}
+			};
+			window.requestAnimationFrame(step);
+		};
+
+		const saveStatsAndCheckRecord = (finalScore) => {
+			let isNewRecord = false;
+			const safeScore = Math.max(0, Number(finalScore) || 0);
+			const storedBest = loadBest();
+			if (safeScore > storedBest) {
+				best = safeScore;
+				saveBest();
+				isNewRecord = true;
+			}
+			const currentTotal = getLifetimeTreats();
+			const newTotal = currentTotal + safeScore;
+			localStorage.setItem(totalTreatsKey, String(newTotal));
+			return { isNewRecord, newTotal };
+		};
+
+		if (resultTotalVal) {
+			resultTotalVal.textContent = getLifetimeTreats().toLocaleString();
+		}
+		if (resultNewBest) {
+			resultNewBest.setAttribute("aria-hidden", "true");
+		}
+
+		const applyBoardDimensions = () => {
+			boardEl.style.setProperty("--size", size);
+			adjustCellSize();
+		};
+
+		const baseTick = () => difficulties[difficulty]?.tick || 200;
+		const isEngineLoopActive = () => Boolean(engine && engineDriving);
+
+		const buildInitialSnake = () => {
+			const mid = Math.floor(size / 2);
+			return [
+				{ x: mid + 1, y: mid },
+				{ x: mid, y: mid },
+				{ x: mid - 1, y: mid }
+			];
+		};
+
+		const currentRunConfig = () => ({
+			boardSize: size,
+			difficulty,
+			superMode: Boolean(superModes[mode]?.super),
+			tickMs: baseTick(),
+			initialSnake: buildInitialSnake()
+		});
+
+		const syncEngineConfig = () => {
+			if (!engine) return;
+			engine.configure(currentRunConfig());
+			if (boardRenderer) {
+				boardRenderer.setSize(size);
+				boardRenderer.setPet(pet);
+			}
+		};
+
+		const computeBoardMetrics = ({ boardKey = boardChoice, scale = uiScale } = {}) => {
+			const option = boardOptions[boardKey];
+			if (!option) return null;
+			const { innerWidth, innerHeight } = getBoardWrapMetrics();
+			const boardChrome = getBoardChrome();
+			return calculateBoardMetrics({
+				boardKey,
+				boardSize: option.size,
+				scale,
+				innerWidth,
+				innerHeight,
+				chromeX: boardChrome.totalX,
+				chromeY: boardChrome.totalY,
+				mobile: isMobileViewport(),
+				orientation: getOrientation(),
+				boardCellBase: BOARD_CELL_BASE
+			});
+		};
+
+		const adjustCellSize = () => {
+			const metrics = computeBoardMetrics();
+			if (!metrics || !boardEl) return;
+			const { gap, scaled, gridWidth, gridHeight, measuredWidth, measuredHeight } = metrics;
+			boardEl.style.setProperty("--gap", `${gap}px`);
+			setWidgetVar("--cell", `${scaled}px`);
+			setWidgetVar("--radius", `${Math.max(8, Math.round(scaled * 0.6))}px`);
+			setWidgetVar("--board-grid-width", `${Math.round(gridWidth)}px`);
+			setWidgetVar("--board-grid-height", `${Math.round(gridHeight)}px`);
+			setWidgetVar("--board-measured-width", `${Math.round(measuredWidth)}px`);
+			setWidgetVar("--board-measured-height", `${Math.round(measuredHeight)}px`);
+		};
+
+		const observeBoardResize = () => {
+			if (resizeObserver || typeof ResizeObserver === "undefined" || !boardWrap) return;
+			resizeObserver = new ResizeObserver(() => {
+				adjustCellSize();
+			});
+			resizeObserver.observe(boardWrap);
+		};
+
+
+		const initBoard = () => {
+			boardEl.innerHTML = "";
+			cells.length = 0;
+			for (let i = 0; i < size * size; i += 1) {
+				const cell = document.createElement("div");
+				cell.className = "cat-snake__cell";
+				cell.setAttribute("role", "gridcell");
+				cells.push(cell);
+				boardEl.appendChild(cell);
+			}
+			if (boardRenderer) {
+				boardRenderer.setCells(cells);
+				boardRenderer.setSize(size);
+				boardRenderer.clearCaches();
+			}
+			syncEngineConfig();
+			clearBoardVisuals();
+		};
+
+		const renderWithEffects = (state = {}) => {
+			const snapshot = { ...createEmptyRenderState(), ...state };
+			lastRenderState = snapshot;
+			if (!boardRenderer) return;
+			boardRenderer.render({ ...snapshot, activeEffects });
+		};
+
+		const initEngine = () => {
+			boardRenderer = new DomBoardRenderer({ cells, size, pets, petKey: pet });
+			engine = new PetSnakeEngine({
+				config: {
+					boardSize: size,
+					difficulty,
+					superMode: superModes[mode]?.super,
+					initialSnake: []
+				},
+				renderAdapter: renderWithEffects
+			});
+			syncEngineConfig();
+			bindEngineEvents();
+		};
+
+		const setMessage = (text) => {
+			messageEl.textContent = text;
+		};
+
+		const describeCurrentSetup = () => {
+			const petLabel = pets[pet]?.label || "Cat";
+			const diffLabel = difficulties[difficulty]?.label || "Normal";
+			const boardLabel = boardOptions[boardChoice]?.label || "Roomy";
+			const modeLabel = superModes[mode]?.label || "Classic";
+			return `${petLabel} · ${modeLabel} · ${diffLabel} · ${boardLabel}. Space pauses; arrows/WASD move.`;
+		};
+
+		const announceLive = (text) => {
+			if (!text) return;
+			liveEl.textContent = text;
+			setMessage(text);
+		};
+
+		const clearEngineEvents = () => {
+			engineEventOffs.forEach((off) => off?.());
+			engineEventOffs = [];
+		};
+
+		const handleEngineScore = ({ score: nextScore, delta = 0 } = {}) => {
+			if (typeof nextScore === "number") {
+				score = nextScore;
+			}
+			let achievedBest = false;
+			if (score > best) {
+				best = score;
+				saveBest();
+				achievedBest = true;
+			}
+			updateStats();
+			if (delta > 0) {
+				pulseStat(scoreCard);
+				if (achievedBest) pulseStat(bestCard);
+			}
+		};
+
+		const handleEngineEffects = ({ active = {} } = {}) => {
+			activeEffects = { ...active };
+			updateMeters();
+		};
+
+		const handleEngineTreatEat = ({ treat: snack, gain = 1 } = {}) => {
+			const snackName = snack?.key || "treat";
+			const message = `Yum! ${snackName} for +${gain}. Score ${score}.`;
+			announceLive(message);
+			sfx.eat();
+			recordTreat(snack?.key);
+		};
+
+		const handleEnginePowerClear = ({ reason, key } = {}) => {
+			updateMeters();
+			if (reason === "vacuum") {
+				announceLive("The vacuum shorted a powerup!");
+			} else if (reason === "consume") {
+				recordPowerup(key);
+			}
+		};
+
+		const handleEngineBombClear = ({ reason } = {}) => {
+			if (reason === "vacuum") {
+				announceLive("The vacuum safely ate a bomb.");
+			} else if (reason === "explode") {
+				announceLive("Boom! Bomb cut your length in half.");
+			}
+			recordBomb(reason);
+		};
+
+		const handleEngineLive = ({ text } = {}) => {
+			announceLive(text);
+		};
+
+		const handleEngineAudio = ({ type } = {}) => {
+			if (!type) return;
+			switch (type) {
+				case "vacuum-steal":
+					sfx.eat();
+					break;
+				default:
+					break;
+			}
+		};
+
+		const handleEngineRunStart = () => {
+			engineDriving = true;
+			inPlay = true;
+			paused = false;
+			hideMenu();
+			setMessage(describeCurrentSetup());
+			updateStartButton();
+		};
+
+		const handleEngineRunPause = () => {
+			paused = true;
+			setMessage("Paused. Press Space to resume.");
+			updateStartButton();
+		};
+
+		const handleEngineRunResume = () => {
+			paused = false;
+			setMessage("");
+			updateStartButton();
+		};
+
+		const handleEngineRunStop = () => {
+			engineDriving = false;
+			inPlay = false;
+			paused = false;
+			removeVacuumArtifacts();
+			render();
+			updateStartButton();
+		};
+
+		const handleEngineRunFail = ({ reason } = {}) => {
+			const message = failureMessageFor(reason);
+			gameOver(message);
+		};
+
+		const bindEngineEvents = () => {
+			if (!engine) return;
+			clearEngineEvents();
+			const on = (event, handler) => {
+				engineEventOffs.push(engine.on(event, handler));
+			};
+			on("score", handleEngineScore);
+			on("effects", handleEngineEffects);
+			on("treat:eat", handleEngineTreatEat);
+			on("powerup:clear", handleEnginePowerClear);
+			on("bomb:clear", handleEngineBombClear);
+			on("live", handleEngineLive);
+			on("audio", handleEngineAudio);
+			on("run:start", handleEngineRunStart);
+			on("run:pause", handleEngineRunPause);
+			on("run:resume", handleEngineRunResume);
+			on("run:stop", handleEngineRunStop);
+			on("run:fail", handleEngineRunFail);
+		};
+
+		const showMenu = (primaryText = "Pick a pet, difficulty, and board, then press Space to start. Arrow Keys or WASD to slither.", secondaryText = "Space pauses/resumes. Swap pets or boards anytime.") => {
+			if (!menuEl) return;
+			menuEl.style.display = "grid";
+			if (widgetEl) {
+				widgetEl.classList.add("is-menu");
+				widgetEl.classList.remove("is-game-over", "is-new-record");
+			}
+			if (menuPrimary) menuPrimary.textContent = primaryText;
+			if (menuSecondary) menuSecondary.textContent = secondaryText;
+			refreshMenuFocus();
+			requestAnimationFrame(() => {
+				scheduleMenuHeightSync();
+				if (menuFocusables[0]) {
+					menuFocusables[0].focus();
+				}
+			});
+		};
+
+		const hideMenu = () => {
+			if (!menuEl) return;
+			menuEl.style.display = "none";
+			if (widgetEl) {
+				widgetEl.classList.remove("is-menu", "is-game-over", "is-new-record");
+			}
+			setMenuHeightVar(0);
+		};
+
+		const refreshMenuFocus = () => {
+			if (!menuEl) return;
+			menuFocusables = Array.from(menuEl.querySelectorAll(focusableSelector)).filter((el) => !el.disabled && el.tabIndex !== -1);
+		};
+
+		const isMenuOpen = () => widgetEl?.classList.contains("is-menu");
+
+		const setScale = () => {
+			adjustCellSize();
+		};
+
+		const setUiScale = (value) => {
+			const parsed = Number(value);
+			if (Number.isNaN(parsed)) return;
+			uiScale = Math.min(1.4, Math.max(0.8, parsed));
+			updateScaleButtons();
+			setScale();
+			refreshBoardEligibility();
+			ensureBoardChoiceFits();
+		};
+
+		const updateFullscreenButton = () => {
+			if (!fullscreenBtn) return;
+			const active = document.fullscreenElement === widgetEl;
+			fullscreenBtn.setAttribute("aria-pressed", active ? "true" : "false");
+			fullscreenBtn.textContent = active ? "Exit Fullscreen" : "Fullscreen";
+			if (widgetEl) widgetEl.classList.toggle("is-fullscreen", active);
+			adjustCellSize();
+			syncMenuHeight();
+		};
+
+		const toggleFullscreen = () => {
+			if (!widgetEl) return;
+			if (document.fullscreenElement === widgetEl) {
+				document.exitFullscreen().catch(() => {});
+			} else {
+				widgetEl.requestFullscreen().catch(() => {});
+			}
+		};
+
+		const updatePetButtons = () => {
+			petButtons.forEach((btn) => {
+				const isActive = btn.getAttribute("data-pet") === pet;
+				btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+			});
+		};
+
+		const updateDiffButtons = () => {
+			diffButtons.forEach((btn) => {
+				const isActive = btn.getAttribute("data-diff") === difficulty;
+				btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+			});
+		};
+
+		const evaluateBoardFit = (boardKey, { scale = uiScale } = {}) => {
+			if (!boardOptions[boardKey]) {
+				return { canFit: false, reason: "unknown" };
+			}
+			const metrics = computeBoardMetrics({ boardKey, scale });
+			if (!metrics) {
+				return { canFit: true, reason: "unmeasured" };
+			}
+			const canFit = metrics.raw >= metrics.minCell;
+			return { canFit, raw: metrics.raw, minCell: metrics.minCell };
+		};
+
+		const refreshBoardEligibility = () => {
+			const nextEligible = Object.keys(boardOptions).filter((key) => evaluateBoardFit(key).canFit);
+			eligibleBoards = nextEligible.length ? nextEligible : [boardChoice];
+			const orientation = getOrientation();
+			const disabledTitle = orientation === "portrait"
+				? "Too large for portrait mode. Rotate or pick fullscreen."
+				: "Too large for this screen."
+			boardButtons.forEach((btn) => {
+				const key = btn.getAttribute("data-board-size");
+				const isActive = key === boardChoice;
+				const isAllowed = eligibleBoards.includes(key);
+				btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+				btn.classList.toggle("is-disabled", !isAllowed);
+				if (!isAllowed) {
+					btn.setAttribute("disabled", "true");
+					btn.setAttribute("aria-disabled", "true");
+					btn.title = disabledTitle;
+				} else {
+					btn.removeAttribute("disabled");
+					btn.removeAttribute("aria-disabled");
+					btn.removeAttribute("title");
+				}
+			});
+			return eligibleBoards;
+		};
+
+		const ensureBoardChoiceFits = ({ announce = false } = {}) => {
+			if (!eligibleBoards.length) {
+				refreshBoardEligibility();
+			}
+			if (eligibleBoards.includes(boardChoice)) {
+				return false;
+			}
+			const fallback = [...eligibleBoards].sort((a, b) => boardOptions[a].size - boardOptions[b].size).pop();
+			if (!fallback || fallback === boardChoice) {
+				return false;
+			}
+			setBoardChoice(fallback, { silent: true });
+			if (announce) {
+				setMessage(`${boardOptions[fallback].label} is the largest board that fits right now.`);
+			}
+			return true;
+		};
+
+		const updateBoardButtons = () => {
+			boardButtons.forEach((btn) => {
+				const isActive = btn.getAttribute("data-board-size") === boardChoice;
+				btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+			});
+		};
+
+		const updateModeButtons = () => {
+			modeButtons.forEach((btn) => {
+				const isActive = btn.getAttribute("data-mode") === mode;
+				btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+			});
+		};
+
+		const updateScaleButtons = () => {
+			scaleButtons.forEach((btn) => {
+				const value = Number(btn.getAttribute("data-scale")) || 1;
+				const isActive = Math.abs(value - uiScale) < 0.01;
+				btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+			});
+		};
+
+		const updateBadges = () => {
+			if (badgePetEl) {
+				const petMeta = pets[pet] || pets.cat;
+				badgePetEl.textContent = `${petMeta.head || "🐾"} ${petMeta.label || "Pet"}`;
+			}
+			if (badgeModeEl) {
+				badgeModeEl.textContent = superModes[mode]?.label || "Mode";
+			}
+			if (badgeBoardEl) {
+				badgeBoardEl.textContent = boardOptions[boardChoice]?.label || "Board";
+			}
+			if (badgeDiffEl) {
+				badgeDiffEl.textContent = difficulties[difficulty]?.label || "Difficulty";
+			}
+		};
+
+		const updateStartButton = () => {
+			if (!startBtn) return;
+			if (!inPlay) {
+				startBtn.textContent = "Start Run";
+				return;
+			}
+			startBtn.textContent = paused ? "Resume Run" : "Pause Run";
+		};
+
+		const setMode = (next) => {
+			if (!superModes[next]) return;
+			mode = next;
+			updateModeButtons();
+			updateBadges();
+			best = loadBest();
+			updateStats();
+			const superActive = superModes[mode].super;
+			if (!superActive) {
+				activeEffects = {};
+				updateMeters();
+				render();
+			}
+			const label = superModes[mode].label;
+			if (inPlay) {
+				setMessage(`${label} mode. Space pauses; arrows/WASD move.`);
+			} else {
+				setMessage(`${label} mode set. Press Space to start.`);
+			}
+			syncEngineConfig();
+		};
+
+		const setPet = (next) => {
+			if (!pets[next]) return;
+			pet = next;
+			updatePetButtons();
+			updateBadges();
+			best = loadBest();
+			updateStats();
+			syncEngineConfig();
+			render();
+		};
+
+		const setDifficulty = (next) => {
+			if (!difficulties[next]) return;
+			difficulty = next;
+			updateDiffButtons();
+			updateBadges();
+			best = loadBest();
+			updateStats();
+			if (inPlay && !paused) {
+				setMessage(`Difficulty: ${difficulties[difficulty].label}.`);
+			} else {
+				setMessage(`Difficulty set to ${difficulties[difficulty].label}. Press Space to start.`);
+			}
+			syncEngineConfig();
+		};
+
+		const setBoardChoice = (next, opts = {}) => {
+			if (!boardOptions[next]) return;
+			if (eligibleBoards.length && !eligibleBoards.includes(next)) {
+				if (!opts.silent) {
+					setMessage(`${boardOptions[next].label} is too large for this screen. Try portrait Cozy or rotate.`);
+				}
+				return;
+			}
+			boardChoice = next;
+			size = boardOptions[boardChoice].size;
+			applyBoardDimensions();
+			setScale();
+			music.stop();
+			if (isEngineLoopActive()) {
+				engine.stop();
+			}
+			engineDriving = false;
+			inPlay = false;
+			paused = false;
+			score = 0;
+			initBoard();
+			updateBoardButtons();
+			refreshBoardEligibility();
+			best = loadBest();
+			updateStats();
+			syncEngineConfig();
+			const primary = `Board set to ${boardOptions[boardChoice].label}. Press Space to start.`;
+			if (!opts.silent) {
+				setMessage(primary);
+				showMenu(primary, "Use Arrow Keys or WASD; Space pauses.");
+			}
+			updateStartButton();
+		};
+
+		const updateStats = () => {
+			scoreEl.textContent = score;
+			bestEl.textContent = best;
+		};
+
+		const updateMeters = () => {
+			if (!metersEl) return;
+			metersEl.innerHTML = "";
+			const entries = Object.entries(activeEffects);
+			if (!entries.length) {
+				metersEl.style.display = "none";
+				return;
+			}
+			metersEl.style.display = "flex";
+			for (const [key, timer] of entries) {
+				const cfg = powerupTypes.find((p) => p.key === key);
+				const icon = cfg?.icon || "⬆";
+				const pct = Math.max(0, Math.min(100, Math.round((timer.remaining / timer.duration) * 100)));
+				const meter = document.createElement("div");
+				meter.className = "cat-snake__meter";
+				meter.innerHTML = `
+					<div class="cat-snake__meter-label">${icon} ${key.toUpperCase()}</div>
+					<div class="cat-snake__meter-bar"><span style="width:${pct}%;"></span></div>
+				`;
+				metersEl.appendChild(meter);
+			}
+		};
+
+		const clearBoardVisuals = () => {
+			lastRenderState = createEmptyRenderState();
+			render();
+		};
+
+		function removeVacuumArtifacts() {
+			lastRenderState = { ...lastRenderState, vacuum: null, vacuumTail: [] };
+		}
+
+		const render = () => {
+			if (!boardRenderer) return;
+			boardRenderer.render({ ...lastRenderState, activeEffects });
+		};
+
+		const startEngineRun = () => {
+			if (!engine) return;
+			activeEffects = {};
+			updateMeters();
+			score = 0;
+			resetRunStats();
+			lastRunSummary = null;
+			renderPostRunSummary();
+			syncEngineConfig();
+			engineDriving = true;
+			inPlay = true;
+			paused = false;
+			hideMenu();
+			setMessage(describeCurrentSetup());
+			updateStats();
+			engine.startRun(currentRunConfig());
+			updateStartButton();
+		};
+
+		const reset = () => {
+			ensureAudio();
+			sfx.start();
+			music.start();
+			if (isEngineLoopActive()) {
+				engine.stop();
+			}
+			engineDriving = false;
+			startEngineRun();
+		};
+
+		const failureMessageFor = (reason) => {
+			switch (reason) {
+				case "wall":
+					return "Bump! Your pet snake hit the wall. Press Space to try again.";
+				case "self":
+					return "Ouch! You tangled your own tail. Press Space to restart.";
+				case "vacuum":
+					return "Spooked! The vacuum cleaner got you.";
+				case "vacuum-tail":
+					return "Yikes! The vacuum's tail tangled you.";
+				default:
+					return "Game over! Press Space to play again.";
+			}
+		};
+
+		const gameOver = (reason) => {
+			music.stop();
+			sfx.bonk();
+			inPlay = false;
+			paused = false;
+			if (isEngineLoopActive()) {
+				engine.stop();
+			}
+			engineDriving = false;
+			removeVacuumArtifacts();
+			lastRunSummary = summarizeRunStats();
+			render();
+			renderPostRunSummary();
+			const { isNewRecord, newTotal } = saveStatsAndCheckRecord(score);
+			updateStats();
+			if (menuEl) {
+				menuEl.style.display = "grid";
+			}
+			if (widgetEl) {
+				widgetEl.classList.add("is-menu", "is-game-over");
+				widgetEl.classList.toggle("is-new-record", isNewRecord && score > 0);
+			}
+			scheduleMenuHeightSync();
+			if (resultTotalVal) resultTotalVal.textContent = newTotal.toLocaleString();
+			if (resultNewBest) {
+				const showBadge = isNewRecord && score > 0;
+				resultNewBest.setAttribute("aria-hidden", showBadge ? "false" : "true");
+			}
+			if (resultScoreVal) {
+				resultScoreVal.textContent = "0";
+				setTimeout(() => {
+					animateCounter(resultScoreVal, 0, score, 1000);
+				}, 300);
+			}
+			refreshMenuFocus();
+			setMessage(reason);
+			liveEl.textContent = reason;
+			updateStartButton();
+			setTimeout(() => {
+				if (btnReplay) {
+					btnReplay.focus();
+				}
+			}, 100);
+		};
+
+		const togglePause = () => {
+			if (!inPlay || !engine) return;
+			paused = !paused;
+			if (paused) {
+				setMessage("Paused. Press Space to resume.");
+				music.pause();
+				sfx.pause();
+				engine.pause();
+			} else {
+				setMessage("");
+				music.resume();
+				sfx.resume();
+				engine.resume();
+			}
+			updateStartButton();
+		};
+
+		const keyToDirection = {
+			arrowup: "up",
+			up: "up",
+			w: "up",
+			keyw: "up",
+			arrowdown: "down",
+			down: "down",
+			s: "down",
+			keys: "down",
+			arrowleft: "left",
+			left: "left",
+			a: "left",
+			keya: "left",
+			arrowright: "right",
+			right: "right",
+			d: "right",
+			keyd: "right"
+		};
+
+		const normalizeKey = (value) => (typeof value === "string" ? value.toLowerCase() : "");
+
+		const directionFromEvent = (event) => {
+			const keyMatch = keyToDirection[normalizeKey(event.key)];
+			if (keyMatch) return keyMatch;
+			return keyToDirection[normalizeKey(event.code)] || null;
+		};
+
+		const queueDirection = (dir) => {
+			if (!directionVectors[dir]) return;
+			if (engine) {
+				engine.enqueueDirection(dir);
+			}
+		};
+
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Tab" && isMenuOpen()) {
+				refreshMenuFocus();
+				if (menuFocusables.length) {
+					const first = menuFocusables[0];
+					const last = menuFocusables[menuFocusables.length - 1];
+					if (event.shiftKey && document.activeElement === first) {
+						event.preventDefault();
+						last.focus();
+						return;
+					}
+					if (!event.shiftKey && document.activeElement === last) {
+						event.preventDefault();
+						first.focus();
+						return;
+					}
+				}
+			}
+			ensureAudio();
+			if (event.code === "Space") {
+				event.preventDefault();
+				if (inPlay) {
+					togglePause();
+				} else {
+					reset();
+				}
+				return;
+			}
+			const dir = directionFromEvent(event);
+			if (dir) {
+				event.preventDefault();
+				queueDirection(dir);
+			}
+		});
+
+		let touchStart = null;
+		const handleSwipe = (end) => {
+			if (!touchStart) return;
+			const dx = end.clientX - touchStart.clientX;
+			const dy = end.clientY - touchStart.clientY;
+			if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;
+			const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up");
+			queueDirection(dir);
+		};
+
+		document.addEventListener("touchstart", (e) => {
+			const t = e.touches[0];
+			if (t) touchStart = { clientX: t.clientX, clientY: t.clientY };
+		}, { passive: true });
+
+		document.addEventListener("touchmove", (e) => {
+			const t = e.touches[0];
+			if (t) handleSwipe(t);
+		}, { passive: true });
+
+		document.addEventListener("touchend", () => {
+			touchStart = null;
+		});
+
+		petButtons.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const next = btn.getAttribute("data-pet") || "cat";
+				setPet(next);
+			});
+		});
+
+		diffButtons.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const next = btn.getAttribute("data-diff") || "normal";
+				setDifficulty(next);
+			});
+		});
+
+		boardButtons.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const next = btn.getAttribute("data-board-size") || "roomy";
+				setBoardChoice(next);
+			});
+		});
+
+		modeButtons.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const next = btn.getAttribute("data-mode") || "classic";
+				setMode(next);
+			});
+		});
+
+		scaleButtons.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const next = btn.getAttribute("data-scale") || "1";
+				setUiScale(next);
+			});
+		});
+
+		if (btnReplay) {
+			btnReplay.addEventListener("click", () => {
+				widgetEl?.classList.remove("is-game-over", "is-new-record");
+				reset();
+			});
+		}
+
+		if (btnMenu) {
+			btnMenu.addEventListener("click", () => {
+				widgetEl?.classList.remove("is-game-over", "is-new-record");
+				showMenu();
+			});
+		}
+
+		const triggerStartToggle = () => {
+			ensureAudio();
+			if (inPlay) {
+				togglePause();
+			} else {
+				reset();
+			}
+		};
+
+		if (startBtn) {
+			startBtn.addEventListener("click", triggerStartToggle);
+		}
+
+		if (menuStartBtn) {
+			menuStartBtn.addEventListener("click", () => {
+				triggerStartToggle();
+			});
+		}
+
+		if (fullscreenBtn) {
+			fullscreenBtn.addEventListener("click", () => {
+				toggleFullscreen();
+			});
+		}
+
+		document.addEventListener("fullscreenchange", updateFullscreenButton);
+		document.addEventListener("visibilitychange", () => {
+			if (document.hidden && inPlay && !paused) {
+				paused = true;
+				setMessage("Paused (tab hidden). Press Space to resume.");
+				music.pause();
+				sfx.pause();
+				if (isEngineLoopActive()) {
+					engine.pause();
+				}
+				updateStartButton();
+			}
+		});
+
+		window.addEventListener("resize", () => {
+			adjustCellSize();
+			syncMenuHeight();
+		});
+		window.addEventListener("load", () => {
+			scheduleMenuHeightSync();
+		});
+		if (document.fonts?.ready) {
+			document.fonts.ready
+				.then(() => {
+					scheduleMenuHeightSync();
+				})
+				.catch(() => {});
+		}
+
+		best = loadBest();
+		applyBoardDimensions();
+		setScale();
+		observeBoardResize();
+		initBoard();
+		initEngine();
+		updateStats();
+		setMessage("Pick pet, difficulty, and board. Press Space to start. Arrow keys or WASD to move.");
+		if (widgetEl) widgetEl.classList.add("is-menu");
+		scheduleMenuHeightSync();
+		updatePetButtons();
+		updateDiffButtons();
+		updateBoardButtons();
+		updateBadges();
+		updateStartButton();
+		updateModeButtons();
+		updateScaleButtons();
+		updateFullscreenButton();
+		updateMeters();
+		renderPostRunSummary();
+		render();
+	})();
+	</script>
+<div class="launcher-overlay" data-launcher aria-hidden="true">
+<div class="launcher-overlay__backdrop" data-launcher-close></div>
+<div class="launcher-overlay__panel" role="dialog" aria-modal="true" aria-labelledby="launcher-title">
+<button class="launcher-overlay__close" type="button" data-launcher-close aria-label="Close game menu">
+<span aria-hidden="true">&#215;</span>
+</button>
+<div class="launcher-overlay__header">
+<p class="launcher-overlay__eyebrow">Pick a game</p>
+<h2 id="launcher-title">Humane Games Menu</h2>
+</div>
+<div class="game-grid" aria-label="Available games">
+<a class="game-card" href="petsnake.html">
+<span class="game-card__icon" aria-hidden="true">&#x1F40D;</span>
+<h3 class="game-card__title">Pet Snake</h3>
+<p class="game-card__desc">Play as a cat or dog, grab treats, dodge bombs, and chase a new personal best.</p>
+<span class="game-card__cta">Start run &#8594;</span>
+</a>
+<a class="game-card" href="petsnakerouguelike.html">
+<span class="game-card__icon" aria-hidden="true">&#x1F5FA;&#xFE0F;</span>
+<h3 class="game-card__title">Pet Snake Adventure</h3>
+<p class="game-card__desc">Embark on a 15-floor roguelike journey with upgrades, affixes, and a vacuum boss.</p>
+<span class="game-card__cta">Start adventure &#8594;</span>
+</a>
+<a class="game-card" href="../shelter-tycoon-main/">
+<span class="game-card__icon" aria-hidden="true">&#x1F3E1;</span>
+<h3 class="game-card__title">Shelter Tycoon</h3>
+<p class="game-card__desc">Build and manage a thriving animal shelter. Rescue pets, hire volunteers, and grow your donations.</p>
+<span class="game-card__cta">Play Shelter Tycoon &#8594;</span>
+</a>
+<a class="game-card" href="https://www.monroe-humane.org" target="_blank" rel="noreferrer noopener">
+<span class="game-card__icon" aria-hidden="true">&#x1F3E0;</span>
+<h3 class="game-card__title">Main Shelter Site</h3>
+<p class="game-card__desc">Browse pets, donate, check events, and see what Monroe Humane is up to.</p>
+<span class="game-card__cta">Visit site &#8594;</span>
+</a>
+</div>
+<p class="launcher-overlay__hint">Use keyboard, mouse, or touch. Press Escape to close this menu.</p>
+</div>
+</div>
+
+<script>
+(() => {
+const overlay = document.querySelector("[data-launcher]");
+if (!overlay) return;
+const panel = overlay.querySelector(".launcher-overlay__panel");
+const openers = document.querySelectorAll("[data-launcher-open]");
+const closers = overlay.querySelectorAll("[data-launcher-close]");
+const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+let restoreFocus = null;
+const trapFocus = (e) => {
+const focusable = panel.querySelectorAll(focusableSelector);
+if (!focusable.length) return;
+const first = focusable[0], last = focusable[focusable.length - 1];
+if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+};
+const handleKeydown = (e) => {
+if (e.key === "Escape") { e.preventDefault(); close(); return; }
+if (e.key === "Tab") trapFocus(e);
+};
+const close = () => {
+if (!overlay.classList.contains("is-active")) return;
+overlay.classList.remove("is-active");
+overlay.setAttribute("aria-hidden", "true");
+panel.removeAttribute("tabindex");
+document.body.classList.remove("is-launcher-open");
+overlay.removeEventListener("keydown", handleKeydown);
+if (restoreFocus) { restoreFocus.focus(); restoreFocus = null; }
+};
+const open = (e) => {
+if (e) e.preventDefault();
+restoreFocus = document.activeElement;
+overlay.classList.add("is-active");
+overlay.setAttribute("aria-hidden", "false");
+document.body.classList.add("is-launcher-open");
+panel.setAttribute("tabindex", "-1");
+panel.focus();
+overlay.addEventListener("keydown", handleKeydown);
+};
+openers.forEach((btn) => btn.addEventListener("click", open));
+closers.forEach((btn) => btn.addEventListener("click", close));
+overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+})();
+</script>
+</body>
+</html>

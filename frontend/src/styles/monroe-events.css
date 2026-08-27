@@ -1,0 +1,739 @@
+/*
+ Events page: flyer grid + month calendar — extracted from the theme's
+ home-editable.css.
+*/
+
+@keyframes monroe-fb-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes monroe-home-logo-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.monroe-inner-page-shell a:not(.wp-block-button__link):not(.monroe-event-flyers__lightbox-download):not(.monroe-event-flyers__lightbox-more) {
+  color: #0f766e;
+  text-underline-offset: 2px;
+}
+
+.monroe-inner-page-shell a:not(.wp-block-button__link):not(.monroe-event-flyers__lightbox-download):not(.monroe-event-flyers__lightbox-more):hover,
+.monroe-inner-page-shell a:not(.wp-block-button__link):not(.monroe-event-flyers__lightbox-download):not(.monroe-event-flyers__lightbox-more):focus {
+  color: #0a5f59;
+}
+
+@keyframes monroe-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes monroe-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.monroe-events-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.35rem);
+}
+
+.monroe-events-calendar__month {
+  box-sizing: border-box;
+  padding: clamp(1rem, 2.4vw, 1.35rem);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(23, 58, 57, 0.12);
+  box-shadow: 0 14px 34px rgba(17, 41, 41, 0.07);
+}
+
+.monroe-events-calendar__month-title {
+  margin: 0 0 0.75rem;
+  font-family: "Abril Fatface", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  line-height: 1.15;
+  color: #153635;
+  text-align: center;
+}
+
+.monroe-events-calendar__table {
+  width: 100%;
+}
+
+.monroe-events-calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  margin-bottom: 0.35rem;
+}
+
+.monroe-events-calendar__weekday {
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #0f766e;
+  padding: 0.2rem 0;
+}
+
+.monroe-events-calendar__week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.monroe-events-calendar__week + .monroe-events-calendar__week {
+  margin-top: 2px;
+}
+
+.monroe-events-calendar__day {
+  box-sizing: border-box;
+  min-height: 2.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-family: "Questrial", "Segoe UI", sans-serif;
+  font-size: 0.88rem;
+  color: #1d2a2a;
+  background: rgba(248, 250, 250, 0.85);
+  border: 1px solid transparent;
+}
+
+.monroe-events-calendar__day--pad {
+  background: transparent;
+  border-color: transparent;
+  min-height: 2.15rem;
+}
+
+.monroe-events-calendar__day--weekend .monroe-events-calendar__day-num {
+  color: #2d6a66;
+}
+
+.monroe-events-calendar__day--today {
+  background: rgba(15, 118, 110, 0.12);
+  border-color: rgba(15, 118, 110, 0.45);
+  font-weight: 700;
+}
+
+.monroe-events-calendar__day--event {
+  position: relative;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.15rem;
+}
+
+a.monroe-events-calendar__day {
+  text-decoration: none;
+  color: inherit;
+}
+
+a.monroe-events-calendar__day:hover,
+a.monroe-events-calendar__day:focus-visible {
+  border-color: rgba(15, 118, 110, 0.55);
+  background: rgba(15, 118, 110, 0.16);
+  transform: translateY(-1px);
+}
+
+.monroe-events-calendar__day--event-upcoming {
+  background: rgba(80, 200, 120, 0.18);
+  border-color: rgba(15, 118, 110, 0.35);
+}
+
+.monroe-events-calendar__day-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f766e, #50c878);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+
+.monroe-events-calendar__legend,
+.monroe-events-calendar-widget__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #2a4a49;
+}
+
+.monroe-events-calendar__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f766e, #50c878);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+.monroe-events-calendar-widget__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.monroe-events-calendar-widget__title {
+  margin: 0;
+  font-family: "Abril Fatface", Georgia, serif;
+  font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: #153635;
+}
+
+.monroe-events-calendar-widget__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.85fr);
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  align-items: start;
+}
+
+.monroe-events-calendar-widget__months {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: clamp(0.85rem, 2vw, 1.1rem);
+}
+
+.monroe-events-calendar__month--compact {
+  padding: clamp(0.85rem, 2vw, 1rem);
+  border-radius: 16px;
+}
+
+.monroe-events-calendar__month--compact .monroe-events-calendar__month-title {
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  margin-bottom: 0.55rem;
+}
+
+.monroe-events-calendar__month--compact .monroe-events-calendar__day {
+  min-height: 1.85rem;
+  font-size: 0.8rem;
+}
+
+.monroe-events-calendar-widget__upcoming {
+  padding: clamp(0.9rem, 2vw, 1.1rem);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(23, 58, 57, 0.1);
+}
+
+.monroe-events-calendar-widget__upcoming-title {
+  margin: 0 0 0.75rem;
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.monroe-events-calendar-widget__empty {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #405757;
+}
+
+.monroe-events-calendar-widget__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.monroe-events-calendar-widget__list-link {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  text-decoration: none;
+  background: rgba(248, 250, 250, 0.95);
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.monroe-events-calendar-widget__list-link:hover,
+.monroe-events-calendar-widget__list-link:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(15, 118, 110, 0.35);
+  box-shadow: 0 10px 22px rgba(17, 41, 41, 0.08);
+}
+
+.monroe-events-calendar-widget__list-date {
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.monroe-events-calendar-widget__list-title {
+  font-family: "Questrial", "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: #153635;
+}
+
+.monroe-events-calendar-widget__actions {
+  margin: 0.85rem 0 0;
+}
+
+.monroe-events-calendar-widget__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.95rem;
+  border-radius: 999px;
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: #0a121c;
+  background: linear-gradient(135deg, #50c878, #72cbff);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.home-editable-news-card .monroe-events-calendar-widget__title,
+.home-editable-news-card .monroe-events-calendar-widget__title {
+  color: #153635;
+}
+
+.home-editable-news-card .monroe-events-calendar-widget__legend,
+.home-editable-news-card .monroe-events-calendar-widget__legend {
+  color: #405757;
+}
+
+@media (max-width: 820px) {
+.monroe-events-calendar-widget__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.monroe-events-calendar__year-heading {
+  margin: clamp(1.25rem, 3vw, 1.75rem) 0 0.75rem;
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.monroe-events-calendar__day-num {
+  line-height: 1;
+}
+
+@media (max-width: 520px) {
+.monroe-events-calendar__month-title {
+    font-size: 1.1rem;
+  }
+.monroe-events-calendar__day {
+    min-height: 1.95rem;
+    font-size: 0.82rem;
+  }
+}
+
+.monroe-event-flyers__lead {
+  max-width: 42rem;
+  margin: 0 0 1.25rem;
+}
+
+.monroe-event-flyers__empty {
+  margin: 0;
+  padding: 1.25rem 1.35rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px dashed rgba(15, 118, 110, 0.35);
+  color: #2a3d3d;
+}
+
+.monroe-event-flyers__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.monroe-event-flyers__item {
+  margin: 0;
+  min-width: 0;
+  scroll-margin-top: calc(
+    var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + var(--monroe-scroll-anchor-gap, 12px)
+  );
+}
+
+.monroe-event-flyers__card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(23, 58, 57, 0.12);
+  box-shadow: 0 12px 28px rgba(17, 41, 41, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.monroe-event-flyers__card:hover,
+.monroe-event-flyers__card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(15, 118, 110, 0.16);
+}
+
+.monroe-event-flyers__card--static {
+  cursor: default;
+}
+
+.monroe-event-flyers__card--static:hover,
+.monroe-event-flyers__card--static:focus-visible {
+  transform: none;
+  box-shadow: 0 12px 28px rgba(17, 41, 41, 0.08);
+}
+
+@media (hover: none), (pointer: coarse) {
+.monroe-event-flyers__card:hover,
+  .monroe-event-flyers__card:focus-visible {
+    transform: none;
+    box-shadow: 0 12px 28px rgba(17, 41, 41, 0.08);
+  }
+}
+
+.monroe-event-flyers__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: #f4f7f6;
+}
+
+.monroe-event-flyers__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 1rem;
+  text-align: center;
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+  color: rgba(42, 61, 61, 0.65);
+  background: #eef5f4;
+}
+
+.monroe-event-flyers__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.monroe-event-flyers__title {
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: #153635;
+}
+
+.monroe-event-flyers__date {
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.monroe-event-flyers__excerpt {
+  font-family: "Questrial", "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #2a3d3d;
+}
+
+.monroe-event-flyers__card:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 3px;
+}
+
+body.monroe-event-flyers-lb-open {
+  overflow: hidden;
+}
+
+.monroe-event-flyers__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(clamp(0.75rem, 3vw, 1.5rem), env(safe-area-inset-top))
+    max(clamp(0.75rem, 3vw, 1.5rem), env(safe-area-inset-right))
+    max(clamp(0.75rem, 3vw, 1.5rem), env(safe-area-inset-bottom))
+    max(clamp(0.75rem, 3vw, 1.5rem), env(safe-area-inset-left));
+  background: rgba(8, 20, 20, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.monroe-event-flyers__lightbox.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.monroe-event-flyers__lightbox-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(920px, 96vw);
+  max-height: min(94vh, 980px);
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  transform: scale(0.96);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.monroe-event-flyers__lightbox.is-active .monroe-event-flyers__lightbox-inner {
+  transform: scale(1);
+}
+
+.monroe-event-flyers__lightbox-figure {
+  margin: 0;
+  background: #0b1515;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monroe-event-flyers__lightbox-image {
+  display: block;
+  width: 100%;
+  max-height: min(68vh, 720px);
+  object-fit: contain;
+}
+
+.monroe-event-flyers__lightbox-meta {
+  padding: 0.85rem 1.15rem 0;
+}
+
+.monroe-event-flyers__lightbox-title {
+  margin: 0;
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #153635;
+}
+
+.monroe-event-flyers__lightbox-title:empty {
+  display: none;
+}
+
+.monroe-event-flyers__lightbox-date {
+  margin: 0.2rem 0 0;
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.monroe-event-flyers__lightbox-date:empty {
+  display: none;
+}
+
+.monroe-event-flyers__lightbox-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0.85rem 1.15rem 1.15rem;
+  background: #fff;
+}
+
+.monroe-event-flyers__lightbox-download,
+.monroe-event-flyers__lightbox-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-family: "Jost", "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.monroe-inner-page-shell .monroe-event-flyers__lightbox-download,
+.monroe-event-flyers__lightbox-download {
+  color: #fff;
+  background-color: #0f766e;
+  border: 1px solid #0f766e;
+}
+
+.monroe-inner-page-shell .monroe-event-flyers__lightbox-download:hover,
+.monroe-inner-page-shell .monroe-event-flyers__lightbox-download:focus-visible,
+.monroe-inner-page-shell .monroe-event-flyers__lightbox-download:visited,
+.monroe-event-flyers__lightbox-download:hover,
+.monroe-event-flyers__lightbox-download:focus-visible,
+.monroe-event-flyers__lightbox-download:visited {
+  color: #fff;
+  background-color: #0d655f;
+  border-color: #0d655f;
+}
+
+.monroe-inner-page-shell .monroe-event-flyers__lightbox-more,
+.monroe-event-flyers__lightbox-more {
+  color: #153635;
+  background-color: #fff;
+  border: 1px solid rgba(23, 58, 57, 0.2);
+}
+
+.monroe-inner-page-shell .monroe-event-flyers__lightbox-more:hover,
+.monroe-inner-page-shell .monroe-event-flyers__lightbox-more:focus-visible,
+.monroe-event-flyers__lightbox-more:hover,
+.monroe-event-flyers__lightbox-more:focus-visible {
+  border-color: #0f766e;
+  color: #0f766e;
+  background-color: #fff;
+}
+
+.monroe-event-flyers__lightbox-more[hidden] {
+  display: none;
+}
+
+.monroe-event-flyers__lightbox-close,
+.monroe-event-flyers__lightbox-prev,
+.monroe-event-flyers__lightbox-next {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #153635;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.monroe-event-flyers__lightbox-close {
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: max(0.75rem, env(safe-area-inset-right));
+}
+
+.monroe-event-flyers__lightbox-prev {
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+}
+
+.monroe-event-flyers__lightbox-next {
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+}
+
+.monroe-event-flyers__lightbox-close:hover,
+.monroe-event-flyers__lightbox-close:focus-visible,
+.monroe-event-flyers__lightbox-prev:hover,
+.monroe-event-flyers__lightbox-prev:focus-visible,
+.monroe-event-flyers__lightbox-next:hover,
+.monroe-event-flyers__lightbox-next:focus-visible {
+  background: #fff;
+  color: #0f766e;
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+.monroe-event-flyers__lightbox-prev,
+  .monroe-event-flyers__lightbox-next {
+    display: none;
+  }
+.monroe-event-flyers__lightbox-actions {
+    flex-direction: column;
+  }
+.monroe-event-flyers__lightbox-download,
+  .monroe-event-flyers__lightbox-more {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+.monroe-event-flyers__lightbox,
+  .monroe-event-flyers__lightbox-inner {
+    transition: none;
+  }
+.monroe-event-flyers__lightbox-inner {
+    transform: scale(1);
+  }
+}
