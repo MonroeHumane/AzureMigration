@@ -172,7 +172,7 @@ resource arcadeApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'arcade-api'
-          image: 'ghcr.io/khaose2/humanewebsite-arcade:latest'
+          image: 'nginx:latest'
           resources: {
             cpu: json('0.25')
             memory: '0.5Gi'
