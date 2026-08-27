@@ -1,0 +1,1995 @@
+/*
+Theme Name: Humane Society of Monroe County
+Theme URI: https://www.monroe-humane.org/
+Author: Humane Society of Monroe County
+Description: Public website theme for the Humane Society of Monroe County, Monroe, Michigan.
+Version: 2.0.0
+Text Domain: monroe-rebuild
+*/
+
+html {
+  scroll-behavior: smooth;
+  /* Keep hash / in-page targets from landing under the fixed global nav + sticky wayfinding */
+  scroll-padding-top: calc(
+    var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + var(--monroe-scroll-anchor-gap, 12px)
+  );
+  background-color: #f9f7f2;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Default fixed nav clearance; JS updates --monroe-nav-height on :root from the nav layout. */
+:root {
+  --monroe-nav-height: 96px;
+  /* Extra clearance when sticky section pills / in-page nav sit below the header (set per page) */
+  --monroe-sticky-wayfinding-offset: 0px;
+  --monroe-scroll-anchor-gap: 12px;
+  /* Paw-print tile: path is relative to this stylesheet (theme root). Tune veil / size like a builder overlay. */
+  --monroe-paw-tile: url("../../../../../images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/monroe-paw-print-tile.png");
+  --monroe-paw-tile-size: clamp(280px, 32vw, 440px);
+  /* Cream + mint veils - paws read through these (tune alpha like a builder overlay). */
+  --monroe-paw-veil: linear-gradient(
+    165deg,
+    rgba(255, 250, 242, 0.78) 0%,
+    rgba(255, 250, 242, 0.86) 42%,
+    rgba(245, 252, 249, 0.9) 100%
+  );
+  --monroe-paw-teal-wash: linear-gradient(
+    rgba(15, 118, 110, 0.06),
+    rgba(22, 52, 51, 0.03)
+  );
+  /* Solid bands/cards only - not the full-page stack. */
+  --monroe-site-surface: radial-gradient(circle at top left, rgba(28, 116, 108, 0.18), transparent 34%),
+    linear-gradient(180deg, #f5efe3 0%, #f9f7f2 30%, #ffffff 100%);
+  /*
+   * Full-page background: paws on the bottom, theme washes above.
+   * (First layer in the list = top; last = bottom - do not put opaque surface on top.)
+   */
+  --monroe-site-bg:
+    radial-gradient(circle at top left, rgba(28, 116, 108, 0.16), transparent 36%),
+    linear-gradient(180deg, rgba(245, 239, 227, 0.72) 0%, rgba(249, 247, 242, 0.8) 32%, rgba(255, 255, 255, 0.88) 100%),
+    var(--monroe-paw-veil),
+    var(--monroe-paw-teal-wash),
+    var(--monroe-paw-tile);
+}
+
+body.monroe-rebuild-theme {
+  --monroe-site-content-max: 1320px;
+  margin: 0;
+  overflow-x: hidden;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f7f2;
+  background-image: var(--monroe-site-bg);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+  background-size: auto, auto, auto, auto, var(--monroe-paw-tile-size) auto;
+  background-position: 0 0, 0 0, 0 0, 0 0, center 0;
+}
+
+#monroe-main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.monroe-inner-page-shell,
+.monroe-runtime-page-shell {
+  flex: 1 1 auto;
+  width: 100%;
+  /* Background comes from body (--monroe-site-bg), same as the homepage. */
+  background: transparent;
+}
+
+/* Reserve space for fixed unified navigation (clearance = nav bottom edge in the viewport). */
+body.monroe-rebuild-no-runtime,
+body.monroe-rebuild-has-runtime {
+  padding-top: var(--monroe-nav-height);
+  /* Some engines consult the scrollport on `body` for fragment alignment - mirror `html`. */
+  scroll-padding-top: calc(
+    var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + var(--monroe-scroll-anchor-gap, 12px)
+  );
+}
+
+/* Inner / listing templates sit flush under the bar with only body padding - add slack so borders,
+   shadows, and sub-pixel layout never clip the first heading (e.g. /adopt/). Homepage uses extra
+   hero offsets in rules below; it does not use `monroe-inner-page`. */
+body.monroe-inner-page.monroe-rebuild-no-runtime,
+body.monroe-inner-page.monroe-rebuild-has-runtime,
+body.monroe-inner-listing.monroe-rebuild-no-runtime,
+body.monroe-inner-listing.monroe-rebuild-has-runtime {
+  padding-top: calc(var(--monroe-nav-height, 96px) + 1rem);
+}
+
+body.monroe-rebuild-theme img,
+body.monroe-rebuild-theme video,
+body.monroe-rebuild-theme iframe,
+body.monroe-rebuild-theme svg,
+body.monroe-rebuild-theme canvas {
+  max-width: 100%;
+}
+
+body.monroe-rebuild-theme img {
+  height: auto;
+}
+
+/* Skip link for keyboard users */
+.monroe-skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 0.5rem;
+  z-index: 200;
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  background: #173a39;
+  color: #fff;
+  text-decoration: none;
+  font: 700 0.85rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: translateY(-200%);
+  transition: transform 0.18s ease;
+}
+
+.monroe-skip-link:focus-visible {
+  transform: translateY(0);
+  z-index: 6000;
+}
+
+.screen-reader-text {
+  border: 0;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  word-wrap: normal !important;
+}
+
+.screen-reader-text:focus-visible {
+  background-color: #173a39;
+  clip: auto !important;
+  clip-path: none;
+  color: #fff;
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  height: auto;
+  left: 1rem;
+  line-height: normal;
+  padding: 0.65rem 0.9rem;
+  text-decoration: none;
+  top: 0.5rem;
+  width: auto;
+  z-index: 200;
+}
+
+/* Sponsor marquee: layout lives in home-editable.css (avoid forcing flex alignment here). */
+
+/* removed global body padding to avoid affecting universal navigation */
+
+.monroe-global-nav {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  width: 100%;
+  z-index: 5000;
+  background: #fffaf2;
+  border-bottom: 1px solid rgba(25, 55, 54, 0.08);
+  box-shadow: 0 18px 30px rgba(15, 30, 29, 0.06);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Ensure our unified header is always visible. */
+body.monroe-rebuild-theme .monroe-global-nav {
+  display: block !important;
+}
+
+.monroe-global-nav__backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  /* Below .monroe-global-nav__inner so the drawer panel and links stay clickable when open */
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(15, 30, 29, 0.42);
+  cursor: pointer;
+}
+
+.monroe-global-nav__backdrop[hidden] {
+  display: none !important;
+}
+
+.monroe-global-nav.is-open .monroe-global-nav__backdrop:not([hidden]) {
+  display: block;
+  /* Dim only the page behind the drawer - not the bar + menu (those use opaque #fffaf2 on __inner) */
+  top: var(--monroe-nav-height, 96px);
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.monroe-global-nav__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 1.05rem clamp(1rem, 3vw, 1.65rem);
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.2vw, 1.5rem);
+  font-family: "Montserrat", "Jost", "Segoe UI", sans-serif;
+}
+
+/* Top strip (logo + hamburger): measured alone on mobile so --monroe-nav-height ignores open drawer height */
+.monroe-global-nav__bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.monroe-global-nav__bar .monroe-global-nav__menu-toggle {
+  margin-left: auto;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* Shrink-on-scroll (mobile/tablet width-based fallback; desktop overrides below) */
+.monroe-global-nav.is-condensed .monroe-global-nav__inner {
+  padding-block: 0.68rem;
+}
+
+@media (max-width: 1200px) {
+  .monroe-global-nav.is-condensed .monroe-global-nav__brand img {
+    width: auto !important;
+    height: 64px !important;
+    max-width: min(260px, 76vw) !important;
+  }
+}
+body.page-slug-home-editable .home-editable-hero-panel .wp-block-buttons,
+body[data-page-alias="home-editable"] .home-editable-hero-panel .wp-block-buttons {
+  text-align: center;
+}
+
+/* Scope padding to the editable home page only so other pages/APIs aren't affected */
+/* Scope adjustments to the editable home page only. Use inner-container margin
+   so the cover background stays flush while the content is pushed below the nav. */
+body.page-slug-home-editable.monroe-rebuild-no-runtime .home-editable-shell,
+body[data-page-alias="home-editable"].monroe-rebuild-no-runtime .home-editable-shell {
+  padding-top: 0;
+}
+
+body.page-slug-home-editable.monroe-rebuild-no-runtime .home-editable-hero .wp-block-cover__inner-container,
+body[data-page-alias="home-editable"].monroe-rebuild-no-runtime .home-editable-hero .wp-block-cover__inner-container {
+  /* Single offset for fixed nav; hero band padding stays compact (home-editable.css). */
+  margin-top: calc(var(--monroe-nav-height) + 10px);
+}
+
+/* When unified nav is used (no runtime), hide the legacy nav so we only have one nav. */
+body.monroe-rebuild-no-runtime #dmNav,
+body.monroe-rebuild-no-runtime .unifiednav,
+body.monroe-rebuild-no-runtime [id^="dmNav"] {
+  display: none !important;
+}
+
+/* Compatibility: header/footer wrap content in #monroe-main. */
+#monroe-main {
+  display: block;
+  scroll-margin-top: calc(
+    var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + var(--monroe-scroll-anchor-gap, 12px)
+  );
+}
+
+/* Inner pages + editor content: any in-page `#fragment` target inside main should clear the fixed nav. */
+#monroe-main .monroe-native-anchor-section,
+#monroe-main section[id],
+#monroe-main h2[id],
+#monroe-main h3[id] {
+  scroll-margin-top: calc(
+    var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + 0.75rem
+  );
+}
+
+body.page-slug-home-editable #monroe-main {
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+  box-sizing: border-box;
+}
+
+/* Reserve space for fixed “On this page” rail (see home-editable.css).
+   Left: nav-aligned inset + rail + gap so copy clears the rail.
+   Right: nav-aligned inset only.
+   Rail kicks in at 1400px - see home-editable.css (1200px is nav drawer only; laptops keep sticky pills). */
+@media (min-width: 1400px) {
+  body.page-slug-home-editable #monroe-main,
+  body[data-page-alias="home-editable"] #monroe-main {
+    padding-left: max(
+      env(safe-area-inset-left, 0px),
+      var(--monroe-xl-main-pad-for-rail, 12.75rem)
+    );
+    padding-right: max(
+      env(safe-area-inset-right, 0px),
+      var(--monroe-xl-nav-sync-inset, 1.4rem)
+    );
+  }
+}
+
+/* Anchor targets for homepage section navigation (fixed header offset). */
+#Top,
+#Intro,
+#FeaturedPets,
+#hs-hero-fence-widget,
+#Events,
+#VetPartners,
+#furry-friends-auction-sponsors,
+#Accomplishments,
+#sponsorMarqueeWidget,
+#Membership,
+#Newsletter,
+#2025-in-review,
+#FAQ,
+#Volunteer,
+#Donations,
+#Contact {
+  scroll-margin-top: calc(
+    var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + var(--monroe-scroll-anchor-gap, 12px)
+  );
+}
+
+.monroe-global-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  flex: 0 0 auto;
+  text-decoration: none;
+  border-radius: 12px;
+}
+
+.monroe-global-nav__brand:focus {
+  outline: none;
+}
+
+.monroe-global-nav__brand:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 4px;
+}
+
+.monroe-global-nav__brand img {
+  width: 98px;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.monroe-global-nav__menu-toggle {
+  display: none;
+  margin-left: auto;
+  padding: 0;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(22, 52, 51, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+}
+
+.monroe-global-nav__menu-toggle span:not(.screen-reader-text) {
+  display: block;
+  width: 18px;
+  height: 2px;
+  margin: 4px auto;
+  background: #163433;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.monroe-global-nav__panel {
+  --monroe-nav-pill-min-h: 48px;
+  --monroe-nav-pill-pad-y: 0.78rem;
+  --monroe-nav-pill-pad-x: 1.05rem;
+  --monroe-nav-pill-radius: 999px;
+  margin-left: auto;
+  display: flex;
+  align-items: stretch;
+  gap: 0.85rem;
+}
+
+.monroe-global-nav__list,
+.monroe-global-nav__submenu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.monroe-global-nav__list {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.monroe-global-nav__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.monroe-global-nav__link,
+.monroe-global-nav__trigger,
+.monroe-global-nav__dropdown-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  color: #173635;
+  font: 600 0.86rem/1.25 "Montserrat", "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+
+.monroe-global-nav__link,
+.monroe-global-nav__trigger {
+  min-height: var(--monroe-nav-pill-min-h);
+  padding: var(--monroe-nav-pill-pad-y) var(--monroe-nav-pill-pad-x);
+  border-radius: var(--monroe-nav-pill-radius);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Top bar: current page - underline, not the same pill as hover */
+.monroe-global-nav__list > .monroe-global-nav__item.is-current > .monroe-global-nav__link,
+.monroe-global-nav__list > .monroe-global-nav__item.is-current > .monroe-global-nav__trigger {
+  color: #0f766e;
+  font-weight: 700;
+  background: transparent;
+  box-shadow: inset 0 -2px 0 0 #0f766e;
+}
+
+.monroe-global-nav__link:hover,
+.monroe-global-nav__trigger:hover {
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f766e;
+}
+
+.monroe-global-nav__list > .monroe-global-nav__item.is-current > .monroe-global-nav__link:hover,
+.monroe-global-nav__list > .monroe-global-nav__item.is-current > .monroe-global-nav__trigger:hover {
+  background: rgba(15, 118, 110, 0.1);
+}
+
+.monroe-global-nav__link:focus,
+.monroe-global-nav__trigger:focus {
+  outline: none;
+}
+
+.monroe-global-nav__link:focus-visible,
+.monroe-global-nav__trigger:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+.monroe-global-nav__menu-toggle:focus {
+  outline: none;
+}
+
+.monroe-global-nav__menu-toggle:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 3px;
+}
+
+.monroe-global-nav__chevron {
+  width: 0.52rem;
+  height: 0.52rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform 0.18s ease;
+}
+
+.monroe-global-nav__item.is-open > .monroe-global-nav__trigger .monroe-global-nav__chevron {
+  transform: rotate(-135deg) translateY(-1px);
+}
+
+.monroe-global-nav__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5100;
+  min-width: 300px;
+  padding: 0.55rem 0.85rem 0.85rem;
+  border-radius: 24px;
+  background: rgba(255, 250, 242, 0.96);
+  border: 1px solid rgba(25, 55, 54, 0.1);
+  box-shadow: 0 28px 48px rgba(15, 30, 29, 0.16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  box-sizing: border-box;
+}
+
+.monroe-global-nav__item:hover > .monroe-global-nav__dropdown,
+.monroe-global-nav__item:focus-within > .monroe-global-nav__dropdown,
+.monroe-global-nav__item.is-open > .monroe-global-nav__dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.monroe-global-nav__dropdown-link {
+  cursor: pointer;
+}
+
+.monroe-global-nav__dropdown-link:focus {
+  outline: none;
+}
+
+.monroe-global-nav__dropdown-link:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+.monroe-global-nav__dropdown-link--top {
+  justify-content: flex-start;
+  margin-bottom: 0.45rem;
+  padding: 0.65rem 0.85rem 0.75rem;
+  border-radius: 16px 16px 0 0;
+  background: rgba(15, 118, 110, 0.1);
+  border-bottom: 1px solid rgba(25, 55, 54, 0.08);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  gap: 0.85rem;
+}
+
+.monroe-global-nav__dropdown-overview {
+  margin-left: auto;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  font: 650 0.62rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(21, 54, 53, 0.88);
+}
+
+/* Drawer vs bar: max-width must match default monroe_rebuild_nav_drawer_max_px() (1200) in functions.php. */
+@media (min-width: 1201px) {
+  .monroe-global-nav__dropdown-overview {
+    display: none;
+  }
+
+  /* Flyout mounts to the right of the parent row instead of stacking under (nested sections) */
+  .monroe-global-nav__submenu > .monroe-global-nav__item.has-children {
+    position: relative;
+    align-self: stretch;
+  }
+
+  .monroe-global-nav__submenu > .monroe-global-nav__item.has-children > .monroe-global-nav__dropdown {
+    top: 0;
+    left: calc(100% + 0.25rem);
+    margin-left: 0;
+    z-index: 5120;
+    transform: translateX(-6px);
+  }
+
+  .monroe-global-nav__submenu > .monroe-global-nav__item.has-children:hover > .monroe-global-nav__dropdown,
+  .monroe-global-nav__submenu > .monroe-global-nav__item.has-children:focus-within > .monroe-global-nav__dropdown {
+    transform: translateX(0);
+  }
+
+  .monroe-global-nav__submenu .monroe-global-nav__trigger {
+    width: 100%;
+    justify-content: flex-start;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font: 500 1rem/1.35 "Questrial", "Segoe UI", sans-serif;
+    min-height: 0;
+    padding: 0.95rem 1.05rem;
+    border-radius: 14px;
+  }
+
+  .monroe-global-nav__submenu .monroe-global-nav__trigger:hover {
+    background: rgba(15, 118, 110, 0.08);
+    color: #0f766e;
+  }
+
+  .monroe-global-nav__submenu .monroe-global-nav__trigger:focus {
+    outline: none;
+  }
+
+  .monroe-global-nav__submenu .monroe-global-nav__trigger:focus-visible {
+    outline: 2px solid #0f766e;
+    outline-offset: 2px;
+  }
+}
+
+.monroe-global-nav__cta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.78rem;
+  flex-shrink: 0;
+}
+
+.monroe-global-nav__submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.monroe-global-nav__submenu .monroe-global-nav__link {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.95rem 1.05rem;
+  border-radius: 14px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font: 500 1rem/1.35 "Questrial", "Segoe UI", sans-serif;
+}
+
+.monroe-global-nav__submenu .monroe-global-nav__link:hover {
+  background: rgba(15, 118, 110, 0.08);
+  color: #0f766e;
+}
+
+.monroe-global-nav__submenu .monroe-global-nav__link:focus {
+  outline: none;
+}
+
+.monroe-global-nav__submenu .monroe-global-nav__link:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+.monroe-global-nav__submenu .monroe-global-nav__item.is-current > .monroe-global-nav__link {
+  background: rgba(15, 118, 110, 0.06);
+  color: #0f766e;
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 #0f766e;
+}
+
+.monroe-global-nav__call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--monroe-nav-pill-min-h);
+  padding: var(--monroe-nav-pill-pad-y) var(--monroe-nav-pill-pad-x);
+  border-radius: var(--monroe-nav-pill-radius);
+  background: linear-gradient(135deg, #163433, #0f766e);
+  color: #fff;
+  text-decoration: none;
+  font: 700 0.8rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 18px 28px rgba(15, 118, 110, 0.18);
+  box-sizing: border-box;
+}
+
+.monroe-global-nav__member {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--monroe-nav-pill-min-h);
+  padding: var(--monroe-nav-pill-pad-y) var(--monroe-nav-pill-pad-x);
+  border-radius: var(--monroe-nav-pill-radius);
+  background: #fffaf2;
+  color: #0f766e;
+  text-decoration: none;
+  font: 700 0.8rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid rgba(15, 118, 110, 0.35);
+  box-shadow: 0 12px 22px rgba(15, 118, 110, 0.1);
+  box-sizing: border-box;
+}
+
+.monroe-global-nav__donate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--monroe-nav-pill-min-h);
+  padding: var(--monroe-nav-pill-pad-y) var(--monroe-nav-pill-pad-x);
+  border-radius: var(--monroe-nav-pill-radius);
+  background: #2bb8f3;
+  color: #082021;
+  text-decoration: none;
+  font: 800 0.8rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 18px 28px rgba(43, 184, 243, 0.22);
+  box-sizing: border-box;
+}
+
+.monroe-global-nav__application {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--monroe-nav-pill-min-h);
+  padding: var(--monroe-nav-pill-pad-y) var(--monroe-nav-pill-pad-x);
+  border-radius: var(--monroe-nav-pill-radius);
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: #fffaf2;
+  text-decoration: none;
+  font: 800 0.8rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid rgba(234, 88, 12, 0.35);
+  box-shadow: 0 14px 24px rgba(234, 88, 12, 0.22);
+  box-sizing: border-box;
+}
+
+.monroe-global-nav__member:focus,
+.monroe-global-nav__donate:focus,
+.monroe-global-nav__call:focus,
+.monroe-global-nav__application:focus {
+  outline: none;
+}
+
+.monroe-global-nav__member:hover,
+.monroe-global-nav__member:focus-visible {
+  color: #0f766e;
+  background: #fff;
+  transform: translateY(-1px);
+  border-color: #0f766e;
+}
+
+.monroe-global-nav__donate:hover,
+.monroe-global-nav__donate:focus-visible {
+  transform: translateY(-1px);
+  filter: brightness(0.98);
+}
+
+.monroe-global-nav__call:hover,
+.monroe-global-nav__call:focus-visible {
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.monroe-global-nav__application:hover,
+.monroe-global-nav__application:focus-visible {
+  color: #fff;
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.monroe-global-nav__member:focus-visible,
+.monroe-global-nav__donate:focus-visible,
+.monroe-global-nav__call:focus-visible,
+.monroe-global-nav__application:focus-visible {
+  outline: 2px solid #fffaf2;
+  outline-offset: 3px;
+}
+
+@media (max-width: 1080px) {
+  .monroe-global-nav__panel {
+    --monroe-nav-pill-pad-x: 0.82rem;
+    --monroe-nav-pill-pad-y: 0.72rem;
+  }
+
+  .monroe-global-nav__list {
+    gap: 0.22rem;
+  }
+
+  .monroe-global-nav__link,
+  .monroe-global-nav__trigger {
+    letter-spacing: 0.05em;
+  }
+}
+
+@media (max-width: 1200px) {
+  .monroe-global-nav__inner {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    padding: 0.28rem 1rem;
+    gap: 0;
+    /* Opaque shell so the dim page backdrop does not show through the open drawer */
+    background: #fffaf2;
+  }
+
+  .monroe-global-nav__bar {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr) 48px;
+    align-items: center;
+    column-gap: 0.35rem;
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+  }
+
+  .monroe-global-nav__bar-cta {
+    grid-column: 1;
+    grid-row: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    justify-self: start;
+    min-width: 0;
+  }
+
+  .monroe-global-nav__bar-adopt,
+  .monroe-global-nav__bar-donate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.4rem 0.65rem;
+    border-radius: 999px;
+    font-family: "Jost", "Segoe UI", sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    border: 1px solid rgba(22, 52, 51, 0.14);
+    line-height: 1.2;
+  }
+
+  .monroe-global-nav__bar-adopt {
+    color: #163433;
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .monroe-global-nav__bar-donate {
+    color: #fffaf2;
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.22);
+  }
+
+  .monroe-global-nav__bar-adopt:focus,
+  .monroe-global-nav__bar-donate:focus {
+    outline: none;
+  }
+
+  .monroe-global-nav__bar-adopt:focus-visible,
+  .monroe-global-nav__bar-donate:focus-visible {
+    outline: 2px solid #0f766e;
+    outline-offset: 2px;
+  }
+
+  .monroe-global-nav__bar .monroe-global-nav__brand {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    min-height: 56px;
+  }
+
+  .monroe-global-nav__bar .monroe-global-nav__menu-toggle {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    margin-left: 0;
+  }
+
+  /* Logo fills the bar top-to-bottom; !important beats WP core inline max-width/height:auto */
+  .monroe-global-nav__brand img {
+    width: auto !important;
+    height: 52px !important;
+    max-width: min(260px, 72vw) !important;
+    object-fit: contain;
+  }
+
+  .monroe-global-nav.is-condensed .monroe-global-nav__inner {
+    padding-block: 0.28rem;
+  }
+
+  .monroe-global-nav.is-condensed .monroe-global-nav__brand img {
+    width: auto !important;
+    height: 64px !important;
+    max-width: min(260px, 76vw) !important;
+  }
+
+  .monroe-global-nav__menu-toggle {
+    display: block;
+  }
+
+  .monroe-global-nav__panel {
+    --monroe-nav-pill-min-h: 48px;
+    width: 100%;
+    flex: 1 1 100%;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding-top: 0.85rem;
+    margin-left: 0;
+  }
+
+  .monroe-global-nav.is-open .monroe-global-nav__panel {
+    display: flex;
+    max-height: calc(100dvh - var(--monroe-nav-height, 96px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: #fffaf2;
+    border-top: 2px solid rgba(15, 118, 110, 0.18);
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+    animation: monroe-drawer-in 0.22s ease both;
+  }
+
+  /* Menu labels read as active links, not disabled/greyed (backdrop sits behind this layer) */
+  .monroe-global-nav.is-open .monroe-global-nav__link,
+  .monroe-global-nav.is-open .monroe-global-nav__trigger,
+  .monroe-global-nav.is-open .monroe-global-nav__dropdown-link {
+    color: #173635;
+  }
+
+  .monroe-global-nav.is-open .monroe-global-nav__list > .monroe-global-nav__item.is-current > .monroe-global-nav__link,
+  .monroe-global-nav.is-open .monroe-global-nav__list > .monroe-global-nav__item.is-current > .monroe-global-nav__trigger {
+    color: #0f766e;
+    font-weight: 700;
+  }
+
+  /* Hamburger button: teal tint while drawer is open */
+  .monroe-global-nav.is-open .monroe-global-nav__menu-toggle {
+    background: rgba(15, 118, 110, 0.1);
+    border-color: rgba(15, 118, 110, 0.3);
+  }
+
+  /* Hamburger → × when the drawer opens */
+  .monroe-global-nav.is-open .monroe-global-nav__menu-toggle span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .monroe-global-nav.is-open .monroe-global-nav__menu-toggle span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .monroe-global-nav.is-open .monroe-global-nav__menu-toggle span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  .monroe-global-nav__cta-row {
+    order: -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem 0.65rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    padding-top: 0;
+    padding-bottom: 0.9rem;
+    border-top: 0;
+    border-bottom: 1px solid rgba(25, 55, 54, 0.12);
+  }
+
+  .monroe-global-nav__cta-row .monroe-global-nav__member,
+  .monroe-global-nav__cta-row .monroe-global-nav__donate,
+  .monroe-global-nav__cta-row .monroe-global-nav__call,
+  .monroe-global-nav__cta-row .monroe-global-nav__application {
+    width: auto;
+    min-width: 0;
+  }
+
+  .monroe-global-nav__cta-row .monroe-global-nav__call {
+    grid-column: auto;
+  }
+
+  .monroe-global-nav__list {
+    order: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+  }
+
+  .monroe-global-nav__list > .monroe-global-nav__item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Visual grouping for submenu pages */
+  .monroe-global-nav__dropdown .monroe-global-nav__submenu {
+    padding: 0.35rem 0 0 0.5rem;
+    margin: 0.15rem 0 0;
+    border-left: 3px solid rgba(15, 118, 110, 0.25);
+    gap: 0.35rem;
+  }
+
+  /* Parent “overview” goes to primary URL (# or path) above child links */
+  .monroe-global-nav__dropdown-link--top {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background: rgba(15, 118, 110, 0.08);
+    border: 1px solid rgba(15, 118, 110, 0.12);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .monroe-global-nav__dropdown-link--top span:first-child {
+    text-align: left;
+    color: #153635;
+    font-family: "Jost", "Segoe UI", sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .monroe-global-nav__dropdown-overview {
+    display: inline-flex;
+    margin-left: auto;
+    font-size: 0.7rem;
+  }
+
+  .monroe-global-nav__link,
+  .monroe-global-nav__trigger {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: 18px;
+    min-height: 48px;
+  }
+
+  .monroe-global-nav__dropdown {
+    position: static;
+    min-width: 0;
+    display: block;
+    overflow: hidden;
+    max-height: 0;
+    /* Collapsed: no chrome - margin/padding/border here shows as a “peek” above max-height:0 */
+    margin-top: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-sizing: border-box;
+    transition:
+      max-height 0.24s ease,
+      margin-top 0.2s ease,
+      padding-block 0.2s ease,
+      padding-inline 0.2s ease,
+      border-radius 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .monroe-global-nav__item.is-open > .monroe-global-nav__dropdown {
+    max-height: min(var(--monroe-nav-dropdown-max, 600px), 50vh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin-top: 0.4rem;
+    padding: 0.45rem 0.35rem 0.5rem;
+    border-radius: 18px;
+    background: rgba(255, 250, 242, 0.96);
+    border: 1px solid rgba(25, 55, 54, 0.1);
+  }
+
+  .monroe-global-nav__submenu .monroe-global-nav__link {
+    padding: 1.05rem 1rem;
+    min-height: 48px;
+  }
+
+  .monroe-global-nav__member,
+  .monroe-global-nav__donate,
+  .monroe-global-nav__call,
+  .monroe-global-nav__application {
+    justify-content: center;
+  }
+
+  /* CTA widths come from grid above; overrides full-width pills from earlier rules */
+}
+
+/* Wide layout: horizontal link bar + CTAs (drawer below monroe_rebuild_nav_drawer_max_px()). */
+@media (min-width: 1201px) {
+  .monroe-global-nav__inner {
+    flex-wrap: nowrap;
+    align-items: center;
+    /* Minimal vertical padding; logo stretches to fill the bar height */
+    padding-block: 0.22rem;
+    /* Tighter left inset so the logo sits further left; keep room for CTAs on the right */
+    padding-inline: clamp(0.5rem, 1vw, 1rem) clamp(0.85rem, 2vw, 1.65rem);
+    gap: clamp(0.5rem, 1vw, 1.15rem);
+    --monroe-nav-logo-h: 64px;
+  }
+
+  .monroe-global-nav__bar {
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: none;
+    align-self: stretch;
+    align-items: stretch;
+    min-height: var(--monroe-nav-logo-h, 64px);
+  }
+
+  .monroe-global-nav__brand {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: stretch;
+  }
+
+  /* Height-led logo (beats WP inline height:auto); width scales from 320×120 asset */
+  .monroe-global-nav__brand img {
+    width: auto !important;
+    height: 100% !important;
+    max-height: var(--monroe-nav-logo-h, 64px);
+    max-width: min(270px, 21vw);
+    object-fit: contain;
+  }
+
+  .monroe-global-nav.is-condensed .monroe-global-nav__inner {
+    padding-block: 0.18rem;
+    --monroe-nav-logo-h: 52px;
+  }
+
+  .monroe-global-nav.is-condensed .monroe-global-nav__bar {
+    min-height: var(--monroe-nav-logo-h, 52px);
+  }
+
+  .monroe-global-nav.is-condensed .monroe-global-nav__brand img {
+    max-height: var(--monroe-nav-logo-h, 52px);
+    max-width: min(230px, 18vw);
+  }
+
+  .monroe-global-nav__panel {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: clamp(0.75rem, 1vw, 1rem);
+  }
+
+  .monroe-global-nav__panel > .monroe-global-nav__list {
+    grid-column: 1;
+    flex: unset;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: center;
+    column-gap: 0.28rem;
+    /* Flyouts are position:absolute below/right of items; hidden clipped them entirely */
+    overflow: visible;
+  }
+
+  .monroe-global-nav__panel > .monroe-global-nav__list > .monroe-global-nav__item {
+    flex-shrink: 0;
+  }
+
+  .monroe-global-nav__panel > .monroe-global-nav__list > .monroe-global-nav__item > .monroe-global-nav__link,
+  .monroe-global-nav__panel > .monroe-global-nav__list > .monroe-global-nav__item > .monroe-global-nav__trigger {
+    white-space: nowrap;
+  }
+
+  .monroe-global-nav__panel > .monroe-global-nav__cta-row {
+    grid-column: 2;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+
+  /* Desktop bar is capped at 1320px - keep pills compact so links + CTAs never collide */
+  .monroe-global-nav__panel {
+    --monroe-nav-pill-pad-x: 0.72rem;
+    --monroe-nav-pill-pad-y: 0.55rem;
+  }
+
+  .monroe-global-nav__panel > .monroe-global-nav__list {
+    column-gap: 0.12rem;
+  }
+
+  .monroe-global-nav__panel > .monroe-global-nav__list .monroe-global-nav__link,
+  .monroe-global-nav__panel > .monroe-global-nav__list .monroe-global-nav__trigger {
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+  }
+
+  .monroe-global-nav__cta-row {
+    gap: 0.55rem;
+  }
+
+  .monroe-global-nav__member,
+  .monroe-global-nav__donate,
+  .monroe-global-nav__call,
+  .monroe-global-nav__application {
+    font-size: 0.74rem;
+    letter-spacing: 0.08em;
+    padding: var(--monroe-nav-pill-pad-y) 0.82rem;
+  }
+
+  @media (max-width: 1280px) {
+    .monroe-global-nav__panel {
+      --monroe-nav-pill-pad-x: 0.58rem;
+      --monroe-nav-pill-pad-y: 0.52rem;
+    }
+
+    .monroe-global-nav__inner {
+      gap: 0.45rem;
+    }
+
+    .monroe-global-nav__panel {
+      column-gap: 0.65rem;
+    }
+
+    .monroe-global-nav__panel > .monroe-global-nav__list {
+      column-gap: 0.06rem;
+    }
+
+    .monroe-global-nav__panel > .monroe-global-nav__list .monroe-global-nav__link,
+    .monroe-global-nav__panel > .monroe-global-nav__list .monroe-global-nav__trigger {
+      font-size: 0.76rem;
+      letter-spacing: 0.03em;
+    }
+
+    .monroe-global-nav__member,
+    .monroe-global-nav__donate,
+    .monroe-global-nav__call,
+    .monroe-global-nav__application {
+      font-size: 0.72rem;
+      padding: var(--monroe-nav-pill-pad-y) 0.68rem;
+    }
+  }
+
+  /* Desktop flyout: cap to viewport so long menus don't fall off-screen */
+  .monroe-global-nav__dropdown {
+    max-height: calc(100dvh - var(--monroe-nav-height, 96px) - 1rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+@keyframes monroe-drawer-in {
+  from { opacity: 0; transform: translateY(-0.35rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monroe-global-nav__dropdown {
+    transition: none !important;
+  }
+  .monroe-global-nav.is-open .monroe-global-nav__panel {
+    animation: none;
+  }
+}
+
+@media (min-width: 1201px) {
+  .monroe-global-nav__bar-cta,
+  .monroe-global-nav__backdrop {
+    display: none !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .monroe-global-nav__inner {
+    padding-inline: 0.75rem;
+  }
+
+  .monroe-global-nav__bar {
+    width: min(100%, calc(100vw - 1.5rem));
+    column-gap: 0.25rem;
+  }
+
+  .monroe-global-nav__bar-adopt {
+    display: none;
+  }
+
+  .monroe-global-nav__brand img {
+    max-width: min(280px, 78vw) !important;
+  }
+
+  .monroe-global-nav__cta-row {
+    grid-template-columns: 1fr;
+  }
+
+  .monroe-global-nav__cta-row .monroe-global-nav__call,
+  .monroe-global-nav__cta-row .monroe-global-nav__application {
+    grid-column: 1;
+  }
+}
+
+body.monroe-rebuild-theme #dm,
+body.monroe-rebuild-theme #site_content,
+body.monroe-rebuild-theme #iscrollBody,
+body.monroe-rebuild-theme .dmRespRowsWrapper,
+body.monroe-rebuild-theme .dmRespRow,
+body.monroe-rebuild-theme .dmRespColsWrapper,
+body.monroe-rebuild-theme .dmRespCol,
+body.monroe-rebuild-theme .dmLayoutWrapper,
+body.monroe-rebuild-theme .dmInner,
+body.monroe-rebuild-theme .dmOuter {
+  max-width: 100%;
+}
+
+body.monroe-rebuild-theme .dmRespCol {
+  min-width: 0;
+}
+
+body.monroe-rebuild-theme table,
+body.monroe-rebuild-theme form,
+body.monroe-rebuild-theme fieldset,
+body.monroe-rebuild-theme input,
+body.monroe-rebuild-theme select,
+body.monroe-rebuild-theme textarea,
+body.monroe-rebuild-theme button {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body.monroe-rebuild-theme .dmform input[type='text'],
+body.monroe-rebuild-theme .dmform input[type='email'],
+body.monroe-rebuild-theme .dmform input[type='tel'],
+body.monroe-rebuild-theme .dmform input[type='number'],
+body.monroe-rebuild-theme .dmform input[type='search'],
+body.monroe-rebuild-theme .dmform input[type='url'],
+body.monroe-rebuild-theme .dmform textarea,
+body.monroe-rebuild-theme .dmform select {
+  width: 100% !important;
+}
+
+/* Site footer */
+.monroe-site-footer {
+  background: #173a39;
+  color: #fffaf2;
+  margin-top: 0;
+  padding: clamp(2rem, 5vw, 2.75rem) clamp(1.25rem, 4vw, 2rem) 1.75rem;
+  font-family: var(--wp--preset--font-family--montserrat, 'Montserrat', 'Segoe UI', sans-serif);
+}
+
+.monroe-site-footer__inner {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.monroe-site-footer__grid {
+  display: grid;
+  gap: 1.75rem;
+  margin-bottom: 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .monroe-site-footer__grid {
+    grid-template-columns: 1.4fr 1fr 1fr;
+    align-items: start;
+    gap: 2rem;
+  }
+}
+
+.monroe-site-footer__name {
+  margin: 0 0 0.5rem;
+  font-family: var(--wp--preset--font-family--abril, 'Abril Fatface', Georgia, serif);
+  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+  line-height: 1.2;
+}
+
+.monroe-site-footer__address {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  opacity: 0.92;
+}
+
+.monroe-site-footer__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .monroe-site-footer__links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.monroe-site-footer__links a,
+.monroe-site-footer__contact a {
+  color: #fffaf2;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Comfortable tap targets for footer links on phones (column tablet+ keeps text flow) */
+@media (max-width: 767px) {
+  .monroe-site-footer__links a,
+  .monroe-site-footer__contact a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+.monroe-site-footer__links a:hover,
+.monroe-site-footer__links a:focus-visible,
+.monroe-site-footer__contact a:hover,
+.monroe-site-footer__contact a:focus-visible {
+  color: #a7f3d0;
+}
+
+.monroe-site-footer__contact p {
+  margin: 0 0 0.45rem;
+  font-size: 0.95rem;
+}
+
+.monroe-site-footer__staff {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.monroe-site-footer__staff-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.55rem 1.35rem;
+  border: 1px solid rgba(255, 250, 242, 0.42);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.1);
+  color: #fffaf2;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.monroe-site-footer__staff-btn:hover,
+.monroe-site-footer__staff-btn:focus-visible {
+  background: #fffaf2;
+  border-color: #fffaf2;
+  color: #173a39;
+  transform: translateY(-1px);
+}
+
+.monroe-site-footer__legal {
+  margin: 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 250, 242, 0.18);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Shop page (page-shop.php) - demo grid + Square panel
+   -------------------------------------------------------------------------- */
+.page-slug-shop #monroe-main {
+  padding-bottom: 0;
+}
+
+.monroe-shop-page {
+  font-family: var(--wp--preset--font-family--jost, 'Jost', 'Segoe UI', sans-serif);
+  color: #1d2a2a;
+  background:
+    radial-gradient(circle at top left, rgba(28, 116, 108, 0.14), transparent 38%),
+    linear-gradient(180deg, #f5efe3 0%, #f9f7f2 35%, #ffffff 100%);
+}
+
+.monroe-shop-under-construction {
+  margin: 0;
+  padding: clamp(1rem, 3vw, 1.35rem) clamp(1.25rem, 4vw, 2rem);
+  text-align: center;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      #fff7ed,
+      #fff7ed 10px,
+      #ffe8c8 10px,
+      #ffe8c8 20px
+    );
+  border-bottom: 3px dashed #ffb347;
+  color: #1d2a2a;
+}
+
+.monroe-shop-under-construction__emoji {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.35rem, 3vw, 1.65rem);
+  line-height: 1.2;
+  letter-spacing: 0.2em;
+}
+
+.monroe-shop-under-construction__title {
+  margin: 0 0 0.35rem;
+  font-family: var(--wp--preset--font-family--abril, 'Abril Fatface', Georgia, serif);
+  font-size: clamp(1.15rem, 2.8vw, 1.45rem);
+  line-height: 1.2;
+  color: #0f766e;
+}
+
+.monroe-shop-under-construction__text {
+  margin: 0 auto;
+  max-width: 36rem;
+  font-size: clamp(0.92rem, 2vw, 1.05rem);
+  line-height: 1.5;
+  color: rgba(29, 42, 42, 0.88);
+}
+
+.monroe-shop-hero--banner {
+  background: linear-gradient(135deg, #0f766e 0%, #134e4a 46%, #1d2a2a 100%);
+  color: #fff;
+  padding: clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 4vw, 2rem);
+  text-align: center;
+}
+
+.monroe-shop-hero--split .monroe-shop-hero__grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  align-items: center;
+  text-align: center;
+}
+
+.monroe-shop-hero--split .monroe-shop-hero__actions {
+  justify-content: center;
+}
+
+@media (min-width: 900px) {
+  .monroe-shop-hero--split .monroe-shop-hero__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 38%);
+    text-align: left;
+  }
+
+  .monroe-shop-hero--split .monroe-shop-hero__actions {
+    justify-content: flex-start;
+  }
+}
+
+.monroe-shop-hero__visual {
+  margin: 0;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.monroe-shop-hero__visual img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.monroe-shop-hero__inner {
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.monroe-shop-hero__kicker {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+.monroe-shop-hero h1 {
+  margin: 0 0 1rem;
+  font-family: var(--wp--preset--font-family--abril, 'Abril Fatface', Georgia, serif);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.08;
+}
+
+.monroe-shop-hero__lead {
+  margin: 0 0 1.75rem;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.monroe-shop-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.monroe-shop-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.35rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.monroe-shop-btn--primary {
+  background: #fff;
+  color: #0f766e;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+}
+
+.monroe-shop-btn--primary:hover,
+.monroe-shop-btn--primary:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.monroe-shop-btn--ghost {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+}
+
+.monroe-shop-btn--ghost:hover,
+.monroe-shop-btn--ghost:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.monroe-shop-btn--stretch {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.monroe-shop-section {
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1rem, 4vw, 2rem);
+}
+
+.monroe-shop-section__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.monroe-shop-demo-intro {
+  text-align: center;
+  max-width: 40rem;
+  margin: 0 auto 2rem;
+}
+
+.monroe-shop-demo-intro h2 {
+  margin: 0.5rem 0 0.75rem;
+  font-family: var(--wp--preset--font-family--abril, 'Abril Fatface', Georgia, serif);
+  font-size: clamp(1.65rem, 3.5vw, 2.25rem);
+  color: #153635;
+}
+
+.monroe-shop-demo-intro p {
+  margin: 0;
+  color: #405757;
+  line-height: 1.65;
+}
+
+.monroe-shop-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.12);
+  color: #0b534e;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.monroe-shop-product-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 1.35rem;
+}
+
+.monroe-shop-product-card {
+  background: #fff;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(36, 72, 67, 0.12);
+  box-shadow: 0 18px 42px rgba(17, 41, 41, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.monroe-shop-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 48px rgba(17, 41, 41, 0.12);
+}
+
+.monroe-shop-product-card__media {
+  aspect-ratio: 1;
+  background: #f1f5f4;
+}
+
+.monroe-shop-product-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.monroe-shop-product-card--media-contain .monroe-shop-product-card__media {
+  background: #fff;
+}
+
+.monroe-shop-product-card--media-contain .monroe-shop-product-card__media img {
+  object-fit: contain;
+  padding: 0.65rem;
+  box-sizing: border-box;
+}
+
+.monroe-shop-product-card__body {
+  padding: 1.1rem 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.35rem;
+}
+
+.monroe-shop-product-card__title {
+  margin: 0;
+  font-size: 1.08rem;
+  color: #153635;
+}
+
+.monroe-shop-product-card__price {
+  margin: 0;
+  font-weight: 800;
+  color: #0f766e;
+  font-size: 1.05rem;
+}
+
+.monroe-shop-product-card__blurb {
+  margin: 0;
+  flex: 1;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #516a69;
+}
+
+.monroe-shop-product-card__cta {
+  margin-top: 0.5rem;
+  align-self: flex-start;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f766e;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.monroe-shop-product-card__cta:hover,
+.monroe-shop-product-card__cta:focus-visible {
+  color: #0b534e;
+}
+
+.monroe-shop-section--checkout {
+  padding-top: 0;
+}
+
+.monroe-shop-checkout-layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(240px, 320px);
+  gap: 2rem;
+  align-items: start;
+}
+
+.monroe-shop-checkout-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 1.25rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgba(36, 72, 67, 0.1);
+  box-shadow: 0 16px 40px rgba(17, 41, 41, 0.06);
+}
+
+.monroe-shop-checkout-panel h2 {
+  margin: 0 0 0.5rem;
+  font-family: var(--wp--preset--font-family--abril, 'Abril Fatface', Georgia, serif);
+  font-size: 1.5rem;
+  color: #153635;
+}
+
+.monroe-shop-checkout-panel > p {
+  margin: 0 0 1rem;
+  color: #516a69;
+  line-height: 1.55;
+}
+
+.monroe-shop-embed-wrap {
+  margin-top: 1rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(23, 58, 57, 0.12);
+  background: #f8faf9;
+  min-height: 280px;
+}
+
+.monroe-shop-embed {
+  width: 100%;
+  min-height: min(70vh, 560px);
+  border: 0;
+  display: block;
+}
+
+.monroe-shop-embed-fallback {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  color: #64748b;
+  background: rgba(15, 118, 110, 0.06);
+}
+
+.monroe-shop-sidebar {
+  background: rgba(15, 118, 110, 0.06);
+  padding: 1.5rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(15, 118, 110, 0.12);
+}
+
+.monroe-shop-sidebar h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: #0f766e;
+}
+
+.monroe-shop-sidebar ul {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.monroe-shop-sidebar li {
+  position: relative;
+  padding-left: 1.35rem;
+  margin-bottom: 0.5rem;
+  color: #405757;
+  line-height: 1.45;
+}
+
+.monroe-shop-sidebar li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #0f766e;
+  font-weight: 800;
+}
+
+.monroe-shop-sidebar-note {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #516a69;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(15, 118, 110, 0.2);
+}
+
+@media (max-width: 900px) {
+  .monroe-shop-checkout-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================
+   Sponsor marquee (merged from assets/blocks/sponsor-marquee.css)
+   ============================================================= */
+.monroe-sponsor-marquee {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  --monroe-marquee-gap: 36px;
+  --monroe-marquee-speed: 30s;
+}
+
+.monroe-sponsor-marquee__slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.monroe-sponsor-marquee__slider::before,
+.monroe-sponsor-marquee__slider::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 90px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.monroe-sponsor-marquee__slider::before {
+  left: 0;
+  background: linear-gradient(to right, #fff, transparent);
+}
+
+.monroe-sponsor-marquee__slider::after {
+  right: 0;
+  background: linear-gradient(to left, #fff, transparent);
+}
+
+.monroe-sponsor-marquee__track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: monroe-sponsor-marquee var(--monroe-marquee-speed) linear infinite;
+}
+
+.monroe-sponsor-marquee.is-pausable:hover .monroe-sponsor-marquee__track,
+.monroe-sponsor-marquee.is-pausable:focus-within .monroe-sponsor-marquee__track {
+  animation-play-state: paused;
+}
+
+.monroe-sponsor-marquee__set {
+  display: flex;
+  align-items: center;
+  gap: var(--monroe-marquee-gap);
+  padding-right: var(--monroe-marquee-gap);
+}
+
+.monroe-sponsor-marquee__track img,
+#sponsorMarqueeWidget .logo-set img {
+  display: block;
+  height: auto;
+  max-height: 120px;
+  width: auto;
+  max-width: 250px;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+@keyframes monroe-sponsor-marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (max-width: 768px) {
+  .monroe-sponsor-marquee__track img {
+    max-height: 70px;
+    max-width: 160px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monroe-sponsor-marquee__track {
+    animation: none !important;
+    transform: translate3d(0, 0, 0) !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+  .monroe-sponsor-marquee__set {
+    padding-right: 0;
+  }
+  .monroe-sponsor-marquee__slider::before,
+  .monroe-sponsor-marquee__slider::after {
+    display: none;
+  }
+}
+

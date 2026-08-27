@@ -1,8 +1,8 @@
-/*
- Humane Games launcher — port of the theme's humane-games-launcher.css.
+﻿/*
+ Humane Games launcher â€” port of the theme's humane-games-launcher.css.
 */
 
-/* 🐾 Humane Games Hub: Warm, Playful, PIN-Secured Pet Arcade Launcher */
+/* ðŸ¾ Humane Games Hub: Warm, Playful, PIN-Secured Pet Arcade Launcher */
 
 :root {
   --hg-fur: #fdfbf7;
@@ -80,7 +80,7 @@
   margin: 0;
 }
 
-/* 🔒 PIN-Secured Auth Card */
+/* ðŸ”’ PIN-Secured Auth Card */
 .monroe-games-auth-card {
   background: rgba(255, 255, 255, 0.96);
   border: 2.5px solid rgba(255, 179, 71, 0.6);
@@ -444,7 +444,7 @@
   gap: 0.4rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
+  
 }
 
 .btn-hub-action--album {
@@ -1153,7 +1153,7 @@
 
 .impact-actions { gap: .5rem; }
 
-.btn-impact { padding: .65rem .85rem; font-size: .78rem; white-space: nowrap; }
+.btn-impact { padding: .65rem .85rem; font-size: .78rem;  }
 
 .btn-impact--secondary, .btn-impact--donate { display: none; }
 
@@ -1213,7 +1213,7 @@
 
 .art-shelter-run { position: relative; display: flex; align-items: center; justify-content: center; width: 210px; height: 120px; }
 
-.art-runner-sprite { width: 112px; height: 98px; display: block; background-image: url('./humane-games/flappy-cat/game/assets/cat_ginger.png'); background-repeat: no-repeat; background-size: 672px 98px; background-position: 0 0; animation: shelterCloneRun 1.05s steps(1, end) infinite; filter: drop-shadow(0 8px 8px rgba(19, 78, 74, .2)); }
+.art-runner-sprite { width: 112px; height: 98px; display: block; background-image: url('/games/flappy-cat/game/assets/cat_ginger.png'); background-repeat: no-repeat; background-size: 672px 98px; background-position: 0 0; animation: shelterCloneRun 1.05s steps(1, end) infinite; filter: drop-shadow(0 8px 8px rgba(19, 78, 74, .2)); }
 
 .art-motion-lines { position: absolute; left: 15px; top: 48px; width: 42px; height: 26px; opacity: .65; background: repeating-linear-gradient(180deg, transparent 0 5px, #2a9d8f 5px 8px, transparent 8px 13px); transform: skewX(-24deg); animation: runnerMotion .36s linear infinite; }
 
@@ -1225,7 +1225,7 @@
 
 .art-flappy-cat { position: relative; display: flex; align-items: center; justify-content: center; width: 220px; height: 120px; }
 
-.art-flappy-sprite { width: 112px; height: 98px; display: block; background-image: url('./humane-games/flappy-cat/game/assets/cat_calico.png'); background-repeat: no-repeat; background-size: 672px 98px; background-position: 0 0; image-rendering: auto; animation: flappyCatCycle 1.65s steps(1, end) infinite; filter: drop-shadow(0 8px 8px rgba(44, 28, 25, .18)); }
+.art-flappy-sprite { width: 112px; height: 98px; display: block; background-image: url('/games/flappy-cat/game/assets/cat_calico.png'); background-repeat: no-repeat; background-size: 672px 98px; background-position: 0 0; image-rendering: auto; animation: flappyCatCycle 1.65s steps(1, end) infinite; filter: drop-shadow(0 8px 8px rgba(44, 28, 25, .18)); }
 
 .art-flappy-cloud { position: absolute; right: 8px; top: 16px; width: 58px; height: 24px; border-radius: 50%; background: rgba(255,255,255,.8); box-shadow: -18px 7px 0 -3px rgba(255,255,255,.72), 18px 6px 0 -5px rgba(255,255,255,.72); animation: flappyCloudDrift 2.8s ease-in-out infinite alternate; }
 
@@ -1319,7 +1319,7 @@
 
 @media (min-width: 721px) {
 .guest-save-card .auth-form { grid-template-columns: 1fr 1fr auto; }
-.guest-save-card .btn-auth-submit { grid-column: auto; min-width: 112px; white-space: nowrap; }
+.guest-save-card .btn-auth-submit { grid-column: auto; min-width: 112px;  }
 }
 
 @media (max-width: 720px) {

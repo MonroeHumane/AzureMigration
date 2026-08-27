@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>window.__SHELTER_EMBED__=/(?:^|[?&])embed=1(?:&|$)/.test(location.search);</script>
+  <script src="../embed.js"></script>
+  <link rel="stylesheet" href="../embed.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Shelter Clicker - Monroe Humane Society</title>
+  <meta name="description" content="Tap to grow your shelter - fund programs, hire volunteer managers, and celebrate pets finding homes. Saves to your Humane Games Adoptédex profile.">
+  <meta name="keywords" content="shelter clicker, Monroe Humane, browser game, idle clicker, pet adoption, humane society, shelter game">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+  <meta name="theme-color" content="#e86820">
+  <!-- Open Graph -->
+  <meta property="og:site_name" content="Monroe Humane">
+  <meta property="og:title" content="Shelter Clicker – Monroe Humane Society">
+  <meta property="og:description" content="Tap to grow your shelter – fund programs, hire volunteer managers, and celebrate pets finding homes.">
+  <meta property="og:type" content="website">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Shelter Clicker – Monroe Humane Society">
+  <meta name="twitter:description" content="Tap to grow your shelter – fund programs, hire volunteer managers, and celebrate pets finding homes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="./assets/index.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index.css">
+</head>
+<body>
+  <div id="app">
+
+    <aside id="left-panel">
+      <div id="shelter-brand">
+        <span class="brand-paw">🐾</span>
+        <span class="brand-name">Shelter<br>Clicker</span>
+      </div>
+
+      <div id="username-section">
+        <div id="username-label-row">
+          Director: <span id="username-label">…</span>
+        </div>
+      </div>
+
+      <div id="money-section">
+        <div id="money-label">💰 DONATIONS</div>
+        <div id="money-amount">$4</div>
+        <div id="money-per-sec">$0 / sec</div>
+      </div>
+
+      <div id="adoption-section">
+        <div id="adoption-pet-icon">🐾</div>
+        <div id="adoption-stats">
+          <div id="click-power-label">$1 per adoption</div>
+          <div id="auto-click-label">Click to help pets!</div>
+        </div>
+        <button type="button" id="adopt-click-btn" class="adopt-btn">🐾 FIND A HOME</button>
+      </div>
+
+      <div id="rank-section">
+        <div id="rank-badge" class="rank-badge" aria-hidden="true"><span id="rank-emoji">🐾</span></div>
+        <div>
+          <div id="rank-title">Volunteer</div>
+          <div id="star-display"><span id="star-count">0</span> ⭐ Trust Stars</div>
+          <div id="star-bonus">+0% Donations</div>
+        </div>
+      </div>
+
+      <button type="button" class="prestige-btn" id="prestige-btn" disabled>
+        🏠 OPEN NEW SHELTER
+        <span class="prestige-sub-text">Earn Community Trust Stars</span>
+      </button>
+      <p id="legacy-hint" class="legacy-hint" hidden></p>
+
+      <div class="desktop-util-row">
+        <button type="button" id="mute-btn" aria-label="Toggle sound">🔊</button>
+        <button type="button" id="credits-btn" aria-label="Credits">ℹ️ Credits</button>
+        <button type="button" id="wipe-btn" aria-label="Wipe Save">WIPE SAVE</button>
+      </div>
+    </aside>
+
+    <main id="right-panel">
+      <header id="content-toolbar" class="content-toolbar">
+        <nav id="tab-bar" class="game-nav" aria-label="Game sections">
+          <div class="game-nav__group" data-nav-group="shelter">
+            <span class="game-nav__group-label">Shelter</span>
+            <div class="game-nav__buttons">
+              <button type="button" class="game-nav__btn tab-btn active" data-tab="businesses">
+                <span class="game-nav__icon" aria-hidden="true">🏠</span>
+                <span class="game-nav__label">Programs</span>
+              </button>
+              <button type="button" class="game-nav__btn tab-btn" data-tab="managers">
+                <span class="game-nav__icon" aria-hidden="true">🙋</span>
+                <span class="game-nav__label">Volunteers</span>
+              </button>
+              <button type="button" class="game-nav__btn tab-btn" data-tab="upgrades">
+                <span class="game-nav__icon" aria-hidden="true">🛒</span>
+                <span class="game-nav__label">Shop</span>
+              </button>
+            </div>
+          </div>
+          <div class="game-nav__group" data-nav-group="progress">
+            <span class="game-nav__group-label">Progress</span>
+            <div class="game-nav__buttons">
+              <button type="button" class="game-nav__btn tab-btn" data-tab="achievements">
+                <span class="game-nav__icon" aria-hidden="true">🌟</span>
+                <span class="game-nav__label">Goals</span>
+              </button>
+              <button type="button" class="game-nav__btn tab-btn" data-tab="pets">
+                <span class="game-nav__icon" aria-hidden="true">🐾</span>
+                <span class="game-nav__label">Pets</span>
+              </button>
+            </div>
+          </div>
+          <div class="game-nav__group" data-nav-group="account">
+            <span class="game-nav__group-label">Account</span>
+            <div class="game-nav__buttons">
+              <button type="button" class="game-nav__btn tab-btn" data-tab="stats">
+                <span class="game-nav__icon" aria-hidden="true">📊</span>
+                <span class="game-nav__label">Stats</span>
+              </button>
+              <button type="button" class="game-nav__btn tab-btn" data-tab="settings">
+                <span class="game-nav__icon" aria-hidden="true">⚙️</span>
+                <span class="game-nav__label">Settings</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+        <div id="content-heading" class="content-heading">
+          <h2 id="content-heading-title" class="content-heading__title">Programs</h2>
+          <p id="content-heading-desc" class="content-heading__desc">Fund and level each shelter program</p>
+        </div>
+      </header>
+      <div id="multiplier-bar" aria-label="Purchase multiplier">
+        <button type="button" class="mult-btn active" data-mult="1">×1</button>
+        <button type="button" class="mult-btn" data-mult="5">×5</button>
+        <button type="button" class="mult-btn" data-mult="10">×10</button>
+        <button type="button" class="mult-btn" data-mult="25">×25</button>
+        <button type="button" class="mult-btn" data-mult="max">Max</button>
+      </div>
+      <div id="tab-content" class="tab-panel"></div>
+
+      <nav id="mobile-bottom-nav" class="mobile-bottom-nav" aria-label="Mobile navigation" hidden>
+        <button type="button" class="mobile-nav-btn active" data-mobile-screen="play" aria-label="Play - tap to adopt">
+          <span class="mobile-nav-btn__icon" aria-hidden="true">👆</span>
+          <span class="mobile-nav-btn__label">Play</span>
+        </button>
+        <button type="button" class="mobile-nav-btn" data-mobile-screen="content" data-tab="businesses" aria-label="Programs">
+          <span class="mobile-nav-btn__icon" aria-hidden="true">🏠</span>
+          <span class="mobile-nav-btn__label">Programs</span>
+        </button>
+        <button type="button" class="mobile-nav-btn" data-mobile-screen="content" data-tab="managers" aria-label="Volunteers">
+          <span class="mobile-nav-btn__icon" aria-hidden="true">🙋</span>
+          <span class="mobile-nav-btn__label">Team</span>
+        </button>
+        <button type="button" class="mobile-nav-btn" data-mobile-screen="content" data-tab="upgrades" aria-label="Shop">
+          <span class="mobile-nav-btn__icon" aria-hidden="true">🛒</span>
+          <span class="mobile-nav-btn__label">Shop</span>
+        </button>
+        <button type="button" class="mobile-nav-btn" data-mobile-action="menu" aria-label="Menu" aria-haspopup="dialog">
+          <span class="mobile-nav-btn__icon" aria-hidden="true">☰</span>
+          <span class="mobile-nav-btn__label">Menu</span>
+        </button>
+      </nav>
+    </main>
+  </div>
+
+  <div id="mobile-menu-sheet" class="mobile-menu-sheet" hidden aria-hidden="true">
+    <div class="mobile-menu-sheet__backdrop" data-mobile-menu-close tabindex="-1"></div>
+    <div class="mobile-menu-sheet__panel" role="dialog" aria-labelledby="mobile-menu-title">
+      <div class="mobile-menu-sheet__header">
+        <h2 id="mobile-menu-title" class="mobile-menu-sheet__title">Menu</h2>
+        <button type="button" class="mobile-menu-sheet__close" data-mobile-menu-close aria-label="Close">✕</button>
+      </div>
+      <div class="mobile-menu-sheet__grid">
+        <button type="button" class="mobile-menu-item" data-mobile-screen="content" data-tab="achievements">
+          <span class="mobile-menu-item__icon" aria-hidden="true">🌟</span>
+          <span class="mobile-menu-item__label">Goals</span>
+        </button>
+        <button type="button" class="mobile-menu-item" data-mobile-screen="content" data-tab="pets">
+          <span class="mobile-menu-item__icon" aria-hidden="true">🐾</span>
+          <span class="mobile-menu-item__label">Pets</span>
+        </button>
+        <button type="button" class="mobile-menu-item" data-mobile-screen="content" data-tab="stats">
+          <span class="mobile-menu-item__icon" aria-hidden="true">📊</span>
+          <span class="mobile-menu-item__label">Stats</span>
+        </button>
+        <button type="button" class="mobile-menu-item" data-mobile-screen="content" data-tab="settings">
+          <span class="mobile-menu-item__icon" aria-hidden="true">⚙️</span>
+          <span class="mobile-menu-item__label">Settings</span>
+        </button>
+      </div>
+      <div class="mobile-menu-sheet__utilities">
+        <button type="button" class="mobile-menu-util" id="mobile-menu-mute">
+          <span aria-hidden="true">🔊</span> Sound
+        </button>
+        <button type="button" class="mobile-menu-util" id="mobile-menu-credits">
+          <span aria-hidden="true">ℹ️</span> Credits
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="username-modal" class="modal-overlay hidden">
+    <div class="modal-box username-box">
+      <div class="modal-title">🐾 Adoptédex nickname</div>
+      <div class="modal-sub">Use the same nickname as on the Humane Games page. Progress syncs to your profile (separate from Shelter Tycoon on the map).</div>
+      <input id="username-input" class="modal-input" type="text" maxlength="20"
+             placeholder="3–20 characters…" autocomplete="off" spellcheck="false">
+      <div class="modal-sub" style="font-size:0.75rem;opacity:0.7;">Letters and numbers only after slugify - matches Adoptédex rules.</div>
+      <button type="button" id="username-submit-btn" class="modal-btn">Start Sheltering! 🐕</button>
+    </div>
+  </div>
+
+  <div id="offline-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">🐾 Welcome Back!</div>
+      <div class="modal-sub">While you were away, your volunteers collected</div>
+      <div id="offline-amount" class="modal-amount">$0</div>
+      <button type="button" id="offline-collect-btn" class="modal-btn">Collect Donations!</button>
+    </div>
+  </div>
+
+  <div id="prestige-modal" class="modal-overlay hidden">
+    <div class="modal-box modal-box--prestige">
+      <div class="modal-title">🏠 Open a New Shelter?</div>
+      <div class="modal-reward" id="prestige-reward-text">+0 ⭐ Stars</div>
+      <div id="prestige-preview" class="prestige-preview" aria-live="polite"></div>
+      <div class="modal-sub">Each Trust Star = +2% donations permanently (soft-capped with other bonuses)</div>
+      <div class="modal-warning">Resets programs, volunteers &amp; upgrades. Keeps Trust Stars, Pet Champions, Goals &amp; Legacy.</div>
+      <div class="modal-buttons">
+        <button type="button" id="prestige-confirm-btn" class="modal-btn">Open New Location!</button>
+        <button type="button" id="prestige-cancel-btn" class="modal-btn btn-cancel">Not Yet</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="rebirth-modal" class="modal-overlay hidden">
+    <div class="modal-box modal-box--prestige">
+      <div class="modal-title">🏛️ Shelter Legacy Rebirth?</div>
+      <div class="modal-reward" id="rebirth-reward-text">+0 Legacy Tokens</div>
+      <div id="rebirth-preview" class="prestige-preview" aria-live="polite"></div>
+      <div class="modal-sub">Earn permanent Legacy Tokens. Each boosts click power, income, prestige stars, and restart cash forever.</div>
+      <div class="modal-warning">Hard reset - programs, stars, volunteers, upgrades, and Pet Champions are cleared.</div>
+      <div class="modal-buttons">
+        <button type="button" id="rebirth-confirm-btn" class="modal-btn">Begin Legacy Rebirth</button>
+        <button type="button" id="rebirth-cancel-btn" class="modal-btn btn-cancel">Not Yet</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="milestone-overlay" class="hidden">
+    <div id="milestone-text"></div>
+  </div>
+
+  <div id="wipe-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">HARD RESET?</div>
+      <div class="modal-warning">This will completely delete your save data!</div>
+      <div class="modal-sub">You will lose all donations, stars, and progress forever.</div>
+      <div class="modal-buttons">
+        <button type="button" id="wipe-confirm-btn" class="modal-btn btn-danger">YES, WIPE</button>
+        <button type="button" id="wipe-cancel-btn" class="modal-btn btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="import-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">Import Save</div>
+      <div class="modal-sub">Paste your save string below. This will overwrite current progress.</div>
+      <textarea id="import-textarea" class="modal-textarea" rows="6" placeholder="Paste your save string here…"></textarea>
+      <div class="modal-buttons">
+        <button type="button" id="import-confirm-btn" class="modal-btn">Import</button>
+        <button type="button" id="import-cancel-btn" class="modal-btn btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="credits-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">Credits</div>
+      <div class="credits-content">
+        <div class="credits-heading">Shelter Clicker</div>
+        <div class="credits-line">Built for the Monroe County Humane Society</div>
+        <div class="credits-line"><a href="https://www.monroe-humane.org" target="_blank" rel="noopener">monroe-humane.org</a></div>
+        <div class="credits-section">Game Engine</div>
+        <div class="credits-line">Architecture inspired by <a href="https://github.com/hatimhtm/night-market-tycoon" target="_blank" rel="noopener">Night Market Tycoon</a> (PolyForm Noncommercial)</div>
+        <div class="credits-section">Libraries</div>
+        <div class="credits-line">break_eternity.js &nbsp;·&nbsp; Howler.js &nbsp;·&nbsp; Vite</div>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" id="credits-close-btn" class="modal-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-stack" aria-live="polite"></div>
+
+  <div id="dex-identity-gate" class="dex-identity-gate" hidden>
+    <div class="dex-identity-gate__panel">
+      <p class="dex-identity-gate__title">Adoptédex nickname required</p>
+      <p class="dex-identity-gate__body">Shelter Clicker saves to the same profile as your Adoptédex album. Close this game, enter your nickname on the <strong>Humane Games</strong> page, then launch again.</p>
+    </div>
+  </div>
+
+</body>
+</html>

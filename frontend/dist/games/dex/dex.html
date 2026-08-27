@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Adoptédex - Humane Games</title>
+	<script src="../embed.js"></script>
+	<link rel="stylesheet" href="embed.css?v=2">
+	<link rel="stylesheet" href="dex.css?v=2">
+</head>
+<body>
+	<div class="adoptedex-app" id="adoptedexApp">
+		<header class="adoptedex-header">
+			<h1>Adoptédex</h1>
+			<p class="adoptedex-stats" id="dexStats"></p>
+		</header>
+		<p class="adoptedex-live" id="dexLive" aria-live="polite"></p>
+
+		<div class="adoptedex-actions">
+			<button type="button" class="adoptedex-btn adoptedex-btn--primary" id="dexMeet">Meet someone new</button>
+		</div>
+
+		<div class="adoptedex-search">
+			<input type="search" class="adoptedex-search__input" id="dexSearch" placeholder="Search by name, breed, or type…" aria-label="Search pets">
+		</div>
+
+		<nav class="adoptedex-tabs" aria-label="Album views">
+			<button type="button" class="adoptedex-tab is-active" data-tab="collection">My collection</button>
+			<button type="button" class="adoptedex-tab" data-tab="available">Available</button>
+			<button type="button" class="adoptedex-tab" data-tab="past">Past friends</button>
+		</nav>
+
+		<main class="adoptedex-main" id="dexGrid" aria-label="Pet grid"></main>
+
+		<footer class="adoptedex-footer">
+			Pets you find in games are saved to your Adoptédex forever and show on your album once they’re adopted.
+		</footer>
+		<div class="adoptedex-error" id="dexError" hidden></div>
+	</div>
+	<script src="dex-shared.js?v=4"></script>
+	<script src="dex.js?v=2" defer></script>
+</body>
+</html>

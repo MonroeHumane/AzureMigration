@@ -1,0 +1,1517 @@
+/* Pet Snake Adventure - art-aligned mat (parchment PNG is the sole frame) */
+
+.cat-snake__board-wrap {
+	position: relative;
+}
+
+/* Measured from parchment-frame.png (1024×1024) - inner play hole bounds */
+.cat-snake__board-wrap.adventure-panel {
+	--mat-inset-top: 12.8%;
+	--mat-inset-right: 13.9%;
+	--mat-inset-bottom: 13.9%;
+	--mat-inset-left: 9.3%;
+	--mat-header-top: 9%;
+	--mat-header-bottom: var(--mat-inset-top);
+	--mat-footer-top: calc(100% - var(--mat-inset-bottom));
+	--mat-footer-bottom: calc(100% - 9%);
+	--mat-play-radius: 14px;
+
+	background-image: url("parchment-frame.png");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	border: none;
+	border-radius: 0;
+	padding: 0;
+	box-shadow: 0 16px 40px rgba(44, 28, 25, 0.35);
+	display: block;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+	aspect-ratio: 1 / 1;
+}
+
+.board-stage {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+	z-index: 3;
+	container-type: size;
+	container-name: mat;
+}
+
+.board-stage__play {
+	position: absolute;
+	top: var(--mat-inset-top);
+	right: var(--mat-inset-right);
+	bottom: var(--mat-inset-bottom);
+	left: var(--mat-inset-left);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 0;
+	min-width: 0;
+	overflow: hidden;
+	border-radius: var(--mat-play-radius);
+	background: transparent;
+	box-shadow: inset 0 2px 6px rgba(62, 39, 35, 0.1);
+	padding: 1px;
+	clip-path: inset(0 round var(--mat-play-radius));
+}
+
+.cat-snake__board-wrap.adventure-dim-room .board-stage__play::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	border-radius: inherit;
+	background: radial-gradient(circle at center, rgba(8, 6, 16, 0) 38%, rgba(8, 6, 16, 0.62) 100%);
+	mix-blend-mode: multiply;
+	z-index: 5;
+}
+
+.cat-snake__board-wrap.adventure-panel .cat-snake__board {
+	position: relative;
+	z-index: 2;
+	max-width: 100%;
+	max-height: 100%;
+	border-radius: calc(var(--mat-play-radius) - 2px);
+	box-shadow: inset 0 0 0 2px rgba(191, 170, 120, 0.55);
+}
+
+/* Ink-on-parchment HUD */
+.board-hud {
+	position: absolute;
+	left: var(--mat-inset-left);
+	right: var(--mat-inset-right);
+	z-index: 4;
+	pointer-events: none;
+	display: flex;
+	gap: 4px;
+	padding: 0 4px;
+	background: none;
+	border: none;
+	box-shadow: none;
+}
+
+.board-hud--top {
+	top: var(--mat-header-top);
+	height: calc(var(--mat-header-bottom) - var(--mat-header-top));
+	flex-direction: row;
+	align-items: flex-end;
+	justify-content: space-between;
+	padding-bottom: 1.5%;
+}
+
+.board-hud--bottom {
+	top: var(--mat-footer-top);
+	bottom: auto;
+	height: calc(var(--mat-footer-bottom) - var(--mat-footer-top));
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: stretch;
+	overflow: hidden;
+	padding: 2% 4px 0;
+}
+
+.board-hud__vitals {
+	display: grid;
+	grid-template-columns: auto auto auto auto;
+	align-items: center;
+	column-gap: clamp(10px, 2.5cqw, 18px);
+	flex: 0 1 auto;
+	min-width: 0;
+	pointer-events: auto;
+}
+
+.hud-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 0;
+	background: none;
+	border: none;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: clamp(0.88rem, 2.8cqw, 1.15rem);
+	font-weight: 700;
+	line-height: 1.1;
+	color: #3e2723;
+	white-space: nowrap;
+	text-shadow: 0 1px 0 rgba(255, 251, 240, 0.6);
+}
+
+.hud-chip__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1em;
+	font-size: 1em;
+	font-weight: 700;
+	line-height: 1;
+	color: #4e342e;
+	opacity: 1;
+}
+
+.hud-chip--floor {
+	flex-direction: column;
+	align-items: stretch;
+	gap: 2px;
+	min-width: clamp(44px, 12cqw, 68px);
+	max-width: none;
+	position: relative;
+}
+
+.board-hud--top #adventure-floor-progress {
+	position: static;
+	width: 100%;
+	height: 3px;
+	margin: 0;
+	padding: 0;
+	overflow: visible;
+	clip: auto;
+	white-space: normal;
+	border: none;
+	border-radius: 0;
+}
+
+.board-hud #adventure-score,
+.board-hud #adventure-coins,
+.board-hud #adventure-floor {
+	font-size: inherit;
+	font-weight: 700;
+	font-family: inherit;
+	color: inherit;
+	text-shadow: inherit;
+	filter: none;
+	transition: none;
+}
+
+.board-hud #adventure-score::before {
+	content: none;
+}
+
+.hud-progress {
+	width: 100%;
+	height: 3px;
+	margin: 0;
+	appearance: none;
+	-webkit-appearance: none;
+	border: none;
+	border-radius: 0;
+	background: rgba(93, 64, 55, 0.22);
+}
+
+.hud-progress::-webkit-progress-bar {
+	background: rgba(93, 64, 55, 0.22);
+}
+
+.hud-progress::-webkit-progress-value {
+	background: rgba(93, 64, 55, 0.72);
+}
+
+.hud-progress::-moz-progress-bar {
+	background: rgba(93, 64, 55, 0.72);
+}
+
+.hud-progress--goal {
+	margin-top: 2px;
+	height: 4px;
+}
+
+.board-hud .adventure-hearts {
+	font-size: clamp(0.95rem, 3.2cqw, 1.3rem);
+	letter-spacing: 0.1em;
+	line-height: 1;
+	animation: none;
+	filter: none;
+	text-shadow: 0 1px 0 rgba(255, 251, 240, 0.6);
+	color: #b71c1c;
+}
+
+.board-hud__actions {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: flex-end;
+	gap: clamp(3px, 0.8cqw, 6px);
+	flex-shrink: 0;
+	max-width: 58%;
+	pointer-events: auto;
+}
+
+.board-hud__toggle {
+	appearance: none;
+	border: 1px solid rgba(93, 64, 55, 0.45);
+	border-radius: 4px;
+	background: linear-gradient(180deg, #faf3e4 0%, #e5d7c0 100%);
+	color: #5d4037;
+	cursor: pointer;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: clamp(0.72rem, 2.1cqw, 0.9rem);
+	font-weight: 700;
+	line-height: 1;
+	padding: clamp(4px, 1cqw, 7px) clamp(6px, 1.4cqw, 10px);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.board-hud__toggle:hover {
+	border-color: #8d6e63;
+}
+
+.board-hud__toggle[aria-expanded="true"] {
+	border-color: #b8860b;
+	background: linear-gradient(180deg, #fff6d8 0%, #f0dfa8 100%);
+}
+
+/* Start / Abort - camp CTA in idle, header control while running */
+.board-run-cta {
+	position: absolute;
+	z-index: 17;
+	pointer-events: auto;
+	appearance: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: clamp(6px, 1.5cqw, 10px);
+	margin: 0;
+	border: 1px solid #5d4037;
+	border-radius: 4px;
+	background: linear-gradient(180deg, #8d6e63 0%, #6d4c41 100%);
+	color: #fff8ed;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-weight: 700;
+	line-height: 1.15;
+	cursor: pointer;
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.25),
+		0 3px 8px rgba(44, 28, 25, 0.28);
+	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.board-run-cta:hover {
+	background: linear-gradient(180deg, #795548 0%, #5d4037 100%);
+	transform: translateY(-1px);
+}
+
+.board-run-cta:active {
+	transform: translateY(0);
+}
+
+.board-run-cta--setup,
+.board-run-cta--hud {
+	position: static;
+	top: auto;
+	left: auto;
+	right: auto;
+	bottom: auto;
+	width: auto;
+	transform: none;
+}
+
+.board-run-cta--setup {
+	width: 100%;
+	padding: clamp(10px, 2.4cqw, 16px) clamp(14px, 3.5cqw, 24px);
+	font-size: clamp(0.92rem, 3cqw, 1.12rem);
+}
+
+.board-run-cta--setup:hover,
+.board-run-cta--setup:active,
+.board-run-cta--hud:hover,
+.board-run-cta--hud:active {
+	transform: none;
+}
+
+.board-run-cta--hud {
+	flex-shrink: 0;
+	padding: clamp(4px, 1.2cqw, 7px) clamp(8px, 2cqw, 12px);
+	font-size: clamp(0.68rem, 1.9cqw, 0.82rem);
+	white-space: nowrap;
+}
+
+[data-game-state="playing"] .board-hud__vitals,
+[data-game-state="paused"] .board-hud__vitals {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.board-run-cta[data-status="running"] {
+	background: linear-gradient(180deg, #ef5350 0%, #c62828 100%);
+	border-color: #b71c1c;
+	color: #fff;
+}
+
+.board-run-cta[data-status="running"] span:first-child {
+	display: inline-block;
+	transform: rotate(90deg);
+}
+
+.board-hud__objective-row {
+	pointer-events: auto;
+	width: 100%;
+	border-top: 1px solid rgba(93, 64, 55, 0.18);
+	padding-top: 3px;
+}
+
+.board-hud__goal {
+	margin: 0;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 0.74rem;
+	font-weight: 600;
+	color: #3e2723;
+	line-height: 1.25;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-shadow: 0 1px 0 rgba(255, 251, 240, 0.55);
+}
+
+.board-hud__status {
+	margin: 2px 0 0;
+	font-size: 0.65rem;
+	font-style: italic;
+	color: rgba(93, 64, 55, 0.85);
+}
+
+.board-hud__status[hidden],
+.board-hud__live[hidden] {
+	display: none !important;
+}
+
+.board-hud__live {
+	margin: 2px 0 0;
+	padding: 0;
+	font-size: 0.65rem;
+	font-style: italic;
+	color: #2e7d32;
+	background: none;
+	border: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.board-hud__live.is-updated {
+	animation: hudLiveFlash 0.45s ease;
+}
+
+@keyframes hudLiveFlash {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.55; }
+}
+
+.board-hud__status-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin-top: 4px;
+}
+
+[data-game-state="idle"] .board-hud__status-tags {
+	display: none;
+}
+
+.adventure-tag {
+	font-size: 0.7rem;
+	padding: 3px 8px;
+	border-radius: 999px;
+	background: rgba(44, 28, 25, 0.05);
+	border: 1px solid rgba(44, 28, 25, 0.08);
+	color: #3e2723;
+}
+
+.adventure-tag--modifier {
+	background: rgba(255, 179, 71, 0.09);
+	border-color: rgba(255, 179, 71, 0.35);
+}
+
+.adventure-tag--mode {
+	background: rgba(141, 110, 99, 0.1);
+	border-color: rgba(93, 64, 55, 0.28);
+}
+
+.board-hud__grace {
+	width: 100%;
+	height: 4px;
+	margin-top: 2px;
+	border-radius: 999px;
+	background: rgba(93, 64, 55, 0.12);
+	overflow: hidden;
+	display: none;
+}
+
+.board-hud__grace.grace-active {
+	display: block;
+}
+
+#adventure-grace-period-bar {
+	height: 100%;
+	background: linear-gradient(90deg, rgba(93, 64, 55, 0.45) 0%, rgba(141, 110, 99, 0.72) 100%);
+	border-radius: 999px;
+	width: 100%;
+	transition: width 0.1s linear;
+}
+
+/* Camp setup - scroll on the mat */
+.board-setup-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 14;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: 5% 8% 10%;
+	background: rgba(44, 28, 25, 0.22);
+	border-radius: inherit;
+	pointer-events: auto;
+}
+
+.board-setup-card.board-mat-scroll {
+	max-width: 92%;
+	margin: 0;
+	gap: 8px;
+}
+
+.board-setup-card__title {
+	margin: 0 0 clamp(8px, 1.8cqw, 12px);
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: clamp(0.95rem, 3.2cqw, 1.2rem);
+	font-weight: 700;
+	color: #4e342e;
+	text-align: center;
+	letter-spacing: 0.06em;
+}
+
+.board-setup-card .sidebar-section--modifiers {
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
+.board-setup-card .sidebar-section__title {
+	margin: 0 0 clamp(8px, 1.6cqw, 12px);
+	font-size: clamp(0.72rem, 2.2cqw, 0.88rem);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #5d4037;
+}
+
+.board-setup-card .adventure-modifiers {
+	flex-direction: column;
+	gap: 8px;
+	background: transparent;
+	border: none;
+	padding: 0;
+	margin: 0 0 8px;
+}
+
+.board-setup-card__footer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.board-setup-card__music-btn {
+	width: auto;
+	display: inline-flex;
+	appearance: none;
+	border: 1px solid rgba(93, 64, 55, 0.4);
+	border-radius: 4px;
+	background: rgba(255, 248, 230, 0.45);
+	color: #5d4037;
+	cursor: pointer;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: clamp(0.68rem, 2cqw, 0.82rem);
+	font-weight: 600;
+	padding: clamp(4px, 1cqw, 6px) clamp(10px, 2.4cqw, 14px);
+}
+
+.board-setup-card__music-btn[hidden] {
+	display: none;
+}
+
+/* Modifier picker (setup scroll) */
+.board-setup-card .adventure-modifiers__list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 6px;
+}
+
+.board-setup-card .adventure-modifier__btn {
+	width: 100%;
+	min-width: 0;
+	border-radius: 4px;
+	border: 1px solid rgba(78, 52, 46, 0.5);
+	background: linear-gradient(180deg, rgba(255, 248, 232, 0.95) 0%, rgba(237, 218, 178, 0.92) 100%);
+	padding: clamp(7px, 1.6cqw, 11px) clamp(8px, 1.8cqw, 12px);
+	font-size: clamp(0.78rem, 2.3cqw, 0.92rem);
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	cursor: pointer;
+	transition: border-color 0.15s ease, background 0.15s ease;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.board-setup-card .adventure-modifier__btn:last-child:nth-child(odd) {
+	grid-column: 1 / -1;
+	max-width: none;
+	justify-self: stretch;
+}
+
+.adventure-modifiers__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+.adventure-modifier__btn {
+	border-radius: 6px;
+	border: 1px solid rgba(93, 64, 55, 0.45);
+	background: linear-gradient(180deg, #fffbf5 0%, #f3ead8 100%);
+	padding: 7px 10px;
+	font-size: 0.76rem;
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	cursor: pointer;
+	transition: border-color 0.15s ease, transform 0.08s ease;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+	min-width: 100px;
+}
+
+.adventure-modifier__btn:hover:not(.is-locked):not(.is-active) {
+	border-color: #6d4c41;
+	transform: translateY(-1px);
+}
+
+.adventure-modifier__btn.is-active {
+	border-color: #b8860b;
+	background: linear-gradient(180deg, #fff6d8 0%, #f0dfa8 100%);
+	box-shadow:
+		inset 0 0 0 1px rgba(184, 134, 11, 0.25),
+		inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.adventure-modifier__btn.is-locked {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.adventure-modifier__btn.is-locked .adventure-modifier__name::after {
+	content: " (locked)";
+	font-size: 0.85em;
+	font-weight: 600;
+	opacity: 0.7;
+}
+
+.adventure-modifier__name {
+	font-weight: 700;
+	color: #3e2723;
+	font-size: 0.82rem;
+}
+
+.adventure-modifier__pill {
+	font-size: 0.65rem;
+	color: rgba(93, 64, 55, 0.75);
+}
+
+.board-setup-card .adventure-modifier-desc {
+	margin: clamp(8px, 1.6cqw, 12px) 0 0;
+	padding: clamp(7px, 1.4cqw, 10px) clamp(9px, 1.8cqw, 12px);
+	border-left: 3px solid rgba(93, 64, 55, 0.45);
+	background: rgba(62, 39, 35, 0.06);
+	font-size: clamp(0.74rem, 2.1cqw, 0.88rem);
+	line-height: 1.4;
+	min-height: 2.6em;
+	font-style: italic;
+	color: rgba(62, 39, 35, 0.9);
+}
+
+.adventure-modifier-desc {
+	margin: 0;
+	font-size: 0.72rem;
+	line-height: 1.35;
+	color: rgba(62, 39, 35, 0.85);
+	font-style: italic;
+}
+
+/* Frame-edge drawers */
+.board-drawers {
+	position: absolute;
+	inset: 0;
+	z-index: 14;
+	pointer-events: none;
+}
+
+.board-drawer {
+	position: absolute;
+	right: calc(var(--mat-inset-right) - 2px);
+	width: min(240px, 52%);
+	max-height: min(50%, 280px);
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 8px 10px;
+	border-radius: 0 0 0 8px;
+	background: rgba(248, 243, 228, 0.94);
+	border: 1px solid rgba(93, 64, 55, 0.5);
+	border-right: none;
+	box-shadow: -3px 4px 14px rgba(44, 28, 25, 0.18);
+	pointer-events: auto;
+	overflow: hidden;
+	animation: drawerSlideIn 0.22s ease;
+}
+
+@keyframes drawerSlideIn {
+	from {
+		opacity: 0;
+		transform: translateX(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.board-drawer[hidden] {
+	display: none !important;
+}
+
+.board-drawer.is-open {
+	display: flex;
+}
+
+.board-drawer--kit {
+	top: var(--mat-inset-top);
+}
+
+.board-drawer--log {
+	top: auto;
+	bottom: var(--mat-inset-bottom);
+	border-radius: 8px 0 0 0;
+	animation-name: drawerSlideUp;
+}
+
+.board-drawer--settings {
+	top: calc(var(--mat-inset-top) + 8%);
+	max-height: 36%;
+}
+
+@keyframes drawerSlideUp {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.board-drawer__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid rgba(93, 64, 55, 0.2);
+	padding-bottom: 4px;
+	margin-bottom: 2px;
+}
+
+.board-drawer__title {
+	margin: 0;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #5d4037;
+}
+
+.board-drawer__close {
+	appearance: none;
+	border: none;
+	background: transparent;
+	color: #8d6e63;
+	cursor: pointer;
+	font-size: 1.1rem;
+	line-height: 1;
+}
+
+.board-drawer .kit-content,
+.board-drawer .log-feed {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+}
+
+.board-drawer #adventure-log {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 0.68rem;
+	line-height: 1.4;
+}
+
+.music-selector-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.music-selector-label {
+	margin: 0;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 0.72rem;
+	font-weight: 700;
+	color: #5d4037;
+}
+
+.music-dropdown-wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.board-drawer #music-selector {
+	width: 100%;
+	padding: 6px 24px 6px 8px;
+	border: 1px solid rgba(93, 64, 55, 0.35);
+	border-radius: 4px;
+	background: #fff8ed;
+	font-size: 0.75rem;
+	color: #3e2723;
+	appearance: none;
+	-webkit-appearance: none;
+}
+
+.board-drawer #music-selector:focus {
+	outline: 2px solid rgba(184, 134, 11, 0.55);
+	outline-offset: 1px;
+}
+
+.music-dropdown-wrapper::after {
+	content: "\25BC";
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #8d6e63;
+	font-size: 0.55rem;
+	pointer-events: none;
+}
+
+.board-drawer .kit-content .affix-item {
+	font-size: 0.68rem;
+	color: rgba(62, 39, 35, 0.85);
+	font-style: italic;
+}
+
+/* Game states */
+[data-game-state="idle"] .board-hud--bottom {
+	display: none;
+}
+
+[data-game-state="idle"] .board-hud__toggle {
+	display: none;
+}
+
+[data-game-state="idle"] .board-hud__vitals {
+	display: none;
+}
+
+[data-game-state="idle"] .board-setup-overlay {
+	display: flex;
+}
+
+[data-game-state="playing"] .board-setup-overlay,
+[data-game-state="paused"] .board-setup-overlay,
+[data-game-state="floor-complete"] .board-setup-overlay,
+[data-game-state="run-victory"] .board-setup-overlay,
+[data-game-state="run-defeat"] .board-setup-overlay {
+	display: none;
+}
+
+[data-game-state="floor-complete"] .board-hud,
+[data-game-state="run-victory"] .board-hud,
+[data-game-state="run-defeat"] .board-hud {
+	opacity: 0.35;
+	pointer-events: none;
+}
+
+[data-game-state="floor-complete"] .board-run-cta,
+[data-game-state="run-victory"] .board-run-cta,
+[data-game-state="run-defeat"] .board-run-cta {
+	display: none;
+}
+
+[data-game-state="idle"] .adventure-modifiers {
+	display: flex;
+}
+
+[data-game-state="playing"] .adventure-modifiers,
+[data-game-state="paused"] .adventure-modifiers,
+[data-game-state="floor-complete"] .adventure-modifiers,
+[data-game-state="run-victory"] .adventure-modifiers,
+[data-game-state="run-defeat"] .adventure-modifiers {
+	display: none;
+}
+
+[data-game-state="floor-complete"] .cat-snake__board,
+[data-game-state="run-victory"] .cat-snake__board,
+[data-game-state="run-defeat"] .cat-snake__board {
+	opacity: 0.45;
+	filter: grayscale(25%);
+	pointer-events: none;
+}
+
+/* Mat-native modals (route + end) - scoped to grass well like Camp Setup */
+.board-mat-modal {
+	position: absolute;
+	inset: 0;
+	z-index: 20;
+	display: flex;
+	align-items: stretch;
+	justify-content: center;
+	padding: 6px 10px;
+	background: rgba(62, 39, 35, 0.32);
+	border-radius: inherit;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.25s ease;
+}
+
+.board-mat-modal:not([hidden]) {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.board-mat-scroll {
+	width: 100%;
+	max-width: 88%;
+	max-height: 100%;
+	overflow-y: auto;
+	margin: auto 0;
+	padding: 12px 14px 14px;
+	border-radius: 4px 4px 10px 10px;
+	background: linear-gradient(180deg, rgba(255, 251, 240, 0.97) 0%, rgba(243, 229, 200, 0.95) 100%);
+	border: 1px solid rgba(93, 64, 55, 0.45);
+	border-top: 3px solid rgba(93, 64, 55, 0.65);
+	box-shadow:
+		0 6px 18px rgba(44, 28, 25, 0.22),
+		inset 0 1px 0 rgba(255, 255, 255, 0.65);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	min-height: 0;
+}
+
+.board-mat-scroll::before {
+	content: "";
+	display: block;
+	height: 6px;
+	margin: -12px -14px 8px;
+	border-radius: 4px 4px 0 0;
+	background: linear-gradient(180deg, #e8dcc8, #d9caad);
+	border-bottom: 1px solid rgba(93, 64, 55, 0.35);
+	flex-shrink: 0;
+}
+
+.adventure-end-card.is-animate {
+	animation: matModalIn 0.35s ease;
+}
+
+@keyframes matModalIn {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* End journal */
+.adventure-journal {
+	position: relative;
+	padding: 10px 12px;
+	border-radius: 4px;
+	background: rgba(255, 253, 245, 0.92);
+	border: 1px solid rgba(93, 64, 55, 0.2);
+	border-left: 3px solid rgba(93, 64, 55, 0.55);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.adventure-journal::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(rgba(44, 28, 25, 0.035) 1px, transparent 0);
+	background-size: 10px 10px;
+	pointer-events: none;
+	opacity: 0.65;
+}
+
+.journal-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 8px;
+	position: relative;
+}
+
+.journal-title {
+	margin: 0;
+	font-size: 0.62rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: rgba(62, 39, 35, 0.65);
+	flex: 1 1 100%;
+}
+
+.journal-name {
+	margin: 0;
+	flex: 1 1 auto;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #5d4037;
+}
+
+.journal-stamp {
+	min-width: 88px;
+	text-align: center;
+	border: 2px solid #c83f3f;
+	color: #c83f3f;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 0.62rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	transform: rotate(-4deg);
+	background: #ffecec;
+	flex-shrink: 0;
+}
+
+.journal-stamp.is-success {
+	border-color: #2f9d62;
+	color: #1d6f45;
+	background: #e9fbf1;
+}
+
+.journal-stamp.is-animate {
+	animation: stampSlam 0.35s ease;
+}
+
+@keyframes stampSlam {
+	from {
+		transform: scale(1.15) rotate(-2deg);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1) rotate(-4deg);
+		opacity: 1;
+	}
+}
+
+.journal-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	margin: 10px 0 0;
+	position: relative;
+}
+
+.journal-stat {
+	background: rgba(255, 255, 255, 0.75);
+	border: 1px solid rgba(93, 64, 55, 0.12);
+	border-radius: 4px;
+	padding: 6px 8px;
+}
+
+.journal-stat small {
+	display: block;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	font-size: 0.58rem;
+	color: rgba(62, 39, 35, 0.55);
+}
+
+.journal-stat strong {
+	display: block;
+	font-size: 0.82rem;
+	color: #3e2723;
+}
+
+.journal-evidence {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+	margin-top: 8px;
+	position: relative;
+}
+
+.journal-evidence-list {
+	list-style: none;
+	margin: 4px 0 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.journal-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 8px;
+	background: rgba(93, 64, 55, 0.08);
+	border-radius: 999px;
+	font-weight: 600;
+	font-size: 0.68rem;
+	color: #3e2723;
+}
+
+.journal-tag--treat {
+	background: rgba(255, 179, 71, 0.14);
+	animation: treatPop 0.45s ease forwards;
+}
+
+@keyframes treatPop {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.board-mat-modal__actions {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+.board-mat-modal__actions--row {
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.board-mat-modal__btn {
+	appearance: none;
+	width: 100%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 8px 12px;
+	border-radius: 4px;
+	border: 1px solid rgba(93, 64, 55, 0.45);
+	background: rgba(255, 248, 237, 0.95);
+	color: #3e2723;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 0.72rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.board-mat-modal__btn:hover:not(:disabled) {
+	background: #fff8ed;
+	border-color: rgba(93, 64, 55, 0.65);
+	transform: translateY(-1px);
+}
+
+.board-mat-modal__btn:active:not(:disabled) {
+	transform: translateY(0);
+}
+
+.board-mat-modal__btn--primary {
+	background: linear-gradient(180deg, #8d6e63 0%, #6d4c41 100%);
+	border-color: #5d4037;
+	color: #fff8ed;
+}
+
+.board-mat-modal__btn--primary:hover:not(:disabled) {
+	background: linear-gradient(180deg, #795548 0%, #5d4037 100%);
+}
+
+#adventure-continue:disabled,
+.board-mat-modal__btn--primary:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	background: rgba(189, 189, 189, 0.35);
+	border-color: rgba(117, 117, 117, 0.45);
+	color: rgba(62, 39, 35, 0.55);
+}
+
+.board-mat-modal__btn--coin {
+	border-color: #c49000;
+	background: linear-gradient(180deg, #fff9e6 0%, #ffe082 100%);
+}
+
+.board-mat-modal__btn--coin:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	background: rgba(189, 189, 189, 0.35);
+	border-color: rgba(117, 117, 117, 0.45);
+	color: rgba(62, 39, 35, 0.55);
+}
+
+.board-mat-modal__btn--danger {
+	border-color: #b71c1c;
+	background: linear-gradient(180deg, #ef5350 0%, #c62828 100%);
+	color: #fff;
+}
+
+.board-mat-modal__actions--row .board-mat-modal__btn {
+	flex: 1 1 calc(50% - 4px);
+	min-width: 0;
+}
+
+/* Route / upgrade modal */
+.adventure-route-cardboard.board-mat-scroll {
+	max-width: 92%;
+	overflow: hidden;
+	max-height: 100%;
+}
+
+.adventure-route-headline {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex-shrink: 0;
+}
+
+.adventure-route-headline .adventure-label {
+	margin: 0;
+	font-size: 0.62rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: rgba(62, 39, 35, 0.6);
+}
+
+.adventure-route-headline__title {
+	margin: 0;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 0.9rem;
+	font-weight: 700;
+	color: #5d4037;
+}
+
+.adventure-reward-body {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+}
+
+.adventure-reward-section {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-height: 0;
+}
+
+.adventure-reward-section__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.adventure-reward-section__header strong {
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 0.72rem;
+	font-weight: 700;
+	color: #5d4037;
+}
+
+.adventure-upgrade-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+}
+
+.adventure-upgrade-card {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	padding: 8px 10px;
+	border: 1px solid rgba(93, 64, 55, 0.35);
+	border-radius: 4px;
+	background: rgba(255, 251, 240, 0.85);
+	text-align: left;
+	color: #3e2723;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: inherit;
+	transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.adventure-upgrade-card strong {
+	font-size: 0.72rem;
+}
+
+.adventure-upgrade-card p {
+	margin: 0;
+	font-size: 0.66rem;
+	line-height: 1.35;
+	opacity: 0.85;
+}
+
+.adventure-upgrade-card:hover:not([aria-pressed="true"]) {
+	border-color: rgba(93, 64, 55, 0.55);
+	background: #fff8ed;
+}
+
+.adventure-upgrade-card[aria-pressed="true"] {
+	border-color: #c49000;
+	background: linear-gradient(180deg, #fff9e6 0%, #ffe8b3 100%);
+	box-shadow: inset 0 0 0 1px rgba(196, 144, 0, 0.25);
+}
+
+.adventure-route-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+}
+
+.adventure-route-card {
+	border: 1px solid rgba(93, 64, 55, 0.35);
+	border-radius: 4px;
+	padding: 10px 12px;
+	background: rgba(255, 251, 240, 0.85);
+	text-align: left;
+	color: #3e2723;
+	cursor: pointer;
+	font-family: inherit;
+	transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.adventure-route-card:hover:not([aria-pressed="true"]) {
+	border-color: rgba(93, 64, 55, 0.55);
+	background: #fff8ed;
+}
+
+.adventure-route-card[aria-pressed="true"] {
+	border-color: #c49000;
+	background: linear-gradient(180deg, #fff9e6 0%, #ffe8b3 100%);
+	box-shadow: inset 0 0 0 1px rgba(196, 144, 0, 0.25);
+}
+
+.adventure-route-card h4 {
+	margin: 0 0 6px;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 0.78rem;
+	color: #5d4037;
+}
+
+.adventure-route-card ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	font-size: 0.66rem;
+	line-height: 1.45;
+	opacity: 0.9;
+}
+
+.adventure-route-card--super {
+	border-color: #e65100;
+	background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+}
+
+.adventure-route-card--super[aria-pressed="true"] {
+	border-color: #ff8f00;
+	background: linear-gradient(135deg, #fff8e1 0%, #ffd180 100%);
+}
+
+.adventure-route-card--super h4 {
+	color: #bf360c;
+}
+
+.adventure-route-empty {
+	margin: 0;
+	font-size: 0.68rem;
+	opacity: 0.75;
+}
+
+.adventure-route-skip-btn {
+	appearance: none;
+	font-size: 0.62rem;
+	padding: 4px 10px;
+	border-radius: 4px;
+	background: transparent;
+	border: 1px solid rgba(93, 64, 55, 0.35);
+	color: #5d4037;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.adventure-route-skip-btn:hover {
+	border-color: rgba(93, 64, 55, 0.55);
+	background: rgba(255, 248, 237, 0.8);
+}
+
+.adventure-route-actions {
+	flex-shrink: 0;
+	position: sticky;
+	bottom: 0;
+	margin-top: auto;
+	padding-top: 10px;
+	background: linear-gradient(
+		180deg,
+		rgba(243, 229, 200, 0) 0%,
+		rgba(243, 229, 200, 0.92) 28%,
+		rgba(255, 251, 240, 0.98) 100%
+	);
+	border-top: 1px solid rgba(93, 64, 55, 0.2);
+	z-index: 1;
+}
+
+@media (min-width: 520px) {
+	.adventure-upgrade-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.adventure-route-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.journal-evidence {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+/* Shell layout */
+.adventure-game__body {
+	grid-template-columns: 1fr !important;
+}
+
+.cat-snake__play {
+	flex: 1 1 auto;
+	min-height: 0;
+	height: 100%;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	background: #4e342e;
+	border-radius: 8px;
+	padding: 0;
+	container-type: size;
+	container-name: playmat;
+}
+
+.cat-snake__board-wrap.adventure-panel {
+	width: min(100%, 100cqw, 100cqh);
+	height: min(100%, 100cqw, 100cqh);
+	margin: 0 auto;
+}
+
+.cat-snake-widget--adventure {
+	border-radius: 12px;
+	padding: 8px;
+	background: #4e342e;
+	box-shadow: 0 12px 32px rgba(44, 28, 25, 0.28);
+}
+
+.adventure-game.is-fullscreen {
+	flex-direction: column !important;
+}
+
+.adventure-game.is-fullscreen .adventure-game__body {
+	grid-template-columns: 1fr !important;
+	grid-template-rows: minmax(0, 1fr) !important;
+}
+
+.cat-snake-widget--adventure.is-fullscreen,
+.adventure-game.is-fullscreen .cat-snake-widget--adventure {
+	padding: 0;
+	border-radius: 0;
+	background: #3e2723;
+	box-shadow: none;
+}
+
+.cat-snake-widget--adventure.is-fullscreen .cat-snake__play,
+.adventure-game.is-fullscreen .cat-snake__play {
+	background: #3e2723;
+	border-radius: 0;
+}
+
+.cat-snake-widget--adventure.is-fullscreen .cat-snake__board-wrap.adventure-panel,
+.adventure-game.is-fullscreen .cat-snake__board-wrap.adventure-panel {
+	width: min(100cqw, 100cqh, 100vh);
+	height: min(100cqw, 100cqh, 100vh);
+	box-shadow: none;
+}
+
+#snake-ai-player-hud {
+	position: fixed !important;
+	bottom: max(12px, env(safe-area-inset-bottom)) !important;
+	left: max(12px, env(safe-area-inset-left)) !important;
+	z-index: 1200 !important;
+	border: 2px solid rgba(93, 64, 55, 0.55) !important;
+	background: rgba(248, 245, 230, 0.94) !important;
+	color: #3e2723 !important;
+	font: 0.72rem/1.35 Georgia, 'Times New Roman', serif !important;
+	pointer-events: none !important;
+}
+
+@media (max-width: 768px) {
+	.cat-snake__board-wrap.adventure-panel {
+		--mat-inset-top: 12%;
+		--mat-inset-right: 12.5%;
+		--mat-inset-bottom: 12.5%;
+		--mat-inset-left: 8.5%;
+		--mat-header-top: 8.5%;
+		--mat-footer-bottom: calc(100% - 8.5%);
+		--mat-play-radius: 11px;
+	}
+
+	.board-hud--top {
+		flex-wrap: wrap;
+		align-content: flex-end;
+	}
+
+	.board-hud__vitals {
+		column-gap: 10px;
+	}
+
+	.board-hud__vitals {
+		column-gap: 8px;
+	}
+
+	.board-drawer {
+		width: min(220px, 58%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.board-drawer,
+	.board-drawer--log {
+		animation: none;
+	}
+
+	.board-mat-modal,
+	.adventure-end-card.is-animate,
+	.journal-stamp.is-animate,
+	.journal-tag--treat {
+		animation: none !important;
+		transition: opacity 0.01ms !important;
+	}
+}

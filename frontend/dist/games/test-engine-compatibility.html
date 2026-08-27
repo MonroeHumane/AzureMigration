@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Engine Compatibility Test</title>
+	<style>
+		body {
+			font-family: system-ui, sans-serif;
+			max-width: 800px;
+			margin: 40px auto;
+			padding: 20px;
+			background: #f5f5f5;
+		}
+		.test-section {
+			background: white;
+			padding: 20px;
+			margin: 20px 0;
+			border-radius: 8px;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		}
+		.test-result {
+			padding: 10px;
+			margin: 10px 0;
+			border-radius: 4px;
+		}
+		.pass {
+			background: #d4edda;
+			color: #155724;
+			border: 1px solid #c3e6cb;
+		}
+		.fail {
+			background: #f8d7da;
+			color: #721c24;
+			border: 1px solid #f5c6cb;
+		}
+		button {
+			background: #007bff;
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 4px;
+			cursor: pointer;
+			margin: 5px;
+		}
+		button:hover {
+			background: #0056b3;
+		}
+		pre {
+			background: #f8f9fa;
+			padding: 10px;
+			border-radius: 4px;
+			overflow-x: auto;
+		}
+	</style>
+</head>
+<body>
+	<h1>🧪 Pet Snake Engine Compatibility Test</h1>
+	
+	<div class="test-section">
+		<h2>Test 1: Classic Mode (No Modifiers)</h2>
+		<p>Tests backward compatibility with classic petsnake.html</p>
+		<button onclick="testClassicMode()">Run Test</button>
+		<div id="test1-result"></div>
+	</div>
+
+	<div class="test-section">
+		<h2>Test 2: Roguelike Mode (With Bomb Modifier)</h2>
+		<p>Tests new bombSpawnRate feature</p>
+		<button onclick="testRoguelikeMode()">Run Test</button>
+		<div id="test2-result"></div>
+	</div>
+
+	<div class="test-section">
+		<h2>Test 3: Default Values</h2>
+		<p>Verifies default spawn rates are correct</p>
+		<button onclick="testDefaults()">Run Test</button>
+		<div id="test3-result"></div>
+	</div>
+
+	<script type="module">
+		import { PetSnakeEngine } from './engine/pet-snake-engine.js';
+
+		window.PetSnakeEngine = PetSnakeEngine;
+
+		window.testClassicMode = function() {
+			const resultDiv = document.getElementById('test1-result');
+			try {
+				// Simulate classic petsnake.html initialization
+				const engine = new PetSnakeEngine({
+					config: {
+						boardSize: 19,
+						difficulty: 'normal',
+						superMode: true,
+						tickMs: 200
+					},
+					renderAdapter: () => {}
+				});
+
+				const tests = [
+					{ name: 'Engine created', pass: engine !== null },
+					{ name: 'Default bomb chance', pass: engine.bombSpawnChance === 0.15 },
+					{ name: 'Default bomb cooldown', pass: engine.bombCooldownMs === 5000 },
+					{ name: 'Default powerup chance', pass: engine.powerupSpawnChance === 0.2 },
+					{ name: 'Default powerup cooldown', pass: engine.powerupCooldownMs === 4000 }
+				];
+
+				// Test startRun without modifiers
+				engine.startRun({
+					boardSize: 19,
+					difficulty: 'normal',
+					superMode: true,
+					tickMs: 200
+				});
+
+				tests.push({ name: 'StartRun without modifiers', pass: engine.bombSpawnChance === 0.15 });
+
+				displayResults(resultDiv, tests);
+			} catch (error) {
+				resultDiv.innerHTML = `<div class="test-result fail">❌ Error: ${error.message}</div>`;
+			}
+		};
+
+		window.testRoguelikeMode = function() {
+			const resultDiv = document.getElementById('test2-result');
+			try {
+				const engine = new PetSnakeEngine({
+					config: {
+						boardSize: 19,
+						difficulty: 'normal',
+						superMode: true,
+						tickMs: 200
+					},
+					renderAdapter: () => {}
+				});
+
+				// Test with bombSpawnRate modifier (like bombSeason affix)
+				engine.startRun({
+					boardSize: 19,
+					difficulty: 'normal',
+					superMode: true,
+					tickMs: 200,
+					bombSpawnRate: 2.5
+				});
+
+				const expectedChance = Math.min(0.95, 0.15 * 2.5); // 0.375
+				const expectedCooldown = Math.max(500, 5000 / 2.5); // 2000
+
+				const tests = [
+					{ name: 'Bomb spawn rate increased', pass: Math.abs(engine.bombSpawnChance - expectedChance) < 0.001 },
+					{ name: 'Bomb cooldown decreased', pass: engine.bombCooldownMs === expectedCooldown },
+					{ name: 'Powerup unchanged', pass: engine.powerupSpawnChance === 0.2 }
+				];
+
+				displayResults(resultDiv, tests);
+			} catch (error) {
+				resultDiv.innerHTML = `<div class="test-result fail">❌ Error: ${error.message}</div>`;
+			}
+		};
+
+		window.testDefaults = function() {
+			const resultDiv = document.getElementById('test3-result');
+			try {
+				const engine = new PetSnakeEngine({
+					config: {},
+					renderAdapter: () => {}
+				});
+
+				const tests = [
+					{ name: 'Bomb spawn chance default', pass: engine.bombSpawnChance === 0.15 },
+					{ name: 'Bomb cooldown default', pass: engine.bombCooldownMs === 5000 },
+					{ name: 'Powerup spawn chance default', pass: engine.powerupSpawnChance === 0.2 },
+					{ name: 'Powerup cooldown default', pass: engine.powerupCooldownMs === 4000 }
+				];
+
+				displayResults(resultDiv, tests);
+			} catch (error) {
+				resultDiv.innerHTML = `<div class="test-result fail">❌ Error: ${error.message}</div>`;
+			}
+		};
+
+		function displayResults(container, tests) {
+			const allPassed = tests.every(t => t.pass);
+			const html = tests.map(t => 
+				`<div class="test-result ${t.pass ? 'pass' : 'fail'}">
+					${t.pass ? '✅' : '❌'} ${t.name}
+				</div>`
+			).join('');
+			
+			container.innerHTML = html + 
+				`<div class="test-result ${allPassed ? 'pass' : 'fail'}">
+					<strong>${allPassed ? '✅ All tests passed!' : '❌ Some tests failed'}</strong>
+				</div>`;
+		}
+	</script>
+</body>
+</html>
+

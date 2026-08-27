@@ -640,43 +640,52 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     // 2. Render Pet Spotlight
     function displayPet(index) {
       if (!pets || pets.length === 0) return;
-      currentIndex = (index + pets.length) % pets.length;
-      const pet = pets[currentIndex];
-
-      // Update Spotlight
-      spotlightImg.classList.remove('zooming');
-      spotlightImg.src = pet.image || '/assets/recovered/images/placeholder.svg';
-      spotlightImg.alt = pet.name;
-      setTimeout(() => spotlightImg.classList.add('zooming'), 50);
-
-      spotlightName.textContent = pet.name;
-      spotlightAge.textContent = pet.age_display || pet.age || 'Unknown Age';
-      spotlightGender.textContent = (pet.gender || 'Unknown').toUpperCase();
-      spotlightBreed.textContent = pet.breed || 'Shelter Pet';
-      spotlightSpecies.textContent = pet.type === 'cat' ? 'Cat' : 'Dog';
-      spotlightTag.firstElementChild.textContent = pet.type === 'cat' ? '🐱' : '🐕';
       
-      const locText = pet.location ? `Currently in: ${pet.location}. ` : '';
-      spotlightBio.textContent = `${locText}Looking for a loving home in Monroe County. Ask our staff to meet ${pet.name} today or scan the QR code to submit an adoption application!`;
+      const updateDOM = () => {
+        currentIndex = (index + pets.length) % pets.length;
+        const pet = pets[currentIndex];
 
-      // Generate Live QR Code URL for pet
-      const petUrl = `https://monroe-humane.org/adopt/pet/${pet.id}`;
-      spotlightQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(petUrl)}&margin=4&color=0c2a26`;
+        // Update Spotlight
+        spotlightImg.classList.remove('zooming');
+        spotlightImg.src = pet.image || '/assets/recovered/images/placeholder.svg';
+        spotlightImg.alt = pet.name;
+        setTimeout(() => spotlightImg.classList.add('zooming'), 50);
 
-      // Preload next 3 images for zero-latency slide transitions
-      for (let i = 1; i <= 3; i++) {
-        const nextIdx = (currentIndex + i) % pets.length;
-        if (pets[nextIdx] && pets[nextIdx].image) {
-          const preloadImg = new Image();
-          preloadImg.src = pets[nextIdx].image;
+        spotlightName.textContent = pet.name;
+        spotlightAge.textContent = pet.age_display || pet.age || 'Unknown Age';
+        spotlightGender.textContent = (pet.gender || 'Unknown').toUpperCase();
+        spotlightBreed.textContent = pet.breed || 'Shelter Pet';
+        spotlightSpecies.textContent = pet.type === 'cat' ? 'Cat' : 'Dog';
+        spotlightTag.firstElementChild.textContent = pet.type === 'cat' ? '🐱' : '🐶';
+        
+        const locText = pet.location ? `Currently in: ${pet.location}. ` : '';
+        spotlightBio.textContent = `${locText}Looking for a loving home in Monroe County. Ask our staff to meet ${pet.name} today or scan the QR code to submit an adoption application!`;
+
+        // Generate Live QR Code URL for pet
+        const petUrl = `https://monroe-humane.org/adopt/pet/${pet.id}`;
+        spotlightQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(petUrl)}&margin=4&color=0c2a26`;
+
+        // Preload next 3 images for zero-latency slide transitions
+        for (let i = 1; i <= 3; i++) {
+          const nextIdx = (currentIndex + i) % pets.length;
+          if (pets[nextIdx] && pets[nextIdx].image) {
+            const preloadImg = new Image();
+            preloadImg.src = pets[nextIdx].image;
+          }
         }
+
+        currentIndexLabel.textContent = `${currentIndex + 1} of ${pets.length}`;
+
+        // Update Stream List active state
+        renderStream();
+        startTimer();
+      };
+
+      if (document.startViewTransition) {
+        document.startViewTransition(updateDOM);
+      } else {
+        updateDOM();
       }
-
-      currentIndexLabel.textContent = `${currentIndex + 1} of ${pets.length}`;
-
-      // Update Stream List active state
-      renderStream();
-      startTimer();
     }
 
     // 3. Render Right Queue Stream
@@ -770,6 +779,13 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') requestWakeLock();
     });
+
+    // Register Service Worker for offline TV resilience
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
 
     // 7. Background Auto-Refresh (queries Directus every 15 minutes)
     setInterval(async () => {

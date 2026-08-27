@@ -19,38 +19,39 @@ const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
       </p>
     </header>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.75rem; margin-bottom: 2.5rem;">
-      <!-- BetterUnite Card Giving -->
-      <section class="monroe-native-stack" style="margin: 0; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <h2>Online Card Donation</h2>
-          <p style="color: #475569; margin-bottom: 1.25rem;">
-            Make a one-time or monthly gift via credit card or debit card through our verified BetterUnite portal.
-          </p>
-        </div>
-        <div class="monroe-native-actions">
-          <a class="monroe-btn" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate with Card &rarr;</a>
-        </div>
-      </section>
+    <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
+      <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
+        <section class="monroe-native-stack" style="flex: 1;">
+          <div style="flex: 1;">
+            <h2>Online Card Donation</h2>
+            <p style="margin-bottom: 1.25rem;">
+              Make a one-time or monthly gift via credit card or debit card through our verified BetterUnite portal.
+            </p>
+          </div>
+          <div class="monroe-native-actions">
+            <a class="monroe-btn" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate with Card &rarr;</a>
+          </div>
+        </section>
 
-      <!-- PayPal Fund Giving -->
-      <section class="monroe-native-stack" style="margin: 0; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <h2>PayPal Giving Fund</h2>
-          <p style="color: #475569; margin-bottom: 1.25rem;">
-            Donate securely with your PayPal balance or bank account with 100% of your donation going directly to shelter care.
-          </p>
-        </div>
-        <div class="monroe-native-actions">
-          <a class="monroe-btn monroe-btn--outline" href={SITE.integrations.payPal.generalFund} target="_blank" rel="noopener noreferrer">General Fund (PayPal)</a>
-          <a class="monroe-btn monroe-btn--outline" href={SITE.integrations.payPal.catRoomFund} target="_blank" rel="noopener noreferrer">Cat Room Expansion</a>
-        </div>
-      </section>
+        <!-- PayPal Fund Giving -->
+        <section class="monroe-native-stack" style="flex: 1; margin-top: 1.5rem;">
+          <div style="flex: 1;">
+            <h2>PayPal Giving Fund</h2>
+            <p style="margin-bottom: 1.25rem;">
+              Donate securely with your PayPal balance or bank account with 100% of your donation going directly to shelter care.
+            </p>
+          </div>
+          <div class="monroe-native-actions">
+            <a class="monroe-btn" href="https://www.paypal.com/US/fundraiser/charity/4JPVCLYXAW9BW" target="_blank" rel="noopener noreferrer">General Fund (PayPal)</a>
+            <a class="monroe-btn monroe-btn--outline" href="https://www.paypal.com/US/fundraiser/charity/N9S3JQGK3HCTW" target="_blank" rel="noopener noreferrer">Cat Room Expansion</a>
+          </div>
+        </section>
+      </div>
     </div>
 
     <section class="monroe-native-stack" aria-labelledby="monroe-donations-ways-heading">
       <h2 id="monroe-donations-ways-heading">More Ways to Champion Animals</h2>
-      <p style="color: #475569; margin-bottom: 1.5rem;">
+      <p style="margin-bottom: 1.5rem;">
         Explore other meaningful ways you can stand with Monroe County shelter animals:
       </p>
       <div class="monroe-native-actions">

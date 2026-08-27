@@ -1,0 +1,108 @@
+/*
+ * Mirrored runtime inner pages only (loaded when monroe_rebuild_current_runtime() is set).
+ * Scoped to .monroe-runtime-page-shell - never touches the homepage or other templates.
+ */
+
+.monroe-runtime-page-shell {
+  --monroe-site-content-max: 1320px;
+  --monroe-color-paper: #fffaf2;
+  --monroe-color-contrast: #173a39;
+  --monroe-font-body: "Questrial", "Segoe UI", sans-serif;
+  --monroe-font-ui: "Jost", "Segoe UI", sans-serif;
+  box-sizing: border-box;
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 4.5vw, 2rem) clamp(3rem, 6vw, 4.5rem);
+  /* Paw + cream wash: see style.css (.monroe-runtime-page-shell background stack). */
+  color: #1d2a2a;
+}
+
+/* Let the shell paw background show through legacy runtime wrappers (often solid blue/cream). */
+.monroe-runtime-page-shell #dm,
+.monroe-runtime-page-shell .dmOuter,
+.monroe-runtime-page-shell .dmInner,
+.monroe-runtime-page-shell .dmPageBody,
+.monroe-runtime-page-shell #site_content,
+.monroe-runtime-page-shell .dmRespRowsWrapper {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.monroe-runtime-page-shell #dm,
+.monroe-runtime-page-shell .dmInner,
+.monroe-runtime-page-shell .dmPageBody {
+  font-family: var(--monroe-font-body);
+  color: #1d2a2a;
+}
+
+.monroe-runtime-page-shell .dmBody .dmNewParagraph[data-version] p,
+.monroe-runtime-page-shell .dmBody .dmNewParagraph[data-version] li {
+  font-family: var(--monroe-font-body);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #2a3d3d;
+}
+
+.monroe-runtime-page-shell .dmBody h1,
+.monroe-runtime-page-shell .dmBody h2,
+.monroe-runtime-page-shell .dmBody h3 {
+  font-family: "Abril Fatface", Georgia, serif;
+  color: #153635;
+  font-weight: 400;
+}
+
+.monroe-runtime-page-shell .dmBody h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1.1;
+}
+
+.monroe-runtime-page-shell .dmBody h2 {
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  line-height: 1.15;
+}
+
+.monroe-runtime-page-shell .dmBody h3 {
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+}
+
+.monroe-runtime-page-shell #dm .dmBody a {
+  color: #0f766e;
+  text-underline-offset: 2px;
+}
+
+.monroe-runtime-page-shell .dmBody a:hover,
+.monroe-runtime-page-shell .dmBody a:focus {
+  color: #0a5f59;
+}
+
+.monroe-runtime-page-shell .dmInner,
+.monroe-runtime-page-shell #dm .dmInner {
+  min-width: 0 !important;
+  max-width: 100%;
+}
+
+.monroe-runtime-page-shell #site_content {
+  max-width: var(--monroe-site-content-max, 1320px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.monroe-runtime-page-shell .dmHeaderContainer {
+  display: none !important;
+}
+
+.monroe-runtime-page-shell .dmRespRowWrapper {
+  border-radius: 24px;
+}
+
+.monroe-runtime-page-shell .dmRespColsWrapper {
+  row-gap: 1.5rem;
+}
+
+.monroe-runtime-page-shell .ui-widget .dmButtonWrapper .buttonpress .text {
+  font-family: var(--monroe-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monroe-runtime-page-shell .flexslider .slides > li .slide-inner .slide-title {
+  font-family: "Abril Fatface", Georgia, serif;
+}

@@ -1,5 +1,5 @@
-/*
- Memorials & planned giving — port of the theme's memorial-giving.css.
+﻿/*
+ Memorials & planned giving â€” port of the theme's memorial-giving.css.
 */
 
 /* ========================================================================== 
@@ -525,7 +525,7 @@
   color: var(--mg-teal-deep);
   background: #fff;
   box-shadow: 0 9px 22px rgba(0, 0, 0, 0.14);
-  white-space: nowrap;
+  
 }
 
 /* Planned giving ---------------------------------------------------------- */
@@ -770,7 +770,7 @@
 }
 
 .monroe-memorials-page .monroe-memorials-faq details[open] summary::after {
-  content: "−";
+  content: "âˆ’";
 }
 
 .monroe-memorials-page .monroe-memorials-faq details[open] summary {

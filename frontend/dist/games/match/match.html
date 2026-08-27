@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+	<title>Pet Match - Humane Games</title>
+	<script src="../embed.js"></script>
+	<link rel="stylesheet" href="embed.css?v=29">
+	<link rel="stylesheet" href="match.css?v=34">
+</head>
+<body>
+	<div class="pet-match-app" id="petMatchApp">
+		<header class="pet-match-hud">
+			<div class="pet-match-hud__top">
+				<h1 class="pet-match-hud__title">Pet Match</h1>
+				<div class="pet-match-hud__stats">
+					<span class="pet-match-stat pet-match-stat--level">Level <strong id="pmLevel">1</strong></span>
+					<span class="pet-match-stat pet-match-stat--moves">Moves <strong id="pmMoves">0</strong></span>
+					<span class="pet-match-stat pet-match-stat--pairs">Pairs <strong id="pmPairs">0 / 0</strong></span>
+				</div>
+				<div class="pet-match-hud__quick-actions">
+					<button type="button" class="pet-match-quick-btn" id="pmQuickRestart" title="Restart level" aria-label="Restart level">↺</button>
+					<button type="button" class="pet-match-quick-btn" id="pmToggleControls" title="Toggle game controls" aria-label="Toggle game controls">⚙️</button>
+				</div>
+			</div>
+			<div class="pet-match-progress" aria-hidden="true">
+				<div class="pet-match-progress__bar" id="pmProgressBar"></div>
+			</div>
+		</header>
+		<p class="pet-match-live" id="pmLive" aria-live="polite" aria-atomic="true"></p>
+		<p class="pet-match-intro" id="pmLevelIntro" hidden aria-live="polite"></p>
+		<div class="pet-match-play">
+			<div class="pet-match-board-wrap">
+				<div class="pet-match-board" id="pmBoard" role="grid" aria-label="Memory card grid"></div>
+			</div>
+		</div>
+		<aside class="pet-match-controls" aria-label="Game controls">
+			<p class="pet-match-controls__title">Game controls</p>
+			<div class="pet-match-controls__panel">
+				<div class="pet-match-level-stepper">
+					<button type="button" class="pet-match-step-btn" id="pmPrev" aria-label="Previous level">‹</button>
+					<label class="pet-match-level-chip" for="pmLevelSelect">
+						<span class="pet-match-level-chip__icon" aria-hidden="true">🐾</span>
+						<select class="pet-match-level-chip__select" id="pmLevelSelect" aria-label="Choose level"></select>
+					</label>
+					<button type="button" class="pet-match-step-btn" id="pmNextLevel" aria-label="Next level">›</button>
+				</div>
+				<div class="pet-match-controls__actions">
+					<button type="button" class="pet-match-btn pet-match-btn--ghost" id="pmRestart">↺ Restart</button>
+					<button type="button" class="pet-match-btn pet-match-btn--primary" id="pmNewGame">✨ New game</button>
+				</div>
+			</div>
+		</aside>
+		<div class="pet-match-error" id="pmError" hidden></div>
+	</div>
+
+	<div class="pet-match-modal pet-match-modal--win" id="pmWinModal" hidden aria-hidden="true">
+		<div class="pet-match-modal__panel pet-match-modal__panel--win" id="pmWinPanel" role="dialog" aria-modal="true" aria-labelledby="pmWinTitle">
+			<header class="pet-match-modal__hero">
+				<p class="pet-match-modal__eyebrow">Level complete</p>
+				<h2 id="pmWinTitle">Nice matching!</h2>
+			</header>
+			<div class="pet-match-modal__score">
+				<div class="pet-match-stars" id="pmWinStars" aria-label="Star rating"></div>
+				<p class="pet-match-modal__message" id="pmWinMessage"></p>
+				<p class="pet-match-win-praise" id="pmWinPraise"></p>
+			</div>
+			<section class="pet-match-meet" id="pmWinMeet" hidden aria-labelledby="pmWinMeetTitle">
+				<h3 id="pmWinMeetTitle">Meet the pets from this round</h3>
+				<p class="pet-match-meet__hint">Tap a photo to open their adopt profile</p>
+				<ul class="pet-match-meet__grid" id="pmWinMeetGrid"></ul>
+			</section>
+			<footer class="pet-match-modal__actions pet-match-modal__actions--win">
+				<button type="button" class="pet-match-btn pet-match-btn--primary pet-match-btn--lg" id="pmNext">Next level</button>
+				<button type="button" class="pet-match-btn pet-match-btn--ghost pet-match-btn--lg" id="pmRetry">Play again</button>
+			</footer>
+		</div>
+	</div>
+
+	<!-- Pack Reward Milestone Celebration Modal -->
+	<div class="pet-match-modal pet-match-modal--reward" id="pmPackRewardModal" hidden aria-hidden="true">
+		<div class="pet-match-modal__panel pet-match-modal__panel--reward" role="dialog" aria-modal="true" aria-labelledby="pmRewardTitle">
+			<div class="pet-match-reward-sparkles" aria-hidden="true">✨ 🐾 ✨</div>
+			<header class="pet-match-modal__hero">
+				<p class="pet-match-modal__eyebrow">🎉 Milestone Reward</p>
+				<h2 id="pmRewardTitle">Pet Booster Pack Unlocked!</h2>
+			</header>
+			<div class="pet-match-reward-card-art" aria-hidden="true">
+				<div class="reward-pack-badge" id="pmRewardBadge">🎁 FOIL PACK</div>
+				<div class="reward-pack-glow"></div>
+				<div class="reward-pack-sheen">🎴</div>
+			</div>
+			<p class="pet-match-modal__message" id="pmRewardMessage">You reached a matching milestone! Rip open your shiny foil pack to reveal collectible cards of real shelter pets for your album.</p>
+			<footer class="pet-match-modal__actions pet-match-modal__actions--reward">
+				<button type="button" class="pet-match-btn pet-match-btn--primary pet-match-btn--lg" id="pmOpenPackBtn">✨ Rip Open Pack Now ✨</button>
+				<button type="button" class="pet-match-btn pet-match-btn--ghost pet-match-btn--lg" id="pmKeepMatchingBtn">Keep Matching ›</button>
+			</footer>
+		</div>
+	</div>
+
+	<!-- In-Game Booster Opener Iframe Overlay -->
+	<div class="pet-match-modal pet-match-modal--booster-frame" id="pmBoosterEmbedModal" hidden aria-hidden="true">
+		<div class="pet-match-modal__panel pet-match-modal__panel--booster-frame">
+			<button type="button" class="pet-match-booster-close" id="pmBoosterCloseBtn" aria-label="Close pack and return to game">✕ Done</button>
+			<iframe id="pmBoosterFrame" class="pet-match-booster-iframe" title="Open Booster Pack" src="about:blank"></iframe>
+		</div>
+	</div>
+
+	<script src="../dex/dex-shared.js?v=4"></script>
+	<script src="match.js?v=36" defer></script>
+</body>
+</html>

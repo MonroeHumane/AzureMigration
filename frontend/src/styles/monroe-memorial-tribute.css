@@ -1,5 +1,5 @@
-/*
- Memorial honor roll — port of the theme's memorial-tribute.css.
+﻿/*
+ Memorial honor roll â€” port of the theme's memorial-tribute.css.
 */
 
 /* ==========================================================================
@@ -290,7 +290,7 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   color: var(--t-muted);
-  white-space: nowrap;
+  
 }
 
 .monroe-memorial-tribute-page .monroe-tribute-azrail {

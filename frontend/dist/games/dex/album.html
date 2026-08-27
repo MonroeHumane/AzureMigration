@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pet Album - Monroe Humane Games</title>
+	<script src="../embed.js"></script>
+	<link rel="stylesheet" href="embed.css?v=3">
+	<link rel="stylesheet" href="dex.css?v=3">
+</head>
+<body>
+	<div class="adoptedex-app adoptedex-app--album" id="adoptedexAlbum">
+		<header class="adoptedex-header">
+			<h1 id="albumTitle">Pet Discovery Album</h1>
+			<p class="adoptedex-stats" id="albumStats"></p>
+		</header>
+		<p class="adoptedex-live" id="albumLive" aria-live="polite"></p>
+		<main class="adoptedex-main" id="albumGrid" aria-label="Pet album"></main>
+		<footer class="adoptedex-footer">
+			Pets you collect from Booster Packs are saved to your album forever and link directly to real shelter adoption profiles.
+		</footer>
+		<div class="adoptedex-error" id="albumError" hidden></div>
+	</div>
+	<script src="dex-shared.js?v=4"></script>
+	<script src="album.js?v=3" defer></script>
+</body>
+</html>

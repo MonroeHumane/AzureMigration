@@ -1,10 +1,10 @@
-/*
- Homepage styles — Astro port of the monroe-rebuild theme's home-editable.css.
+﻿/*
+ Homepage styles â€” Astro port of the monroe-rebuild theme's home-editable.css.
  Machine-extracted: rules matching the homepage section families only; the
  adopt-search / memorial / shelter / contest / shop / admin families stay with
  their own per-page stylesheets. WP body-class scoping stripped (the homepage
  <body> carries `monroe-rebuild-theme home-editable-has-flyers-rail`).
- Generated from the theme source 2026-08-27 — re-run tools/extract-home-css.py
+ Generated from the theme source 2026-08-27 â€” re-run tools/extract-home-css.py
  if the theme changes.
 */
 
@@ -1766,7 +1766,7 @@ body.home .sponsor-widget-shell .sponsor-card {
   color: #163433;
   text-decoration: none;
   line-height: 1.2;
-  white-space: nowrap;
+  
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
