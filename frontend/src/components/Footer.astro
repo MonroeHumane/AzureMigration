@@ -7,7 +7,7 @@
 
 import { SITE } from '../config/site';
 
-const staffPortalUrl = import.meta.env.PUBLIC_DIRECTUS_URL ?? 'http://localhost:8055';
+const staffPortalUrl = import.meta.env.PUBLIC_DIRECTUS_URL ?? SITE.integrations.directus.url;
 const year = new Date().getFullYear();
 ---
 

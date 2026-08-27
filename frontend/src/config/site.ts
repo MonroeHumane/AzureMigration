@@ -58,6 +58,9 @@ export const SITE = {
     zeffy: {
       shirtContest: 'https://www.zeffy.com/ticketing/humane-society-of-monroe-membership-shirt-contest',
     },
+    directus: {
+      url: 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io',
+    },
     social: {
       facebook: 'https://www.facebook.com/humanesocietyofmonroecounty',
     },

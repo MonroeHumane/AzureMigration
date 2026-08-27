@@ -2,7 +2,7 @@ import bundledPets from '../data/shelter-pets.json';
 import eventFlyersData from '../data/event-flyers.json';
 import memorialTributesData from '../data/memorial-tributes.json';
 
-const DIRECTUS_URL = import.meta.env.DIRECTUS_URL || 'http://localhost:8055';
+const DIRECTUS_URL = import.meta.env.DIRECTUS_URL || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || '';
 
 export interface Pet {
@@ -62,56 +62,77 @@ export interface SiteSettings {
   emergency_phone: string;
 }
 
+let cachedPets: Pet[] | null = null;
 export async function getPets(): Promise<Pet[]> {
+  if (cachedPets) return cachedPets;
+
   try {
     const headers: Record<string, string> = {};
     if (DIRECTUS_STATIC_TOKEN) {
       headers['Authorization'] = `Bearer ${DIRECTUS_STATIC_TOKEN}`;
     }
-    const res = await fetch(`${DIRECTUS_URL}/items/pets?filter[archived_at][_null]=true&limit=-1`, { headers });
+    const res = await fetch(`${DIRECTUS_URL}/items/pets?filter[archived_at][_null]=true&limit=-1`, {
+      headers,
+      signal: AbortSignal.timeout(2500),
+    });
     if (res.ok) {
       const data = await res.json();
       if (data.data && data.data.length > 0) {
-        return data.data.map((p: any) => ({
+        cachedPets = data.data.map((p: any) => ({
           ...p,
           image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg',
         }));
+        return cachedPets!;
       }
     }
   } catch (err) {
-    console.warn('[Directus] Live API unavailable during build, using bundled pet fallback data.');
+    console.warn('[Directus] Live API unavailable or warming up, using bundled pet fallback data.');
   }
 
-  return (bundledPets as Pet[]).map((p) => ({
+  cachedPets = (bundledPets as Pet[]).map((p) => ({
     ...p,
     image: p.image || p.image_url || '/assets/recovered/images/placeholder.svg',
   }));
+  return cachedPets;
 }
 
+let cachedFlyers: EventFlyer[] | null = null;
 export async function getEventFlyers(): Promise<EventFlyer[]> {
+  if (cachedFlyers) return cachedFlyers;
+
   try {
-    const res = await fetch(`${DIRECTUS_URL}/items/event_flyers?filter[status][_eq]=published&sort=sort_order`);
+    const res = await fetch(`${DIRECTUS_URL}/items/event_flyers?filter[status][_eq]=published&sort=sort_order`, {
+      signal: AbortSignal.timeout(2500),
+    });
     if (res.ok) {
       const data = await res.json();
-      return data.data || [];
+      cachedFlyers = data.data || [];
+      return cachedFlyers!;
     }
   } catch (e) {
     // Fallback: the 13 real flyers (mirror-sourced).
   }
-  return eventFlyersData as EventFlyer[];
+  cachedFlyers = eventFlyersData as EventFlyer[];
+  return cachedFlyers;
 }
 
+let cachedTributes: MemorialTribute[] | null = null;
 export async function getMemorialTributes(): Promise<MemorialTribute[]> {
+  if (cachedTributes) return cachedTributes;
+
   try {
-    const res = await fetch(`${DIRECTUS_URL}/items/memorial_tributes?filter[status][_eq]=published&sort=-id`);
+    const res = await fetch(`${DIRECTUS_URL}/items/memorial_tributes?filter[status][_eq]=published&sort=-id`, {
+      signal: AbortSignal.timeout(2500),
+    });
     if (res.ok) {
       const data = await res.json();
-      return data.data || [];
+      cachedTributes = data.data || [];
+      return cachedTributes!;
     }
   } catch (e) {
     // Fallback: the 111 real tributes (mirror-sourced).
   }
-  return (memorialTributesData as Array<{ variant: string; line: string; name: string; year?: string }>).map(
+  cachedTributes = (memorialTributesData as Array<{ variant: string; line: string; name: string; year?: string }>).map(
     (t, i) => ({
       id: i + 1,
       title: t.name,
@@ -120,20 +141,29 @@ export async function getMemorialTributes(): Promise<MemorialTribute[]> {
       year: t.year,
     })
   );
+  return cachedTributes;
 }
 
+let cachedIssues: NewsletterIssue[] | null = null;
 export async function getNewsletterIssues(): Promise<NewsletterIssue[]> {
+  if (cachedIssues) return cachedIssues;
+
   try {
-    const res = await fetch(`${DIRECTUS_URL}/items/newsletter_issues?filter[status][_eq]=published&sort=-id`);
+    const res = await fetch(`${DIRECTUS_URL}/items/newsletter_issues?filter[status][_eq]=published&sort=-id`, {
+      signal: AbortSignal.timeout(2500),
+    });
     if (res.ok) {
       const data = await res.json();
-      return data.data || [];
+      if (data.data && data.data.length > 0) {
+        cachedIssues = data.data;
+        return cachedIssues!;
+      }
     }
   } catch (e) {
     // Fallback
   }
   // Real issue, mirror-sourced (src/data/homepage.json #newsletter).
-  return [
+  cachedIssues = [
     {
       id: 1,
       title: '2025 in Review',
@@ -166,23 +196,35 @@ export async function getNewsletterIssues(): Promise<NewsletterIssue[]> {
                   "body": "With that, the next project we have planned is for a “Cat Room”. We want to build onto the front of the building, about 800 square feet, where we can put community kennels for the cats. Where they can play and climb and do what cats and kittens do. An architect donated his time and drew up plans. Building the cat room will move the cats from the garage to an area built specifically for them and their needs. This will also leave us with a large area at the back of the building where we can build isolation kennels, so that when a dog is brought into the building it can go to the isolation area to decompress and be observed for health problems.\n\nAt the same time, it will open some much needed space outside of the medical room for Legacy Pet Care, for the vaccine and animal care clinic once monthly.\n\nThis project will be expensive and will require fundraisers. We will need corporate sponsors and will offer naming rights for this new addition."
             }
       ],
+      featured: true,
     },
   ];
+  return cachedIssues;
 }
 
+let cachedSettings: SiteSettings | null = null;
 export async function getSiteSettings(): Promise<SiteSettings> {
+  if (cachedSettings) return cachedSettings;
+
   try {
-    const res = await fetch(`${DIRECTUS_URL}/items/site_settings`);
+    const res = await fetch(`${DIRECTUS_URL}/items/site_settings/1`, {
+      signal: AbortSignal.timeout(2500),
+    });
     if (res.ok) {
       const data = await res.json();
-      if (data.data) return data.data;
+      if (data.data) {
+        cachedSettings = data.data;
+        return cachedSettings!;
+      }
     }
-  } catch (e) {}
-  // Verified 2025 outcomes (MDARD shelter report, confirmed 2026-08-27).
-  return {
-    adoptions_count: 705,
-    return_to_owner_count: 211,
-    intakes_count: 1064,
-    emergency_phone: '734-243-3669',
+  } catch (e) {
+    // Fallback
+  }
+  cachedSettings = {
+    adoptions_count: 539,
+    return_to_owner_count: 53,
+    intakes_count: 672,
+    emergency_phone: '734-240-7700',
   };
+  return cachedSettings;
 }
