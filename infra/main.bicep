@@ -143,6 +143,10 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'ADMIN_PASSWORD', value: directusAdminPassword }
             { name: 'CORS_ENABLED', value: 'true' }
             { name: 'CORS_ORIGIN', value: 'true' }
+            { name: 'KEY', value: '7b92f954-4a25-4c07-b088-3904e5482329' }
+            { name: 'SECRET', value: 'Mchs-Directus-Secret-Salt-2026-Xk9$' }
+            { name: 'PUBLIC_URL', value: 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io' }
+            { name: 'WEBSOCKETS_ENABLED', value: 'true' }
             { name: 'STORAGE_LOCATIONS', value: 'azure' }
             { name: 'STORAGE_AZURE_DRIVER', value: 'azure' }
             { name: 'STORAGE_AZURE_ACCOUNT_NAME', value: storageAccountName }

@@ -1,7 +1,8 @@
 FROM directus/directus:11.5.0
 
-# Directus 11 includes native MySQL2 and local storage drivers.
-# Azure Blob driver can be installed into extensions directory when needed.
+USER root
+COPY schema/ ./schema/
+USER node
 
 EXPOSE 8055
 CMD ["directus", "start"]
