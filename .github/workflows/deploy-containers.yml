@@ -59,16 +59,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy Directus to Azure Container Apps
-        uses: azure/container-apps-deploy-action@v3
+      - name: Deploy Directus and Arcade to Azure Container Apps
+        uses: azure/cli@v2
         with:
-          imageToDeploy: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-directus:latest
-          containerAppName: mchs-directus
-          resourceGroup: MCHS-Platform-RG
-
-      - name: Deploy Arcade to Azure Container Apps
-        uses: azure/container-apps-deploy-action@v3
-        with:
-          imageToDeploy: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest
-          containerAppName: mchs-arcade-api
-          resourceGroup: MCHS-Platform-RG
+          inlineScript: |
+            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-directus:latest
+            az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest
