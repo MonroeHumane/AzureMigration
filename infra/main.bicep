@@ -44,6 +44,31 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
   parent: storageAccount
   name: 'default'
+  properties: {
+    cors: {
+      corsRules: [
+        {
+          allowedOrigins: [
+            'https://monroe-humane.org'
+            'https://*.azurestaticapps.net'
+            'http://localhost:*'
+          ]
+          allowedMethods: [
+            'GET'
+            'HEAD'
+            'OPTIONS'
+          ]
+          allowedHeaders: [
+            '*'
+          ]
+          exposedHeaders: [
+            '*'
+          ]
+          maxAgeInSeconds: 3600
+        }
+      ]
+    }
+  }
 }
 
 resource directusContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
@@ -152,6 +177,7 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'STORAGE_AZURE_ACCOUNT_NAME', value: storageAccountName }
             { name: 'STORAGE_AZURE_ACCOUNT_KEY', value: storageAccount.listKeys().keys[0].value }
             { name: 'STORAGE_AZURE_CONTAINER_NAME', value: 'directus-uploads' }
+            { name: 'STORAGE_AZURE_PUBLIC_URL', value: '${storageAccount.properties.primaryEndpoints.blob}directus-uploads' }
           ]
         }
       ]
