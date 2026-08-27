@@ -27,7 +27,7 @@ const historicEvents = eventData.filter(e => new Date(e.event_date) < thirtyDays
     <section id="Calendar" class="monroe-native-stack" style="text-align: center; background: #fffaf2; border-radius: 12px; padding: 2rem;">
       <h2 style="margin-top: 0;">Event Calendar</h2>
       <p>View all our upcoming dates below or <a href="https://delightful-dune-0d730f70f.7.azurestaticapps.net/events/#Calendar">add to your own calendar</a>.</p>
-      <div style="aspect-ratio: 16/9; max-width: 800px; margin: 1rem auto 0; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #475569;">
+      <div style="aspect-ratio: 16/9; max-width: 800px; margin: 1rem auto 0; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; ">
         (Google Calendar Embed Placeholder)
       </div>
     </section>
@@ -45,7 +45,7 @@ const historicEvents = eventData.filter(e => new Date(e.event_date) < thirtyDays
                 {new Date(event.event_date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               </span>
               <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem;">{event.title}</h3>
-              <p style="color: #475569; margin: 0 0 1.5rem; font-size: 0.95rem; line-height: 1.5; flex: 1;">
+              <p style=" margin: 0 0 1.5rem; font-size: 0.95rem; line-height: 1.5; flex: 1;">
                 {event.description}
               </p>
               <a href={event.link_url} class="monroe-btn" style="align-self: flex-start; padding: 0.5rem 1.25rem;">Learn more</a>
