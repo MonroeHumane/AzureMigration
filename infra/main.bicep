@@ -37,6 +37,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     accessTier: 'Hot'
     supportsHttpsTrafficOnly: true
     minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: true
   }
 }
 
@@ -126,7 +127,7 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'directus'
-          image: 'ghcr.io/khaose2/monroe-humane-directus:latest'
+          image: 'directus/directus:11.5.0'
           resources: {
             cpu: json('0.5')
             memory: '1.0Gi'
@@ -171,7 +172,7 @@ resource arcadeApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'arcade-api'
-          image: 'ghcr.io/khaose2/monroe-humane-arcade:latest'
+          image: 'ghcr.io/khaose2/humanewebsite-arcade:latest'
           resources: {
             cpu: json('0.25')
             memory: '0.5Gi'
