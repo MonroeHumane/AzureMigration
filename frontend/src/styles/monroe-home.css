@@ -3064,3 +3064,36 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   outline: 3px solid rgba(15, 118, 110, 0.45);
   outline-offset: 2px;
 }
+
+@media (min-width: 1400px) {
+  body.home-editable-has-flyers-rail .home-editable-shell {
+    padding-left: calc(var(--monroe-xl-nav-sync-inset, 0.65rem) + var(--monroe-xl-index-rail-width, 11rem) + 1.25rem);
+  }
+}
+
+
+.monroe-newsletter-details summary {
+  cursor: pointer;
+  color: #0f766e;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  list-style: none;
+  display: inline-block;
+  padding: 0.25rem 0;
+  border-bottom: 1px dashed #0f766e;
+}
+.monroe-newsletter-details summary::-webkit-details-marker {
+  display: none;
+}
+.monroe-newsletter-details[open] summary {
+  display: none;
+}
+.monroe-newsletter-details-content {
+  animation: monroe-fade-in 0.3s ease-out forwards;
+}
+@keyframes monroe-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

@@ -8,7 +8,23 @@ import sponsors from '../data/sponsors.json';
 import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
 
+import { getSiteSettings, getEventFlyers, getNewsletterIssues } from '../lib/directus';
 const pets = (await getPets()).slice(0, 6);
+const settings = await getSiteSettings();
+const events = await getEventFlyers();
+const newsletters = await getNewsletterIssues();
+const latestEvent = events[0];
+const latestNewsletter = newsletters[0];
+
+if (home.accomplishments.years['2025']) {
+  home.accomplishments.years['2025'][0].value = settings.adoptions_count;
+  home.accomplishments.years['2025'][0].display = settings.adoptions_count.toLocaleString();
+  home.accomplishments.years['2025'][1].value = settings.return_to_owner_count;
+  home.accomplishments.years['2025'][1].display = settings.return_to_owner_count.toLocaleString();
+  home.accomplishments.years['2025'][2].value = settings.intakes_count;
+  home.accomplishments.years['2025'][2].display = settings.intakes_count.toLocaleString();
+}
+
 const petChips = (p: (typeof pets)[number]) => [
   p.species_label || p.type || 'Pet',
   p.gender || 'Unknown',
@@ -26,7 +42,9 @@ const indexLabels: Record<string, string> = {
   'furry-friends-auction-sponsors': 'Sponsors',
   sponsorMarqueeWidget: 'Community partners',
   Membership: 'Membership',
+  Testimonials: 'Testimonials',
   Donations: 'Donations',
+  Social: 'Social',
   Newsletter: 'Newsletter',
   FAQ: 'FAQ',
   Accomplishments: 'Accomplishments',
@@ -122,41 +140,48 @@ const indexLabels: Record<string, string> = {
     <!-- 2. Events band -->
     <div id="Events" class="wp-block-group alignwide home-editable-section home-editable-events-band is-layout-constrained">
       <section class="hs-feature-widget home-editable-events-artwork" aria-labelledby="hs-events-feature-title">
-        <div class="hs-wrap">
-          <div class="hs-copy">
-            <p class="hs-kicker">{home.events_feature.kicker}</p>
-            <p class="hs-deadline">{home.events_feature.deadline}</p>
-            <h2 id="hs-events-feature-title">{home.events_feature.title}</h2>
-            {home.events_feature.body.map((p) => <p class="hs-body">{p}</p>)}
-            <p class="hs-note">{home.events_feature.note}</p>
-            <div class="monroe-vote-ways" role="note">
-              <p class="monroe-vote-ways__title">{home.events_feature.ways_title}</p>
-              <div class="monroe-vote-ways__grid">
-                {home.events_feature.ways.map((w) => (
-                  <div class="monroe-vote-ways__item">
-                    <span class="monroe-vote-ways__icon" aria-hidden="true">{w.icon}</span>
-                    <p><strong>{w.text.split(':')[0]}:</strong>{w.text.slice(w.text.indexOf(':') + 1)}</p>
+          <div class="hs-wrap">
+            <div class="hs-copy">
+              <p class="hs-kicker">Latest Event</p>
+              <p class="hs-deadline">{latestEvent ? new Date(latestEvent.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : home.events_feature.deadline}</p>
+              <h2 id="hs-events-feature-title">{latestEvent ? latestEvent.title : home.events_feature.title}</h2>
+              <p class="hs-body">{latestEvent ? latestEvent.description : home.events_feature.body[0]}</p>
+              
+              {!latestEvent && home.events_feature.body.slice(1).map((p) => <p class="hs-body">{p}</p>)}
+              {!latestEvent && <p class="hs-note">{home.events_feature.note}</p>}
+              
+              {!latestEvent && (
+                <div class="monroe-vote-ways" role="note">
+                  <p class="monroe-vote-ways__title">{home.events_feature.ways_title}</p>
+                  <div class="monroe-vote-ways__grid">
+                    {home.events_feature.ways.map((w) => (
+                      <div class="monroe-vote-ways__item">
+                        <span class="monroe-vote-ways__icon" aria-hidden="true">{w.icon}</span>
+                        <p><strong>{w.text.split(':')[0]}:</strong>{w.text.slice(w.text.indexOf(':') + 1)}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+              )}
+              <div class="hs-actions">
+                <a class="hs-btn hs-btn--vote" href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.cta.href} target={latestEvent && latestEvent.link_url?.startsWith('http') ? '_blank' : undefined} rel={latestEvent && latestEvent.link_url?.startsWith('http') ? 'noopener noreferrer' : undefined}>{latestEvent ? 'Learn More' : home.events_feature.cta.label}</a>
               </div>
             </div>
-            <div class="hs-actions">
-              <a class="hs-btn hs-btn--vote" href={home.events_feature.cta.href} target="_blank" rel="noopener noreferrer">{home.events_feature.cta.label}</a>
-            </div>
+            <a class="hs-voting-flyer" href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.flyer_image}>
+              <img src={latestEvent ? latestEvent.image : home.events_feature.flyer_image} alt={latestEvent ? latestEvent.title : home.events_feature.flyer_alt} loading="lazy" decoding="async" />
+            </a>
+            {!latestEvent && (
+              <div class="hs-voting-schedule" aria-label="Event schedule">
+                <h3>{home.events_feature.schedule_title}</h3>
+                <ul>
+                  {home.events_feature.schedule.map((row) => (
+                    <li><strong>{row.date}</strong><span>{row.location}</span></li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-          <a class="hs-voting-flyer" href={home.events_feature.flyer_image} target="_blank" rel="noopener noreferrer">
-            <img src={home.events_feature.flyer_image} alt={home.events_feature.flyer_alt} loading="lazy" decoding="async" />
-          </a>
-          <div class="hs-voting-schedule" aria-label="Event schedule">
-            <h3>{home.events_feature.schedule_title}</h3>
-            <ul>
-              {home.events_feature.schedule.map((row) => (
-                <li><strong>{row.date}</strong><span>{row.location}</span></li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
+        </section>
 
       <div class="home-editable-upcoming-event-section">
         <div class="home-editable-upcoming-event-hero home-editable-feature-card">
@@ -423,7 +448,7 @@ const indexLabels: Record<string, string> = {
     </div>
 
     <!-- 11. Testimonials -->
-    <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
+      <div class="wp-block-group alignwide home-editable-section is-layout-constrained" id="Testimonials">
       <div class="wp-block-group home-editable-events-card home-editable-runtime-card is-layout-constrained">
         <p class="home-editable-section-label wp-block-paragraph">{home.testimonials.label}</p>
         <h2 class="wp-block-heading">{home.testimonials.title}</h2>
@@ -442,51 +467,31 @@ const indexLabels: Record<string, string> = {
         <p class="wp-block-paragraph">{home.donations.intro}</p>
 
         <div class="home-editable-paypal-giving home-editable-paypal-giving--split">
-          <div class="home-editable-paypal-giving-split">
-            <div class="home-editable-paypal-giving-split__col">
-              <div class="pp-giving-wrapper">
-                <div class="pp-giving-widget">
-                  <div class="pp-widget-header">
-                    <h3><span class="pp-icon-heart" aria-hidden="true"></span> {home.donations.cat_room.title}</h3>
-                    <p>{home.donations.cat_room.powered_by}</p>
-                  </div>
-                  <div class="pp-content pp-content--cta">
-                    <p class="pp-cta-text">{home.donations.cat_room.cta_text}</p>
-                    <a class="pp-cta-btn" href={home.donations.cat_room.href} target="_blank" rel="noopener noreferrer">{home.donations.cat_room.button}</a>
-                    <p class="pp-cta-note">Opens PayPal Giving Fund in a new tab</p>
-                  </div>
+            <div class="home-editable-paypal-giving-split">
+              <div class="home-editable-paypal-giving-split__col">
+                <div class="pp-giving-wrapper">
+                  <iframe src={home.donations.cat_room.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Donate to the Cat Room"></iframe>
                 </div>
               </div>
-            </div>
-            <div class="home-editable-paypal-giving-split__col">
-              <div class="pp-giving-wrapper">
-                <div class="pp-giving-widget">
-                  <div class="pp-widget-header">
-                    <h3><span class="pp-icon-heart" aria-hidden="true"></span> {home.donations.general.title}</h3>
-                    <p>{home.donations.general.powered_by}</p>
-                  </div>
-                  <div class="pp-content pp-content--cta">
-                    <p class="pp-cta-text">{home.donations.general.cta_text}</p>
-                    <a class="pp-cta-btn" href={home.donations.general.href} target="_blank" rel="noopener noreferrer">{home.donations.general.button}</a>
-                    <p class="pp-cta-note">Opens PayPal Giving Fund in a new tab</p>
-                  </div>
-                </div>
-                <div class="offline-donations">
-                  <div class="offline-donations-header">
-                    <h4>{home.donations.offline.title}</h4>
-                    <p>{home.donations.offline.label}</p>
-                  </div>
-                  <div class="offline-donations-body">
-                    <div class="offline-donations-amount">{home.donations.offline.amount}</div>
-                    <div class="offline-donations-label">{home.donations.offline.caption}</div>
+              <div class="home-editable-paypal-giving-split__col">
+                <div class="pp-giving-wrapper">
+                  <iframe src={home.donations.general.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Make a Difference"></iframe>
+                  
+                  <div class="offline-donations" style="margin-top:2rem;">
+                    <div class="offline-donations-header">
+                      <h4>{home.donations.offline.title}</h4>
+                      <p>{home.donations.offline.label}</p>
+                    </div>
+                    <div class="offline-donations-body">
+                      <div class="offline-donations-amount">{home.donations.offline.amount}</div>
+                      <div class="offline-donations-label">{home.donations.offline.caption}</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="wp-block-columns home-editable-give-grid is-layout-flex">
+          <div class="wp-block-columns home-editable-give-grid is-layout-flex">
           {home.donations.tiles.map((tile) => (
             <div class="wp-block-column is-layout-flow">
               <div class="wp-block-group home-editable-give-tile is-layout-constrained" id={tile.title === 'Volunteer' ? 'Volunteer' : undefined}>
@@ -517,7 +522,7 @@ const indexLabels: Record<string, string> = {
               <div class="home-editable-social-embed__viewport">
                 <div class="home-editable-social-embed__loader" aria-hidden="true">
                   <div class="home-editable-social-embed__loader-shimmer"></div>
-                  <span class="home-editable-social-embed__loader-text">Loading Facebook feed…</span>
+                  <span class="home-editable-social-embed__loader-text">Loading Facebook feedâ€¦</span>
                 </div>
                 <iframe
                   title="HSMC Facebook timeline"
@@ -545,17 +550,27 @@ const indexLabels: Record<string, string> = {
             <div class="hs-wrap">
               <div class="hs-card" role="region" aria-label="2025 in Review">
                 <div class="hs-hero">
-                  <img src={home.newsletter.hero_image} alt="2025 in Review" width="1200" height="400" decoding="async" loading="lazy" />
-                  <div class="hs-hero-overlay"></div>
-                  <div class="hs-hero-text">
-                    <div class="hs-eyebrow">{home.newsletter.eyebrow}</div>
-                    <h3 class="hs-hero-title">{home.newsletter.label}</h3>
+                    <img src={latestNewsletter ? latestNewsletter.image : home.newsletter.hero_image} alt={latestNewsletter ? latestNewsletter.title : "2025 in Review"} width="1200" height="400" decoding="async" loading="lazy" />
+                    <div class="hs-hero-overlay"></div>
+                    <div class="hs-hero-text">
+                      <div class="hs-eyebrow">{home.newsletter.eyebrow}</div>
+                      <h3 class="hs-hero-title">{latestNewsletter ? "Latest Newsletter" : home.newsletter.label}</h3>
+                    </div>
                   </div>
-                </div>
-                <div class="hs-head">
-                  <div>
-                    <h3 id="hs-news-2025review-title" class="hs-title">{home.newsletter.title}</h3>
-                    <div class="hs-sub">{home.newsletter.byline}</div>
+                  <div class="hs-head">
+                    <div>
+                      <h3 id="hs-news-2025review-title" class="hs-title">{latestNewsletter ? latestNewsletter.title : home.newsletter.title}</h3>
+                      <div class="hs-sub">{latestNewsletter ? new Date(latestNewsletter.issue_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : home.newsletter.byline}</div>
+                    </div>
+                    <div class="hs-actions" role="group" aria-label="Quick pet filters">
+                      {latestNewsletter && latestNewsletter.pdf_url && (
+                        <a href={latestNewsletter.pdf_url} class="hs-btn ghost" target="_blank" rel="noopener noreferrer">Download PDF</a>
+                      )}
+                      {!latestNewsletter && home.newsletter.filters.map((f) => (
+                        <a href={f.href} class:list={['hs-btn', { ghost: f.variant === 'ghost' }]}>{f.label}</a>
+                      ))}
+                      <a href="/newsletter" class="hs-btn">All Issues</a>
+                    </div>
                   </div>
                   <div class="hs-actions" role="group" aria-label="Quick pet filters">
                     {home.newsletter.filters.map((f) => (
@@ -564,38 +579,51 @@ const indexLabels: Record<string, string> = {
                   </div>
                 </div>
                 <div class="hs-body">
-                  <div class="hs-grid">
-                    {home.newsletter.letters.map((letter) => (
-                      <div class="hs-box">
-                        <div class="hs-letter">
-                          <h3 class="hs-section-title">{letter.title}</h3>
-                          {letter.paragraphs?.map((p) => <p>{p}</p>)}
-                          {letter.improvements && (
-                            <ol class="hs-improvements">
-                              {letter.improvements.map((li) => <li>{li}</li>)}
-                            </ol>
-                          )}
+                    <div class="hs-grid">
+                      {latestNewsletter ? (
+                        <div class="hs-box" style="grid-column: 1 / -1;">
+                          <div class="hs-letter">
+                            <p>{latestNewsletter.excerpt}</p>
+                            <a href={`/newsletter/issue/${latestNewsletter.slug}`} style="font-weight:bold; color:#0f766e; margin-top:1rem; display:inline-block;">Read Full Issue &rarr;</a>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    <aside class="hs-box" aria-label="Newsletter photo gallery">
-                      <div class="hs-gallery">
-                        {home.newsletter.gallery.map((g) => (
-                          <figure class="hs-thumb" tabindex="0" role="button" data-hs-lb-src={g.src}>
-                            <img width={g.width} height={g.height} src={g.src} alt="" loading="lazy" decoding="async" srcset={g.srcset} sizes="auto, (max-width: 640px) 100vw, 640px" />
-                            <div class="hs-expand-hint"><span>Expand</span></div>
-                          </figure>
-                        ))}
-                      </div>
-                    </aside>
+                      ) : (
+                        <>
+                          {home.newsletter.letters.map((letter) => (
+                            <div class="hs-box">
+                              <div class="hs-letter">
+                                <h3 class="hs-section-title">{letter.title}</h3>
+                                {letter.paragraphs && <p>{letter.paragraphs[0]}</p>}
+                                <details class="monroe-newsletter-details">
+                                  <summary>Read the rest of this letter</summary>
+                                  <div class="monroe-newsletter-details-content">
+                                    {letter.paragraphs?.slice(1).map((p) => <p>{p}</p>)}
+                                    {letter.improvements && (
+                                      <ol class="hs-improvements">
+                                        {letter.improvements.map((li) => <li>{li}</li>)}
+                                      </ol>
+                                    )}
+                                  </div>
+                                </details>
+                              </div>
+                            </div>
+                          ))}
+                          <aside class="hs-box" aria-label="Newsletter photo gallery">
+                            <div class="hs-gallery">
+                              {home.newsletter.gallery.map((img) => (
+                                <img src={img.src} alt={img.alt} loading="lazy" decoding="async" />
+                              ))}
+                            </div>
+                          </aside>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
               <div class="hs-lightbox" id="hsLb-181" aria-hidden="true">
                 <div class="hs-lightbox-inner" role="dialog" aria-modal="true" aria-label="Expanded image">
-                  <button class="hs-lb-btn hs-lb-close" type="button" aria-label="Close image">✕</button>
-                  <button class="hs-lb-btn hs-lb-prev" type="button" aria-label="Previous image">‹</button>
-                  <button class="hs-lb-btn hs-lb-next" type="button" aria-label="Next image">›</button>
+                  <button class="hs-lb-btn hs-lb-close" type="button" aria-label="Close image">âœ•</button>
+                  <button class="hs-lb-btn hs-lb-prev" type="button" aria-label="Previous image">â€¹</button>
+                  <button class="hs-lb-btn hs-lb-next" type="button" aria-label="Next image">â€º</button>
                   <img loading="lazy" decoding="async" alt="" data-hs-lb-img />
                   <div class="hs-lb-caption"><span data-hs-lb-cap-l></span><span data-hs-lb-cap-r></span></div>
                 </div>
@@ -754,6 +782,43 @@ const indexLabels: Record<string, string> = {
 
 <script>
   function initHomePage() {
+    // Homepage Scrollspy (Left Navigation Rail)
+    const navLinks = Array.from(document.querySelectorAll('.home-editable-page-index__link'));
+    const sections = navLinks
+      .map((link) => {
+        try {
+          const url = new URL((link as HTMLAnchorElement).href);
+          return document.querySelector(url.hash);
+        } catch { return null; }
+      })
+      .filter(Boolean) as HTMLElement[];
+
+    if (sections.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          let visibleSection = null;
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              visibleSection = entry.target.id;
+            }
+          });
+          
+          if (visibleSection) {
+            navLinks.forEach((link) => {
+              try {
+                if (new URL((link as HTMLAnchorElement).href).hash === `#${visibleSection}`) {
+                  link.classList.add('is-active');
+                } else {
+                  link.classList.remove('is-active');
+                }
+              } catch {}
+            });
+          }
+        },
+        { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
+      );
+      sections.forEach((s) => observer.observe(s));
+    }
     // Featured pets: Expand view opens a <dialog> with the same cards.
     const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
     const fpwExpand = document.getElementById('fpwExpandBtn');
@@ -851,7 +916,7 @@ const indexLabels: Record<string, string> = {
         const phone = String(data.get('monroe_contact_phone') || '');
         const message = String(data.get('monroe_contact_message') || '');
         const subject = encodeURIComponent(`Website contact from ${name}`);
-        const body = encodeURIComponent(`${message}\n\n— ${name}${phone ? ` (${phone})` : ''}\n${email}`);
+        const body = encodeURIComponent(`${message}\n\nâ€” ${name}${phone ? ` (${phone})` : ''}\n${email}`);
         const feedback = contactForm.closest('.monroe-contact-form-wrap')?.querySelector<HTMLElement>('.monroe-contact-form__feedback');
         if (feedback) feedback.textContent = 'Opening your email application so your message can be sent. Thank you!';
         window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
