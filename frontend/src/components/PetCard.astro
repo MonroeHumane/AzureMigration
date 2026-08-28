@@ -9,7 +9,19 @@ const { pet } = Astro.props;
 
 const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
 const genderIcon = pet.gender === 'female' ? '♀' : pet.gender === 'male' ? '♂' : '?';
-const chips = [pet.species_label || pet.type, pet.size, genderLabel, pet.age_display].filter(Boolean);
+const chips = [pet.species_label || pet.type, pet.size, genderLabel, pet.age_display, pet.color].filter(Boolean);
+
+// Real intake_date from the Petango sync — surface it as a badge instead of
+// leaving it unused. New arrivals get a spotlight; long-time residents get
+// a gentle nudge, since shelter UX research consistently flags "who's been
+// overlooked" as a high-value signal for adopters.
+let daysAtShelter: number | null = null;
+if (pet.intake_date) {
+  const d = new Date(pet.intake_date);
+  if (!isNaN(d.getTime())) daysAtShelter = Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+const isNewArrival = daysAtShelter !== null && daysAtShelter >= 0 && daysAtShelter <= 14;
+const isLongTimer = daysAtShelter !== null && daysAtShelter >= 180;
 ---
 
 <a
@@ -27,8 +39,10 @@ const chips = [pet.species_label || pet.type, pet.size, genderLabel, pet.age_dis
   aria-label={`Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`}
 >
   <div class="pet-card__photo">
-    <img src={pet.image_url || pet.image} alt={pet.name} loading="lazy" decoding="async" width="400" height="400" />
+    <img src={pet.image_url || pet.image} alt={pet.name} loading="lazy" decoding="async" width="480" height="360" />
     <span class="pet-card__type-badge">{pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+    {isNewArrival && <span class="pet-card__ribbon pet-card__ribbon--new">New arrival</span>}
+    {!isNewArrival && isLongTimer && <span class="pet-card__ribbon pet-card__ribbon--longtimer">Been waiting a while</span>}
   </div>
   <div class="pet-card__body">
     <h3 class="pet-card__name">{pet.name}</h3>
