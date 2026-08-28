@@ -282,7 +282,7 @@ async function writeSyncRun(status: 'success' | 'error', stats: { active: number
   }
 }
 
-export async function runPetSync(): Promise<{ active: number; archived: number; inserted: number }> {
+export async function runPetSync(): Promise<{ active: number; archived: number; inserted: number; ok: boolean }> {
   console.log(`[PetSync] Starting sync at ${new Date().toISOString()}`);
   const nowIso = new Date().toISOString();
 
@@ -292,13 +292,13 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
   } catch (err: any) {
     console.error(`[PetSync] Petango fetch failed: ${err.message}`);
     await writeSyncRun('error', { active: 0, inserted: 0, archived: 0 }, err.message);
-    return { active: 0, inserted: 0, archived: 0 };
+    return { active: 0, inserted: 0, archived: 0, ok: false };
   }
 
   if (raw.length === 0) {
     console.warn('[PetSync] No animals parsed; aborting sync to avoid mass-archiving on a bad fetch.');
     await writeSyncRun('error', { active: 0, inserted: 0, archived: 0 }, 'Zero animals parsed from Petango response');
-    return { active: 0, inserted: 0, archived: 0 };
+    return { active: 0, inserted: 0, archived: 0, ok: false };
   }
 
   const activePets: PetRecord[] = [];
@@ -335,67 +335,121 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
   }
 
   try {
-    const existingRes = await fetch(`${DIRECTUS_URL}/items/pets?limit=-1&fields=id,archived_at`, {
-      headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` },
-    });
-
-    if (!existingRes.ok) {
-      throw new Error(`Directus fetch failed: HTTP ${existingRes.status}`);
+    // Paginated fetch, not `limit=-1`. Directus's "unlimited" behavior for
+    // limit=-1 depends on its QUERY_LIMIT_MAX config, which is not something
+    // this job controls or can assume — if it were ever capped, a silent
+    // partial result here would make currently-active pets look "missing"
+    // and get wrongly archived. Paginating removes that dependency entirely.
+    const existingPets: Array<{ id: string; archived_at: string | null }> = [];
+    const PAGE_SIZE = 500;
+    for (let page = 0; ; page++) {
+      const pageRes = await fetch(
+        `${DIRECTUS_URL}/items/pets?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}&fields=id,archived_at&sort=id`,
+        { headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` } }
+      );
+      if (!pageRes.ok) {
+        throw new Error(`Directus fetch failed: HTTP ${pageRes.status} (page ${page})`);
+      }
+      const pageData = await pageRes.json();
+      const rows: Array<{ id: string; archived_at: string | null }> = pageData.data || [];
+      existingPets.push(...rows);
+      if (rows.length < PAGE_SIZE) break;
     }
 
-    const existingData = await existingRes.json();
-    const existingPets: Array<{ id: string; archived_at: string | null }> = existingData.data || [];
     const existingMap = new Map(existingPets.map((p) => [p.id, p]));
     const activeIds = new Set(activePets.map((p) => p.id));
 
+    // Sanity guard: if Petango's response was truncated or partially broken
+    // (rather than genuinely empty, which is already caught above), a small
+    // active count relative to what's currently marked non-archived would
+    // otherwise mass-archive pets that are still actually available. Refuse
+    // to archive anything in that case rather than trust a suspicious result.
+    const previouslyActiveCount = existingPets.filter((p) => !p.archived_at).length;
+    const SANITY_MIN_SAMPLE = 5;
+    const SANITY_DROP_RATIO = 0.5;
+    const suspiciousDropoff =
+      previouslyActiveCount >= SANITY_MIN_SAMPLE && activePets.length < previouslyActiveCount * SANITY_DROP_RATIO;
+    if (suspiciousDropoff) {
+      const msg = `Refusing to archive: Petango returned ${activePets.length} active animals vs ${previouslyActiveCount} previously active (>50% drop). Likely a partial/bad fetch, not real turnover.`;
+      console.error(`[PetSync] ${msg}`);
+      await writeSyncRun('error', { active: activePets.length, inserted: 0, archived: 0 }, msg);
+      return { active: activePets.length, inserted: 0, archived: 0, ok: false };
+    }
+
     let inserted = 0;
     let archived = 0;
+    let writeFailures = 0;
 
     for (const pet of activePets) {
       const existing = existingMap.get(pet.id);
       if (!existing) {
         pet.first_seen_at = nowIso;
-        await fetch(`${DIRECTUS_URL}/items/pets`, {
+        const res = await fetch(`${DIRECTUS_URL}/items/pets`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${DIRECTUS_TOKEN}` },
           body: JSON.stringify(pet),
         });
-        inserted++;
+        if (res.ok) {
+          inserted++;
+        } else {
+          writeFailures++;
+          console.error(`[PetSync] Insert failed for ${pet.id} (${res.status}): ${await res.text()}`);
+        }
       } else {
-        await fetch(`${DIRECTUS_URL}/items/pets/${encodeURIComponent(pet.id)}`, {
+        const res = await fetch(`${DIRECTUS_URL}/items/pets/${encodeURIComponent(pet.id)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${DIRECTUS_TOKEN}` },
           body: JSON.stringify({ ...pet, archived_at: null }),
         });
+        if (!res.ok) {
+          writeFailures++;
+          console.error(`[PetSync] Update failed for ${pet.id} (${res.status}): ${await res.text()}`);
+        }
       }
     }
 
     for (const [id, record] of existingMap.entries()) {
       if (!activeIds.has(id) && !record.archived_at) {
-        await fetch(`${DIRECTUS_URL}/items/pets/${encodeURIComponent(id)}`, {
+        const res = await fetch(`${DIRECTUS_URL}/items/pets/${encodeURIComponent(id)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${DIRECTUS_TOKEN}` },
           body: JSON.stringify({ archived_at: nowIso }),
         });
-        archived++;
+        if (res.ok) {
+          archived++;
+        } else {
+          writeFailures++;
+          console.error(`[PetSync] Archive failed for ${id} (${res.status}): ${await res.text()}`);
+        }
       }
     }
 
-    console.log(`[PetSync] Sync complete: ${activePets.length} active, ${inserted} new, ${archived} archived.`);
-    await writeSyncRun('success', { active: activePets.length, inserted, archived });
-    return { active: activePets.length, inserted, archived };
+    const status = writeFailures > 0 ? 'error' : 'success';
+    const errorMessage = writeFailures > 0 ? `${writeFailures} write(s) failed — see job logs` : undefined;
+    console.log(`[PetSync] Sync complete: ${activePets.length} active, ${inserted} new, ${archived} archived, ${writeFailures} write failures.`);
+    await writeSyncRun(status, { active: activePets.length, inserted, archived }, errorMessage);
+    return { active: activePets.length, inserted, archived, ok: writeFailures === 0 };
   } catch (err: any) {
     console.error(`[PetSync] Directus sync failed: ${err.message}`);
     await writeSyncRun('error', { active: activePets.length, inserted: 0, archived: 0 }, err.message);
-    return { active: activePets.length, inserted: 0, archived: 0 };
+    return { active: activePets.length, inserted: 0, archived: 0, ok: false };
   }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   runPetSync()
     .then((stats) => {
-      console.log('[PetSync] Execution finished successfully', stats);
-      process.exit(0);
+      if (stats.ok) {
+        console.log('[PetSync] Execution finished successfully', stats);
+        process.exit(0);
+      } else {
+        // Non-zero exit so the job execution itself shows Failed in Azure —
+        // sync_runs already has the detail, but the platform-level status
+        // needs to reflect reality too so monitoring/alerting isn't blind
+        // to a sync that silently degraded.
+        console.error('[PetSync] Execution completed with errors', stats);
+        process.exit(1);
+      }
     })
     .catch((err) => {
       console.error('[PetSync] Execution failed', err);
