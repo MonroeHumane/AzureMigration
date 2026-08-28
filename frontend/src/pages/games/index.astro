@@ -68,9 +68,29 @@ import '../../styles/monroe-games.css';
                 <div class="monroe-games-picker__intro">
                     <p class="monroe-native-eyebrow">Play now</p>
                     <h2 id="monroe-games-picker-heading">Choose a game</h2>
-                    <p class="monroe-games-picker__lead">Five free games and counting — pick one and jump in.</p>
+                    <p class="monroe-games-picker__lead">Six free games and counting — pick one and jump in.</p>
                 </div>
                 <ul class="monroe-humane-games__grid">
+                                                                    <li class="monroe-humane-games__grid-item">
+                            <button
+                                type="button"
+                                class="monroe-humane-games__card monroe-humane-games__card--petsnake"
+                                data-monroe-humane-game="petsnake"
+                                                                aria-label="Play Pet Snake"
+                            >
+                                <span class="monroe-humane-games__card-icon-wrap" aria-hidden="true">
+                                    <span class="monroe-humane-games__card-icon">🐍</span>
+                                </span>
+                                <span class="monroe-humane-games__card-body">
+                                    <span class="monroe-humane-games__card-title">Pet Snake</span>
+                                    <span class="monroe-humane-games__card-desc">Guide a cat or dog through a snack trail — grab treats, dodge bombs, chase a high score.</span>
+                                </span>
+                                <span class="monroe-humane-games__card-meta">
+                                    <span class="monroe-humane-games__card-badge">Play anytime</span>
+                                                                    </span>
+                                <span class="monroe-humane-games__card-action" aria-hidden="true">Play ›</span>
+                            </button>
+                        </li>
                                                                     <li class="monroe-humane-games__grid-item">
                             <button
                                 type="button"
@@ -82,8 +102,28 @@ import '../../styles/monroe-games.css';
                                     <span class="monroe-humane-games__card-icon">🗺️</span>
                                 </span>
                                 <span class="monroe-humane-games__card-body">
-                                    <span class="monroe-humane-games__card-title">Pet Snake</span>
-                                    <span class="monroe-humane-games__card-desc">Roguelike as a cat or dog — collect treats and dodge bombs.</span>
+                                    <span class="monroe-humane-games__card-title">Pet Snake Adventure</span>
+                                    <span class="monroe-humane-games__card-desc">A 15-floor roguelike journey with upgrades, affixes, and a vacuum boss.</span>
+                                </span>
+                                <span class="monroe-humane-games__card-meta">
+                                    <span class="monroe-humane-games__card-badge">Play anytime</span>
+                                                                    </span>
+                                <span class="monroe-humane-games__card-action" aria-hidden="true">Play ›</span>
+                            </button>
+                        </li>
+                                                                    <li class="monroe-humane-games__grid-item">
+                            <button
+                                type="button"
+                                class="monroe-humane-games__card monroe-humane-games__card--found"
+                                data-monroe-humane-game="found"
+                                                                aria-label="Play Found"
+                            >
+                                <span class="monroe-humane-games__card-icon-wrap" aria-hidden="true">
+                                    <span class="monroe-humane-games__card-icon">🐱</span>
+                                </span>
+                                <span class="monroe-humane-games__card-body">
+                                    <span class="monroe-humane-games__card-title">Found</span>
+                                    <span class="monroe-humane-games__card-desc">A stray cat is trying to find its way home — jump and explore a cozy neighborhood.</span>
                                 </span>
                                 <span class="monroe-humane-games__card-meta">
                                     <span class="monroe-humane-games__card-badge">Play anytime</span>
@@ -154,8 +194,6 @@ import '../../styles/monroe-games.css';
                                 <span class="monroe-humane-games__card-action" aria-hidden="true">Play ›</span>
                             </button>
                         </li>
-                                                                    <li class="monroe-humane-games__grid-item">
-                        </li>
                                     </ul>
                 <p class="monroe-humane-games__hint">
                     Opens on top of this page. Press Escape to close.                </p>
@@ -213,10 +251,12 @@ import '../../styles/monroe-games.css';
   function initGames() {
     // Humane Games launcher: nickname gate + full-screen game overlay.
     const GAME_URLS: Record<string, string> = {
+      petsnake: '/games/petsnake.html?embed=1',
       roguelike: '/games/petsnakerouguelike.html?embed=1',
       match: '/games/match/match.html?embed=1',
       dex: '/games/dex/dex.html?embed=1',
       tycoon: '/games/shelter-tycoon/index.html?embed=1',
+      found: '/games/found/index.html?embed=1',
     };
 
     const root = document.querySelector<HTMLElement>('[data-monroe-humane-games-root]');
