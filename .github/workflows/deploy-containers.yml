@@ -56,15 +56,49 @@ jobs:
     needs: build_and_push
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Detect which services changed
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            arcade:
+              - 'arcade/**'
+            cron:
+              - 'cron/**'
+
       - name: Log in to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy Directus, Arcade, and PetSync to Azure Container Apps
+      # NOTE: mchs-directus is intentionally pinned to the upstream vanilla
+      # image (directus/directus:11.5.0), not the custom GHCR build from
+      # backend/Dockerfile. That custom image has an unresolved boot bug
+      # (crashes with MODULE_NOT_FOUND even with provenance disabled and a
+      # minimal Dockerfile) — root cause not yet found. Deploying it here
+      # would take production down again. Revisit once that's debugged.
+      - name: Deploy Directus (only if backend/** changed)
+        if: steps.filter.outputs.backend == 'true'
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-directus:latest --revision-suffix gha${{ github.run_number }}
+            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image directus/directus:11.5.0 --revision-suffix gha${{ github.run_number }}
+
+      - name: Deploy Arcade (only if arcade/** changed)
+        if: steps.filter.outputs.arcade == 'true'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
             az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest --revision-suffix gha${{ github.run_number }}
+
+      - name: Deploy PetSync job (only if cron/** changed)
+        if: steps.filter.outputs.cron == 'true'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
             az containerapp job update --name mchs-petsync-job --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-petsync:latest

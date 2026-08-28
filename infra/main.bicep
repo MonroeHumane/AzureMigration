@@ -176,7 +176,11 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'directus'
-          image: 'ghcr.io/monroehumane/monroe-humane-directus:latest'
+          // Pinned to the upstream image, not the custom GHCR build from
+          // backend/Dockerfile — that image has an unresolved boot crash
+          // (MODULE_NOT_FOUND even with a minimal Dockerfile and provenance
+          // disabled). Revisit once root-caused; see deploy-containers.yml.
+          image: 'directus/directus:11.5.0'
           resources: {
             cpu: json('0.5')
             memory: '1.0Gi'
