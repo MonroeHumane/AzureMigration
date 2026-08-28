@@ -50,7 +50,7 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
   image={photo}
 >
   <InnerShell variant="adopt">
-    <a class="monroe-pet-detail-back" href="/adopt">&larr; Back to all pets</a>
+    <a class="monroe-pet-detail-back" href="/adopt" data-smart-back>&larr; Back to all pets</a>
 
     <div class="monroe-pet-detail">
       <div class="monroe-pet-detail-photo">
@@ -99,3 +99,25 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
     )}
   </InnerShell>
 </BaseLayout>
+
+<script>
+  // "Back to all pets" should return to wherever the visitor actually came
+  // from (/adopt, /adopt/dogs, /adopt/cats, or a filtered/searched view of
+  // any of those) rather than always resetting to the unfiltered /adopt —
+  // history.back() when we got here from an in-site adopt listing, falling
+  // back to the plain href otherwise (direct link, new tab, no history).
+  function initSmartBack() {
+    const link = document.querySelector<HTMLAnchorElement>('[data-smart-back]');
+    if (!link) return;
+    link.addEventListener('click', (e) => {
+      if (!document.referrer) return;
+      const ref = new URL(document.referrer);
+      const cameFromAdoptListing = ref.origin === location.origin && /^\/adopt(\/(dogs|cats))?\/?$/.test(ref.pathname);
+      if (cameFromAdoptListing && window.history.length > 1) {
+        e.preventDefault();
+        window.history.back();
+      }
+    });
+  }
+  document.addEventListener('astro:page-load', initSmartBack);
+</script>
