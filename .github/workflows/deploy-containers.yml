@@ -49,6 +49,8 @@ jobs:
           context: ${{ matrix.service.context }}
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service.name }}:latest
+          provenance: false
+          sbom: false
 
   deploy:
     needs: build_and_push
@@ -63,5 +65,5 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-directus:latest
-            az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest
+            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-directus:latest --revision-suffix gha${{ github.run_number }}
+            az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest --revision-suffix gha${{ github.run_number }}
