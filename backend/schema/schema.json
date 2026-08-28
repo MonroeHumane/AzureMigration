@@ -210,6 +210,32 @@
     },
     {
       "collection": "pets",
+      "field": "color",
+      "type": "string",
+      "meta": { "note": "From Petango's per-animal detail page" },
+      "schema": { "length": 128 }
+    },
+    {
+      "collection": "pets",
+      "field": "declawed",
+      "type": "string",
+      "schema": { "length": 32 }
+    },
+    {
+      "collection": "pets",
+      "field": "housetrained",
+      "type": "string",
+      "schema": { "length": 32 }
+    },
+    {
+      "collection": "pets",
+      "field": "stage",
+      "type": "string",
+      "meta": { "note": "Petango's own status, e.g. Available, Adoption Pending, On Hold" },
+      "schema": { "length": 64 }
+    },
+    {
+      "collection": "pets",
       "field": "first_seen_at",
       "type": "dateTime",
       "schema": {}

@@ -68,11 +68,35 @@ async function main() {
     }
 
     for (const col of schemaData.collections || []) {
+      const fields = (schemaData.fields || []).filter((f) => f.collection === col.collection);
+
       if (existingNames.has(col.collection)) {
         console.log(`   ℹ️ Collection already exists: ${col.collection}`);
+        // Reconcile fields too — a collection existing doesn't mean every
+        // field in schema.json has actually been added to it (e.g. someone
+        // extends schema.json for an already-live collection later).
+        const existingFieldsRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}`, { headers: authHeaders });
+        const existingFieldNames = new Set();
+        if (existingFieldsRes.ok) {
+          const existingFieldsData = await existingFieldsRes.json();
+          for (const f of existingFieldsData.data || []) existingFieldNames.add(f.field);
+        }
+        for (const field of fields) {
+          if (existingFieldNames.has(field.field)) continue;
+          const fieldRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify(field),
+          });
+          if (fieldRes.ok) {
+            console.log(`   ✅ Added missing field: ${col.collection}.${field.field}`);
+          } else {
+            console.warn(`   ⚠️ Field create failed for ${col.collection}.${field.field} (${fieldRes.status}): ${await fieldRes.text()}`);
+          }
+        }
         continue;
       }
-      const fields = (schemaData.fields || []).filter((f) => f.collection === col.collection);
+
       try {
         const createRes = await fetch(`${DIRECTUS_URL}/collections`, {
           method: 'POST',
@@ -90,38 +114,44 @@ async function main() {
     }
   }
 
-  // 3. Create a least-privilege "PetSync Service" role + user + static token
-  //    (the sync job authenticates as this, NOT as the admin account).
-  console.log('🔧 Setting up PetSync service role...');
+  // 3. Create a least-privilege "PetSync Service" policy + user + static
+  //    token (the sync job authenticates as this, NOT as the admin
+  //    account). Directus 11 moved permissions onto policies (not roles
+  //    directly) — a policy is attached to a user via directus_access,
+  //    optionally with no role at all (same pattern as a direct admin grant).
+  console.log('🔧 Setting up PetSync service account...');
   let syncToken = null;
   try {
-    let roleId = null;
-    const rolesRes = await fetch(`${DIRECTUS_URL}/roles?filter[name][_eq]=PetSync Service`, { headers: authHeaders });
-    if (rolesRes.ok) {
-      const rolesData = await rolesRes.json();
-      if (rolesData.data && rolesData.data.length > 0) {
-        roleId = rolesData.data[0].id;
-        console.log('   ℹ️ PetSync Service role already exists.');
+    let policyId = null;
+    const policiesRes = await fetch(`${DIRECTUS_URL}/policies?filter[name][_eq]=PetSync Service`, { headers: authHeaders });
+    if (policiesRes.ok) {
+      const policiesData = await policiesRes.json();
+      if (policiesData.data && policiesData.data.length > 0) {
+        policyId = policiesData.data[0].id;
+        console.log('   ℹ️ PetSync Service policy already exists.');
       }
     }
 
-    if (!roleId) {
-      const roleRes = await fetch(`${DIRECTUS_URL}/roles`, {
+    if (!policyId) {
+      const policyRes = await fetch(`${DIRECTUS_URL}/policies`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({ name: 'PetSync Service', icon: 'sync', admin_access: false, app_access: false }),
       });
-      if (roleRes.ok) {
-        const roleData = await roleRes.json();
-        roleId = roleData.data.id;
-        console.log('   ✅ Created PetSync Service role.');
+      if (policyRes.ok) {
+        const policyData = await policyRes.json();
+        policyId = policyData.data.id;
+        console.log('   ✅ Created PetSync Service policy.');
       } else {
-        console.warn(`   ⚠️ Role creation failed (${roleRes.status}): ${await roleRes.text()}`);
+        console.warn(`   ⚠️ Policy creation failed (${policyRes.status}): ${await policyRes.text()}`);
       }
     }
 
-    if (roleId) {
+    if (policyId) {
       // Least-privilege permissions: write pets + sync_runs, nothing else.
+      // Report failures loudly — a silently-missing permission here means
+      // the sync job gets a 403 the next time it runs, which is exactly
+      // the kind of bug that's invisible until it fails in production.
       const servicePerms = [
         { collection: 'pets', action: 'create' },
         { collection: 'pets', action: 'update' },
@@ -129,16 +159,29 @@ async function main() {
         { collection: 'sync_runs', action: 'create' },
         { collection: 'sync_runs', action: 'read' },
       ];
+      const existingPermsRes = await fetch(`${DIRECTUS_URL}/permissions?filter[policy][_eq]=${policyId}&limit=-1`, { headers: authHeaders });
+      const existingPerms = existingPermsRes.ok ? (await existingPermsRes.json()).data || [] : [];
+      const has = (collection, action) => existingPerms.some((p) => p.collection === collection && p.action === action);
+
       for (const p of servicePerms) {
-        await fetch(`${DIRECTUS_URL}/permissions`, {
+        if (has(p.collection, p.action)) {
+          console.log(`   ℹ️ Permission already exists: ${p.action} ${p.collection}`);
+          continue;
+        }
+        const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
           method: 'POST',
           headers: authHeaders,
-          body: JSON.stringify({ role: roleId, collection: p.collection, action: p.action, fields: ['*'] }),
-        }).catch(() => {});
+          body: JSON.stringify({ policy: policyId, collection: p.collection, action: p.action, fields: ['*'] }),
+        });
+        if (permRes.ok) {
+          console.log(`   ✅ Granted: ${p.action} ${p.collection}`);
+        } else {
+          console.warn(`   ⚠️ Permission grant failed for ${p.action} ${p.collection} (${permRes.status}): ${await permRes.text()}`);
+        }
       }
-      console.log('   ✅ Granted PetSync Service role write access to pets + sync_runs.');
 
-      // Ensure a service user exists under this role, with a static token.
+      // Ensure a service user exists, with a static token, directly linked
+      // to the policy (no role — same pattern as the admin account setup).
       let userId = null;
       const usersRes = await fetch(`${DIRECTUS_URL}/users?filter[email][_eq]=petsync-service@monroe-humane.org`, { headers: authHeaders });
       if (usersRes.ok) {
@@ -157,7 +200,6 @@ async function main() {
           headers: authHeaders,
           body: JSON.stringify({
             email: 'petsync-service@monroe-humane.org',
-            role: roleId,
             status: 'active',
             first_name: 'PetSync',
             last_name: 'Service',
@@ -165,15 +207,35 @@ async function main() {
           }),
         });
         if (userRes.ok) {
+          userId = (await userRes.json()).data.id;
           console.log('   ✅ Created PetSync service user with static token.');
         } else {
           console.warn(`   ⚠️ Service user creation failed (${userRes.status}): ${await userRes.text()}`);
           syncToken = null;
         }
       }
+
+      if (userId) {
+        const accessRes = await fetch(`${DIRECTUS_URL}/access?filter[user][_eq]=${userId}&filter[policy][_eq]=${policyId}`, { headers: authHeaders });
+        const accessExists = accessRes.ok && (await accessRes.json()).data?.length > 0;
+        if (!accessExists) {
+          const linkRes = await fetch(`${DIRECTUS_URL}/access`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({ user: userId, policy: policyId }),
+          });
+          if (linkRes.ok) {
+            console.log('   ✅ Linked PetSync service user to policy.');
+          } else {
+            console.warn(`   ⚠️ User-policy link failed (${linkRes.status}): ${await linkRes.text()}`);
+          }
+        } else {
+          console.log('   ℹ️ PetSync service user already linked to policy.');
+        }
+      }
     }
   } catch (err) {
-    console.warn('   ⚠️ PetSync service role setup error:', err.message);
+    console.warn('   ⚠️ PetSync service account setup error:', err.message);
   }
 
   // 4. Configure Public Read Permissions
@@ -189,29 +251,43 @@ async function main() {
     'directus_files',
   ];
 
-  for (const col of publicCollections) {
-    try {
-      const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
-        method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify({
-          role: null, // null role = Public
-          collection: col,
-          action: 'read',
-          fields: ['*'],
-        }),
-      });
+  // Directus 11 resolves anonymous/public access through a specific system
+  // policy (not `role: null` on the permission itself, which is the pre-11
+  // convention and gets silently rejected here). Find it by its stable
+  // system name rather than hardcoding its UUID.
+  let publicPolicyId = null;
+  const publicPolicyRes = await fetch(`${DIRECTUS_URL}/policies?filter[name][_eq]=$t:public_label`, { headers: authHeaders });
+  if (publicPolicyRes.ok) {
+    const publicPolicyData = await publicPolicyRes.json();
+    publicPolicyId = publicPolicyData.data?.[0]?.id || null;
+  }
 
-      if (permRes.ok) {
-        console.log(`   ✅ Public read granted: ${col}`);
-      } else if (permRes.status === 400 || permRes.status === 409) {
+  if (!publicPolicyId) {
+    console.warn('   ⚠️ Could not find the system Public policy — skipping public read setup.');
+  } else {
+    const existingPublicRes = await fetch(`${DIRECTUS_URL}/permissions?filter[policy][_eq]=${publicPolicyId}&limit=-1`, { headers: authHeaders });
+    const existingPublic = existingPublicRes.ok ? (await existingPublicRes.json()).data || [] : [];
+    const hasPublicRead = (collection) => existingPublic.some((p) => p.collection === collection && p.action === 'read');
+
+    for (const col of publicCollections) {
+      if (hasPublicRead(col)) {
         console.log(`   ℹ️ Public read already exists: ${col}`);
-      } else {
-        const text = await permRes.text();
-        console.warn(`   ⚠️ Permission update for ${col} (${permRes.status}): ${text}`);
+        continue;
       }
-    } catch (e) {
-      console.warn(`   ⚠️ Permission network error for ${col}:`, e.message);
+      try {
+        const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({ policy: publicPolicyId, collection: col, action: 'read', fields: ['*'] }),
+        });
+        if (permRes.ok) {
+          console.log(`   ✅ Public read granted: ${col}`);
+        } else {
+          console.warn(`   ⚠️ Public read grant failed for ${col} (${permRes.status}): ${await permRes.text()}`);
+        }
+      } catch (e) {
+        console.warn(`   ⚠️ Permission network error for ${col}:`, e.message);
+      }
     }
   }
 

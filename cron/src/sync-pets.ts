@@ -11,12 +11,16 @@ interface PetRecord {
   age: string;
   age_display: string;
   size: string;
+  color: string;
   gender: string;
   location: string;
   image_url: string;
   url: string;
   description: string;
   intake_date: string;
+  declawed: string;
+  housetrained: string;
+  stage: string;
   first_seen_at?: string;
   last_seen_at: string;
   archived_at?: string | null;
@@ -25,6 +29,9 @@ interface PetRecord {
 const PETANGO_BASE_URL =
   process.env.PETANGO_BASE_URL ||
   'https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimals2.aspx';
+const PETANGO_DETAIL_BASE_URL =
+  process.env.PETANGO_DETAIL_BASE_URL ||
+  'https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx';
 const PETANGO_AUTHKEY = process.env.PETANGO_AUTHKEY || '';
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://localhost:8055';
 const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || '';
@@ -161,6 +168,55 @@ async function fetchPetangoAnimals(): Promise<RawAnimal[]> {
   return animals;
 }
 
+interface AnimalDetail {
+  size: string;
+  color: string;
+  intakeDate: string;
+  declawed: string;
+  housetrained: string;
+  stage: string;
+}
+
+const EMPTY_DETAIL: AnimalDetail = { size: '', color: '', intakeDate: '', declawed: '', housetrained: '', stage: '' };
+
+/**
+ * The list endpoint (fetchPetangoAnimals) only exposes id/name/species/breed/
+ * age/sex/location/photo. Size, color, intake date, declawed, housetrained,
+ * and stage are only available on the per-animal detail page — fetched here
+ * so the sync actually captures everything Petango offers for each animal.
+ */
+async function fetchAnimalDetail(petId: string): Promise<AnimalDetail> {
+  const url = `${PETANGO_DETAIL_BASE_URL}?id=${encodeURIComponent(petId)}&css=&authkey=${encodeURIComponent(PETANGO_AUTHKEY)}&PopUp=true`;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) return EMPTY_DETAIL;
+    const html = await res.text();
+    const $ = cheerio.load(html);
+    const pairs: Record<string, string> = {};
+    $('.detail-label').each((_, el) => {
+      const label = $(el).text().trim();
+      const value = $(el).next('.detail-value').text().trim();
+      if (label) pairs[label] = value;
+    });
+    let intakeDate = '';
+    if (pairs['Intake Date']) {
+      const parsed = new Date(pairs['Intake Date']);
+      if (!isNaN(parsed.getTime())) intakeDate = parsed.toISOString();
+    }
+    return {
+      size: pairs['Size'] || '',
+      color: pairs['Color'] || '',
+      intakeDate,
+      declawed: pairs['Declawed'] || '',
+      housetrained: pairs['Housetrained'] || '',
+      stage: pairs['Stage'] || '',
+    };
+  } catch (err: any) {
+    console.warn(`[PetSync] Detail fetch failed for ${petId}: ${err.message}`);
+    return EMPTY_DETAIL;
+  }
+}
+
 let blobServiceClient: BlobServiceClient | null = null;
 function getBlobServiceClient(): BlobServiceClient | null {
   if (!STORAGE_CONNECTION_STRING) return null;
@@ -247,7 +303,10 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
 
   const activePets: PetRecord[] = [];
   for (const a of raw) {
-    const imageUrl = await rehostPhoto(a.petId, a.photoUrl);
+    const [imageUrl, detail] = await Promise.all([
+      rehostPhoto(a.petId, a.photoUrl),
+      fetchAnimalDetail(a.petId),
+    ]);
     const type = normalizeSpecies(a.speciesRaw || '');
     activePets.push({
       id: a.petId,
@@ -257,7 +316,8 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
       breed: a.breed || '',
       age: normalizeAge(a.ageDisplay || ''),
       age_display: a.ageDisplay || '',
-      size: '',
+      size: detail.size,
+      color: detail.color,
       gender: normalizeGender(a.sexSN || ''),
       location: a.location || '',
       image_url: imageUrl,
@@ -265,7 +325,10 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
         ? `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${encodeURIComponent(a.petId)}&css=&authkey=${encodeURIComponent(PETANGO_AUTHKEY)}&PopUp=true`
         : '',
       description: a.location || '',
-      intake_date: '',
+      intake_date: detail.intakeDate,
+      declawed: detail.declawed,
+      housetrained: detail.housetrained,
+      stage: detail.stage,
       last_seen_at: nowIso,
       archived_at: null,
     });
