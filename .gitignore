@@ -2,6 +2,8 @@
 frontend/node_modules/
 node_modules/
 frontend/dist/
+cron/dist/
+cron/legacy-pets-export.json
 
 # Secrets - never commit real credentials
 .azure-secrets.txt

@@ -61,9 +61,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy Directus and Arcade to Azure Container Apps
+      - name: Deploy Directus, Arcade, and PetSync to Azure Container Apps
         uses: azure/cli@v2
         with:
           inlineScript: |
             az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-directus:latest --revision-suffix gha${{ github.run_number }}
             az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest --revision-suffix gha${{ github.run_number }}
+            az containerapp job update --name mchs-petsync-job --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-petsync:latest

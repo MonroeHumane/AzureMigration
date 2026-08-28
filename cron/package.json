@@ -7,11 +7,13 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/sync-pets.js",
-    "dev": "tsx src/sync-pets.ts"
+    "dev": "tsx src/sync-pets.ts",
+    "migrate-legacy": "tsx src/migrate-legacy.ts"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.26.0",
     "@directus/sdk": "^18.0.0",
-    "csv-parse": "^5.6.0",
+    "cheerio": "^1.0.0",
     "dotenv": "^16.4.7"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 {
   "version": 1,
   "directus": "11.5.0",
+  "vendor": "mysql",
   "collections": [
     {
       "collection": "pets",
@@ -100,6 +101,21 @@
       },
       "schema": {
         "name": "membership_tiers"
+      }
+    },
+    {
+      "collection": "sync_runs",
+      "meta": {
+        "collection": "sync_runs",
+        "icon": "sync",
+        "note": "PetSync job run history — one row per Petango→Directus sync execution",
+        "display_template": "{{status}} — {{timestamp}}",
+        "hidden": false,
+        "singleton": false,
+        "sort_field": "timestamp"
+      },
+      "schema": {
+        "name": "sync_runs"
       }
     }
   ],
@@ -473,6 +489,53 @@
       "field": "sort_order",
       "type": "integer",
       "schema": { "default_value": 0 }
+    },
+    {
+      "collection": "sync_runs",
+      "field": "id",
+      "type": "integer",
+      "meta": { "primary_key": true },
+      "schema": { "is_primary_key": true, "has_auto_increment": true }
+    },
+    {
+      "collection": "sync_runs",
+      "field": "timestamp",
+      "type": "dateTime",
+      "meta": { "required": true },
+      "schema": {}
+    },
+    {
+      "collection": "sync_runs",
+      "field": "status",
+      "type": "string",
+      "meta": { "options": { "choices": [{ "text": "Success", "value": "success" }, { "text": "Error", "value": "error" }] } },
+      "schema": { "length": 16 }
+    },
+    {
+      "collection": "sync_runs",
+      "field": "active_count",
+      "type": "integer",
+      "schema": { "default_value": 0 }
+    },
+    {
+      "collection": "sync_runs",
+      "field": "inserted_count",
+      "type": "integer",
+      "schema": { "default_value": 0 }
+    },
+    {
+      "collection": "sync_runs",
+      "field": "archived_count",
+      "type": "integer",
+      "schema": { "default_value": 0 }
+    },
+    {
+      "collection": "sync_runs",
+      "field": "error_message",
+      "type": "text",
+      "meta": { "interface": "input-multiline" },
+      "schema": {}
     }
-  ]
+  ],
+  "relations": []
 }

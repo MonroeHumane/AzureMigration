@@ -27,6 +27,14 @@ param directusKey string
 @description('Directus SECRET (session/JWT signing secret)')
 param directusSecret string
 
+@secure()
+@description('Static access token for the PetSync service account (Directus user, not the admin account)')
+param petsyncDirectusToken string
+
+@secure()
+@description('Petango authkey used by the PetSync job to query the shelter feed directly')
+param petangoAuthkey string
+
 var suffix = uniqueString(resourceGroup().id)
 var storageAccountName = 'mchsstorage${suffix}'
 var containerAppEnvName = 'mchs-aca-env-${environmentName}'
@@ -82,6 +90,14 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01'
 resource directusContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
   parent: blobService
   name: 'directus-uploads'
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
+resource petPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+  parent: blobService
+  name: 'pet-photos'
   properties: {
     publicAccess: 'Blob'
   }
@@ -223,6 +239,49 @@ resource arcadeApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'DB_USER', value: mysqlAdminUser }
             { name: 'DB_PASS', value: mysqlAdminPassword }
             { name: 'CORS_ALLOWED_ORIGINS', value: 'https://monroe-humane.org,https://${swaName}.azurestaticapps.net' }
+          ]
+        }
+      ]
+    }
+  }
+}
+
+// 5b. Container App Job: PetSync (Petango -> Directus, direct, scheduled, no Pi/Sheets dependency)
+resource petsyncJob 'Microsoft.App/jobs@2024-03-01' = {
+  name: 'mchs-petsync-job'
+  location: location
+  properties: {
+    environmentId: acaEnvironment.id
+    configuration: {
+      triggerType: 'Schedule'
+      scheduleTriggerConfig: {
+        cronExpression: '*/30 * * * *'
+        parallelism: 1
+        replicaCompletionCount: 1
+      }
+      replicaTimeout: 600
+      replicaRetryLimit: 1
+      secrets: [
+        { name: 'directus-static-token', value: petsyncDirectusToken }
+        { name: 'petango-authkey', value: petangoAuthkey }
+        { name: 'storage-connection-string', value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net' }
+      ]
+    }
+    template: {
+      containers: [
+        {
+          name: 'petsync'
+          image: 'ghcr.io/monroehumane/monroe-humane-petsync:latest'
+          resources: {
+            cpu: json('0.25')
+            memory: '0.5Gi'
+          }
+          env: [
+            { name: 'DIRECTUS_URL', value: 'https://${directusApp.properties.configuration.ingress.fqdn}' }
+            { name: 'DIRECTUS_STATIC_TOKEN', secretRef: 'directus-static-token' }
+            { name: 'PETANGO_AUTHKEY', secretRef: 'petango-authkey' }
+            { name: 'AZURE_STORAGE_CONNECTION_STRING', secretRef: 'storage-connection-string' }
+            { name: 'PET_PHOTO_CONTAINER', value: 'pet-photos' }
           ]
         }
       ]
