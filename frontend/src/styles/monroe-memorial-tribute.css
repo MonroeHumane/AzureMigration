@@ -12,7 +12,7 @@
    line already matches their section heading, so the names carry the page.
    ========================================================================== */
 
-.monroe-memorial-tribute-page .monroe-tribute-board {
+.monroe-native-inner--memorials .monroe-tribute-board {
   --t-teal: #0f766e;
   --t-teal-2: #0d9488;
   --t-teal-deep: #0a5f59;
@@ -43,14 +43,14 @@
 
 /* Author display rules on plaques and letter dividers must not override the
    native hidden state used by the search filter. */
-.monroe-memorial-tribute-page [hidden] {
+.monroe-native-inner--memorials [hidden] {
   display: none !important;
 }
 
 /* --------------------------------------------------------------------------
    Hero
    -------------------------------------------------------------------------- */
-.monroe-memorial-tribute-page .monroe-tribute-hero {
+.monroe-native-inner--memorials .monroe-tribute-hero {
   text-align: center;
   padding: clamp(2rem, 4.5vw, 3rem) clamp(1.1rem, 3vw, 1.75rem) clamp(1.5rem, 3vw, 1.9rem);
   border-bottom: 1px solid var(--t-border);
@@ -59,7 +59,7 @@
     linear-gradient(180deg, var(--t-cream) 0%, #ffffff 100%);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-hero__inner {
+.monroe-native-inner--memorials .monroe-tribute-hero__inner {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -68,7 +68,7 @@
   margin: 0 auto;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-hero__eyebrow {
+.monroe-native-inner--memorials .monroe-tribute-hero__eyebrow {
   margin: 0 0 0.2rem;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-size: 0.76rem;
@@ -78,7 +78,7 @@
   color: var(--t-teal);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-hero__title {
+.monroe-native-inner--memorials .monroe-tribute-hero__title {
   margin: 0;
   font-family: "Abril Fatface", Georgia, serif;
   font-weight: 400;
@@ -89,7 +89,7 @@
 }
 
 /* hairline - leaf - hairline */
-.monroe-memorial-tribute-page .monroe-tribute-hero__rule {
+.monroe-native-inner--memorials .monroe-tribute-hero__rule {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,21 +99,21 @@
   max-width: 20rem;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-hero__rule::before,
-.monroe-memorial-tribute-page .monroe-tribute-hero__rule::after {
+.monroe-native-inner--memorials .monroe-tribute-hero__rule::before,
+.monroe-native-inner--memorials .monroe-tribute-hero__rule::after {
   content: "";
   flex: 1;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(15, 118, 110, 0.35), transparent);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-hero__rule svg {
+.monroe-native-inner--memorials .monroe-tribute-hero__rule svg {
   display: block;
   color: var(--t-teal-2);
   opacity: 0.85;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-hero__stat {
+.monroe-native-inner--memorials .monroe-tribute-hero__stat {
   margin: 0.75rem 0 0;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-size: 0.85rem;
@@ -125,14 +125,14 @@
 /* --------------------------------------------------------------------------
    Intro + buttons
    -------------------------------------------------------------------------- */
-.monroe-memorial-tribute-page .monroe-tribute-intro {
+.monroe-native-inner--memorials .monroe-tribute-intro {
   padding: clamp(1.25rem, 2.5vw, 1.75rem) clamp(1.1rem, 3vw, 1.75rem) clamp(1.35rem, 3vw, 1.85rem);
   text-align: center;
   border-bottom: 1px solid var(--t-border);
   background: #fff;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-intro__text {
+.monroe-native-inner--memorials .monroe-tribute-intro__text {
   max-width: 52rem;
   margin: 0 auto 0.8rem;
   color: var(--t-muted);
@@ -140,7 +140,7 @@
   font-size: 1.05rem;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-intro__note {
+.monroe-native-inner--memorials .monroe-tribute-intro__note {
   max-width: 46rem;
   margin: 0 auto 1.2rem;
   color: var(--t-muted-2);
@@ -148,14 +148,14 @@
   line-height: 1.6;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-intro__actions {
+.monroe-native-inner--memorials .monroe-tribute-intro__actions {
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.65rem;
   margin-top: 0.25rem;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--primary {
+.monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--primary {
   border-radius: 999px;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-weight: 700;
@@ -170,14 +170,14 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--primary:hover,
-.monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--primary:focus-visible {
+.monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--primary:hover,
+.monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--primary:focus-visible {
   transform: translateY(-1px);
   filter: brightness(1.04);
   box-shadow: 0 14px 30px rgba(13, 148, 136, 0.28);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--ghost {
+.monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--ghost {
   border-radius: 999px;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-weight: 700;
@@ -191,8 +191,8 @@
   transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--ghost:hover,
-.monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--ghost:focus-visible {
+.monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--ghost:hover,
+.monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--ghost:focus-visible {
   background: rgba(15, 118, 110, 0.07);
   color: var(--t-teal-deep);
   box-shadow: 0 6px 18px rgba(15, 118, 110, 0.12);
@@ -201,7 +201,7 @@
 /* --------------------------------------------------------------------------
    Toolbar: search + count + A-Z rail (revealed by memorial-tribute.js)
    -------------------------------------------------------------------------- */
-.monroe-memorial-tribute-page .monroe-tribute-toolbar {
+.monroe-native-inner--memorials .monroe-tribute-toolbar {
   position: sticky;
   top: 0;
   z-index: 20;
@@ -212,20 +212,20 @@
   border-bottom: 1px solid var(--t-border);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-toolbar__row {
+.monroe-native-inner--memorials .monroe-tribute-toolbar__row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-search {
+.monroe-native-inner--memorials .monroe-tribute-search {
   position: relative;
   flex: 1 1 16rem;
   min-width: 12rem;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-search__icon {
+.monroe-native-inner--memorials .monroe-tribute-search__icon {
   position: absolute;
   left: 0.85rem;
   top: 50%;
@@ -235,7 +235,7 @@
   line-height: 0;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-search__input {
+.monroe-native-inner--memorials .monroe-tribute-search__input {
   width: 100%;
   padding: 0.65rem 2.4rem 0.65rem 2.5rem;
   border-radius: 999px;
@@ -247,21 +247,21 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-search__input::placeholder { color: #8a9b98; }
+.monroe-native-inner--memorials .monroe-tribute-search__input::placeholder { color: #8a9b98; }
 
 /* The component supplies its own accessible clear button. */
-.monroe-memorial-tribute-page .monroe-tribute-search__input::-webkit-search-cancel-button {
+.monroe-native-inner--memorials .monroe-tribute-search__input::-webkit-search-cancel-button {
   appearance: none;
   -webkit-appearance: none;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-search__input:focus {
+.monroe-native-inner--memorials .monroe-tribute-search__input:focus {
   outline: none;
   border-color: var(--t-teal-2);
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.16);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-search__clear {
+.monroe-native-inner--memorials .monroe-tribute-search__clear {
   position: absolute;
   right: 0.5rem;
   top: 50%;
@@ -279,11 +279,11 @@
   padding: 0;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-search__clear:hover { background: rgba(23, 58, 57, 0.15); }
+.monroe-native-inner--memorials .monroe-tribute-search__clear:hover { background: rgba(23, 58, 57, 0.15); }
 
-.monroe-memorial-tribute-page .monroe-tribute-search.is-filled .monroe-tribute-search__clear { display: block; }
+.monroe-native-inner--memorials .monroe-tribute-search.is-filled .monroe-tribute-search__clear { display: block; }
 
-.monroe-memorial-tribute-page .monroe-tribute-toolbar__count {
+.monroe-native-inner--memorials .monroe-tribute-toolbar__count {
   margin: 0;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-size: 0.84rem;
@@ -293,7 +293,7 @@
   
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-azrail {
+.monroe-native-inner--memorials .monroe-tribute-azrail {
   display: flex;
   flex-wrap: wrap;
   gap: 0.2rem;
@@ -301,12 +301,12 @@
   transition: opacity 0.15s ease;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-azrail.is-muted {
+.monroe-native-inner--memorials .monroe-tribute-azrail.is-muted {
   opacity: 0.35;
   pointer-events: none;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-azrail__btn {
+.monroe-native-inner--memorials .monroe-tribute-azrail__btn {
   min-width: 1.65rem;
   padding: 0.24rem 0.3rem;
   border: 0;
@@ -320,8 +320,8 @@
   transition: background 0.12s ease, color 0.12s ease;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-azrail__btn:hover,
-.monroe-memorial-tribute-page .monroe-tribute-azrail__btn:focus-visible {
+.monroe-native-inner--memorials .monroe-tribute-azrail__btn:hover,
+.monroe-native-inner--memorials .monroe-tribute-azrail__btn:focus-visible {
   background: rgba(13, 148, 136, 0.12);
   color: var(--t-teal-deep);
 }
@@ -329,23 +329,23 @@
 /* --------------------------------------------------------------------------
    Sections
    -------------------------------------------------------------------------- */
-.monroe-memorial-tribute-page .monroe-tribute-section {
+.monroe-native-inner--memorials .monroe-tribute-section {
   padding: clamp(1.4rem, 3vw, 2rem) 0 0;
   background: linear-gradient(180deg, #f8faf9 0%, #fff 55%);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-section + .monroe-tribute-section {
+.monroe-native-inner--memorials .monroe-tribute-section + .monroe-tribute-section {
   border-top: 1px solid var(--t-hairline);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-section__head {
+.monroe-native-inner--memorials .monroe-tribute-section__head {
   display: flex;
   align-items: flex-start;
   gap: 0.85rem;
   padding: 0 clamp(1rem, 3vw, 1.5rem) 0.35rem;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-section__mark {
+.monroe-native-inner--memorials .monroe-tribute-section__mark {
   flex: 0 0 auto;
   width: 34px;
   height: 34px;
@@ -355,22 +355,22 @@
   margin-top: 0.15rem;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-section__mark--memory {
+.monroe-native-inner--memorials .monroe-tribute-section__mark--memory {
   background: rgba(13, 148, 136, 0.1);
   color: var(--t-teal);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-section__mark--honor {
+.monroe-native-inner--memorials .monroe-tribute-section__mark--honor {
   background: rgba(21, 128, 61, 0.1);
   color: var(--t-honor);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-section__mark--birthday {
+.monroe-native-inner--memorials .monroe-tribute-section__mark--birthday {
   background: rgba(180, 83, 9, 0.1);
   color: var(--t-gold);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-section__title {
+.monroe-native-inner--memorials .monroe-tribute-section__title {
   margin: 0;
   font-family: "Abril Fatface", Georgia, serif;
   font-weight: 400;
@@ -379,7 +379,7 @@
   color: var(--t-ink);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-section__sub {
+.monroe-native-inner--memorials .monroe-tribute-section__sub {
   margin: 0.25rem 0 0;
   font-size: 0.92rem;
   line-height: 1.5;
@@ -393,7 +393,7 @@
 /* Column width is tuned against the real 111-name list: 196px yields five
    columns at the 1120px board width. Each letter divider forces a row break,
    so narrower columns meaningfully offset the ragged rows they create. */
-.monroe-memorial-tribute-page .monroe-tribute-grid {
+.monroe-native-inner--memorials .monroe-tribute-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 196px), 1fr));
   gap: 0.7rem;
@@ -401,7 +401,7 @@
   align-items: stretch;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-letter {
+.monroe-native-inner--memorials .monroe-tribute-letter {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
@@ -411,9 +411,9 @@
   scroll-margin-top: 132px;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-letter:first-child { margin-top: 0; }
+.monroe-native-inner--memorials .monroe-tribute-letter:first-child { margin-top: 0; }
 
-.monroe-memorial-tribute-page .monroe-tribute-letter__glyph {
+.monroe-native-inner--memorials .monroe-tribute-letter__glyph {
   font-family: "Abril Fatface", Georgia, serif;
   font-size: 1.15rem;
   line-height: 1;
@@ -426,13 +426,13 @@
   border-radius: 8px;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-letter__rule {
+.monroe-native-inner--memorials .monroe-tribute-letter__rule {
   flex: 1;
   height: 1px;
   background: linear-gradient(90deg, rgba(23, 58, 57, 0.16), transparent);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque {
+.monroe-native-inner--memorials .monroe-tribute-plaque {
   --plaque-accent: #0d9488;
   --plaque-accent-soft: rgba(13, 148, 136, 0.11);
   --plaque-border: rgba(13, 148, 136, 0.22);
@@ -460,7 +460,7 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque--honor {
+.monroe-native-inner--memorials .monroe-tribute-plaque--honor {
   --plaque-accent: #3f8f5d;
   --plaque-accent-soft: rgba(63, 143, 93, 0.12);
   --plaque-border: rgba(63, 143, 93, 0.22);
@@ -469,7 +469,7 @@
     linear-gradient(145deg, #ffffff 0%, #fbfff9 55%, #f4fbf1 100%);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque--birthday {
+.monroe-native-inner--memorials .monroe-tribute-plaque--birthday {
   --plaque-accent: #c27a20;
   --plaque-accent-soft: rgba(194, 122, 32, 0.12);
   --plaque-border: rgba(194, 122, 32, 0.23);
@@ -479,7 +479,7 @@
 }
 
 /* Inner engraved border */
-.monroe-memorial-tribute-page .monroe-tribute-plaque::before {
+.monroe-native-inner--memorials .monroe-tribute-plaque::before {
   content: "";
   position: absolute;
   inset: 7px;
@@ -490,7 +490,7 @@
 }
 
 /* A tiny ribbon-like accent gives each card a keepsake feel. */
-.monroe-memorial-tribute-page .monroe-tribute-plaque::after {
+.monroe-native-inner--memorials .monroe-tribute-plaque::after {
   content: "";
   position: absolute;
   top: 0;
@@ -502,7 +502,7 @@
   opacity: 0.72;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque:hover {
+.monroe-native-inner--memorials .monroe-tribute-plaque:hover {
   transform: translateY(-4px) rotate(-0.2deg);
   box-shadow:
     0 16px 34px rgba(19, 71, 67, 0.14),
@@ -512,7 +512,7 @@
 }
 
 @media (hover: none), (pointer: coarse) {
-.monroe-memorial-tribute-page .monroe-tribute-plaque:hover {
+.monroe-native-inner--memorials .monroe-tribute-plaque:hover {
     transform: none;
     box-shadow:
       0 9px 22px rgba(19, 71, 67, 0.08),
@@ -521,7 +521,7 @@
   }
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque__icon {
+.monroe-native-inner--memorials .monroe-tribute-plaque__icon {
   position: relative;
   z-index: 1;
   width: 2.45rem;
@@ -539,12 +539,12 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque__icon svg {
+.monroe-native-inner--memorials .monroe-tribute-plaque__icon svg {
   width: 1.22rem;
   height: 1.22rem;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque__watermark {
+.monroe-native-inner--memorials .monroe-tribute-plaque__watermark {
   position: absolute;
   z-index: -1;
   right: -0.55rem;
@@ -557,13 +557,13 @@
   pointer-events: none;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque__watermark svg {
+.monroe-native-inner--memorials .monroe-tribute-plaque__watermark svg {
   width: 100%;
   height: 100%;
 }
 
 /* Printed only when the entry's line differs from its section heading. */
-.monroe-memorial-tribute-page .monroe-tribute-plaque__type {
+.monroe-native-inner--memorials .monroe-tribute-plaque__type {
   margin: 0;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-size: 0.63rem;
@@ -573,11 +573,11 @@
   color: var(--t-muted-2);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque--honor .monroe-tribute-plaque__type { color: var(--t-honor); }
+.monroe-native-inner--memorials .monroe-tribute-plaque--honor .monroe-tribute-plaque__type { color: var(--t-honor); }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque--birthday .monroe-tribute-plaque__type { color: var(--t-gold); }
+.monroe-native-inner--memorials .monroe-tribute-plaque--birthday .monroe-tribute-plaque__type { color: var(--t-gold); }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque__name {
+.monroe-native-inner--memorials .monroe-tribute-plaque__name {
   position: relative;
   z-index: 1;
   margin: 0;
@@ -590,7 +590,7 @@
   text-wrap: balance;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-plaque__meta {
+.monroe-native-inner--memorials .monroe-tribute-plaque__meta {
   margin: 0;
   font-size: 0.82rem;
   font-weight: 600;
@@ -600,8 +600,8 @@
 /* --------------------------------------------------------------------------
    Empty / no-results
    -------------------------------------------------------------------------- */
-.monroe-memorial-tribute-page .monroe-tribute-empty,
-.monroe-memorial-tribute-page .monroe-tribute-noresults {
+.monroe-native-inner--memorials .monroe-tribute-empty,
+.monroe-native-inner--memorials .monroe-tribute-noresults {
   margin: 0;
   padding: 2.75rem 1.5rem 3rem;
   text-align: center;
@@ -614,7 +614,7 @@
 /* --------------------------------------------------------------------------
    Closing CTA + foot
    -------------------------------------------------------------------------- */
-.monroe-memorial-tribute-page .monroe-tribute-closing {
+.monroe-native-inner--memorials .monroe-tribute-closing {
   margin: clamp(1.25rem, 3vw, 1.85rem) clamp(1rem, 3vw, 1.5rem) 0;
   padding: clamp(1.35rem, 3vw, 1.85rem);
   border-radius: var(--t-r-md);
@@ -625,7 +625,7 @@
   text-align: center;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-closing__title {
+.monroe-native-inner--memorials .monroe-tribute-closing__title {
   margin: 0 0 0.4rem;
   font-family: "Abril Fatface", Georgia, serif;
   font-weight: 400;
@@ -633,7 +633,7 @@
   color: var(--t-ink);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-closing__text {
+.monroe-native-inner--memorials .monroe-tribute-closing__text {
   margin: 0 auto 1.05rem;
   max-width: 38rem;
   font-size: 0.96rem;
@@ -641,12 +641,12 @@
   color: var(--t-muted);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-closing__actions {
+.monroe-native-inner--memorials .monroe-tribute-closing__actions {
   justify-content: center;
   gap: 0.65rem;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-foot {
+.monroe-native-inner--memorials .monroe-tribute-foot {
   padding: 1.15rem 1.25rem 1.5rem;
   margin-top: clamp(1.25rem, 3vw, 1.75rem);
   text-align: center;
@@ -656,15 +656,15 @@
   background: rgba(255, 250, 242, 0.5);
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-foot a {
+.monroe-native-inner--memorials .monroe-tribute-foot a {
   color: var(--t-teal);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.monroe-memorial-tribute-page .monroe-tribute-foot a:hover,
-.monroe-memorial-tribute-page .monroe-tribute-foot a:focus-visible {
+.monroe-native-inner--memorials .monroe-tribute-foot a:hover,
+.monroe-native-inner--memorials .monroe-tribute-foot a:focus-visible {
   color: var(--t-teal-deep);
 }
 
@@ -672,38 +672,38 @@
    Motion + small screens
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .monroe-memorial-tribute-page .monroe-tribute-plaque,
-  .monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--primary,
-  .monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--ghost {
+  .monroe-native-inner--memorials .monroe-tribute-plaque,
+  .monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--primary,
+  .monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--ghost {
     transition: none;
   }
 
-  .monroe-memorial-tribute-page .monroe-tribute-plaque:hover,
-  .monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--primary:hover,
-  .monroe-memorial-tribute-page .monroe-tribute-btn.monroe-tribute-btn--ghost:hover {
+  .monroe-native-inner--memorials .monroe-tribute-plaque:hover,
+  .monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--primary:hover,
+  .monroe-native-inner--memorials .monroe-tribute-btn.monroe-tribute-btn--ghost:hover {
     transform: none;
   }
 }
 
 @media (max-width: 640px) {
-.monroe-memorial-tribute-page .monroe-tribute-grid {
+.monroe-native-inner--memorials .monroe-tribute-grid {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
     gap: 0.65rem;
   }
-.monroe-memorial-tribute-page .monroe-tribute-plaque {
+.monroe-native-inner--memorials .monroe-tribute-plaque {
     min-height: 128px;
     padding: 0.9rem 0.6rem;
   }
-.monroe-memorial-tribute-page .monroe-tribute-plaque__name { font-size: 0.95rem; }
-.monroe-memorial-tribute-page .monroe-tribute-plaque__icon {
+.monroe-native-inner--memorials .monroe-tribute-plaque__name { font-size: 0.95rem; }
+.monroe-native-inner--memorials .monroe-tribute-plaque__icon {
     width: 2.2rem;
     height: 2.2rem;
   }
-.monroe-memorial-tribute-page .monroe-tribute-toolbar__count {
+.monroe-native-inner--memorials .monroe-tribute-toolbar__count {
     width: 100%;
     white-space: normal;
   }
-.monroe-memorial-tribute-page .monroe-tribute-letter { scroll-margin-top: 150px; }
+.monroe-native-inner--memorials .monroe-tribute-letter { scroll-margin-top: 150px; }
 }
 
 /* ---------------------------------------------------------------------------
@@ -714,11 +714,11 @@
    1120px cap left asymmetric gutters inside a 1320px shell) and let the
    auto-fill grid pick up a sixth column. */
 @media (min-width: 1360px) {
-  .monroe-memorial-tribute-page .monroe-tribute-board {
+  .monroe-native-inner--memorials .monroe-tribute-board {
     max-width: 1320px;
   }
 
-  .monroe-memorial-tribute-page .monroe-tribute-grid {
+  .monroe-native-inner--memorials .monroe-tribute-grid {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
   }
 }
@@ -727,26 +727,26 @@
    row is a very long scroll; two columns halve it and short memorial names
    stay readable at this size. Letter dividers already span the full row. */
 @media (max-width: 640px) {
-  .monroe-memorial-tribute-page .monroe-tribute-grid {
+  .monroe-native-inner--memorials .monroe-tribute-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .monroe-memorial-tribute-page .monroe-tribute-plaque {
+  .monroe-native-inner--memorials .monroe-tribute-plaque {
     min-height: 112px;
     padding: 0.75rem 0.5rem;
     gap: 0.35rem;
   }
 
-  .monroe-memorial-tribute-page .monroe-tribute-plaque__name {
+  .monroe-native-inner--memorials .monroe-tribute-plaque__name {
     font-size: 0.85rem;
     line-height: 1.25;
   }
 
-  .monroe-memorial-tribute-page .monroe-tribute-plaque__meta {
+  .monroe-native-inner--memorials .monroe-tribute-plaque__meta {
     font-size: 0.68rem;
   }
 
-  .monroe-memorial-tribute-page .monroe-tribute-plaque__icon {
+  .monroe-native-inner--memorials .monroe-tribute-plaque__icon {
     width: 1.9rem;
     height: 1.9rem;
   }
@@ -755,7 +755,7 @@
 /* Small screens: keep the search floating while browsing the wall, pinned
    below the fixed nav (offset tracks --monroe-nav-height). */
 @media (max-width: 720px) {
-  .monroe-memorial-tribute-page .monroe-tribute-toolbar {
+  .monroe-native-inner--memorials .monroe-tribute-toolbar {
     position: sticky;
     top: calc(var(--monroe-nav-height, 96px) + 8px);
     z-index: 20;

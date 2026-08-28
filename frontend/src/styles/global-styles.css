@@ -4,16 +4,44 @@
 :where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
 /*# sourceURL=global-styles-inline-css */
 
+/* Core WP block-library rule for cover-block dim overlays (has-background-dim-NN sets
+   the scrim's opacity so the color/gradient tints the video/image instead of hiding it
+   outright). Never migrated from wp-includes, so .wp-block-cover__background rendered
+   fully opaque and blotted out the hero video after its first frame. */
+.wp-block-cover__background.has-background-dim {opacity: 0.5;}
+.wp-block-cover__background.has-background-dim-10 {opacity: 0.1;}
+.wp-block-cover__background.has-background-dim-20 {opacity: 0.2;}
+.wp-block-cover__background.has-background-dim-30 {opacity: 0.3;}
+.wp-block-cover__background.has-background-dim-40 {opacity: 0.4;}
+.wp-block-cover__background.has-background-dim-50 {opacity: 0.5;}
+.wp-block-cover__background.has-background-dim-60 {opacity: 0.6;}
+.wp-block-cover__background.has-background-dim-70 {opacity: 0.7;}
+.wp-block-cover__background.has-background-dim-80 {opacity: 0.8;}
+.wp-block-cover__background.has-background-dim-90 {opacity: 0.9;}
+.wp-block-cover__background.has-background-dim-100 {opacity: 1;}
+
 /* Allow eyebrow bubbles and mobile pill nav links to wrap text cleanly instead of cutting off */
 .home-editable-page-index--mobile .home-editable-page-index__link,
 .monroe-native-eyebrow,
-.home-editable-section-label,
 .hs-eyebrow {
     white-space: normal !important;
     height: auto !important;
     min-height: auto !important;
     line-height: 1.3 !important;
     text-align: center;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+/* .home-editable-section-label is a left-aligned kicker paired with a
+   left-aligned heading/intro in every section that uses it (FAQ, Vet
+   Partners, Donations, etc.) — it was previously bundled into the centered
+   rule above, which mismatched it against its always-left siblings. */
+.home-editable-section-label {
+    white-space: normal !important;
+    height: auto !important;
+    min-height: auto !important;
+    line-height: 1.3 !important;
     padding-top: 0.5rem !important;
     padding-bottom: 0.5rem !important;
 }

@@ -215,6 +215,10 @@ const isCurrent = (item: NavItem) => {
     const closeDrawer = () => {
       header.classList.remove('is-open');
       toggle?.setAttribute('aria-expanded', 'false');
+      if (mql.matches) {
+        backdrop?.setAttribute('hidden', '');
+        document.body.style.overflow = '';
+      }
       closeAllDropdowns();
     };
 
@@ -222,6 +226,10 @@ const isCurrent = (item: NavItem) => {
       const open = header.classList.toggle('is-open');
       toggle.setAttribute('aria-expanded', String(open));
       if (open) {
+        if (mql.matches) {
+          backdrop?.removeAttribute('hidden');
+          document.body.style.overflow = 'hidden';
+        }
         syncInert();
         header.querySelector<HTMLElement>('.monroe-global-nav__link')?.focus();
       } else {

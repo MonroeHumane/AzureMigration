@@ -90,6 +90,11 @@ body.monroe-rebuild-theme h1,
 body.monroe-rebuild-theme h2,
 body.monroe-rebuild-theme h3 {
   font-family: 'Abril Fatface', Georgia, serif;
+  /* Abril Fatface only ships one real weight (400). Without this, the
+     browser's default bold h1-h3 UA style fake-bolds it into a chunky,
+     slightly blurry synthetic bold instead of its intended crisp display
+     weight — this was happening on nearly every heading site-wide. */
+  font-weight: 400;
 }
 
 #monroe-main {

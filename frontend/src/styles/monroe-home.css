@@ -8,7 +8,30 @@
  if the theme changes.
 */
 
-.home-editable-shell,
+/* Homepage-only font/color overrides (originally scoped under .page-slug-home-editable
+   in the WP theme; dropped by the class-scoping strip during extraction). Without these,
+   the hero display line and "impact" headings fall back to the site-wide Abril/Jost
+   values in monroe-theme.css instead of the homepage's Bebas Neue/Montserrat. */
+body.home-editable-has-flyers-rail {
+  --monroe-font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --monroe-font-subtitle: "Montserrat", "Segoe UI", sans-serif;
+  --monroe-color-impact-green: rgb(6, 129, 16);
+  --monroe-home-stack-gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* The real theme keeps .home-editable-shell itself a plain block box (its flex+gap
+   rule targets an inner .wp-block-group__inner-container wrapper it doesn't have
+   here) and spaces sections with margin, not a shared flex gap. Using flex directly
+   on the shell instead made every direct child a flex item, which changes how
+   cross-axis width resolves and was compounding into runaway-looking spacing at
+   wide viewports. */
+.home-editable-shell {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 .home-editable-shell > .wp-block-group__inner-container {
   display: flex;
   flex-direction: column;
@@ -16,6 +39,10 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+.home-editable-shell > * + * {
+  margin-top: var(--monroe-home-stack-gap);
 }
 
 .home-editable-compare-bar {
@@ -67,11 +94,16 @@
 
 .home-editable-hero.wp-block-cover,
 .wp-block-cover.home-editable-hero {
+  /* Explicit width so the cross-axis sizing in the shell's column flex resolves
+     to "fill, then clamp at max-width" instead of shrink-to-fit content. */
+  width: 100%;
   /* Wins over block editor inline min-height on the cover block */
   min-height: clamp(260px, 34vh, 420px) !important;
   /* Core `wp-block-cover` uses overflow:hidden; that clips CTA edges, hover lift, and shadows. */
   overflow: visible !important;
-  padding: 0 var(--monroe-home-hero-pad-x) clamp(2.25rem, 4vw, 3rem);
+  /* Small top safety margin so hero text never sits flush against the fixed
+     nav, even if --monroe-nav-height is briefly a pixel or two stale. */
+  padding: 1rem var(--monroe-home-hero-pad-x) clamp(2.25rem, 4vw, 3rem);
   box-sizing: border-box;
 }
 
@@ -125,7 +157,8 @@
   text-transform: uppercase;
 }
 
-.home-editable-hero-title {
+.home-editable-hero-title,
+body.home-editable-has-flyers-rail .home-editable-hero-title {
   margin: 0;
   color: rgb(255, 255, 255);
   font-family: var(--monroe-font-subtitle);
@@ -210,6 +243,8 @@
 .home-editable-donate-card h2,
 .home-editable-faq-card h2,
 .home-editable-band h2,
+.home-editable-news-card > h2,
+#FeaturedPets > h2,
 .home-editable-contact-card h2 {
   margin-top: 0;
   color: #153635;
@@ -218,8 +253,16 @@
   line-height: 1;
 }
 
+/* The news-band variant sets a dark teal background + white text on the
+   card itself; the shared rule above would otherwise override that
+   inherited white with its own dark heading color. */
+.home-editable-news-card.is-style-monroe-news-band > h2 {
+  color: #fff;
+}
+
 .home-editable-contact-card h2.home-editable-heading-impact,
-h2.home-editable-heading-impact {
+h2.home-editable-heading-impact,
+body.home-editable-has-flyers-rail h2.home-editable-heading-impact {
   color: var(--monroe-color-impact-green);
   font-family: var(--monroe-font-display);
   font-size: clamp(1.75rem, 3.2vw, 2.25rem);
@@ -704,7 +747,12 @@ h2.home-editable-heading-impact {
 .home-editable-upcoming-event-hero__media--placeholder,
 .home-editable-upcoming-event-hero__media--placeholder {
   min-height: 420px;
-  background: linear-gradient(135deg, rgba(15, 118, 110, 0.18), rgba(80, 200, 120, 0.22));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f766e, #173a39);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 3rem;
 }
 
 .home-editable-upcoming-event-hero__copy,
@@ -787,7 +835,7 @@ h2.home-editable-heading-impact {
   overflow: hidden;
   border: 1px solid rgba(21, 54, 53, 0.16);
   border-radius: 8px;
-  background: #ff8d20;
+  background: #173a39;
   box-shadow: 0 12px 28px rgba(21, 54, 53, 0.12);
 }
 
@@ -797,6 +845,17 @@ h2.home-editable-heading-impact {
   height: 100%;
   object-fit: cover;
   object-position: center;
+}
+
+.home-editable-events-artwork .hs-voting-flyer__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  height: 100%;
+  background: linear-gradient(135deg, #0f766e, #173a39);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 3rem;
 }
 
 .home-editable-events-artwork .hs-voting-schedule {
@@ -1253,6 +1312,22 @@ body.home .sponsor-widget-shell .sponsor-card {
   margin-left: auto;
   margin-right: auto;
   width: 100%;
+  text-align: center;
+}
+
+.home-editable-sponsors h5 {
+  margin: 0 0 0.6rem;
+  color: #153635;
+  font-family: "Abril Fatface", Georgia, serif;
+  font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.home-editable-sponsors > p {
+  margin: 0 auto;
+  max-width: 640px;
+  color: #405757;
 }
 
 .home-editable-sponsors > .wp-block-group__inner-container {
@@ -1408,6 +1483,51 @@ body.home .sponsor-widget-shell .sponsor-card {
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
 }
 
+.home-editable-social-follow-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+  border-radius: 28px;
+  background: linear-gradient(140deg, #eef7f5, #ffffff);
+  border: 1px solid rgba(36, 72, 67, 0.12);
+  box-shadow: 0 28px 60px rgba(31, 53, 51, 0.1);
+}
+
+.home-editable-social-follow-card__icon {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 50%;
+  background: #1877f2;
+  color: #fff;
+}
+
+.home-editable-social-follow-card__icon svg {
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+.home-editable-social-follow-card h2 {
+  margin: 0;
+  color: #153635;
+  font-size: clamp(1.75rem, 3.2vw, 2.4rem);
+}
+
+.home-editable-social-follow-card p.wp-block-paragraph {
+  max-width: 480px;
+  margin: 0 0 0.5rem;
+  color: #405757;
+}
+
+.home-editable-social-follow-card .wp-block-button__link {
+  margin-top: 0.5rem;
+}
+
 .home-editable-social-embed__chrome,
 .home-editable-social-embed__chrome {
   border-radius: 16px;
@@ -1456,42 +1576,37 @@ body.home .sponsor-widget-shell .sponsor-card {
   transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
-.home-editable-social-embed.is-loading .home-editable-social-embed__loader,
-.home-editable-social-embed.is-loading .home-editable-social-embed__loader {
+.home-editable-social-embed:not(.is-loaded) .home-editable-social-embed__loader,
+.home-editable-social-embed:not(.is-loaded) .home-editable-social-embed__loader {
   opacity: 1;
   visibility: visible;
+  cursor: pointer;
 }
 
-.home-editable-social-embed:not(.is-loading) .home-editable-social-embed__loader,
-.home-editable-social-embed:not(.is-loading) .home-editable-social-embed__loader {
+.home-editable-social-embed.is-loaded .home-editable-social-embed__loader,
+.home-editable-social-embed.is-loaded .home-editable-social-embed__loader {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 }
 
-.home-editable-social-embed__loader-shimmer,
-.home-editable-social-embed__loader-shimmer {
-  width: min(220px, 70%);
-  height: 10px;
+.home-editable-social-embed__loader-icon,
+.home-editable-social-embed__loader-icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
   border-radius: 999px;
-  background: linear-gradient(90deg, #dbe4ee 0%, #f5f8fb 45%, #dbe4ee 100%);
-  background-size: 200% 100%;
-  animation: monroe-fb-shimmer 1.2s ease-in-out infinite;
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 1.1rem;
+  box-shadow: 0 10px 24px rgba(15, 118, 110, 0.25);
 }
 
 .home-editable-social-embed__loader-text,
 .home-editable-social-embed__loader-text {
   font: 600 13px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   color: #64748b;
-}
-
-@keyframes monroe-fb-shimmer {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
 }
 
 .home-editable-social-embed__cta,
@@ -1784,6 +1899,32 @@ body.home .sponsor-widget-shell .sponsor-card {
 }
 
 @media (min-width: 1400px) {
+  /* Align rail + main column offset with the same horizontal grid: both derive
+     from one shared inset so the rail always tracks the centered content's
+     left edge instead of sitting at a fixed viewport offset. */
+  body.home-editable-has-flyers-rail {
+    --monroe-xl-nav-sync-inset: max(
+      env(safe-area-inset-left, 0px),
+      calc((100% - min(100%, 1320px)) / 2 + 1.4rem)
+    );
+    --monroe-xl-index-rail-width: 11rem;
+    --monroe-xl-index-rail-gap: 1rem;
+    --monroe-xl-main-pad-for-rail: calc(
+      var(--monroe-xl-nav-sync-inset) + var(--monroe-xl-index-rail-width) + var(--monroe-xl-index-rail-gap)
+    );
+  }
+
+  /* The shell's padding-left already reserves exactly enough room for the rail.
+     Sections' own centering rule (margin-left/right: auto !important, from the
+     is-layout-constrained core rule) would otherwise ALSO center each section
+     within that already-offset space, stacking a second, growing gap on top of
+     the rail gutter at wide viewports. Zero out the left half so content sits
+     flush against the reserved gutter; only the right side gets the leftover
+     whitespace. */
+  body.home-editable-has-flyers-rail .home-editable-shell > :not(.alignfull) {
+    margin-left: 0 !important;
+  }
+
 .home-editable-page-index--mobile {
     display: none;
   }
@@ -3067,7 +3208,7 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
 
 @media (min-width: 1400px) {
   body.home-editable-has-flyers-rail .home-editable-shell {
-    padding-left: calc(var(--monroe-xl-nav-sync-inset, 0.65rem) + var(--monroe-xl-index-rail-width, 11rem) + 1.25rem);
+    padding-left: var(--monroe-xl-main-pad-for-rail);
   }
 }
 

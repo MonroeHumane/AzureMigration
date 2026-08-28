@@ -328,13 +328,13 @@
  * 6. Donations — ways to give as an option-board of cards
  * ------------------------------------------------------------------------- */
 
-.monroe-native-inner--donations .monroe-native-actions {
+.monroe-native-inner--donate-now .monroe-native-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 0.9rem;
 }
 
-.monroe-native-inner--donations .monroe-native-actions .monroe-btn {
+.monroe-native-inner--donate-now .monroe-native-actions .monroe-btn {
   width: 100%;
   justify-content: center;
   text-align: center;
@@ -476,7 +476,7 @@
     justify-content: center;
   }
 
-  .monroe-native-inner--donations .monroe-native-actions {
+  .monroe-native-inner--donate-now .monroe-native-actions {
     grid-template-columns: 1fr;
   }
 }

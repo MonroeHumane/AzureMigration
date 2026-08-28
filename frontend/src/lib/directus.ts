@@ -50,6 +50,9 @@ export interface NewsletterIssue {
   heading?: string;
   lead?: string;
   byline?: string;
+  hero_image?: string;
+  excerpt?: string;
+  pdf_url?: string;
   blocks?: Array<{ id: string; type: string; title: string; body: string }>;
   featured?: boolean;
 }
@@ -168,8 +171,10 @@ export async function getNewsletterIssues(): Promise<NewsletterIssue[]> {
       id: 1,
       title: '2025 in Review',
       slug: '2025-in-review',
-      issue_date: '2025-2026',
+      issue_date: '2026-01-15',
       byline: 'by, Jacqueline Monteer',
+      hero_image: '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png',
+      excerpt: 'A new direction, a busy shelter, and a community that showed up all year. Read how 2025 reshaped the shelter — new play yards, climate control, a medical room, and hundreds of animals finding their way home.',
       blocks: [
             {
                   "id": "1",

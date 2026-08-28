@@ -1,0 +1,22 @@
+{
+	"pid": 8628,
+	"port": 4321,
+	"url": "http://localhost:4321",
+	"urls": {
+		"local": [
+			"http://localhost:4321/"
+		],
+		"network": [
+			"http://172.17.16.1:4321/",
+			"http://192.168.0.149:4321/",
+			"http://10.0.0.126:4321/"
+		],
+		"networkInterfaceNames": [
+			"vEthernet (WSL (Hyper-V firewall))",
+			"Ethernet",
+			"WiFi"
+		]
+	},
+	"background": true,
+	"startedAt": "2026-08-28T05:43:13.143Z"
+}

@@ -6,7 +6,7 @@
    Memorial donations & planned giving (/memorials/)
    ========================================================================== */
 
-.monroe-memorials-page {
+.monroe-memorial-giving-page {
   --mg-ink: #153635;
   --mg-copy: #38514f;
   --mg-muted: #607572;
@@ -21,30 +21,30 @@
   font-family: "Montserrat", "Jost", "Segoe UI", sans-serif;
 }
 
-.monroe-memorials-page .monroe-inner-page-shell__content {
+.monroe-memorial-giving-page .monroe-inner-page-shell__content {
   max-width: 1180px;
 }
 
-.monroe-memorials-page p,
-.monroe-memorials-page li,
-.monroe-memorials-page address,
-.monroe-memorials-page summary {
+.monroe-memorial-giving-page p,
+.monroe-memorial-giving-page li,
+.monroe-memorial-giving-page address,
+.monroe-memorial-giving-page summary {
   font-family: "Montserrat", "Jost", "Segoe UI", sans-serif;
 }
 
-.monroe-memorials-page h1,
-.monroe-memorials-page h2,
-.monroe-memorials-page h3 {
+.monroe-memorial-giving-page h1,
+.monroe-memorial-giving-page h2,
+.monroe-memorial-giving-page h3 {
   text-wrap: balance;
 }
 
-.monroe-memorials-page svg {
+.monroe-memorial-giving-page svg {
   display: block;
 }
 
 /* Hero -------------------------------------------------------------------- */
 
-.monroe-memorials-page .monroe-memorials-hero {
+.monroe-memorial-giving-page .monroe-memorials-hero {
   position: relative;
   overflow: hidden;
   display: grid;
@@ -62,7 +62,7 @@
   box-shadow: var(--mg-shadow);
 }
 
-.monroe-memorials-page .monroe-memorials-hero::after {
+.monroe-memorial-giving-page .monroe-memorials-hero::after {
   content: "";
   position: absolute;
   inset: 10px;
@@ -71,12 +71,12 @@
   pointer-events: none;
 }
 
-.monroe-memorials-page .monroe-memorials-hero__copy {
+.monroe-memorial-giving-page .monroe-memorials-hero__copy {
   position: relative;
   z-index: 1;
 }
 
-.monroe-memorials-page .monroe-memorials-eyebrow {
+.monroe-memorial-giving-page .monroe-memorials-eyebrow {
   margin: 0 0 0.7rem;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-size: 0.77rem;
@@ -87,7 +87,7 @@
   color: var(--mg-teal);
 }
 
-.monroe-memorials-page .monroe-memorials-hero h1 {
+.monroe-memorial-giving-page .monroe-memorials-hero h1 {
   max-width: 710px;
   margin: 0;
   font-size: clamp(2.55rem, 5vw, 4.35rem);
@@ -95,7 +95,7 @@
   color: var(--mg-ink);
 }
 
-.monroe-memorials-page .monroe-memorials-lead {
+.monroe-memorial-giving-page .monroe-memorials-lead {
   max-width: 680px;
   margin: 1.25rem 0 0;
   font-size: clamp(1.02rem, 1.7vw, 1.2rem);
@@ -103,15 +103,15 @@
   color: var(--mg-copy);
 }
 
-.monroe-memorials-page .monroe-memorials-hero__actions {
+.monroe-memorial-giving-page .monroe-memorials-hero__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.55rem;
 }
 
-.monroe-memorials-page.monroe-inner-page-shell a.monroe-memorials-btn,
-.monroe-memorials-page .monroe-memorials-btn {
+.monroe-memorial-giving-page.monroe-inner-page-shell a.monroe-memorials-btn,
+.monroe-memorial-giving-page .monroe-memorials-btn {
   box-sizing: border-box;
   min-height: 48px;
   display: inline-flex;
@@ -131,33 +131,33 @@
   transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
 }
 
-.monroe-memorials-page .monroe-memorials-btn svg {
+.monroe-memorial-giving-page .monroe-memorials-btn svg {
   width: 1.1rem;
   height: 1.1rem;
   flex: 0 0 auto;
 }
 
-.monroe-memorials-page.monroe-inner-page-shell a.monroe-memorials-btn--primary,
-.monroe-memorials-page a.monroe-memorials-btn--primary {
+.monroe-memorial-giving-page.monroe-inner-page-shell a.monroe-memorials-btn--primary,
+.monroe-memorial-giving-page a.monroe-memorials-btn--primary {
   color: #fff !important;
   background: linear-gradient(135deg, var(--mg-teal), var(--mg-teal-deep));
   box-shadow: 0 9px 20px rgba(15, 118, 110, 0.22);
 }
 
-.monroe-memorials-page.monroe-inner-page-shell a.monroe-memorials-btn--secondary,
-.monroe-memorials-page a.monroe-memorials-btn--secondary {
+.monroe-memorial-giving-page.monroe-inner-page-shell a.monroe-memorials-btn--secondary,
+.monroe-memorial-giving-page a.monroe-memorials-btn--secondary {
   color: var(--mg-teal-deep);
   border-color: rgba(15, 118, 110, 0.3);
   background: rgba(255, 255, 255, 0.76);
 }
 
-.monroe-memorials-page .monroe-memorials-btn:hover,
-.monroe-memorials-page .monroe-memorials-btn:focus-visible {
+.monroe-memorial-giving-page .monroe-memorials-btn:hover,
+.monroe-memorial-giving-page .monroe-memorials-btn:focus-visible {
   transform: translateY(-2px);
   box-shadow: 0 12px 25px rgba(15, 80, 75, 0.18);
 }
 
-.monroe-memorials-page .monroe-memorials-hero__note {
+.monroe-memorial-giving-page .monroe-memorials-hero__note {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -167,13 +167,13 @@
   color: var(--mg-muted);
 }
 
-.monroe-memorials-page .monroe-memorials-hero__note svg {
+.monroe-memorial-giving-page .monroe-memorials-hero__note svg {
   width: 1.1rem;
   height: 1.1rem;
   color: var(--mg-teal);
 }
 
-.monroe-memorials-page .monroe-memorials-hero__art {
+.monroe-memorial-giving-page .monroe-memorials-hero__art {
   position: relative;
   z-index: 1;
   display: flex;
@@ -183,16 +183,16 @@
   color: var(--mg-teal);
 }
 
-.monroe-memorials-page .monroe-memorials-hero__heart {
+.monroe-memorial-giving-page .monroe-memorials-hero__heart {
   width: min(100%, 280px);
   filter: drop-shadow(0 16px 22px rgba(15, 118, 110, 0.1));
 }
 
-.monroe-memorials-page .monroe-memorials-hero__paw {
+.monroe-memorial-giving-page .monroe-memorials-hero__paw {
   opacity: 0.78;
 }
 
-.monroe-memorials-page .monroe-memorials-hero__art-label {
+.monroe-memorial-giving-page .monroe-memorials-hero__art-label {
   max-width: 210px;
   margin-top: 0.4rem;
   font-family: "Jost", "Segoe UI", sans-serif;
@@ -207,34 +207,34 @@
 
 /* Donation pathways ------------------------------------------------------- */
 
-.monroe-memorials-page .monroe-memorials-pathways {
+.monroe-memorial-giving-page .monroe-memorials-pathways {
   margin-bottom: clamp(2.5rem, 5vw, 4rem);
 }
 
-.monroe-memorials-page .monroe-memorials-section-heading {
+.monroe-memorial-giving-page .monroe-memorials-section-heading {
   max-width: 700px;
   margin: 0 auto clamp(1.5rem, 3vw, 2.2rem);
   text-align: center;
 }
 
-.monroe-memorials-page .monroe-memorials-section-heading h2 {
+.monroe-memorial-giving-page .monroe-memorials-section-heading h2 {
   margin: 0;
   font-size: clamp(2rem, 3.5vw, 2.8rem);
 }
 
-.monroe-memorials-page .monroe-memorials-section-heading > p:last-child {
+.monroe-memorial-giving-page .monroe-memorials-section-heading > p:last-child {
   margin: 0.75rem 0 0;
   color: var(--mg-copy);
 }
 
-.monroe-memorials-page .monroe-memorials-grid {
+.monroe-memorial-giving-page .monroe-memorials-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(1rem, 2.5vw, 1.5rem);
   margin: 0;
 }
 
-.monroe-memorials-page .monroe-memorials-card {
+.monroe-memorial-giving-page .monroe-memorials-card {
   position: relative;
   overflow: hidden;
   min-height: 310px;
@@ -248,7 +248,7 @@
   box-shadow: var(--mg-shadow-soft);
 }
 
-.monroe-memorials-page .monroe-memorials-card::before {
+.monroe-memorial-giving-page .monroe-memorials-card::before {
   content: "";
   position: absolute;
   top: 0;
@@ -259,21 +259,21 @@
   background: linear-gradient(90deg, transparent, var(--card-accent, var(--mg-teal)), transparent);
 }
 
-.monroe-memorials-page .monroe-memorials-card--online {
+.monroe-memorial-giving-page .monroe-memorials-card--online {
   --card-accent: var(--mg-teal);
   background:
     radial-gradient(circle at 92% 5%, rgba(104, 194, 169, 0.17), transparent 31%),
     linear-gradient(145deg, #fff, #f6fcf9);
 }
 
-.monroe-memorials-page .monroe-memorials-card--mail {
+.monroe-memorial-giving-page .monroe-memorials-card--mail {
   --card-accent: var(--mg-gold);
   background:
     radial-gradient(circle at 92% 5%, rgba(213, 164, 91, 0.16), transparent 31%),
     linear-gradient(145deg, #fff, #fffaf1);
 }
 
-.monroe-memorials-page .monroe-memorials-card__tag {
+.monroe-memorial-giving-page .monroe-memorials-card__tag {
   display: inline-flex;
   margin-bottom: 1rem;
   padding: 0.35rem 0.65rem;
@@ -288,7 +288,7 @@
   border: 1px solid rgba(21, 54, 53, 0.1);
 }
 
-.monroe-memorials-page .monroe-memorials-card__icon {
+.monroe-memorial-giving-page .monroe-memorials-card__icon {
   width: 3rem;
   height: 3rem;
   display: grid;
@@ -301,24 +301,24 @@
   box-shadow: 0 7px 16px rgba(15, 50, 48, 0.08);
 }
 
-.monroe-memorials-page .monroe-memorials-card__icon svg {
+.monroe-memorial-giving-page .monroe-memorials-card__icon svg {
   width: 1.45rem;
   height: 1.45rem;
 }
 
-.monroe-memorials-page .monroe-memorials-card h3 {
+.monroe-memorial-giving-page .monroe-memorials-card h3 {
   margin: 0;
   font-size: clamp(1.55rem, 2.7vw, 2rem);
 }
 
-.monroe-memorials-page .monroe-memorials-card > p {
+.monroe-memorial-giving-page .monroe-memorials-card > p {
   max-width: 540px;
   margin: 0.75rem 0 1.15rem;
   color: var(--mg-copy);
 }
 
-.monroe-memorials-page.monroe-inner-page-shell a.monroe-memorials-card__link,
-.monroe-memorials-page a.monroe-memorials-card__link {
+.monroe-memorial-giving-page.monroe-inner-page-shell a.monroe-memorials-card__link,
+.monroe-memorial-giving-page a.monroe-memorials-card__link {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -330,18 +330,18 @@
   text-decoration: none;
 }
 
-.monroe-memorials-page .monroe-memorials-card__link svg {
+.monroe-memorial-giving-page .monroe-memorials-card__link svg {
   width: 1rem;
   height: 1rem;
   transition: transform 0.16s ease;
 }
 
-.monroe-memorials-page .monroe-memorials-card__link:hover svg,
-.monroe-memorials-page .monroe-memorials-card__link:focus-visible svg {
+.monroe-memorial-giving-page .monroe-memorials-card__link:hover svg,
+.monroe-memorial-giving-page .monroe-memorials-card__link:focus-visible svg {
   transform: translateX(3px);
 }
 
-.monroe-memorials-page .monroe-memorials-contact {
+.monroe-memorial-giving-page .monroe-memorials-contact {
   display: grid;
   gap: 0.35rem;
   margin-top: auto;
@@ -351,14 +351,14 @@
   color: var(--mg-copy);
 }
 
-.monroe-memorials-page.monroe-inner-page-shell .monroe-memorials-contact a {
+.monroe-memorial-giving-page.monroe-inner-page-shell .monroe-memorials-contact a {
   font-weight: 700;
   color: var(--mg-teal-deep);
 }
 
 /* Recently remembered ---------------------------------------------------- */
 
-.monroe-memorials-page .monroe-memorials-recent {
+.monroe-memorial-giving-page .monroe-memorials-recent {
   margin-bottom: clamp(2rem, 4vw, 3.25rem);
   padding: clamp(1.4rem, 3vw, 2rem);
   border: 1px solid var(--mg-line);
@@ -367,7 +367,7 @@
   box-shadow: var(--mg-shadow-soft);
 }
 
-.monroe-memorials-page .monroe-memorials-recent__heading {
+.monroe-memorial-giving-page .monroe-memorials-recent__heading {
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -375,13 +375,13 @@
   margin-bottom: 1.2rem;
 }
 
-.monroe-memorials-page .monroe-memorials-recent__heading h2 {
+.monroe-memorial-giving-page .monroe-memorials-recent__heading h2 {
   margin: 0;
   font-size: clamp(1.75rem, 3vw, 2.35rem);
 }
 
-.monroe-memorials-page.monroe-inner-page-shell .monroe-memorials-recent__heading > a,
-.monroe-memorials-page .monroe-memorials-recent__heading > a {
+.monroe-memorial-giving-page.monroe-inner-page-shell .monroe-memorials-recent__heading > a,
+.monroe-memorial-giving-page .monroe-memorials-recent__heading > a {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -393,18 +393,18 @@
   text-decoration: none;
 }
 
-.monroe-memorials-page .monroe-memorials-recent__heading > a svg {
+.monroe-memorial-giving-page .monroe-memorials-recent__heading > a svg {
   width: 1rem;
   height: 1rem;
 }
 
-.monroe-memorials-page .monroe-memorials-recent__grid {
+.monroe-memorial-giving-page .monroe-memorials-recent__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.85rem;
 }
 
-.monroe-memorials-page .monroe-memorials-recent__card {
+.monroe-memorial-giving-page .monroe-memorials-recent__card {
   position: relative;
   overflow: hidden;
   min-height: 138px;
@@ -417,7 +417,7 @@
   background: rgba(255, 255, 255, 0.82);
 }
 
-.monroe-memorials-page .monroe-memorials-recent__paw {
+.monroe-memorial-giving-page .monroe-memorials-recent__paw {
   position: absolute;
   top: -0.3rem;
   right: -0.15rem;
@@ -427,12 +427,12 @@
   transform: rotate(13deg);
 }
 
-.monroe-memorials-page .monroe-memorials-recent__paw svg {
+.monroe-memorial-giving-page .monroe-memorials-recent__paw svg {
   width: 100%;
   height: 100%;
 }
 
-.monroe-memorials-page .monroe-memorials-recent__card p {
+.monroe-memorial-giving-page .monroe-memorials-recent__card p {
   position: relative;
   margin: 0 0 0.45rem;
   font-family: "Jost", "Segoe UI", sans-serif;
@@ -443,7 +443,7 @@
   color: var(--mg-teal);
 }
 
-.monroe-memorials-page .monroe-memorials-recent__card h3 {
+.monroe-memorial-giving-page .monroe-memorials-recent__card h3 {
   position: relative;
   margin: 0;
   font-family: Georgia, serif;
@@ -454,7 +454,7 @@
 
 /* Honor-roll bridge ------------------------------------------------------- */
 
-.monroe-memorials-page .monroe-memorials-honor-roll {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll {
   position: relative;
   overflow: hidden;
   display: grid;
@@ -470,7 +470,7 @@
   box-shadow: 0 18px 40px rgba(10, 63, 59, 0.2);
 }
 
-.monroe-memorials-page .monroe-memorials-honor-roll::after {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll::after {
   content: "";
   position: absolute;
   inset: 8px;
@@ -479,7 +479,7 @@
   pointer-events: none;
 }
 
-.monroe-memorials-page .monroe-memorials-honor-roll__paw {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll__paw {
   position: relative;
   z-index: 1;
   width: 4.25rem;
@@ -492,34 +492,34 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
-.monroe-memorials-page .monroe-memorials-honor-roll__paw svg {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll__paw svg {
   width: 2.15rem;
   height: 2.15rem;
 }
 
-.monroe-memorials-page .monroe-memorials-honor-roll__copy {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll__copy {
   position: relative;
   z-index: 1;
 }
 
-.monroe-memorials-page .monroe-memorials-honor-roll .monroe-memorials-eyebrow {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll .monroe-memorials-eyebrow {
   color: #bfe9db;
 }
 
-.monroe-memorials-page .monroe-memorials-honor-roll h2 {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll h2 {
   margin: 0;
   font-size: clamp(1.75rem, 3.3vw, 2.5rem);
   color: #fff;
 }
 
-.monroe-memorials-page .monroe-memorials-honor-roll p:last-child {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll p:last-child {
   max-width: 620px;
   margin: 0.5rem 0 0;
   color: rgba(255, 255, 255, 0.82);
 }
 
-.monroe-memorials-page.monroe-inner-page-shell a.monroe-memorials-btn--light,
-.monroe-memorials-page a.monroe-memorials-btn--light {
+.monroe-memorial-giving-page.monroe-inner-page-shell a.monroe-memorials-btn--light,
+.monroe-memorial-giving-page a.monroe-memorials-btn--light {
   position: relative;
   z-index: 1;
   color: var(--mg-teal-deep);
@@ -530,7 +530,7 @@
 
 /* Planned giving ---------------------------------------------------------- */
 
-.monroe-memorials-page .monroe-memorials-planned {
+.monroe-memorial-giving-page .monroe-memorials-planned {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.55fr);
   gap: clamp(1rem, 3vw, 2rem);
@@ -544,13 +544,13 @@
   box-shadow: var(--mg-shadow-soft);
 }
 
-.monroe-memorials-page .monroe-memorials-planned__main h2 {
+.monroe-memorial-giving-page .monroe-memorials-planned__main h2 {
   max-width: 680px;
   margin: 0;
   font-size: clamp(2rem, 3.7vw, 3rem);
 }
 
-.monroe-memorials-page .monroe-memorials-quote {
+.monroe-memorial-giving-page .monroe-memorials-quote {
   max-width: 680px;
   margin: 1.35rem 0;
   padding: 1.1rem 1.25rem;
@@ -559,7 +559,7 @@
   background: rgba(255, 255, 255, 0.66);
 }
 
-.monroe-memorials-page .monroe-memorials-quote p {
+.monroe-memorial-giving-page .monroe-memorials-quote p {
   margin: 0 0 0.35rem;
   font-family: Georgia, serif;
   font-size: 1.15rem;
@@ -568,18 +568,18 @@
   color: var(--mg-ink);
 }
 
-.monroe-memorials-page .monroe-memorials-quote cite {
+.monroe-memorial-giving-page .monroe-memorials-quote cite {
   font-size: 0.84rem;
   font-style: normal;
   color: var(--mg-muted);
 }
 
-.monroe-memorials-page .monroe-memorials-planned__main > p {
+.monroe-memorial-giving-page .monroe-memorials-planned__main > p {
   max-width: 720px;
   color: var(--mg-copy);
 }
 
-.monroe-memorials-page .monroe-memorials-advisor-note {
+.monroe-memorial-giving-page .monroe-memorials-advisor-note {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: start;
@@ -592,7 +592,7 @@
   background: rgba(240, 253, 250, 0.6);
 }
 
-.monroe-memorials-page .monroe-memorials-advisor-note > span {
+.monroe-memorial-giving-page .monroe-memorials-advisor-note > span {
   width: 2.1rem;
   height: 2.1rem;
   display: grid;
@@ -602,24 +602,24 @@
   background: #fff;
 }
 
-.monroe-memorials-page .monroe-memorials-advisor-note svg {
+.monroe-memorial-giving-page .monroe-memorials-advisor-note svg {
   width: 1.2rem;
   height: 1.2rem;
 }
 
-.monroe-memorials-page .monroe-memorials-advisor-note p {
+.monroe-memorial-giving-page .monroe-memorials-advisor-note p {
   margin: 0;
   font-size: 0.92rem;
   line-height: 1.58;
 }
 
-.monroe-memorials-page .monroe-memorials-planning-note {
+.monroe-memorial-giving-page .monroe-memorials-planning-note {
   max-width: 720px;
   margin-top: 0.9rem;
   border-top: 1px solid rgba(21, 54, 53, 0.12);
 }
 
-.monroe-memorials-page .monroe-memorials-planning-note summary {
+.monroe-memorial-giving-page .monroe-memorials-planning-note summary {
   cursor: pointer;
   padding: 0.85rem 0;
   font-size: 0.88rem;
@@ -627,14 +627,14 @@
   color: var(--mg-teal-deep);
 }
 
-.monroe-memorials-page .monroe-memorials-planning-note p {
+.monroe-memorial-giving-page .monroe-memorials-planning-note p {
   margin: 0 0 0.8rem;
   font-size: 0.9rem;
   line-height: 1.65;
   color: var(--mg-copy);
 }
 
-.monroe-memorials-page .monroe-memorials-planned__contact {
+.monroe-memorial-giving-page .monroe-memorials-planned__contact {
   align-self: stretch;
   display: flex;
   flex-direction: column;
@@ -648,7 +648,7 @@
   box-shadow: 0 15px 32px rgba(19, 67, 63, 0.2);
 }
 
-.monroe-memorials-page .monroe-memorials-planned__contact-icon {
+.monroe-memorial-giving-page .monroe-memorials-planned__contact-icon {
   width: 3.2rem;
   height: 3.2rem;
   display: grid;
@@ -659,12 +659,12 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-.monroe-memorials-page .monroe-memorials-planned__contact-icon svg {
+.monroe-memorial-giving-page .monroe-memorials-planned__contact-icon svg {
   width: 1.65rem;
   height: 1.65rem;
 }
 
-.monroe-memorials-page .monroe-memorials-planned__contact-kicker {
+.monroe-memorial-giving-page .monroe-memorials-planned__contact-kicker {
   margin: 0 0 0.4rem;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-size: 0.7rem;
@@ -674,32 +674,32 @@
   color: #bfe9db;
 }
 
-.monroe-memorials-page .monroe-memorials-planned__contact h3 {
+.monroe-memorial-giving-page .monroe-memorials-planned__contact h3 {
   margin: 0;
   font-size: clamp(1.55rem, 2.5vw, 2rem);
   color: #fff;
 }
 
-.monroe-memorials-page .monroe-memorials-planned__contact > p:not(.monroe-memorials-planned__contact-kicker) {
+.monroe-memorial-giving-page .monroe-memorials-planned__contact > p:not(.monroe-memorials-planned__contact-kicker) {
   margin: 0.8rem 0 1.2rem;
   font-size: 0.92rem;
   line-height: 1.65;
   color: rgba(255, 255, 255, 0.78);
 }
 
-.monroe-memorials-page .monroe-memorials-planned__contact > strong {
+.monroe-memorial-giving-page .monroe-memorials-planned__contact > strong {
   font-family: "Jost", "Segoe UI", sans-serif;
   font-size: 1.05rem;
 }
 
-.monroe-memorials-page .monroe-memorials-planned__contact > span:not(.monroe-memorials-planned__contact-icon) {
+.monroe-memorial-giving-page .monroe-memorials-planned__contact > span:not(.monroe-memorials-planned__contact-icon) {
   margin-top: 0.15rem;
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.68);
 }
 
-.monroe-memorials-page.monroe-inner-page-shell a.monroe-memorials-planned__phone,
-.monroe-memorials-page a.monroe-memorials-planned__phone {
+.monroe-memorial-giving-page.monroe-inner-page-shell a.monroe-memorials-planned__phone,
+.monroe-memorial-giving-page a.monroe-memorials-planned__phone {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -715,19 +715,19 @@
   background: #fff;
 }
 
-.monroe-memorials-page .monroe-memorials-planned__phone svg {
+.monroe-memorial-giving-page .monroe-memorials-planned__phone svg {
   width: 1rem;
   height: 1rem;
 }
 
 /* Memorial gift FAQ ------------------------------------------------------ */
 
-.monroe-memorials-page .monroe-memorials-faq {
+.monroe-memorial-giving-page .monroe-memorials-faq {
   max-width: 900px;
   margin: clamp(2.5rem, 5vw, 4rem) auto;
 }
 
-.monroe-memorials-page .monroe-memorials-faq__list {
+.monroe-memorial-giving-page .monroe-memorials-faq__list {
   overflow: hidden;
   border: 1px solid var(--mg-line);
   border-radius: 22px;
@@ -735,11 +735,11 @@
   box-shadow: var(--mg-shadow-soft);
 }
 
-.monroe-memorials-page .monroe-memorials-faq details + details {
+.monroe-memorial-giving-page .monroe-memorials-faq details + details {
   border-top: 1px solid var(--mg-line);
 }
 
-.monroe-memorials-page .monroe-memorials-faq summary {
+.monroe-memorial-giving-page .monroe-memorials-faq summary {
   position: relative;
   cursor: pointer;
   list-style: none;
@@ -750,11 +750,11 @@
   color: var(--mg-ink);
 }
 
-.monroe-memorials-page .monroe-memorials-faq summary::-webkit-details-marker {
+.monroe-memorial-giving-page .monroe-memorials-faq summary::-webkit-details-marker {
   display: none;
 }
 
-.monroe-memorials-page .monroe-memorials-faq summary::after {
+.monroe-memorial-giving-page .monroe-memorials-faq summary::after {
   content: "+";
   position: absolute;
   top: 50%;
@@ -769,16 +769,16 @@
   transform: translateY(-50%);
 }
 
-.monroe-memorials-page .monroe-memorials-faq details[open] summary::after {
+.monroe-memorial-giving-page .monroe-memorials-faq details[open] summary::after {
   content: "âˆ’";
 }
 
-.monroe-memorials-page .monroe-memorials-faq details[open] summary {
+.monroe-memorial-giving-page .monroe-memorials-faq details[open] summary {
   color: var(--mg-teal-deep);
   background: rgba(223, 244, 236, 0.28);
 }
 
-.monroe-memorials-page .monroe-memorials-faq details > p {
+.monroe-memorial-giving-page .monroe-memorials-faq details > p {
   margin: 0;
   padding: 0 3.4rem 1.25rem 1.35rem;
   font-size: 0.92rem;
@@ -787,14 +787,14 @@
   background: rgba(223, 244, 236, 0.28);
 }
 
-.monroe-memorials-page.monroe-inner-page-shell .monroe-memorials-faq a {
+.monroe-memorial-giving-page.monroe-inner-page-shell .monroe-memorials-faq a {
   font-weight: 700;
   color: var(--mg-teal-deep);
 }
 
 /* Quiet footer navigation ------------------------------------------------- */
 
-.monroe-memorials-page .monroe-memorials-related {
+.monroe-memorial-giving-page .monroe-memorials-related {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -802,8 +802,8 @@
   padding-top: 0.4rem;
 }
 
-.monroe-memorials-page.monroe-inner-page-shell a.monroe-memorials-related-link,
-.monroe-memorials-page a.monroe-memorials-related-link {
+.monroe-memorial-giving-page.monroe-inner-page-shell a.monroe-memorials-related-link,
+.monroe-memorial-giving-page a.monroe-memorials-related-link {
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 0.9rem;
@@ -820,55 +820,55 @@
 /* Responsive -------------------------------------------------------------- */
 
 @media (max-width: 900px) {
-  .monroe-memorials-page .monroe-memorials-hero {
+  .monroe-memorial-giving-page .monroe-memorials-hero {
     grid-template-columns: minmax(0, 1fr) minmax(180px, 0.42fr);
   }
 
-  .monroe-memorials-page .monroe-memorials-hero__heart {
+  .monroe-memorial-giving-page .monroe-memorials-hero__heart {
     width: min(100%, 220px);
   }
 
-  .monroe-memorials-page .monroe-memorials-planned {
+  .monroe-memorial-giving-page .monroe-memorials-planned {
     grid-template-columns: 1fr;
   }
 
-  .monroe-memorials-page .monroe-memorials-planned__contact {
+  .monroe-memorial-giving-page .monroe-memorials-planned__contact {
     min-height: 290px;
   }
 }
 
 @media (max-width: 720px) {
-.monroe-memorials-page .monroe-memorials-hero {
+.monroe-memorial-giving-page .monroe-memorials-hero {
     grid-template-columns: 1fr;
     text-align: center;
   }
-.monroe-memorials-page .monroe-memorials-lead {
+.monroe-memorial-giving-page .monroe-memorials-lead {
     margin-left: auto;
     margin-right: auto;
   }
-.monroe-memorials-page .monroe-memorials-hero__actions,
-  .monroe-memorials-page .monroe-memorials-hero__note {
+.monroe-memorial-giving-page .monroe-memorials-hero__actions,
+  .monroe-memorial-giving-page .monroe-memorials-hero__note {
     justify-content: center;
   }
-.monroe-memorials-page .monroe-memorials-hero__art {
+.monroe-memorial-giving-page .monroe-memorials-hero__art {
     order: -1;
   }
-.monroe-memorials-page .monroe-memorials-hero__heart {
+.monroe-memorial-giving-page .monroe-memorials-hero__heart {
     width: 150px;
   }
-.monroe-memorials-page .monroe-memorials-hero__art-label {
+.monroe-memorial-giving-page .monroe-memorials-hero__art-label {
     display: none;
   }
-.monroe-memorials-page .monroe-memorials-grid {
+.monroe-memorial-giving-page .monroe-memorials-grid {
     grid-template-columns: 1fr;
   }
-.monroe-memorials-page .monroe-memorials-recent__grid {
+.monroe-memorial-giving-page .monroe-memorials-recent__grid {
     grid-template-columns: 1fr;
   }
-.monroe-memorials-page .monroe-memorials-card {
+.monroe-memorial-giving-page .monroe-memorials-card {
     min-height: 0;
   }
-.monroe-memorials-page .monroe-memorials-honor-roll {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll {
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
@@ -876,41 +876,41 @@
 }
 
 @media (max-width: 480px) {
-.monroe-memorials-page .monroe-memorials-hero {
+.monroe-memorial-giving-page .monroe-memorials-hero {
     padding: 1.55rem 1.05rem 1.8rem;
     border-radius: 22px;
   }
-.monroe-memorials-page .monroe-memorials-hero h1 {
+.monroe-memorial-giving-page .monroe-memorials-hero h1 {
     font-size: clamp(2.15rem, 11vw, 2.75rem);
   }
-.monroe-memorials-page .monroe-memorials-hero__actions {
+.monroe-memorial-giving-page .monroe-memorials-hero__actions {
     flex-direction: column;
   }
-.monroe-memorials-page .monroe-memorials-recent__heading {
+.monroe-memorial-giving-page .monroe-memorials-recent__heading {
     align-items: flex-start;
     flex-direction: column;
   }
-.monroe-memorials-page .monroe-memorials-btn {
+.monroe-memorial-giving-page .monroe-memorials-btn {
     width: 100%;
   }
-.monroe-memorials-page .monroe-memorials-planned {
+.monroe-memorial-giving-page .monroe-memorials-planned {
     padding: 1.2rem;
     border-radius: 22px;
   }
-.monroe-memorials-page .monroe-memorials-honor-roll {
+.monroe-memorial-giving-page .monroe-memorials-honor-roll {
     border-radius: 22px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-.monroe-memorials-page .monroe-memorials-btn,
-  .monroe-memorials-page .monroe-memorials-card__link svg {
+.monroe-memorial-giving-page .monroe-memorials-btn,
+  .monroe-memorial-giving-page .monroe-memorials-card__link svg {
     transition: none;
   }
-.monroe-memorials-page .monroe-memorials-btn:hover,
-  .monroe-memorials-page .monroe-memorials-btn:focus-visible,
-  .monroe-memorials-page .monroe-memorials-card__link:hover svg,
-  .monroe-memorials-page .monroe-memorials-card__link:focus-visible svg {
+.monroe-memorial-giving-page .monroe-memorials-btn:hover,
+  .monroe-memorial-giving-page .monroe-memorials-btn:focus-visible,
+  .monroe-memorial-giving-page .monroe-memorials-card__link:hover svg,
+  .monroe-memorial-giving-page .monroe-memorials-card__link:focus-visible svg {
     transform: none;
   }
 }

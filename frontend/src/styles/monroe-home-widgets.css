@@ -71,7 +71,7 @@
 
 .hs-feature-widget .hs-kicker {
       margin: 0 0 10px 0;
-      font: 800 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font: 700 12px/1.2 "Jost", "Segoe UI", sans-serif;
       letter-spacing: .22em;
       text-transform: uppercase;
       color: var(--hs-ink);
@@ -92,15 +92,15 @@
 
 .hs-feature-widget h2 {
       margin: 0 0 18px 0;
-      font: 950 clamp(30px, 3.4vw, 48px)/1.05 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font: 400 clamp(30px, 3.4vw, 48px)/1.1 "Abril Fatface", Georgia, serif;
       color: var(--hs-green);
-      letter-spacing: -0.02em;
+      letter-spacing: -0.01em;
       text-shadow: 0 1px 0 rgba(255,255,255,.7);
     }
 
 .hs-feature-widget .hs-body {
       margin: 0 0 16px 0;
-      font: 500 17px/1.75 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font: 400 17px/1.75 "Questrial", "Segoe UI", sans-serif;
       color: var(--hs-muted);
       max-width: 66ch;
     }
@@ -112,7 +112,7 @@
       border: 1px solid rgba(47,125,11,.18);
       background: linear-gradient(180deg, rgba(47,125,11,.08), rgba(47,125,11,.04));
       color: var(--hs-ink);
-      font: 650 15px/1.65 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font: 600 15px/1.65 "Jost", "Segoe UI", sans-serif;
       box-shadow: 0 10px 22px rgba(47,125,11,.10);
     }
 
@@ -137,7 +137,8 @@
       padding: 0 22px;
       border-radius: 14px;
       text-decoration: none;
-      font: 900 15px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font: 700 15px/1 "Jost", "Segoe UI", sans-serif;
+      letter-spacing: 0.04em;
       color: #fff;
       background: linear-gradient(180deg, var(--hs-green-2), var(--hs-green));
       border: 1px solid rgba(0,0,0,.10);
@@ -643,7 +644,7 @@
      --hs-img-bright: 1.02;
      --shadow: 0 12px 38px rgba(15,23,42,.12);
      padding: 0 6px 18px;
-     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+     font-family: "Questrial", "Segoe UI", sans-serif;
      background:
        radial-gradient(900px 380px at 10% -10%, rgba(45,212,191,.10), transparent 60%),
        radial-gradient(900px 380px at 120% -20%, rgba(13,148,136,.07), transparent 60%);
@@ -661,13 +662,13 @@
 
 .hs-news-section .hs-hero-text {position:absolute;left: 18px; right: 18px; bottom: 14px;display:flex; flex-direction:column; gap:6px;color:#fff;text-shadow: 0 10px 26px rgba(0,0,0,.45);}
 
-.hs-news-section .hs-eyebrow {font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;opacity:.92;}
+.hs-news-section .hs-eyebrow {font-family:"Jost","Segoe UI",sans-serif;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;opacity:.92;}
 
-.hs-news-section .hs-hero .hs-hero-title {margin:0;font-weight: 950;letter-spacing:.2px;font-size: clamp(1.25rem, 3vw, 1.95rem);line-height:1.1;color:#fff !important;}
+.hs-news-section .hs-hero .hs-hero-title {margin:0;font-family:"Abril Fatface",Georgia,serif;font-weight:400;letter-spacing:.2px;font-size: clamp(1.25rem, 3vw, 1.95rem);line-height:1.1;color:#fff !important;}
 
 .hs-news-section .hs-head {padding: 16px 18px 14px;display:grid;grid-template-columns: 1fr auto;gap: 12px;align-items:center;background: linear-gradient(180deg, rgba(240,253,250,.75), rgba(255,255,255,.98));border-bottom:1px solid var(--hs-border);}
 
-.hs-news-section .hs-title {margin:0;color:var(--hs-teal);font-weight: 900;letter-spacing:.2px;font-size: clamp(1.1rem, 2.3vw, 1.45rem);line-height:1.15;}
+.hs-news-section .hs-title {margin:0;color:var(--hs-teal);font-family:"Abril Fatface",Georgia,serif;font-weight:400;letter-spacing:.2px;font-size: clamp(1.1rem, 2.3vw, 1.45rem);line-height:1.15;}
 
 .hs-news-section .hs-sub {margin:.35rem 0 0;color:var(--hs-muted);font-size: 1.02rem;}
 

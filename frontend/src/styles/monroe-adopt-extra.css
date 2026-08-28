@@ -78,7 +78,7 @@
 }
 
 .home-editable-section .monroe-animal-search-widget,
-.monroe-adopt-page .monroe-adopt-search .monroe-animal-search-widget {
+.monroe-adopt-page--renewed .monroe-adopt-search .monroe-animal-search-widget {
   overflow-x: clip;
 }
 
@@ -110,7 +110,7 @@
   grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
 }
 
-.monroe-adopt-page .monroe-adopt-eyebrow {
+.monroe-adopt-page--renewed .monroe-adopt-eyebrow {
   font-family: "Jost", "Segoe UI", sans-serif;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -120,13 +120,13 @@
   margin: 0 0 0.5rem;
 }
 
-.monroe-adopt-page .monroe-adopt-lead {
+.monroe-adopt-page--renewed .monroe-adopt-lead {
   max-width: 48rem;
   margin: 0;
   color: #2a3d3d;
 }
 
-.monroe-adopt-page .monroe-adopt-quick {
+.monroe-adopt-page--renewed .monroe-adopt-quick {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -135,7 +135,7 @@
   overflow-x: clip;
 }
 
-.monroe-adopt-page .monroe-adopt-pill {
+.monroe-adopt-page--renewed .monroe-adopt-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -154,40 +154,40 @@
   transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
-.monroe-adopt-page .monroe-adopt-pill:hover,
-.monroe-adopt-page .monroe-adopt-pill:focus-visible {
+.monroe-adopt-page--renewed .monroe-adopt-pill:hover,
+.monroe-adopt-page--renewed .monroe-adopt-pill:focus-visible {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(15, 118, 110, 0.18);
   color: #0a5f59;
 }
 
-.monroe-adopt-page .monroe-adopt-pill--primary {
+.monroe-adopt-page--renewed .monroe-adopt-pill--primary {
   background: linear-gradient(135deg, #0d9488, #14b8a6);
   color: #fffaf2 !important;
   border-color: transparent;
   box-shadow: 0 6px 18px rgba(13, 148, 136, 0.22);
 }
 
-.monroe-adopt-page .monroe-adopt-pill--primary:hover,
-.monroe-adopt-page .monroe-adopt-pill--primary:focus-visible {
+.monroe-adopt-page--renewed .monroe-adopt-pill--primary:hover,
+.monroe-adopt-page--renewed .monroe-adopt-pill--primary:focus-visible {
   color: #fff !important;
   box-shadow: 0 10px 26px rgba(13, 148, 136, 0.32);
 }
 
-.monroe-adopt-page .monroe-adopt-pill--ghost {
+.monroe-adopt-page--renewed .monroe-adopt-pill--ghost {
   background: transparent;
   border-color: rgba(23, 58, 57, 0.2);
 }
 
-.monroe-adopt-page .monroe-adopt-pill--current {
+.monroe-adopt-page--renewed .monroe-adopt-pill--current {
   box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.45), 0 8px 20px rgba(15, 118, 110, 0.12);
 }
 
-.monroe-adopt-page .monroe-adopt-pill--primary.monroe-adopt-pill--current {
+.monroe-adopt-page--renewed .monroe-adopt-pill--primary.monroe-adopt-pill--current {
   box-shadow: 0 0 0 2px rgba(255, 250, 242, 0.85), 0 10px 26px rgba(13, 148, 136, 0.35);
 }
 
-.monroe-adopt-page .monroe-adopt-search .monroe-animal-search-widget {
+.monroe-adopt-page--renewed .monroe-adopt-search .monroe-animal-search-widget {
   position: relative;
   width: 100%;
   max-width: none;
@@ -197,37 +197,37 @@
   box-sizing: border-box;
 }
 
-.monroe-adopt-page .monroe-adopt-search .monroe-animal-search-widget .animal-search-results,
-.monroe-adopt-page .monroe-adopt-search .monroe-animal-search-widget .results-grid {
+.monroe-adopt-page--renewed .monroe-adopt-search .monroe-animal-search-widget .animal-search-results,
+.monroe-adopt-page--renewed .monroe-adopt-search .monroe-animal-search-widget .results-grid {
   min-width: 0;
 }
 
-.monroe-adopt-page .monroe-adopt-search .monroe-animal-search-widget .results-grid.monroe-pet-results--grid {
+.monroe-adopt-page--renewed .monroe-adopt-search .monroe-animal-search-widget .results-grid.monroe-pet-results--grid {
   grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
 }
 
-.monroe-adopt-page .featured-pets-section #featuredPetsWidget,
-.monroe-adopt-page .monroe-home-widget--featured_pets #featuredPetsWidget {
+.monroe-adopt-page--renewed .featured-pets-section #featuredPetsWidget,
+.monroe-adopt-page--renewed .monroe-home-widget--featured_pets #featuredPetsWidget {
   width: 100%;
   max-width: 100%;
   min-width: 0;
 }
 
-.monroe-adopt-page .monroe-adopt-next {
+.monroe-adopt-page--renewed .monroe-adopt-next {
   margin-top: clamp(2rem, 4vw, 3rem);
   padding-top: clamp(1.5rem, 3vw, 2.25rem);
   border-top: 1px solid rgba(23, 58, 57, 0.12);
 }
 
-.monroe-adopt-page .monroe-adopt-next h2 {
+.monroe-adopt-page--renewed .monroe-adopt-next h2 {
   margin-top: 0;
 }
 
-.monroe-adopt-page .monroe-adopt-next p {
+.monroe-adopt-page--renewed .monroe-adopt-next p {
   max-width: 42rem;
 }
 
-.monroe-adopt-page .monroe-adopt-search .monroe-animal-search-widget {
+.monroe-adopt-page--renewed .monroe-adopt-search .monroe-animal-search-widget {
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid rgba(23, 58, 57, 0.08);
   border-radius: 1rem;
@@ -240,7 +240,7 @@
   gap: 0.55rem;
 }
 
-.monroe-adopt-page .monroe-animal-search-widget--compact .animal-search-toolbar {
+.monroe-adopt-page--renewed .monroe-animal-search-widget--compact .animal-search-toolbar {
   position: sticky;
   top: calc(var(--monroe-nav-height, 96px) + env(safe-area-inset-top, 0px));
   z-index: 40;
@@ -257,7 +257,7 @@
 }
 
 @media (max-width: 639px) {
-.monroe-adopt-page .monroe-animal-search-widget--compact .animal-search-toolbar {
+.monroe-adopt-page--renewed .monroe-animal-search-widget--compact .animal-search-toolbar {
     position: relative;
     top: auto;
     z-index: 1;
@@ -319,9 +319,22 @@
   background: #fff;
 }
 
+.monroe-animal-search-widget--compact .animal-search-query-combo {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
 .monroe-animal-search-widget--compact .animal-search-q {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 1rem;
   border-right-width: 0;
   border-radius: 0.55rem 0 0 0.55rem;
+}
+
+.monroe-animal-search-widget--compact .animal-search-submit {
+  flex: 0 0 auto;
 }
 
 .monroe-animal-search-widget--compact .animal-search-submit {
@@ -352,7 +365,7 @@
   display: none;
 }
 
-.monroe-adopt-page .animal-search-summary.has-count {
+.monroe-adopt-page--renewed .animal-search-summary.has-count {
   display: block;
   font-family: "Jost", "Segoe UI", sans-serif;
   font-weight: 650;
@@ -363,12 +376,12 @@
 }
 
 @media (min-width: 640px) {
-.monroe-adopt-page .monroe-animal-search-widget--compact .animal-search-toolbar {
-    grid-template-columns: minmax(0, 1.6fr) minmax(7rem, 0.75fr) minmax(7rem, 0.75fr) minmax(7.5rem, 0.85fr) auto;
+.monroe-adopt-page--renewed .monroe-animal-search-widget--compact .animal-search-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(7rem, 0.4fr) minmax(7rem, 0.4fr) minmax(7.5rem, 0.45fr) auto;
     grid-template-areas:
       "search type gender sort reset";
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.6rem;
     padding: 0.4rem 0;
   }
 .monroe-animal-search-widget--compact .animal-search-query-row {
@@ -392,9 +405,15 @@
 }
 
 @media (min-width: 960px) {
-.monroe-adopt-page .monroe-animal-search-widget--compact .animal-search-toolbar {
-    grid-template-columns: minmax(0, 2fr) 6.5rem 6.5rem 7rem auto;
-    gap: 0.5rem;
+.monroe-adopt-page--renewed .monroe-animal-search-widget--compact .animal-search-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(8.5rem, 0.35fr) minmax(8.5rem, 0.35fr) minmax(9rem, 0.4fr) auto;
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1400px) {
+.monroe-adopt-page--renewed .monroe-animal-search-widget--compact .animal-search-toolbar {
+    max-width: 62rem;
   }
 }
 
@@ -604,7 +623,7 @@
 }
 
 @media (max-width: 768px) {
-.monroe-adopt-page .monroe-adopt-search .animal-search-filters {
+.monroe-adopt-page--renewed .monroe-adopt-search .animal-search-filters {
     margin-left: 0;
     margin-right: 0;
     padding-left: 0;
@@ -618,7 +637,7 @@
     border: 0;
     box-shadow: none;
   }
-.monroe-adopt-page .monroe-animal-search-widget--compact .animal-search-toolbar {
+.monroe-adopt-page--renewed .monroe-animal-search-widget--compact .animal-search-toolbar {
     padding: 0.35rem 0 0.45rem;
     margin: 0;
   }

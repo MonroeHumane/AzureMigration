@@ -4,6 +4,7 @@ import { getPets } from '../lib/directus';
 import { SITE } from '../config/site';
 import home from '../data/homepage.json';
 import sponsors from '../data/sponsors.json';
+import reviewsData from '../data/reviews.json';
 
 import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
@@ -16,6 +17,9 @@ const newsletters = await getNewsletterIssues();
 const latestEvent = events[0];
 const latestNewsletter = newsletters[0];
 
+interface Review { author?: string; rating?: number; time?: number; text?: string }
+const reviews = (reviewsData as Review[]).filter((r): r is Required<Review> => Boolean(r.author));
+
 if (home.accomplishments.years['2025']) {
   home.accomplishments.years['2025'][0].value = settings.adoptions_count;
   home.accomplishments.years['2025'][0].display = settings.adoptions_count.toLocaleString();
@@ -24,6 +28,14 @@ if (home.accomplishments.years['2025']) {
   home.accomplishments.years['2025'][2].value = settings.intakes_count;
   home.accomplishments.years['2025'][2].display = settings.intakes_count.toLocaleString();
 }
+
+const formatDate = (value: string | undefined, fallback: string) => {
+  if (!value) return fallback;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime())
+    ? fallback
+    : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+};
 
 const petChips = (p: (typeof pets)[number]) => [
   p.species_label || p.type || 'Pet',
@@ -92,7 +104,7 @@ const indexLabels: Record<string, string> = {
     </div>
   </div>
 
-  <div class="home-editable-shell">
+  <div class="home-editable-shell is-layout-constrained">
     <!-- 1. Hero -->
     <div class="wp-block-cover has-custom-content-position is-position-center-center home-editable-hero" id="Top">
       <span aria-hidden="true" class="wp-block-cover__background has-contrast-background-color has-background-dim-40 has-background-dim"></span>
@@ -143,7 +155,7 @@ const indexLabels: Record<string, string> = {
           <div class="hs-wrap">
             <div class="hs-copy">
               <p class="hs-kicker">Latest Event</p>
-              <p class="hs-deadline">{latestEvent ? new Date(latestEvent.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : home.events_feature.deadline}</p>
+              <p class="hs-deadline">{latestEvent ? formatDate(latestEvent.event_date, home.events_feature.deadline) : home.events_feature.deadline}</p>
               <h2 id="hs-events-feature-title">{latestEvent ? latestEvent.title : home.events_feature.title}</h2>
               <p class="hs-body">{latestEvent ? latestEvent.description : home.events_feature.body[0]}</p>
               
@@ -168,7 +180,11 @@ const indexLabels: Record<string, string> = {
               </div>
             </div>
             <a class="hs-voting-flyer" href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.flyer_image}>
-              <img src={latestEvent ? latestEvent.image : home.events_feature.flyer_image} alt={latestEvent ? latestEvent.title : home.events_feature.flyer_alt} loading="lazy" decoding="async" />
+              {latestEvent && !latestEvent.image ? (
+                <div class="hs-voting-flyer__placeholder" aria-hidden="true">🐾</div>
+              ) : (
+                <img src={latestEvent ? latestEvent.image : home.events_feature.flyer_image} alt={latestEvent ? latestEvent.title : home.events_feature.flyer_alt} loading="lazy" decoding="async" />
+              )}
             </a>
             {!latestEvent && (
               <div class="hs-voting-schedule" aria-label="Event schedule">
@@ -187,7 +203,7 @@ const indexLabels: Record<string, string> = {
         <div class="home-editable-upcoming-event-hero home-editable-feature-card">
           <div class="home-editable-upcoming-event-hero__grid">
             <div class="home-editable-upcoming-event-hero__media-col">
-              <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--placeholder" aria-hidden="true"></div>
+              <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--placeholder" aria-hidden="true">🐾</div>
             </div>
             <div class="home-editable-upcoming-event-hero__copy">
               <p class="home-editable-pill home-editable-upcoming-event-hero__kicker">{home.next_event.kicker}</p>
@@ -366,7 +382,6 @@ const indexLabels: Record<string, string> = {
     <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
       <div class="home-editable-news-card home-editable-runtime-card">
         <p class="home-editable-section-label wp-block-paragraph">{home.vet_partners.label}</p>
-        <h2 class="wp-block-heading">{home.vet_partners.title}</h2>
         <p class="wp-block-paragraph">{home.vet_partners.intro}</p>
         <div class="sponsor-widget-shell">
           <section class="sponsor-widget" id="VetPartners" aria-labelledby="sponsor-widget-title">
@@ -453,8 +468,16 @@ const indexLabels: Record<string, string> = {
         <p class="home-editable-section-label wp-block-paragraph">{home.testimonials.label}</p>
         <h2 class="wp-block-heading">{home.testimonials.title}</h2>
         <p class="wp-block-paragraph">{home.testimonials.intro}</p>
-        <div class="monroe-testimonials monroe-testimonials--plugin">
-          <div data-src="https://cdn.trustindex.io/loader.js?wp-widget" data-template-id="trustindex-google-widget-html" data-css-url="/assets/trustindex-google-widget.css"></div>
+        <div class="monroe-testimonials">
+          {reviews.slice(0, 6).map((review) => (
+            <figure class="monroe-testimonials__card">
+              <blockquote class="monroe-testimonials__quote">{review.text}</blockquote>
+              <figcaption class="monroe-testimonials__cite">
+                <span class="monroe-testimonials__author">{review.author}</span>
+                <span class="monroe-testimonials__role">Google review{review.rating ? ` • ${'★'.repeat(review.rating)}` : ''}</span>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </div>
     </div>
@@ -513,28 +536,17 @@ const indexLabels: Record<string, string> = {
       </div>
     </div>
 
-    <!-- 13. Facebook feed (click-to-load facade) -->
-    <div class="wp-block-group alignwide home-editable-section home-editable-social-section home-editable-social-section--feed-only is-layout-constrained" id="Social">
-      <div class="wp-block-group home-editable-social-card home-editable-social-card--feed-only home-editable-runtime-card is-layout-constrained">
-        <div class="home-editable-social-embed" data-fb-embed>
-          <div class="home-editable-social-embed__frame">
-            <div class="home-editable-social-embed__chrome">
-              <div class="home-editable-social-embed__viewport">
-                <div class="home-editable-social-embed__loader" aria-hidden="true">
-                  <div class="home-editable-social-embed__loader-shimmer"></div>
-                  <span class="home-editable-social-embed__loader-text">Loading Facebook feedâ€¦</span>
-                </div>
-                <iframe
-                  title="HSMC Facebook timeline"
-                  class="home-editable-social-embed__iframe"
-                  data-fb-href="https://www.facebook.com/adopthsmc"
-                  scrolling="no"
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
-                  data-monroe-fb-facade></iframe>
-              </div>
-            </div>
-          </div>
+    <!-- 13. Social: static follow card (a live Facebook iframe embed is unreliable —
+         blocked by Safari/Firefox tracking protection and most ad-blockers by default) -->
+    <div class="wp-block-group alignwide home-editable-section is-layout-constrained" id="Social">
+      <div class="wp-block-group home-editable-social-follow-card is-layout-constrained">
+        <div class="home-editable-social-follow-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg>
         </div>
+        <p class="home-editable-section-label">Follow along</p>
+        <h2 class="wp-block-heading">Find us on Facebook</h2>
+        <p class="wp-block-paragraph">Photos, adoption updates, and shelter news, posted as they happen. Give us a follow to stay in the loop between visits.</p>
+        <a class="wp-block-button__link has-base-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Visit our Facebook page</a>
       </div>
     </div>
 
@@ -550,7 +562,7 @@ const indexLabels: Record<string, string> = {
             <div class="hs-wrap">
               <div class="hs-card" role="region" aria-label="2025 in Review">
                 <div class="hs-hero">
-                    <img src={latestNewsletter ? latestNewsletter.image : home.newsletter.hero_image} alt={latestNewsletter ? latestNewsletter.title : "2025 in Review"} width="1200" height="400" decoding="async" loading="lazy" />
+                    <img src={latestNewsletter ? latestNewsletter.hero_image : home.newsletter.hero_image} alt={latestNewsletter ? latestNewsletter.title : "2025 in Review"} width="1200" height="400" decoding="async" loading="lazy" />
                     <div class="hs-hero-overlay"></div>
                     <div class="hs-hero-text">
                       <div class="hs-eyebrow">{home.newsletter.eyebrow}</div>
@@ -560,22 +572,17 @@ const indexLabels: Record<string, string> = {
                   <div class="hs-head">
                     <div>
                       <h3 id="hs-news-2025review-title" class="hs-title">{latestNewsletter ? latestNewsletter.title : home.newsletter.title}</h3>
-                      <div class="hs-sub">{latestNewsletter ? new Date(latestNewsletter.issue_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : home.newsletter.byline}</div>
+                      <div class="hs-sub">{latestNewsletter ? formatDate(latestNewsletter.issue_date, home.newsletter.byline) : home.newsletter.byline}</div>
                     </div>
                     <div class="hs-actions" role="group" aria-label="Quick pet filters">
                       {latestNewsletter && latestNewsletter.pdf_url && (
                         <a href={latestNewsletter.pdf_url} class="hs-btn ghost" target="_blank" rel="noopener noreferrer">Download PDF</a>
                       )}
-                      {!latestNewsletter && home.newsletter.filters.map((f) => (
+                      {home.newsletter.filters.map((f) => (
                         <a href={f.href} class:list={['hs-btn', { ghost: f.variant === 'ghost' }]}>{f.label}</a>
                       ))}
                       <a href="/newsletter" class="hs-btn">All Issues</a>
                     </div>
-                  </div>
-                  <div class="hs-actions" role="group" aria-label="Quick pet filters">
-                    {home.newsletter.filters.map((f) => (
-                      <a href={f.href} class:list={['hs-btn', { ghost: f.variant === 'ghost' }]}>{f.label}</a>
-                    ))}
                   </div>
                 </div>
                 <div class="hs-body">
@@ -621,9 +628,9 @@ const indexLabels: Record<string, string> = {
                   </div>
               <div class="hs-lightbox" id="hsLb-181" aria-hidden="true">
                 <div class="hs-lightbox-inner" role="dialog" aria-modal="true" aria-label="Expanded image">
-                  <button class="hs-lb-btn hs-lb-close" type="button" aria-label="Close image">âœ•</button>
-                  <button class="hs-lb-btn hs-lb-prev" type="button" aria-label="Previous image">â€¹</button>
-                  <button class="hs-lb-btn hs-lb-next" type="button" aria-label="Next image">â€º</button>
+                  <button class="hs-lb-btn hs-lb-close" type="button" aria-label="Close image">✕</button>
+                  <button class="hs-lb-btn hs-lb-prev" type="button" aria-label="Previous image">‹</button>
+                  <button class="hs-lb-btn hs-lb-next" type="button" aria-label="Next image">›</button>
                   <img loading="lazy" decoding="async" alt="" data-hs-lb-img />
                   <div class="hs-lb-caption"><span data-hs-lb-cap-l></span><span data-hs-lb-cap-r></span></div>
                 </div>
@@ -746,7 +753,7 @@ const indexLabels: Record<string, string> = {
             </p>
             <div class="monroe-contact-form__grid">
               <p class="monroe-contact-form__field">
-                <label for="monroe_contact_name">Name <span class="required">*</span></label>
+                <label for="monroe_contact_name">Name{" "}<span class="required">*</span></label>
                 <input type="text" name="monroe_contact_name" id="monroe_contact_name" required autocomplete="name" placeholder="Name" value="" />
               </p>
               <p class="monroe-contact-form__field">
@@ -755,11 +762,11 @@ const indexLabels: Record<string, string> = {
               </p>
             </div>
             <p class="monroe-contact-form__field">
-              <label for="monroe_contact_email">Email <span class="required">*</span></label>
+              <label for="monroe_contact_email">Email{" "}<span class="required">*</span></label>
               <input type="email" name="monroe_contact_email" id="monroe_contact_email" required autocomplete="email" placeholder="Email" value="" />
             </p>
             <p class="monroe-contact-form__field">
-              <label for="monroe_contact_message">Message <span class="required">*</span></label>
+              <label for="monroe_contact_message">Message{" "}<span class="required">*</span></label>
               <textarea name="monroe_contact_message" id="monroe_contact_message" rows="5" required placeholder="Message"></textarea>
             </p>
             <p class="monroe-contact-form__submit">
@@ -777,8 +784,6 @@ const indexLabels: Record<string, string> = {
     </div>
   </div>
 </BaseLayout>
-
-<script is:inline async src="https://cdn.trustindex.io/loader.js?ver=1"></script>
 
 <script>
   function initHomePage() {
@@ -888,41 +893,8 @@ const indexLabels: Record<string, string> = {
       });
     }
 
-    // Facebook feed: click-to-load facade (nothing leaves the page until asked).
-    document.querySelectorAll<HTMLIFrameElement>('[data-monroe-fb-facade]').forEach((iframe) => {
-      const viewport = iframe.closest('.home-editable-social-embed__viewport');
-      const load = () => {
-        if (iframe.src) return;
-        const href = iframe.dataset.fbHref || '';
-        iframe.src =
-          'https://www.facebook.com/plugins/page.php?href=' +
-          encodeURIComponent(href) +
-          '&tabs=timeline&width=500&height=1500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true';
-        iframe.closest('[data-fb-embed]')?.classList.add('is-loaded');
-      };
-      viewport?.addEventListener('click', load);
-      iframe.addEventListener('load', load);
-    });
-
     // Contact form: mailto submission (no backend on the static site).
-    const contactForm = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
-    if (contactForm) {
-      contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const data = new FormData(contactForm);
-        if (data.get('monroe_contact_website')) return; // honeypot
-        const name = String(data.get('monroe_contact_name') || '');
-        const email = String(data.get('monroe_contact_email') || '');
-        const phone = String(data.get('monroe_contact_phone') || '');
-        const message = String(data.get('monroe_contact_message') || '');
-        const subject = encodeURIComponent(`Website contact from ${name}`);
-        const body = encodeURIComponent(`${message}\n\nâ€” ${name}${phone ? ` (${phone})` : ''}\n${email}`);
-        const feedback = contactForm.closest('.monroe-contact-form-wrap')?.querySelector<HTMLElement>('.monroe-contact-form__feedback');
-        if (feedback) feedback.textContent = 'Opening your email application so your message can be sent. Thank you!';
-        window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
-      });
     }
-  }
 
   document.addEventListener('astro:page-load', initHomePage);
 </script>
