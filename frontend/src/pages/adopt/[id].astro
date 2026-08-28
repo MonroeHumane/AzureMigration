@@ -102,22 +102,22 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
 
 <script>
   // "Back to all pets" should return to wherever the visitor actually came
-  // from (/adopt, /adopt/dogs, /adopt/cats, or a filtered/searched view of
-  // any of those) rather than always resetting to the unfiltered /adopt —
-  // history.back() when we got here from an in-site adopt listing, falling
-  // back to the plain href otherwise (direct link, new tab, no history).
+  // from (/adopt, /adopt/dogs, /adopt/cats, including any active filters)
+  // rather than always resetting to the unfiltered /adopt. document.referrer
+  // doesn't work for this: Astro's <ClientRouter /> does client-side soft
+  // navigation, which never updates document.referrer the way a real page
+  // load would. AdoptGrid.astro records the last listing URL in
+  // sessionStorage on every visit — read it back here instead.
   function initSmartBack() {
     const link = document.querySelector<HTMLAnchorElement>('[data-smart-back]');
     if (!link) return;
-    link.addEventListener('click', (e) => {
-      if (!document.referrer) return;
-      const ref = new URL(document.referrer);
-      const cameFromAdoptListing = ref.origin === location.origin && /^\/adopt(\/(dogs|cats))?\/?$/.test(ref.pathname);
-      if (cameFromAdoptListing && window.history.length > 1) {
-        e.preventDefault();
-        window.history.back();
-      }
-    });
+    let last: string | null = null;
+    try {
+      last = sessionStorage.getItem('mchs:lastAdoptListing');
+    } catch {
+      // sessionStorage unavailable — fall back to the plain /adopt href already on the link
+    }
+    if (last) link.setAttribute('href', last);
   }
   document.addEventListener('astro:page-load', initSmartBack);
 </script>

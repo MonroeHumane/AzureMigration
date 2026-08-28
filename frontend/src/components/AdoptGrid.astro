@@ -160,6 +160,17 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
 
     apply(false);
 
+    // Remember this listing (path + active filters) so a pet detail page's
+    // "Back to all pets" link can return here instead of resetting to the
+    // unfiltered /adopt — document.referrer doesn't work for this because
+    // Astro's <ClientRouter /> does client-side soft navigation, which never
+    // updates document.referrer the way a real page load would.
+    try {
+      sessionStorage.setItem('mchs:lastAdoptListing', window.location.pathname + window.location.search);
+    } catch {
+      // sessionStorage unavailable (private browsing, etc.) — detail page falls back to /adopt
+    }
+
     // Safety net between static rebuilds: prune any card whose pet is no
     // longer active on Directus (archived since this page was last built).
     async function pruneArchived() {
