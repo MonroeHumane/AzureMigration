@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import PetCard from '../../components/PetCard.astro';
+import { getPets, type Pet } from '../../lib/directus';
+import '../../styles/monroe-adopt-hub.css';
+
+export async function getStaticPaths() {
+  const pets = await getPets();
+  return pets.map((pet) => ({
+    params: { id: pet.id },
+    props: { pet, related: pets.filter((p) => p.type === pet.type && p.id !== pet.id).slice(0, 3) },
+  }));
+}
+
+interface Props {
+  pet: Pet;
+  related: Pet[];
+}
+
+const { pet, related } = Astro.props;
+
+const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
+const genderIcon = pet.gender === 'female' ? '♀' : pet.gender === 'male' ? '♂' : '?';
+const speciesTag = pet.type === 'dog' ? 'Dog' : pet.type === 'cat' ? 'Cat' : pet.species_label || 'Pet';
+const photo = pet.image_url || pet.image || '/assets/recovered/images/placeholder.svg';
+
+const chipBg: Record<string, string> = {
+  dog: 'background:#e0f2fe; color:#0369a1;',
+  cat: 'background:#e0f2fe; color:#0369a1;',
+  other: 'background:#e0f2fe; color:#0369a1;',
+};
+
+let intakeDisplay = '';
+if (pet.intake_date) {
+  const d = new Date(pet.intake_date);
+  if (!isNaN(d.getTime())) {
+    intakeDisplay = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+}
+
+const bio = pet.description && pet.description.trim() && pet.description !== pet.location
+  ? pet.description
+  : `${pet.name} is currently staying at our shelter${pet.location ? ` in the ${pet.location}` : ''}. ${pet.name} is looking for a loving forever home in Monroe County. Visit during shelter hours or submit an online adoption application today!`;
+---
+
+<BaseLayout
+  title={`Meet ${pet.name} | Adoptable ${speciesTag} | Monroe County`}
+  description={`${pet.name} is a ${pet.age_display || ''} ${pet.breed || speciesTag} looking for a home at the Humane Society of Monroe County.`}
+  image={photo}
+>
+  <InnerShell variant="adopt">
+    <a class="monroe-pet-detail-back" href="/adopt">&larr; Back to all pets</a>
+
+    <div class="monroe-pet-detail">
+      <div class="monroe-pet-detail-photo">
+        <img src={photo} alt={pet.name} decoding="async" />
+        <span class="monroe-pet-detail-species-tag">{speciesTag}</span>
+      </div>
+
+      <div>
+        <h1 class="monroe-pet-detail-name">{pet.name}</h1>
+        <p class="monroe-pet-detail-breed">{pet.breed}</p>
+
+        <div class="monroe-pet-detail-chips">
+          <span class="monroe-pet-detail-chip" style={chipBg[pet.type] || chipBg.other}>🐾 {speciesTag}</span>
+          <span class="monroe-pet-detail-chip" style="background:#fef3c7; color:#92400e;">🎂 {pet.age_display || 'Unknown age'}</span>
+          <span class="monroe-pet-detail-chip" style="background:#f3e8ff; color:#6b21a8;">{genderIcon} {genderLabel}</span>
+          {pet.size && <span class="monroe-pet-detail-chip" style="background:#f1f5f9; color:#334155;">📏 {pet.size}</span>}
+          {pet.color && <span class="monroe-pet-detail-chip" style="background:#f1f5f9; color:#334155;">🎨 {pet.color}</span>}
+        </div>
+
+        <div class="monroe-pet-detail-facts">
+          <div class="monroe-pet-detail-fact"><strong>Location</strong>{pet.location || 'Shelter'}</div>
+          {intakeDisplay && <div class="monroe-pet-detail-fact"><strong>At the shelter since</strong>{intakeDisplay}</div>}
+          {pet.declawed && <div class="monroe-pet-detail-fact"><strong>Declawed</strong>{pet.declawed}</div>}
+          {pet.housetrained && <div class="monroe-pet-detail-fact"><strong>Housetrained</strong>{pet.housetrained}</div>}
+        </div>
+
+        <div class="monroe-pet-detail-bio">
+          <h2>About {pet.name}</h2>
+          <p>{bio}</p>
+        </div>
+
+        <div class="monroe-pet-detail-cta-row">
+          <a class="monroe-btn" href="/adoptions#Application">Apply to Adopt {pet.name} &rarr;</a>
+          <a class="monroe-btn monroe-btn--outline" href="tel:734-243-3669">📞 (734) 243-3669</a>
+        </div>
+      </div>
+    </div>
+
+    {related.length > 0 && (
+      <section class="monroe-pet-detail-related">
+        <h2>More {speciesTag.toLowerCase()}s waiting for homes</h2>
+        <div class="monroe-adopt-hub-grid">
+          {related.map((p) => <PetCard pet={p} />)}
+        </div>
+      </section>
+    )}
+  </InnerShell>
+</BaseLayout>

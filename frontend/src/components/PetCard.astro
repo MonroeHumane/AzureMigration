@@ -1,0 +1,41 @@
+---
+import type { Pet } from '../lib/directus';
+
+interface Props {
+  pet: Pet;
+}
+
+const { pet } = Astro.props;
+
+const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
+const genderIcon = pet.gender === 'female' ? '♀' : pet.gender === 'male' ? '♂' : '?';
+const chips = [pet.species_label || pet.type, pet.size, genderLabel, pet.age_display].filter(Boolean);
+---
+
+<a
+  class="pet-card"
+  href={`/adopt/${pet.id}`}
+  data-pet-card
+  data-pet-id={pet.id}
+  data-pet-type={pet.type}
+  data-pet-gender={pet.gender}
+  data-pet-size={(pet.size || '').toLowerCase()}
+  data-pet-age={pet.age}
+  data-pet-name={pet.name.toLowerCase()}
+  data-pet-breed={(pet.breed || '').toLowerCase()}
+  data-pet-search={`${pet.name} ${pet.breed} ${pet.description || ''}`.toLowerCase()}
+  aria-label={`Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`}
+>
+  <div class="pet-card__photo">
+    <img src={pet.image_url || pet.image} alt={pet.name} loading="lazy" decoding="async" width="400" height="400" />
+    <span class="pet-card__type-badge">{pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+  </div>
+  <div class="pet-card__body">
+    <h3 class="pet-card__name">{pet.name}</h3>
+    <p class="pet-card__breed">{pet.breed}</p>
+    <div class="pet-card__chips">
+      {chips.map((chip) => <span class="pet-card__chip">{chip}</span>)}
+    </div>
+    <span class="pet-card__cta">Meet {pet.name} &rarr;</span>
+  </div>
+</a>

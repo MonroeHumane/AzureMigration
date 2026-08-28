@@ -1,0 +1,191 @@
+---
+import type { Pet } from '../lib/directus';
+import PetCard from './PetCard.astro';
+
+interface Props {
+  pets: Pet[];
+  /** Locks the type filter to one species (used by /adopt/dogs and /adopt/cats) — hides the Type selector entirely. */
+  lockType?: 'dog' | 'cat';
+}
+
+const { pets, lockType } = Astro.props;
+const scoped = lockType ? pets.filter((p) => p.type === lockType) : pets;
+
+const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).filter(Boolean))].sort();
+---
+
+<div class="monroe-adopt-hub" id="masw" data-adopt-grid-root data-lock-type={lockType || ''}>
+  <div class="monroe-adopt-hub-toolbar">
+    <div class="monroe-adopt-hub-search">
+      <label for="masw-q" class="screen-reader-text">Search by name or breed</label>
+      <input type="search" id="masw-q" data-adopt-search autocomplete="off" placeholder="Search by name or breed…" />
+      <span class="monroe-adopt-hub-search-icon" aria-hidden="true">🔍</span>
+    </div>
+
+    <div class="monroe-adopt-hub-filters">
+      {!lockType && (
+        <div class="monroe-adopt-hub-filter">
+          <label for="masw-type">Type</label>
+          <select id="masw-type" data-adopt-filter="type">
+            <option value="">All types</option>
+            <option value="dog">Dogs</option>
+            <option value="cat">Cats</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      )}
+      <div class="monroe-adopt-hub-filter">
+        <label for="masw-gender">Gender</label>
+        <select id="masw-gender" data-adopt-filter="gender">
+          <option value="">Any gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div class="monroe-adopt-hub-filter">
+        <label for="masw-size">Size</label>
+        <select id="masw-size" data-adopt-filter="size">
+          <option value="">Any size</option>
+          {sizeOptions.map((s) => <option value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
+        </select>
+      </div>
+      <div class="monroe-adopt-hub-filter">
+        <label for="masw-age">Age</label>
+        <select id="masw-age" data-adopt-filter="age">
+          <option value="">Any age</option>
+          <option value="baby">Baby</option>
+          <option value="young">Young</option>
+          <option value="adult">Adult</option>
+          <option value="senior">Senior</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="monroe-adopt-hub-toolbar-actions">
+      <button type="button" class="monroe-adopt-hub-reset" data-adopt-reset>Reset filters</button>
+    </div>
+  </div>
+
+  <div class="monroe-adopt-hub-summary-row">
+    <p class="monroe-adopt-hub-count" data-adopt-summary aria-live="polite"></p>
+    <span class="monroe-adopt-hub-live">
+      <span class="monroe-adopt-hub-live-dot" aria-hidden="true"></span>
+      Live Shelter Roster
+    </span>
+  </div>
+
+  <div class="monroe-adopt-hub-empty" data-adopt-empty hidden>
+    <div class="monroe-adopt-hub-empty-icon">🐾</div>
+    <h4>No pets match your search</h4>
+    <p>Try adjusting your filters, or reset to see everyone available.</p>
+    <button type="button" class="monroe-btn" data-adopt-reset>Reset filters</button>
+  </div>
+
+  <div class="monroe-adopt-hub-grid" data-adopt-grid>
+    {scoped.map((pet) => <PetCard pet={pet} />)}
+  </div>
+</div>
+
+<script>
+  const DIRECTUS_URL =
+    (import.meta.env.PUBLIC_DIRECTUS_URL as string | undefined) ||
+    'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
+
+  function initAdoptGrid() {
+    const root = document.querySelector<HTMLElement>('[data-adopt-grid-root]');
+    if (!root) return;
+
+    const lockType = root.dataset.lockType || '';
+    const grid = root.querySelector<HTMLElement>('[data-adopt-grid]');
+    const empty = root.querySelector<HTMLElement>('[data-adopt-empty]');
+    const summary = root.querySelector<HTMLElement>('[data-adopt-summary]');
+    const search = root.querySelector<HTMLInputElement>('[data-adopt-search]');
+    const filters = Array.from(root.querySelectorAll<HTMLSelectElement>('[data-adopt-filter]'));
+
+    const getCards = () => Array.from(grid?.querySelectorAll<HTMLElement>('[data-pet-card]') ?? []);
+
+    // Deep-link filters via query string so a filtered view is shareable.
+    const params = new URLSearchParams(window.location.search);
+    if (search && params.has('q')) search.value = params.get('q') || '';
+    filters.forEach((sel) => {
+      const key = sel.dataset.adoptFilter!;
+      if (params.has(key)) sel.value = params.get(key) || '';
+    });
+
+    const apply = (updateUrl = true) => {
+      const query = (search?.value ?? '').trim().toLowerCase();
+      const values: Record<string, string> = {};
+      filters.forEach((sel) => (values[sel.dataset.adoptFilter!] = sel.value));
+
+      if (updateUrl && window.history.replaceState) {
+        const url = new URL(window.location.href);
+        if (query) url.searchParams.set('q', query);
+        else url.searchParams.delete('q');
+        Object.entries(values).forEach(([key, val]) => {
+          if (val) url.searchParams.set(key, val);
+          else url.searchParams.delete(key);
+        });
+        window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+      }
+
+      const visible = getCards().filter((card) => {
+        if (lockType && card.dataset.petType !== lockType) return false;
+        if (values.type && card.dataset.petType !== values.type) return false;
+        if (values.gender && card.dataset.petGender !== values.gender) return false;
+        if (values.size && card.dataset.petSize !== values.size) return false;
+        if (values.age && card.dataset.petAge !== values.age) return false;
+        if (query && !(card.dataset.petSearch ?? '').includes(query)) return false;
+        return true;
+      });
+
+      getCards().forEach((card) => {
+        card.style.display = visible.includes(card) ? '' : 'none';
+      });
+
+      if (empty) empty.hidden = visible.length > 0;
+      if (summary) {
+        summary.textContent = `${visible.length} ${visible.length === 1 ? 'pet' : 'pets'} available for adoption`;
+      }
+    };
+
+    search?.addEventListener('input', () => apply(true));
+    filters.forEach((sel) => sel.addEventListener('change', () => apply(true)));
+    root.querySelectorAll('[data-adopt-reset]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        if (search) search.value = '';
+        filters.forEach((sel) => (sel.value = ''));
+        apply(true);
+      })
+    );
+
+    apply(false);
+
+    // Safety net between static rebuilds: prune any card whose pet is no
+    // longer active on Directus (archived since this page was last built).
+    async function pruneArchived() {
+      try {
+        const res = await fetch(`${DIRECTUS_URL}/items/pets?filter[archived_at][_null]=true&fields=id&limit=-1`, {
+          signal: AbortSignal.timeout(4000),
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!json.data) return;
+        const liveIds = new Set(json.data.map((p: { id: string }) => String(p.id)));
+        let changed = false;
+        getCards().forEach((card) => {
+          const id = card.dataset.petId;
+          if (id && !liveIds.has(id)) {
+            card.remove();
+            changed = true;
+          }
+        });
+        if (changed) apply(false);
+      } catch {
+        // offline or Directus cold-starting — the static build is still a fine fallback
+      }
+    }
+    pruneArchived();
+  }
+
+  document.addEventListener('astro:page-load', initAdoptGrid);
+</script>

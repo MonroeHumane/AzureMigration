@@ -1,11 +1,38 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import AdoptSearchBody from '../../components/AdoptSearchBody.astro';
+import InnerShell from '../../components/InnerShell.astro';
+import AdoptGrid from '../../components/AdoptGrid.astro';
+import { getPets } from '../../lib/directus';
+import '../../styles/monroe-adopt-hub.css';
+
+const pets = await getPets();
 ---
 
 <BaseLayout
   title="Available Pets | Monroe County | 734-243-3669"
-  description="Meet dogs and cats waiting for homes in Monroe County. Filter below, or jump straight to dogs, cats, our shelter listing, and adoption paperwork."
+  description="Meet dogs and cats waiting for homes in Monroe County. Filter by type, size, gender, and age, or jump straight to dogs, cats, or the adoption application."
 >
-  <AdoptSearchBody heading="Available pets" current="all" />
+  <InnerShell variant="adopt">
+    <header class="monroe-adopt-hub-hero">
+      <p class="monroe-adopt-hub-eyebrow">Adoption Hub</p>
+      <h1>Available pets</h1>
+      <p class="monroe-adopt-hub-lead">
+        Meet dogs and cats waiting for homes in Monroe County. Filter in real-time below, or click any pet to see their full profile.
+      </p>
+    </header>
+
+    <nav class="monroe-adopt-hub-quick" aria-label="Browse adoptable animals">
+      <a class="monroe-adopt-hub-pill monroe-adopt-hub-pill--current" href="/adopt">All Pets</a>
+      <a class="monroe-adopt-hub-pill" href="/adopt/dogs">Dogs</a>
+      <a class="monroe-adopt-hub-pill" href="/adopt/cats">Cats</a>
+      <a class="monroe-adopt-hub-pill monroe-adopt-hub-pill--ghost" href="/adoptions">Adoption Info &amp; Application</a>
+    </nav>
+
+    <AdoptGrid pets={pets} />
+
+    <p class="monroe-adopt-hub-footnote">
+      Ready to adopt? <a href="/adoptions">Learn about our adoption process</a> or
+      <a href="tel:734-243-3669">call us at (734) 243-3669</a>.
+    </p>
+  </InnerShell>
 </BaseLayout>

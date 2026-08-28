@@ -37,6 +37,8 @@ const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://localhost:8055';
 const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || '';
 const STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING || '';
 const PHOTO_CONTAINER_NAME = process.env.PET_PHOTO_CONTAINER || 'pet-photos';
+const GITHUB_DISPATCH_TOKEN = process.env.GITHUB_DISPATCH_TOKEN || '';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'MonroeHumane/AzureMigration';
 
 export function normalizeSpecies(speciesRaw: string): string {
   const norm = (speciesRaw || '').toLowerCase();
@@ -295,6 +297,39 @@ async function writeSyncRun(status: 'success' | 'error', stats: { active: number
   }
 }
 
+/**
+ * The frontend is a static build (Astro `output: 'static'`) — it only shows
+ * fresh pet data after a rebuild, which otherwise only happens when someone
+ * pushes a frontend change. deploy-frontend.yml already listens for a
+ * `cms_rebuild` repository_dispatch event; this just actually calls it,
+ * and only when something real changed, so an unchanged 30-min tick doesn't
+ * trigger a pointless rebuild.
+ */
+async function triggerFrontendRebuild(): Promise<void> {
+  if (!GITHUB_DISPATCH_TOKEN) {
+    console.log('[PetSync] GITHUB_DISPATCH_TOKEN not set; skipping frontend rebuild trigger.');
+    return;
+  }
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/dispatches`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${GITHUB_DISPATCH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ event_type: 'cms_rebuild' }),
+    });
+    if (res.status === 204) {
+      console.log('[PetSync] Triggered frontend rebuild (cms_rebuild dispatch).');
+    } else {
+      console.warn(`[PetSync] Frontend rebuild dispatch failed: HTTP ${res.status} ${await res.text()}`);
+    }
+  } catch (err: any) {
+    console.warn(`[PetSync] Frontend rebuild dispatch error: ${err.message}`);
+  }
+}
+
 export async function runPetSync(): Promise<{ active: number; archived: number; inserted: number; ok: boolean }> {
   console.log(`[PetSync] Starting sync at ${new Date().toISOString()}`);
   const nowIso = new Date().toISOString();
@@ -441,6 +476,9 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
     const errorMessage = writeFailures > 0 ? `${writeFailures} write(s) failed — see job logs` : undefined;
     console.log(`[PetSync] Sync complete: ${activePets.length} active, ${inserted} new, ${archived} archived, ${writeFailures} write failures.`);
     await writeSyncRun(status, { active: activePets.length, inserted, archived }, errorMessage);
+    if (writeFailures === 0 && (inserted > 0 || archived > 0)) {
+      await triggerFrontendRebuild();
+    }
     return { active: activePets.length, inserted, archived, ok: writeFailures === 0 };
   } catch (err: any) {
     console.error(`[PetSync] Directus sync failed: ${err.message}`);

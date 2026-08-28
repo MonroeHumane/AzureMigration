@@ -14,6 +14,7 @@ export interface Pet {
   age: string;
   age_display?: string;
   size?: string;
+  color?: string;
   gender: string;
   location?: string;
   image?: string;
@@ -21,6 +22,9 @@ export interface Pet {
   url: string;
   description?: string;
   intake_date?: string;
+  declawed?: string;
+  housetrained?: string;
+  stage?: string;
   archived_at?: string | null;
 }
 

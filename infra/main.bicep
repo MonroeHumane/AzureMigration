@@ -35,6 +35,10 @@ param petsyncDirectusToken string
 @description('Petango authkey used by the PetSync job to query the shelter feed directly')
 param petangoAuthkey string
 
+@secure()
+@description('GitHub PAT (repo scope) the PetSync job uses to trigger a frontend rebuild via repository_dispatch. Optional — leave empty to skip auto-rebuild.')
+param githubDispatchToken string = ''
+
 var suffix = uniqueString(resourceGroup().id)
 var storageAccountName = 'mchsstorage${suffix}'
 var containerAppEnvName = 'mchs-aca-env-${environmentName}'
@@ -269,6 +273,7 @@ resource petsyncJob 'Microsoft.App/jobs@2024-03-01' = {
         { name: 'directus-static-token', value: petsyncDirectusToken }
         { name: 'petango-authkey', value: petangoAuthkey }
         { name: 'storage-connection-string', value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net' }
+        { name: 'github-dispatch-token', value: githubDispatchToken }
       ]
     }
     template: {
@@ -286,6 +291,8 @@ resource petsyncJob 'Microsoft.App/jobs@2024-03-01' = {
             { name: 'PETANGO_AUTHKEY', secretRef: 'petango-authkey' }
             { name: 'AZURE_STORAGE_CONNECTION_STRING', secretRef: 'storage-connection-string' }
             { name: 'PET_PHOTO_CONTAINER', value: 'pet-photos' }
+            { name: 'GITHUB_DISPATCH_TOKEN', secretRef: 'github-dispatch-token' }
+            { name: 'GITHUB_REPO', value: 'MonroeHumane/AzureMigration' }
           ]
         }
       ]

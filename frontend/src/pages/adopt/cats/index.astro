@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import InnerShell from '../../../components/InnerShell.astro';
+import AdoptGrid from '../../../components/AdoptGrid.astro';
+import { getPets } from '../../../lib/directus';
+import '../../../styles/monroe-adopt-hub.css';
+
+const pets = await getPets();
+---
+
+<BaseLayout
+  title="Adoptable Cats | Monroe County | 734-243-3669"
+  description="Meet adoptable cats waiting for homes at the Humane Society of Monroe County. Filter by size, gender, and age."
+>
+  <InnerShell variant="adopt">
+    <header class="monroe-adopt-hub-hero">
+      <p class="monroe-adopt-hub-eyebrow">Adoption Hub</p>
+      <h1>Adoptable cats</h1>
+      <p class="monroe-adopt-hub-lead">
+        Meet the cats waiting for a home in Monroe County. Filter by size, gender, and age, or click any cat to see their full profile.
+      </p>
+    </header>
+
+    <nav class="monroe-adopt-hub-quick" aria-label="Browse adoptable animals">
+      <a class="monroe-adopt-hub-pill" href="/adopt">All Pets</a>
+      <a class="monroe-adopt-hub-pill" href="/adopt/dogs">Dogs</a>
+      <a class="monroe-adopt-hub-pill monroe-adopt-hub-pill--current" href="/adopt/cats">Cats</a>
+      <a class="monroe-adopt-hub-pill monroe-adopt-hub-pill--ghost" href="/adoptions">Adoption Info &amp; Application</a>
+    </nav>
+
+    <AdoptGrid pets={pets} lockType="cat" />
+
+    <p class="monroe-adopt-hub-footnote">
+      Ready to adopt? <a href="/adoptions">Learn about our adoption process</a> or
+      <a href="tel:734-243-3669">call us at (734) 243-3669</a>.
+    </p>
+  </InnerShell>
+</BaseLayout>
