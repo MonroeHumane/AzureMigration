@@ -126,9 +126,10 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
     const description = getCell(row, ['Description', 'Bio', 'Notes']) || location;
     const intakeDate = getCell(row, ['Intake Date', 'Intake', 'Date', 'Posted']);
 
+    const petangoAuthKey = process.env.PETANGO_AUTHKEY || '';
     const petangoUrl = `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${encodeURIComponent(
       id
-    )}&css=&authkey=40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp&PopUp=true`;
+    )}&css=&authkey=${petangoAuthKey}&PopUp=true`;
 
     activePets.push({
       id,

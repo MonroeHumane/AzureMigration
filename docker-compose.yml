@@ -97,6 +97,7 @@ services:
       DIRECTUS_URL: "http://directus:8055"
       DIRECTUS_STATIC_TOKEN: "admin-static-token"
       GOOGLE_SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQeJ5vC9u2A_example/pub?output=csv"
+      PETANGO_AUTHKEY: ""
     networks:
       - monroe-network
 

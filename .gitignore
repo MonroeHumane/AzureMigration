@@ -1,3 +1,11 @@
 ﻿visual-test/
 frontend/node_modules/
 node_modules/
+frontend/dist/
+
+# Secrets - never commit real credentials
+.azure-secrets.txt
+*.secrets.txt
+.env
+.env.*
+!.env.example

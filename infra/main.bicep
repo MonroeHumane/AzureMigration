@@ -19,6 +19,14 @@ param mysqlAdminPassword string
 @description('Directus Admin Password')
 param directusAdminPassword string
 
+@secure()
+@description('Directus KEY (data encryption key)')
+param directusKey string
+
+@secure()
+@description('Directus SECRET (session/JWT signing secret)')
+param directusSecret string
+
 var suffix = uniqueString(resourceGroup().id)
 var storageAccountName = 'mchsstorage${suffix}'
 var containerAppEnvName = 'mchs-aca-env-${environmentName}'
@@ -152,7 +160,7 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'directus'
-          image: 'directus/directus:11.5.0'
+          image: 'ghcr.io/monroehumane/monroe-humane-directus:latest'
           resources: {
             cpu: json('0.5')
             memory: '1.0Gi'
@@ -164,12 +172,14 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'DB_DATABASE', value: 'directus_db' }
             { name: 'DB_USER', value: mysqlAdminUser }
             { name: 'DB_PASSWORD', value: mysqlAdminPassword }
+            { name: 'DB_SSL', value: 'true' }
+            { name: 'DB_SSL__REJECT_UNAUTHORIZED', value: 'false' }
             { name: 'ADMIN_EMAIL', value: 'admin@monroe-humane.org' }
             { name: 'ADMIN_PASSWORD', value: directusAdminPassword }
             { name: 'CORS_ENABLED', value: 'true' }
             { name: 'CORS_ORIGIN', value: 'true' }
-            { name: 'KEY', value: '7b92f954-4a25-4c07-b088-3904e5482329' }
-            { name: 'SECRET', value: 'Mchs-Directus-Secret-Salt-2026-Xk9$' }
+            { name: 'KEY', value: directusKey }
+            { name: 'SECRET', value: directusSecret }
             { name: 'PUBLIC_URL', value: 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io' }
             { name: 'WEBSOCKETS_ENABLED', value: 'true' }
             { name: 'STORAGE_LOCATIONS', value: 'azure' }
