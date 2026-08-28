@@ -47,22 +47,35 @@ export function normalizeSpecies(speciesRaw: string): string {
 
 export function normalizeGender(genderRaw: string): string {
   const norm = (genderRaw || '').toLowerCase();
-  if (norm.startsWith('m') || norm.includes('male') || norm.includes('neutered')) return 'male';
-  if (norm.startsWith('f') || norm.includes('female') || norm.includes('spayed')) return 'female';
+  // Check "female" before "male" — "female" contains "male" as a substring,
+  // so checking male first misclassified every female animal (real bug,
+  // found by auditing live data: 88/88 synced pets showed as "male").
+  if (norm.includes('female') || norm.includes('spayed')) return 'female';
+  if (norm.includes('male') || norm.includes('neutered')) return 'male';
   return 'unknown';
 }
 
 export function normalizeAge(ageRaw: string): string {
   const norm = (ageRaw || '').toLowerCase();
-  if (norm.includes('month') || norm.includes('puppy') || norm.includes('kitten') || norm.includes('baby')) {
+  if (norm.includes('puppy') || norm.includes('kitten') || norm.includes('baby')) {
     return 'baby';
   }
-  if (norm.includes('1 year') || norm.includes('2 year') || norm.includes('young')) {
-    return 'young';
+  // Parse the actual year count so "1 year 2 months" buckets correctly.
+  // The previous version checked includes('month') first, which matched
+  // the trailing "months" in any "X years Y months" age and misclassified
+  // it as a baby regardless of the year count (real bug, found by auditing
+  // live data — e.g. real values like "1 year 2 months" existed in the set).
+  const yearMatch = norm.match(/(\d+)\s*year/);
+  if (yearMatch) {
+    const years = parseInt(yearMatch[1], 10);
+    if (years >= 8) return 'senior';
+    if (years <= 2) return 'young';
+    return 'adult';
   }
-  if (norm.includes('senior') || norm.includes('8 year') || norm.includes('9 year') || norm.includes('10 year')) {
-    return 'senior';
-  }
+  if (norm.includes('senior')) return 'senior';
+  if (norm.includes('young')) return 'young';
+  // No "year" mention at all (e.g. "3 weeks", "2 months") means under 1 year.
+  if (norm.includes('month') || norm.includes('week') || norm.includes('day')) return 'baby';
   return 'adult';
 }
 
