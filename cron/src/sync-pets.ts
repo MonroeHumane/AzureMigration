@@ -115,7 +115,7 @@ function parsePetangoHtml(html: string): RawAnimal[] {
           species = next.text().trim();
         } else {
           const txt = labelNode.text().replace(/\s+/g, ' ').trim();
-          species = txt.replace(/(?i:\bSpecies\s*:\s*)/, '').trim() || null;
+          species = txt.replace(/\bSpecies\s*:\s*/i, '').trim() || null;
         }
       }
     }
