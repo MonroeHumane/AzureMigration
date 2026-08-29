@@ -2,20 +2,25 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InnerShell from '../../components/InnerShell.astro';
 import { SITE } from '../../config/site';
-import tributesData from '../../data/memorial-tributes.json';
+import { getMemorialTributes } from '../../lib/directus';
 
 import '../../styles/monroe-memorial-giving.css';
 
-interface Tribute {
-  variant: 'default' | 'honor' | 'birthday';
-  line: string;
-  name: string;
-  year?: string;
-}
+// line_key is a normalized slug (from Directus or the JSON fallback) — map
+// the known buckets back to display text; anything unexpected still
+// degrades to a readable label instead of a raw slug.
+const LINE_LABELS: Record<string, string> = {
+  in_memory_of: 'In Memory Of',
+  in_honor_of: 'In Honor Of',
+  happy_birthday: 'Happy Birthday',
+};
+const lineLabel = (key: string) =>
+  LINE_LABELS[key] ?? key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
-const recentTributes = (tributesData as Tribute[])
-  .filter((t) => t.variant === 'default')
-  .slice(0, 3);
+const recentTributes = (await getMemorialTributes())
+  .filter((t) => (t.variant || 'default') === 'default')
+  .slice(0, 3)
+  .map((t) => ({ name: t.title, line: lineLabel(t.line_key) }));
 
 const MEMORIAL_GIVING_URL = SITE.integrations.betterUnite.memorialGiving;
 const MEMORIAL_EMAIL = 'jackie@monroe-humane.org';

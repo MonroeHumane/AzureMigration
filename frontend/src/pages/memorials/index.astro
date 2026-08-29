@@ -1,18 +1,27 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InnerShell from '../../components/InnerShell.astro';
-import tributesData from '../../data/memorial-tributes.json';
+import { getMemorialTributes } from '../../lib/directus';
 
 import '../../styles/monroe-memorial-tribute.css';
 
-interface Tribute {
-  variant: 'default' | 'honor' | 'birthday';
-  line: string;
-  name: string;
-  year?: string;
-}
+// line_key is a normalized slug (from Directus or the JSON fallback) — map
+// the three known buckets back to their display text; anything unexpected
+// still degrades to a readable label instead of a raw slug.
+const LINE_LABELS: Record<string, string> = {
+  in_memory_of: 'In Memory Of',
+  in_honor_of: 'In Honor Of',
+  happy_birthday: 'Happy Birthday',
+};
+const lineLabel = (key: string) =>
+  LINE_LABELS[key] ?? key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
-const rawTributes = tributesData as Tribute[];
+const rawTributes = (await getMemorialTributes()).map((t) => ({
+  variant: (t.variant as 'default' | 'honor' | 'birthday') || 'default',
+  line: lineLabel(t.line_key),
+  name: t.title,
+  year: t.year,
+}));
 const tributes = rawTributes.filter((tribute, index, self) =>
   index === self.findIndex((t) => (
     t.name === tribute.name && t.variant === tribute.variant

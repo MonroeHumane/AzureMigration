@@ -33,11 +33,9 @@
     { "route": "/about-us/*",        "redirect": "/dog-and-cat-shelter", "statusCode": 301 },
     { "route": "/about-us",          "redirect": "/dog-and-cat-shelter", "statusCode": 301 },
 
-    { "route": "/adopt/dogs",         "redirect": "/adopt?type=dog",    "statusCode": 301 },
-    { "route": "/adopt/cats",         "redirect": "/adopt?type=cat",    "statusCode": 301 },
     { "route": "/adopt/other",        "redirect": "/adopt?type=other",  "statusCode": 301 },
-    { "route": "/adopt/species-dog",  "redirect": "/adopt?type=dog",    "statusCode": 301 },
-    { "route": "/adopt/species-cat",  "redirect": "/adopt?type=cat",    "statusCode": 301 },
+    { "route": "/adopt/species-dog",  "redirect": "/adopt/dogs",        "statusCode": 301 },
+    { "route": "/adopt/species-cat",  "redirect": "/adopt/cats",        "statusCode": 301 },
 
     { "route": "/events-calendar",    "redirect": "/events",       "statusCode": 301 },
     { "route": "/news/*",             "redirect": "/newsletter",   "statusCode": 301 },
@@ -49,7 +47,14 @@
     { "route": "/fundraise",          "redirect": "/donate",       "statusCode": 301 },
     { "route": "/memorials-and-giving","redirect": "/memorials/give","statusCode": 301 },
     { "route": "/store",              "redirect": "/shop",         "statusCode": 301 },
-    { "route": "/merch",              "redirect": "/shop",         "statusCode": 301 }
+    { "route": "/merch",              "redirect": "/shop",         "statusCode": 301 },
+
+    { "route": "/auction-in-april-2025/*", "redirect": "/events", "statusCode": 301 },
+    { "route": "/auction-in-april-2025",   "redirect": "/events", "statusCode": 301 },
+    { "route": "/petdisplay/*",       "redirect": "/tv",           "statusCode": 301 },
+    { "route": "/petdisplay",         "redirect": "/tv",           "statusCode": 301 },
+    { "route": "/lobby/*",            "redirect": "/tv",           "statusCode": 301 },
+    { "route": "/lobby",              "redirect": "/tv",           "statusCode": 301 }
   ],
 
   "navigationFallback": {

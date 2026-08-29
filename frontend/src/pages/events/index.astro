@@ -1,14 +1,16 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InnerShell from '../../components/InnerShell.astro';
-import eventData from '../../data/event-flyers.json';
+import { getEventFlyers } from '../../lib/directus';
+import '../../styles/monroe-events.css';
+
+const eventData = await getEventFlyers();
 
 const now = new Date('2026-08-27T12:00:00Z');
 const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
 
-const currentEvents = eventData.filter(e => new Date(e.event_date) >= thirtyDaysAgo).sort((a,b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
-const historicEvents = eventData.filter(e => new Date(e.event_date) < thirtyDaysAgo).sort((a,b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
-
+const currentEvents = eventData.filter(e => e.event_date && new Date(e.event_date) >= thirtyDaysAgo).sort((a,b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime());
+const historicEvents = eventData.filter(e => e.event_date && new Date(e.event_date) < thirtyDaysAgo).sort((a,b) => new Date(b.event_date!).getTime() - new Date(a.event_date!).getTime());
 ---
 
 <BaseLayout
@@ -24,39 +26,42 @@ const historicEvents = eventData.filter(e => new Date(e.event_date) < thirtyDays
       </p>
     </header>
 
-    <section id="Calendar" class="monroe-native-stack" style="text-align: center; background: #fffaf2; border-radius: 12px; padding: 2rem;">
-      <h2 style="margin-top: 0;">Event Calendar</h2>
-      <p>View all our upcoming dates below or <a href="https://delightful-dune-0d730f70f.7.azurestaticapps.net/events/#Calendar">add to your own calendar</a>.</p>
-      <div style="aspect-ratio: 16/9; max-width: 800px; margin: 1rem auto 0; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; ">
-        (Google Calendar Embed Placeholder)
-      </div>
+    <section id="Calendar" class="monroe-native-stack" style="text-align: center;">
+      <p>
+        Want reminders on your own calendar? You can{" "}
+        <a href="https://delightful-dune-0d730f70f.7.azurestaticapps.net/events/#Calendar">add our events to your own calendar</a>.
+      </p>
     </section>
 
     <section class="monroe-native-stack" aria-labelledby="upcoming-events-heading">
       <h2 id="upcoming-events-heading" style="text-align: center;">Current &amp; Upcoming Events</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-        {currentEvents.map(event => (
-          <article style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
-            <div style="aspect-ratio: 16/9; overflow: hidden;">
-              {event.image ? (
-                <img src={event.image} alt="" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" />
-              ) : (
-                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f766e, #173a39); color: rgba(255,255,255,0.85); font-size: 2.5rem;" aria-hidden="true">🐾</div>
-              )}
-            </div>
-            <div style="padding: 1.5rem; display: flex; flex-direction: column; flex: 1;">
-              <span style="font-weight: 700; color: #0f766e; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
-                {new Date(event.event_date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-              </span>
-              <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem;">{event.title}</h3>
-              <p style=" margin: 0 0 1.5rem; font-size: 0.95rem; line-height: 1.5; flex: 1;">
-                {event.description}
-              </p>
-              <a href={event.link_url} class="monroe-btn" style="align-self: flex-start; padding: 0.5rem 1.25rem;">Learn more</a>
-            </div>
-          </article>
-        ))}
-      </div>
+      <p class="monroe-event-flyers__lead" style="margin-left: auto; margin-right: auto; text-align: center;">
+        Fundraisers, adoption promotions, and community nights — click any flyer for the full details.
+      </p>
+      {currentEvents.length === 0 ? (
+        <p class="monroe-event-flyers__empty">No upcoming events posted right now — check back soon.</p>
+      ) : (
+        <ul class="monroe-event-flyers__grid">
+          {currentEvents.map(event => (
+            <li class="monroe-event-flyers__item">
+              <a href={event.link_url} class="monroe-event-flyers__card" target="_blank" rel="noopener noreferrer">
+                {event.image ? (
+                  <img class="monroe-event-flyers__image" src={event.image} alt={event.title} loading="lazy" decoding="async" />
+                ) : (
+                  <div class="monroe-event-flyers__placeholder" aria-hidden="true">🐾</div>
+                )}
+                <div class="monroe-event-flyers__body">
+                  <span class="monroe-event-flyers__date">
+                    {event.event_date && new Date(event.event_date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </span>
+                  <span class="monroe-event-flyers__title">{event.title}</span>
+                  <span class="monroe-event-flyers__excerpt">{event.description}</span>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
 
     {historicEvents.length > 0 && (

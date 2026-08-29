@@ -34,6 +34,7 @@ export interface EventFlyer {
   event_date?: string;
   link_url?: string;
   description?: string;
+  image?: string;
   sort_order?: number;
 }
 
@@ -113,8 +114,10 @@ export async function getEventFlyers(): Promise<EventFlyer[]> {
     });
     if (res.ok) {
       const data = await res.json();
-      cachedFlyers = data.data || [];
-      return cachedFlyers!;
+      if (data.data && data.data.length > 0) {
+        cachedFlyers = data.data;
+        return cachedFlyers!;
+      }
     }
   } catch (e) {
     // Fallback: the 13 real flyers (mirror-sourced).
@@ -133,8 +136,10 @@ export async function getMemorialTributes(): Promise<MemorialTribute[]> {
     });
     if (res.ok) {
       const data = await res.json();
-      cachedTributes = data.data || [];
-      return cachedTributes!;
+      if (data.data && data.data.length > 0) {
+        cachedTributes = data.data;
+        return cachedTributes!;
+      }
     }
   } catch (e) {
     // Fallback: the 111 real tributes (mirror-sourced).

@@ -47,7 +47,14 @@
     { "route": "/fundraise",          "redirect": "/donate",       "statusCode": 301 },
     { "route": "/memorials-and-giving","redirect": "/memorials/give","statusCode": 301 },
     { "route": "/store",              "redirect": "/shop",         "statusCode": 301 },
-    { "route": "/merch",              "redirect": "/shop",         "statusCode": 301 }
+    { "route": "/merch",              "redirect": "/shop",         "statusCode": 301 },
+
+    { "route": "/auction-in-april-2025/*", "redirect": "/events", "statusCode": 301 },
+    { "route": "/auction-in-april-2025",   "redirect": "/events", "statusCode": 301 },
+    { "route": "/petdisplay/*",       "redirect": "/tv",           "statusCode": 301 },
+    { "route": "/petdisplay",         "redirect": "/tv",           "statusCode": 301 },
+    { "route": "/lobby/*",            "redirect": "/tv",           "statusCode": 301 },
+    { "route": "/lobby",              "redirect": "/tv",           "statusCode": 301 }
   ],
 
   "navigationFallback": {

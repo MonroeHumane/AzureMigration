@@ -9,18 +9,17 @@ import { getNewsletterIssues } from '../../lib/directus';
 */
 
 const issues = await getNewsletterIssues();
-const THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png';
-const THUMB_300 = '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667-300x150.png';
+const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png';
 ---
 
 <BaseLayout
-  title="36th Annual Funds for Furry Friends | 734-243-3669"
+  title="Newsletter Archive | 734-243-3669"
   description="Read past shelter newsletters and see the latest issue highlighted on our homepage."
 >
   <InnerShell variant="newsletter">
     <header class="monroe-native-hero">
       <p class="monroe-native-eyebrow">Stay in touch</p>
-      <h1>36th Annual Funds for Furry Friends</h1>
+      <h1>Newsletter Archive</h1>
       <p class="monroe-native-lead">
         Read past shelter newsletters and see the latest issue highlighted on our homepage.
       </p>
@@ -37,16 +36,14 @@ const THUMB_300 = '/assets/recovered/images/monroe-humane.org/wp-content/uploads
               <img
                 width="561"
                 height="280"
-                src={THUMB}
+                src={issue.hero_image || FALLBACK_THUMB}
                 class="monroe-newsletter-archive__thumb wp-post-image"
-                alt=""
+                alt={issue.title}
                 loading="lazy"
                 decoding="async"
-                srcset={`${THUMB} 561w, ${THUMB_300} 300w`}
-                sizes="auto, (max-width: 561px) 100vw, 561px"
               />
               <span class="monroe-newsletter-archive__body">
-                <span class="monroe-newsletter-archive__badge">On homepage</span>
+                {issue.featured && <span class="monroe-newsletter-archive__badge">On homepage</span>}
                 <span class="monroe-newsletter-archive__title">{issue.title}</span>
               </span>
             </a>

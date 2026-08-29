@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InnerShell from '../../components/InnerShell.astro';
 import { SITE } from '../../config/site';
+import '../../styles/monroe-adopt-extra.css';
 
 const VOLUNTEER_FORM_URL = SITE.integrations.googleForms.volunteerApp;
 ---
@@ -36,7 +37,7 @@ const VOLUNTEER_FORM_URL = SITE.integrations.googleForms.volunteerApp;
           src={`${VOLUNTEER_FORM_URL}?embedded=true`}
           width="640"
           height="780"
-          frameborder="0"
+          style="border: 0;"
           loading="lazy"></iframe>
       </div>
       <p class="monroe-google-form-embed__hint">

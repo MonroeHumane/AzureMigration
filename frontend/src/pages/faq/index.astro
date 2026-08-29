@@ -82,6 +82,7 @@ const faqs = [
 
     <!-- Search Input -->
     <div style="margin-bottom: 2rem;">
+      <label for="faqSearch" class="screen-reader-text">Search questions</label>
       <input
         type="search"
         id="faqSearch"
@@ -92,7 +93,7 @@ const faqs = [
 
     <!-- FAQ Accordion List -->
     <div id="faqList" style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 3rem;">
-      {faqs.map((faq, idx) => (
+      {faqs.map((faq) => (
         <details class="faq-item monroe-native-stack" style="margin: 0; padding: 1.25rem 1.75rem; cursor: pointer;" data-faq-q={faq.q.toLowerCase()} data-faq-a={faq.a.toLowerCase()}>
           <summary style="font-family: 'Abril Fatface', Georgia, serif; font-size: 1.35rem; color: #16302f; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
             <span>{faq.q}</span>

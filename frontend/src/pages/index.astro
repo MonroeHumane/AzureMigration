@@ -801,7 +801,7 @@ const indexLabels: Record<string, string> = {
     if (sections.length > 0) {
       const observer = new IntersectionObserver(
         (entries) => {
-          let visibleSection = null;
+          let visibleSection: string | null = null;
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               visibleSection = entry.target.id;
@@ -867,7 +867,7 @@ const indexLabels: Record<string, string> = {
       lb?.querySelector('.hs-lb-next')?.addEventListener('click', () => show(current + 1));
       document.addEventListener('keydown', (e) => {
         if (lb?.getAttribute('aria-hidden') === 'true') return;
-        if (e.key === 'Escape') lb.setAttribute('aria-hidden', 'true');
+        if (e.key === 'Escape') lb?.setAttribute('aria-hidden', 'true');
         if (e.key === 'ArrowLeft') show(current - 1);
         if (e.key === 'ArrowRight') show(current + 1);
       });

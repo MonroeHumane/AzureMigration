@@ -312,11 +312,11 @@ import '../../styles/monroe-games.css';
     };
     overlay?.querySelector('[data-humane-games-close]')?.addEventListener('click', close);
 
-    const shareBtn = document.querySelector("[data-monroe-dex-share]");
-    const copyBtn = document.querySelector("[data-monroe-dex-copy-link]");
+    const shareBtn = document.querySelector<HTMLElement>("[data-monroe-dex-share]");
+    const copyBtn = document.querySelector<HTMLElement>("[data-monroe-dex-copy-link]");
     if (navigator.share && shareBtn) {
       shareBtn.style.display = "inline-block";
-      copyBtn.style.display = "none";
+      if (copyBtn) copyBtn.style.display = "none";
       shareBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         saveNick();
