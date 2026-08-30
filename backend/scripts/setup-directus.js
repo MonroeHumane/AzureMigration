@@ -76,22 +76,53 @@ async function main() {
         // field in schema.json has actually been added to it (e.g. someone
         // extends schema.json for an already-live collection later).
         const existingFieldsRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}`, { headers: authHeaders });
-        const existingFieldNames = new Set();
+        const existingFieldsByName = new Map();
         if (existingFieldsRes.ok) {
           const existingFieldsData = await existingFieldsRes.json();
-          for (const f of existingFieldsData.data || []) existingFieldNames.add(f.field);
+          for (const f of existingFieldsData.data || []) existingFieldsByName.set(f.field, f);
         }
+        // Only these meta keys are UI/display-layer and safe to reconcile
+        // on a field that already exists — never touch type/schema (that's
+        // a real migration, out of scope here) or Directus-managed keys
+        // like sort/special/id.
+        const RECONCILABLE_META_KEYS = ['interface', 'display', 'display_options', 'options', 'width', 'readonly', 'note', 'required'];
         for (const field of fields) {
-          if (existingFieldNames.has(field.field)) continue;
-          const fieldRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}`, {
-            method: 'POST',
+          const existing = existingFieldsByName.get(field.field);
+          if (!existing) {
+            const fieldRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}`, {
+              method: 'POST',
+              headers: authHeaders,
+              body: JSON.stringify(field),
+            });
+            if (fieldRes.ok) {
+              console.log(`   ✅ Added missing field: ${col.collection}.${field.field}`);
+            } else {
+              console.warn(`   ⚠️ Field create failed for ${col.collection}.${field.field} (${fieldRes.status}): ${await fieldRes.text()}`);
+            }
+            continue;
+          }
+
+          const desiredMeta = field.meta || {};
+          const existingMeta = existing.meta || {};
+          const metaPatch = {};
+          for (const key of RECONCILABLE_META_KEYS) {
+            if (!(key in desiredMeta)) continue;
+            const desiredVal = JSON.stringify(desiredMeta[key]);
+            if (JSON.stringify(existingMeta[key]) !== desiredVal) metaPatch[key] = desiredMeta[key];
+          }
+          if (Object.keys(metaPatch).length === 0) {
+            console.log(`   ℹ️ Field up to date: ${col.collection}.${field.field}`);
+            continue;
+          }
+          const patchRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}/${field.field}`, {
+            method: 'PATCH',
             headers: authHeaders,
-            body: JSON.stringify(field),
+            body: JSON.stringify({ meta: metaPatch }),
           });
-          if (fieldRes.ok) {
-            console.log(`   ✅ Added missing field: ${col.collection}.${field.field}`);
+          if (patchRes.ok) {
+            console.log(`   ✅ Updated field styling: ${col.collection}.${field.field} (${Object.keys(metaPatch).join(', ')})`);
           } else {
-            console.warn(`   ⚠️ Field create failed for ${col.collection}.${field.field} (${fieldRes.status}): ${await fieldRes.text()}`);
+            console.warn(`   ⚠️ Field update failed for ${col.collection}.${field.field} (${patchRes.status}): ${await patchRes.text()}`);
           }
         }
         continue;

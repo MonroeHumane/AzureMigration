@@ -527,39 +527,53 @@
       "collection": "sync_runs",
       "field": "timestamp",
       "type": "dateTime",
-      "meta": { "required": true },
+      "meta": { "required": true, "readonly": true, "width": "half" },
       "schema": {}
     },
     {
       "collection": "sync_runs",
       "field": "status",
       "type": "string",
-      "meta": { "options": { "choices": [{ "text": "Success", "value": "success" }, { "text": "Error", "value": "error" }] } },
+      "meta": {
+        "interface": "select-dropdown",
+        "display": "labels",
+        "options": { "choices": [{ "text": "Success", "value": "success" }, { "text": "Error", "value": "error" }] },
+        "display_options": {
+          "choices": [
+            { "text": "Success", "value": "success", "foreground": "#166534", "background": "#DCFCE7" },
+            { "text": "Error", "value": "error", "foreground": "#991B1B", "background": "#FEE2E2" }
+          ]
+        },
+        "width": "half"
+      },
       "schema": { "length": 16 }
     },
     {
       "collection": "sync_runs",
       "field": "active_count",
       "type": "integer",
+      "meta": { "readonly": true, "width": "third", "note": "Active pets in Directus at the end of this run" },
       "schema": { "default_value": 0 }
     },
     {
       "collection": "sync_runs",
       "field": "inserted_count",
       "type": "integer",
+      "meta": { "readonly": true, "width": "third", "note": "New pets added this run" },
       "schema": { "default_value": 0 }
     },
     {
       "collection": "sync_runs",
       "field": "archived_count",
       "type": "integer",
+      "meta": { "readonly": true, "width": "third", "note": "Pets archived this run (no longer on Petango)" },
       "schema": { "default_value": 0 }
     },
     {
       "collection": "sync_runs",
       "field": "error_message",
       "type": "text",
-      "meta": { "interface": "input-multiline" },
+      "meta": { "interface": "input-multiline", "readonly": true, "width": "full" },
       "schema": {}
     }
   ],
