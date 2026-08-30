@@ -95,13 +95,16 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     }
 
     /* ---------------- Corner chrome: logo + clock, nothing else ---------------- */
+    /* Fixed px, not vw/clamp — same TV-safe-area reasoning as the QR
+       corner below: this needs to stay clear of a real screen's edge,
+       not just "technically inside the reported viewport". */
     .tv-brand-corner {
       position: fixed;
-      top: clamp(1.25rem, 3vw, 2.25rem);
-      left: clamp(1.25rem, 3vw, 2.25rem);
+      top: 56px;
+      left: 64px;
       display: flex;
       align-items: center;
-      gap: 0.85rem;
+      gap: 14px;
       z-index: 3;
     }
 
@@ -121,8 +124,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
     .tv-clock-corner {
       position: fixed;
-      top: clamp(1.25rem, 3vw, 2.25rem);
-      right: clamp(1.25rem, 3vw, 2.25rem);
+      top: 56px;
+      right: 80px;
       text-align: right;
       z-index: 3;
     }
@@ -213,8 +216,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     /* ---------------- Bottom caption bar: name + facts, over the scrim ---------------- */
     .tv-caption {
       position: fixed;
-      left: clamp(2rem, 5vw, 4rem);
-      bottom: clamp(2rem, 4vw, 3.25rem);
+      left: 64px;
+      bottom: 64px;
       z-index: 3;
       max-width: 62vw;
     }
@@ -265,9 +268,14 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
        inconsistent about DPI/zoom). Everything else on the page can
        flex with viewport size; this can't. */
     .tv-apply-qr {
+      /* Well inside typical TV overscan safe-area guidance (~5% of a
+         1080p screen is ~54-96px) -- physical TVs commonly crop the
+         outer edge of the picture regardless of what the browser
+         reports, so this corner needs real breathing room, not just
+         "technically inside the viewport". */
       position: fixed;
-      bottom: 40px;
-      right: 56px;
+      bottom: 64px;
+      right: 80px;
       display: flex;
       align-items: center;
       gap: 18px;
@@ -288,6 +296,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       flex-shrink: 0;
       padding: 16px;
       border-radius: 30px;
+      overflow: hidden;
       background: linear-gradient(135deg, var(--tv-teal), var(--tv-gold));
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
       animation: tv-qr-pulse 3.2s ease-in-out infinite;
