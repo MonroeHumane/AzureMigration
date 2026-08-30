@@ -2,17 +2,24 @@
 /**
  * Monroe Humane — TV Lobby Display / Kiosk
  *
- * Full-screen kiosk for shelter lobby TVs. Deliberately minimal: the
- * clock, one pet at a time (photo + a few facts), a real QR code that
- * links straight to that pet's live adoption page, and the shelter's
- * mark. Nothing else competes for attention.
+ * Full-bleed poster layout for shelter lobby TVs: a blurred, scaled
+ * copy of the current pet's own photo fills the whole screen as a
+ * backdrop (purely decorative — it's the same image, never a
+ * different/cropped substitute), so there's no dead space regardless
+ * of a photo's aspect ratio, while the real featured photo in front
+ * stays completely uncropped (object-fit: contain, sized as large as
+ * the screen allows). Name/facts sit in a bottom caption bar, the
+ * shelter's mark and the clock sit in the top corners, and one
+ * always-on application QR code sits in the bottom-right corner.
  *
  * The QR code is generated natively in the browser (qr-code-styling,
- * bundled — no third-party image API call), targets the actual native
- * per-pet page (/adopt/{id}), and re-renders whenever the spotlight
- * pet changes. Pet data comes from the same live Directus feed the
- * rest of the site uses, with a background refresh so the display
- * tracks the PetSync pipeline without a restart.
+ * bundled — no third-party image API call, no data: URL since the
+ * site's CSP connect-src doesn't allow it) and points at the shelter's
+ * adoption application form — a single static destination, not tied
+ * to whichever pet is currently on screen. Pet data comes from the
+ * same live Directus feed the rest of the site uses, with a
+ * background refresh so the display tracks the PetSync pipeline
+ * without a restart.
  */
 
 import { getPets } from '../../lib/directus';
@@ -54,17 +61,37 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     }
 
     body {
-      background:
-        radial-gradient(circle at 14% 12%, rgba(45, 212, 191, 0.16), transparent 42%),
-        radial-gradient(circle at 88% 86%, rgba(251, 191, 36, 0.1), transparent 46%),
-        linear-gradient(160deg, var(--tv-bg-deep), var(--tv-bg));
+      background: linear-gradient(160deg, var(--tv-bg-deep), var(--tv-bg));
       color: var(--tv-text);
       font-family: var(--tv-font-sans);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: relative;
       user-select: none;
       -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------------- Backdrop: the pet's own photo, blurred and
+       scaled to fill every pixel behind it, so there's never dead
+       space next to an uncropped photo of any aspect ratio. Purely
+       decorative — the real photo up front is never cropped. ---------------- */
+    .tv-backdrop-img {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(60px) saturate(1.2) brightness(0.55);
+      transform: scale(1.15);
+      z-index: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .tv-backdrop-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(to bottom, rgba(4, 16, 14, 0.55) 0%, transparent 20%),
+        linear-gradient(to top, rgba(4, 16, 14, 0.92) 0%, rgba(4, 16, 14, 0.6) 24%, transparent 52%);
     }
 
     /* ---------------- Corner chrome: logo + clock, nothing else ---------------- */
@@ -75,7 +102,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       display: flex;
       align-items: center;
       gap: 0.85rem;
-      z-index: 10;
+      z-index: 3;
     }
 
     .tv-brand-corner img {
@@ -97,7 +124,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       top: clamp(1.25rem, 3vw, 2.25rem);
       right: clamp(1.25rem, 3vw, 2.25rem);
       text-align: right;
-      z-index: 10;
+      z-index: 3;
     }
 
     .tv-clock-corner__time {
@@ -119,45 +146,46 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
     /* ---------------- The one thing on screen: the pet ---------------- */
     .tv-stage {
+      position: relative;
+      z-index: 2;
       width: 100%;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: clamp(5.5rem, 9vw, 7.5rem) clamp(2rem, 5vw, 4rem);
+      padding: clamp(6rem, 9vw, 7.5rem) clamp(2rem, 5vw, 4rem) clamp(11rem, 16vw, 13rem);
     }
 
-    .tv-card {
-      width: 100%;
-      max-width: 1400px;
-      display: grid;
-      grid-template-columns: 1.05fr 1fr;
-      gap: clamp(2rem, 4vw, 3.5rem);
-      align-items: center;
-      transition: opacity 0.45s ease;
-    }
-
+    .tv-card { transition: opacity 0.45s ease; }
     .tv-card.is-transitioning { opacity: 0; }
 
+    /* No fixed aspect-ratio box, no object-fit: cover — the photo is
+       never cropped. The blurred backdrop (behind everything) is what
+       fills the leftover space, so a narrow/portrait photo still reads
+       as an intentional, full composition instead of dead space. */
     .tv-card__photo-wrap {
       position: relative;
-      border-radius: 32px;
+      display: flex;
+      max-width: min(84vw, 1500px);
+      max-height: 70vh;
+      border-radius: 28px;
       overflow: hidden;
-      aspect-ratio: 4 / 3;
-      background: #000;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+      border: 3px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
     }
 
     .tv-card__photo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      max-width: 100%;
+      max-height: 70vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
       transform: scale(1);
       transition: transform 9s ease, opacity 0.4s ease;
     }
 
-    .tv-card__photo.zooming { transform: scale(1.08); }
+    .tv-card__photo.zooming { transform: scale(1.05); }
 
     .tv-card__species-badge {
       position: absolute;
@@ -175,98 +203,113 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       font-size: 1.5rem;
     }
 
-    .tv-card__info {
-      display: flex;
-      flex-direction: column;
-      gap: clamp(1rem, 2vw, 1.5rem);
-      min-width: 0;
+    /* ---------------- Bottom caption bar: name + facts, over the scrim ---------------- */
+    .tv-caption {
+      position: fixed;
+      left: clamp(2rem, 5vw, 4rem);
+      bottom: clamp(2rem, 4vw, 3.25rem);
+      z-index: 3;
+      max-width: 62vw;
     }
 
     .tv-card__name {
       font-family: var(--tv-font-display);
-      font-size: clamp(3rem, 6vw, 5rem);
+      font-size: clamp(3rem, 6vw, 5.25rem);
       line-height: 1;
       color: #ffffff;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
     }
 
     .tv-card__pills {
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
+      margin-top: 0.85rem;
     }
 
     .tv-pill {
       padding: 0.5rem 1.15rem;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(6px);
       font-size: clamp(0.9rem, 1.3vw, 1.1rem);
       font-weight: 600;
       color: #ffffff;
     }
 
     .tv-pill--accent {
-      background: rgba(45, 212, 191, 0.16);
-      border-color: rgba(45, 212, 191, 0.42);
+      background: rgba(45, 212, 191, 0.2);
+      border-color: rgba(45, 212, 191, 0.45);
       color: var(--tv-teal);
     }
 
     .tv-pill--gold {
-      background: rgba(251, 191, 36, 0.16);
-      border-color: rgba(251, 191, 36, 0.42);
+      background: rgba(251, 191, 36, 0.2);
+      border-color: rgba(251, 191, 36, 0.45);
       color: var(--tv-gold);
     }
 
-    /* ---------------- QR card ---------------- */
-    .tv-qr-card {
+    /* ---------------- The one QR code: always-on, application form ---------------- */
+    .tv-apply-qr {
+      position: fixed;
+      bottom: clamp(1.75rem, 3.5vw, 2.75rem);
+      right: clamp(2rem, 4vw, 3.5rem);
       display: flex;
       align-items: center;
-      gap: 1.25rem;
-      background: #ffffff;
-      border-radius: 24px;
-      padding: 1.1rem 1.5rem;
-      color: #0f2d29;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-      margin-top: 0.5rem;
-      width: fit-content;
+      gap: 1.1rem;
+      z-index: 3;
     }
 
-    .tv-qr-card__code {
+    .tv-apply-qr__label {
+      text-align: right;
+      font-family: var(--tv-font-display);
+      font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+      color: #ffffff;
+      text-shadow: 0 3px 16px rgba(0, 0, 0, 0.5);
+      line-height: 1.15;
+    }
+
+    .tv-apply-qr__ring {
+      position: relative;
       flex-shrink: 0;
-      width: clamp(6rem, 9vw, 7.5rem);
-      height: clamp(6rem, 9vw, 7.5rem);
+      padding: 12px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, var(--tv-teal), var(--tv-gold));
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+      animation: tv-qr-pulse 3.2s ease-in-out infinite;
+    }
+
+    @keyframes tv-qr-pulse {
+      0%, 100% { box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(45, 212, 191, 0.4); }
+      50% { box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 0 14px rgba(45, 212, 191, 0); }
+    }
+
+    .tv-apply-qr__code {
+      width: clamp(7.5rem, 9vw, 9.5rem);
+      height: clamp(7.5rem, 9vw, 9.5rem);
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 8px;
       display: flex;
     }
 
-    .tv-qr-card__code svg,
-    .tv-qr-card__code canvas {
-      width: 100%;
-      height: 100%;
-    }
-
-    .tv-qr-card__text h2 {
-      font-family: var(--tv-font-sans);
-      font-size: clamp(1.05rem, 1.5vw, 1.3rem);
-      font-weight: 800;
-      color: #0c2a26;
-      line-height: 1.25;
-    }
-
-    .tv-qr-card__text p {
-      font-size: clamp(0.85rem, 1.1vw, 0.95rem);
-      color: #4b6968;
-      margin-top: 0.25rem;
-      line-height: 1.35;
-    }
+    .tv-apply-qr__code svg { width: 100%; height: 100%; }
 
     @media (max-width: 900px) {
-      .tv-card { grid-template-columns: 1fr; }
-      .tv-card__photo-wrap { aspect-ratio: 16 / 9; }
+      .tv-caption { max-width: 90vw; }
+      .tv-apply-qr { flex-direction: column-reverse; align-items: flex-end; gap: 0.5rem; }
+      .tv-apply-qr__label { text-align: right; font-size: 1rem; }
     }
   </style>
 </head>
 <body>
+  <!-- Backdrop: same photo as the featured pet, blurred + scaled to
+       fill the whole screen so there's never dead space next to an
+       uncropped photo of any shape. -->
+  <img id="petBackdrop" class="tv-backdrop-img" src="" alt="" aria-hidden="true" />
+  <div class="tv-backdrop-scrim"></div>
+
   <!-- Logo -->
   <div class="tv-brand-corner">
     <img src={SITE.assets.logo} alt="Monroe Humane" />
@@ -279,31 +322,34 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     <div class="tv-clock-corner__date" id="clockDate">Monroe, MI</div>
   </div>
 
-  <!-- Pet + QR -->
+  <!-- Pet spotlight -->
   <main class="tv-stage">
     <div class="tv-card" id="petCard">
       <div class="tv-card__photo-wrap">
         <img id="petPhoto" class="tv-card__photo zooming" src="" alt="" />
         <span class="tv-card__species-badge" id="petSpeciesBadge">🐕</span>
       </div>
-
-      <div class="tv-card__info">
-        <h1 class="tv-card__name" id="petName">&nbsp;</h1>
-        <div class="tv-card__pills">
-          <span class="tv-pill tv-pill--gold" id="petAge">Age</span>
-          <span class="tv-pill tv-pill--accent" id="petGender">Gender</span>
-          <span class="tv-pill" id="petBreed">Breed</span>
-        </div>
-        <div class="tv-qr-card">
-          <div class="tv-qr-card__code" id="petQr"></div>
-          <div class="tv-qr-card__text">
-            <h2>📱 Scan to meet <span id="petNameInline">me</span></h2>
-            <p>Opens their full profile and adoption application on your phone.</p>
-          </div>
-        </div>
-      </div>
     </div>
   </main>
+
+  <!-- Name + facts, overlaid on the darkened bottom of the backdrop -->
+  <div class="tv-caption">
+    <h1 class="tv-card__name" id="petName">&nbsp;</h1>
+    <div class="tv-card__pills">
+      <span class="tv-pill tv-pill--gold" id="petAge">Age</span>
+      <span class="tv-pill tv-pill--accent" id="petGender">Gender</span>
+      <span class="tv-pill" id="petBreed">Breed</span>
+    </div>
+  </div>
+
+  <!-- The one QR code on the whole page: always-on, always the same
+       destination — the shelter's adoption application form. -->
+  <div class="tv-apply-qr">
+    <span class="tv-apply-qr__label">🐾 Scan me<br />to apply!</span>
+    <div class="tv-apply-qr__ring">
+      <div class="tv-apply-qr__code" id="applyQr"></div>
+    </div>
+  </div>
 
   <!-- Data handoff: kept as a tiny inline script (no bundling) so the
        server-rendered pet list reaches the bundled module script below
@@ -327,9 +373,9 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     const ROTATE_MS = 10000;
 
     const petPhoto = $<HTMLImageElement>('petPhoto');
+    const petBackdrop = $<HTMLImageElement>('petBackdrop');
     const petSpeciesBadge = $('petSpeciesBadge');
     const petName = $('petName');
-    const petNameInline = $('petNameInline');
     const petAge = $('petAge');
     const petGender = $('petGender');
     const petBreed = $('petBreed');
@@ -337,29 +383,45 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     const clockTime = $('clockTime');
     const clockDate = $('clockDate');
 
-    // Real, native QR generation — no third-party image API. Renders as
-    // SVG so it stays crisp at any TV resolution, with a simple paw
-    // mark embedded in the center (solid single-color, white-backed —
-    // a photo logo would just look muddy at QR scale). Served as a
-    // same-origin file (public/assets/tv-qr-mark.svg) rather than a
-    // data: URL — the site's CSP connect-src is 'self' https:' with no
-    // data: allowance, and qr-code-styling loads its embedded image via
+    // The one QR code on the page: static, always the shelter's
+    // adoption application form — not tied to whichever pet happens to
+    // be on screen, so it's rendered once and never updated. Real,
+    // native generation (qr-code-styling, bundled) — no third-party
+    // image API. Gradient dots + the shelter's paw mark in the center
+    // for a themed, not-generic look; SVG output stays crisp at any TV
+    // resolution. The mark is served as a same-origin file
+    // (public/assets/tv-qr-mark.svg) rather than a data: URL — the
+    // site's CSP connect-src is 'self' https:' with no data:
+    // allowance, and qr-code-styling loads its embedded image via
     // fetch(), which is gated by connect-src, not img-src.
-    const qrCode = new QRCodeStyling({
-      width: 260,
-      height: 260,
+    const APPLICATION_FORM_URL =
+      'https://docs.google.com/forms/d/e/1FAIpQLSfA70kSNxQZQBbC0Jq9gHfmgHiAs4k5ytci3t4IhOMzfrSjhQ/viewform';
+
+    const applyQrCode = new QRCodeStyling({
+      width: 240,
+      height: 240,
       type: 'svg',
-      data: window.location.origin,
-      margin: 6,
+      data: APPLICATION_FORM_URL,
+      margin: 4,
       qrOptions: { errorCorrectionLevel: 'H' },
-      dotsOptions: { color: '#0f766e', type: 'rounded' },
-      cornersSquareOptions: { color: '#0f766e', type: 'extra-rounded' },
-      cornersDotOptions: { color: '#0f766e', type: 'dot' },
+      dotsOptions: {
+        type: 'extra-rounded',
+        gradient: {
+          type: 'linear',
+          rotation: Math.PI / 4,
+          colorStops: [
+            { offset: 0, color: '#0f766e' },
+            { offset: 1, color: '#134e4a' },
+          ],
+        },
+      },
+      cornersSquareOptions: { type: 'extra-rounded', color: '#0f766e' },
+      cornersDotOptions: { type: 'dot', color: '#fbbf24' },
       backgroundOptions: { color: '#ffffff' },
       image: '/assets/tv-qr-mark.svg',
-      imageOptions: { margin: 3, imageSize: 0.28 },
+      imageOptions: { margin: 4, imageSize: 0.26 },
     });
-    qrCode.append($('petQr'));
+    applyQrCode.append($('applyQr'));
 
     function updateClock() {
       const now = new Date();
@@ -375,22 +437,18 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       const pet = pets[currentIndex];
 
       const applyChanges = () => {
+        const photoSrc = pet.image || '/assets/recovered/images/placeholder.svg';
         petPhoto.classList.remove('zooming');
-        petPhoto.src = pet.image || '/assets/recovered/images/placeholder.svg';
+        petPhoto.src = photoSrc;
         petPhoto.alt = pet.name;
+        petBackdrop.src = photoSrc;
         setTimeout(() => petPhoto.classList.add('zooming'), 50);
 
         petName.textContent = pet.name;
-        petNameInline.textContent = pet.name;
         petAge.textContent = pet.age_display || pet.age || 'Unknown age';
         petGender.textContent = (pet.gender || 'Unknown').replace(/^\w/, (c) => c.toUpperCase());
         petBreed.textContent = pet.breed || 'Shelter pet';
         petSpeciesBadge.textContent = pet.type === 'cat' ? '🐈' : pet.type === 'dog' ? '🐕' : '🐾';
-
-        // Real native adoption page — /adopt/{id}, generated by
-        // src/pages/adopt/[id].astro directly from the live Directus feed.
-        const petUrl = `${window.location.origin}/adopt/${pet.id}`;
-        qrCode.update({ data: petUrl });
       };
 
       if (document.startViewTransition) {
