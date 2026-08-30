@@ -257,21 +257,27 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       color: var(--tv-gold);
     }
 
-    /* ---------------- The one QR code: always-on, application form ---------------- */
+    /* ---------------- The one QR code: always-on, application form ----------------
+       Fixed pixel sizes here, not vw/clamp() — this corner is the one
+       thing on the page that must stay a reliable physical size and
+       scannable at arm's length no matter how a given TV's browser
+       reports its viewport (smart-TV browsers are notoriously
+       inconsistent about DPI/zoom). Everything else on the page can
+       flex with viewport size; this can't. */
     .tv-apply-qr {
       position: fixed;
-      bottom: clamp(1.75rem, 3.5vw, 2.75rem);
-      right: clamp(2rem, 4vw, 3.5rem);
+      bottom: 40px;
+      right: 56px;
       display: flex;
       align-items: center;
-      gap: 1.1rem;
+      gap: 18px;
       z-index: 3;
     }
 
     .tv-apply-qr__label {
       text-align: right;
       font-family: var(--tv-font-display);
-      font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+      font-size: 26px;
       color: #ffffff;
       text-shadow: 0 3px 16px rgba(0, 0, 0, 0.5);
       line-height: 1.15;
@@ -280,8 +286,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     .tv-apply-qr__ring {
       position: relative;
       flex-shrink: 0;
-      padding: 12px;
-      border-radius: 26px;
+      padding: 16px;
+      border-radius: 30px;
       background: linear-gradient(135deg, var(--tv-teal), var(--tv-gold));
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
       animation: tv-qr-pulse 3.2s ease-in-out infinite;
@@ -293,8 +299,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     }
 
     .tv-apply-qr__code {
-      width: clamp(7.5rem, 9vw, 9.5rem);
-      height: clamp(7.5rem, 9vw, 9.5rem);
+      width: 220px;
+      height: 220px;
       background: #ffffff;
       border-radius: 16px;
       padding: 8px;
@@ -307,8 +313,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
     @media (max-width: 900px) {
       .tv-caption { max-width: 90vw; }
-      .tv-apply-qr { flex-direction: column-reverse; align-items: flex-end; gap: 0.5rem; }
-      .tv-apply-qr__label { text-align: right; font-size: 1rem; }
+      .tv-apply-qr { flex-direction: column-reverse; align-items: flex-end; gap: 8px; }
+      .tv-apply-qr__label { text-align: right; font-size: 18px; }
     }
   </style>
 </head>
