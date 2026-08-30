@@ -117,6 +117,20 @@
       "schema": {
         "name": "sync_runs"
       }
+    },
+    {
+      "collection": "grants",
+      "meta": {
+        "collection": "grants",
+        "icon": "request_quote",
+        "note": "Private internal tracker for grant applications",
+        "display_template": "{{title}} ({{status}})",
+        "hidden": false,
+        "singleton": false
+      },
+      "schema": {
+        "name": "grants"
+      }
     }
   ],
   "fields": [
@@ -124,115 +138,179 @@
       "collection": "pets",
       "field": "id",
       "type": "string",
-      "meta": { "primary_key": true, "required": true, "note": "Pet ID from shelter management system" },
-      "schema": { "is_primary_key": true, "length": 32 }
+      "meta": {
+        "primary_key": true,
+        "required": true,
+        "note": "Pet ID from shelter management system"
+      },
+      "schema": {
+        "is_primary_key": true,
+        "length": 32
+      }
     },
     {
       "collection": "pets",
       "field": "name",
       "type": "string",
-      "meta": { "required": true },
-      "schema": { "length": 191 }
+      "meta": {
+        "required": true
+      },
+      "schema": {
+        "length": 191
+      }
     },
     {
       "collection": "pets",
       "field": "type",
       "type": "string",
-      "meta": { "options": { "choices": [{ "text": "Dog", "value": "dog" }, { "text": "Cat", "value": "cat" }, { "text": "Other", "value": "other" }] } },
-      "schema": { "length": 32 }
+      "meta": {
+        "options": {
+          "choices": [
+            {
+              "text": "Dog",
+              "value": "dog"
+            },
+            {
+              "text": "Cat",
+              "value": "cat"
+            },
+            {
+              "text": "Other",
+              "value": "other"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "length": 32
+      }
     },
     {
       "collection": "pets",
       "field": "species_label",
       "type": "string",
-      "schema": { "length": 64 }
+      "schema": {
+        "length": 64
+      }
     },
     {
       "collection": "pets",
       "field": "breed",
       "type": "string",
-      "schema": { "length": 191 }
+      "schema": {
+        "length": 191
+      }
     },
     {
       "collection": "pets",
       "field": "age",
       "type": "string",
-      "schema": { "length": 32 }
+      "schema": {
+        "length": 32
+      }
     },
     {
       "collection": "pets",
       "field": "age_display",
       "type": "string",
-      "schema": { "length": 64 }
+      "schema": {
+        "length": 64
+      }
     },
     {
       "collection": "pets",
       "field": "size",
       "type": "string",
-      "schema": { "length": 32 }
+      "schema": {
+        "length": 32
+      }
     },
     {
       "collection": "pets",
       "field": "gender",
       "type": "string",
-      "schema": { "length": 32 }
+      "schema": {
+        "length": 32
+      }
     },
     {
       "collection": "pets",
       "field": "location",
       "type": "string",
-      "schema": { "length": 128 }
+      "schema": {
+        "length": 128
+      }
     },
     {
       "collection": "pets",
       "field": "image_url",
       "type": "string",
-      "schema": { "length": 512 }
+      "schema": {
+        "length": 512
+      }
     },
     {
       "collection": "pets",
       "field": "url",
       "type": "string",
-      "schema": { "length": 512 }
+      "schema": {
+        "length": 512
+      }
     },
     {
       "collection": "pets",
       "field": "description",
       "type": "text",
-      "meta": { "interface": "input-multiline" },
+      "meta": {
+        "interface": "input-multiline"
+      },
       "schema": {}
     },
     {
       "collection": "pets",
       "field": "intake_date",
       "type": "string",
-      "schema": { "length": 64 }
+      "schema": {
+        "length": 64
+      }
     },
     {
       "collection": "pets",
       "field": "color",
       "type": "string",
-      "meta": { "note": "From Petango's per-animal detail page" },
-      "schema": { "length": 128 }
+      "meta": {
+        "note": "From Petango's per-animal detail page"
+      },
+      "schema": {
+        "length": 128
+      }
     },
     {
       "collection": "pets",
       "field": "declawed",
       "type": "string",
-      "schema": { "length": 32 }
+      "schema": {
+        "length": 32
+      }
     },
     {
       "collection": "pets",
       "field": "housetrained",
       "type": "string",
-      "schema": { "length": 32 }
+      "schema": {
+        "length": 32
+      }
     },
     {
       "collection": "pets",
       "field": "stage",
       "type": "string",
-      "meta": { "note": "Petango's own status, e.g. Available, Adoption Pending, On Hold" },
-      "schema": { "length": 64 }
+      "meta": {
+        "note": "Petango's own status, e.g. Available, Adoption Pending, On Hold"
+      },
+      "schema": {
+        "length": 64
+      }
     },
     {
       "collection": "pets",
@@ -256,22 +334,48 @@
       "collection": "event_flyers",
       "field": "id",
       "type": "integer",
-      "meta": { "primary_key": true },
-      "schema": { "is_primary_key": true, "has_auto_increment": true }
+      "meta": {
+        "primary_key": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true
+      }
     },
     {
       "collection": "event_flyers",
       "field": "status",
       "type": "string",
-      "meta": { "interface": "select-dropdown", "options": { "choices": [{ "text": "Published", "value": "published" }, { "text": "Draft", "value": "draft" }] } },
-      "schema": { "default_value": "published", "length": 16 }
+      "meta": {
+        "interface": "select-dropdown",
+        "options": {
+          "choices": [
+            {
+              "text": "Published",
+              "value": "published"
+            },
+            {
+              "text": "Draft",
+              "value": "draft"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "default_value": "published",
+        "length": 16
+      }
     },
     {
       "collection": "event_flyers",
       "field": "title",
       "type": "string",
-      "meta": { "required": true },
-      "schema": { "length": 255 }
+      "meta": {
+        "required": true
+      },
+      "schema": {
+        "length": 255
+      }
     },
     {
       "collection": "event_flyers",
@@ -283,111 +387,216 @@
       "collection": "event_flyers",
       "field": "link_url",
       "type": "string",
-      "schema": { "length": 512 }
+      "schema": {
+        "length": 512
+      }
     },
     {
       "collection": "event_flyers",
       "field": "description",
       "type": "text",
-      "meta": { "interface": "input-rich-text-html" },
+      "meta": {
+        "interface": "input-rich-text-html"
+      },
       "schema": {}
     },
     {
       "collection": "event_flyers",
       "field": "sort_order",
       "type": "integer",
-      "schema": { "default_value": 0 }
+      "schema": {
+        "default_value": 0
+      }
     },
     {
       "collection": "memorial_tributes",
       "field": "id",
       "type": "integer",
-      "meta": { "primary_key": true },
-      "schema": { "is_primary_key": true, "has_auto_increment": true }
+      "meta": {
+        "primary_key": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true
+      }
     },
     {
       "collection": "memorial_tributes",
       "field": "status",
       "type": "string",
-      "meta": { "options": { "choices": [{ "text": "Published", "value": "published" }, { "text": "Draft", "value": "draft" }] } },
-      "schema": { "default_value": "published", "length": 16 }
+      "meta": {
+        "options": {
+          "choices": [
+            {
+              "text": "Published",
+              "value": "published"
+            },
+            {
+              "text": "Draft",
+              "value": "draft"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "default_value": "published",
+        "length": 16
+      }
     },
     {
       "collection": "memorial_tributes",
       "field": "title",
       "type": "string",
-      "meta": { "required": true, "note": "Honoree / Pet Name" },
-      "schema": { "length": 255 }
+      "meta": {
+        "required": true,
+        "note": "Honoree / Pet Name"
+      },
+      "schema": {
+        "length": 255
+      }
     },
     {
       "collection": "memorial_tributes",
       "field": "line_key",
       "type": "string",
-      "meta": { "options": { "choices": [
-        { "text": "In Memory Of", "value": "in_memory" },
-        { "text": "In Loving Memory Of", "value": "in_loving" },
-        { "text": "In Honor Of", "value": "in_honor" },
-        { "text": "In Memory & Honor Of", "value": "in_memory_honor" },
-        { "text": "Happy Birthday", "value": "happy_birthday" }
-      ] } },
-      "schema": { "default_value": "in_memory", "length": 32 }
+      "meta": {
+        "options": {
+          "choices": [
+            {
+              "text": "In Memory Of",
+              "value": "in_memory"
+            },
+            {
+              "text": "In Loving Memory Of",
+              "value": "in_loving"
+            },
+            {
+              "text": "In Honor Of",
+              "value": "in_honor"
+            },
+            {
+              "text": "In Memory & Honor Of",
+              "value": "in_memory_honor"
+            },
+            {
+              "text": "Happy Birthday",
+              "value": "happy_birthday"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "default_value": "in_memory",
+        "length": 32
+      }
     },
     {
       "collection": "memorial_tributes",
       "field": "variant",
       "type": "string",
-      "meta": { "options": { "choices": [
-        { "text": "Standard", "value": "default" },
-        { "text": "Honor (Green)", "value": "honor" },
-        { "text": "Birthday", "value": "birthday" }
-      ] } },
-      "schema": { "default_value": "default", "length": 16 }
+      "meta": {
+        "options": {
+          "choices": [
+            {
+              "text": "Standard",
+              "value": "default"
+            },
+            {
+              "text": "Honor (Green)",
+              "value": "honor"
+            },
+            {
+              "text": "Birthday",
+              "value": "birthday"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "default_value": "default",
+        "length": 16
+      }
     },
     {
       "collection": "memorial_tributes",
       "field": "year",
       "type": "string",
-      "schema": { "length": 16 }
+      "schema": {
+        "length": 16
+      }
     },
     {
       "collection": "newsletter_issues",
       "field": "id",
       "type": "integer",
-      "meta": { "primary_key": true },
-      "schema": { "is_primary_key": true, "has_auto_increment": true }
+      "meta": {
+        "primary_key": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true
+      }
     },
     {
       "collection": "newsletter_issues",
       "field": "status",
       "type": "string",
-      "meta": { "options": { "choices": [{ "text": "Published", "value": "published" }, { "text": "Draft", "value": "draft" }] } },
-      "schema": { "default_value": "published", "length": 16 }
+      "meta": {
+        "options": {
+          "choices": [
+            {
+              "text": "Published",
+              "value": "published"
+            },
+            {
+              "text": "Draft",
+              "value": "draft"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "default_value": "published",
+        "length": 16
+      }
     },
     {
       "collection": "newsletter_issues",
       "field": "title",
       "type": "string",
-      "meta": { "required": true },
-      "schema": { "length": 255 }
+      "meta": {
+        "required": true
+      },
+      "schema": {
+        "length": 255
+      }
     },
     {
       "collection": "newsletter_issues",
       "field": "slug",
       "type": "string",
-      "meta": { "required": true },
-      "schema": { "length": 255 }
+      "meta": {
+        "required": true
+      },
+      "schema": {
+        "length": 255
+      }
     },
     {
       "collection": "newsletter_issues",
       "field": "issue_date",
       "type": "string",
-      "schema": { "length": 64 }
+      "schema": {
+        "length": 64
+      }
     },
     {
       "collection": "newsletter_issues",
       "field": "heading",
       "type": "string",
-      "schema": { "length": 255 }
+      "schema": {
+        "length": 255
+      }
     },
     {
       "collection": "newsletter_issues",
@@ -399,104 +608,153 @@
       "collection": "newsletter_issues",
       "field": "byline",
       "type": "string",
-      "schema": { "length": 128 }
+      "schema": {
+        "length": 128
+      }
     },
     {
       "collection": "newsletter_issues",
       "field": "blocks",
       "type": "json",
-      "meta": { "interface": "input-code", "options": { "language": "json" } },
+      "meta": {
+        "interface": "input-code",
+        "options": {
+          "language": "json"
+        }
+      },
       "schema": {}
     },
     {
       "collection": "newsletter_issues",
       "field": "featured",
       "type": "boolean",
-      "schema": { "default_value": false }
+      "schema": {
+        "default_value": false
+      }
     },
     {
       "collection": "site_settings",
       "field": "id",
       "type": "integer",
-      "meta": { "primary_key": true },
-      "schema": { "is_primary_key": true, "has_auto_increment": true }
+      "meta": {
+        "primary_key": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true
+      }
     },
     {
       "collection": "site_settings",
       "field": "adoptions_count",
       "type": "integer",
-      "schema": { "default_value": 750 }
+      "schema": {
+        "default_value": 750
+      }
     },
     {
       "collection": "site_settings",
       "field": "spay_neuter_count",
       "type": "integer",
-      "schema": { "default_value": 1200 }
+      "schema": {
+        "default_value": 1200
+      }
     },
     {
       "collection": "site_settings",
       "field": "meals_served_count",
       "type": "integer",
-      "schema": { "default_value": 15000 }
+      "schema": {
+        "default_value": 15000
+      }
     },
     {
       "collection": "site_settings",
       "field": "emergency_phone",
       "type": "string",
-      "schema": { "default_value": "734-243-3669", "length": 32 }
+      "schema": {
+        "default_value": "734-243-3669",
+        "length": 32
+      }
     },
     {
       "collection": "testimonials",
       "field": "id",
       "type": "integer",
-      "meta": { "primary_key": true },
-      "schema": { "is_primary_key": true, "has_auto_increment": true }
+      "meta": {
+        "primary_key": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true
+      }
     },
     {
       "collection": "testimonials",
       "field": "author",
       "type": "string",
-      "meta": { "required": true },
-      "schema": { "length": 128 }
+      "meta": {
+        "required": true
+      },
+      "schema": {
+        "length": 128
+      }
     },
     {
       "collection": "testimonials",
       "field": "quote",
       "type": "text",
-      "meta": { "required": true },
+      "meta": {
+        "required": true
+      },
       "schema": {}
     },
     {
       "collection": "testimonials",
       "field": "pet_name",
       "type": "string",
-      "schema": { "length": 64 }
+      "schema": {
+        "length": 64
+      }
     },
     {
       "collection": "membership_tiers",
       "field": "id",
       "type": "integer",
-      "meta": { "primary_key": true },
-      "schema": { "is_primary_key": true, "has_auto_increment": true }
+      "meta": {
+        "primary_key": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true
+      }
     },
     {
       "collection": "membership_tiers",
       "field": "name",
       "type": "string",
-      "meta": { "required": true },
-      "schema": { "length": 64 }
+      "meta": {
+        "required": true
+      },
+      "schema": {
+        "length": 64
+      }
     },
     {
       "collection": "membership_tiers",
       "field": "price_annual",
       "type": "integer",
-      "schema": { "default_value": 25 }
+      "schema": {
+        "default_value": 25
+      }
     },
     {
       "collection": "membership_tiers",
       "field": "price_monthly",
       "type": "integer",
-      "schema": { "default_value": 5 }
+      "schema": {
+        "default_value": 5
+      }
     },
     {
       "collection": "membership_tiers",
@@ -508,26 +766,39 @@
       "collection": "membership_tiers",
       "field": "stripe_link",
       "type": "string",
-      "schema": { "length": 512 }
+      "schema": {
+        "length": 512
+      }
     },
     {
       "collection": "membership_tiers",
       "field": "sort_order",
       "type": "integer",
-      "schema": { "default_value": 0 }
+      "schema": {
+        "default_value": 0
+      }
     },
     {
       "collection": "sync_runs",
       "field": "id",
       "type": "integer",
-      "meta": { "primary_key": true },
-      "schema": { "is_primary_key": true, "has_auto_increment": true }
+      "meta": {
+        "primary_key": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true
+      }
     },
     {
       "collection": "sync_runs",
       "field": "timestamp",
       "type": "dateTime",
-      "meta": { "required": true, "readonly": true, "width": "half" },
+      "meta": {
+        "required": true,
+        "readonly": true,
+        "width": "half"
+      },
       "schema": {}
     },
     {
@@ -537,44 +808,215 @@
       "meta": {
         "interface": "select-dropdown",
         "display": "labels",
-        "options": { "choices": [{ "text": "Success", "value": "success" }, { "text": "Error", "value": "error" }] },
+        "options": {
+          "choices": [
+            {
+              "text": "Success",
+              "value": "success"
+            },
+            {
+              "text": "Error",
+              "value": "error"
+            }
+          ]
+        },
         "display_options": {
           "choices": [
-            { "text": "Success", "value": "success", "foreground": "#166534", "background": "#DCFCE7" },
-            { "text": "Error", "value": "error", "foreground": "#991B1B", "background": "#FEE2E2" }
+            {
+              "text": "Success",
+              "value": "success",
+              "foreground": "#166534",
+              "background": "#DCFCE7"
+            },
+            {
+              "text": "Error",
+              "value": "error",
+              "foreground": "#991B1B",
+              "background": "#FEE2E2"
+            }
           ]
         },
         "width": "half"
       },
-      "schema": { "length": 16 }
+      "schema": {
+        "length": 16
+      }
     },
     {
       "collection": "sync_runs",
       "field": "active_count",
       "type": "integer",
-      "meta": { "readonly": true, "width": "third", "note": "Active pets in Directus at the end of this run" },
-      "schema": { "default_value": 0 }
+      "meta": {
+        "readonly": true,
+        "width": "third",
+        "note": "Active pets in Directus at the end of this run"
+      },
+      "schema": {
+        "default_value": 0
+      }
     },
     {
       "collection": "sync_runs",
       "field": "inserted_count",
       "type": "integer",
-      "meta": { "readonly": true, "width": "third", "note": "New pets added this run" },
-      "schema": { "default_value": 0 }
+      "meta": {
+        "readonly": true,
+        "width": "third",
+        "note": "New pets added this run"
+      },
+      "schema": {
+        "default_value": 0
+      }
     },
     {
       "collection": "sync_runs",
       "field": "archived_count",
       "type": "integer",
-      "meta": { "readonly": true, "width": "third", "note": "Pets archived this run (no longer on Petango)" },
-      "schema": { "default_value": 0 }
+      "meta": {
+        "readonly": true,
+        "width": "third",
+        "note": "Pets archived this run (no longer on Petango)"
+      },
+      "schema": {
+        "default_value": 0
+      }
     },
     {
       "collection": "sync_runs",
       "field": "error_message",
       "type": "text",
-      "meta": { "interface": "input-multiline", "readonly": true, "width": "full" },
+      "meta": {
+        "interface": "input-multiline",
+        "readonly": true,
+        "width": "full"
+      },
       "schema": {}
+    },
+    {
+      "collection": "grants",
+      "field": "id",
+      "type": "uuid",
+      "meta": {
+        "interface": "input",
+        "hidden": true,
+        "readonly": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": false
+      }
+    },
+    {
+      "collection": "grants",
+      "field": "title",
+      "type": "string",
+      "meta": {
+        "interface": "input",
+        "display": "raw"
+      },
+      "schema": {
+        "is_nullable": false
+      }
+    },
+    {
+      "collection": "grants",
+      "field": "source",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown",
+        "options": {
+          "choices": [
+            {
+              "text": "Zeffy",
+              "value": "Zeffy"
+            },
+            {
+              "text": "Grantable",
+              "value": "Grantable"
+            },
+            {
+              "text": "AAWA",
+              "value": "AAWA"
+            },
+            {
+              "text": "Manual",
+              "value": "Manual"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "is_nullable": false
+      }
+    },
+    {
+      "collection": "grants",
+      "field": "status",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown",
+        "options": {
+          "choices": [
+            {
+              "text": "Open",
+              "value": "open",
+              "color": "#00C853"
+            },
+            {
+              "text": "Watch",
+              "value": "watch",
+              "color": "#FFD600"
+            },
+            {
+              "text": "Applied",
+              "value": "applied",
+              "color": "#2962FF"
+            },
+            {
+              "text": "Skipped",
+              "value": "skipped",
+              "color": "#D50000"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "is_nullable": false,
+        "default_value": "open"
+      }
+    },
+    {
+      "collection": "grants",
+      "field": "deadline_notes",
+      "type": "text",
+      "meta": {
+        "interface": "textarea"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "grants",
+      "field": "open_url",
+      "type": "string",
+      "meta": {
+        "interface": "input"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "grants",
+      "field": "apply_url",
+      "type": "string",
+      "meta": {
+        "interface": "input"
+      },
+      "schema": {
+        "is_nullable": true
+      }
     }
   ],
   "relations": []

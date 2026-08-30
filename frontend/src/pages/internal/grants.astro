@@ -1,0 +1,180 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+export const prerender = false;
+---
+
+<BaseLayout title="Staff Portal: Grants Tracker">
+  <main class="internal-portal" style="padding: 2rem; max-width: 1200px; margin: 0 auto; min-height: 80vh;">
+    
+    <!-- Login Screen -->
+    <div id="login-view" style="display: none; text-align: center; margin-top: 10vh; padding: 3rem; background: #f9fafb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+      <h1 style="font-size: 2rem; margin-bottom: 1rem;">HSMC Staff Portal</h1>
+      <p style="color: #4b5563; margin-bottom: 2rem;">Please sign in with your Directus Staff credentials.</p>
+      <form id="login-form" style="max-width: 300px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem;">
+        <input type="email" id="email" placeholder="Email" required style="padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" />
+        <input type="password" id="password" placeholder="Password" required style="padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" />
+        <button type="submit" style="background: #2563eb; color: white; border: none; padding: 0.75rem; border-radius: 4px; font-weight: 600; cursor: pointer;">
+          Sign in
+        </button>
+        <div id="login-error" style="color: #ef4444; display: none;">Invalid credentials</div>
+      </form>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-view" style="display: none;">
+      <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">
+        <div>
+          <h1 style="margin: 0; font-size: 2.25rem; color: #111827;">Grants Tracker</h1>
+          <p style="margin: 0; color: #6b7280; font-size: 1rem;">Live Sync with Directus CMS</p>
+        </div>
+        <button id="logout-btn" style="background: transparent; color: #6b7280; border: 1px solid #d1d5db; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+          Sign out
+        </button>
+      </header>
+
+      <section style="background: #f9fafb; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h2 style="font-size: 1.25rem; margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">Discovery Tools</h2>
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+          <a href="https://www.zeffy.com" target="_blank" style="padding: 0.5rem 1rem; background: #fdf4ff; color: #a21caf; text-decoration: none; border-radius: 4px; border: 1px solid #fbcfe8;">Zeffy Grant Finder</a>
+          <a href="https://www.grantable.co" target="_blank" style="padding: 0.5rem 1rem; background: #f0fdf4; color: #15803d; text-decoration: none; border-radius: 4px; border: 1px solid #bbf7d0;">Grantable</a>
+          <a href="https://theaawa.org" target="_blank" style="padding: 0.5rem 1rem; background: #fff7ed; color: #c2410c; text-decoration: none; border-radius: 4px; border: 1px solid #fed7aa;">AAWA Resources</a>
+        </div>
+      </section>
+
+      <section style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h2 style="font-size: 1.25rem; margin: 0;">Active Grants</h2>
+          <button id="add-grant-btn" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold;">+ Add Grant</button>
+        </div>
+
+        <div id="grants-container">
+          <p style="color: #6b7280; text-align: center; padding: 2rem;">Loading grants...</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  import { createDirectus, rest, authentication, readItems, createItem } from '@directus/sdk';
+
+  const DIRECTUS_URL = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
+  
+  // Use session storage for secure temporary auth
+  const client = createDirectus(DIRECTUS_URL).with(rest()).with(authentication('json', {
+    storage: {
+      get() { return JSON.parse(sessionStorage.getItem('directus_auth') || 'null'); },
+      set(data) { sessionStorage.setItem('directus_auth', JSON.stringify(data)); }
+    }
+  }));
+
+  const loginView = document.getElementById('login-view');
+  const dashboardView = document.getElementById('dashboard-view');
+  const grantsContainer = document.getElementById('grants-container');
+
+  async function checkAuth() {
+    try {
+      const authData = await client.getToken();
+      if (authData) {
+        showDashboard();
+      } else {
+        showLogin();
+      }
+    } catch (e) {
+      showLogin();
+    }
+  }
+
+  function showLogin() {
+    loginView.style.display = 'block';
+    dashboardView.style.display = 'none';
+  }
+
+  function showDashboard() {
+    loginView.style.display = 'none';
+    dashboardView.style.display = 'block';
+    loadGrants();
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    try {
+      await client.login(email, password);
+      document.getElementById('login-error').style.display = 'none';
+      showDashboard();
+    } catch (error) {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await client.logout();
+    sessionStorage.removeItem('directus_auth');
+    showLogin();
+  });
+
+  async function loadGrants() {
+    try {
+      const grants = await client.request(readItems('grants'));
+      
+      if (grants.length === 0) {
+        grantsContainer.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 2rem;">No grants tracked yet.</p>';
+        return;
+      }
+
+      let html = `
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid #e5e7eb; color: #4b5563;">
+              <th style="padding: 0.75rem;">Title</th>
+              <th style="padding: 0.75rem;">Source</th>
+              <th style="padding: 0.75rem;">Status</th>
+              <th style="padding: 0.75rem;">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      for (const grant of grants) {
+        html += `
+          <tr style="border-bottom: 1px solid #f3f4f6;">
+            <td style="padding: 0.75rem; font-weight: 500;">${grant.title}</td>
+            <td style="padding: 0.75rem; color: #6b7280;">${grant.source}</td>
+            <td style="padding: 0.75rem;"><span style="background: #eff6ff; color: #1d4ed8; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.875rem; text-transform: capitalize;">${grant.status}</span></td>
+            <td style="padding: 0.75rem; color: #6b7280;">${grant.deadline_notes || "—"}</td>
+          </tr>
+        `;
+      }
+      
+      html += '</tbody></table>';
+      grantsContainer.innerHTML = html;
+    } catch (error) {
+      if (error.errors && error.errors[0]?.extensions?.code === 'COLLECTION_UNKNOWN') {
+        grantsContainer.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 2rem;">Grants table is pending creation in Directus. Please wait for the next deployment.</p>';
+      } else {
+        grantsContainer.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 2rem;">Error loading grants.</p>';
+      }
+    }
+  }
+
+  document.getElementById('add-grant-btn').addEventListener('click', async () => {
+    const title = prompt("Grant Title:");
+    if (!title) return;
+    
+    try {
+      await client.request(createItem('grants', {
+        title: title,
+        source: 'Manual',
+        status: 'open'
+      }));
+      loadGrants();
+    } catch (e) {
+      alert("Failed to create grant. Ensure the schema is deployed.");
+    }
+  });
+
+  // Init
+  checkAuth();
+</script>
