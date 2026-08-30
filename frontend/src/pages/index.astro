@@ -17,6 +17,35 @@ const newsletters = await getNewsletterIssues();
 const latestEvent = events[0];
 const latestNewsletter = newsletters[0];
 
+// "Next event" widget: compute from the voting-schedule stops instead of a
+// hardcoded date, so it never goes stale like the old fixed "August 22"
+// entry did. Picks whichever stop is today or the next upcoming one; once
+// the whole schedule is in the past, falls back to the most recent stop.
+const currentYear = new Date().getFullYear();
+const scheduleWithDates = home.events_feature.schedule.map((row) => {
+  const parsed = new Date(`${row.date}, ${currentYear} 12:00:00`);
+  const [venue, ...timeParts] = row.location.split(',');
+  return { ...row, parsedDate: parsed, venue: venue.trim(), time: timeParts.join(',').trim() };
+});
+const now = new Date();
+const upcomingStops = scheduleWithDates
+  .filter((row) => !Number.isNaN(row.parsedDate.getTime()) && row.parsedDate >= now)
+  .sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime());
+const pastStops = scheduleWithDates
+  .filter((row) => !Number.isNaN(row.parsedDate.getTime()) && row.parsedDate < now)
+  .sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime());
+const nextStop = upcomingStops[0] ?? pastStops[0];
+
+const nextEvent = nextStop
+  ? {
+      kicker: home.next_event.kicker,
+      date: nextStop.parsedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      title: nextStop.venue,
+      time: nextStop.time,
+      buttons: home.next_event.buttons,
+    }
+  : home.next_event;
+
 interface Review { author?: string; rating?: number; time?: number; text?: string }
 const reviews = (reviewsData as Review[]).filter((r): r is Required<Review> => Boolean(r.author));
 
@@ -203,19 +232,34 @@ const indexLabels: Record<string, string> = {
         <div class="home-editable-upcoming-event-hero home-editable-feature-card">
           <div class="home-editable-upcoming-event-hero__grid">
             <div class="home-editable-upcoming-event-hero__media-col">
-              <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--placeholder" aria-hidden="true">🐾</div>
+              {pets.length > 0 ? (
+                <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--slideshow" aria-hidden="true">
+                  {pets.map((pet, i) => (
+                    <img
+                      src={pet.image}
+                      alt=""
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                      class="home-editable-upcoming-event-hero__slide"
+                      style={`animation-duration: ${pets.length * 4}s; animation-delay: ${i * 4}s`}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--placeholder" aria-hidden="true">🐾</div>
+              )}
             </div>
             <div class="home-editable-upcoming-event-hero__copy">
-              <p class="home-editable-pill home-editable-upcoming-event-hero__kicker">{home.next_event.kicker}</p>
-              <p class="home-editable-pill home-editable-upcoming-event-hero__date">{home.next_event.date}</p>
-              <h2 class="wp-block-heading">{home.next_event.title}</h2>
-              <p>{home.next_event.time}</p>
+              <p class="home-editable-pill home-editable-upcoming-event-hero__kicker">{nextEvent.kicker}</p>
+              <p class="home-editable-pill home-editable-upcoming-event-hero__date">{nextEvent.date}</p>
+              <h2 class="wp-block-heading">{nextEvent.title}</h2>
+              <p>{nextEvent.time}</p>
               <div class="wp-block-buttons">
                 <div class="wp-block-button">
-                  <a class="wp-block-button__link has-base-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href="/events">{home.next_event.buttons[0].label}</a>
+                  <a class="wp-block-button__link has-base-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href="/events">{nextEvent.buttons[0].label}</a>
                 </div>
                 <div class="wp-block-button is-style-outline">
-                  <a class="wp-block-button__link wp-element-button" href="/events">{home.next_event.buttons[1].label}</a>
+                  <a class="wp-block-button__link wp-element-button" href="/events">{nextEvent.buttons[1].label}</a>
                 </div>
               </div>
             </div>
