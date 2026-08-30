@@ -45,8 +45,9 @@ const year = new Date().getFullYear();
       </div>
     </div>
 
-    <div class="monroe-site-footer__staff">
-      <a href={staffPortalUrl} class="monroe-site-footer__staff-btn">Staff</a>
+    <div class="monroe-site-footer__staff" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+      <a href={staffPortalUrl} class="monroe-site-footer__staff-btn">Staff CMS</a>
+      <a href="/internal/grants" class="monroe-site-footer__staff-btn">Grants Tracker</a>
     </div>
 
     <p class="monroe-site-footer__legal">&copy; {year} {SITE.name}. All rights reserved.</p>
