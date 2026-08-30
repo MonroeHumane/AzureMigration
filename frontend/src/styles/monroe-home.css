@@ -213,6 +213,21 @@ body.home-editable-has-flyers-rail .home-editable-hero-title {
   box-sizing: border-box;
 }
 
+/* Scroll-reveal: JS opts a section in via .reveal-pending right before it
+   starts observing it, so nothing is ever hidden unless a fade-in is
+   actually about to be animated in (see the script at the bottom of the
+   page) — content never depends on JS to become visible. */
+.reveal-pending {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal-pending.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
 .home-editable-intro-card,
 .home-editable-feature-card,
 .home-editable-events-card,

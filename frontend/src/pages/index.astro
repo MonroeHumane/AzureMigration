@@ -14,20 +14,26 @@ const pets = (await getPets()).slice(0, 6);
 const settings = await getSiteSettings();
 const events = await getEventFlyers();
 const newsletters = await getNewsletterIssues();
-const latestEvent = events[0];
+const now = new Date();
+
+// Spotlight the soonest genuinely upcoming flyer event, not just whichever
+// one happens to sort first in the data — events[0] was surfacing a Gala
+// from months ago as the "latest" event long after it had passed.
+const latestEvent = events
+  .filter((e) => e.event_date && new Date(e.event_date) >= now)
+  .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime())[0];
 const latestNewsletter = newsletters[0];
 
 // "Next event" widget: compute from the voting-schedule stops instead of a
 // hardcoded date, so it never goes stale like the old fixed "August 22"
 // entry did. Picks whichever stop is today or the next upcoming one; once
 // the whole schedule is in the past, falls back to the most recent stop.
-const currentYear = new Date().getFullYear();
+const currentYear = now.getFullYear();
 const scheduleWithDates = home.events_feature.schedule.map((row) => {
   const parsed = new Date(`${row.date}, ${currentYear} 12:00:00`);
   const [venue, ...timeParts] = row.location.split(',');
   return { ...row, parsedDate: parsed, venue: venue.trim(), time: timeParts.join(',').trim() };
 });
-const now = new Date();
 const upcomingStops = scheduleWithDates
   .filter((row) => !Number.isNaN(row.parsedDate.getTime()) && row.parsedDate >= now)
   .sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime());
@@ -60,7 +66,10 @@ if (home.accomplishments.years['2025']) {
 
 const formatDate = (value: string | undefined, fallback: string) => {
   if (!value) return fallback;
-  const d = new Date(value);
+  // Parsing a bare "YYYY-MM-DD" string gives UTC midnight, which a
+  // behind-UTC timezone then displays as the previous day — parse at
+  // noon instead so the calendar date can't shift across the boundary.
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T12:00:00`) : new Date(value);
   return Number.isNaN(d.getTime())
     ? fallback
     : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -183,7 +192,7 @@ const indexLabels: Record<string, string> = {
       <section class="hs-feature-widget home-editable-events-artwork" aria-labelledby="hs-events-feature-title">
           <div class="hs-wrap">
             <div class="hs-copy">
-              <p class="hs-kicker">Latest Event</p>
+              <p class="hs-kicker">{latestEvent ? 'Upcoming Event' : 'Latest Event'}</p>
               <p class="hs-deadline">{latestEvent ? formatDate(latestEvent.event_date, home.events_feature.deadline) : home.events_feature.deadline}</p>
               <h2 id="hs-events-feature-title">{latestEvent ? latestEvent.title : home.events_feature.title}</h2>
               <p class="hs-body">{latestEvent ? latestEvent.description : home.events_feature.body[0]}</p>
@@ -934,6 +943,56 @@ const indexLabels: Record<string, string> = {
             panel.hidden = !active;
           });
         });
+      });
+    }
+
+    // Accomplishments stat counters — count up from 0 the first time each
+    // tile scrolls into view. data-count has been sitting on these tiles
+    // unused; this is what it was for.
+    const countEls = document.querySelectorAll<HTMLElement>('.monroe-accomplishments-stat__value[data-count]');
+    if (countEls.length && 'IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const countIO = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target as HTMLElement;
+          countIO.unobserve(el);
+          const target = Number(el.dataset.count);
+          if (!Number.isFinite(target)) return;
+          const original = el.textContent ?? '';
+          const prefix = original.match(/^\D*/)?.[0] ?? '';
+          const suffix = original.match(/\D*$/)?.[0] ?? '';
+          const duration = 1200;
+          const start = performance.now();
+          const step = (now: number) => {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = `${prefix}${Math.round(target * eased).toLocaleString()}${suffix}`;
+            if (progress < 1) requestAnimationFrame(step);
+            else el.textContent = original;
+          };
+          requestAnimationFrame(step);
+        });
+      }, { threshold: 0.4 });
+      countEls.forEach((el) => countIO.observe(el));
+    }
+
+    // Scroll-reveal for below-the-fold sections. Anything already visible on
+    // load is left completely alone (never hidden) so there's no dependency
+    // on JS running for the page to display correctly — this only adds a
+    // fade/rise to sections the visitor scrolls down to.
+    if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const revealIO = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-revealed');
+          revealIO.unobserve(entry.target);
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+      document.querySelectorAll<HTMLElement>('.home-editable-section').forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.85) return;
+        section.classList.add('reveal-pending');
+        revealIO.observe(section);
       });
     }
 
