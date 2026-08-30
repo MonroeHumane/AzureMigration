@@ -1,18 +1,18 @@
 ---
 /**
  * Monroe Humane — TV Lobby Display / Kiosk
- * 
- * Standalone, full-screen, high-contrast display designed for 1080p/4K TV screens
- * in the shelter lobby, waiting area, and adoption center.
- * 
- * Features:
- * - 0 web navigation or chrome (100% full-screen kiosk immersion)
- * - Active streaming queue of adoptable dogs and cats
- * - Dynamic QR code linking directly to each pet's profile for mobile phone applications
- * - Live real-time clock & available pet counter
- * - Automatic background data refresh every 10 minutes
- * - Screen WakeLock API integration (prevents TV display from sleeping)
- * - Keyboard shortcuts: [F] Fullscreen, [Space] Pause/Play, [Left/Right] Previous/Next
+ *
+ * Full-screen kiosk for shelter lobby TVs. Deliberately minimal: the
+ * clock, one pet at a time (photo + a few facts), a real QR code that
+ * links straight to that pet's live adoption page, and the shelter's
+ * mark. Nothing else competes for attention.
+ *
+ * The QR code is generated natively in the browser (qr-code-styling,
+ * bundled — no third-party image API call), targets the actual native
+ * per-pet page (/adopt/{id}), and re-renders whenever the spotlight
+ * pet changes. Pet data comes from the same live Directus feed the
+ * rest of the site uses, with a background refresh so the display
+ * tracks the PetSync pipeline without a restart.
  */
 
 import { getPets } from '../../lib/directus';
@@ -27,784 +27,442 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>HSMC TV — Active Adoptable Pets</title>
+  <title>HSMC TV — Adoptable Pets</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Jost:wght@400;500;600;700;800&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Jost:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --tv-bg: #061816;
-      --tv-surface: #0c2a26;
-      --tv-card: #123d38;
-      --tv-card-border: rgba(38, 166, 154, 0.25);
-      --tv-accent: #2dd4bf;
+      --tv-bg-deep: #061816;
+      --tv-bg: #0c2a26;
+      --tv-teal: #2dd4bf;
+      --tv-teal-deep: #0f766e;
       --tv-gold: #fbbf24;
       --tv-text: #ffffff;
-      --tv-text-muted: #99f6e4;
+      --tv-text-muted: #a7d9d0;
       --tv-font-display: 'Abril Fatface', Georgia, serif;
-      --tv-font-sans: 'Jost', 'Montserrat', sans-serif;
+      --tv-font-sans: 'Jost', 'Segoe UI', sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      background-color: var(--tv-bg);
-      color: var(--tv-text);
-      font-family: var(--tv-font-sans);
+    html, body {
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 14% 12%, rgba(45, 212, 191, 0.16), transparent 42%),
+        radial-gradient(circle at 88% 86%, rgba(251, 191, 36, 0.1), transparent 46%),
+        linear-gradient(160deg, var(--tv-bg-deep), var(--tv-bg));
+      color: var(--tv-text);
+      font-family: var(--tv-font-sans);
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       user-select: none;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Background Ambient Glow */
-    .tv-glow {
-      position: absolute;
-      top: -20%;
-      left: -10%;
-      width: 60vw;
-      height: 60vh;
-      background: radial-gradient(circle, rgba(45, 212, 191, 0.12), transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .tv-glow-2 {
-      position: absolute;
-      bottom: -20%;
-      right: -10%;
-      width: 60vw;
-      height: 60vh;
-      background: radial-gradient(circle, rgba(251, 191, 36, 0.08), transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Top Bar */
-    header.tv-top-bar {
-      position: relative;
+    /* ---------------- Corner chrome: logo + clock, nothing else ---------------- */
+    .tv-brand-corner {
+      position: fixed;
+      top: clamp(1.25rem, 3vw, 2.25rem);
+      left: clamp(1.25rem, 3vw, 2.25rem);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
       z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 2.5rem;
-      background: rgba(6, 24, 22, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(45, 212, 191, 0.15);
-      height: 5.5rem;
     }
 
-    .tv-brand {
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-    }
-
-    .tv-brand__logo {
-      height: 3.25rem;
+    .tv-brand-corner img {
+      height: clamp(2.5rem, 4vw, 3.5rem);
       width: auto;
       object-fit: contain;
+      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
     }
 
-    .tv-brand__titles h1 {
+    .tv-brand-corner span {
       font-family: var(--tv-font-display);
-      font-size: 1.6rem;
-      letter-spacing: 0.02em;
-      color: #ffffff;
-      line-height: 1.1;
+      font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+      color: var(--tv-text);
+      letter-spacing: 0.01em;
     }
 
-    .tv-brand__titles p {
-      font-size: 0.95rem;
-      color: var(--tv-text-muted);
-      font-weight: 500;
-      letter-spacing: 0.04em;
-    }
-
-    .tv-status {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-    }
-
-    .tv-count-badge {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: rgba(45, 212, 191, 0.12);
-      border: 1px solid rgba(45, 212, 191, 0.3);
-      padding: 0.6rem 1.25rem;
-      border-radius: 999px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--tv-accent);
-    }
-
-    .tv-clock {
+    .tv-clock-corner {
+      position: fixed;
+      top: clamp(1.25rem, 3vw, 2.25rem);
+      right: clamp(1.25rem, 3vw, 2.25rem);
       text-align: right;
+      z-index: 10;
     }
 
-    .tv-clock__time {
-      font-size: 1.65rem;
+    .tv-clock-corner__time {
+      font-size: clamp(1.5rem, 2.6vw, 2.25rem);
       font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #ffffff;
+      letter-spacing: -0.01em;
+      color: var(--tv-text);
       line-height: 1;
     }
 
-    .tv-clock__date {
-      font-size: 0.88rem;
+    .tv-clock-corner__date {
+      font-size: clamp(0.8rem, 1.1vw, 0.95rem);
       color: var(--tv-text-muted);
-      margin-top: 0.2rem;
+      margin-top: 0.3rem;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
       font-weight: 600;
     }
 
-    /* Main Display Layout */
-    main.tv-main {
-      position: relative;
-      z-index: 5;
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 2rem;
-      padding: 2rem 2.5rem;
-      min-height: 0;
-      height: calc(100vh - 5.5rem - 3.5rem);
-    }
-
-    /* Left: Featured Spotlight Card */
-    .tv-spotlight {
-      background: linear-gradient(135deg, rgba(18, 61, 56, 0.85) 0%, rgba(12, 42, 38, 0.95) 100%);
-      border: 1px solid var(--tv-card-border);
-      border-radius: 28px;
-      padding: 2rem;
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: 2.25rem;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
-      position: relative;
-      overflow: hidden;
-      align-items: stretch;
-    }
-
-    /* Progress bar for timer */
-    .tv-timer-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 6px;
-      background: linear-gradient(90deg, var(--tv-accent), var(--tv-gold));
-      width: 0%;
-      z-index: 20;
-    }
-
-    .tv-spotlight__media-wrap {
-      position: relative;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 2px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-      background: #000;
+    /* ---------------- The one thing on screen: the pet ---------------- */
+    .tv-stage {
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100%;
+      padding: clamp(5.5rem, 9vw, 7.5rem) clamp(2rem, 5vw, 4rem);
     }
 
-    .tv-spotlight__img {
+    .tv-card {
+      width: 100%;
+      max-width: 1400px;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: clamp(2rem, 4vw, 3.5rem);
+      align-items: center;
+      transition: opacity 0.45s ease;
+    }
+
+    .tv-card.is-transitioning { opacity: 0; }
+
+    .tv-card__photo-wrap {
+      position: relative;
+      border-radius: 32px;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      background: #000;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+    }
+
+    .tv-card__photo {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 8s ease, opacity 0.5s ease;
+      transform: scale(1);
+      transition: transform 9s ease, opacity 0.4s ease;
     }
 
-    .tv-spotlight__img.zooming {
-      transform: scale(1.08);
-    }
+    .tv-card__photo.zooming { transform: scale(1.08); }
 
-    .tv-spotlight__tag {
+    .tv-card__species-badge {
       position: absolute;
       top: 1.25rem;
       left: 1.25rem;
+      width: 3.25rem;
+      height: 3.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
       background: rgba(6, 24, 22, 0.85);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(45, 212, 191, 0.4);
-      padding: 0.5rem 1rem;
-      border-radius: 999px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--tv-accent);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      font-size: 1.5rem;
     }
 
-    .tv-spotlight__info {
+    .tv-card__info {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      padding: 0.5rem 0;
+      gap: clamp(1rem, 2vw, 1.5rem);
+      min-width: 0;
     }
 
-    .tv-spotlight__header h2 {
+    .tv-card__name {
       font-family: var(--tv-font-display);
-      font-size: 3.8rem;
-      color: #ffffff;
+      font-size: clamp(3rem, 6vw, 5rem);
       line-height: 1;
-      margin-bottom: 0.75rem;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      color: #ffffff;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
     }
 
-    .tv-pill-group {
+    .tv-card__pills {
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
-      margin-bottom: 1.5rem;
     }
 
     .tv-pill {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 0.45rem 1rem;
+      padding: 0.5rem 1.15rem;
       border-radius: 999px;
-      font-size: 1.05rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      font-size: clamp(0.9rem, 1.3vw, 1.1rem);
       font-weight: 600;
       color: #ffffff;
     }
 
+    .tv-pill--accent {
+      background: rgba(45, 212, 191, 0.16);
+      border-color: rgba(45, 212, 191, 0.42);
+      color: var(--tv-teal);
+    }
+
     .tv-pill--gold {
-      background: rgba(251, 191, 36, 0.15);
-      border-color: rgba(251, 191, 36, 0.4);
+      background: rgba(251, 191, 36, 0.16);
+      border-color: rgba(251, 191, 36, 0.42);
       color: var(--tv-gold);
     }
 
-    .tv-pill--accent {
-      background: rgba(45, 212, 191, 0.15);
-      border-color: rgba(45, 212, 191, 0.4);
-      color: var(--tv-accent);
-    }
-
-    .tv-spotlight__bio {
-      font-size: 1.25rem;
-      line-height: 1.55;
-      color: #e2e8f0;
-      margin-bottom: 1.5rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* QR Code Card inside Spotlight */
-    .tv-spotlight__qr-card {
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 1rem 1.25rem;
+    /* ---------------- QR card ---------------- */
+    .tv-qr-card {
       display: flex;
       align-items: center;
       gap: 1.25rem;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 1.1rem 1.5rem;
       color: #0f2d29;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-      margin-top: auto;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      margin-top: 0.5rem;
+      width: fit-content;
     }
 
-    .tv-spotlight__qr-img {
-      width: 5.25rem;
-      height: 5.25rem;
+    .tv-qr-card__code {
       flex-shrink: 0;
-      border-radius: 8px;
+      width: clamp(6rem, 9vw, 7.5rem);
+      height: clamp(6rem, 9vw, 7.5rem);
+      display: flex;
     }
 
-    .tv-spotlight__qr-text h3 {
+    .tv-qr-card__code svg,
+    .tv-qr-card__code canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .tv-qr-card__text h2 {
       font-family: var(--tv-font-sans);
-      font-size: 1.15rem;
+      font-size: clamp(1.05rem, 1.5vw, 1.3rem);
       font-weight: 800;
       color: #0c2a26;
-      line-height: 1.2;
+      line-height: 1.25;
     }
 
-    .tv-spotlight__qr-text p {
-      font-size: 0.9rem;
-      color: #334155;
+    .tv-qr-card__text p {
+      font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+      color: #4b6968;
       margin-top: 0.25rem;
       line-height: 1.35;
     }
 
-    /* Right: Up Next Streaming Line */
-    .tv-stream {
-      background: rgba(12, 42, 38, 0.6);
-      border: 1px solid rgba(45, 212, 191, 0.15);
-      border-radius: 28px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .tv-stream__title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--tv-accent);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .tv-stream__list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-      overflow-y: hidden;
-      flex: 1;
-    }
-
-    .tv-stream__item {
-      display: flex;
-      align-items: center;
-      gap: 1.1rem;
-      padding: 0.85rem 1.1rem;
-      border-radius: 18px;
-      background: rgba(18, 61, 56, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.35s ease;
-      cursor: pointer;
-    }
-
-    .tv-stream__item.active {
-      background: rgba(45, 212, 191, 0.18);
-      border-color: var(--tv-accent);
-      transform: scale(1.02) translateX(6px);
-      box-shadow: 0 8px 24px rgba(45, 212, 191, 0.2);
-    }
-
-    .tv-stream__avatar {
-      width: 4rem;
-      height: 4rem;
-      border-radius: 14px;
-      object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      flex-shrink: 0;
-    }
-
-    .tv-stream__meta {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .tv-stream__name {
-      font-family: var(--tv-font-display);
-      font-size: 1.45rem;
-      color: #ffffff;
-      
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .tv-stream__details {
-      font-size: 0.92rem;
-      color: var(--tv-text-muted);
-      
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 0.15rem;
-    }
-
-    .tv-stream__species {
-      font-size: 1.35rem;
-    }
-
-    /* Bottom Ticker */
-    footer.tv-ticker {
-      position: relative;
-      z-index: 10;
-      height: 3.5rem;
-      background: #04100e;
-      border-top: 1px solid rgba(45, 212, 191, 0.2);
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .tv-ticker__label {
-      background: var(--tv-accent);
-      color: #04100e;
-      font-weight: 800;
-      font-size: 0.95rem;
-      padding: 0 1.5rem;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      flex-shrink: 0;
-      z-index: 2;
-    }
-
-    .tv-ticker__track-wrap {
-      flex: 1;
-      overflow: hidden;
-      
-    }
-
-    .tv-ticker__track {
-      display: inline-block;
-      padding-left: 100%;
-      animation: ticker 40s linear infinite;
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #e2e8f0;
-    }
-
-    @keyframes ticker {
-      0% { transform: translate3d(0, 0, 0); }
-      100% { transform: translate3d(-100%, 0, 0); }
-    }
-
-    /* Onscreen Floating Control for Staff/Admins */
-    .tv-controls {
-      position: fixed;
-      bottom: 4.5rem;
-      right: 2.5rem;
-      display: flex;
-      gap: 0.6rem;
-      z-index: 100;
-      opacity: 0.2;
-      transition: opacity 0.3s ease;
-    }
-
-    .tv-controls:hover {
-      opacity: 1;
-    }
-
-    .tv-btn {
-      background: rgba(6, 24, 22, 0.9);
-      border: 1px solid var(--tv-accent);
-      color: #ffffff;
-      width: 2.75rem;
-      height: 2.75rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    @media (max-width: 900px) {
+      .tv-card { grid-template-columns: 1fr; }
+      .tv-card__photo-wrap { aspect-ratio: 16 / 9; }
     }
   </style>
 </head>
 <body>
-  <div class="tv-glow"></div>
-  <div class="tv-glow-2"></div>
-
-  <!-- Top Bar -->
-  <header class="tv-top-bar">
-    <div class="tv-brand">
-      <img src={SITE.assets.logo} alt="Monroe Humane Logo" class="tv-brand__logo" />
-      <div class="tv-brand__titles">
-        <h1>Humane Society of Monroe County</h1>
-        <p>🐾 911 S. Raisinville Rd • (734) 243-3669 • Safe Haven Since 1954</p>
-      </div>
-    </div>
-
-    <div class="tv-status">
-      <div class="tv-count-badge">
-        <span>🐾</span>
-        <span id="petCountText">{pets.length} Available Pets</span>
-      </div>
-      <div class="tv-clock">
-        <div class="tv-clock__time" id="clockTime">12:00 PM</div>
-        <div class="tv-clock__date" id="clockDate">Monroe, MI</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="tv-main">
-    <!-- Left Spotlight -->
-    <section class="tv-spotlight" id="spotlightCard">
-      <div class="tv-timer-bar" id="timerBar"></div>
-      
-      <div class="tv-spotlight__media-wrap">
-        <img id="spotlightImg" class="tv-spotlight__img zooming" src="" alt="" />
-        <div class="tv-spotlight__tag" id="spotlightTag">
-          <span>🐕</span> <span id="spotlightSpecies">Dog</span>
-        </div>
-      </div>
-
-      <div class="tv-spotlight__info">
-        <div class="tv-spotlight__header">
-          <h2 id="spotlightName">Name</h2>
-          <div class="tv-pill-group">
-            <span class="tv-pill tv-pill--gold" id="spotlightAge">Age</span>
-            <span class="tv-pill tv-pill--accent" id="spotlightGender">Gender</span>
-            <span class="tv-pill" id="spotlightBreed">Breed</span>
-          </div>
-          <p class="tv-spotlight__bio" id="spotlightBio">
-            Ready to find a forever home! Visit with our staff or scan the QR code to apply online.
-          </p>
-        </div>
-
-        <div class="tv-spotlight__qr-card">
-          <img id="spotlightQr" class="tv-spotlight__qr-img" src="" alt="Scan QR Code to Adopt" />
-          <div class="tv-spotlight__qr-text">
-            <h3>📱 Scan on Phone to Adopt</h3>
-            <p>Open your camera to see full medical history, photos, and submit an adoption application instantly!</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Right Stream Line -->
-    <section class="tv-stream">
-      <div class="tv-stream__title">
-        <span>🐾 Live Adoption Line</span>
-        <span id="currentIndexLabel">1 of {pets.length}</span>
-      </div>
-      <div class="tv-stream__list" id="streamList">
-        <!-- Injected via JavaScript -->
-      </div>
-    </section>
-  </main>
-
-  <!-- Bottom Ticker -->
-  <footer class="tv-ticker">
-    <div class="tv-ticker__label">Shelter News</div>
-    <div class="tv-ticker__track-wrap">
-      <div class="tv-ticker__track">
-        🌟 All adoptions include complete spay/neuter, microchip, rabies, and core vaccinations! &nbsp; • &nbsp; 
-        🐕 Ask our staff about our "Doggie Day Out" program to take a dog on an adventure today! &nbsp; • &nbsp; 
-        ⏰ Adoption Hours: Tue–Fri 11:00 AM - 4:00 PM • Sat 11:00 AM - 3:00 PM • Closed Sun & Mon &nbsp; • &nbsp; 
-        🐾 Visit monroe-humane.org/adopt on your phone to browse all animals &nbsp; • &nbsp; 
-        ❤️ Thank you to our 2026 Community Partners & Volunteers for making second chances possible!
-      </div>
-    </div>
-  </footer>
-
-  <!-- Controls overlay -->
-  <div class="tv-controls">
-    <button class="tv-btn" id="prevBtn" title="Previous Pet (Left Arrow)">◀</button>
-    <button class="tv-btn" id="playBtn" title="Pause / Play (Space)">⏸</button>
-    <button class="tv-btn" id="nextBtn" title="Next Pet (Right Arrow)">▶</button>
-    <button class="tv-btn" id="fullBtn" title="Toggle Fullscreen (F)">⛶</button>
+  <!-- Logo -->
+  <div class="tv-brand-corner">
+    <img src={SITE.assets.logo} alt="Monroe Humane" />
+    <span>Monroe Humane</span>
   </div>
 
+  <!-- Time -->
+  <div class="tv-clock-corner">
+    <div class="tv-clock-corner__time" id="clockTime">12:00 PM</div>
+    <div class="tv-clock-corner__date" id="clockDate">Monroe, MI</div>
+  </div>
+
+  <!-- Pet + QR -->
+  <main class="tv-stage">
+    <div class="tv-card" id="petCard">
+      <div class="tv-card__photo-wrap">
+        <img id="petPhoto" class="tv-card__photo zooming" src="" alt="" />
+        <span class="tv-card__species-badge" id="petSpeciesBadge">🐕</span>
+      </div>
+
+      <div class="tv-card__info">
+        <h1 class="tv-card__name" id="petName">&nbsp;</h1>
+        <div class="tv-card__pills">
+          <span class="tv-pill tv-pill--gold" id="petAge">Age</span>
+          <span class="tv-pill tv-pill--accent" id="petGender">Gender</span>
+          <span class="tv-pill" id="petBreed">Breed</span>
+        </div>
+        <div class="tv-qr-card">
+          <div class="tv-qr-card__code" id="petQr"></div>
+          <div class="tv-qr-card__text">
+            <h2>📱 Scan to meet <span id="petNameInline">me</span></h2>
+            <p>Opens their full profile and adoption application on your phone.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Data handoff: kept as a tiny inline script (no bundling) so the
+       server-rendered pet list reaches the bundled module script below
+       without needing a network round trip on load. -->
   <script is:inline define:vars={{ initialPets: pets }}>
-    let pets = initialPets || [];
+    window.__TV_INITIAL_PETS__ = initialPets || [];
+  </script>
+
+  <script>
+    import QRCodeStyling from 'qr-code-styling';
+
+    let pets = window.__TV_INITIAL_PETS__ || [];
     let currentIndex = 0;
     let isPlaying = true;
-    let timerDuration = 9000; // 9 seconds per pet
-    let timerInterval = null;
-    let timerStartTime = 0;
+    let rotateInterval = null;
+    const ROTATE_MS = 10000;
 
-    // Elements
-    const spotlightImg = document.getElementById('spotlightImg');
-    const spotlightName = document.getElementById('spotlightName');
-    const spotlightAge = document.getElementById('spotlightAge');
-    const spotlightGender = document.getElementById('spotlightGender');
-    const spotlightBreed = document.getElementById('spotlightBreed');
-    const spotlightSpecies = document.getElementById('spotlightSpecies');
-    const spotlightTag = document.getElementById('spotlightTag');
-    const spotlightBio = document.getElementById('spotlightBio');
-    const spotlightQr = document.getElementById('spotlightQr');
-    const streamList = document.getElementById('streamList');
-    const currentIndexLabel = document.getElementById('currentIndexLabel');
-    const timerBar = document.getElementById('timerBar');
+    const petPhoto = document.getElementById('petPhoto');
+    const petSpeciesBadge = document.getElementById('petSpeciesBadge');
+    const petName = document.getElementById('petName');
+    const petNameInline = document.getElementById('petNameInline');
+    const petAge = document.getElementById('petAge');
+    const petGender = document.getElementById('petGender');
+    const petBreed = document.getElementById('petBreed');
+    const petCard = document.getElementById('petCard');
     const clockTime = document.getElementById('clockTime');
     const clockDate = document.getElementById('clockDate');
-    const playBtn = document.getElementById('playBtn');
 
-    // 1. Clock
+    // Real, native QR generation — no third-party image API. Renders as
+    // SVG so it stays crisp at any TV resolution, with a simple paw
+    // mark embedded in the center (solid single-color, white-backed —
+    // a photo logo would just look muddy at QR scale). Inlined as a
+    // data URL rather than a /assets file so this page never depends
+    // on an external asset's state.
+    const PAW_MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="41" fill="#ffffff" stroke="#0f766e" stroke-width="6"/><g transform="translate(50,50) scale(2.55) translate(-12.2,-11)" fill="#0f766e"><ellipse cx="6.2" cy="7.8" rx="2" ry="2.8" transform="rotate(-25 6.2 7.8)"/><ellipse cx="10.2" cy="5.4" rx="2" ry="2.8" transform="rotate(-8 10.2 5.4)"/><ellipse cx="14.5" cy="5.4" rx="2" ry="2.8" transform="rotate(8 14.5 5.4)"/><ellipse cx="18.2" cy="7.9" rx="2" ry="2.8" transform="rotate(25 18.2 7.9)"/><path d="M12.2 10.1c-3.9 0-6.7 3.3-6.7 6.6 0 2.2 1.5 3.7 3.5 3.7 1.2 0 2.2-.7 3.2-.7s2 .7 3.2.7c2 0 3.5-1.5 3.5-3.7 0-3.3-2.8-6.6-6.7-6.6Z"/></g></svg>`;
+    const PAW_MARK_DATA_URL = `data:image/svg+xml;base64,${btoa(PAW_MARK_SVG)}`;
+
+    const qrCode = new QRCodeStyling({
+      width: 260,
+      height: 260,
+      type: 'svg',
+      data: window.location.origin,
+      margin: 6,
+      qrOptions: { errorCorrectionLevel: 'H' },
+      dotsOptions: { color: '#0f766e', type: 'rounded' },
+      cornersSquareOptions: { color: '#0f766e', type: 'extra-rounded' },
+      cornersDotOptions: { color: '#0f766e', type: 'dot' },
+      backgroundOptions: { color: '#ffffff' },
+      image: PAW_MARK_DATA_URL,
+      imageOptions: { margin: 3, imageSize: 0.28 },
+    });
+    qrCode.append(document.getElementById('petQr'));
+
     function updateClock() {
       const now = new Date();
-      clockTime.textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
-      clockDate.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+      clockTime.textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      clockDate.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 2. Render Pet Spotlight
-    function displayPet(index) {
-      if (!pets || pets.length === 0) return;
-      
-      const updateDOM = () => {
-        currentIndex = (index + pets.length) % pets.length;
-        const pet = pets[currentIndex];
+    function showPet(index) {
+      if (!pets.length) return;
+      currentIndex = (index + pets.length) % pets.length;
+      const pet = pets[currentIndex];
 
-        // Update Spotlight
-        spotlightImg.classList.remove('zooming');
-        spotlightImg.src = pet.image || '/assets/recovered/images/placeholder.svg';
-        spotlightImg.alt = pet.name;
-        setTimeout(() => spotlightImg.classList.add('zooming'), 50);
+      const applyChanges = () => {
+        petPhoto.classList.remove('zooming');
+        petPhoto.src = pet.image || '/assets/recovered/images/placeholder.svg';
+        petPhoto.alt = pet.name;
+        setTimeout(() => petPhoto.classList.add('zooming'), 50);
 
-        spotlightName.textContent = pet.name;
-        spotlightAge.textContent = pet.age_display || pet.age || 'Unknown Age';
-        spotlightGender.textContent = (pet.gender || 'Unknown').toUpperCase();
-        spotlightBreed.textContent = pet.breed || 'Shelter Pet';
-        spotlightSpecies.textContent = pet.type === 'cat' ? 'Cat' : 'Dog';
-        spotlightTag.firstElementChild.textContent = pet.type === 'cat' ? '🐱' : '🐶';
-        
-        const locText = pet.location ? `Currently in: ${pet.location}. ` : '';
-        spotlightBio.textContent = `${locText}Looking for a loving home in Monroe County. Ask our staff to meet ${pet.name} today or scan the QR code to submit an adoption application!`;
+        petName.textContent = pet.name;
+        petNameInline.textContent = pet.name;
+        petAge.textContent = pet.age_display || pet.age || 'Unknown age';
+        petGender.textContent = (pet.gender || 'Unknown').replace(/^\w/, (c) => c.toUpperCase());
+        petBreed.textContent = pet.breed || 'Shelter pet';
+        petSpeciesBadge.textContent = pet.type === 'cat' ? '🐈' : pet.type === 'dog' ? '🐕' : '🐾';
 
-        // Generate Live QR Code URL for pet
-        const petUrl = `https://monroe-humane.org/adopt/pet/${pet.id}`;
-        spotlightQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(petUrl)}&margin=4&color=0c2a26`;
-
-        // Preload next 3 images for zero-latency slide transitions
-        for (let i = 1; i <= 3; i++) {
-          const nextIdx = (currentIndex + i) % pets.length;
-          if (pets[nextIdx] && pets[nextIdx].image) {
-            const preloadImg = new Image();
-            preloadImg.src = pets[nextIdx].image;
-          }
-        }
-
-        currentIndexLabel.textContent = `${currentIndex + 1} of ${pets.length}`;
-
-        // Update Stream List active state
-        renderStream();
-        startTimer();
+        // Real native adoption page — /adopt/{id}, generated by
+        // src/pages/adopt/[id].astro directly from the live Directus feed.
+        const petUrl = `${window.location.origin}/adopt/${pet.id}`;
+        qrCode.update({ data: petUrl });
       };
 
       if (document.startViewTransition) {
-        document.startViewTransition(updateDOM);
+        const transition = document.startViewTransition(applyChanges);
+        transition.ready.catch(() => {});
+        transition.finished.catch(() => {});
       } else {
-        updateDOM();
+        petCard.classList.add('is-transitioning');
+        setTimeout(() => {
+          applyChanges();
+          petCard.classList.remove('is-transitioning');
+        }, 220);
       }
     }
 
-    // 3. Render Right Queue Stream
-    function renderStream() {
-      streamList.innerHTML = '';
-      const visibleCount = 6;
-      for (let i = 0; i < visibleCount; i++) {
-        const itemIdx = (currentIndex + i) % pets.length;
-        const pet = pets[itemIdx];
-        
-        const card = document.createElement('div');
-        card.className = `tv-stream__item ${i === 0 ? 'active' : ''}`;
-        card.innerHTML = `
-          <img class="tv-stream__avatar" src="${pet.image || '/assets/recovered/images/placeholder.svg'}" alt="${pet.name}" />
-          <div class="tv-stream__meta">
-            <div class="tv-stream__name">${pet.name}</div>
-            <div class="tv-stream__details">${pet.breed} • ${pet.age_display || pet.gender}</div>
-          </div>
-          <span class="tv-stream__species">${pet.type === 'cat' ? '🐱' : '🐕'}</span>
-        `;
-        card.onclick = () => displayPet(itemIdx);
-        streamList.appendChild(card);
-      }
+    function startRotation() {
+      if (rotateInterval) clearInterval(rotateInterval);
+      if (!isPlaying) return;
+      rotateInterval = setInterval(() => showPet(currentIndex + 1), ROTATE_MS);
     }
 
-    // 4. Timer Bar Animation
-    function startTimer() {
-      if (timerInterval) clearInterval(timerInterval);
-      if (!isPlaying) {
-        timerBar.style.width = '0%';
-        return;
-      }
-      timerStartTime = Date.now();
-      timerInterval = setInterval(() => {
-        const elapsed = Date.now() - timerStartTime;
-        const pct = Math.min((elapsed / timerDuration) * 100, 100);
-        timerBar.style.width = `${pct}%`;
-        if (elapsed >= timerDuration) {
-          clearInterval(timerInterval);
-          displayPet(currentIndex + 1);
-        }
-      }, 50);
-    }
-
-    // 5. Controls
-    function togglePlay() {
-      isPlaying = !isPlaying;
-      playBtn.textContent = isPlaying ? '⏸' : '▶';
-      if (isPlaying) {
-        startTimer();
-      } else {
-        clearInterval(timerInterval);
-        timerBar.style.width = '0%';
-      }
-    }
-
-    document.getElementById('prevBtn').onclick = () => displayPet(currentIndex - 1);
-    document.getElementById('nextBtn').onclick = () => displayPet(currentIndex + 1);
-    document.getElementById('playBtn').onclick = togglePlay;
-    document.getElementById('fullBtn').onclick = () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen().catch(() => {});
-      }
-    };
-
-    // Keyboard Shortcuts
+    // Staff-only keyboard control — no on-screen buttons to keep the
+    // display clean; anyone with a keyboard on the kiosk still has it.
     window.addEventListener('keydown', (e) => {
       if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
-        togglePlay();
+        isPlaying = !isPlaying;
+        startRotation();
       } else if (e.key === 'ArrowRight') {
-        displayPet(currentIndex + 1);
+        showPet(currentIndex + 1);
+        startRotation();
       } else if (e.key === 'ArrowLeft') {
-        displayPet(currentIndex - 1);
+        showPet(currentIndex - 1);
+        startRotation();
       } else if (e.key.toLowerCase() === 'f') {
-        document.getElementById('fullBtn').click();
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+        else document.exitFullscreen().catch(() => {});
       }
     });
 
-    // 6. Request Screen WakeLock (prevents TV from sleeping)
     async function requestWakeLock() {
       try {
-        if ('wakeLock' in navigator) {
-          await navigator.wakeLock.request('screen');
-        }
-      } catch (err) {}
+        if ('wakeLock' in navigator) await navigator.wakeLock.request('screen');
+      } catch {}
     }
     requestWakeLock();
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') requestWakeLock();
     });
 
-    // Register Service Worker for offline TV resilience
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       });
     }
 
-    // 7. Background Auto-Refresh (queries Directus every 15 minutes)
+    // Background refresh from the live Directus feed — the same one
+    // PetSync writes to every 30 minutes — so the kiosk tracks new
+    // arrivals/archives without a restart.
     setInterval(async () => {
       try {
-        const res = await fetch('https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/items/pets?filter[archived_at][_null]=true&limit=-1');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.data && data.data.length > 0) {
-            pets = data.data.map(p => ({
-              ...p,
-              image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg'
-            })).filter(p => p.image && !p.image.includes('placeholder'));
-            document.getElementById('petCountText').textContent = `${pets.length} Available Pets`;
-          }
+        const res = await fetch(
+          'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/items/pets?filter[archived_at][_null]=true&limit=-1'
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+          pets = data.data
+            .map((p) => ({ ...p, image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg' }))
+            .filter((p) => p.image && !p.image.includes('placeholder'));
         }
-      } catch (e) {}
+      } catch {}
     }, 15 * 60 * 1000);
 
-    // Initial Display
-    displayPet(0);
+    showPet(0);
+    startRotation();
   </script>
 </body>
 </html>
