@@ -308,17 +308,24 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     }
 
     .tv-apply-qr__code {
-      width: 220px;
-      height: 220px;
+      width: 240px;
+      height: 240px;
       background: #ffffff;
-      border-radius: 16px;
-      padding: 8px;
+      border-radius: 18px;
+      padding: 12px;
       display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
       box-sizing: border-box;
     }
 
-    .tv-apply-qr__code svg { display: block; width: 100%; height: 100%; }
+    /* The generated SVG is already sized to exactly fill this box's
+       216px content area (see the QRCodeStyling call below) — no
+       width/height: 100% override needed, which is what silently
+       stretched and off-centered it before (a percentage-height-on-
+       SVG quirk that resolved width but not height). */
+    .tv-apply-qr__code svg { display: block; }
 
     @media (max-width: 900px) {
       .tv-caption { max-width: 90vw; }
@@ -421,31 +428,66 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     const APPLICATION_FORM_URL =
       'https://docs.google.com/forms/d/e/1FAIpQLSfA70kSNxQZQBbC0Jq9gHfmgHiAs4k5ytci3t4IhOMzfrSjhQ/viewform';
 
+    // Sized to exactly match the container's content box (240px box,
+    // 12px padding -> 216px) instead of relying on a CSS width/height:
+    // 100% override on the generated <svg>. That override silently
+    // failed for height only (a percentage-height-on-SVG quirk — width
+    // resolved to the container's 100%, height stayed at the library's
+    // own intrinsic attribute), which is what stretched and
+    // off-centered the code inside its card. Generating it at the
+    // right size in the first place sidesteps the whole class of bug.
+    //
+    // Styling favors scan reliability over decoration: standard
+    // 'rounded' dots (not 'extra-rounded', which thins the modules
+    // more than is safe at small on-screen size) in a single solid
+    // color (a gradient reduces module contrast, which hurts phone
+    // cameras scanning from a few feet away more than it helps
+    // aesthetics), max error correction, and a modest embedded-logo
+    // footprint so there's real redundancy to spare.
+    //
+    // Deliberately NOT setting cornersDotOptions (the finder pattern's
+    // inner "eye"): verified with jsQR that a colored 'dot'-shaped eye
+    // combined with the embedded center logo reliably fails to decode
+    // — every other combination of these options decodes fine on its
+    // own, only that specific pairing breaks finder-pattern detection.
+    // Leaving the eye as the library's plain default fixes it.
     const applyQrCode = new QRCodeStyling({
-      width: 240,
-      height: 240,
+      width: 216,
+      height: 216,
       type: 'svg',
       data: APPLICATION_FORM_URL,
-      margin: 4,
+      margin: 8,
       qrOptions: { errorCorrectionLevel: 'H' },
-      dotsOptions: {
-        type: 'extra-rounded',
-        gradient: {
-          type: 'linear',
-          rotation: Math.PI / 4,
-          colorStops: [
-            { offset: 0, color: '#0f766e' },
-            { offset: 1, color: '#134e4a' },
-          ],
-        },
-      },
+      dotsOptions: { type: 'rounded', color: '#0f766e' },
       cornersSquareOptions: { type: 'extra-rounded', color: '#0f766e' },
-      cornersDotOptions: { type: 'dot', color: '#fbbf24' },
       backgroundOptions: { color: '#ffffff' },
       image: '/assets/tv-qr-mark.svg',
-      imageOptions: { margin: 4, imageSize: 0.26 },
+      imageOptions: { hideBackgroundDots: true, margin: 6, imageSize: 0.2 },
     });
     applyQrCode.append($('applyQr'));
+
+    // Verify the code actually decodes back to the right URL instead
+    // of just assuming the styling options above didn't break it —
+    // BarcodeDetector is available in Chromium-based browsers (which
+    // is what actual TV/kiosk hardware almost always runs).
+    if ('BarcodeDetector' in window) {
+      setTimeout(async () => {
+        try {
+          const svgEl = $('applyQr').querySelector('svg');
+          if (!svgEl) return;
+          const svgData = new XMLSerializer().serializeToString(svgEl);
+          const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
+          const bitmap = await createImageBitmap(svgBlob);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
+          const results = await detector.detect(bitmap);
+          const ok = results.some((r: { rawValue: string }) => r.rawValue === APPLICATION_FORM_URL);
+          if (!ok) console.error('[TV QR] Generated code failed self-check — does not decode to the application form URL.', results);
+        } catch (err) {
+          console.warn('[TV QR] Self-check skipped:', err);
+        }
+      }, 500);
+    }
 
     function updateClock() {
       const now = new Date();
