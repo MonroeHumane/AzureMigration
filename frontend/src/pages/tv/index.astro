@@ -340,12 +340,11 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     // Real, native QR generation — no third-party image API. Renders as
     // SVG so it stays crisp at any TV resolution, with a simple paw
     // mark embedded in the center (solid single-color, white-backed —
-    // a photo logo would just look muddy at QR scale). Inlined as a
-    // data URL rather than a /assets file so this page never depends
-    // on an external asset's state.
-    const PAW_MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="41" fill="#ffffff" stroke="#0f766e" stroke-width="6"/><g transform="translate(50,50) scale(2.55) translate(-12.2,-11)" fill="#0f766e"><ellipse cx="6.2" cy="7.8" rx="2" ry="2.8" transform="rotate(-25 6.2 7.8)"/><ellipse cx="10.2" cy="5.4" rx="2" ry="2.8" transform="rotate(-8 10.2 5.4)"/><ellipse cx="14.5" cy="5.4" rx="2" ry="2.8" transform="rotate(8 14.5 5.4)"/><ellipse cx="18.2" cy="7.9" rx="2" ry="2.8" transform="rotate(25 18.2 7.9)"/><path d="M12.2 10.1c-3.9 0-6.7 3.3-6.7 6.6 0 2.2 1.5 3.7 3.5 3.7 1.2 0 2.2-.7 3.2-.7s2 .7 3.2.7c2 0 3.5-1.5 3.5-3.7 0-3.3-2.8-6.6-6.7-6.6Z"/></g></svg>`;
-    const PAW_MARK_DATA_URL = `data:image/svg+xml;base64,${btoa(PAW_MARK_SVG)}`;
-
+    // a photo logo would just look muddy at QR scale). Served as a
+    // same-origin file (public/assets/tv-qr-mark.svg) rather than a
+    // data: URL — the site's CSP connect-src is 'self' https:' with no
+    // data: allowance, and qr-code-styling loads its embedded image via
+    // fetch(), which is gated by connect-src, not img-src.
     const qrCode = new QRCodeStyling({
       width: 260,
       height: 260,
@@ -357,7 +356,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       cornersSquareOptions: { color: '#0f766e', type: 'extra-rounded' },
       cornersDotOptions: { color: '#0f766e', type: 'dot' },
       backgroundOptions: { color: '#ffffff' },
-      image: PAW_MARK_DATA_URL,
+      image: '/assets/tv-qr-mark.svg',
       imageOptions: { margin: 3, imageSize: 0.28 },
     });
     qrCode.append($('petQr'));
