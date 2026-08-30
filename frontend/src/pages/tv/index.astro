@@ -314,23 +314,28 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
   <script>
     import QRCodeStyling from 'qr-code-styling';
+    import type { Pet } from '../../lib/directus';
 
-    let pets = window.__TV_INITIAL_PETS__ || [];
+    function $<T extends HTMLElement>(id: string): T {
+      return document.getElementById(id) as T;
+    }
+
+    let pets: Pet[] = (window as unknown as { __TV_INITIAL_PETS__?: Pet[] }).__TV_INITIAL_PETS__ || [];
     let currentIndex = 0;
     let isPlaying = true;
-    let rotateInterval = null;
+    let rotateInterval: ReturnType<typeof setInterval> | null = null;
     const ROTATE_MS = 10000;
 
-    const petPhoto = document.getElementById('petPhoto');
-    const petSpeciesBadge = document.getElementById('petSpeciesBadge');
-    const petName = document.getElementById('petName');
-    const petNameInline = document.getElementById('petNameInline');
-    const petAge = document.getElementById('petAge');
-    const petGender = document.getElementById('petGender');
-    const petBreed = document.getElementById('petBreed');
-    const petCard = document.getElementById('petCard');
-    const clockTime = document.getElementById('clockTime');
-    const clockDate = document.getElementById('clockDate');
+    const petPhoto = $<HTMLImageElement>('petPhoto');
+    const petSpeciesBadge = $('petSpeciesBadge');
+    const petName = $('petName');
+    const petNameInline = $('petNameInline');
+    const petAge = $('petAge');
+    const petGender = $('petGender');
+    const petBreed = $('petBreed');
+    const petCard = $('petCard');
+    const clockTime = $('clockTime');
+    const clockDate = $('clockDate');
 
     // Real, native QR generation — no third-party image API. Renders as
     // SVG so it stays crisp at any TV resolution, with a simple paw
@@ -355,7 +360,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       image: PAW_MARK_DATA_URL,
       imageOptions: { margin: 3, imageSize: 0.28 },
     });
-    qrCode.append(document.getElementById('petQr'));
+    qrCode.append($('petQr'));
 
     function updateClock() {
       const now = new Date();
@@ -365,7 +370,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     setInterval(updateClock, 1000);
     updateClock();
 
-    function showPet(index) {
+    function showPet(index: number) {
       if (!pets.length) return;
       currentIndex = (index + pets.length) % pets.length;
       const pet = pets[currentIndex];
@@ -455,8 +460,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
         const data = await res.json();
         if (data.data && data.data.length > 0) {
           pets = data.data
-            .map((p) => ({ ...p, image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg' }))
-            .filter((p) => p.image && !p.image.includes('placeholder'));
+            .map((p: Pet) => ({ ...p, image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg' }))
+            .filter((p: Pet) => p.image && !p.image.includes('placeholder'));
         }
       } catch {}
     }, 15 * 60 * 1000);
