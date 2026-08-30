@@ -103,6 +103,7 @@ export const prerender = false;
     const loginError = document.getElementById('login-error') as HTMLElement;
     
     try {
+      // @ts-ignore
       await client.login(emailInput.value, passwordInput.value);
       if (loginError) loginError.style.display = 'none';
       showDashboard();
