@@ -68,9 +68,9 @@ export const prerender = false;
     }
   }));
 
-  const loginView = document.getElementById('login-view');
-  const dashboardView = document.getElementById('dashboard-view');
-  const grantsContainer = document.getElementById('grants-container');
+  const loginView = document.getElementById('login-view') as HTMLElement;
+  const dashboardView = document.getElementById('dashboard-view') as HTMLElement;
+  const grantsContainer = document.getElementById('grants-container') as HTMLElement;
 
   async function checkAuth() {
     try {
@@ -86,30 +86,32 @@ export const prerender = false;
   }
 
   function showLogin() {
-    loginView.style.display = 'block';
-    dashboardView.style.display = 'none';
+    if (loginView) loginView.style.display = 'block';
+    if (dashboardView) dashboardView.style.display = 'none';
   }
 
   function showDashboard() {
-    loginView.style.display = 'none';
-    dashboardView.style.display = 'block';
+    if (loginView) loginView.style.display = 'none';
+    if (dashboardView) dashboardView.style.display = 'block';
     loadGrants();
   }
 
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
+  document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const emailInput = document.getElementById('email') as HTMLInputElement;
+    const passwordInput = document.getElementById('password') as HTMLInputElement;
+    const loginError = document.getElementById('login-error') as HTMLElement;
+    
     try {
-      await client.login(email, password);
-      document.getElementById('login-error').style.display = 'none';
+      await client.login(emailInput.value, passwordInput.value);
+      if (loginError) loginError.style.display = 'none';
       showDashboard();
     } catch (error) {
-      document.getElementById('login-error').style.display = 'block';
+      if (loginError) loginError.style.display = 'block';
     }
   });
 
-  document.getElementById('logout-btn').addEventListener('click', async () => {
+  document.getElementById('logout-btn')?.addEventListener('click', async () => {
     await client.logout();
     sessionStorage.removeItem('directus_auth');
     showLogin();
@@ -119,7 +121,9 @@ export const prerender = false;
     try {
       const grants = await client.request(readItems('grants'));
       
-      if (grants.length === 0) {
+      if (!grantsContainer) return;
+
+      if (!grants || grants.length === 0) {
         grantsContainer.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 2rem;">No grants tracked yet.</p>';
         return;
       }
@@ -150,8 +154,9 @@ export const prerender = false;
       
       html += '</tbody></table>';
       grantsContainer.innerHTML = html;
-    } catch (error) {
-      if (error.errors && error.errors[0]?.extensions?.code === 'COLLECTION_UNKNOWN') {
+    } catch (error: any) {
+      if (!grantsContainer) return;
+      if (error?.errors && error.errors[0]?.extensions?.code === 'COLLECTION_UNKNOWN') {
         grantsContainer.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 2rem;">Grants table is pending creation in Directus. Please wait for the next deployment.</p>';
       } else {
         grantsContainer.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 2rem;">Error loading grants.</p>';
@@ -159,7 +164,7 @@ export const prerender = false;
     }
   }
 
-  document.getElementById('add-grant-btn').addEventListener('click', async () => {
+  document.getElementById('add-grant-btn')?.addEventListener('click', async () => {
     const title = prompt("Grant Title:");
     if (!title) return;
     
