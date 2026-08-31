@@ -495,7 +495,17 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       grantsContainer.innerHTML = html;
     } catch (error: any) {
       if (!grantsContainer) return;
-      if (error?.errors && error.errors[0]?.extensions?.code === 'COLLECTION_UNKNOWN') {
+      
+      const errorCode = error?.errors?.[0]?.extensions?.code;
+      
+      if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
+        // Token expired or invalid, force re-login
+        sessionStorage.removeItem('directus_auth');
+        showLogin();
+        return;
+      }
+      
+      if (errorCode === 'COLLECTION_UNKNOWN') {
         grantsContainer.innerHTML = `
           <div class="empty-state">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
@@ -551,8 +561,15 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       formAddGrant.reset();
       modal?.close();
       loadGrants();
-    } catch (error) {
-      alert("Failed to create grant. Ensure the schema is deployed and you are authenticated.");
+    } catch (error: any) {
+      const errorCode = error?.errors?.[0]?.extensions?.code;
+      if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
+        alert("Your session has expired. Please log in again.");
+        sessionStorage.removeItem('directus_auth');
+        showLogin();
+      } else {
+        alert("Failed to create grant. Ensure the schema is deployed and you have permission.");
+      }
     }
   });
 
