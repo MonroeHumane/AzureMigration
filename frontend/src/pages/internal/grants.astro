@@ -102,8 +102,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     const loginError = document.getElementById('login-error') as HTMLElement;
     
     try {
-      // @ts-ignore
-      await client.login(emailInput.value, passwordInput.value);
+      await client.login({ 
+        email: emailInput.value, 
+        password: passwordInput.value 
+      });
       if (loginError) loginError.style.display = 'none';
       showDashboard();
     } catch (error) {
