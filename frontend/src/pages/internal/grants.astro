@@ -552,6 +552,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     
     try {
       await client.request(createItem('grants', {
+        id: crypto.randomUUID(),
         title: title,
         source: source,
         status: 'open',

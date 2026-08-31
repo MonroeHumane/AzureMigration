@@ -36,10 +36,10 @@ export const SITE = {
 
   integrations: {
     betterUnite: {
-      generalDonation: 'https://www.betterunite.com/adopthsmc',
-      membership: 'https://www.betterunite.com/hsmc-becomeamembertoday',
-      memorialPlaque: 'https://www.betterunite.com/adopthsmc',
-      memorialGiving: 'https://app.betterunite.com/adopthsmc-donationsforhumanesocietyofmonroecounty',
+      generalDonation: '/donate',
+      membership: '/donate',
+      memorialPlaque: '/donate',
+      memorialGiving: '/donate',
     },
     payPal: {
       catRoomFund: 'https://www.paypal.com/US/fundraiser/charity/N9S3JQGK3HCTW',

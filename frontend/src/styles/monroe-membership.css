@@ -3,7 +3,7 @@
  the theme's home-editable.css. The legacy tier-grid rules
  (.home-editable-membership-grid / -card) are deliberately NOT migrated:
  the live WP page ships the "plans are being updated" state only, and the
- tier data stays on BetterUnite checkout (decision 2026-08-27).
+ tier data stays on our donation portal checkout (decision 2026-08-27).
  */
 
 .monroe-membership-under-construction {
