@@ -21,7 +21,7 @@ const { issue } = Astro.props;
 ---
 
 <BaseLayout title={`${issue.title} | 734-243-3669`} description={`Monroe Humane Society Newsletter - ${issue.title}.`}>
-  <main class="pt-32 pb-24 px-4 max-w-5xl mx-auto">
+  <div class="pb-24 px-4 max-w-5xl mx-auto">
     <div class="monroe-home-newsletter-slot">
       <section id={`hs-news-${issue.slug}`} class="hs-news-section" aria-labelledby="hs-news-issue-title">
         <div class="hs-wrap">
@@ -65,5 +65,5 @@ const { issue } = Astro.props;
       <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:underline" href="/newsletter">Newsletter archive</a>
       <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:underline" href="/">Back to home</a>
     </nav>
-  </main>
+  </div>
 </BaseLayout>
