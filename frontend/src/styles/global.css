@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #f9f7f2;
+  --color-cream-100: #fffaf2;
+  --color-cream-200: #f5efe3;
+  --color-teal-600: #1c746c;
+  --color-teal-700: #0f766e;
+  --color-teal-900: #173a39;
+  --font-sans: "Montserrat", "Segoe UI", sans-serif;
+  --font-serif: "Abril Fatface", Georgia, serif;
+}

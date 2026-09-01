@@ -1,9 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InnerShell from '../../components/InnerShell.astro';
 import PetCard from '../../components/PetCard.astro';
 import { getPets, type Pet } from '../../lib/directus';
-import '../../styles/monroe-adopt-hub.css';
+import { Image } from 'astro:assets';
 
 export async function getStaticPaths() {
   const pets = await getPets();
@@ -25,10 +24,10 @@ const genderIcon = pet.gender === 'female' ? '♀' : pet.gender === 'male' ? '�
 const speciesTag = pet.type === 'dog' ? 'Dog' : pet.type === 'cat' ? 'Cat' : pet.species_label || 'Pet';
 const photo = pet.image_url || pet.image || '/assets/recovered/images/placeholder.svg';
 
-const chipBg: Record<string, string> = {
-  dog: 'background:#e0f2fe; color:#0369a1;',
-  cat: 'background:#e0f2fe; color:#0369a1;',
-  other: 'background:#e0f2fe; color:#0369a1;',
+const chipClasses: Record<string, string> = {
+  dog: 'bg-sky-100 text-sky-800',
+  cat: 'bg-sky-100 text-sky-800',
+  other: 'bg-sky-100 text-sky-800',
 };
 
 let intakeDisplay = '';
@@ -49,55 +48,55 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
   description={`${pet.name} is a ${pet.age_display || ''} ${pet.breed || speciesTag} looking for a home at the Humane Society of Monroe County.`}
   image={photo}
 >
-  <InnerShell variant="adopt">
-    <a class="monroe-pet-detail-back" href="/adopt" data-smart-back>&larr; Back to all pets</a>
+  <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+    <a class="inline-block text-teal-700 font-bold mb-8 hover:text-teal-900 transition-colors uppercase tracking-wider text-sm" href="/adopt" data-smart-back>&larr; Back to all pets</a>
 
-    <div class="monroe-pet-detail">
-      <div class="monroe-pet-detail-photo">
-        <img src={photo} alt={pet.name} decoding="async" />
-        <span class="monroe-pet-detail-species-tag">{speciesTag}</span>
+    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200 lg:flex gap-10 p-6 sm:p-10 mb-16">
+      <div class="w-full lg:w-5/12 flex-shrink-0 relative rounded-2xl overflow-hidden bg-gray-100 aspect-square lg:aspect-[4/5] self-start mb-8 lg:mb-0">
+        <Image src={photo} alt={pet.name} width={480} height={600} decoding="async" class="w-full h-full object-cover absolute inset-0" />
+        <span class="absolute top-4 left-4 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full font-bold text-teal-900 tracking-wider text-sm shadow-sm">{speciesTag}</span>
       </div>
 
-      <div>
-        <h1 class="monroe-pet-detail-name">{pet.name}</h1>
-        <p class="monroe-pet-detail-breed">{pet.breed}</p>
+      <div class="flex-1">
+        <h1 class="font-serif text-4xl sm:text-5xl text-teal-900 mb-2">{pet.name}</h1>
+        <p class="text-lg text-gray-500 mb-6 font-medium">{pet.breed}</p>
 
-        <div class="monroe-pet-detail-chips">
-          <span class="monroe-pet-detail-chip" style={chipBg[pet.type] || chipBg.other}>🐾 {speciesTag}</span>
-          <span class="monroe-pet-detail-chip" style="background:#fef3c7; color:#92400e;">🎂 {pet.age_display || 'Unknown age'}</span>
-          <span class="monroe-pet-detail-chip" style="background:#f3e8ff; color:#6b21a8;">{genderIcon} {genderLabel}</span>
-          {pet.size && <span class="monroe-pet-detail-chip" style="background:#f1f5f9; color:#334155;">📏 {pet.size}</span>}
-          {pet.color && <span class="monroe-pet-detail-chip" style="background:#f1f5f9; color:#334155;">🎨 {pet.color}</span>}
+        <div class="flex flex-wrap gap-2 mb-8">
+          <span class={`px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide ${chipClasses[pet.type] || chipClasses.other}`}>🐾 {speciesTag}</span>
+          <span class="px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide bg-amber-100 text-amber-900">🎂 {pet.age_display || 'Unknown age'}</span>
+          <span class="px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide bg-fuchsia-100 text-fuchsia-900">{genderIcon} {genderLabel}</span>
+          {pet.size && <span class="px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide bg-slate-100 text-slate-800">📏 {pet.size}</span>}
+          {pet.color && <span class="px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide bg-slate-100 text-slate-800">🎨 {pet.color}</span>}
         </div>
 
-        <div class="monroe-pet-detail-facts">
-          <div class="monroe-pet-detail-fact"><strong>Location</strong>{pet.location || 'Shelter'}</div>
-          {intakeDisplay && <div class="monroe-pet-detail-fact"><strong>At the shelter since</strong>{intakeDisplay}</div>}
-          {pet.declawed && <div class="monroe-pet-detail-fact"><strong>Declawed</strong>{pet.declawed}</div>}
-          {pet.housetrained && <div class="monroe-pet-detail-fact"><strong>Housetrained</strong>{pet.housetrained}</div>}
+        <div class="grid grid-cols-2 gap-4 mb-8 bg-gray-50 rounded-2xl p-6 border border-gray-100">
+          <div class="flex flex-col"><strong class="text-xs uppercase tracking-widest text-gray-400 mb-1">Location</strong><span class="font-medium text-gray-800">{pet.location || 'Shelter'}</span></div>
+          {intakeDisplay && <div class="flex flex-col"><strong class="text-xs uppercase tracking-widest text-gray-400 mb-1">At the shelter since</strong><span class="font-medium text-gray-800">{intakeDisplay}</span></div>}
+          {pet.declawed && <div class="flex flex-col"><strong class="text-xs uppercase tracking-widest text-gray-400 mb-1">Declawed</strong><span class="font-medium text-gray-800">{pet.declawed}</span></div>}
+          {pet.housetrained && <div class="flex flex-col"><strong class="text-xs uppercase tracking-widest text-gray-400 mb-1">Housetrained</strong><span class="font-medium text-gray-800">{pet.housetrained}</span></div>}
         </div>
 
-        <div class="monroe-pet-detail-bio">
-          <h2>About {pet.name}</h2>
-          <p>{bio}</p>
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold text-teal-900 mb-4">About {pet.name}</h2>
+          <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{bio}</p>
         </div>
 
-        <div class="monroe-pet-detail-cta-row">
-          <a class="monroe-btn" href="/adoptions#Application">Apply to Adopt {pet.name} &rarr;</a>
-          <a class="monroe-btn monroe-btn--outline" href="tel:734-243-3669">📞 (734) 243-3669</a>
+        <div class="flex flex-wrap gap-4 pt-8 border-t border-gray-200">
+          <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-teal-700 text-white transition-all shadow-md hover:-translate-y-1 hover:bg-teal-900" href="/adoptions#Application">Apply to Adopt {pet.name} &rarr;</a>
+          <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-transparent border-2 border-teal-700 text-teal-700 transition-all hover:-translate-y-1 hover:bg-teal-50" href="tel:734-243-3669">📞 (734) 243-3669</a>
         </div>
       </div>
     </div>
 
     {related.length > 0 && (
-      <section class="monroe-pet-detail-related">
-        <h2>More {speciesTag.toLowerCase()}s waiting for homes</h2>
-        <div class="monroe-adopt-hub-grid">
+      <section class="mt-16 border-t border-gray-200 pt-16">
+        <h2 class="text-3xl font-serif text-teal-900 mb-10 text-center">More {speciesTag.toLowerCase()}s waiting for homes</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {related.map((p) => <PetCard pet={p} />)}
         </div>
       </section>
     )}
-  </InnerShell>
+  </div>
 </BaseLayout>
 
 <script>

@@ -11,46 +11,46 @@ const staffPortalUrl = import.meta.env.PUBLIC_DIRECTUS_URL ?? SITE.integrations.
 const year = new Date().getFullYear();
 ---
 
-<footer class="monroe-site-footer" role="contentinfo">
-  <div class="monroe-site-footer__inner">
-    <div class="monroe-site-footer__grid">
-      <div class="monroe-site-footer__brand">
-        <p class="monroe-site-footer__name">{SITE.name}</p>
-        <p class="monroe-site-footer__address">{SITE.contact.address.street}</p>
-        <p class="monroe-site-footer__address">{SITE.contact.address.poBox}</p>
+<footer class="bg-teal-900 text-cream-100 py-8 px-5 sm:py-11 sm:px-8 font-sans" role="contentinfo">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid gap-7 mb-7 md:grid-cols-[1.4fr_1fr_1fr] md:items-start md:gap-8">
+      <div class="mb-2 md:mb-0">
+        <p class="font-serif text-xl sm:text-2xl mb-2 leading-tight">{SITE.name}</p>
+        <p class="text-[0.95rem] leading-relaxed opacity-90 m-0">{SITE.contact.address.street}</p>
+        <p class="text-[0.95rem] leading-relaxed opacity-90 m-0">{SITE.contact.address.poBox}</p>
       </div>
 
-      <nav class="monroe-site-footer__nav" aria-label="Footer quick links">
-        <ul class="monroe-site-footer__links">
-          <li><a href="/adopt">Adopt</a></li>
-          <li><a href="/donate">Donate</a></li>
-          <li><a href="/volunteer-form">Volunteer</a></li>
-          <li><a href="/membership">Membership</a></li>
-          <li><a href="/events">Events</a></li>
-          <li><a href="/newsletter">Newsletter</a></li>
-          <li><a href="/faq">FAQ</a></li>
-          <li><a href="/contact">Contact</a></li>
+      <nav aria-label="Footer quick links">
+        <ul class="flex flex-wrap gap-x-5 gap-y-3 md:flex-col md:gap-2 m-0 p-0 list-none">
+          <li><a href="/adopt" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Adopt</a></li>
+          <li><a href="/donate" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Donate</a></li>
+          <li><a href="/volunteer-form" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Volunteer</a></li>
+          <li><a href="/membership" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Membership</a></li>
+          <li><a href="/events" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Events</a></li>
+          <li><a href="/newsletter" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Newsletter</a></li>
+          <li><a href="/faq" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">FAQ</a></li>
+          <li><a href="/contact" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Contact</a></li>
         </ul>
       </nav>
 
-      <div class="monroe-site-footer__contact">
-        <p><a href={SITE.contact.phoneTel}>{SITE.contact.phoneFormatted}</a></p>
-        <p><a href={SITE.contact.emailMailto}>{SITE.contact.email}</a></p>
-        <p>
-          <a href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Follow on Facebook</a>
+      <div>
+        <p class="text-[0.95rem] mb-2"><a href={SITE.contact.phoneTel} class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">{SITE.contact.phoneFormatted}</a></p>
+        <p class="text-[0.95rem] mb-2"><a href={SITE.contact.emailMailto} class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">{SITE.contact.email}</a></p>
+        <p class="text-[0.95rem] mb-2">
+          <a href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Follow on Facebook</a>
         </p>
-        <p>
-          <a href="https://www.instagram.com/adopthsmc/" target="_blank" rel="noopener noreferrer">Follow on Instagram</a>
+        <p class="text-[0.95rem] mb-2">
+          <a href="https://www.instagram.com/adopthsmc/" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-emerald-200 focus-visible:text-emerald-200 transition-colors min-h-[44px] inline-flex items-center md:min-h-0 md:inline">Follow on Instagram</a>
         </p>
       </div>
     </div>
 
-    <div class="monroe-site-footer__staff" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
-      <a href={staffPortalUrl} class="monroe-site-footer__staff-btn">Staff CMS</a>
-      <a href="/internal/grants" class="monroe-site-footer__staff-btn">Grants Tracker</a>
+    <div class="flex gap-4 justify-center mt-8 mb-5">
+      <a href={staffPortalUrl} class="inline-flex items-center justify-center min-h-[44px] px-5 py-2 rounded-full border border-cream-100/40 bg-cream-100/10 text-sm font-semibold tracking-wide uppercase transition-all hover:bg-cream-100 hover:text-teal-900 hover:-translate-y-[1px]">Staff CMS</a>
+      <a href="/internal/grants" class="inline-flex items-center justify-center min-h-[44px] px-5 py-2 rounded-full border border-cream-100/40 bg-cream-100/10 text-sm font-semibold tracking-wide uppercase transition-all hover:bg-cream-100 hover:text-teal-900 hover:-translate-y-[1px]">Grants Tracker</a>
     </div>
 
-    <p class="monroe-site-footer__legal">&copy; {year} {SITE.name}. All rights reserved.</p>
+    <p class="text-sm tracking-wide opacity-90 text-center border-t border-cream-100/20 pt-5 m-0">&copy; {year} {SITE.name}. All rights reserved.</p>
   </div>
 </footer>
 

@@ -100,51 +100,51 @@ const isCurrent = (item: NavItem) => {
 };
 ---
 
-<header class="monroe-global-nav" data-monroe-global-nav data-monroe-nav-drawer-max={SITE.ui.mobileDrawerBreakpoint}>
-  <button type="button" class="monroe-global-nav__backdrop" aria-label="Close menu" tabindex="-1" hidden></button>
-  <div class="monroe-global-nav__inner">
-    <div class="monroe-global-nav__bar">
-      <div class="monroe-global-nav__bar-cta">
-        <a class="monroe-global-nav__bar-adopt" href="/adopt">Adopt</a>
-        <a class="monroe-global-nav__bar-donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+<header class="monroe-global-nav fixed top-0 w-full z-50 transition-all duration-300 bg-white shadow-sm [&.is-condensed]:py-1 py-3" data-monroe-global-nav data-monroe-nav-drawer-max={SITE.ui.mobileDrawerBreakpoint}>
+  <button type="button" class="monroe-global-nav__backdrop fixed inset-0 bg-teal-900/60 backdrop-blur-sm z-40 transition-opacity xl:hidden" aria-label="Close menu" tabindex="-1" hidden></button>
+  <div class="monroe-global-nav__inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-50 flex items-center justify-between">
+    <div class="monroe-global-nav__bar flex items-center justify-between w-full xl:w-auto">
+      <div class="monroe-global-nav__bar-cta flex xl:hidden gap-3 items-center absolute left-1/2 -translate-x-1/2 sm:static sm:translate-x-0">
+        <a class="monroe-global-nav__bar-adopt text-xs font-bold uppercase tracking-widest text-teal-700 hover:text-teal-900" href="/adopt">Adopt</a>
+        <a class="monroe-global-nav__bar-donate px-4 py-2 bg-emerald-500 text-teal-900 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-emerald-400" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
       </div>
-      <a class="monroe-global-nav__brand" href="/" aria-label={`${SITE.name}, home`}>
-        <img src={LOGO_SRC} alt="" decoding="async" width="320" height="120" />
+      <a class="monroe-global-nav__brand z-50 relative shrink-0 mr-10" href="/" aria-label={`${SITE.name}, home`}>
+        <img class="h-12 sm:h-16 w-auto object-contain transition-all duration-300 [.is-condensed_&]:h-10" src={LOGO_SRC} alt="" decoding="async" width="320" height="120" />
       </a>
 
-      <button class="monroe-global-nav__menu-toggle" type="button" aria-expanded="false" aria-controls="monroe-global-nav-menu">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span class="screen-reader-text">Toggle navigation</span>
+      <button class="monroe-global-nav__menu-toggle xl:hidden w-10 h-10 relative flex flex-col justify-center gap-1.5 z-50 text-teal-900 [&.is-open>span:nth-child(1)]:-rotate-45 [&.is-open>span:nth-child(1)]:translate-y-2 [&.is-open>span:nth-child(2)]:opacity-0 [&.is-open>span:nth-child(3)]:rotate-45 [&.is-open>span:nth-child(3)]:-translate-y-2" type="button" aria-expanded="false" aria-controls="monroe-global-nav-menu">
+        <span class="w-6 h-0.5 bg-current rounded-full transition-all origin-center mx-auto"></span>
+        <span class="w-6 h-0.5 bg-current rounded-full transition-all mx-auto"></span>
+        <span class="w-6 h-0.5 bg-current rounded-full transition-all origin-center mx-auto"></span>
+        <span class="sr-only">Toggle navigation</span>
       </button>
     </div>
 
-    <nav class="monroe-global-nav__panel" id="monroe-global-nav-menu" aria-label="Primary navigation">
-      <ul class="monroe-global-nav__list">
+    <nav class="monroe-global-nav__panel fixed xl:static inset-y-0 right-0 w-[300px] xl:w-auto bg-white xl:bg-transparent shadow-2xl xl:shadow-none translate-x-full xl:translate-x-0 transition-transform duration-300 z-50 flex flex-col xl:flex-row xl:items-center p-6 xl:p-0 overflow-y-auto xl:overflow-visible [&.is-open]:translate-x-0 group" id="monroe-global-nav-menu" aria-label="Primary navigation">
+      <ul class="monroe-global-nav__list flex flex-col xl:flex-row gap-2 xl:gap-8 mt-12 xl:mt-0">
         {NAV.map((item, i) =>
           item.children ? (
-            <li class:list={['monroe-global-nav__item', 'has-children', { 'is-current': isCurrent(item) }]}>
+            <li class:list={['monroe-global-nav__item', 'has-children', 'relative', { 'is-current text-emerald-600': isCurrent(item) }]}>
               <button
-                class="monroe-global-nav__trigger"
+                class="monroe-global-nav__trigger flex items-center justify-between xl:justify-start w-full py-3 xl:py-8 text-lg xl:text-sm font-bold xl:font-semibold text-teal-900 xl:text-gray-700 uppercase tracking-widest hover:text-emerald-600 transition-colors [&[aria-expanded=true]]:text-emerald-600 [&[aria-expanded=true]>span:last-child]:rotate-180"
                 type="button"
                 aria-expanded="false"
                 aria-haspopup="true"
                 aria-controls={`monroe-nav-dd-${i}`}
               >
                 <span>{item.label}</span>
-                <span class="monroe-global-nav__chevron" aria-hidden="true" />
+                <span class="monroe-global-nav__chevron ml-2 border-solid border-t-4 border-l-4 border-r-4 border-transparent border-t-current transition-transform origin-center translate-y-0.5" aria-hidden="true" />
               </button>
-              <div id={`monroe-nav-dd-${i}`} class="monroe-global-nav__dropdown" role="region" aria-label={`${item.label} submenu`}>
-                <a class="monroe-global-nav__dropdown-link monroe-global-nav__dropdown-link--top" href={item.overviewHref}>
-                  <span>{item.label}</span>
-                  <span class="monroe-global-nav__dropdown-overview">Overview</span>
+              <div id={`monroe-nav-dd-${i}`} class="monroe-global-nav__dropdown xl:absolute xl:top-full xl:left-1/2 xl:-translate-x-1/2 bg-gray-50 xl:bg-white xl:shadow-xl xl:rounded-2xl xl:min-w-[240px] xl:border xl:border-gray-100 hidden [.is-open_&]:block py-2 xl:py-4 mt-2 xl:mt-0 overflow-hidden" role="region" aria-label={`${item.label} submenu`}>
+                <a class="monroe-global-nav__dropdown-link monroe-global-nav__dropdown-link--top block px-6 py-3 bg-teal-50 xl:bg-transparent hover:bg-teal-100 xl:hover:bg-teal-50 text-teal-900 border-b border-gray-200 xl:border-none mb-2 xl:mb-0" href={item.overviewHref}>
+                  <span class="block font-serif text-xl mb-1">{item.label}</span>
+                  <span class="monroe-global-nav__dropdown-overview text-xs font-bold uppercase tracking-widest text-emerald-600">Overview &rarr;</span>
                 </a>
-                <ul class="monroe-global-nav__submenu">
+                <ul class="monroe-global-nav__submenu flex flex-col">
                   {item.children.map((child) => (
                     <li class="monroe-global-nav__item">
                       <a
-                        class="monroe-global-nav__link"
+                        class="monroe-global-nav__link block px-6 py-2.5 text-sm font-medium text-gray-600 hover:text-teal-900 hover:bg-gray-100 xl:hover:bg-gray-50 transition-colors"
                         href={child.href}
                         {...(child.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                       >
@@ -156,18 +156,18 @@ const isCurrent = (item: NavItem) => {
               </div>
             </li>
           ) : (
-            <li class:list={['monroe-global-nav__item', { 'is-current': isCurrent(item) }]}>
-              <a class="monroe-global-nav__link" href={item.href} aria-current={isCurrent(item) ? 'page' : undefined}>
+            <li class:list={['monroe-global-nav__item', { 'is-current text-emerald-600': isCurrent(item) }]}>
+              <a class="monroe-global-nav__link block py-3 xl:py-8 text-lg xl:text-sm font-bold xl:font-semibold text-teal-900 xl:text-gray-700 uppercase tracking-widest hover:text-emerald-600 transition-colors" href={item.href} aria-current={isCurrent(item) ? 'page' : undefined}>
                 {item.label}
               </a>
             </li>
           )
         )}
       </ul>
-      <div class="monroe-global-nav__cta-row">
-        <a class="monroe-global-nav__donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
-        <a class="monroe-global-nav__call" href={SITE.contact.phoneTel}>Call Us</a>
-        <a class="monroe-global-nav__application" href="/adoptions">Application</a>
+      <div class="monroe-global-nav__cta-row flex xl:hidden flex-col gap-4 mt-auto pt-8 border-t border-gray-200">
+        <a class="monroe-global-nav__donate inline-flex items-center justify-center w-full px-6 py-4 bg-emerald-500 text-teal-900 rounded-full font-bold uppercase tracking-widest shadow-sm" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+        <a class="monroe-global-nav__call inline-flex items-center justify-center w-full px-6 py-4 bg-gray-100 text-teal-900 rounded-full font-bold uppercase tracking-widest" href={SITE.contact.phoneTel}>Call Us</a>
+        <a class="monroe-global-nav__application inline-flex items-center justify-center w-full px-6 py-4 bg-white border-2 border-teal-700 text-teal-700 rounded-full font-bold uppercase tracking-widest" href="/adoptions">Application</a>
       </div>
     </nav>
   </div>

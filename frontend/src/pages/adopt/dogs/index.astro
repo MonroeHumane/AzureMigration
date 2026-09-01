@@ -1,9 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import InnerShell from '../../../components/InnerShell.astro';
 import AdoptGrid from '../../../components/AdoptGrid.astro';
 import { getPets } from '../../../lib/directus';
-import '../../../styles/monroe-adopt-hub.css';
 
 const pets = await getPets();
 ---
@@ -12,27 +10,26 @@ const pets = await getPets();
   title="Adoptable Dogs | Monroe County | 734-243-3669"
   description="Meet adoptable dogs waiting for homes at the Humane Society of Monroe County. Filter by size, gender, and age."
 >
-  <InnerShell variant="adopt">
-    <header class="monroe-adopt-hub-hero">
-      <p class="monroe-adopt-hub-eyebrow">🐾 Adoption Hub</p>
-      <h1>Adoptable dogs</h1>
-      <p class="monroe-adopt-hub-lead">
+  <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+    <header class="text-center mb-8 sm:mb-12">
+      <p class="uppercase tracking-widest font-bold text-sm text-teal-700 mb-3">🐾 Adoption Hub</p>
+      <h1 class="text-4xl sm:text-5xl font-serif text-teal-900 mb-4">Adoptable dogs</h1>
+      <p class="text-lg text-gray-700 max-w-2xl mx-auto leading-relaxed">
         Meet the dogs waiting for a home in Monroe County. Filter by size, gender, and age, or click any dog to see their full profile.
       </p>
     </header>
 
-    <nav class="monroe-adopt-hub-quick" aria-label="Browse adoptable animals">
-      <a class="monroe-adopt-hub-pill" href="/adopt">🐾 All Pets</a>
-      <a class="monroe-adopt-hub-pill monroe-adopt-hub-pill--current" href="/adopt/dogs">🐶 Dogs</a>
-      <a class="monroe-adopt-hub-pill" href="/adopt/cats">🐱 Cats</a>
-      <a class="monroe-adopt-hub-pill monroe-adopt-hub-pill--ghost" href="/adoptions">📋 Adoption Info &amp; Application</a>
+    <nav class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-10" aria-label="Browse adoptable animals">
+      <a class="inline-flex items-center justify-center font-bold tracking-wide px-5 py-2.5 rounded-full bg-white text-teal-700 border-2 border-teal-700 transition-all hover:bg-teal-50" href="/adopt">🐾 All Pets</a>
+      <a class="inline-flex items-center justify-center font-bold tracking-wide px-5 py-2.5 rounded-full bg-teal-700 text-white shadow-sm border-2 border-teal-700 hover:bg-teal-900" href="/adopt/dogs">🐶 Dogs</a>
+      <a class="inline-flex items-center justify-center font-bold tracking-wide px-5 py-2.5 rounded-full bg-white text-teal-700 border-2 border-teal-700 transition-all hover:bg-teal-50" href="/adopt/cats">🐱 Cats</a>
+      <a class="inline-flex items-center justify-center font-bold tracking-wide px-5 py-2.5 rounded-full bg-gray-100 text-gray-700 border-2 border-transparent transition-all hover:bg-gray-200 ml-0 sm:ml-2" href="/adoptions">📄 Adoption Info &amp; Application</a>
     </nav>
 
     <AdoptGrid pets={pets} lockType="dog" />
 
-    <p class="monroe-adopt-hub-footnote">
-      Ready to adopt?{" "}<a href="/adoptions">Learn about our adoption process</a> or{" "}
-      <a href="tel:734-243-3669">call us at (734) 243-3669</a>.
+    <p class="mt-12 text-center text-gray-600 border-t border-gray-200 pt-8 font-medium">
+      Ready to adopt? <a href="/adoptions" class="text-teal-700 hover:text-teal-900 underline underline-offset-2">Learn about our adoption process</a> or <a href="tel:734-243-3669" class="text-teal-700 hover:text-teal-900 underline underline-offset-2">call us at (734) 243-3669</a>.
     </p>
-  </InnerShell>
+  </div>
 </BaseLayout>

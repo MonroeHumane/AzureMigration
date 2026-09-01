@@ -1,5 +1,6 @@
 ---
 import type { Pet } from '../lib/directus';
+import { Image } from 'astro:assets';
 
 interface Props {
   pet: Pet;
@@ -25,7 +26,7 @@ const isLongTimer = daysAtShelter !== null && daysAtShelter >= 180;
 ---
 
 <a
-  class="pet-card"
+  class="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-teal-700 outline-none"
   href={`/adopt/${pet.id}`}
   data-pet-card
   data-pet-id={pet.id}
@@ -38,18 +39,18 @@ const isLongTimer = daysAtShelter !== null && daysAtShelter >= 180;
   data-pet-search={`${pet.name} ${pet.breed} ${pet.description || ''}`.toLowerCase()}
   aria-label={`Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`}
 >
-  <div class="pet-card__photo">
-    <img src={pet.image_url || pet.image} alt={pet.name} loading="lazy" decoding="async" width="480" height="360" />
-    <span class="pet-card__type-badge">{pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
-    {isNewArrival && <span class="pet-card__ribbon pet-card__ribbon--new">New arrival</span>}
-    {!isNewArrival && isLongTimer && <span class="pet-card__ribbon pet-card__ribbon--longtimer">Been waiting a while</span>}
+  <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
+    <Image class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={pet.image_url || pet.image || ''} alt={pet.name} loading="lazy" decoding="async" width={480} height={360} />
+    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur w-9 h-9 rounded-full flex items-center justify-center text-lg shadow-sm z-10">{pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+    {isNewArrival && <span class="absolute top-3 right-3 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm z-10 text-white bg-emerald-500">New arrival</span>}
+    {!isNewArrival && isLongTimer && <span class="absolute top-3 right-3 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm z-10 text-white bg-purple-500">Been waiting a while</span>}
   </div>
-  <div class="pet-card__body">
-    <h3 class="pet-card__name">{pet.name}</h3>
-    <p class="pet-card__breed">{pet.breed}</p>
-    <div class="pet-card__chips">
-      {chips.map((chip) => <span class="pet-card__chip">{chip}</span>)}
+  <div class="p-5 flex flex-col flex-1">
+    <h3 class="font-serif text-2xl text-teal-900 mb-1 leading-tight group-hover:text-teal-700 transition-colors">{pet.name}</h3>
+    <p class="text-sm text-gray-500 mb-4 line-clamp-1">{pet.breed}</p>
+    <div class="flex flex-wrap gap-1.5 mb-6">
+      {chips.map((chip) => <span class="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md uppercase tracking-widest">{chip}</span>)}
     </div>
-    <span class="pet-card__cta">Meet {pet.name} &rarr;</span>
+    <span class="mt-auto text-sm font-bold text-teal-700 uppercase tracking-widest group-hover:text-teal-900 transition-colors">Meet {pet.name} &rarr;</span>
   </div>
 </a>

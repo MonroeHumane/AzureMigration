@@ -1,0 +1,32 @@
+---
+import PetCard from '../PetCard.astro';
+import type { Pet } from '../../lib/directus';
+
+interface Props {
+  home: any;
+  pets: Pet[];
+}
+
+const { home, pets } = Astro.props;
+---
+<div class="max-w-7xl mx-auto px-4 py-16" id="FeaturedPets">
+  <div class="text-center max-w-3xl mx-auto mb-12">
+    <h2 class="text-4xl font-serif text-teal-900 mb-4">{home.featured_pets.title}</h2>
+    <p class="text-lg text-gray-600">{home.featured_pets.copy}</p>
+  </div>
+
+  <div class="bg-teal-50/50 rounded-3xl p-6 sm:p-10 border border-teal-900/5 shadow-sm">
+    <div class="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+      <h3 class="text-2xl font-bold text-teal-900 flex items-center gap-3">
+        <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.2)] animate-pulse"></span>
+        Longest residents
+      </h3>
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-teal-700 text-white transition-all shadow-sm hover:bg-teal-900 text-sm" href="/adopt">Search All Adoptable Pets &rarr;</a>
+    </div>
+
+    <!-- For simplicity in the phased approach, we replace the custom marquee with the standard AdoptGrid grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {pets.map((pet) => <PetCard pet={pet} />)}
+    </div>
+  </div>
+</div>

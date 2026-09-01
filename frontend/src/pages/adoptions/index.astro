@@ -1,8 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InnerShell from '../../components/InnerShell.astro';
 import { SITE } from '../../config/site';
-import '../../styles/monroe-adopt-extra.css';
 
 const ADOPTION_FORM_URL = SITE.integrations.googleForms.adoptionApp;
 ---
@@ -11,110 +9,96 @@ const ADOPTION_FORM_URL = SITE.integrations.googleForms.adoptionApp;
   title="Adoptions | Monroe County | 734-243-3669"
   description="Find a pet, review our policy, and submit one application - everything you need to adopt from Monroe Humane is on this page."
 >
-  <InnerShell variant="adoptions">
-    <header class="monroe-adoptions-hero">
-        <p class="monroe-adoptions-eyebrow">Adoption</p>
-        <h1>Adoptions | Monroe County</h1>
-        <p class="monroe-adoptions-lead">
-          Find a pet, review our policy, and submit one application - everything you need to adopt from Monroe Humane is on this page.
+  <main class="pt-32 pb-24 px-4 max-w-4xl mx-auto">
+    <header class="text-center mb-16">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Adoption</p>
+      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Adoptions | Monroe County</h1>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+        Find a pet, review our policy, and submit one application - everything you need to adopt from Monroe Humane is on this page.
+      </p>
+    </header>
+
+    <ol class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12" aria-label="Adoption steps">
+      <li class="bg-teal-50 rounded-2xl p-8 border border-teal-100 flex flex-col">
+        <span class="w-12 h-12 bg-teal-900 text-white rounded-full flex items-center justify-center font-bold text-xl mb-6" aria-hidden="true">1</span>
+        <strong class="text-xl font-serif text-teal-900 mb-3">Browse pets</strong>
+        <p class="text-gray-600">Search adoptable dogs and cats and note the name of any animal you want to meet.</p>
+      </li>
+      <li class="bg-teal-50 rounded-2xl p-8 border border-teal-100 flex flex-col">
+        <span class="w-12 h-12 bg-teal-900 text-white rounded-full flex items-center justify-center font-bold text-xl mb-6" aria-hidden="true">2</span>
+        <strong class="text-xl font-serif text-teal-900 mb-3">Review policy</strong>
+        <p class="text-gray-600">Read requirements below so your visit goes smoothly.</p>
+      </li>
+      <li class="bg-teal-50 rounded-2xl p-8 border border-teal-100 flex flex-col">
+        <span class="w-12 h-12 bg-teal-900 text-white rounded-full flex items-center justify-center font-bold text-xl mb-6" aria-hidden="true">3</span>
+        <strong class="text-xl font-serif text-teal-900 mb-3">Apply online</strong>
+        <p class="text-gray-600">Submit the form and our team will follow up with next steps.</p>
+      </li>
+    </ol>
+
+    <nav class="flex flex-wrap justify-center gap-4 mb-20" aria-label="On this page">
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-emerald-500 text-teal-900 hover:bg-emerald-400 transition-colors shadow-sm" href="/adopt">Browse adoptable pets</a>
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-gray-100 text-teal-900 hover:bg-gray-200 transition-colors" href="#AdoptionPolicy">Adoption policy</a>
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-gray-100 text-teal-900 hover:bg-gray-200 transition-colors" href="#Application">Application form</a>
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-transparent text-teal-700 hover:bg-teal-50 transition-colors" href="tel:734-243-3669">734-243-3669</a>
+    </nav>
+
+    <section id="AdoptionPolicy" class="mb-16 scroll-mt-32" tabindex="-1" aria-labelledby="monroe-adoptions-policy-heading">
+      <h2 id="monroe-adoptions-policy-heading" class="text-3xl font-serif text-teal-900 mb-6">Adoption policy</h2>
+      <div class="prose prose-lg prose-teal max-w-none text-gray-700 mb-8">
+        <p>
+          We match animals to homes based on the pet’s needs, your household, and local ordinances. Staff may ask for landlord approval, vet references, or a meet-and-greet with resident pets.
         </p>
-      </header>
-
-      <ol class="monroe-adoptions-steps" aria-label="Adoption steps">
-        <li class="monroe-adoptions-step">
-          <span class="monroe-adoptions-step__num" aria-hidden="true">1</span>
-          <div>
-            <strong>Browse pets</strong>
-            <p>Search adoptable dogs and cats and note the name of any animal you want to meet.</p>
-          </div>
-        </li>
-        <li class="monroe-adoptions-step">
-          <span class="monroe-adoptions-step__num" aria-hidden="true">2</span>
-          <div>
-            <strong>Review policy</strong>
-            <p>Read requirements below so your visit goes smoothly.</p>
-          </div>
-        </li>
-        <li class="monroe-adoptions-step">
-          <span class="monroe-adoptions-step__num" aria-hidden="true">3</span>
-          <div>
-            <strong>Apply online</strong>
-            <p>Submit the form and our team will follow up with next steps.</p>
-          </div>
-        </li>
-      </ol>
-
-      <nav class="monroe-adoptions-quick" aria-label="On this page">
-        <a class="monroe-adoptions-pill monroe-adoptions-pill--primary" href="/adopt">Browse adoptable pets</a>
-        <a class="monroe-adoptions-pill" href="#AdoptionPolicy">Adoption policy</a>
-        <a class="monroe-adoptions-pill" href="#Application">Application form</a>
-        <a class="monroe-adoptions-pill monroe-adoptions-pill--ghost" href="tel:734-243-3669">734-243-3669</a>
-      </nav>
-
-      <section id="AdoptionPolicy" class="monroe-adoptions-section" tabindex="-1" aria-labelledby="monroe-adoptions-policy-heading">
-        <h2 id="monroe-adoptions-policy-heading">Adoption policy</h2>
-        <div class="monroe-adoptions-prose">
-          <p>
-            We match animals to homes based on the pet’s needs, your household, and local ordinances. Staff may ask for landlord approval, vet references, or a meet-and-greet with resident pets.
-          </p>
-          <p>
-            Adopters must be 18 or older with a valid ID. Some animals require a fenced yard, quiet indoor-only homes, or experienced handlers - we will explain any special requirements for the pet you choose.
-          </p>
-        </div>
-        <ul class="monroe-adoptions-checklist">
-          <li>Valid photo ID and proof of address</li>
-          <li>Landlord approval if you rent</li>
-          <li>All household members present for a meet-and-greet when possible</li>
-          <li>Existing pets up to date on vaccinations</li>
-        </ul>
-      </section>
-
-      <section class="monroe-adoptions-section monroe-adoptions-section--muted" aria-labelledby="monroe-adoptions-expect-heading">
-        <h2 id="monroe-adoptions-expect-heading">What happens next</h2>
-        <div class="monroe-adoptions-prose">
-          <p>
-            Submit an adoption interest form so we can talk before finalizing a match. If you already have a pet in mind, include their name in your message. A team member will call or email to schedule a visit and discuss fees.
-          </p>
-          <p>
-            Prefer not to use the online form? Call or email the shelter with the animal’s name (if known) and the best time to reach you.
-          </p>
-        </div>
-      </section>
-
-      <section id="Application" class="monroe-adoptions-section monroe-adoptions-section--form" tabindex="-1" aria-labelledby="monroe-adoptions-application-heading">
-        <div class="monroe-adoptions-form-header">
-          <h2 id="monroe-adoptions-application-heading">Adoption application</h2>
-          <div class="monroe-adoptions-form-actions">
-            <a class="monroe-btn" href="https://forms.gle/oMTQAaDiLyDRXBwK8" target="_blank" rel="noopener noreferrer">Open form in new tab</a>
-            <a class="monroe-btn monroe-btn--outline" href="/adopt">Back to pet search</a>
-          </div>
-        </div>
-        <div
-          class="monroe-google-form-embed monroe-adopt-form-embed monroe-google-form-embed--adoption"
-          style="--monroe-form-embed-h:2200px;--monroe-form-embed-h-mobile:2800px;--monroe-form-embed-h-active:2200px;"
-          data-form-height="2200"
-          data-form-height-mobile="2800"
-          data-thank-you-height="520"
-        >
-          <iframe
-            title="Adoption interest form"
-            src={`${ADOPTION_FORM_URL}?embedded=true`}
-            width="640"
-            height="2200"
-            style="border: 0;"
-            loading="lazy"></iframe>
-        </div>
-        <p class="monroe-google-form-embed__hint">
-          Google Forms cannot auto-size in iframes. If the form is cut off or has extra space below, use Open form in new tab.
+        <p>
+          Adopters must be 18 or older with a valid ID. Some animals require a fenced yard, quiet indoor-only homes, or experienced handlers - we will explain any special requirements for the pet you choose.
         </p>
-      </section>
+      </div>
+      <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+        <li class="flex items-start gap-3"><span class="text-emerald-500 mt-1">✓</span> Valid photo ID and proof of address</li>
+        <li class="flex items-start gap-3"><span class="text-emerald-500 mt-1">✓</span> Landlord approval if you rent</li>
+        <li class="flex items-start gap-3"><span class="text-emerald-500 mt-1">✓</span> All household members present for a meet-and-greet when possible</li>
+        <li class="flex items-start gap-3"><span class="text-emerald-500 mt-1">✓</span> Existing pets up to date on vaccinations</li>
+      </ul>
+    </section>
 
-      <section class="monroe-adoptions-contact" aria-labelledby="monroe-adoptions-contact-heading">
-        <h2 id="monroe-adoptions-contact-heading">Questions?</h2>
-        <ul class="monroe-adoptions-contact-list">
-          <li><a href="tel:734-243-3669">734-243-3669</a></li>
-          <li><a href="mailto:info@monroe-humane.org">info@monroe-humane.org</a></li>
-        </ul>
-      </section>
-  </InnerShell>
+    <section class="bg-gray-50 rounded-3xl p-8 md:p-12 mb-20 border border-gray-100" aria-labelledby="monroe-adoptions-expect-heading">
+      <h2 id="monroe-adoptions-expect-heading" class="text-2xl font-serif text-teal-900 mb-4">What happens next</h2>
+      <div class="prose prose-teal max-w-none text-gray-700">
+        <p>
+          Submit an adoption interest form so we can talk before finalizing a match. If you already have a pet in mind, include their name in your message. A team member will call or email to schedule a visit and discuss fees.
+        </p>
+        <p>
+          Prefer not to use the online form? Call or email the shelter with the animal’s name (if known) and the best time to reach you.
+        </p>
+      </div>
+    </section>
+
+    <section id="Application" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-12 mb-12 scroll-mt-32" tabindex="-1" aria-labelledby="monroe-adoptions-application-heading">
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
+        <h2 id="monroe-adoptions-application-heading" class="text-3xl font-serif text-teal-900">Adoption application</h2>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400 shadow-sm" href="https://forms.gle/oMTQAaDiLyDRXBwK8" target="_blank" rel="noopener noreferrer">Open form in new tab</a>
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:bg-teal-50" href="/adopt">Back to pet search</a>
+        </div>
+      </div>
+      <div class="w-full relative min-h-[2800px] md:min-h-[2200px] bg-gray-50 rounded-2xl overflow-hidden shadow-inner">
+        <iframe
+          title="Adoption interest form"
+          src={`${ADOPTION_FORM_URL}?embedded=true`}
+          class="absolute inset-0 w-full h-full"
+          loading="lazy"></iframe>
+      </div>
+      <p class="text-sm text-gray-500 text-center mt-6">
+        Google Forms cannot auto-size in iframes. If the form is cut off or has extra space below, use Open form in new tab.
+      </p>
+    </section>
+
+    <section class="text-center" aria-labelledby="monroe-adoptions-contact-heading">
+      <h2 id="monroe-adoptions-contact-heading" class="text-2xl font-serif text-teal-900 mb-4">Questions?</h2>
+      <ul class="flex justify-center gap-8 text-lg">
+        <li><a class="text-emerald-600 hover:text-emerald-700 font-medium" href="tel:734-243-3669">734-243-3669</a></li>
+        <li><a class="text-emerald-600 hover:text-emerald-700 font-medium" href="mailto:info@monroe-humane.org">info@monroe-humane.org</a></li>
+      </ul>
+    </section>
+  </main>
 </BaseLayout>

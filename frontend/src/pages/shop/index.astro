@@ -1,8 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InnerShell from '../../components/InnerShell.astro';
 import { SITE } from '../../config/site';
-import '../../styles/monroe-shop.css';
 
 const SQUARE_URL = SITE.integrations.squareStore.url;
 const SHOP_ASSETS = '/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/shop';
@@ -34,79 +32,88 @@ const products = [
 ---
 
 <BaseLayout title="Shop | 734-243-3669" description="Every purchase helps tails wag and whiskers purr. Browse featured styles, then complete checkout on our secure Square store.">
-  <InnerShell variant="shop">
-    <div class="monroe-shop-page">
-      <aside class="monroe-shop-under-construction" role="status" aria-live="polite">
-        <p class="monroe-shop-under-construction__emoji" aria-hidden="true">🚧 🐾 ✨</p>
-        <p class="monroe-shop-under-construction__title">Paws pause - shop makeover in progress!</p>
-        <p class="monroe-shop-under-construction__text">We’re fluffing up our merch nook. You can still peek at featured items below, or hop over to our Square store anytime!</p>
+  <main class="pt-32 pb-24 min-h-screen bg-gray-50/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <aside class="bg-amber-100/50 border border-amber-200 rounded-2xl p-6 text-center mb-12" role="status" aria-live="polite">
+        <p class="text-2xl mb-2" aria-hidden="true">🚧 🐾 ✨</p>
+        <p class="font-bold text-amber-900 mb-1">Paws pause - shop makeover in progress!</p>
+        <p class="text-amber-800 text-sm">We’re fluffing up our merch nook. You can still peek at featured items below, or hop over to our Square store anytime!</p>
       </aside>
 
-      <section class="monroe-shop-hero monroe-shop-hero--banner monroe-shop-hero--split" aria-labelledby="monroe-shop-title">
-        <div class="monroe-shop-hero__grid">
-          <div class="monroe-shop-hero__copy">
-            <p class="monroe-shop-hero__kicker" aria-hidden="true">🐾 Support the shelter</p>
-            <h1 id="monroe-shop-title">Monroe Humane Society Shop</h1>
-            <p class="monroe-shop-hero__lead">Every purchase helps tails wag and whiskers purr. Browse featured styles below, then complete checkout on our secure Square store.</p>
-            <div class="monroe-shop-hero__actions">
-              <a class="monroe-shop-btn monroe-shop-btn--primary" href="#monroe-shop-catalog">Browse featured items</a>
-              <a class="monroe-shop-btn monroe-shop-btn--ghost" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Open Square store</a>
-            </div>
+      <section class="bg-teal-900 rounded-3xl overflow-hidden shadow-lg flex flex-col lg:flex-row mb-16" aria-labelledby="monroe-shop-title">
+        <div class="p-8 sm:p-12 lg:p-16 flex-1 flex flex-col justify-center">
+          <p class="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4" aria-hidden="true">🐾 Support the shelter</p>
+          <h1 id="monroe-shop-title" class="text-4xl sm:text-5xl font-serif text-white mb-6 leading-tight">Monroe Humane Society Shop</h1>
+          <p class="text-teal-100 text-lg mb-8 leading-relaxed">Every purchase helps tails wag and whiskers purr. Browse featured styles below, then complete checkout on our secure Square store.</p>
+          <div class="flex flex-wrap gap-4">
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400" href="#monroe-shop-catalog">Browse featured items</a>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-white text-white hover:bg-white hover:text-teal-900" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Open Square store</a>
           </div>
-          <figure class="monroe-shop-hero__visual">
-            <img src={`${SHOP_ASSETS}/merch-store-banner.png`} alt="Illustration of hats, mugs, and folded shirts in a merchandise collage." width="860" height="860" loading="eager" decoding="async" />
-          </figure>
         </div>
+        <figure class="w-full lg:w-1/2 relative min-h-[300px] lg:min-h-[500px]">
+          <img src={`${SHOP_ASSETS}/merch-store-banner.png`} alt="Illustration of hats, mugs, and folded shirts in a merchandise collage." class="absolute inset-0 w-full h-full object-cover" loading="eager" decoding="async" />
+        </figure>
       </section>
 
-      <section id="monroe-shop-catalog" class="monroe-shop-section monroe-shop-section--demo">
-        <div class="monroe-shop-section__inner">
-          <div class="monroe-shop-demo-intro">
-            <span class="monroe-shop-badge">Featured</span>
-            <h2>Popular picks</h2>
-            <p>Inventory, pricing, and shipping are managed on Square. Select an item to open the live store in a new tab.</p>
-          </div>
+      <section id="monroe-shop-catalog" class="mb-24">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+          <span class="inline-block bg-teal-100 text-teal-800 font-bold uppercase tracking-widest text-xs px-3 py-1 rounded-full mb-4">Featured</span>
+          <h2 class="text-4xl font-serif text-teal-900 mb-4">Popular picks</h2>
+          <p class="text-gray-600 text-lg">Inventory, pricing, and shipping are managed on Square. Select an item to open the live store in a new tab.</p>
+        </div>
 
-          <ul class="monroe-shop-product-grid">
-            {products.map((p) => (
-              <li class:list={['monroe-shop-product-card', { 'monroe-shop-product-card--media-contain': p.contain }]}>
-                <div class="monroe-shop-product-card__media">
-                  <img src={p.image} alt={p.alt} loading="lazy" decoding="async" width="480" height="480" />
-                </div>
-                <div class="monroe-shop-product-card__body">
-                  <h3 class="monroe-shop-product-card__title">{p.title}</h3>
-                  <p class="monroe-shop-product-card__price">{p.price}</p>
-                  <p class="monroe-shop-product-card__blurb">{p.blurb}</p>
-                  <a class="monroe-shop-product-card__cta" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Shop on Square</a>
-                </div>
+        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {products.map((p) => (
+            <li class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
+              <div class="aspect-square bg-gray-100 relative p-8 flex items-center justify-center">
+                <img src={p.image} alt={p.alt} class={`w-full h-full ${p.contain ? 'object-contain' : 'object-cover mix-blend-multiply'}`} loading="lazy" decoding="async" />
+              </div>
+              <div class="p-8 flex flex-col flex-1">
+                <h3 class="text-2xl font-serif text-teal-900 mb-2">{p.title}</h3>
+                <p class="text-emerald-600 font-bold mb-4">{p.price}</p>
+                <p class="text-gray-600 mb-8 flex-1">{p.blurb}</p>
+                <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all bg-teal-50 text-teal-700 hover:bg-teal-100 w-full" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Shop on Square</a>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="shop-products" class="bg-teal-900 text-white rounded-3xl overflow-hidden shadow-xl p-8 sm:p-12 lg:p-16">
+        <div class="flex flex-col lg:flex-row gap-12 lg:gap-24">
+          <div class="flex-1">
+            <h2 class="text-4xl font-serif mb-6">Checkout on Square</h2>
+            <p class="text-teal-100 text-lg mb-8">Taxes, shipping, and payment are handled securely by Square.</p>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400 w-full mb-8 shadow-sm" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Visit the online store</a>
+            <div class="bg-white rounded-2xl overflow-hidden h-[600px] w-full">
+              <iframe class="w-full h-full" title="Square online store" src={SQUARE_URL} loading="lazy"></iframe>
+            </div>
+            <p class="text-sm text-teal-200 mt-4 text-center">If the preview is blank, use the button above - some browsers block store embeds.</p>
+          </div>
+          <aside class="w-full lg:w-1/3 pt-8 lg:pt-0 lg:border-l lg:border-white/10 lg:pl-16 flex flex-col justify-center">
+            <h3 id="monroe-shop-why-title" class="text-2xl font-serif mb-6">Why shop with us?</h3>
+            <ul class="space-y-6 text-teal-50">
+              <li class="flex items-start gap-4">
+                <span class="text-emerald-400 mt-1">✓</span>
+                <span>Proceeds fund shelter care &amp; adoption programs</span>
               </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section id="shop-products" class="monroe-shop-section monroe-shop-section--checkout">
-        <div class="monroe-shop-section__inner monroe-shop-checkout-layout">
-          <div class="monroe-shop-checkout-panel">
-            <h2>Checkout on Square</h2>
-            <p>Taxes, shipping, and payment are handled securely by Square.</p>
-            <a class="monroe-shop-btn monroe-shop-btn--primary monroe-shop-btn--stretch" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Visit the online store</a>
-            <div class="monroe-shop-embed-wrap" aria-hidden="false">
-              <iframe class="monroe-shop-embed" title="Square online store" src={SQUARE_URL} loading="lazy"></iframe>
-              <p class="monroe-shop-embed-fallback">If the preview is blank, use the button above - some browsers block store embeds.</p>
-            </div>
-          </div>
-          <aside class="monroe-shop-sidebar" aria-labelledby="monroe-shop-why-title">
-            <h3 id="monroe-shop-why-title">Why shop with us?</h3>
-            <ul>
-              <li>Proceeds fund shelter care &amp; adoption programs</li>
-              <li>Secure payments via Square</li>
-              <li>Perfect gifts for fosters &amp; volunteers</li>
+              <li class="flex items-start gap-4">
+                <span class="text-emerald-400 mt-1">✓</span>
+                <span>Secure payments via Square</span>
+              </li>
+              <li class="flex items-start gap-4">
+                <span class="text-emerald-400 mt-1">✓</span>
+                <span>Perfect gifts for fosters &amp; volunteers</span>
+              </li>
             </ul>
-            <div class="monroe-shop-sidebar-note">Questions about an order? Call the shelter at 734-243-3669.</div>
+            <div class="mt-12 p-6 bg-white/5 rounded-2xl border border-white/10">
+              <p class="text-sm text-teal-100 font-medium">Questions about an order? Call the shelter at <a href="tel:734-243-3669" class="text-emerald-400 hover:text-emerald-300">734-243-3669</a>.</p>
+            </div>
           </aside>
         </div>
       </section>
+
     </div>
-  </InnerShell>
+  </main>
 </BaseLayout>

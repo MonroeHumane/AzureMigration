@@ -10,54 +10,61 @@ const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
   title="Donate to HSMC | 734-243-3669"
   description="Your gift today buys medicine, food, and everyday supplies for the animals in our care."
 >
-  <InnerShell variant="donate-now">
-    <header class="monroe-native-hero">
-      <p class="monroe-native-eyebrow">Support Our Mission</p>
-      <h1>Donate to Monroe Humane</h1>
-      <p class="monroe-native-lead">
-        Every dollar stays in Monroe County providing nourishing food, compassionate medical treatment, spay/neuter care, and safe shelter for dogs and cats waiting for their forever homes.
-      </p>
+  <div class="max-w-5xl mx-auto px-4 py-8 sm:py-12">
+    <header class="bg-teal-700 text-cream p-8 sm:p-12 rounded-3xl mb-8 shadow-lg relative overflow-hidden">
+      <!-- Decorative paw background -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-[url('/assets/monroe-paw-print-tile.png')] bg-contain bg-no-repeat opacity-10 pointer-events-none mix-blend-overlay"></div>
+      
+      <div class="relative z-10">
+        <p class="uppercase tracking-widest font-bold text-sm text-emerald-200 mb-3">Support Our Mission</p>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-4 leading-tight">Donate to Monroe Humane</h1>
+        <p class="text-lg md:text-xl text-cream-100 opacity-90 leading-relaxed max-w-3xl">
+          Every dollar stays in Monroe County providing nourishing food, compassionate medical treatment, spay/neuter care, and safe shelter for dogs and cats waiting for their forever homes.
+        </p>
+      </div>
     </header>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
-      <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
-        <section class="monroe-native-stack" style="flex: 1;">
-          <div style="flex: 1;">
-            <h2>Online Card Donation</h2>
-            <p style="margin-bottom: 1.25rem;"> our verified donation portal</p>
-          </div>
-          <div class="monroe-native-actions">
-            <a class="monroe-btn" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate with Card &rarr;</a>
-          </div>
-        </section>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-8">
+      <!-- Direct Donation -->
+      <section class="bg-white border border-teal-700/10 p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col h-full hover:shadow-md transition-shadow">
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-teal-900 mb-3">Online Card Donation</h2>
+          <p class="text-gray-600 mb-8 leading-relaxed">
+            Make a one-time or monthly gift via credit card or debit card through our verified donation portal.
+          </p>
+        </div>
+        <div>
+          <a class="inline-flex items-center justify-center w-full font-bold uppercase tracking-wider px-6 py-4 rounded-full bg-teal-700 text-white transition-all hover:bg-teal-900 hover:-translate-y-1 shadow-md" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate with Card &rarr;</a>
+        </div>
+      </section>
 
-        <!-- PayPal Fund Giving -->
-        <section class="monroe-native-stack" style="flex: 1; margin-top: 1.5rem;">
-          <div style="flex: 1;">
-            <h2>PayPal Giving Fund</h2>
-            <p style="margin-bottom: 1.25rem;">
-              Donate securely with your PayPal balance or bank account with 100% of your donation going directly to shelter care.
-            </p>
-          </div>
-          <div class="monroe-native-actions">
-            <a class="monroe-btn" href="https://www.paypal.com/US/fundraiser/charity/4JPVCLYXAW9BW" target="_blank" rel="noopener noreferrer">General Fund (PayPal)</a>
-            <a class="monroe-btn monroe-btn--outline" href="https://www.paypal.com/US/fundraiser/charity/N9S3JQGK3HCTW" target="_blank" rel="noopener noreferrer">Cat Room Expansion</a>
-          </div>
-        </section>
-      </div>
+      <!-- PayPal Fund Giving -->
+      <section class="bg-white border border-teal-700/10 p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col h-full hover:shadow-md transition-shadow">
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-teal-900 mb-3">PayPal Giving Fund</h2>
+          <p class="text-gray-600 mb-8 leading-relaxed">
+            Donate securely with your PayPal balance or bank account with 100% of your donation going directly to shelter care.
+          </p>
+        </div>
+        <div class="flex flex-col gap-3">
+          <a class="inline-flex items-center justify-center w-full font-bold uppercase tracking-wider px-6 py-4 rounded-full bg-teal-700 text-white transition-all hover:bg-teal-900 hover:-translate-y-1 shadow-md" href="https://www.paypal.com/US/fundraiser/charity/4JPVCLYXAW9BW" target="_blank" rel="noopener noreferrer">General Fund</a>
+          <a class="inline-flex items-center justify-center w-full font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-white border-2 border-teal-700 text-teal-700 transition-all hover:bg-teal-50 hover:-translate-y-1" href="https://www.paypal.com/US/fundraiser/charity/N9S3JQGK3HCTW" target="_blank" rel="noopener noreferrer">Cat Room Expansion</a>
+        </div>
+      </section>
     </div>
 
-    <section class="monroe-native-stack" aria-labelledby="monroe-donations-ways-heading">
-      <h2 id="monroe-donations-ways-heading">More Ways to Champion Animals</h2>
-      <p style="margin-bottom: 1.5rem;">
+    <!-- More Ways to Give -->
+    <section class="bg-cream-200 border border-teal-700/5 p-8 sm:p-10 rounded-2xl text-center">
+      <h2 class="text-2xl font-bold text-teal-900 mb-4" id="monroe-donations-ways-heading">More Ways to Champion Animals</h2>
+      <p class="text-gray-700 mb-8 max-w-2xl mx-auto">
         Explore other meaningful ways you can stand with Monroe County shelter animals:
       </p>
-      <div class="monroe-native-actions">
-        <a class="monroe-btn monroe-btn--outline" href="/membership">Become a Member</a>
-        <a class="monroe-btn monroe-btn--outline" href="/memorials/give">Memorials &amp; Planned Giving</a>
-        <a class="monroe-btn monroe-btn--outline" href="/events">Attend a Fundraiser</a>
-        <a class="monroe-btn monroe-btn--outline" href="/shop">Shop Monroe Humane Swag</a>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-white border-2 border-teal-700 text-teal-700 transition-all hover:bg-teal-50 hover:-translate-y-1 shadow-sm" href="/membership">Become a Member</a>
+        <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-white border-2 border-teal-700 text-teal-700 transition-all hover:bg-teal-50 hover:-translate-y-1 shadow-sm" href="/memorials/give">Memorials &amp; Planned Giving</a>
+        <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-white border-2 border-teal-700 text-teal-700 transition-all hover:bg-teal-50 hover:-translate-y-1 shadow-sm" href="/events">Attend a Fundraiser</a>
+        <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-white border-2 border-teal-700 text-teal-700 transition-all hover:bg-teal-50 hover:-translate-y-1 shadow-sm" href="/shop">Shop Swag</a>
       </div>
     </section>
-  </InnerShell>
+  </div>
 </BaseLayout>
