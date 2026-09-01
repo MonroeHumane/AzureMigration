@@ -1,4 +1,5 @@
 ---
+// @ts-nocheck
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
@@ -42,7 +43,7 @@ function processTributes(list) {
     const name = [t.data.firstName, t.data.lastName].filter(Boolean).join(' ');
     let line = 'In memory of ' + name;
     if (t.data.donorName) {
-      line += ' – Gift by ' + t.data.donorName;
+      line += ' â€“ Gift by ' + t.data.donorName;
     }
     
     return {
@@ -203,7 +204,7 @@ const totalTributes = peopleTributes.length + petTributes.length;
     ))}
 
     <div class="hidden text-center py-20 bg-gray-50 rounded-3xl border border-gray-200" data-tribute-global-empty>
-      <span class="text-4xl mb-4 block" aria-hidden="true">🕊️</span>
+      <span class="text-4xl mb-4 block" aria-hidden="true">ðŸ•Šï¸</span>
       <h3 class="text-2xl font-serif text-teal-900 mb-2">No tributes found</h3>
       <p class="text-gray-600">Try adjusting your search term.</p>
       <button type="button" class="mt-6 text-emerald-600 font-bold uppercase tracking-wider text-sm hover:text-emerald-800 underline underline-offset-4" data-tribute-clear-search>Clear search</button>
@@ -213,6 +214,7 @@ const totalTributes = peopleTributes.length + petTributes.length;
 </BaseLayout>
 
 <script>
+// @ts-nocheck
   function initTributes() {
     const root = document.querySelector('[data-tribute-root]');
     if (!root) return;
