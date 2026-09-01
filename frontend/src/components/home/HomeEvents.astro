@@ -1,0 +1,155 @@
+---
+import type { Pet } from '../../lib/directus';
+
+interface Props {
+  home: any;
+  latestEvent: any;
+  nextEvent: any;
+  pets: Pet[];
+}
+
+const { home, latestEvent, nextEvent, pets } = Astro.props;
+
+const formatDate = (value: string | undefined, fallback: string) => {
+  if (!value) return fallback;
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return fallback;
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+};
+---
+
+<div id="Events" class="max-w-7xl mx-auto px-4 py-16">
+  <div class="bg-teal-900 rounded-3xl overflow-hidden shadow-xl text-white">
+    <div class="flex flex-col lg:flex-row w-full">
+      <!-- Left Content Column -->
+      <div class="p-8 sm:p-12 lg:p-16 w-full lg:w-1/2 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-teal-800">
+        <p class="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">
+          {latestEvent ? 'Upcoming Event' : 'Latest Event'}
+        </p>
+        <p class="text-teal-200 font-medium mb-2">
+          {latestEvent ? formatDate(latestEvent.event_date, home.events_feature.deadline) : home.events_feature.deadline}
+        </p>
+        <h2 class="text-4xl sm:text-5xl font-serif mb-6 leading-tight text-white">
+          {latestEvent ? latestEvent.title : home.events_feature.title}
+        </h2>
+        
+        <p class="text-teal-50 text-lg mb-6 leading-relaxed">
+          {latestEvent ? latestEvent.description : home.events_feature.body[0]}
+        </p>
+        
+        {!latestEvent && home.events_feature.body.slice(1).map((p: string) => (
+          <p class="text-teal-50 text-lg mb-6 leading-relaxed">{p}</p>
+        ))}
+        
+        {!latestEvent && (
+          <p class="bg-white/10 p-4 rounded-xl text-sm text-teal-100 mb-8 border border-white/10">
+            {home.events_feature.note}
+          </p>
+        )}
+        
+        {!latestEvent && (
+          <div class="mb-8" role="note">
+            <p class="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">{home.events_feature.ways_title}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {home.events_feature.ways.map((w: any) => (
+                <div class="flex items-start gap-3 bg-teal-950/50 p-4 rounded-xl border border-teal-800/50">
+                  <span class="text-2xl" aria-hidden="true">{w.icon}</span>
+                  <p class="text-sm text-teal-50">
+                    <strong class="text-white block mb-1">{w.text.split(':')[0]}</strong>
+                    {w.text.slice(w.text.indexOf(':') + 1)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <div class="mt-auto pt-4">
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-emerald-500 text-teal-900 hover:bg-emerald-400" 
+             href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.cta.href} 
+             target={latestEvent && latestEvent.link_url?.startsWith('http') ? '_blank' : undefined} 
+             rel={latestEvent && latestEvent.link_url?.startsWith('http') ? 'noopener noreferrer' : undefined}>
+            {latestEvent ? 'Learn More' : home.events_feature.cta.label}
+          </a>
+        </div>
+      </div>
+      
+      <!-- Right Image/Media Column -->
+      <div class="w-full lg:w-1/2 relative min-h-[400px]">
+        {latestEvent && !latestEvent.image ? (
+          <div class="absolute inset-0 bg-teal-800 flex items-center justify-center text-6xl opacity-50" aria-hidden="true">Ã°Å¸ÂÂ¾</div>
+        ) : (
+          <a href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.flyer_image} class="block absolute inset-0 group">
+            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10"></div>
+            <img class="absolute inset-0 w-full h-full object-cover" 
+                 src={latestEvent ? latestEvent.image : home.events_feature.flyer_image} 
+                 alt={latestEvent ? latestEvent.title : home.events_feature.flyer_alt} 
+                 loading="lazy" decoding="async" />
+          </a>
+        )}
+        
+        {!latestEvent && (
+          <div class="absolute bottom-6 right-6 left-6 sm:left-auto sm:w-80 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-xl text-teal-900 z-20">
+            <h3 class="font-bold uppercase tracking-widest text-xs mb-4 text-emerald-600 border-b border-gray-100 pb-3">{home.events_feature.schedule_title}</h3>
+            <ul class="flex flex-col gap-3">
+              {home.events_feature.schedule.map((row: any) => (
+                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 text-sm">
+                  <strong class="font-bold whitespace-nowrap">{row.date}</strong>
+                  <span class="text-gray-600 text-right">{row.location}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  
+  <div class="mt-16 bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
+    <div class="flex flex-col lg:flex-row w-full">
+      <div class="w-full lg:w-1/2 relative min-h-[400px] overflow-hidden bg-gray-100">
+        {pets.length > 0 ? (
+          <div class="absolute inset-0" aria-hidden="true">
+            {pets.map((pet, i) => (
+              <img
+                src={pet.image}
+                alt=""
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                class="absolute inset-0 w-full h-full object-cover opacity-0 animate-[fade_calc(var(--dur)*1s)_linear_infinite]"
+                style={`--dur: ${pets.length * 4}; animation-delay: ${i * 4}s;`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="absolute inset-0 flex items-center justify-center text-6xl text-gray-300" aria-hidden="true">ðŸ¾</div>
+        )}
+      </div>
+      
+      <div class="w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="px-3 py-1 bg-teal-50 text-teal-700 text-xs font-bold uppercase tracking-widest rounded-full">{nextEvent?.kicker || 'Coming Up'}</span>
+          <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-widest rounded-full">{nextEvent?.date || 'Soon'}</span>
+        </div>
+        <h3 class="text-3xl sm:text-4xl font-serif text-teal-900 mb-4 leading-tight">{nextEvent?.title || 'Next Event'}</h3>
+        <p class="text-lg text-gray-600 mb-8">{nextEvent?.time || 'Check back for details'}</p>
+        
+        <div class="flex flex-wrap gap-4">
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-sm hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900" href="/events">
+            {nextEvent?.buttons?.[0]?.label || 'Learn More'}
+          </a>
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50" href="/events">
+            {nextEvent?.buttons?.[1]?.label || 'View Calendar'}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<style>
+@keyframes fade {
+  0%, 100% { opacity: 0; }
+  10%, 25% { opacity: 1; }
+  35% { opacity: 0; }
+}
+</style>

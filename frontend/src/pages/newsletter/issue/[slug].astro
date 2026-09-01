@@ -1,17 +1,10 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getNewsletterIssues } from '../../../lib/directus';
-import '../../../styles/monroe-home-widgets.css';
-
-/*
- Newsletter issue - renders in the same hs-news-section markup the homepage
- "2025 in Review" feature uses. Content comes from getNewsletterIssues()
- (Directus, or the mirror-sourced fallback).
-*/
 
 export async function getStaticPaths() {
   const issues = await getNewsletterIssues();
-  return issues.map((issue) => ({
+  return issues.map((issue: any) => ({
     params: { slug: issue.slug },
     props: { issue },
   }));
@@ -21,49 +14,51 @@ const { issue } = Astro.props;
 ---
 
 <BaseLayout title={`${issue.title} | 734-243-3669`} description={`Monroe Humane Society Newsletter - ${issue.title}.`}>
-  <div class="pb-24 px-4 max-w-5xl mx-auto">
-    <div class="monroe-home-newsletter-slot">
-      <section id={`hs-news-${issue.slug}`} class="hs-news-section" aria-labelledby="hs-news-issue-title">
-        <div class="hs-wrap">
-          <div class="hs-card" role="region" aria-label={issue.title}>
-            <div class="hs-hero">
-              <img src={issue.hero_image} alt={issue.title} width="1200" height="400" decoding="async" loading="eager" />
-              <div class="hs-hero-overlay"></div>
-              <div class="hs-hero-text">
-                <div class="hs-eyebrow">PO Box 1457 &bull; Monroe, MI</div>
-                <h1 class="hs-hero-title">{issue.title}</h1>
-              </div>
-            </div>
-            <div class="hs-head">
-              <div>
-                <h2 id="hs-news-issue-title" class="hs-title">Monroe Humane Society Newsletter</h2>
-                <div class="hs-sub">{issue.byline || 'Humane Society of Monroe County'}</div>
-              </div>
-              <div class="hs-actions" role="group" aria-label="Quick pet filters">
-                <a href="/adopt/dogs" class="hs-btn">See Adoptable Dogs</a>
-                <a href="/adopt/cats" class="hs-btn">See Adoptable Cats</a>
-                <a href="/adopt" class="hs-btn ghost">See All Pets</a>
-              </div>
-            </div>
-            <div class="hs-body">
-              <div class="hs-grid">
-                {issue.blocks?.filter((b) => b.type === 'story').map((block) => (
-                  <div class="hs-box">
-                    <div class="hs-letter">
-                      <h3 class="hs-section-title">{block.title}</h3>
-                      {(block.body ?? '').split('\n').filter(Boolean).map((para) => <p>{para}</p>)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+  <div class="pb-24 px-4 max-w-7xl mx-auto mt-12">
+    <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
+      
+      <!-- Hero -->
+      <div class="relative h-64 sm:h-80 md:h-96 w-full">
+        <div class="absolute inset-0 bg-teal-900/40 mix-blend-multiply z-10"></div>
+        <img src={issue.hero_image} alt={issue.title} class="absolute inset-0 w-full h-full object-cover z-0" loading="eager" decoding="async" />
+        <div class="absolute inset-0 p-8 flex flex-col justify-end z-20 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
+          <p class="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-2">PO Box 1457 &bull; Monroe, MI</p>
+          <h1 class="text-3xl sm:text-5xl font-serif text-white">{issue.title}</h1>
         </div>
-      </section>
+      </div>
+
+      <!-- Head / Metadata -->
+      <div class="p-8 sm:p-12 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50">
+        <div>
+          <h2 id="hs-news-issue-title" class="text-2xl font-bold text-teal-900 mb-1">Monroe Humane Society Newsletter</h2>
+          <div class="text-gray-500 font-medium">{issue.byline || 'Humane Society of Monroe County'}</div>
+        </div>
+        <div class="flex flex-wrap gap-4" role="group" aria-label="Quick pet filters">
+          <a href="/adopt/dogs" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900 text-sm">See Adoptable Dogs</a>
+          <a href="/adopt/cats" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900 text-sm">See Adoptable Cats</a>
+          <a href="/adopt" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50 text-sm">See All Pets</a>
+        </div>
+      </div>
+
+      <!-- Body / Stories -->
+      <div class="p-8 sm:p-12 bg-white">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          {issue.blocks?.filter((b: any) => b.type === 'story').map((block: any) => (
+            <div class="prose prose-teal max-w-none">
+              <h3 class="text-2xl font-serif text-teal-900 mb-6">{block.title}</h3>
+              {(block.body ?? '').split('\n').filter(Boolean).map((para: string) => (
+                <p class="text-gray-700 leading-relaxed mb-4">{para}</p>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      
     </div>
-    <nav class="flex justify-center gap-4 mt-8 pt-8 border-t border-gray-200" aria-label="Related pages">
-      <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:underline" href="/newsletter">Newsletter archive</a>
-      <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:underline" href="/">Back to home</a>
+
+    <nav class="flex justify-center gap-8 mt-12 pt-8 border-t border-gray-200" aria-label="Related pages">
+      <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:text-emerald-600 transition-colors" href="/newsletter">Newsletter archive</a>
+      <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:text-emerald-600 transition-colors" href="/">Back to home</a>
     </nav>
   </div>
 </BaseLayout>

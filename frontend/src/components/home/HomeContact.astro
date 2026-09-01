@@ -1,0 +1,110 @@
+---
+interface Props {
+  home: any;
+}
+const { home } = Astro.props;
+import { SITE } from '../../config/site';
+---
+<div class="max-w-7xl mx-auto px-4 py-16" id="Contact">
+  <div class="bg-white rounded-3xl p-8 sm:p-12 border border-gray-100 shadow-sm">
+    <div class="max-w-3xl mb-12">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.contact.pill}</p>
+      <h2 class="text-4xl sm:text-5xl font-serif text-teal-900 mb-6 leading-tight">{home.contact.title}</h2>
+      <p class="text-lg text-gray-700 leading-relaxed">{home.contact.intro}</p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-12">
+      <div class="w-full lg:w-3/5">
+        <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+          <div aria-live="polite" aria-atomic="true" class="monroe-contact-form__feedback hidden mb-6 p-4 rounded-lg bg-teal-50 text-teal-900 border border-teal-100 font-medium text-sm"></div>
+          <p class="text-gray-500 font-medium mb-6 uppercase tracking-widest text-xs border-b border-gray-200 pb-4">{home.contact.lead}</p>
+          
+          <form class="monroe-contact-form" data-monroe-contact-mailto data-email={home.contact.email}>
+            <p class="hidden" aria-hidden="true">
+              <label for="monroe_contact_website">Website</label>
+              <input type="text" name="monroe_contact_website" id="monroe_contact_website" value="" tabindex="-1" autocomplete="off" />
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label for="monroe_contact_name" class="block text-sm font-bold text-teal-900 mb-2">Name <span class="text-red-500">*</span></label>
+                <input type="text" name="monroe_contact_name" id="monroe_contact_name" required autocomplete="name" placeholder="Name" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all" />
+              </div>
+              <div>
+                <label for="monroe_contact_phone" class="block text-sm font-bold text-teal-900 mb-2">Phone</label>
+                <input type="tel" name="monroe_contact_phone" id="monroe_contact_phone" inputmode="tel" autocomplete="tel" placeholder="Phone" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all" />
+              </div>
+            </div>
+            <div class="mb-6">
+              <label for="monroe_contact_email" class="block text-sm font-bold text-teal-900 mb-2">Email <span class="text-red-500">*</span></label>
+              <input type="email" name="monroe_contact_email" id="monroe_contact_email" required autocomplete="email" placeholder="Email" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all" />
+            </div>
+            <div class="mb-6">
+              <label for="monroe_contact_message" class="block text-sm font-bold text-teal-900 mb-2">Message <span class="text-red-500">*</span></label>
+              <textarea name="monroe_contact_message" id="monroe_contact_message" rows="5" required placeholder="Message" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all resize-y"></textarea>
+            </div>
+            <div>
+              <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-900 text-white hover:bg-teal-700">
+                {home.contact.submit}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <div class="w-full lg:w-2/5 flex flex-col gap-8">
+        <div class="bg-teal-50 rounded-2xl p-8 border border-teal-100 flex flex-col items-start h-full justify-center">
+          <div class="text-4xl text-teal-700 mb-6" aria-hidden="true">📞</div>
+          <h3 class="text-2xl font-serif text-teal-900 mb-4">Call Us</h3>
+          <p class="text-teal-800 mb-8">We are available during our open hours to assist you.</p>
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-white bg-transparent" href={SITE.contact.phoneTel}>
+            {home.contact.call_button}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initContactForm() {
+    const form = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
+    const feedback = document.querySelector<HTMLElement>('.monroe-contact-form__feedback');
+    if (!form || !feedback) return;
+
+    const emailTo = form.dataset.email || 'info@monroe-humane.org';
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const hp = (document.getElementById('monroe_contact_website') as HTMLInputElement)?.value;
+      if (hp) {
+        feedback.textContent = 'Submission blocked (spam detected).';
+        feedback.classList.remove('hidden');
+        return;
+      }
+      
+      const name = (document.getElementById('monroe_contact_name') as HTMLInputElement)?.value || '';
+      const phone = (document.getElementById('monroe_contact_phone') as HTMLInputElement)?.value || '';
+      const email = (document.getElementById('monroe_contact_email') as HTMLInputElement)?.value || '';
+      const message = (document.getElementById('monroe_contact_message') as HTMLTextAreaElement)?.value || '';
+      
+      let body = `Name: ${name}\n`;
+      if (phone) body += `Phone: ${phone}\n`;
+      body += `Email: ${email}\n\n`;
+      body += `Message:\n${message}\n`;
+      
+      const subject = `Website Contact Form: ${name}`;
+      const mailtoUrl = `mailto:${encodeURIComponent(emailTo)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      window.location.href = mailtoUrl;
+      feedback.textContent = 'Opening your email client to complete the message...';
+      feedback.classList.remove('hidden');
+    });
+  }
+
+  document.addEventListener('astro:page-load', initContactForm);
+  if (document.readyState === 'complete') {
+    initContactForm();
+  } else {
+    document.addEventListener('DOMContentLoaded', initContactForm);
+  }
+</script>

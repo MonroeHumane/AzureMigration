@@ -1,0 +1,63 @@
+---
+interface Props {
+  home: any;
+}
+const { home } = Astro.props;
+---
+<div class="max-w-7xl mx-auto px-4 py-16">
+  <div class="bg-teal-50/30 rounded-3xl p-8 sm:p-12 border border-teal-900/5 shadow-sm" id="Donations">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.donations.label}</p>
+      <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.donations.title}</h2>
+      <p class="text-lg text-gray-700 leading-relaxed">{home.donations.intro}</p>
+    </div>
+
+    <!-- Giving IFrames -->
+    <div class="flex flex-col lg:flex-row gap-8 mb-16">
+      <div class="w-full lg:w-1/2">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-teal-900/10">
+          <iframe src={home.donations.cat_room.href} style="width:100%; height:550px; border:none; background:#fff;" title="Donate to the Cat Room"></iframe>
+        </div>
+      </div>
+      <div class="w-full lg:w-1/2 flex flex-col gap-6">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-teal-900/10">
+          <iframe src={home.donations.general.href} style="width:100%; height:550px; border:none; background:#fff;" title="Make a Difference"></iframe>
+        </div>
+        
+        <div class="bg-teal-900 text-white p-6 rounded-2xl shadow-lg border border-teal-800 flex items-center justify-between">
+          <div>
+            <h4 class="font-bold text-lg mb-1">{home.donations.offline.title}</h4>
+            <p class="text-teal-200 text-sm">{home.donations.offline.label}</p>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-serif text-emerald-400">{home.donations.offline.amount}</div>
+            <div class="text-xs text-teal-300 uppercase tracking-wider mt-1">{home.donations.offline.caption}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Tiles -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {home.donations.tiles.map((tile: any) => (
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full" id={tile.title === 'Volunteer' ? 'Volunteer' : undefined}>
+          <h3 class="text-2xl font-serif text-teal-900 mb-4">{tile.title}</h3>
+          <p class="text-gray-600 mb-8 flex-grow">{tile.copy}</p>
+          <div>
+            <a
+              class:list={["inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-3.5 rounded-full transition-all",
+                tile.variant === 'outline' 
+                  ? "border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50" 
+                  : "shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900"
+              ]}
+              href={tile.href}
+              {...(tile.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
+            >
+              {tile.button}
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>

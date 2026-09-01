@@ -1,6 +1,16 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeHero from '../components/home/HomeHero.astro';
+import HomeFAQ from '../components/home/HomeFAQ.astro';
+import HomeAccomplishments from '../components/home/HomeAccomplishments.astro';
+import HomeGames from '../components/home/HomeGames.astro';
+import HomeSponsors from '../components/home/HomeSponsors.astro';
+import HomePartners from '../components/home/HomePartners.astro';
+import HomeTestimonials from '../components/home/HomeTestimonials.astro';
+import HomeContact from '../components/home/HomeContact.astro';
+import HomeEvents from '../components/home/HomeEvents.astro';
+import HomeDonations from '../components/home/HomeDonations.astro';
+import HomeNewsletter from '../components/home/HomeNewsletter.astro';
 import HomeFeaturedPets from '../components/home/HomeFeaturedPets.astro';
 import { getPets } from '../lib/directus';
 import { SITE } from '../config/site';
@@ -16,7 +26,7 @@ const newsletters = await getNewsletterIssues();
 const now = new Date();
 
 // Spotlight the soonest genuinely upcoming flyer event, not just whichever
-// one happens to sort first in the data Ã¢â‚¬â€ events[0] was surfacing a Gala
+// one happens to sort first in the data ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â events[0] was surfacing a Gala
 // from months ago as the "latest" event long after it had passed.
 const latestEvent = events
   .filter((e) => e.event_date && new Date(e.event_date) >= now)
@@ -66,7 +76,7 @@ if (home.accomplishments.years['2025']) {
 const formatDate = (value: string | undefined, fallback: string) => {
   if (!value) return fallback;
   // Parsing a bare "YYYY-MM-DD" string gives UTC midnight, which a
-  // behind-UTC timezone then displays as the previous day Ã¢â‚¬â€ parse at
+  // behind-UTC timezone then displays as the previous day ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â parse at
   // noon instead so the calendar date can't shift across the boundary.
   const d = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T12:00:00`) : new Date(value);
   return Number.isNaN(d.getTime())
@@ -145,95 +155,9 @@ const indexLabels: Record<string, string> = {
     <!-- 1. Hero -->
     <HomeHero home={home} />
 
-    <div class="xl:pl-[290px] xl:pr-8 flex flex-col gap-16 overflow-hidden">`n    <!-- 2. Events band -->
-    <div id="Events" class="wp-block-group alignwide home-editable-section home-editable-events-band is-layout-constrained">
-      <section class="hs-feature-widget home-editable-events-artwork" aria-labelledby="hs-events-feature-title">
-          <div class="flex flex-col lg:flex-row w-full">
-            <div class="p-8 sm:p-12 lg:p-16 w-full lg:w-1/2 flex flex-col justify-center">
-              <p class="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">{latestEvent ? 'Upcoming Event' : 'Latest Event'}</p>
-              <p class="hs-deadline">{latestEvent ? formatDate(latestEvent.event_date, home.events_feature.deadline) : home.events_feature.deadline}</p>
-              <h2 id="hs-events-feature-title">{latestEvent ? latestEvent.title : home.events_feature.title}</h2>
-              <p class="text-teal-50 text-lg mb-6 leading-relaxed">{latestEvent ? latestEvent.description : home.events_feature.body[0]}</p>
-              
-              {!latestEvent && home.events_feature.body.slice(1).map((p) => <p class="text-teal-50 text-lg mb-6 leading-relaxed">{p}</p>)}
-              {!latestEvent && <p class="bg-white/10 p-4 rounded-xl text-sm text-teal-100 mb-8 border border-white/10">{home.events_feature.note}</p>}
-              
-              {!latestEvent && (
-                <div class="monroe-vote-ways" role="note">
-                  <p class="monroe-vote-ways__title">{home.events_feature.ways_title}</p>
-                  <div class="monroe-vote-ways__grid">
-                    {home.events_feature.ways.map((w) => (
-                      <div class="monroe-vote-ways__item">
-                        <span class="monroe-vote-ways__icon" aria-hidden="true">{w.icon}</span>
-                        <p><strong>{w.text.split(':')[0]}:</strong>{w.text.slice(w.text.indexOf(':') + 1)}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div class="mt-auto">
-                <a class="hs-btn hs-btn--vote" href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.cta.href} target={latestEvent && latestEvent.link_url?.startsWith('http') ? '_blank' : undefined} rel={latestEvent && latestEvent.link_url?.startsWith('http') ? 'noopener noreferrer' : undefined}>{latestEvent ? 'Learn More' : home.events_feature.cta.label}</a>
-              </div>
-            </div>
-            <a class="hs-voting-flyer" href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.flyer_image}>
-              {latestEvent && !latestEvent.image ? (
-                <div class="hs-voting-flyer__placeholder" aria-hidden="true">Ã°Å¸ÂÂ¾</div>
-              ) : (
-                <img src={latestEvent ? latestEvent.image : home.events_feature.flyer_image} alt={latestEvent ? latestEvent.title : home.events_feature.flyer_alt} loading="lazy" decoding="async" />
-              )}
-            </a>
-            {!latestEvent && (
-              <div class="hs-voting-schedule" aria-label="Event schedule">
-                <h3>{home.events_feature.schedule_title}</h3>
-                <ul>
-                  {home.events_feature.schedule.map((row) => (
-                    <li><strong>{row.date}</strong><span>{row.location}</span></li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </section>
-
-      <div class="home-editable-upcoming-event-section">
-        <div class="home-editable-upcoming-event-hero home-editable-feature-card">
-          <div class="home-editable-upcoming-event-hero__grid">
-            <div class="home-editable-upcoming-event-hero__media-col">
-              {pets.length > 0 ? (
-                <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--slideshow" aria-hidden="true">
-                  {pets.map((pet, i) => (
-                    <img
-                      src={pet.image}
-                      alt=""
-                      loading={i === 0 ? 'eager' : 'lazy'}
-                      decoding="async"
-                      class="home-editable-upcoming-event-hero__slide"
-                      style={`animation-duration: ${pets.length * 4}s; animation-delay: ${i * 4}s`}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--placeholder" aria-hidden="true">Ã°Å¸ÂÂ¾</div>
-              )}
-            </div>
-            <div class="home-editable-upcoming-event-hero__copy">
-              <p class="home-editable-pill home-editable-upcoming-event-hero__kicker">{nextEvent.kicker}</p>
-              <p class="home-editable-pill home-editable-upcoming-event-hero__date">{nextEvent.date}</p>
-              <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{nextEvent.title}</h2>
-              <p>{nextEvent.time}</p>
-              <div class="wp-block-buttons">
-                <div class="">
-                  <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900" href="/events">{nextEvent.buttons[0].label}</a>
-                </div>
-                <div class="">
-                  <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50" href="/events">{nextEvent.buttons[1].label}</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="xl:pl-[290px] xl:pr-8 flex flex-col gap-16 overflow-hidden">
+    <!-- 2. Events band -->
+    <HomeEvents home={home} latestEvent={latestEvent} nextEvent={nextEvent} pets={pets} />
 
     <!-- 3. Intro -->
     <div class="max-w-7xl mx-auto px-4 py-16">
@@ -313,165 +237,19 @@ const indexLabels: Record<string, string> = {
       </div>
     </div>
 
-    <!-- 7. Vet partners -->
-    <div class="max-w-7xl mx-auto px-4 py-16">
-      <div class="home-editable-news-card home-editable-runtime-card">
-        <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.vet_partners.label}</p>
-        <p class="text-lg text-gray-700 leading-relaxed mb-8">{home.vet_partners.intro}</p>
-        <div class="sponsor-widget-shell">
-          <section class="sponsor-widget" id="VetPartners" aria-labelledby="sponsor-widget-title">
-            <div class="sponsor-widget__header">
-              <h3 id="sponsor-widget-title" class="sponsor-widget__title">{home.vet_partners.title}</h3>
-              <p class="sponsor-widget__subtitle">{home.vet_partners.subtitle}</p>
-            </div>
-            <div class="sponsor-grid">
-              {sponsors.vet_partners.map((v) => (
-                <div class="sponsor-card">
-                  <figure>
-                    <img src={v.image} alt={v.alt} loading="lazy" decoding="async" />
-                    <figcaption>{v.name}</figcaption>
-                  </figure>
-                  <a class="sponsor-card__cta" href={v.link} target="_blank" rel="noopener noreferrer">Visit website</a>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      </div>
-    </div>
+    <!-- 7. Vet & Auction Sponsors -->
+    <HomeSponsors home={home} sponsors={sponsors} />
 
-    <!-- 8. Auction sponsors -->
-    <div class="max-w-7xl mx-auto px-4 py-16">
-      <div class="home-editable-auction-sponsors">
-        <div id="furry-friends-auction-sponsors" class="sponsor-widget-shell sponsor-widget-shell--auction-five">
-          <section class="sponsor-widget" aria-labelledby="furry-friends-auction-sponsors-title">
-            <div class="sponsor-widget__header">
-              <h3 id="furry-friends-auction-sponsors-title" class="sponsor-widget__title">Furry Friends Auction Sponsors</h3>
-              <p class="sponsor-widget__subtitle">{home.auction_sponsors.subtitle}</p>
-            </div>
-            <div class="sponsor-grid">
-              {sponsors.auction_sponsors.map((s) => (
-                <div class="sponsor-card">
-                  <figure>
-                    <img src={s.image} alt={s.alt} loading="lazy" decoding="async" />
-                    <figcaption>{s.name}</figcaption>
-                  </figure>
-                  <a class="sponsor-card__cta" href={s.link} target="_blank" rel="noopener noreferrer">Visit website</a>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      </div>
-    </div>
-
-    <!-- 9. Community partners marquee -->
-    <div class="wp-block-group alignfull home-editable-sponsors">
-      <h5>{home.community_partners.title}</h5>
-      <p>{home.community_partners.intro}</p>
-      <section id="sponsorMarqueeWidget" class="sponsor-marquee" aria-label="Community partners">
-        <div class="logo-slider">
-          <div class="logo-track">
-            {[false, true].map((clone) => (
-              <div class="logo-set" aria-hidden={clone ? 'true' : undefined}>
-                {sponsors.community_partners.map((p) => (
-                  <img src={p.image} alt={p.name} loading="lazy" decoding="async" />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- 10. Membership -->
-    <div class="home-editable-donate-card">
-      <div id="Membership" class="monroe-membership-plans-shared monroe-membership-plans-shared--under-construction">
-        <div class="home-editable-membership-intro">
-          <p class="home-editable-section-label">{home.membership_home.label}</p>
-          <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.membership_home.title}</h2>
-        </div>
-        <div class="monroe-membership-under-construction" role="status">
-          <p>{home.membership_home.under_construction}</p>
-        </div>
-      </div>
-    </div>
+    <!-- 9. Community Partners & Membership -->
+    <HomePartners home={home} sponsors={sponsors} />
 
     <!-- 11. Testimonials -->
-      <div class="max-w-7xl mx-auto px-4 py-16" id="Testimonials">
-      <div class="wp-block-group home-editable-events-card home-editable-runtime-card is-layout-constrained">
-        <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.testimonials.label}</p>
-        <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.testimonials.title}</h2>
-        <p class="text-lg text-gray-700 leading-relaxed mb-8">{home.testimonials.intro}</p>
-        <div class="monroe-testimonials">
-          {reviews.slice(0, 6).map((review) => (
-            <figure class="monroe-testimonials__card">
-              <blockquote class="monroe-testimonials__quote">{review.text}</blockquote>
-              <figcaption class="monroe-testimonials__cite">
-                <span class="monroe-testimonials__author">{review.author}</span>
-                <span class="monroe-testimonials__role">Google review{review.rating ? ` Ã¢â‚¬Â¢ ${'Ã¢Ëœâ€¦'.repeat(review.rating)}` : ''}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </div>
+    <HomeTestimonials home={home} reviews={reviewsData} />
 
     <!-- 12. Donations -->
-    <div class="max-w-7xl mx-auto px-4 py-16">
-      <div class="wp-block-group home-editable-donate-card home-editable-runtime-card is-layout-constrained" id="Donations">
-        <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.donations.label}</p>
-        <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.donations.title}</h2>
-        <p class="text-lg text-gray-700 leading-relaxed mb-8">{home.donations.intro}</p>
+    <HomeDonations home={home} />
 
-        <div class="home-editable-paypal-giving home-editable-paypal-giving--split">
-            <div class="home-editable-paypal-giving-split">
-              <div class="home-editable-paypal-giving-split__col">
-                <div class="pp-giving-wrapper">
-                  <iframe src={home.donations.cat_room.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Donate to the Cat Room"></iframe>
-                </div>
-              </div>
-              <div class="home-editable-paypal-giving-split__col">
-                <div class="pp-giving-wrapper">
-                  <iframe src={home.donations.general.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Make a Difference"></iframe>
-                  
-                  <div class="offline-donations" style="margin-top:2rem;">
-                    <div class="offline-donations-header">
-                      <h4>{home.donations.offline.title}</h4>
-                      <p>{home.donations.offline.label}</p>
-                    </div>
-                    <div class="offline-donations-body">
-                      <div class="offline-donations-amount">{home.donations.offline.amount}</div>
-                      <div class="offline-donations-label">{home.donations.offline.caption}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="wp-block-columns home-editable-give-grid is-layout-flex">
-          {home.donations.tiles.map((tile) => (
-            <div class="flex-1 w-full">
-              <div class="wp-block-group home-editable-give-tile is-layout-constrained" id={tile.title === 'Volunteer' ? 'Volunteer' : undefined}>
-                <h3 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{tile.title}</h3>
-                <p class="text-lg text-gray-700 leading-relaxed mb-8">{tile.copy}</p>
-                <div class:list={['wp-block-button', { 'is-style-outline': tile.variant === 'outline' }]}>
-                  <a
-                    class:list={['wp-block-button__link wp-element-button', { 'has-base-color has-contrast-background-color has-text-color has-background': tile.variant !== 'outline' }]}
-                    href={tile.href}
-                    {...(tile.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
-                  >
-                    {tile.button}
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    <!-- 13. Social: static follow card (a live Facebook iframe embed is unreliable Ã¢â‚¬â€
+    <!-- 13. Social: static follow card (a live Facebook iframe embed is unreliable ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â
          blocked by Safari/Firefox tracking protection and most ad-blockers by default) -->
     <div class="max-w-7xl mx-auto px-4 py-16" id="Social">
       <div class="wp-block-group home-editable-social-follow-card is-layout-constrained">
@@ -485,240 +263,21 @@ const indexLabels: Record<string, string> = {
       </div>
     </div>
 
-    <!-- 14. Newsletter: 2025 in Review -->
-    <div class="wp-block-group alignwide home-editable-section home-editable-newsletter-section is-layout-constrained">
-      <div class="wp-block-group home-editable-news-card home-editable-runtime-card is-style-monroe-news-band is-layout-constrained" id="Newsletter">
-        <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3" id="2025-in-review">{home.newsletter.label}</p>
-        <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.newsletter.title}</h2>
-        <p class="text-lg text-gray-700 leading-relaxed mb-8">{home.newsletter.intro}</p>
-
-        <div class="monroe-home-newsletter-slot">
-          <section id="hs-news-2025review" class="hs-news-section" aria-labelledby="hs-news-2025review-title" data-hs-lightbox="hsLb-181">
-            <div class="flex flex-col lg:flex-row w-full">
-              <div class="hs-card" role="region" aria-label="2025 in Review">
-                <div class="hs-hero">
-                    <img src={latestNewsletter ? latestNewsletter.hero_image : home.newsletter.hero_image} alt={latestNewsletter ? latestNewsletter.title : "2025 in Review"} width="1200" height="400" decoding="async" loading="lazy" />
-                    <div class="hs-hero-overlay"></div>
-                    <div class="hs-hero-text">
-                      <div class="hs-eyebrow">{home.newsletter.eyebrow}</div>
-                      <h3 class="hs-hero-title">{latestNewsletter ? "Latest Newsletter" : home.newsletter.label}</h3>
-                    </div>
-                  </div>
-                  <div class="hs-head">
-                    <div>
-                      <h3 id="hs-news-2025review-title" class="hs-title">{latestNewsletter ? latestNewsletter.title : home.newsletter.title}</h3>
-                      <div class="hs-sub">{latestNewsletter ? formatDate(latestNewsletter.issue_date, home.newsletter.byline) : home.newsletter.byline}</div>
-                    </div>
-                    <div class="mt-auto" role="group" aria-label="Quick pet filters">
-                      {latestNewsletter && latestNewsletter.pdf_url && (
-                        <a href={latestNewsletter.pdf_url} class="hs-btn ghost" target="_blank" rel="noopener noreferrer">Download PDF</a>
-                      )}
-                      {home.newsletter.filters.map((f) => (
-                        <a href={f.href} class:list={['hs-btn', { ghost: f.variant === 'ghost' }]}>{f.label}</a>
-                      ))}
-                      <a href="/newsletter" class="inline-flex items-center justify-center px-8 py-4 bg-emerald-500 text-teal-900 rounded-full font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 shadow-sm hover:-translate-y-1">All Issues</a>
-                    </div>
-                  </div>
-                </div>
-                <div class="text-teal-50 text-lg mb-6 leading-relaxed">
-                    <div class="hs-grid">
-                      {latestNewsletter ? (
-                        <div class="hs-box" style="grid-column: 1 / -1;">
-                          <div class="hs-letter">
-                            <p>{latestNewsletter.excerpt}</p>
-                            <a href={`/newsletter/issue/${latestNewsletter.slug}`} style="font-weight:bold; color:#0f766e; margin-top:1rem; display:inline-block;">Read Full Issue &rarr;</a>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          {home.newsletter.letters.map((letter) => (
-                            <div class="hs-box">
-                              <div class="hs-letter">
-                                <h3 class="hs-section-title">{letter.title}</h3>
-                                {letter.paragraphs && <p>{letter.paragraphs[0]}</p>}
-                                <details class="monroe-newsletter-details">
-                                  <summary>Read the rest of this letter</summary>
-                                  <div class="monroe-newsletter-details-content">
-                                    {letter.paragraphs?.slice(1).map((p) => <p>{p}</p>)}
-                                    {letter.improvements && (
-                                      <ol class="hs-improvements">
-                                        {letter.improvements.map((li) => <li>{li}</li>)}
-                                      </ol>
-                                    )}
-                                  </div>
-                                </details>
-                              </div>
-                            </div>
-                          ))}
-                          <aside class="hs-box" aria-label="Newsletter photo gallery">
-                            <div class="hs-gallery">
-                              {home.newsletter.gallery.map((img) => (
-                                <img src={img.src} alt={img.alt} loading="lazy" decoding="async" />
-                              ))}
-                            </div>
-                          </aside>
-                        </>
-                      )}
-                    </div>
-                  </div>
-              <div class="hs-lightbox" id="hsLb-181" aria-hidden="true">
-                <div class="hs-lightbox-inner" role="dialog" aria-modal="true" aria-label="Expanded image">
-                  <button class="hs-lb-btn hs-lb-close" type="button" aria-label="Close image">Ã¢Å“â€¢</button>
-                  <button class="hs-lb-btn hs-lb-prev" type="button" aria-label="Previous image">Ã¢â‚¬Â¹</button>
-                  <button class="hs-lb-btn hs-lb-next" type="button" aria-label="Next image">Ã¢â‚¬Âº</button>
-                  <img loading="lazy" decoding="async" alt="" data-hs-lb-img />
-                  <div class="hs-lb-caption"><span data-hs-lb-cap-l></span><span data-hs-lb-cap-r></span></div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-    </div>
+    <!-- 14. Newsletter -->
+    <HomeNewsletter home={home} latestNewsletter={latestNewsletter} />
 
     <!-- 15. FAQ -->
-    <div class="max-w-7xl mx-auto px-4 py-16">
-      <div class="wp-block-group home-editable-faq-card is-layout-constrained" id="FAQ">
-        <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.faq.label}</p>
-        <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.faq.title}</h2>
-        <p class="text-lg text-gray-700 leading-relaxed mb-8">{home.faq.intro}</p>
-        <div class="wp-block-columns home-editable-faq-grid is-layout-flex">
-          {home.faq.tiles.map((tile) => (
-            <div class="flex-1 w-full">
-              <div class="wp-block-group home-editable-faq-tile is-layout-constrained">
-                <h3 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{tile.title}</h3>
-                <p class="text-lg text-gray-700 leading-relaxed mb-8">{tile.copy}</p>
-                <div class="">
-                  <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-900 text-white hover:bg-teal-700" href={tile.href} {...(tile.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}>{tile.button}</a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    <HomeFAQ home={home} />
 
     <!-- 16. Accomplishments -->
-    <div id="Accomplishments" class="wp-block-group alignwide home-editable-section home-editable-accomplishments-band is-layout-constrained">
-      <div class="wp-block-group home-editable-accomplishments-card is-layout-constrained">
-        <p class="has-text-align-center home-editable-pill wp-block-paragraph">{home.accomplishments.pill}</p>
-        <h2 class="wp-block-heading has-text-align-center home-editable-heading-impact">{home.accomplishments.title}</h2>
-        <p class="has-text-align-center wp-block-paragraph">{home.accomplishments.intro}</p>
-
-        <div class="monroe-accomplishments-widget home-editable-accomplishments-grid" data-monroe-accomplishments-widget>
-          <div class="monroe-accomplishments-widget__tabs" role="tablist" aria-label="Shelter outcome years">
-            {Object.keys(home.accomplishments.years).map((year, i) => (
-              <button
-                type="button"
-                class:list={['monroe-accomplishments-widget__tab', { 'is-active': i === 0 }]}
-                role="tab"
-                id={`monroe-accomplishments-tab-${year}`}
-                aria-selected={i === 0 ? 'true' : 'false'}
-                aria-controls={`monroe-accomplishments-panel-${year}`}
-                data-accomplishments-year={year}
-              >
-                {year}
-              </button>
-            ))}
-          </div>
-          {Object.entries(home.accomplishments.years).map(([year, stats], i) => (
-            <div
-              class:list={['monroe-accomplishments-widget__panel', { 'is-active': i === 0 }]}
-              role="tabpanel"
-              id={`monroe-accomplishments-panel-${year}`}
-              aria-labelledby={`monroe-accomplishments-tab-${year}`}
-              data-accomplishments-panel={year}
-              hidden={i !== 0}
-            >
-              <div class="monroe-accomplishments-widget__stats">
-                {stats.map((s) => (
-                  <div class:list={['monroe-accomplishments-stat', 'is-tile', { 'is-accent': s.accent }]}>
-                    <span class="monroe-accomplishments-stat__value" data-count={s.value}>{s.display}</span>
-                    <span class="monroe-accomplishments-stat__label">{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    <HomeAccomplishments home={home} />
 
     <!-- 17. Games -->
-    <div id="Games" class="wp-block-group alignwide home-editable-section home-editable-games-band is-layout-flow">
-      <div class="wp-block-group home-editable-games-card is-layout-constrained">
-        <p class="has-text-align-center home-editable-pill wp-block-paragraph">{home.games.pill}</p>
-        <div class="home-editable-games-head">
-          <h2 class="wp-block-heading has-text-align-center home-editable-heading-impact" id="home-games-heading">{home.games.title}</h2>
-          <p class="has-text-align-center home-editable-games-intro">{home.games.intro}</p>
-        </div>
-        <ul class="home-editable-games-teasers" role="list">
-          {home.games.teasers.map((t) => (
-            <li class="home-editable-games-teasers__item">
-              <a class="home-editable-games-teasers__link" href="/games">
-                <span class="home-editable-games-teasers__icon" aria-hidden="true">{t.icon}</span>
-                <span class="home-editable-games-teasers__title">{t.title}</span>
-                <span class="home-editable-games-teasers__desc">{t.desc}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div class="wp-block-buttons is-content-justification-center home-editable-games-cta">
-          <div class="">
-            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-900 text-white hover:bg-teal-700" href="/games">{home.games.cta}</a>
-          </div>
-        </div>
-      </div>
-    </div>
+    <HomeGames home={home} />
 
     <!-- 18. Contact -->
-    <div class="max-w-7xl mx-auto px-4 py-16">
-      <div class="wp-block-group home-editable-contact-card is-layout-constrained" id="Contact">
-        <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.contact.pill}</p>
-        <h2 class="wp-block-heading home-editable-heading-impact">{home.contact.title}</h2>
-        <p class="text-lg text-gray-700 leading-relaxed mb-8">{home.contact.intro}</p>
-
-        <div class="monroe-contact-form-wrap">
-          <div aria-live="polite" aria-atomic="true" class="monroe-contact-form__feedback"></div>
-          <p class="monroe-contact-form__lead">{home.contact.lead}</p>
-          <form class="monroe-contact-form" data-monroe-contact-mailto data-email={home.contact.email}>
-            <p class="monroe-contact-form__hp" aria-hidden="true">
-              <label for="monroe_contact_website">Website</label>
-              <input type="text" name="monroe_contact_website" id="monroe_contact_website" value="" tabindex="-1" autocomplete="off" />
-            </p>
-            <div class="monroe-contact-form__grid">
-              <p class="monroe-contact-form__field">
-                <label for="monroe_contact_name">Name{" "}<span class="required">*</span></label>
-                <input type="text" name="monroe_contact_name" id="monroe_contact_name" required autocomplete="name" placeholder="Name" value="" />
-              </p>
-              <p class="monroe-contact-form__field">
-                <label for="monroe_contact_phone">Phone</label>
-                <input type="tel" name="monroe_contact_phone" id="monroe_contact_phone" inputmode="tel" autocomplete="tel" placeholder="Phone" value="" />
-              </p>
-            </div>
-            <p class="monroe-contact-form__field">
-              <label for="monroe_contact_email">Email{" "}<span class="required">*</span></label>
-              <input type="email" name="monroe_contact_email" id="monroe_contact_email" required autocomplete="email" placeholder="Email" value="" />
-            </p>
-            <p class="monroe-contact-form__field">
-              <label for="monroe_contact_message">Message{" "}<span class="required">*</span></label>
-              <textarea name="monroe_contact_message" id="monroe_contact_message" rows="5" required placeholder="Message"></textarea>
-            </p>
-            <p class="monroe-contact-form__submit">
-              <button type="submit" class="wp-block-button__link wp-element-button monroe-contact-form__button">{home.contact.submit}</button>
-            </p>
-          </form>
-        </div>
-
-        <div class="flex flex-wrap gap-4">
-          <div class="">
-            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-900 text-white hover:bg-teal-700" href={TEL}>{home.contact.call_button}</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>`n</BaseLayout>
+    <HomeContact home={home} />
+    </div>`n  </div>`n</BaseLayout>
 
 <script>
   function initHomePage() {
@@ -773,113 +332,7 @@ const indexLabels: Record<string, string> = {
       });
       fpwDialog.querySelector('.fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
     }
-
-    // Newsletter lightbox.
-    const newsSection = document.querySelector<HTMLElement>('[data-hs-lightbox]');
-    if (newsSection) {
-      const lb = newsSection.querySelector<HTMLElement>('.hs-lightbox');
-      const lbImg = lb?.querySelector<HTMLImageElement>('[data-hs-lb-img]');
-      const thumbs = Array.from(newsSection.querySelectorAll<HTMLElement>('[data-hs-lb-src]'));
-      let current = 0;
-      const show = (i: number) => {
-        current = (i + thumbs.length) % thumbs.length;
-        const src = thumbs[current].dataset.hsLbSrc;
-        if (lbImg && src) lbImg.src = src;
-        lb?.setAttribute('aria-hidden', 'false');
-      };
-      thumbs.forEach((thumb, i) => {
-        const open = () => show(i);
-        thumb.addEventListener('click', open);
-        thumb.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            open();
-          }
-        });
-      });
-      lb?.querySelector('.hs-lb-close')?.addEventListener('click', () => lb.setAttribute('aria-hidden', 'true'));
-      lb?.querySelector('.hs-lb-prev')?.addEventListener('click', () => show(current - 1));
-      lb?.querySelector('.hs-lb-next')?.addEventListener('click', () => show(current + 1));
-      document.addEventListener('keydown', (e) => {
-        if (lb?.getAttribute('aria-hidden') === 'true') return;
-        if (e.key === 'Escape') lb?.setAttribute('aria-hidden', 'true');
-        if (e.key === 'ArrowLeft') show(current - 1);
-        if (e.key === 'ArrowRight') show(current + 1);
-      });
-    }
-
-    // Accomplishments tabs.
-    const accWidget = document.querySelector<HTMLElement>('[data-monroe-accomplishments-widget]');
-    if (accWidget) {
-      accWidget.querySelectorAll<HTMLButtonElement>('.monroe-accomplishments-widget__tab').forEach((tab) => {
-        tab.addEventListener('click', () => {
-          const year = tab.dataset.accomplishmentsYear;
-          accWidget.querySelectorAll('.monroe-accomplishments-widget__tab').forEach((t) => {
-            const active = t === tab;
-            t.classList.toggle('is-active', active);
-            t.setAttribute('aria-selected', String(active));
-          });
-          accWidget.querySelectorAll<HTMLElement>('.monroe-accomplishments-widget__panel').forEach((panel) => {
-            const active = panel.dataset.accomplishmentsPanel === year;
-            panel.classList.toggle('is-active', active);
-            panel.hidden = !active;
-          });
-        });
-      });
-    }
-
-    // Accomplishments stat counters Ã¢â‚¬â€ count up from 0 the first time each
-    // tile scrolls into view. data-count has been sitting on these tiles
-    // unused; this is what it was for.
-    const countEls = document.querySelectorAll<HTMLElement>('.monroe-accomplishments-stat__value[data-count]');
-    if (countEls.length && 'IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const countIO = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const el = entry.target as HTMLElement;
-          countIO.unobserve(el);
-          const target = Number(el.dataset.count);
-          if (!Number.isFinite(target)) return;
-          const original = el.textContent ?? '';
-          const prefix = original.match(/^\D*/)?.[0] ?? '';
-          const suffix = original.match(/\D*$/)?.[0] ?? '';
-          const duration = 1200;
-          const start = performance.now();
-          const step = (now: number) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            el.textContent = `${prefix}${Math.round(target * eased).toLocaleString()}${suffix}`;
-            if (progress < 1) requestAnimationFrame(step);
-            else el.textContent = original;
-          };
-          requestAnimationFrame(step);
-        });
-      }, { threshold: 0.4 });
-      countEls.forEach((el) => countIO.observe(el));
-    }
-
-    // Scroll-reveal for below-the-fold sections. Anything already visible on
-    // load is left completely alone (never hidden) so there's no dependency
-    // on JS running for the page to display correctly Ã¢â‚¬â€ this only adds a
-    // fade/rise to sections the visitor scrolls down to.
-    if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const revealIO = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add('is-revealed');
-          revealIO.unobserve(entry.target);
-        });
-      }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
-      document.querySelectorAll<HTMLElement>('.home-editable-section').forEach((section) => {
-        const rect = section.getBoundingClientRect();
-        if (rect.top < window.innerHeight * 0.85) return;
-        section.classList.add('reveal-pending');
-        revealIO.observe(section);
-      });
-    }
-
-    // Contact form: mailto submission (no backend on the static site).
-    }
+  }
 
   document.addEventListener('astro:page-load', initHomePage);
 </script>
