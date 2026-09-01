@@ -1,0 +1,17 @@
+const fs = require('fs');
+let code = fs.readFileSync('src/components/Header.astro', 'utf8');
+code = code.replace(/\.monroe-global-nav__menu-toggle/g, '[data-nav-toggle]');
+code = code.replace(/\.monroe-global-nav__backdrop/g, '[data-nav-backdrop]');
+code = code.replace(/\.monroe-global-nav__item/g, '[data-nav-item]');
+code = code.replace(/\.monroe-global-nav__trigger/g, '[data-nav-trigger]');
+code = code.replace(/\.monroe-global-nav__dropdown/g, '[data-nav-dropdown]');
+code = code.replace(/class="monroe-global-nav__menu-toggle([^"]*)"/, 'class="w-10 h-10 relative flex flex-col justify-center gap-1.5 z-50 text-teal-900 [&.is-open>span:nth-child(1)]:-rotate-45 [&.is-open>span:nth-child(1)]:translate-y-2 [&.is-open>span:nth-child(2)]:opacity-0 [&.is-open>span:nth-child(3)]:rotate-45 [&.is-open>span:nth-child(3)]:-translate-y-2" data-nav-toggle');
+code = code.replace(/class="monroe-global-nav__backdrop([^"]*)"/, 'class="fixed inset-0 bg-teal-900/60 backdrop-blur-sm z-40 transition-opacity xl:hidden" data-nav-backdrop');
+code = code.split('monroe-global-nav__item').join('\" data-nav-item \"');
+code = code.replace(/class="monroe-global-nav__trigger([^"]*)"/g, 'class="flex items-center justify-between xl:justify-start w-full py-3 xl:py-8 text-lg xl:text-sm font-bold xl:font-semibold text-teal-900 xl:text-gray-700 uppercase tracking-widest hover:text-emerald-600 transition-colors [&[aria-expanded=true]]:text-emerald-600 [&[aria-expanded=true]>span:last-child]:rotate-180" data-nav-trigger');
+code = code.replace(/class="monroe-global-nav__dropdown([^"]*)"/g, 'class="xl:absolute xl:top-full xl:left-1/2 xl:-translate-x-1/2 bg-gray-50 xl:bg-white xl:shadow-xl xl:rounded-2xl xl:min-w-[240px] xl:border xl:border-gray-100 hidden [.is-open_&]:block py-2 xl:py-4 mt-2 xl:mt-0 overflow-hidden" data-nav-dropdown');
+code = code.replace(/monroe-global-nav__[a-zA-Z0-9-]+ /g, '');
+code = code.replace(/monroe-global-nav__[a-zA-Z0-9-]+/g, '');
+code = code.replace(/monroe-global-nav /g, '');
+fs.writeFileSync('src/components/Header.astro', code);
+console.log('Fixed Header.astro');
