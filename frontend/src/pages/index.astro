@@ -16,7 +16,7 @@ const newsletters = await getNewsletterIssues();
 const now = new Date();
 
 // Spotlight the soonest genuinely upcoming flyer event, not just whichever
-// one happens to sort first in the data — events[0] was surfacing a Gala
+// one happens to sort first in the data Ã¢â‚¬â€ events[0] was surfacing a Gala
 // from months ago as the "latest" event long after it had passed.
 const latestEvent = events
   .filter((e) => e.event_date && new Date(e.event_date) >= now)
@@ -66,7 +66,7 @@ if (home.accomplishments.years['2025']) {
 const formatDate = (value: string | undefined, fallback: string) => {
   if (!value) return fallback;
   // Parsing a bare "YYYY-MM-DD" string gives UTC midnight, which a
-  // behind-UTC timezone then displays as the previous day — parse at
+  // behind-UTC timezone then displays as the previous day Ã¢â‚¬â€ parse at
   // noon instead so the calendar date can't shift across the boundary.
   const d = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T12:00:00`) : new Date(value);
   return Number.isNaN(d.getTime())
@@ -105,11 +105,24 @@ const indexLabels: Record<string, string> = {
 <BaseLayout
   title="Animal Shelter | Monroe County | 734-243-3669"
   description={home.hero.copy}
-  bodyClass="home-editable-has-flyers-rail"
+  
 >
-  <div class="hidden xl:block fixed top-1/2 -translate-y-1/2 left-8 w-64 z-40 bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-lg border border-gray-100">
-    <nav class="xl:hidden w-full bg-white border-b border-gray-200 overflow-x-auto p-4" aria-label="Jump to section">
-      <ul class="flex xl:flex-col gap-2">
+    <!-- Mobile Sticky TOC -->
+  <nav class="xl:hidden sticky top-[52px] z-40 w-full bg-white/95 backdrop-blur-md border-b border-gray-200 overflow-x-auto p-3 shadow-sm" aria-label="Jump to section">
+    <ul class="flex gap-4 min-w-max">
+      {home.page_index.map((id) => (
+        <li>
+          <a class="text-xs font-bold uppercase tracking-widest text-teal-900 hover:text-emerald-600 transition-colors" href={`#${id}`}>{indexLabels[id] ?? id}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <!-- Desktop Fixed TOC -->
+  <div class="hidden xl:flex flex-col gap-8 fixed top-32 left-8 w-64 z-40 bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-lg border border-gray-100 max-h-[calc(100vh-10rem)] overflow-y-auto">
+    <nav aria-label="On this page">
+      <p class="font-bold text-teal-900 uppercase tracking-widest text-xs mb-4">On this page</p>
+      <ul class="flex flex-col gap-2">
         {home.page_index.map((id) => (
           <li class="flex-shrink-0">
             <a class="text-sm font-medium text-gray-500 hover:text-teal-700 transition-colors" href={`#${id}`}>{indexLabels[id] ?? id}</a>
@@ -118,34 +131,21 @@ const indexLabels: Record<string, string> = {
       </ul>
     </nav>
 
-    <div class="home-editable-side-rail">
-      <nav class="mb-8" aria-label="On this page">
-        <p class="font-bold text-teal-900 uppercase tracking-widest text-xs mb-4">On this page</p>
-        <ul class="flex xl:flex-col gap-2">
-          {home.page_index.map((id) => (
-            <li class="flex-shrink-0">
-              <a class="text-sm font-medium text-gray-500 hover:text-teal-700 transition-colors" href={`#${id}`}>{indexLabels[id] ?? id}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <aside class="" aria-label="Flyers">
-        <p class="font-bold text-teal-900 uppercase tracking-widest text-xs mb-4">{home.flyers_rail.title}</p>
-        <div class="rounded-xl overflow-hidden shadow-sm">
-          <a class="block hover:opacity-90 transition-opacity" href="/events">
-            <img src={home.flyers_rail.flyer_image} alt={home.flyers_rail.flyer_alt} loading="lazy" decoding="async" />
-          </a>
-        </div>
-      </aside>
-    </div>
+    <aside aria-label="Flyers">
+      <p class="font-bold text-teal-900 uppercase tracking-widest text-xs mb-4">{home.flyers_rail.title}</p>
+      <div class="rounded-xl overflow-hidden shadow-sm">
+        <a class="block hover:opacity-90 transition-opacity" href="/events">
+          <img src={home.flyers_rail.flyer_image} alt={home.flyers_rail.flyer_alt} loading="lazy" decoding="async" />
+        </a>
+      </div>
+    </aside>
   </div>
 
-  <div class="home-editable-shell is-layout-constrained">
+  <div class="flex flex-col gap-16">
     <!-- 1. Hero -->
     <HomeHero home={home} />
 
-    <!-- 2. Events band -->
+    <div class="xl:pl-[290px] xl:pr-8 flex flex-col gap-16 overflow-hidden">`n    <!-- 2. Events band -->
     <div id="Events" class="wp-block-group alignwide home-editable-section home-editable-events-band is-layout-constrained">
       <section class="hs-feature-widget home-editable-events-artwork" aria-labelledby="hs-events-feature-title">
           <div class="flex flex-col lg:flex-row w-full">
@@ -177,7 +177,7 @@ const indexLabels: Record<string, string> = {
             </div>
             <a class="hs-voting-flyer" href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.flyer_image}>
               {latestEvent && !latestEvent.image ? (
-                <div class="hs-voting-flyer__placeholder" aria-hidden="true">🐾</div>
+                <div class="hs-voting-flyer__placeholder" aria-hidden="true">Ã°Å¸ÂÂ¾</div>
               ) : (
                 <img src={latestEvent ? latestEvent.image : home.events_feature.flyer_image} alt={latestEvent ? latestEvent.title : home.events_feature.flyer_alt} loading="lazy" decoding="async" />
               )}
@@ -213,7 +213,7 @@ const indexLabels: Record<string, string> = {
                   ))}
                 </div>
               ) : (
-                <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--placeholder" aria-hidden="true">🐾</div>
+                <div class="home-editable-upcoming-event-hero__media home-editable-upcoming-event-hero__media--placeholder" aria-hidden="true">Ã°Å¸ÂÂ¾</div>
               )}
             </div>
             <div class="home-editable-upcoming-event-hero__copy">
@@ -409,7 +409,7 @@ const indexLabels: Record<string, string> = {
               <blockquote class="monroe-testimonials__quote">{review.text}</blockquote>
               <figcaption class="monroe-testimonials__cite">
                 <span class="monroe-testimonials__author">{review.author}</span>
-                <span class="monroe-testimonials__role">Google review{review.rating ? ` • ${'★'.repeat(review.rating)}` : ''}</span>
+                <span class="monroe-testimonials__role">Google review{review.rating ? ` Ã¢â‚¬Â¢ ${'Ã¢Ëœâ€¦'.repeat(review.rating)}` : ''}</span>
               </figcaption>
             </figure>
           ))}
@@ -471,7 +471,7 @@ const indexLabels: Record<string, string> = {
       </div>
     </div>
 
-    <!-- 13. Social: static follow card (a live Facebook iframe embed is unreliable —
+    <!-- 13. Social: static follow card (a live Facebook iframe embed is unreliable Ã¢â‚¬â€
          blocked by Safari/Firefox tracking protection and most ad-blockers by default) -->
     <div class="max-w-7xl mx-auto px-4 py-16" id="Social">
       <div class="wp-block-group home-editable-social-follow-card is-layout-constrained">
@@ -563,9 +563,9 @@ const indexLabels: Record<string, string> = {
                   </div>
               <div class="hs-lightbox" id="hsLb-181" aria-hidden="true">
                 <div class="hs-lightbox-inner" role="dialog" aria-modal="true" aria-label="Expanded image">
-                  <button class="hs-lb-btn hs-lb-close" type="button" aria-label="Close image">✕</button>
-                  <button class="hs-lb-btn hs-lb-prev" type="button" aria-label="Previous image">‹</button>
-                  <button class="hs-lb-btn hs-lb-next" type="button" aria-label="Next image">›</button>
+                  <button class="hs-lb-btn hs-lb-close" type="button" aria-label="Close image">Ã¢Å“â€¢</button>
+                  <button class="hs-lb-btn hs-lb-prev" type="button" aria-label="Previous image">Ã¢â‚¬Â¹</button>
+                  <button class="hs-lb-btn hs-lb-next" type="button" aria-label="Next image">Ã¢â‚¬Âº</button>
                   <img loading="lazy" decoding="async" alt="" data-hs-lb-img />
                   <div class="hs-lb-caption"><span data-hs-lb-cap-l></span><span data-hs-lb-cap-r></span></div>
                 </div>
@@ -718,7 +718,7 @@ const indexLabels: Record<string, string> = {
       </div>
     </div>
   </div>
-</BaseLayout>
+  </div>`n</BaseLayout>
 
 <script>
   function initHomePage() {
@@ -828,7 +828,7 @@ const indexLabels: Record<string, string> = {
       });
     }
 
-    // Accomplishments stat counters — count up from 0 the first time each
+    // Accomplishments stat counters Ã¢â‚¬â€ count up from 0 the first time each
     // tile scrolls into view. data-count has been sitting on these tiles
     // unused; this is what it was for.
     const countEls = document.querySelectorAll<HTMLElement>('.monroe-accomplishments-stat__value[data-count]');
@@ -860,7 +860,7 @@ const indexLabels: Record<string, string> = {
 
     // Scroll-reveal for below-the-fold sections. Anything already visible on
     // load is left completely alone (never hidden) so there's no dependency
-    // on JS running for the page to display correctly — this only adds a
+    // on JS running for the page to display correctly Ã¢â‚¬â€ this only adds a
     // fade/rise to sections the visitor scrolls down to.
     if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const revealIO = new IntersectionObserver((entries) => {
