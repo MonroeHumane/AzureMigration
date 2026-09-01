@@ -4,7 +4,7 @@ interface Props {
 }
 const { home } = Astro.props;
 ---
-<div class="alignfull relative min-h-[600px] flex items-center justify-center overflow-hidden" id="Top">
+<div class="relative min-h-[600px] flex items-center justify-center overflow-hidden" id="Top">
   <div class="absolute inset-0 bg-teal-900/50 mix-blend-multiply z-10"></div>
   <video class="absolute inset-0 w-full h-full object-cover z-0" muted loop playsinline autoplay poster={home.hero.video_poster} src={home.hero.video_src}></video>
   
