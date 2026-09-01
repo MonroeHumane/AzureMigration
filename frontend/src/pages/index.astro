@@ -25,18 +25,11 @@ const events = await getEventFlyers();
 const newsletters = await getNewsletterIssues();
 const now = new Date();
 
-// Spotlight the soonest genuinely upcoming flyer event, not just whichever
-// one happens to sort first in the data ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â events[0] was surfacing a Gala
-// from months ago as the "latest" event long after it had passed.
 const latestEvent = events
   .filter((e) => e.event_date && new Date(e.event_date) >= now)
   .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime())[0];
 const latestNewsletter = newsletters[0];
 
-// "Next event" widget: compute from the voting-schedule stops instead of a
-// hardcoded date, so it never goes stale like the old fixed "August 22"
-// entry did. Picks whichever stop is today or the next upcoming one; once
-// the whole schedule is in the past, falls back to the most recent stop.
 const currentYear = now.getFullYear();
 const scheduleWithDates = home.events_feature.schedule.map((row) => {
   const parsed = new Date(`${row.date}, ${currentYear} 12:00:00`);
@@ -73,105 +66,25 @@ if (home.accomplishments.years['2025']) {
   home.accomplishments.years['2025'][2].display = settings.intakes_count.toLocaleString();
 }
 
-const formatDate = (value: string | undefined, fallback: string) => {
-  if (!value) return fallback;
-  // Parsing a bare "YYYY-MM-DD" string gives UTC midnight, which a
-  // behind-UTC timezone then displays as the previous day ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â parse at
-  // noon instead so the calendar date can't shift across the boundary.
-  const d = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T12:00:00`) : new Date(value);
-  return Number.isNaN(d.getTime())
-    ? fallback
-    : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-};
-
-const petChips = (p: (typeof pets)[number]) => [
-  p.species_label || p.type || 'Pet',
-  p.gender || 'Unknown',
-  p.age_display || 'Age N/A',
-  p.location || 'Location',
-];
 const TEL = SITE.contact.phoneTel;
-const indexLabels: Record<string, string> = {
-  Top: 'Top',
-  Events: 'Events',
-  Intro: 'Intro',
-  FeaturedPets: 'Adoptable Pets',
-  'hs-hero-fence-widget': 'Hero Fence',
-  VetPartners: 'Vet partners',
-  'furry-friends-auction-sponsors': 'Sponsors',
-  sponsorMarqueeWidget: 'Community partners',
-  Membership: 'Membership',
-  Testimonials: 'Testimonials',
-  Donations: 'Donations',
-  Social: 'Social',
-  Newsletter: 'Newsletter',
-  FAQ: 'FAQ',
-  Accomplishments: 'Accomplishments',
-  Games: 'Games',
-  Contact: 'Contact',
-};
 ---
 
 <BaseLayout
   title="Animal Shelter | Monroe County | 734-243-3669"
   description={home.hero.copy}
-  
 >
-    <!-- Mobile Sticky TOC -->
-  <nav class="xl:hidden sticky top-[52px] z-40 w-full bg-white/95 backdrop-blur-md border-b border-gray-200 overflow-x-auto p-3 shadow-sm" aria-label="Jump to section">
-    <ul class="flex gap-4 min-w-max">
-      {home.page_index.map((id) => (
-        <li>
-          <a class="text-xs font-bold uppercase tracking-widest text-teal-900 hover:text-emerald-600 transition-colors" href={`#${id}`}>{indexLabels[id] ?? id}</a>
-        </li>
-      ))}
-    </ul>
-  </nav>
-
-  <!-- Desktop Fixed TOC -->
-  <div class="hidden xl:flex flex-col gap-8 fixed top-32 left-8 w-64 z-40 bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-lg border border-gray-100 max-h-[calc(100vh-10rem)] overflow-y-auto">
-    <nav aria-label="On this page">
-      <p class="font-bold text-teal-900 uppercase tracking-widest text-xs mb-4">On this page</p>
-      <ul class="flex flex-col gap-2">
-        {home.page_index.map((id) => (
-          <li class="flex-shrink-0">
-            <a class="text-sm font-medium text-gray-500 hover:text-teal-700 transition-colors" href={`#${id}`}>{indexLabels[id] ?? id}</a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-
-    <aside aria-label="Flyers">
-      <p class="font-bold text-teal-900 uppercase tracking-widest text-xs mb-4">{home.flyers_rail.title}</p>
-      <div class="rounded-xl overflow-hidden shadow-sm">
-        <a class="block hover:opacity-90 transition-opacity" href="/events">
-          <img src={home.flyers_rail.flyer_image} alt={home.flyers_rail.flyer_alt} loading="lazy" decoding="async" />
-        </a>
-      </div>
-    </aside>
-  </div>
-
   <div class="flex flex-col gap-16">
-    <!-- 1. Hero -->
     <HomeHero home={home} />
-
-    <div class="xl:pl-[290px] xl:pr-8 flex flex-col gap-16 overflow-hidden">
-    <!-- 2. Events band -->
     <HomeEvents home={home} latestEvent={latestEvent} nextEvent={nextEvent} pets={pets} />
 
-    <!-- 3. Intro -->
-    <div class="max-w-7xl mx-auto px-4 py-16">
+    <div class="max-w-7xl mx-auto px-4 py-8">
       <div class="bg-teal-50/50 rounded-3xl p-8 sm:p-12 shadow-sm border border-teal-900/5" id="Intro">
         <div class="flex flex-col lg:flex-row items-center gap-12">
           <div class="flex-1" style="flex-basis:65%">
             <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.intro.pill}</p>
             <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.intro.title}</h2>
             <p class="text-lg text-gray-700 leading-relaxed mb-8">{home.intro.copy}</p>
-            <div class="flex flex-wrap gap-4">
-              <div class="">
-                <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-900 text-white hover:bg-teal-700" href={TEL}>{home.intro.call_button}</a>
-              </div>
-            </div>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-900 text-white hover:bg-teal-700" href={TEL}>{home.intro.call_button}</a>
           </div>
           <div class="flex-1 w-full" style="flex-basis:35%">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -188,11 +101,9 @@ const indexLabels: Record<string, string> = {
       </div>
     </div>
 
-    <!-- 4. Featured pets -->
     <HomeFeaturedPets home={home} pets={pets} />
 
-    <!-- 5. Hero Fence -->
-    <div class="max-w-7xl mx-auto px-4 py-16">
+    <div class="max-w-7xl mx-auto px-4 py-8">
       <section id="hs-hero-fence-widget" class="bg-teal-900 rounded-3xl overflow-hidden shadow-lg flex flex-col lg:flex-row text-white" aria-labelledby="hs-hero-fence-title">
         <div class="flex flex-col lg:flex-row w-full">
           <div class="p-8 sm:p-12 lg:p-16 w-full lg:w-1/2 flex flex-col justify-center">
@@ -211,8 +122,7 @@ const indexLabels: Record<string, string> = {
       </section>
     </div>
 
-    <!-- 6. Feature card -->
-    <div class="max-w-7xl mx-auto px-4 py-16">
+    <div class="max-w-7xl mx-auto px-4 py-8">
       <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
         <div class="flex flex-col lg:flex-row items-stretch">
           <div class="w-full lg:w-5/12 bg-gray-100 relative min-h-[300px]" style="flex-basis:45%">
@@ -225,100 +135,45 @@ const indexLabels: Record<string, string> = {
             <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.feature_card.title}</h2>
             <p class="text-lg text-gray-700 leading-relaxed mb-8">{home.feature_card.copy}</p>
             <div class="flex flex-wrap gap-4">
-              <div class="">
-                <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900" href="/adoptions">{home.feature_card.buttons[0].label}</a>
-              </div>
-              <div class="">
-                <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50" href="/dog-and-cat-shelter">{home.feature_card.buttons[1].label}</a>
-              </div>
+              <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900" href="/adoptions">{home.feature_card.buttons[0].label}</a>
+              <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50" href="/dog-and-cat-shelter">{home.feature_card.buttons[1].label}</a>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 7. Vet & Auction Sponsors -->
     <HomeSponsors home={home} sponsors={sponsors} />
-
-    <!-- 9. Community Partners & Membership -->
     <HomePartners home={home} sponsors={sponsors} />
-
-    <!-- 11. Testimonials -->
     <HomeTestimonials home={home} reviews={reviewsData} />
-
-    <!-- 12. Donations -->
     <HomeDonations home={home} />
 
-    <!-- 13. Social: static follow card (a live Facebook iframe embed is unreliable ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â
-         blocked by Safari/Firefox tracking protection and most ad-blockers by default) -->
-    <div class="max-w-7xl mx-auto px-4 py-16" id="Social">
-      <div class="wp-block-group home-editable-social-follow-card is-layout-constrained">
-        <div class="home-editable-social-follow-card__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg>
+    <div class="max-w-7xl mx-auto px-4 py-8" id="Social">
+      <div class="bg-blue-50 rounded-3xl p-8 sm:p-12 shadow-sm border border-blue-100 flex flex-col sm:flex-row items-center gap-8">
+        <div class="flex-shrink-0 w-20 h-20 rounded-full bg-[#1877F2] flex items-center justify-center text-white shadow-lg" aria-hidden="true">
+          <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94Z"/>
+          </svg>
         </div>
-        <p class="home-editable-section-label">Follow along</p>
-        <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">Find us on Facebook</h2>
-        <p class="text-lg text-gray-700 leading-relaxed mb-8">Photos, adoption updates, and shelter news, posted as they happen. Give us a follow to stay in the loop between visits.</p>
-        <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Visit our Facebook page</a>
+        <div class="flex-1 text-center sm:text-left">
+          <p class="text-blue-600 font-bold uppercase tracking-widest text-sm mb-2">Follow along</p>
+          <h2 class="text-3xl font-serif text-teal-900 mb-3 leading-tight">Find us on Facebook</h2>
+          <p class="text-gray-700 leading-relaxed mb-6">Photos, adoption updates, and shelter news, posted as they happen. Give us a follow to stay in the loop between visits.</p>
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-[#1877F2] text-white hover:bg-blue-700" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Visit our Facebook page</a>
+        </div>
       </div>
     </div>
 
-    <!-- 14. Newsletter -->
     <HomeNewsletter home={home} latestNewsletter={latestNewsletter} />
-
-    <!-- 15. FAQ -->
     <HomeFAQ home={home} />
-
-    <!-- 16. Accomplishments -->
     <HomeAccomplishments home={home} />
-
-    <!-- 17. Games -->
     <HomeGames home={home} />
-
-    <!-- 18. Contact -->
     <HomeContact home={home} />
-    </div>`n  </div>`n</BaseLayout>
+  </div>
+</BaseLayout>
 
 <script>
   function initHomePage() {
-    // Homepage Scrollspy (Left Navigation Rail)
-    const navLinks = Array.from(document.querySelectorAll('.home-editable-page-index__link'));
-    const sections = navLinks
-      .map((link) => {
-        try {
-          const url = new URL((link as HTMLAnchorElement).href);
-          return document.querySelector(url.hash);
-        } catch { return null; }
-      })
-      .filter(Boolean) as HTMLElement[];
-
-    if (sections.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          let visibleSection: string | null = null;
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              visibleSection = entry.target.id;
-            }
-          });
-          
-          if (visibleSection) {
-            navLinks.forEach((link) => {
-              try {
-                if (new URL((link as HTMLAnchorElement).href).hash === `#${visibleSection}`) {
-                  link.classList.add('is-active');
-                } else {
-                  link.classList.remove('is-active');
-                }
-              } catch {}
-            });
-          }
-        },
-        { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
-      );
-      sections.forEach((s) => observer.observe(s));
-    }
-    // Featured pets: Expand view opens a <dialog> with the same cards.
     const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
     const fpwExpand = document.getElementById('fpwExpandBtn');
     if (fpwDialog && fpwExpand) {
@@ -333,6 +188,5 @@ const indexLabels: Record<string, string> = {
       fpwDialog.querySelector('.fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
     }
   }
-
   document.addEventListener('astro:page-load', initHomePage);
 </script>
