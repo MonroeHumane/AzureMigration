@@ -1,7 +1,5 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InnerShell from '../../components/InnerShell.astro';
-import '../../styles/monroe-shelter.css';
 
 const IMG = '/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt';
 const DONATE_URL = '/donate';
@@ -9,18 +7,21 @@ const DONATE_URL = '/donate';
 const dayCards = [
   {
     src: `${IMG}/452546926_883292250498381_6921668243561390358_n-1920w.jpg`,
+
     alt: 'A group of people sitting on a bench with a dog at the shelter.',
     title: 'Supervised playgroups',
     copy: 'Dogs play in matched groups of two to five with staff and volunteers watching every interaction.',
   },
   {
     src: `${IMG}/450429686_875396881287918_7603871138057923160_n-1920w.jpg`,
+
     alt: 'A white dog laying in the grass with a yellow ball on a Doggy Day Out outing.',
     title: 'Doggy Day Out',
     copy: 'Volunteers take dogs to parks, lakes, and calm outings that build confidence away from the kennel.',
   },
   {
     src: `${IMG}/444445234_867747615386178_1349564242973393587_n-af65a848-1920w.jpg`,
+
     alt: 'A close-up of a cat resting comfortably in the shelter cat room.',
     title: 'Comfortable kennels',
     copy: 'Air conditioning in dog kennels and the cat room keeps everyone cool and resting well.',
@@ -32,168 +33,152 @@ const dayCards = [
   title="Dog & Cat Shelter | Monroe County | 734-243-3669"
   description="Trusted dog and cat shelter in Monroe County, Michigan. We care for dogs and cats until they find forever homes."
 >
-  <InnerShell variant="dog-and-cat-shelter">
-    <!-- Hero Header -->
-    <header class="monroe-shelter-hero">
-      <div class="monroe-shelter-hero__copy">
-        <p class="monroe-native-eyebrow">About our shelter</p>
-        <h1>Dog &amp; cat shelter</h1>
-        <p class="monroe-native-lead">
-          Trusted dog and cat shelter in Monroe County, Michigan. We care for dogs and cats until they find forever homes — playful kittens, loyal dogs, and everyone in between get the individualized attention they need to thrive.
-        </p>
-        <div class="monroe-shelter-hero__actions">
-          <a class="monroe-shelter-button monroe-shelter-button--primary" href="/adopt">View adoptable pets</a>
-          <a class="monroe-shelter-button" href="tel:734-243-3669">Call 734-243-3669</a>
-          <a class="monroe-shelter-button" href="/contact">Contact us</a>
-        </div>
-        <ul class="monroe-shelter-hero__facts">
-          <li>
-            <strong>Fear Free</strong>
-            <span>Certified shelter team</span>
-          </li>
-          <li>
-            <strong>Since 1954</strong>
-            <span>Monroe County, MI</span>
-          </li>
-          <li>
-            <strong>501(c)(3)</strong>
-            <span>Community nonprofit</span>
-          </li>
-        </ul>
-      </div>
-      <div class="monroe-shelter-hero__visual">
-        <figure class="monroe-shelter-hero__main-photo">
-          <img
-            src={`${IMG}/452546926_883292250498381_6921668243561390358_n-1920w.jpg`}
-            alt="Dog enjoying time with Monroe Humane volunteers"
-            loading="eager"
-            decoding="async"
-            width="600"
-            height="500"
-          />
-        </figure>
-        <figure class="monroe-shelter-hero__inset-photo">
+  <main class="bg-gray-50/30">
+    <header class="relative min-h-[600px] lg:min-h-[700px] flex items-center mb-16 lg:mb-24">
+      <div class="absolute inset-0 w-full h-full lg:w-1/2 lg:right-0 lg:left-auto bg-gray-900 overflow-hidden">
+        <img
+          src={`${IMG}/452546926_883292250498381_6921668243561390358_n-1920w.jpg`}
+          alt="Dog enjoying time with Monroe Humane volunteers"
+          class="w-full h-full object-cover opacity-60 lg:opacity-100"
+          loading="eager"
+          decoding="async"
+        />
+        <div class="absolute bottom-6 right-6 lg:bottom-8 lg:right-8 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-xl flex items-center gap-4 max-w-sm hidden md:flex">
           <img
             src={`${IMG}/444445234_867747615386178_1349564242973393587_n-af65a848-1920w.jpg`}
             alt="Cat resting comfortably in shelter room"
+            class="w-16 h-16 rounded-full object-cover flex-shrink-0 shadow-sm border border-gray-200"
             loading="lazy"
             decoding="async"
-            width="250"
-            height="250"
           />
-        </figure>
-        <div class="monroe-shelter-hero__note">
-          <span>🐾</span> Warm, loving care every day
+          <span class="font-medium text-teal-900 leading-snug"><span aria-hidden="true" class="text-xl">??</span> Warm, loving care every day</span>
+        </div>
+      </div>
+      
+      <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl bg-white/95 backdrop-blur-sm lg:bg-white p-8 sm:p-12 lg:p-16 rounded-3xl shadow-xl border border-gray-100/50 mt-16 lg:mt-0">
+          <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">About our shelter</p>
+          <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6 leading-tight">Dog &amp; cat shelter</h1>
+          <p class="text-lg text-gray-700 leading-relaxed mb-8">
+            Trusted dog and cat shelter in Monroe County, Michigan. We care for dogs and cats until they find forever homes Â- playful kittens, loyal dogs, and everyone in between get the individualized attention they need to thrive.
+          </p>
+          
+          <div class="flex flex-wrap gap-4 mb-10">
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full transition-all shadow-md hover:-translate-y-1 bg-emerald-500 text-teal-900 hover:bg-emerald-400" href="/adopt">View adoptable pets</a>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50" href="tel:734-243-3669">Call 734-243-3669</a>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full transition-all text-teal-700 hover:text-emerald-600 underline underline-offset-4 decoration-2" href="/contact">Contact us</a>
+          </div>
+
+          <ul class="flex flex-col sm:flex-row gap-6 pt-8 border-t border-gray-100">
+            <li>
+              <strong class="block text-teal-900 font-bold">Fear Free</strong>
+              <span class="text-sm text-gray-500">Certified shelter team</span>
+            </li>
+            <li>
+              <strong class="block text-teal-900 font-bold">Since 1954</strong>
+              <span class="text-sm text-gray-500">Monroe County, MI</span>
+            </li>
+            <li>
+              <strong class="block text-teal-900 font-bold">501(c)(3)</strong>
+              <span class="text-sm text-gray-500">Community nonprofit</span>
+            </li>
+          </ul>
         </div>
       </div>
     </header>
 
-    <!-- Navigation Pills -->
-    <nav class="monroe-shelter-pills monroe-inner-page-pills" aria-label="On this page">
-      <a class="monroe-inner-page-pills__link" href="#HowWeCare">How we care</a>
-      <a class="monroe-inner-page-pills__link" href="#OurStory">Our story</a>
-      <a class="monroe-inner-page-pills__link" href="#DayInLife">Day in the life</a>
-      <a class="monroe-inner-page-pills__link" href="#GetInvolved">Get involved</a>
-    </nav>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+      <nav class="flex flex-wrap justify-center gap-2 mb-20" aria-label="On this page">
+        <a class="px-5 py-2.5 rounded-full font-bold uppercase tracking-wider text-sm bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors" href="#HowWeCare">How we care</a>
+        <a class="px-5 py-2.5 rounded-full font-bold uppercase tracking-wider text-sm bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors" href="#OurStory">Our story</a>
+        <a class="px-5 py-2.5 rounded-full font-bold uppercase tracking-wider text-sm bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors" href="#DayInLife">Day in the life</a>
+        <a class="px-5 py-2.5 rounded-full font-bold uppercase tracking-wider text-sm bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors" href="#GetInvolved">Get involved</a>
+      </nav>
 
-    <!-- How We Care -->
-    <section class="monroe-shelter-care" id="HowWeCare" aria-labelledby="monroe-dog-cat-care-heading">
-      <div class="monroe-shelter-section-heading">
-        <h2 id="monroe-dog-cat-care-heading">How we care for animals</h2>
-        <p>Every pet receives low-stress handling, daily exercise, group play, and temperature-controlled comfort.</p>
-      </div>
+      <section id="HowWeCare" aria-labelledby="monroe-dog-cat-care-heading" class="mb-24">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 id="monroe-dog-cat-care-heading" class="text-4xl font-serif text-teal-900 mb-6">How we care for animals</h2>
+          <p class="text-xl text-gray-600 leading-relaxed">Every pet receives low-stress handling, daily exercise, group play, and temperature-controlled comfort.</p>
+        </div>
 
-      <div class="monroe-shelter-care__grid">
-        <div class="monroe-shelter-care__card">
-          <div class="monroe-shelter-care__icon" aria-hidden="true">🌿</div>
-          <h3>Fear Free &amp; The Please Program</h3>
-          <p>
-            Our entire team is trained and certified in the Fear Free program. We also incorporate The Please Program so animals learn to settle calmly before leaving their kennel.
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center text-2xl mb-6" aria-hidden="true">??</div>
+            <h3 class="text-2xl font-bold text-teal-900 mb-4">Fear Free &amp; The Please Program</h3>
+            <p class="text-gray-600 leading-relaxed">Our entire team is trained and certified in the Fear Free program. We also incorporate The Please Program so animals learn to settle calmly before leaving their kennel.</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center text-2xl mb-6" aria-hidden="true">??</div>
+            <h3 class="text-2xl font-bold text-teal-900 mb-4">Playgroups, walks &amp; leash manners</h3>
+            <p class="text-gray-600 leading-relaxed">Dogs benefit immensely from group playtime. We match dogs in supervised groups of two to five, and help them master leash manners with all four paws on the ground.</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center text-2xl mb-6" aria-hidden="true">??</div>
+            <h3 class="text-2xl font-bold text-teal-900 mb-4">Doggy Day Out &amp; foster sleepovers</h3>
+            <p class="text-gray-600 leading-relaxed">Volunteers take shelter dogs out for park strolls, lake visits, and pup cups. Staff often take pets home overnight to relieve kennel stress and assess household fit.</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center text-2xl mb-6" aria-hidden="true">??</div>
+            <h3 class="text-2xl font-bold text-teal-900 mb-4">Climate-controlled comfort</h3>
+            <p class="text-gray-600 leading-relaxed">Our facility features dedicated air conditioning and heating throughout all dog kennels, cat rooms, and cuddle offices so every animal stays safe and relaxed.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="OurStory" aria-labelledby="monroe-dog-cat-mission-heading" class="bg-teal-900 rounded-3xl overflow-hidden shadow-xl mb-24 flex flex-col md:flex-row">
+        <div class="p-10 sm:p-16 flex-1 flex flex-col justify-center text-white">
+          <p class="text-amber-400 font-bold uppercase tracking-widest text-sm mb-4">Our Legacy</p>
+          <h2 id="monroe-dog-cat-mission-heading" class="text-4xl font-serif mb-6 leading-tight">A safe haven since 1954</h2>
+          <p class="text-teal-50 text-lg leading-relaxed">
+            For more than seventy years the Humane Society of Monroe County has rehabilitated and rehomed dogs, puppies, cats, and kittens while promoting responsible pet ownership. Our mission is to provide a safe haven with the love and daily care every homeless pet deserves until they find a forever home.
           </p>
         </div>
+        <div class="md:w-5/12 lg:w-1/2 relative min-h-[300px]">
+          <img
+            src={`${IMG}/450429686_875396881287918_7603871138057923160_n-1920w.jpg`}
+            alt="Happy dog resting on grass"
+            class="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </section>
 
-        <div class="monroe-shelter-care__card">
-          <div class="monroe-shelter-care__icon" aria-hidden="true">🐕</div>
-          <h3>Playgroups, walks &amp; leash manners</h3>
-          <p>
-            Dogs benefit immensely from group playtime. We match dogs in supervised groups of two to five, and help them master leash manners with all four paws on the ground.
+      <section id="DayInLife" aria-labelledby="monroe-dog-cat-day-heading" class="mb-24">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 id="monroe-dog-cat-day-heading" class="text-4xl font-serif text-teal-900 mb-6">A day in the life at our shelter</h2>
+          <p class="text-xl text-gray-600 leading-relaxed">A peek inside our daily routines, enrichment programs, and volunteer outings.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {dayCards.map((card) => (
+            <article class="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+              <div class="aspect-[4/3] bg-gray-100 relative">
+                <img src={card.src} alt={card.alt} loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover" />
+              </div>
+              <div class="p-8 flex flex-col flex-1">
+                <h3 class="text-2xl font-bold text-teal-900 mb-4">{card.title}</h3>
+                <p class="text-gray-600 leading-relaxed mt-auto">{card.copy}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="GetInvolved" aria-labelledby="monroe-dog-cat-involved-heading">
+        <div class="bg-gradient-to-br from-amber-50 to-white border border-amber-100/50 rounded-3xl p-10 sm:p-16 shadow-sm text-center max-w-5xl mx-auto">
+          <h2 id="monroe-dog-cat-involved-heading" class="text-4xl font-serif text-teal-900 mb-6">Get involved</h2>
+          <p class="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto mb-10">
+            Adoption, volunteering, and giving power everything we do. Volunteers lead playgroups, Doggy Day Out outings, and daily enrichment. When you are ready to adopt, apply, donate, or ask a question, connect with our team!
           </p>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400" href="/adopt">Search adoptable pets</a>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:bg-teal-50" href="/adoptions">Adoption policy &amp; app</a>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:bg-teal-50" href="/volunteer-form">Volunteer</a>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:bg-teal-50" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+          </div>
         </div>
-
-        <div class="monroe-shelter-care__card">
-          <div class="monroe-shelter-care__icon" aria-hidden="true">🚗</div>
-          <h3>Doggy Day Out &amp; foster sleepovers</h3>
-          <p>
-            Volunteers take shelter dogs out for park strolls, lake visits, and pup cups. Staff often take pets home overnight to relieve kennel stress and assess household fit.
-          </p>
-        </div>
-
-        <div class="monroe-shelter-care__card">
-          <div class="monroe-shelter-care__icon" aria-hidden="true">❄️</div>
-          <h3>Climate-controlled comfort</h3>
-          <p>
-            Our facility features dedicated air conditioning and heating throughout all dog kennels, cat rooms, and cuddle offices so every animal stays safe and relaxed.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Story / Mission -->
-    <section class="monroe-shelter-story" id="OurStory" aria-labelledby="monroe-dog-cat-mission-heading">
-      <div style="padding: clamp(2rem, 5vw, 4rem); color: #fff;">
-        <p class="monroe-native-eyebrow" style="color: #f2bd61;">Our Legacy</p>
-        <h2 id="monroe-dog-cat-mission-heading" style="margin-bottom: 1rem;">A safe haven since 1954</h2>
-        <p style="color: rgba(255, 255, 255, 0.9); font-size: 1.15rem; line-height: 1.7; max-width: 600px;">
-          For more than seventy years the Humane Society of Monroe County has rehabilitated and rehomed dogs, puppies, cats, and kittens while promoting responsible pet ownership. Our mission is to provide a safe haven with the love and daily care every homeless pet deserves until they find a forever home.
-        </p>
-      </div>
-      <div style="min-height: 320px; position: relative;">
-        <img
-          src={`${IMG}/450429686_875396881287918_7603871138057923160_n-1920w.jpg`}
-          alt="Happy dog resting on grass"
-          width="1920"
-          height="1271"
-          loading="lazy"
-          decoding="async"
-          style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"
-        />
-      </div>
-    </section>
-
-    <!-- Day in the Life -->
-    <section class="monroe-day-in-life" id="DayInLife" aria-labelledby="monroe-dog-cat-day-heading">
-      <div class="monroe-shelter-section-heading">
-        <h2 id="monroe-dog-cat-day-heading">A day in the life at our shelter</h2>
-        <p>A peek inside our daily routines, enrichment programs, and volunteer outings.</p>
-      </div>
-      <div class="monroe-day-in-life__grid">
-        {dayCards.map((card) => (
-          <article class="monroe-day-in-life__card">
-            <div class="monroe-day-in-life__media">
-              <img src={card.src} alt={card.alt} loading="lazy" decoding="async" width="1920" height="1280" />
-            </div>
-            <h3>{card.title}</h3>
-            <p>{card.copy}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-
-    <!-- Get Involved -->
-    <section class="monroe-shelter-involved" id="GetInvolved" aria-labelledby="monroe-dog-cat-involved-heading">
-      <div class="monroe-shelter-care__card" style="background: linear-gradient(135deg, #fff9ee 0%, #fff 100%);">
-        <h2 id="monroe-dog-cat-involved-heading">Get involved</h2>
-        <p style="font-size: 1.1rem; line-height: 1.7; max-width: 750px; color: #4b5563; margin-bottom: 2rem;">
-          Adoption, volunteering, and giving power everything we do. Volunteers lead playgroups, Doggy Day Out outings, and daily enrichment. When you are ready to adopt, apply, donate, or ask a question, connect with our team!
-        </p>
-        <div class="monroe-shelter-hero__actions">
-          <a class="monroe-shelter-button monroe-shelter-button--primary" href="/adopt">Search adoptable pets</a>
-          <a class="monroe-shelter-button" href="/adoptions">Adoption policy &amp; application</a>
-          <a class="monroe-shelter-button" href="/volunteer-form">Volunteer application</a>
-          <a class="monroe-shelter-button" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
-          <a class="monroe-shelter-button" href="/resources">Shelter services</a>
-        </div>
-      </div>
-    </section>
-  </InnerShell>
+      </section>
+    </div>
+  </main>
 </BaseLayout>

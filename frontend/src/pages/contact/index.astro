@@ -1,108 +1,108 @@
 ---
-/**
- * Monroe Humane — Contact Us
- * Dedicated, conversion-optimized contact hub (replacing homepage anchor jumps).
- */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InnerShell from '../../components/InnerShell.astro';
 import { SITE } from '../../config/site';
 
-const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2972.3551528659124!2d-83.4299949233814!3d41.91640097123992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x883b63297a77e5e3%3A0x6b63c788dfcf85b2!2s911%20S%20Raisinville%20Rd%2C%20Monroe%2C%20MI%2048161!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus';
+const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2972.3551528659124!2d-83.4299949233814!3d41.91640097123992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x883b63297a77e5e3%3A0x6b63c788dfcf85b2!2s911%20S%20Raisinville%20Rd%2C%20Monroe%2C%20MI%2048161!5e0!3m2!1sen!2us!4v1700000000000!5m2!1sen!2us';
 ---
 
 <BaseLayout
   title={`Contact Us | ${SITE.name}`}
   description="Get in touch with the Humane Society of Monroe County. View shelter location, hours of operation, phone numbers, and send a message."
 >
-  <InnerShell variant="contact">
-    <header class="monroe-native-hero">
-      <p class="monroe-native-eyebrow">Get in touch</p>
-      <h1>Contact Monroe Humane</h1>
-      <p class="monroe-native-lead">
+  <main class="pt-32 pb-24 px-4 max-w-6xl mx-auto">
+    <header class="text-center mb-16 max-w-3xl mx-auto">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Get in touch</p>
+      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Contact Monroe Humane</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">
         We are here to help with adoptions, volunteer opportunities, donations, and general pet care inquiries in Monroe County.
       </p>
     </header>
 
-    <div class="monroe-contact-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 2.5rem;">
-      <!-- Contact Info Card -->
-      <section class="monroe-native-stack" style="margin: 0;">
-        <h2>Shelter Location &amp; Hours</h2>
-        <ul class="monroe-native-list" style="margin-bottom: 1.5rem;">
-          <li><strong>Address:</strong> <a href={SITE.contact.address.googleMapsUrl} target="_blank" rel="noopener noreferrer">{SITE.contact.address.full}</a></li>
-          <li><strong>Mailing Address:</strong> {SITE.contact.address.poBox}</li>
-          <li><strong>Phone:</strong> <a href={SITE.contact.phoneTel}>{SITE.contact.phoneFormatted}</a></li>
-          <li><strong>Email:</strong> <a href={SITE.contact.emailMailto}>{SITE.contact.email}</a></li>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
+      <section class="bg-teal-50 border border-teal-100 rounded-3xl p-8 sm:p-12 shadow-sm flex flex-col h-full">
+        <h2 class="text-3xl font-serif text-teal-900 mb-6">Shelter Location &amp; Hours</h2>
+        
+        <ul class="flex flex-col gap-4 text-gray-700 text-lg mb-8 flex-1">
+          <li><strong class="text-teal-900">Address:</strong> <a class="text-emerald-700 hover:text-emerald-800 underline underline-offset-4 decoration-emerald-200" href={SITE.contact.address.googleMapsUrl} target="_blank" rel="noopener noreferrer">{SITE.contact.address.full}</a></li>
+          <li><strong class="text-teal-900">Mailing Address:</strong> {SITE.contact.address.poBox}</li>
+          <li><strong class="text-teal-900">Phone:</strong> <a class="text-emerald-700 hover:text-emerald-800 underline underline-offset-4 decoration-emerald-200" href={SITE.contact.phoneTel}>{SITE.contact.phoneFormatted}</a></li>
+          <li><strong class="text-teal-900">Email:</strong> <a class="text-emerald-700 hover:text-emerald-800 underline underline-offset-4 decoration-emerald-200" href={SITE.contact.emailMailto}>{SITE.contact.email}</a></li>
         </ul>
 
-        <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem;">Adoption Hours</h3>
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem; margin-bottom: 1.5rem;">
+        <h3 class="text-xl font-bold text-teal-900 mb-4">Adoption Hours</h3>
+        <table class="w-full text-left border-collapse mb-10">
           <tbody>
-            <tr style="border-bottom: 1px solid rgba(15, 118, 110, 0.15);"><td style="padding: 0.5rem 0;"><strong>Tuesday – Friday</strong></td><td style="text-align: right; color: #0f766e;">{SITE.contact.hours.tuesdayToFriday}</td></tr>
-            <tr style="border-bottom: 1px solid rgba(15, 118, 110, 0.15);"><td style="padding: 0.5rem 0;"><strong>Saturday</strong></td><td style="text-align: right; color: #0f766e;">{SITE.contact.hours.saturday}</td></tr>
-            <tr><td style="padding: 0.5rem 0;"><strong>Sunday &amp; Monday</strong></td><td style="text-align: right; color: #64748b;">{SITE.contact.hours.sundayMonday}</td></tr>
+            <tr class="border-b border-teal-900/10">
+              <th scope="row" class="py-3 font-semibold text-gray-800">Tuesday &sdash; Friday</th>
+              <td class="py-3 text-right text-emerald-700 font-medium">{SITE.contact.hours.tuesdayToFriday}</td>
+            </tr>
+            <tr class="border-b border-teal-900/10">
+              <th scope="row" class="py-3 font-semibold text-gray-800">Saturday</th>
+              <td class="py-3 text-right text-emerald-700 font-medium">{SITE.contact.hours.saturday}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="py-3 font-semibold text-gray-800">Sunday &amp; Monday</th>
+              <td class="py-3 text-right text-gray-500 font-medium">{SITE.contact.hours.sundayMonday}</td>
+            </tr>
           </tbody>
         </table>
 
-        <div class="monroe-native-actions">
-          <a class="monroe-btn" href={SITE.contact.phoneTel}>Call (734) 243-3669</a>
-          <a class="monroe-btn monroe-btn--outline" href={SITE.contact.address.googleMapsUrl} target="_blank" rel="noopener noreferrer">Get Directions</a>
+        <div class="flex flex-wrap gap-4 mt-auto">
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-sm hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900" href={SITE.contact.phoneTel}>Call (734) 243-3669</a>
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-100 bg-white" href={SITE.contact.address.googleMapsUrl} target="_blank" rel="noopener noreferrer">Get Directions</a>
         </div>
       </section>
 
-      <!-- Message Form Card -->
-      <section class="monroe-native-stack monroe-contact-form-wrap" style="margin: 0;">
-        <h2>Send Us a Message</h2>
-        <p style="margin-bottom: 1.25rem; ">
+      <section class="bg-white border border-gray-200 rounded-3xl p-8 sm:p-12 shadow-sm h-full">
+        <h2 class="text-3xl font-serif text-teal-900 mb-4">Send Us a Message</h2>
+        <p class="text-gray-600 mb-8 leading-relaxed">
           Fill out this form and your default email app will open with your inquiry addressed directly to our team.
         </p>
 
-        <form class="monroe-contact-form" data-monroe-contact-mailto data-email={SITE.contact.email} style="display: flex; flex-direction: column; gap: 1rem;">
-          <input type="text" name="monroe_contact_website" class="screen-reader-text" tabindex="-1" autocomplete="off" style="display: none;" />
+        <form class="flex flex-col gap-6" data-monroe-contact-mailto data-email={SITE.contact.email}>
+          <input type="text" name="monroe_contact_website" class="sr-only" tabindex="-1" autocomplete="off" />
           
           <div>
-            <label for="contact_name" style="display: block; font-weight: 600; margin-bottom: 0.35rem;">Name *</label>
-            <input type="text" id="contact_name" name="monroe_contact_name" required placeholder="Your full name" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px;" />
+            <label for="contact_name" class="block font-bold text-teal-900 mb-2">Name *</label>
+            <input type="text" id="contact_name" name="monroe_contact_name" required placeholder="Your full name" class="w-full0x-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-700 focus:bg-white transition-all outline-none" />
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label for="contact_email" style="display: block; font-weight: 600; margin-bottom: 0.35rem;">Email *</label>
-              <input type="email" id="contact_email" name="monroe_contact_email" required placeholder="your@email.com" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px;" />
+              <label for="contact_email" class="block font-bold text-teal-900 mb-2">Email *</label>
+              <input type="email" id="contact_email" name="monroe_contact_email" required placeholder="your@email.com" class="w-full0x-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-700 focus:bg-white transition-all outline-none" />
             </div>
             <div>
-              <label for="contact_phone" style="display: block; font-weight: 600; margin-bottom: 0.35rem;">Phone</label>
-              <input type="tel" id="contact_phone" name="monroe_contact_phone" placeholder="(734) 000-0000" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px;" />
+              <label for="contact_phone" class="block font-bold text-teal-900 mb-2">Phone</label>
+              <input type="tel" id="contact_phone" name="monroe_contact_phone" placeholder="(734) 000-0000" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-700 focus:bg-white transition-all outline-none" />
             </div>
           </div>
 
           <div>
-            <label for="contact_msg" style="display: block; font-weight: 600; margin-bottom: 0.35rem;">Message *</label>
-            <textarea id="contact_msg" name="monroe_contact_message" rows="4" required placeholder="How can we help you?" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px;"></textarea>
+            <label for="contact_msg" class="block font-bold text-teal-900 mb-2">Message *</label>
+            <textarea id="contact_msg" name="monroe_contact_message" rows="5" required placeholder="How can we help you?" class="w-full0x-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-700 focus:bg-white transition-all outline-none resize-y"></textarea>
           </div>
 
-          <button type="submit" class="monroe-btn" style="margin-top: 0.5rem; align-self: flex-start;">Send Email</button>
-          <p class="monroe-contact-form__feedback" style="color: #0f766e; font-weight: 600; font-size: 0.95rem; margin-top: 0.5rem;"></p>
+          <button type="submit" class="inline-flex self-start items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-emerald-500 text-teal-900 hover:bg-emerald-400 mt-2">Send Email</button>
+          <p class="text-emerald-700 font-semibold mt-2" data-feedback></p>
         </form>
       </section>
     </div>
 
-    <!-- Map Section -->
-    <section class="monroe-native-stack" style="padding: 1.5rem; overflow: hidden;">
-      <h2 style="margin-bottom: 1rem;">Find Us on the Map</h2>
-      <div style="width: 100%; height: 380px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(15, 118, 110, 0.2);">
+    <section class="bg-gray-100 rounded-3xl p-4 md:p-8">
+      <h2 class="sr-only">Find Us on the Map</h2>
+      <div class="w-full h-[450px] rounded-2xl overflow-hidden shadow-inner">
         <iframe
           title="Monroe Humane Shelter Location Map"
           src={GOOGLE_MAPS_EMBED}
-          width="100%"
-          height="100%"
-          style="border:0;"
+          class="w-full h-full border-0"
           allowfullscreen=""
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
         ></iframe>
       </div>
     </section>
-  </InnerShell>
+  </main>
 </BaseLayout>
 
 <script>
@@ -112,18 +112,19 @@ const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1
       contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const data = new FormData(contactForm);
-        if (data.get('monroe_contact_website')) return; // honeypot
+        if (data.get('monroe_contact_website')) return;
         const name = String(data.get('monroe_contact_name') || '');
         const email = String(data.get('monroe_contact_email') || '');
         const phone = String(data.get('monroe_contact_phone') || '');
         const message = String(data.get('monroe_contact_message') || '');
         const subject = encodeURIComponent(`Website contact from ${name}`);
-        const body = encodeURIComponent(`${message}\n\n— ${name}${phone ? ` (${phone})` : ''}\n${email}`);
-        const feedback = contactForm.querySelector<HTMLElement>('.monroe-contact-form__feedback');
+        const body = encodeURIComponent(`${message}\n\n- ${name}${phone ? ` (${phone})` : ''}\n${email}`);
+        const feedback = contactForm.querySelector<HTMLElement>('[data-feedback]');
         if (feedback) feedback.textContent = 'Opening your email client to send your message. Thank you!';
         window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
       });
     }
   }
   document.addEventListener('astro:page-load', initContactForm);
+  if (!document.startViewTransition) initContactForm();
 </script>

@@ -1,10 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InnerShell from '../../components/InnerShell.astro';
 import { getNewsletterIssues } from '../../lib/directus';
 
 /*
- Newsletter archive — the real "2025 in Review" issue (also featured on
+ Newsletter archive - the real "2025 in Review" issue (also featured on
  the homepage) renders from the same content that powers the issue page.
 */
 
@@ -16,43 +15,54 @@ const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/up
   title="Newsletter Archive | 734-243-3669"
   description="Read past shelter newsletters and see the latest issue highlighted on our homepage."
 >
-  <InnerShell variant="newsletter">
-    <header class="monroe-native-hero">
-      <p class="monroe-native-eyebrow">Stay in touch</p>
-      <h1>Newsletter Archive</h1>
-      <p class="monroe-native-lead">
+  <main class="pt-32 pb-24 px-4 max-w-5xl mx-auto">
+    <header class="mb-16 text-center max-w-3xl mx-auto">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Stay in touch</p>
+      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Newsletter Archive</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">
         Read past shelter newsletters and see the latest issue highlighted on our homepage.
       </p>
     </header>
-    <section class="monroe-native-anchor-section monroe-native-stack" aria-labelledby="monroe-newsletter-archive-heading">
-      <h2 id="monroe-newsletter-archive-heading">Newsletter archive</h2>
-      <p>
-        Select an issue below to read the full newsletter. The featured issue also appears on the homepage.
-      </p>
-      <ul class="monroe-newsletter-archive__grid">
+    
+    <section aria-labelledby="monroe-newsletter-archive-heading">
+      <div class="mb-10 text-center">
+        <h2 id="monroe-newsletter-archive-heading" class="text-3xl font-serif text-teal-900 mb-4">Newsletter archive</h2>
+        <p class="text-gray-600 text-lg">
+          Select an issue below to read the full newsletter. The featured issue also appears on the homepage.
+        </p>
+      </div>
+
+      <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
         {issues.map((issue) => (
-          <li class="monroe-newsletter-archive__item">
-            <a class="monroe-newsletter-archive__card" href={`/newsletter/issue/${issue.slug}`}>
-              <img
-                width="561"
-                height="280"
-                src={issue.hero_image || FALLBACK_THUMB}
-                class="monroe-newsletter-archive__thumb wp-post-image"
-                alt={issue.title}
-                loading="lazy"
-                decoding="async"
-              />
-              <span class="monroe-newsletter-archive__body">
-                {issue.featured && <span class="monroe-newsletter-archive__badge">On homepage</span>}
-                <span class="monroe-newsletter-archive__title">{issue.title}</span>
-              </span>
+          <li>
+            <a class="block group h-full bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-shadow" href={`/newsletter/issue/${issue.slug}`}>
+              <div class="aspect-[2/1] overflow-hidden bg-gray-100">
+                <img
+                  width="561"
+                  height="280"
+                  src={issue.hero_image || FALLBACK_THUMB}
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  alt={issue.title}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="p-6">
+                {issue.featured && (
+                  <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider rounded-full mb-3">On homepage</span>
+                )}
+                <h3 class="text-xl font-serif text-teal-900 group-hover:text-teal-700 transition-colors">{issue.title}</h3>
+              </div>
             </a>
           </li>
         ))}
       </ul>
-      <div class="monroe-native-actions">
-        <a class="monroe-btn" href="/#Newsletter">Featured issue on homepage</a>
+      
+      <div class="flex justify-center">
+        <a class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-1" href="/#Newsletter">
+            Featured issue on homepage
+        </a>
       </div>
     </section>
-  </InnerShell>
+  </main>
 </BaseLayout>

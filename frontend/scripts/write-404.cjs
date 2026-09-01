@@ -1,4 +1,6 @@
----
+
+const fs = require("fs");
+const content = `---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
@@ -24,3 +26,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </section>
   </main>
 </BaseLayout>
+`;
+fs.writeFileSync("src/pages/404.astro", content, "utf8");
+

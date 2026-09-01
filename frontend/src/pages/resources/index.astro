@@ -1,41 +1,48 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InnerShell from '../../components/InnerShell.astro';
 ---
 
 <BaseLayout
   title="Resources | 734-243-3669"
   description="Practical services that support pets and people in Monroe County - from nail trims and microchipping to membership and volunteer opportunities."
 >
-  <InnerShell variant="resources">
-    <header class="monroe-native-hero">
-      <p class="monroe-native-eyebrow">Services</p>
-      <h1>Resources | Monroe County</h1>
-      <p class="monroe-native-lead">
+  <main class="pt-32 pb-24 px-4 max-w-4xl mx-auto">
+    <header class="mb-16 text-center">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Services</p>
+      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Resources | Monroe County</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">
         Practical services that support pets and people in Monroe County - from nail trims and microchipping to membership and volunteer opportunities.
       </p>
     </header>
-    <section class="monroe-native-stack" aria-labelledby="monroe-resources-services-heading">
-      <h2 id="monroe-resources-services-heading">Shelter services</h2>
-      <p>
-        We offer pet nail trims and microchipping by appointment. Call the shelter to schedule, ask about pricing, or learn what to bring the day of your visit.
-      </p>
-      <ul class="monroe-native-list">
-        <li><a href="tel:734-243-3669">734-243-3669</a></li>
-        <li><a href="/contact">Contact &amp; shelter hours</a></li>
-      </ul>
-    </section>
-    <section class="monroe-native-stack" aria-labelledby="monroe-resources-more-heading">
-      <h2 id="monroe-resources-more-heading">Ways to get involved</h2>
-      <p>
-        Become a member, browse fundraisers, read our FAQ, or explore volunteer needs from the sections linked below.
-      </p>
-      <div class="monroe-native-actions">
-        <a class="monroe-btn" href="/membership">Membership plans</a>
-        <a class="monroe-btn monroe-btn--outline" href="/donate" target="_blank" rel="noopener noreferrer">Join online</a>
-        <a class="monroe-btn monroe-btn--outline" href="/faq">Frequently Asked Questions</a>
-        <a class="monroe-btn monroe-btn--outline" href="/volunteer-form">Volunteer</a>
-      </div>
-    </section>
-  </InnerShell>
+
+    <div class="space-y-16">
+      <section aria-labelledby="monroe-resources-services-heading" class="bg-gray-50 rounded-3xl p-8 border border-gray-200">
+        <h2 id="monroe-resources-services-heading" class="text-3xl font-serif text-teal-900 mb-4">Shelter services</h2>
+        <p class="text-gray-600 mb-6 leading-relaxed">
+          We offer pet nail trims and microchipping by appointment. Call the shelter to schedule, ask about pricing, or learn what to bring the day of your visit.
+        </p>
+        <ul class="flex flex-col sm:flex-row gap-4">
+          <li>
+            <a href="tel:7342433669" class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-teal-700 text-white font-bold uppercase tracking-wider transition-all hover:bg-teal-900 hover:-translate-y-1 shadow-sm w-full sm:w-auto">Call 734-243-3669</a>
+          </li>
+          <li>
+            <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1 w-full sm:w-auto">Contact &amp; shelter hours</a>
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="monroe-resources-more-heading">
+        <h2 id="monroe-resources-more-heading" class="text-3xl font-serif text-teal-900 mb-4">Ways to get involved</h2>
+        <p class="text-gray-600 mb-8 leading-relaxed">
+          Become a member, browse fundraisers, read our FAQ, or explore volunteer needs from the sections linked below.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-1" href="/membership">Membership plans</a>
+          <a class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1" href="/donate" target="_blank" rel="noopener noreferrer">Join online</a>
+          <a class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1" href="/faq">Frequently Asked Questions</a>
+          <a class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1" href="/volunteer-form">Volunteer</a>
+        </div>
+      </section>
+    </div>
+  </main>
 </BaseLayout>

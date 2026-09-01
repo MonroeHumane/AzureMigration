@@ -1,4 +1,5 @@
----
+﻿const fs = require('fs');
+const content = \---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
@@ -121,7 +122,7 @@ const totalTributes = peopleTributes.length + petTributes.length;
         <div class="flex gap-2">
           {sections.filter((s) => s.items.length > 0).map((section) => (
             <a 
-              href={`#${section.id}`}
+              href={\#\\}
               class="px-5 py-2.5 rounded-full bg-white border border-gray-200 text-teal-800 font-bold text-sm tracking-wide uppercase hover:bg-teal-50 hover:border-teal-200 transition-colors"
             >
               {section.title}
@@ -136,7 +137,7 @@ const totalTributes = peopleTributes.length + petTributes.length;
             type="button"
             class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold text-gray-500 hover:bg-teal-100 hover:text-teal-900 transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500 disabled:cursor-not-allowed"
             data-tribute-letter-btn={letter}
-            aria-label={`Jump to ${letter}`}
+            aria-label={\Jump to \\}
           >
             {letter}
           </button>
@@ -147,7 +148,7 @@ const totalTributes = peopleTributes.length + petTributes.length;
     {sections.filter((s) => s.items.length > 0).map((section) => (
       <section class="mb-20 scroll-mt-48" data-tribute-section aria-labelledby={section.id}>
         <div class="flex items-center gap-4 mb-12">
-          <span class={`w-14 h-14 rounded-2xl flex items-center justify-center ${section.iconClass} border`} aria-hidden="true">
+          <span class={\w-14 h-14 rounded-2xl flex items-center justify-center \ border\} aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
               {section.markIcon.split('|').map((d) => <path d={d}></path>)}
             </svg>
@@ -162,7 +163,7 @@ const totalTributes = peopleTributes.length + petTributes.length;
           {section.items.map((item) => (
             <div class="contents">
               {item.showLetter && (
-                <div class="col-span-full flex items-center gap-4 mt-8 mb-4 scroll-mt-52" id={`monroe-tribute-letter-${item.letter}`} data-tribute-letter={item.letter} aria-hidden="true">
+                <div class="col-span-full flex items-center gap-4 mt-8 mb-4 scroll-mt-52" id={\monroe-tribute-letter-\\} data-tribute-letter={item.letter} aria-hidden="true">
                   <span class="text-4xl font-serif text-teal-900/20">{item.letter}</span>
                   <span class="flex-1 h-px bg-gray-200"></span>
                 </div>
@@ -233,7 +234,7 @@ const totalTributes = peopleTributes.length + petTributes.length;
         btn.setAttribute('disabled', 'true');
       } else {
         btn.addEventListener('click', () => {
-          const target = document.getElementById(`monroe-tribute-letter-${l}`);
+          const target = document.getElementById(\monroe-tribute-letter-\\);
           if (target) {
             target.scrollIntoView({ behavior: 'smooth' });
           }
@@ -321,3 +322,5 @@ const totalTributes = peopleTributes.length + petTributes.length;
   document.addEventListener('astro:page-load', initTributes);
   if (!document.startViewTransition) initTributes();
 </script>
+\;
+fs.writeFileSync('src/pages/memorials/index.astro', content, 'utf8');

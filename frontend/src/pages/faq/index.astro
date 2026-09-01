@@ -1,10 +1,5 @@
 ---
-/**
- * Monroe Humane — FAQ Hub
- * Dedicated, searchable FAQ destination (replacing homepage anchor jumps).
- */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InnerShell from '../../components/InnerShell.astro';
 import { SITE } from '../../config/site';
 
 const faqs = [
@@ -71,39 +66,37 @@ const faqs = [
   title={`Frequently Asked Questions | ${SITE.name}`}
   description="Find answers to common questions about animal adoptions, volunteer programs, pet surrenders, donations, and visiting Monroe Humane."
 >
-  <InnerShell variant="faq">
-    <header class="monroe-native-hero">
-      <p class="monroe-native-eyebrow">Help &amp; Answers</p>
-      <h1>Frequently Asked Questions</h1>
-      <p class="monroe-native-lead">
+  <main class="pt-32 pb-24 px-4 max-w-4xl mx-auto">
+    <header class="mb-16 text-center">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Help &amp; Answers</p>
+      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Frequently Asked Questions</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">
         Find quick answers to common questions regarding pet adoptions, donations, shelter programs, and visiting hours.
       </p>
     </header>
 
-    <!-- Search Input -->
-    <div style="margin-bottom: 2rem;">
-      <label for="faqSearch" class="screen-reader-text">Search questions</label>
+    <div class="mb-10">
+      <label for="faqSearch" class="sr-only">Search questions</label>
       <input
         type="search"
         id="faqSearch"
         placeholder="Search questions (e.g. fees, surrender, volunteer, hours)..."
-        style="width: 100%; max-width: 600px; padding: 0.85rem 1.25rem; font-size: 1.05rem; border: 2px solid rgba(15, 118, 110, 0.25); border-radius: 999px; outline: none; transition: border-color 0.2s;"
+        class="w-full max-w-2xl mx-auto block px-6 py-4 text-lg border-2 border-teal-700/25 rounded-full outline-none transition-colors focus:border-teal-700 bg-gray-50 focus:bg-white"
       />
     </div>
 
-    <!-- FAQ Accordion List -->
-    <div id="faqList" style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 3rem;">
+    <div id="faqList" class="flex flex-col gap-5 mb-16">
       {faqs.map((faq) => (
-        <details class="faq-item monroe-native-stack" style="margin: 0; padding: 1.25rem 1.75rem; cursor: pointer;" data-faq-q={faq.q.toLowerCase()} data-faq-a={faq.a.toLowerCase()}>
-          <summary style="font-family: 'Abril Fatface', Georgia, serif; font-size: 1.35rem; color: #16302f; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+        <details class="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow faq-item" data-faq-q={faq.q.toLowerCase()} data-faq-a={faq.a.toLowerCase()}>
+          <summary class="flex justify-between items-center px-6 py-5 cursor-pointer list-none outline-none font-serif text-2xl text-teal-900 marker:hidden">
             <span>{faq.q}</span>
-            <span class="faq-icon" style="color: #0f766e; font-size: 1.5rem; transition: transform 0.2s;">＋</span>
+            <span class="text-teal-700 text-3xl transition-transform duration-200 group-open:rotate-45 leading-none shrink-0">+</span>
           </summary>
-          <div style="margin-top: 1rem; color: #334155; line-height: 1.65; font-size: 1.05rem; border-top: 1px dashed rgba(15, 118, 110, 0.2); padding-top: 1rem;">
+          <div class="px-6 pb-6 pt-2 text-gray-700 text-lg leading-relaxed border-t border-teal-900/10 border-dashed mt-2">
             <p>{faq.a}</p>
             {faq.link && (
-              <p style="margin-top: 0.85rem;">
-                <a href={faq.link} class="monroe-btn monroe-btn--outline" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+              <p class="mt-4">
+                <a href={faq.link} class="inline-flex items-center justify-center px-5 py-2.5 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider text-sm transition-all hover:bg-teal-50">
                   {faq.linkText} &rarr;
                 </a>
               </p>
@@ -113,26 +106,22 @@ const faqs = [
       ))}
     </div>
 
-    <!-- Contact Banner if Answer Not Found -->
-    <section class="monroe-native-stack" style="text-align: center; padding: 2.5rem 1.5rem;">
-      <h2>Still have questions?</h2>
-      <p style="max-width: 38rem; margin: 0 auto 1.5rem; ">
+    <section class="bg-teal-50 rounded-3xl p-10 text-center">
+      <h2 class="text-3xl font-serif text-teal-900 mb-4">Still have questions?</h2>
+      <p class="max-w-2xl mx-auto text-gray-700 mb-8 leading-relaxed">
         Our adoption center team is happy to assist you by phone, email, or in person during shelter hours.
       </p>
-      <div class="monroe-native-actions" style="justify-content: center;">
-        <a class="monroe-btn" href="/contact">Contact Our Team</a>
-        <a class="monroe-btn monroe-btn--outline" href={SITE.contact.phoneTel}>Call (734) 243-3669</a>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-1" href="/contact">Contact Our Team</a>
+        <a class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-white hover:-translate-y-1" href={SITE.contact.phoneTel}>Call {SITE.contact.phoneFormatted}</a>
       </div>
     </section>
-  </InnerShell>
+  </main>
 </BaseLayout>
 
 <style>
-  details[open] summary .faq-icon {
-    transform: rotate(45deg);
-  }
-  #faqSearch:focus {
-    border-color: #0f766e !important;
+  details > summary::-webkit-details-marker {
+    display: none;
   }
 </style>
 
