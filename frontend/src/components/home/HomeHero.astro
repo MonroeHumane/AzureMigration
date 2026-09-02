@@ -8,23 +8,23 @@ const { home } = Astro.props;
   <div class="absolute inset-0 bg-teal-900/50 mix-blend-multiply z-10"></div>
   <video class="absolute inset-0 w-full h-full object-cover z-0" muted loop playsinline autoplay poster={home.hero.video_poster} src={home.hero.video_src}></video>
   
-  <div class="relative z-20 w-full max-w-7xl mx-auto px-4 py-24 text-center mt-12">
+  <div class="relative z-20 w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-24 text-center mt-12">
     <p class="text-emerald-300 font-bold uppercase tracking-widest mb-4">{home.hero.display}</p>
-    <h1 class="text-5xl sm:text-6xl md:text-7xl font-serif text-white mb-6 drop-shadow-md leading-tight">{home.hero.title}</h1>
-    <p class="text-xl text-cream-100 mb-10 leading-relaxed max-w-3xl mx-auto drop-shadow">{home.hero.copy}</p>
+    <h1 class="text-5xl sm:text-6xl lg:text-7xl 2xl:text-8xl font-serif text-white mb-6 drop-shadow-md leading-tight">{home.hero.title}</h1>
+    <p class="text-xl lg:text-2xl text-cream-100 mb-10 leading-relaxed max-w-3xl mx-auto drop-shadow">{home.hero.copy}</p>
 
     <div class="flex flex-wrap justify-center gap-4 mb-16">
-      <a class="inline-flex items-center justify-center px-8 py-4 bg-teal-700 text-white rounded-full font-bold uppercase tracking-wider transition-all hover:bg-teal-900 shadow-md hover:-translate-y-1" href="/adopt">{home.hero.buttons[0].label}</a>
+      <a class="inline-flex items-center justify-center px-8 py-4 lg:px-10 lg:py-5 lg:text-lg lg:px-10 lg:py-5 lg:text-lg lg:px-10 lg:py-5 lg:text-lg bg-teal-700 text-white rounded-full font-bold uppercase tracking-wider transition-all hover:bg-teal-900 shadow-md hover:-translate-y-1" href="/adopt">{home.hero.buttons[0].label}</a>
       <a class="inline-flex items-center justify-center px-8 py-4 bg-emerald-500 text-teal-900 rounded-full font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 shadow-md hover:-translate-y-1" href="/adoptions">{home.hero.buttons[1].label}</a>
       <a class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold uppercase tracking-wider transition-all hover:bg-white hover:text-teal-900" href={home.hero.buttons[2].href} target="_blank" rel="noreferrer noopener">{home.hero.buttons[2].label}</a>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
       {home.hero.stats.map((s: any) => (
-        <div class={`bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl ${s.accent ? 'bg-emerald-500/20 border-emerald-500/30' : ''}`}>
-          <strong class="block text-xs uppercase tracking-widest text-emerald-300 mb-2">{s.kicker}</strong>
-          <h3 class="text-3xl font-serif text-white mb-2">{s.title}</h3>
-          <p class="text-cream-100 text-sm leading-relaxed">{s.body}</p>
+        <div class={`bg-white/10 backdrop-blur-md rounded-2xl p-6 lg:p-8 xl:p-10 border border-white/20 shadow-xl ${s.accent ? 'bg-emerald-500/20 border-emerald-500/30' : ''}`}>
+          <strong class="block text-xs lg:text-sm uppercase tracking-widest text-emerald-300 mb-2">{s.kicker}</strong>
+          <h3 class="text-3xl lg:text-4xl font-serif text-white mb-2">{s.title}</h3>
+          <p class="text-cream-100 text-sm lg:text-base leading-relaxed">{s.body}</p>
         </div>
       ))}
     </div>

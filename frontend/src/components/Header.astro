@@ -102,13 +102,13 @@ const isCurrent = (item: NavItem) => {
 
 <header class="fixed top-0 w-full z-50 transition-all duration-300 bg-white shadow-sm [&.is-condensed]:py-1 py-3" data-monroe-global-nav data-monroe-nav-drawer-max={SITE.ui.mobileDrawerBreakpoint}>
   <button type="button" data-nav-backdrop class="fixed inset-0 bg-teal-900/60 backdrop-blur-sm z-40 transition-opacity xl:hidden" aria-label="Close menu" tabindex="-1" hidden></button>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-50 flex items-center justify-between">
+  <div class="max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 relative z-50 flex items-center justify-between">
     <div class="flex items-center justify-between w-full xl:w-auto">
       <div class="flex xl:hidden gap-3 items-center absolute left-1/2 -translate-x-1/2 sm:static sm:translate-x-0">
         <a class="text-xs font-bold uppercase tracking-widest text-teal-700 hover:text-teal-900" href="/adopt">Adopt</a>
         <a class="px-4 py-2 bg-emerald-500 text-teal-900 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-emerald-400" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
       </div>
-      <a class="z-50 relative shrink-0 mr-10" href="/" aria-label={`${SITE.name}, home`}>
+      <a class="z-50 relative shrink-0 mr-8 xl:mr-16" href="/" aria-label={`${SITE.name}, home`}>
         <img class="h-12 sm:h-16 w-auto object-contain transition-all duration-300 [.is-condensed_&]:h-10" src={LOGO_SRC} alt="" decoding="async" width="320" height="120" />
       </a>
 
@@ -121,12 +121,12 @@ const isCurrent = (item: NavItem) => {
     </div>
 
     <nav class="fixed xl:static inset-y-0 right-0 w-[300px] xl:w-auto bg-white xl:bg-transparent shadow-2xl xl:shadow-none translate-x-full xl:translate-x-0 transition-transform duration-300 z-50 flex flex-col xl:flex-row xl:items-center p-6 xl:p-0 overflow-y-auto xl:overflow-visible [&.is-open]:translate-x-0 group" id="monroe-global-nav-menu" aria-label="Primary navigation">
-      <ul class="flex flex-col xl:flex-row gap-2 xl:gap-8 mt-12 xl:mt-0">
+      <ul class="flex flex-col xl:flex-row gap-2 xl:gap-10 2xl:gap-14 mt-12 xl:mt-0">
         {NAV.map((item, i) =>
           item.children ? (
             <li data-nav-item class:list={['has-children', 'relative', { 'is-current text-emerald-600': isCurrent(item) }]}>
               <button
-                data-nav-trigger class="flex items-center justify-between xl:justify-start w-full py-3 xl:py-8 text-lg xl:text-sm font-bold xl:font-semibold text-teal-900 xl:text-gray-700 uppercase tracking-widest hover:text-emerald-600 transition-colors [&[aria-expanded=true]]:text-emerald-600 [&[aria-expanded=true]>span:last-child]:rotate-180"
+                data-nav-trigger class="flex items-center justify-between xl:justify-start w-full py-3 xl:py-8 text-lg xl:text-base font-bold text-teal-900 xl:text-gray-700 uppercase tracking-widest hover:text-emerald-600 transition-colors [&[aria-expanded=true]]:text-emerald-600 [&[aria-expanded=true]>span:last-child]:rotate-180"
                 type="button"
                 aria-expanded="false"
                 aria-haspopup="true"
@@ -157,7 +157,7 @@ const isCurrent = (item: NavItem) => {
             </li>
           ) : (
             <li data-nav-item class:list={[{ 'is-current text-emerald-600': isCurrent(item) }]}>
-              <a data-nav-link class="block py-3 xl:py-8 text-lg xl:text-sm font-bold xl:font-semibold text-teal-900 xl:text-gray-700 uppercase tracking-widest hover:text-emerald-600 transition-colors" href={item.href} aria-current={isCurrent(item) ? 'page' : undefined}>
+              <a data-nav-link class="block py-3 xl:py-8 text-lg xl:text-base font-bold text-teal-900 xl:text-gray-700 uppercase tracking-widest hover:text-emerald-600 transition-colors" href={item.href} aria-current={isCurrent(item) ? 'page' : undefined}>
                 {item.label}
               </a>
             </li>
