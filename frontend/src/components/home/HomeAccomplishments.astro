@@ -1,114 +1,37 @@
 ---
-interface Props {
-  home: any;
-}
+interface Props { home: any; }
 const { home } = Astro.props;
 ---
-<div id="Accomplishments" class="max-w-[1400px] mx-auto px-6 lg:px-12 py-16">
-  <div class="bg-teal-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl border border-teal-800">
-    <div class="text-center max-w-3xl mx-auto mb-12">
-      <p class="inline-block px-4 py-1.5 bg-emerald-500 text-teal-900 rounded-full font-bold uppercase tracking-widest text-xs mb-4">{home.accomplishments.pill}</p>
-      <h2 class="text-4xl sm:text-5xl font-serif mb-6 leading-tight text-white">{home.accomplishments.title}</h2>
-      <p class="text-lg text-teal-100 leading-relaxed">{home.accomplishments.intro}</p>
+<section id="Accomplishments" class="py-20 lg:py-32 bg-teal-950 text-white relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-teal-950 to-teal-950 pointer-events-none"></div>
+  <div class="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10 text-center">
+    <div class="max-w-3xl mx-auto mb-16 lg:mb-24">
+      <span class="inline-block px-4 py-1.5 bg-emerald-500 text-teal-950 rounded-full font-bold uppercase tracking-widest text-xs mb-6 shadow-sm">
+        {home.accomplishments.pill}
+      </span>
+      <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif tracking-tight leading-tight mb-6">
+        {home.accomplishments.title}
+      </h2>
+      <p class="text-lg md:text-xl text-teal-100/90 leading-relaxed font-medium">
+        {home.accomplishments.intro}
+      </p>
     </div>
-
-    <div class="mt-8" data-monroe-accomplishments-widget>
-      <!-- Tabs -->
-      <div class="flex flex-wrap justify-center gap-2 mb-8 border-b border-teal-800/50 pb-4" role="tablist" aria-label="Shelter outcome years">
-        {Object.keys(home.accomplishments.years).map((year, i) => (
-          <button
-            class="px-6 py-2.5 rounded-full font-bold text-sm transition-all hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 aria-selected:bg-emerald-500 aria-selected:text-teal-900 aria-selected:shadow-md text-teal-100"
-            role="tab"
-            aria-selected={i === 0 ? 'true' : 'false'}
-            aria-controls={`monroe-accomplishments-panel-${year}`}
-            id={`monroe-accomplishments-tab-${year}`}
-            tabindex={i === 0 ? '0' : '-1'}
-          >
-            {year}
-          </button>
-        ))}
-      </div>
-
-      <!-- Panels -->
-      <div class="relative min-h-[300px]">
-        {Object.entries(home.accomplishments.years).map(([year, data]: [string, any], i) => (
-          <div
-            id={`monroe-accomplishments-panel-${year}`}
-            role="tabpanel"
-            aria-labelledby={`monroe-accomplishments-tab-${year}`}
-            class={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-opacity duration-300 absolute inset-0 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
-            hidden={i !== 0}
-          >
-            <div class="bg-teal-950/50 p-6 rounded-2xl border border-teal-800/50 text-center flex flex-col justify-center">
-              <div class="text-4xl md:text-5xl font-serif tracking-tight text-emerald-400 mb-2">{data.intakes}</div>
-              <div class="text-xs font-bold uppercase tracking-widest text-teal-200">Intakes</div>
-            </div>
-            <div class="bg-teal-950/50 p-6 rounded-2xl border border-teal-800/50 text-center flex flex-col justify-center">
-              <div class="text-4xl md:text-5xl font-serif tracking-tight text-emerald-400 mb-2">{data.adopted}</div>
-              <div class="text-xs font-bold uppercase tracking-widest text-teal-200">Adopted</div>
-            </div>
-            <div class="bg-teal-950/50 p-6 rounded-2xl border border-teal-800/50 text-center flex flex-col justify-center">
-              <div class="text-4xl md:text-5xl font-serif tracking-tight text-emerald-400 mb-2">{data.returned}</div>
-              <div class="text-xs font-bold uppercase tracking-widest text-teal-200">Returned to Owner</div>
-            </div>
-            <div class="bg-teal-950/50 p-6 rounded-2xl border border-teal-800/50 text-center flex flex-col justify-center">
-              <div class="text-4xl md:text-5xl font-serif tracking-tight text-emerald-400 mb-2">{data.spay_neuter}</div>
-              <div class="text-xs font-bold uppercase tracking-widest text-teal-200">Spay/Neuter Surgeries</div>
-            </div>
+    <div class="flex flex-col gap-12">
+      {Object.keys(home.accomplishments.years).reverse().map((year) => (
+        <div class="bg-white/5 backdrop-blur-md rounded-[2.5rem] p-8 lg:p-12 border border-white/10 hover:bg-white/10 transition-all duration-300">
+          <h3 class="text-3xl font-serif text-emerald-400 mb-8 border-b border-white/10 pb-4 inline-block">{year} Impacts</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {home.accomplishments.years[year].map((stat: any) => (
+              <div class="flex flex-col items-center">
+                <span class={`text-4xl lg:text-6xl font-serif mb-2 ${stat.accent ? 'text-white drop-shadow-md' : 'text-emerald-400'}`}>
+                  {stat.display}
+                </span>
+                <span class="text-sm font-bold tracking-widest uppercase text-teal-100/80 text-center">{stat.label}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      
-      <p class="text-center text-teal-200 text-sm mt-8">{home.accomplishments.caption}</p>
+        </div>
+      ))}
     </div>
   </div>
-</div>
-<script>
-  function initAccomplishmentsTabs() {
-    const widget = document.querySelector<HTMLElement>('[data-monroe-accomplishments-widget]');
-    if (!widget) return;
-    
-    const tabs = widget.querySelectorAll<HTMLButtonElement>('[role="tab"]');
-    const panels = widget.querySelectorAll<HTMLElement>('[role="tabpanel"]');
-    
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        const targetId = tab.getAttribute('aria-controls');
-        
-        // Deactivate all
-        tabs.forEach(t => {
-          t.setAttribute('aria-selected', 'false');
-          t.setAttribute('tabindex', '-1');
-        });
-        panels.forEach(p => {
-          p.hidden = true;
-          p.classList.replace('opacity-100', 'opacity-0');
-          p.classList.replace('z-10', 'z-0');
-          p.classList.add('pointer-events-none');
-        });
-        
-        // Activate target
-        tab.setAttribute('aria-selected', 'true');
-        tab.setAttribute('tabindex', '0');
-        
-        const targetPanel = widget.querySelector<HTMLElement>(`#${targetId}`);
-        if (targetPanel) {
-          targetPanel.hidden = false;
-          // Small timeout to allow display:block to apply before opacity transition
-          setTimeout(() => {
-            targetPanel.classList.replace('opacity-0', 'opacity-100');
-            targetPanel.classList.replace('z-0', 'z-10');
-            targetPanel.classList.remove('pointer-events-none');
-          }, 10);
-        }
-      });
-    });
-  }
-  
-  document.addEventListener('astro:page-load', initAccomplishmentsTabs);
-  if (document.readyState === 'complete') {
-    initAccomplishmentsTabs();
-  } else {
-    document.addEventListener('DOMContentLoaded', initAccomplishmentsTabs);
-  }
-</script>
+</section>

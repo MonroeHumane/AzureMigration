@@ -1,31 +1,27 @@
 ---
-interface Props {
-  home: any;
-}
+interface Props { home: any; }
 const { home } = Astro.props;
 ---
-<div class="max-w-[1400px] mx-auto px-6 lg:px-12 py-16" id="FAQ">
-  <div class="bg-white rounded-3xl p-8 sm:p-12 border border-gray-100 shadow-sm">
-    <div class="text-center max-w-3xl mx-auto mb-12">
-      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.faq.label}</p>
-      <h2 class="text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-6 leading-tight">{home.faq.title}</h2>
-      <p class="text-lg text-gray-700 leading-relaxed">{home.faq.intro}</p>
+<section id="FAQ" class="py-20 lg:py-32 bg-slate-50">
+  <div class="max-w-[1000px] mx-auto px-6 lg:px-12">
+    <div class="text-center mb-16 lg:mb-20">
+      <span class="text-sm font-bold uppercase tracking-widest text-emerald-600 mb-4 block">{home.faq.label}</span>
+      <h2 class="text-4xl md:text-5xl font-serif text-teal-950 tracking-tight leading-tight mb-6">{home.faq.title}</h2>
+      <p class="text-lg text-slate-600 leading-relaxed">{home.faq.intro}</p>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="space-y-4">
       {home.faq.tiles.map((tile: any) => (
-        <div class="bg-gray-50 p-8 rounded-2xl border border-gray-100 flex flex-col h-full">
-          <h3 class="text-2xl font-serif text-teal-900 mb-4">{tile.title}</h3>
-          <p class="text-gray-600 mb-8 flex-grow">{tile.copy}</p>
-          <div>
-            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-3.5 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-900 text-white hover:bg-teal-700" 
-               href={tile.href} 
-               {...(tile.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}>
-               {tile.button}
-            </a>
-          </div>
-        </div>
+        <details class="group bg-white rounded-2xl border border-slate-200 overflow-hidden [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between p-6 lg:p-8 cursor-pointer font-bold text-lg text-teal-950 hover:text-emerald-600 transition-colors focus:outline-none">
+            {tile.q}
+            <span class="ml-6 flex-shrink-0 relative w-6 h-6 text-teal-900 group-hover:text-emerald-600">
+              <span class="absolute inset-0 bg-current rounded-full w-6 h-0.5 top-1/2 -translate-y-1/2 transition-transform duration-300"></span>
+              <span class="absolute inset-0 bg-current rounded-full w-0.5 h-6 left-1/2 -translate-x-1/2 transition-transform duration-300 group-open:rotate-90"></span>
+            </span>
+          </summary>
+          <div class="px-6 pb-6 lg:px-8 lg:pb-8 text-slate-600 leading-relaxed prose prose-teal max-w-none" set:html={tile.a} />
+        </details>
       ))}
     </div>
   </div>
-</div>
+</section>
