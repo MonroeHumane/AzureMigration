@@ -1,0 +1,109 @@
+{
+  "HomeAccomplishments.astro": [
+    "<p class=\"inline-block px-4 py-1.5 bg-emerald-500 text-teal-900 rounded-full font-bold uppercase tracking-widest text-xs mb-4\">{home.accomplishments.pill}</p>",
+    "<h2 class=\"text-4xl sm:text-5xl font-serif mb-6 leading-tight text-white\">{home.accomplishments.title}</h2>",
+    "<p class=\"text-lg text-teal-100 leading-relaxed\">{home.accomplishments.intro}</p>",
+    "{Object.keys(home.accomplishments.years).map((year, i) => (",
+    "{Object.entries(home.accomplishments.years).map(([year, data]: [string, any], i) => (",
+    "<p class=\"text-center text-teal-200 text-sm mt-8\">{home.accomplishments.caption}</p>"
+  ],
+  "HomeContact.astro": [
+    "<p class=\"text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3\">{home.contact.pill}</p>",
+    "<h2 class=\"text-4xl sm:text-5xl font-serif text-teal-900 mb-6 leading-tight\">{home.contact.title}</h2>",
+    "<p class=\"text-lg text-gray-700 leading-relaxed\">{home.contact.intro}</p>",
+    "<p class=\"text-gray-500 font-medium mb-6 uppercase tracking-widest text-xs border-b border-gray-200 pb-4\">{home.contact.lead}</p>",
+    "<form class=\"monroe-contact-form\" data-monroe-contact-mailto data-email={home.contact.email}>",
+    "{home.contact.submit}",
+    "{home.contact.call_button}"
+  ],
+  "HomeDonations.astro": [
+    "<p class=\"text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3\">{home.donations.label}</p>",
+    "<h2 class=\"text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-6 leading-tight\">{home.donations.title}</h2>",
+    "<p class=\"text-lg text-gray-700 leading-relaxed\">{home.donations.intro}</p>",
+    "<iframe src={home.donations.cat_room.href} style=\"width:100%; height:550px; border:none; background:#fff;\" title=\"Donate to the Cat Room\"></iframe>",
+    "<iframe src={home.donations.general.href} style=\"width:100%; height:550px; border:none; background:#fff;\" title=\"Make a Difference\"></iframe>",
+    "<h4 class=\"font-bold text-lg mb-1\">{home.donations.offline.title}</h4>",
+    "<p class=\"text-teal-200 text-sm\">{home.donations.offline.label}</p>",
+    "<div class=\"text-2xl font-serif text-emerald-400\">{home.donations.offline.amount}</div>",
+    "<div class=\"text-xs text-teal-300 uppercase tracking-wider mt-1\">{home.donations.offline.caption}</div>",
+    "{home.donations.tiles.map((tile: any) => ("
+  ],
+  "HomeEvents.astro": [
+    "{latestEvent ? formatDate(latestEvent.event_date, home.events_feature.deadline) : home.events_feature.deadline}",
+    "{latestEvent ? latestEvent.title : home.events_feature.title}",
+    "{latestEvent ? latestEvent.description : home.events_feature.body[0]}",
+    "{!latestEvent && home.events_feature.body.slice(1).map((p: string) => (",
+    "{home.events_feature.note}",
+    "<p class=\"text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4\">{home.events_feature.ways_title}</p>",
+    "{home.events_feature.ways.map((w: any) => (",
+    "href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.cta.href}",
+    "{latestEvent ? 'Learn More' : home.events_feature.cta.label}",
+    "<a href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.flyer_image} class=\"block absolute inset-0 group\">",
+    "src={latestEvent ? latestEvent.image : home.events_feature.flyer_image}",
+    "alt={latestEvent ? latestEvent.title : home.events_feature.flyer_alt}",
+    "<h3 class=\"font-bold uppercase tracking-widest text-xs mb-4 text-emerald-600 border-b border-gray-100 pb-3\">{home.events_feature.schedule_title}</h3>",
+    "{home.events_feature.schedule.map((row: any) => ("
+  ],
+  "HomeFAQ.astro": [
+    "<p class=\"text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3\">{home.faq.label}</p>",
+    "<h2 class=\"text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-6 leading-tight\">{home.faq.title}</h2>",
+    "<p class=\"text-lg text-gray-700 leading-relaxed\">{home.faq.intro}</p>",
+    "{home.faq.tiles.map((tile: any) => ("
+  ],
+  "HomeFeaturedPets.astro": [
+    "<h2 class=\"text-4xl md:text-5xl font-serif text-teal-950 mb-6 tracking-tight leading-tight\">{home.featured_pets.title}</h2>",
+    "<p class=\"text-lg md:text-xl text-gray-600 leading-relaxed\">{home.featured_pets.copy}</p>"
+  ],
+  "HomeGames.astro": [
+    "<p class=\"inline-block px-4 py-1.5 bg-white text-teal-700 rounded-full font-bold uppercase tracking-widest text-xs mb-4 shadow-sm\">{home.games.pill}</p>",
+    "<h2 class=\"text-4xl sm:text-5xl font-serif text-teal-900 mb-6 leading-tight\" id=\"home-games-heading\">{home.games.title}</h2>",
+    "<p class=\"text-lg text-teal-800/80 leading-relaxed\">{home.games.intro}</p>",
+    "{home.games.teasers.map((t: any) => (",
+    "{home.games.cta}"
+  ],
+  "HomeHero.astro": [
+    "<video class=\"w-full h-full object-cover\" muted loop playsinline autoplay poster={home.hero.video_poster} src={home.hero.video_src}></video>",
+    "{home.hero.display}",
+    "{home.hero.title}",
+    "{home.hero.copy}",
+    "{home.hero.buttons[1].label}",
+    "{home.hero.buttons[0].label}",
+    "{home.hero.stats.map((s: any) => ("
+  ],
+  "HomeNewsletter.astro": [
+    "<p class=\"text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3\">{home.newsletter.label}</p>",
+    "<h2 class=\"text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-6 leading-tight\">{home.newsletter.title}</h2>",
+    "<p class=\"text-lg text-gray-700 leading-relaxed\">{home.newsletter.intro}</p>",
+    "<img src={latestNewsletter ? latestNewsletter.hero_image : home.newsletter.hero_image}",
+    "<p class=\"text-emerald-400 font-bold uppercase tracking-widest text-sm mb-2\">{home.newsletter.eyebrow}</p>",
+    "<h3 class=\"text-3xl sm:text-5xl font-serif text-white\">{latestNewsletter ? \"Latest Newsletter\" : home.newsletter.label}</h3>",
+    "<h3 class=\"text-2xl font-bold text-teal-900 mb-2\">{latestNewsletter ? latestNewsletter.title : home.newsletter.title}</h3>",
+    "{latestNewsletter ? formatDate(latestNewsletter.issue_date, home.newsletter.byline) : home.newsletter.byline}",
+    "{home.newsletter.letters.map((letter: any) => ("
+  ],
+  "HomePartners.astro": [
+    "<h3 class=\"text-2xl font-bold mb-4\">{home.community_partners.title}</h3>",
+    "<p class=\"text-teal-200\">{home.community_partners.intro}</p>",
+    "{sponsors.community_partners.map((p: any) => (",
+    "<p class=\"text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3\">{home.membership_home.label}</p>",
+    "<h2 class=\"text-4xl sm:text-5xl font-serif text-teal-900 mb-8 leading-tight\">{home.membership_home.title}</h2>",
+    "<p class=\"text-xl font-medium text-teal-800\">{home.membership_home.under_construction}</p>"
+  ],
+  "HomeSponsors.astro": [
+    "<p class=\"text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3\">{home.vet_partners.label}</p>",
+    "<h2 class=\"text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-6 leading-tight\">{home.vet_partners.title}</h2>",
+    "<p class=\"text-lg text-gray-700 leading-relaxed\">{home.vet_partners.intro}</p>",
+    "<h3 id=\"sponsor-widget-title\" class=\"sr-only\">{home.vet_partners.title}</h3>",
+    "<p class=\"text-center font-medium text-teal-800 mb-8 border-b border-gray-200 pb-4\">{home.vet_partners.subtitle}</p>",
+    "{sponsors.vet_partners.map((v: any) => (",
+    "<h3 id=\"furry-friends-auction-sponsors-title\" class=\"text-3xl font-serif text-teal-900 mb-4\">{home.auction_sponsors.title || 'Furry Friends Auction Sponsors'}</h3>",
+    "<p class=\"text-gray-600 font-medium\">{home.auction_sponsors.subtitle}</p>",
+    "{sponsors.auction_sponsors.map((v: any) => ("
+  ],
+  "HomeTestimonials.astro": [
+    "<p class=\"text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3\">{home.testimonials.label}</p>",
+    "<h2 class=\"text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-6 leading-tight\">{home.testimonials.title}</h2>",
+    "<p class=\"text-lg text-gray-700 leading-relaxed\">{home.testimonials.intro}</p>",
+    "{reviews.slice(0, 6).map((review: any) => ("
+  ]
+}
