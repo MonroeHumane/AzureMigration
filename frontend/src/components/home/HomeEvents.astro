@@ -18,7 +18,7 @@ const formatDate = (value: string | undefined, fallback: string) => {
 };
 ---
 
-<div id="Events" class="max-w-7xl mx-auto px-4 py-16">
+<div id="Events" class="max-w-[1400px] mx-auto px-6 lg:px-12 py-16">
   <div class="bg-teal-900 rounded-3xl overflow-hidden shadow-xl text-white">
     <div class="flex flex-col lg:flex-row w-full">
       <!-- Left Content Column -->
@@ -130,7 +130,7 @@ const formatDate = (value: string | undefined, fallback: string) => {
           <span class="px-3 py-1 bg-teal-50 text-teal-700 text-xs font-bold uppercase tracking-widest rounded-full">{nextEvent?.kicker || 'Coming Up'}</span>
           <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-widest rounded-full">{nextEvent?.date || 'Soon'}</span>
         </div>
-        <h3 class="text-3xl sm:text-4xl font-serif text-teal-900 mb-4 leading-tight">{nextEvent?.title || 'Next Event'}</h3>
+        <h3 class="text-3xl sm:text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-4 leading-tight">{nextEvent?.title || 'Next Event'}</h3>
         <p class="text-lg text-gray-600 mb-8">{nextEvent?.time || 'Check back for details'}</p>
         
         <div class="flex flex-wrap gap-4">

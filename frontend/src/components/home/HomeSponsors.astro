@@ -5,12 +5,12 @@ interface Props {
 }
 const { home, sponsors } = Astro.props;
 ---
-<div class="max-w-7xl mx-auto px-4 py-16">
+<div class="max-w-[1400px] mx-auto px-6 lg:px-12 py-16">
   <!-- Vet Partners -->
   <div class="mb-16">
     <div class="text-center max-w-3xl mx-auto mb-12">
       <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.vet_partners.label}</p>
-      <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.vet_partners.title}</h2>
+      <h2 class="text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-6 leading-tight">{home.vet_partners.title}</h2>
       <p class="text-lg text-gray-700 leading-relaxed">{home.vet_partners.intro}</p>
     </div>
     

@@ -4,7 +4,7 @@ interface Props {
 }
 const { home } = Astro.props;
 ---
-<div id="Accomplishments" class="max-w-7xl mx-auto px-4 py-16">
+<div id="Accomplishments" class="max-w-[1400px] mx-auto px-6 lg:px-12 py-16">
   <div class="bg-teal-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl border border-teal-800">
     <div class="text-center max-w-3xl mx-auto mb-12">
       <p class="inline-block px-4 py-1.5 bg-emerald-500 text-teal-900 rounded-full font-bold uppercase tracking-widest text-xs mb-4">{home.accomplishments.pill}</p>
@@ -40,19 +40,19 @@ const { home } = Astro.props;
             hidden={i !== 0}
           >
             <div class="bg-teal-950/50 p-6 rounded-2xl border border-teal-800/50 text-center flex flex-col justify-center">
-              <div class="text-4xl font-serif text-emerald-400 mb-2">{data.intakes}</div>
+              <div class="text-4xl md:text-5xl font-serif tracking-tight text-emerald-400 mb-2">{data.intakes}</div>
               <div class="text-xs font-bold uppercase tracking-widest text-teal-200">Intakes</div>
             </div>
             <div class="bg-teal-950/50 p-6 rounded-2xl border border-teal-800/50 text-center flex flex-col justify-center">
-              <div class="text-4xl font-serif text-emerald-400 mb-2">{data.adopted}</div>
+              <div class="text-4xl md:text-5xl font-serif tracking-tight text-emerald-400 mb-2">{data.adopted}</div>
               <div class="text-xs font-bold uppercase tracking-widest text-teal-200">Adopted</div>
             </div>
             <div class="bg-teal-950/50 p-6 rounded-2xl border border-teal-800/50 text-center flex flex-col justify-center">
-              <div class="text-4xl font-serif text-emerald-400 mb-2">{data.returned}</div>
+              <div class="text-4xl md:text-5xl font-serif tracking-tight text-emerald-400 mb-2">{data.returned}</div>
               <div class="text-xs font-bold uppercase tracking-widest text-teal-200">Returned to Owner</div>
             </div>
             <div class="bg-teal-950/50 p-6 rounded-2xl border border-teal-800/50 text-center flex flex-col justify-center">
-              <div class="text-4xl font-serif text-emerald-400 mb-2">{data.spay_neuter}</div>
+              <div class="text-4xl md:text-5xl font-serif tracking-tight text-emerald-400 mb-2">{data.spay_neuter}</div>
               <div class="text-xs font-bold uppercase tracking-widest text-teal-200">Spay/Neuter Surgeries</div>
             </div>
           </div>

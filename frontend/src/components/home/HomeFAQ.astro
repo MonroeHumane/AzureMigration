@@ -4,11 +4,11 @@ interface Props {
 }
 const { home } = Astro.props;
 ---
-<div class="max-w-7xl mx-auto px-4 py-16" id="FAQ">
+<div class="max-w-[1400px] mx-auto px-6 lg:px-12 py-16" id="FAQ">
   <div class="bg-white rounded-3xl p-8 sm:p-12 border border-gray-100 shadow-sm">
     <div class="text-center max-w-3xl mx-auto mb-12">
       <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">{home.faq.label}</p>
-      <h2 class="text-4xl font-serif text-teal-900 mb-6 leading-tight">{home.faq.title}</h2>
+      <h2 class="text-4xl md:text-5xl font-serif tracking-tight text-teal-900 mb-6 leading-tight">{home.faq.title}</h2>
       <p class="text-lg text-gray-700 leading-relaxed">{home.faq.intro}</p>
     </div>
 
