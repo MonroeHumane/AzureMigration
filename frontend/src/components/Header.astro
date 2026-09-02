@@ -1,5 +1,9 @@
 ---
-import { SITE } from '../config/site';
+/*
+ Global navigation — markup and behavior carried over from the monroe-rebuild
+ theme's unified nav. One data model drives desktop flyouts and the mobile
+ drawer; JS only toggles state classes also used by touch/keyboard users.
+ */
 
 interface NavChild {
   label: string;
@@ -13,6 +17,8 @@ interface NavItem {
   overviewHref?: string;
   children?: NavChild[];
 }
+
+import { SITE } from '../config/site';
 
 interface Props {
   currentPath?: string;
@@ -94,117 +100,205 @@ const isCurrent = (item: NavItem) => {
 };
 ---
 
-<header class="sticky top-0 z-50 w-full flex-none transition-all duration-300 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm" id="header" data-monroe-global-nav>
-  <div class="absolute inset-0 bg-white/90 backdrop-blur-md z-0 pointer-events-none xl:hidden" data-nav-backdrop hidden></div>
-  <div class="relative max-w-[1400px] mx-auto px-6 lg:px-12 z-10 text-default flex justify-between h-20 lg:h-24 transition-all duration-300" id="header-container">
-    
-    <div class="flex items-center justify-between w-full xl:w-auto">
-      <a class="flex items-center shrink-0" href="/" aria-label="Home">
-        <img class="h-12 sm:h-14 xl:h-16 w-auto max-w-[200px] xl:max-w-[240px] shrink-0 object-contain transition-all duration-300" src={LOGO_SRC} alt="Monroe Humane Logo" />
-      </a>
-      
-      <div class="flex items-center gap-4 xl:hidden">
-        <a class="px-5 py-2 text-sm font-semibold tracking-wide text-white bg-teal-700 hover:bg-teal-800 rounded-full transition-colors" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
-        <button type="button" class="flex flex-col items-center justify-center w-10 h-10 gap-[5px] text-teal-900 group" aria-label="Toggle Menu" data-nav-toggle>
-          <span class="w-6 h-[2px] bg-current rounded-full transition-all duration-300 group-[.is-open]:rotate-45 group-[.is-open]:translate-y-[7px]"></span>
-          <span class="w-6 h-[2px] bg-current rounded-full transition-all duration-300 group-[.is-open]:opacity-0"></span>
-          <span class="w-6 h-[2px] bg-current rounded-full transition-all duration-300 group-[.is-open]:-rotate-45 group-[.is-open]:-translate-y-[7px]"></span>
-        </button>
+<header class="monroe-global-nav" data-monroe-global-nav data-monroe-nav-drawer-max={SITE.ui.mobileDrawerBreakpoint}>
+  <button type="button" class="monroe-global-nav__backdrop" aria-label="Close menu" tabindex="-1" hidden></button>
+  <div class="monroe-global-nav__inner">
+    <div class="monroe-global-nav__bar">
+      <div class="monroe-global-nav__bar-cta">
+        <a class="monroe-global-nav__bar-adopt" href="/adopt">Adopt</a>
+        <a class="monroe-global-nav__bar-donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
       </div>
+      <a class="monroe-global-nav__brand" href="/" aria-label={`${SITE.name}, home`}>
+        <img src={LOGO_SRC} alt="Monroe Humane Logo" decoding="async" width="320" height="120" style="max-width: 200px;" />
+      </a>
+
+      <button class="monroe-global-nav__menu-toggle" type="button" aria-expanded="false" aria-controls="monroe-global-nav-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span class="screen-reader-text">Toggle navigation</span>
+      </button>
     </div>
 
-    <nav class="fixed inset-0 top-20 lg:top-24 xl:static w-full xl:w-auto bg-white xl:bg-transparent overflow-y-auto xl:overflow-visible transition-transform duration-300 translate-x-full xl:translate-x-0 group-[.is-open]/header:translate-x-0 hidden xl:flex items-center shadow-2xl xl:shadow-none" aria-label="Main navigation" data-nav-menu>
-      <ul class="flex flex-col xl:flex-row w-full xl:w-auto text-lg xl:text-[13px] 2xl:text-[15px] font-medium xl:font-bold text-gray-700 p-6 xl:p-0 gap-2 xl:gap-4 2xl:gap-8">
-        {NAV.map((item, i) => (
-          <li class="relative group" data-nav-item>
-            {item.children ? (
-              <>
-                <button type="button" class:list={["flex items-center justify-between w-full px-4 py-3 xl:px-0 xl:py-2 hover:text-teal-700 transition-colors", { "text-teal-700": isCurrent(item) }]} aria-expanded="false" data-nav-trigger>
-                  {item.label}
-                  <svg class="w-4 h-4 ml-1 transition-transform duration-200 group-[.is-open]:rotate-180 xl:group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-                <div class="hidden group-[.is-open]:block xl:group-[.is-open]:hidden xl:group-hover:block xl:absolute xl:top-full xl:left-1/2 xl:-translate-x-1/2 bg-gray-50 xl:bg-white xl:shadow-lg xl:rounded-2xl xl:border xl:border-gray-100 xl:min-w-[240px] xl:p-2 overflow-hidden transition-all duration-200 xl:opacity-0 xl:group-hover:opacity-100 xl:translate-y-2 xl:group-hover:translate-y-0" data-nav-dropdown>
-                  <a class="block px-6 py-3 xl:px-4 xl:py-2 text-sm font-bold text-teal-800 bg-teal-50/50 xl:bg-transparent xl:hover:bg-teal-50 rounded-lg mb-2" href={item.overviewHref}>
-                    {item.label} Overview &rarr;
-                  </a>
-                  <ul class="flex flex-col gap-1 pb-4 xl:pb-0 px-2 xl:px-0">
-                    {item.children.map((child) => (
-                      <li>
-                        <a class="block px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-teal-700 hover:bg-teal-50/50 rounded-lg transition-colors" href={child.href} {...(child.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
-                          {child.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </>
-            ) : (
-              <a class:list={["block px-4 py-3 xl:px-0 xl:py-2 hover:text-teal-700 transition-colors", { "text-teal-700": isCurrent(item) }]} href={item.href}>
+    <nav class="monroe-global-nav__panel" id="monroe-global-nav-menu" aria-label="Primary navigation">
+      <ul class="monroe-global-nav__list">
+        {NAV.map((item, i) =>
+          item.children ? (
+            <li class:list={['monroe-global-nav__item', 'has-children', { 'is-current': isCurrent(item) }]}>
+              <button
+                class="monroe-global-nav__trigger"
+                type="button"
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-controls={`monroe-nav-dd-${i}`}
+              >
+                <span>{item.label}</span>
+                <span class="monroe-global-nav__chevron" aria-hidden="true" />
+              </button>
+              <div id={`monroe-nav-dd-${i}`} class="monroe-global-nav__dropdown" role="region" aria-label={`${item.label} submenu`}>
+                <a class="monroe-global-nav__dropdown-link monroe-global-nav__dropdown-link--top" href={item.overviewHref}>
+                  <span>{item.label}</span>
+                  <span class="monroe-global-nav__dropdown-overview">Overview</span>
+                </a>
+                <ul class="monroe-global-nav__submenu">
+                  {item.children.map((child) => (
+                    <li class="monroe-global-nav__item">
+                      <a
+                        class="monroe-global-nav__link"
+                        href={child.href}
+                        {...(child.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      >
+                        {child.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ) : (
+            <li class:list={['monroe-global-nav__item', { 'is-current': isCurrent(item) }]}>
+              <a class="monroe-global-nav__link" href={item.href} aria-current={isCurrent(item) ? 'page' : undefined}>
                 {item.label}
               </a>
-            )}
-          </li>
-        ))}
+            </li>
+          )
+        )}
       </ul>
-      <div class="xl:hidden mt-auto p-6 border-t border-gray-100 flex flex-col gap-4 bg-gray-50/50">
-         <a class="w-full py-4 text-center text-sm font-bold text-white bg-teal-700 rounded-full" href={DONATE_URL} target="_blank">Donate Now</a>
-         <a class="w-full py-4 text-center text-sm font-bold text-teal-700 bg-white border-2 border-teal-700 rounded-full" href={SITE.contact.phoneTel}>Call Us</a>
+      <div class="monroe-global-nav__cta-row">
+        <a class="monroe-global-nav__member" href="/membership">Membership</a>
+        <a class="monroe-global-nav__donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+        <a class="monroe-global-nav__call" href={SITE.contact.phoneTel}>Call Us</a>
+        <a class="monroe-global-nav__application" href="/adoptions">Application</a>
       </div>
     </nav>
-    
-    <div class="hidden xl:flex items-center gap-4 shrink-0">
-      <a class="px-8 py-3 text-sm font-bold tracking-wide text-white bg-teal-700 hover:bg-teal-800 rounded-full transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" href={DONATE_URL} target="_blank" rel="noopener noreferrer">
-        Donate
-      </a>
-    </div>
-
   </div>
 </header>
 
 <script>
-  function initNav() {
-    const header = document.getElementById('header');
-    const toggle = document.querySelector('[data-nav-toggle]');
-    const menu = document.querySelector('[data-nav-menu]');
-    
-    if (!header || !toggle || !menu) return;
+  const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
 
-    toggle.addEventListener('click', () => {
-      const isOpen = toggle.classList.contains('is-open');
-      toggle.classList.toggle('is-open');
-      header.classList.toggle('is-open');
-      
-      if (!isOpen) {
-        menu.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+  if (header) {
+    const root = document.documentElement;
+    const toggle = header.querySelector<HTMLButtonElement>('.monroe-global-nav__menu-toggle');
+    const backdrop = header.querySelector<HTMLButtonElement>('.monroe-global-nav__backdrop');
+    const mql = window.matchMedia('(max-width: 1200px)');
+
+    // Publish the closed-header height so body padding and anchors track it exactly.
+    const measure = () => {
+      if (header.classList.contains('is-open')) return;
+      root.style.setProperty('--monroe-nav-height', `${Math.round(header.getBoundingClientRect().height)}px`);
+    };
+
+    const setCondensed = () => header.classList.toggle('is-condensed', window.scrollY > 12);
+
+    const closeAllDropdowns = () => {
+      header.querySelectorAll('.monroe-global-nav__item.is-open').forEach((li) => {
+        li.classList.remove('is-open');
+        li.querySelector('.monroe-global-nav__trigger')?.setAttribute('aria-expanded', 'false');
+      });
+      syncInert();
+    };
+
+    // Collapsed submenus stay out of the tab order (drawer accordion + closed desktop flyouts).
+    const syncInert = () => {
+      header.querySelectorAll<HTMLElement>('.monroe-global-nav__dropdown').forEach((dd) => {
+        const isMobile = mql.matches;
+        if (isMobile) {
+          const open = dd.closest('.monroe-global-nav__item')?.classList.contains('is-open') ?? false;
+          dd.inert = !open;
+        } else {
+          dd.inert = false;
+        }
+      });
+    };
+
+    const closeDrawer = () => {
+      header.classList.remove('is-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      closeAllDropdowns();
+    };
+
+    toggle?.addEventListener('click', () => {
+      const open = header.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', String(open));
+      if (open) {
+        syncInert();
+        header.querySelector<HTMLElement>('.monroe-global-nav__link')?.focus();
       } else {
-        document.body.style.overflow = '';
-        setTimeout(() => {
-          if (!toggle.classList.contains('is-open')) menu.classList.add('hidden');
-        }, 300);
+        closeDrawer();
       }
     });
 
-    // Handle accordion on mobile
-    const triggers = document.querySelectorAll('[data-nav-trigger]');
-    triggers.forEach(trigger => {
-      trigger.addEventListener('click', () => {
-        const parent = trigger.closest('[data-nav-item]');
-        if (window.innerWidth < 1280) { // xl breakpoint
-          const wasOpen = parent?.classList.contains('is-open');
-          
-          // Close others
-          document.querySelectorAll('[data-nav-item].is-open').forEach(item => {
-            if (item !== parent) item.classList.remove('is-open');
-          });
+    backdrop?.addEventListener('click', closeDrawer);
 
-          parent?.classList.toggle('is-open', !wasOpen);
+    // Close on Escape or click outside
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllDropdowns();
+        if (header.classList.contains('is-open')) {
+          closeDrawer();
+          toggle?.focus();
+        }
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!header.contains(e.target as Node)) {
+        closeAllDropdowns();
+      }
+    });
+
+    // Dropdown items: clean hover and click handlers
+    header.querySelectorAll<HTMLElement>('.monroe-global-nav__item.has-children').forEach((item) => {
+      const trigger = item.querySelector<HTMLButtonElement>('.monroe-global-nav__trigger');
+
+      // Desktop: mouseleave immediately closes any stuck open state
+      item.addEventListener('mouseleave', () => {
+        if (!mql.matches) {
+          item.classList.remove('is-open');
+          trigger?.setAttribute('aria-expanded', 'false');
         }
       });
-    });
-  }
 
-  document.addEventListener('astro:page-load', initNav);
+      // Mouseenter on another item closes adjacent open ones
+      item.addEventListener('mouseenter', () => {
+        if (!mql.matches) {
+          item.parentElement?.querySelectorAll(':scope > .monroe-global-nav__item.is-open').forEach((other) => {
+            if (other !== item) {
+              other.classList.remove('is-open');
+              other.querySelector('.monroe-global-nav__trigger')?.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+      });
+
+      trigger?.addEventListener('click', (e) => {
+        const wasOpen = item.classList.contains('is-open');
+        // Accordion: one flyout open at a time within the same menu level
+        item.parentElement?.querySelectorAll(':scope > .monroe-global-nav__item.is-open').forEach((other) => {
+          if (other !== item) {
+            other.classList.remove('is-open');
+            other.querySelector('.monroe-global-nav__trigger')?.setAttribute('aria-expanded', 'false');
+          }
+        });
+        item.classList.toggle('is-open', !wasOpen);
+        trigger.setAttribute('aria-expanded', String(!wasOpen));
+        syncInert();
+      });
+    });
+
+    // Leaving drawer territory closes it.
+    mql.addEventListener('change', (e) => {
+      closeDrawer();
+      measure();
+      syncInert();
+    });
+
+    measure();
+    setCondensed();
+    syncInert();
+    window.addEventListener('resize', measure, { passive: true });
+    window.addEventListener('scroll', setCondensed, { passive: true });
+  }
 </script>
+
