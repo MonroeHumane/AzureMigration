@@ -100,7 +100,7 @@ const isCurrent = (item: NavItem) => {
     
     <div class="flex items-center justify-between w-full xl:w-auto">
       <a class="flex items-center shrink-0" href="/" aria-label="Home">
-        <img class="h-12 sm:h-16 w-auto object-contain transition-all duration-300" src={LOGO_SRC} alt="" width="320" height="120" />
+        <img class="h-12 sm:h-14 xl:h-16 w-auto max-w-[200px] xl:max-w-[240px] shrink-0 object-contain transition-all duration-300" src={LOGO_SRC} alt="Monroe Humane Logo" />
       </a>
       
       <div class="flex items-center gap-4 xl:hidden">
@@ -114,7 +114,7 @@ const isCurrent = (item: NavItem) => {
     </div>
 
     <nav class="fixed inset-0 top-20 lg:top-24 xl:static w-full xl:w-auto bg-white xl:bg-transparent overflow-y-auto xl:overflow-visible transition-transform duration-300 translate-x-full xl:translate-x-0 group-[.is-open]/header:translate-x-0 hidden xl:flex items-center shadow-2xl xl:shadow-none" aria-label="Main navigation" data-nav-menu>
-      <ul class="flex flex-col xl:flex-row w-full xl:w-auto text-lg xl:text-[15px] font-medium xl:font-semibold text-gray-700 p-6 xl:p-0 gap-2 xl:gap-8 2xl:gap-10">
+      <ul class="flex flex-col xl:flex-row w-full xl:w-auto text-lg xl:text-[13px] 2xl:text-[15px] font-medium xl:font-bold text-gray-700 p-6 xl:p-0 gap-2 xl:gap-4 2xl:gap-8">
         {NAV.map((item, i) => (
           <li class="relative group" data-nav-item>
             {item.children ? (
