@@ -24,30 +24,14 @@ const latestEvent = events
   .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime())[0];
 const latestNewsletter = newsletters[0];
 
-// "Next event" widget: compute from the voting-schedule stops instead of a
-// hardcoded date, so it never goes stale like the old fixed "August 22"
-// entry did. Picks whichever stop is today or the next upcoming one; once
-// the whole schedule is in the past, falls back to the most recent stop.
-const currentYear = now.getFullYear();
-const scheduleWithDates = home.events_feature.schedule.map((row) => {
-  const parsed = new Date(`${row.date}, ${currentYear} 12:00:00`);
-  const [venue, ...timeParts] = row.location.split(',');
-  return { ...row, parsedDate: parsed, venue: venue.trim(), time: timeParts.join(',').trim() };
-});
-const upcomingStops = scheduleWithDates
-  .filter((row) => !Number.isNaN(row.parsedDate.getTime()) && row.parsedDate >= now)
-  .sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime());
-const pastStops = scheduleWithDates
-  .filter((row) => !Number.isNaN(row.parsedDate.getTime()) && row.parsedDate < now)
-  .sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime());
-const nextStop = upcomingStops[0] ?? pastStops[0];
-
-const nextEvent = nextStop
+// "Next event" widget: spotlight the soonest upcoming event from event flyers if present,
+// falling back to home.next_event.
+const nextEvent = latestEvent
   ? {
-      kicker: home.next_event.kicker,
-      date: nextStop.parsedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      title: nextStop.venue,
-      time: nextStop.time,
+      kicker: 'Latest event',
+      date: new Date(latestEvent.event_date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      title: latestEvent.title,
+      time: latestEvent.description || '',
       buttons: home.next_event.buttons,
     }
   : home.next_event;
@@ -189,53 +173,26 @@ const indexLabels: Record<string, string> = {
 
     <!-- 2. Events band -->
     <div id="Events" class="wp-block-group alignwide home-editable-section home-editable-events-band is-layout-constrained">
-      <section class="hs-feature-widget home-editable-events-artwork" aria-labelledby="hs-events-feature-title">
-          <div class="hs-wrap">
-            <div class="hs-copy">
-              <p class="hs-kicker">{latestEvent ? 'Upcoming Event' : 'Latest Event'}</p>
-              <p class="hs-deadline">{latestEvent ? formatDate(latestEvent.event_date, home.events_feature.deadline) : home.events_feature.deadline}</p>
-              <h2 id="hs-events-feature-title">{latestEvent ? latestEvent.title : home.events_feature.title}</h2>
-              <p class="hs-body">{latestEvent ? latestEvent.description : home.events_feature.body[0]}</p>
-              
-              {!latestEvent && home.events_feature.body.slice(1).map((p) => <p class="hs-body">{p}</p>)}
-              {!latestEvent && <p class="hs-note">{home.events_feature.note}</p>}
-              
-              {!latestEvent && (
-                <div class="monroe-vote-ways" role="note">
-                  <p class="monroe-vote-ways__title">{home.events_feature.ways_title}</p>
-                  <div class="monroe-vote-ways__grid">
-                    {home.events_feature.ways.map((w) => (
-                      <div class="monroe-vote-ways__item">
-                        <span class="monroe-vote-ways__icon" aria-hidden="true">{w.icon}</span>
-                        <p><strong>{w.text.split(':')[0]}:</strong>{w.text.slice(w.text.indexOf(':') + 1)}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div class="hs-actions">
-                <a class="hs-btn hs-btn--vote" href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.cta.href} target={latestEvent && latestEvent.link_url?.startsWith('http') ? '_blank' : undefined} rel={latestEvent && latestEvent.link_url?.startsWith('http') ? 'noopener noreferrer' : undefined}>{latestEvent ? 'Learn More' : home.events_feature.cta.label}</a>
-              </div>
-            </div>
-            <a class="hs-voting-flyer" href={latestEvent ? (latestEvent.link_url || '/events') : home.events_feature.flyer_image}>
-              {latestEvent && !latestEvent.image ? (
-                <div class="hs-voting-flyer__placeholder" aria-hidden="true">🐾</div>
-              ) : (
-                <img src={latestEvent ? latestEvent.image : home.events_feature.flyer_image} alt={latestEvent ? latestEvent.title : home.events_feature.flyer_alt} loading="lazy" decoding="async" />
-              )}
-            </a>
-            {!latestEvent && (
-              <div class="hs-voting-schedule" aria-label="Event schedule">
-                <h3>{home.events_feature.schedule_title}</h3>
-                <ul>
-                  {home.events_feature.schedule.map((row) => (
-                    <li><strong>{row.date}</strong><span>{row.location}</span></li>
-                  ))}
-                </ul>
-              </div>
-            )}
+      <section class="hs-feature-widget home-editable-events-winner" data-home-nav-section="Events" aria-labelledby="hs-shirt-artwork-contest-title">
+        <div class="hs-wrap">
+          <div class="hs-copy">
+            <p class="hs-kicker">{home.events_feature.kicker}</p>
+            <h2 id="hs-shirt-artwork-contest-title">{home.events_feature.title}</h2>
+            {home.events_feature.body.map((p) => {
+              if (p.includes('[Winner name coming soon]')) {
+                const parts = p.split('[Winner name coming soon]');
+                return (
+                  <p class="hs-body">
+                    {parts[0]}<strong>[Winner name coming soon]</strong>{parts[1]}
+                  </p>
+                );
+              }
+              return <p class="hs-body">{p}</p>;
+            })}
+            <p class="hs-note">{home.events_feature.note}</p>
           </div>
-        </section>
+        </div>
+      </section>
 
       <div class="home-editable-upcoming-event-section">
         <div class="home-editable-upcoming-event-hero home-editable-feature-card">

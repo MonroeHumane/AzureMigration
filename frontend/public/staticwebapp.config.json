@@ -27,6 +27,26 @@
       }
     },
     {
+      "route": "/artwork-contest",
+      "redirect": "/events",
+      "statusCode": 301
+    },
+    {
+      "route": "/artwork-contest/*",
+      "redirect": "/events",
+      "statusCode": 301
+    },
+    {
+      "route": "/vote-confirmed",
+      "redirect": "/events",
+      "statusCode": 301
+    },
+    {
+      "route": "/vote-confirmed/*",
+      "redirect": "/events",
+      "statusCode": 301
+    },
+    {
       "route": "/SpecialSponsors",
       "redirect": "/specialsponsors",
       "statusCode": 301

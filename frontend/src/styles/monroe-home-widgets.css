@@ -1,4 +1,4 @@
-﻿/*
+/*
  Homepage embed widgets â€” Astro port of the theme's home-embed-widgets.css:
  hs-feature-widget (events band + Hero Fence), sponsor widgets (vet partners,
  auction five), the 2025-in-Review newsletter card + lightbox, the featured
@@ -32,6 +32,20 @@
 .hs-feature-widget.home-editable-events-artwork {
       overflow: visible;
       padding-bottom: clamp(3.25rem, 7vw, 5rem);
+    }
+
+.hs-feature-widget.home-editable-events-winner .hs-wrap {
+      grid-template-columns: 1fr;
+      max-width: 760px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+.hs-feature-widget.home-editable-events-winner .hs-kicker,
+.hs-feature-widget.home-editable-events-winner .hs-body {
+      justify-content: center;
+      margin-left: auto;
+      margin-right: auto;
     }
 
 .hs-feature-widget::before {
