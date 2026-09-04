@@ -77,6 +77,7 @@ const indexLabels: Record<string, string> = {
   sponsorMarqueeWidget: 'Community partners',
   Membership: 'Membership',
   Testimonials: 'Testimonials',
+  SupporterStory: 'Supporter story',
   Donations: 'Donations',
   Social: 'Social',
   Newsletter: 'Newsletter',
@@ -490,6 +491,47 @@ const indexLabels: Record<string, string> = {
           ))}
         </div>
       </div>
+    </div>
+
+    <!-- 11b. Supporter Story -->
+    <div class="wp-block-group alignwide home-editable-section is-layout-constrained" id="SupporterStory">
+      <section class="hs-feature-widget home-editable-carmen-greg-story" aria-labelledby="hs-carmen-greg-story-title">
+        <div class="hs-wrap">
+          <div class="hs-copy">
+            <p class="hs-kicker">{home.supporter_story.kicker}</p>
+            <h2 id="hs-carmen-greg-story-title">{home.supporter_story.title}</h2>
+            <p class="hs-body">{home.supporter_story.body}</p>
+            <blockquote class="hs-story-quote">
+              {home.supporter_story.quote_paragraphs.map((p) => (
+                <p>{p}</p>
+              ))}
+              <cite>{home.supporter_story.quote_author}</cite>
+            </blockquote>
+            <p class="hs-note">{home.supporter_story.note}</p>
+          </div>
+          <div class="home-editable-feature-media--gallery">
+            <figure>
+              <img
+                src={home.supporter_story.gallery.main.src}
+                alt={home.supporter_story.gallery.main.alt}
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>{home.supporter_story.gallery.main.caption}</figcaption>
+            </figure>
+            <div class="home-editable-feature-media__pair">
+              {home.supporter_story.gallery.pair.map((img) => (
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- 12. Donations -->

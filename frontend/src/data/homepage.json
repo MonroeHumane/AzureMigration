@@ -388,6 +388,36 @@
     "flyer_image": "/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt/452546926_883292250498381_6921668243561390358_n-1920w.jpg",
     "flyer_alt": "Humane Society of Monroe County Event Flyer"
   },
+  "supporter_story": {
+    "kicker": "Supporter story",
+    "title": "Carmen & Greg’s Rescue Story",
+    "body": "Carmen and Greg have been long-time supporters of the Humane Society and, over the years, have taken in many rescue animals. At our last Auction event, we auctioned off months where the successful bidder could share a story of their experiences with pets in their lives, instead of calendars. They purchased September, and here is their story.",
+    "quote_paragraphs": [
+      "We went to visit a friend who has a dog rescue, just visiting. One red dog with a crooked face caught my eye; her story was very sad indeed. She had a crooked face, a squinty eye, a broken ear, saggy skin, bald spots, and missing teeth. Her name was Lola.",
+      "We sat on the deck asking about this red dog when another red dog came onto the deck and let us pet her. She was covered in scabs head to toe, no hair, missing teeth, skinny, and depressed. She was the sorriest dog I had ever seen, looking even worse than Lola. She was called Lila. After about ten minutes, the crooked-faced dog came onto the deck and let us pet her too. My friend said neither dog had ever approached anyone before, not even him. He was astonished.",
+      "I told him we would take the crooked-faced dog, and he said, “You have to take the other one.” I said, “What other one?!” and he pointed to the sorriest dog I had ever seen. A few choice words were uttered, then I looked at Greg and said, “I guess we’ve been chosen. It’s going to be a lot of work getting them well.” No one was going to adopt these two sad dogs. They came from the same abusive, neglected situation and were bonded, clinging to each other for comfort.",
+      "Lila, now Birdie, and Lola came home the next day. Both needed three medicated baths a week for a month. They were also given rest, nutrition, and lots of love. Lola hid behind the furniture for many months."
+    ],
+    "quote_author": "Carmen",
+    "note": "Two years later, they are now two beautiful red dogs with fluffy coats and lots of personality. They are numbers 14 and 15 of all of Carmen and Greg’s past rescue-adopted dogs.",
+    "gallery": {
+      "main": {
+        "src": "/assets/stories/carmen-greg-dogs-together.jpg",
+        "alt": "Lola and Birdie resting together, two years after their rescue.",
+        "caption": "Lola & Birdie, two years later"
+      },
+      "pair": [
+        {
+          "src": "/assets/stories/carmen-greg-dog-1.jpg",
+          "alt": "One of Carmen and Greg's rescued red dogs, now happy and healthy."
+        },
+        {
+          "src": "/assets/stories/carmen-greg-dog-2.jpg",
+          "alt": "One of Carmen and Greg's rescued red dogs, now happy and healthy."
+        }
+      ]
+    }
+  },
   "page_index": [
     "Top",
     "Events",
@@ -399,8 +429,9 @@
     "sponsorMarqueeWidget",
     "Membership",
     "Testimonials",
-      "Donations",
-      "Social",
+    "SupporterStory",
+    "Donations",
+    "Social",
     "Newsletter",
     "FAQ",
     "Accomplishments",
