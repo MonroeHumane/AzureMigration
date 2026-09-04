@@ -4,34 +4,25 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
 ---
 
 <BaseLayout title="Staff Portal: Grants Tracker">
+  <script is:inline>
+    (function() {
+      try {
+        var hasAuth = !!(
+          sessionStorage.getItem('directus_auth') ||
+          localStorage.getItem('directus_auth') ||
+          sessionStorage.getItem('mchs_staff_auth') ||
+          localStorage.getItem('mchs_staff_auth')
+        );
+        if (!hasAuth) {
+          window.location.replace('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+        }
+      } catch (e) {}
+    })();
+  </script>
   <StaffPortalNav activeTab="grants" />
   <div class="grants-portal">
-    
-    <!-- Login Screen -->
-    <div id="login-view" class="portal-view" style="display: none;">
-      <div class="login-card">
-        <div class="login-header">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="login-icon"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
-          <h1>Staff Portal</h1>
-          <p>Please sign in with your Directus CMS credentials.</p>
-        </div>
-        <form id="login-form" class="login-form">
-          <div class="input-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" placeholder="name@monroe-humane.org" required />
-          </div>
-          <div class="input-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="••••••••" required />
-          </div>
-          <button type="submit" class="btn-primary">Secure Sign In</button>
-          <div id="login-error" class="login-error" style="display: none;">Invalid credentials. Please try again.</div>
-        </form>
-      </div>
-    </div>
-
     <!-- Dashboard Screen -->
-    <div id="dashboard-view" class="portal-view" style="display: none;">
+    <div id="dashboard-view" class="portal-view">
       <header class="dashboard-header">
         <div class="header-titles">
           <h1>Grants Tracker</h1>
@@ -138,61 +129,7 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
   h1, h2, h3 { margin: 0; color: #0f172a; }
   p { margin: 0; color: #64748b; }
 
-  /* Login Card */
-  .login-card {
-    max-width: 400px;
-    margin: 4rem auto;
-    background: white;
-    border-radius: 12px;
-    padding: 2.5rem;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-    border: 1px solid #e2e8f0;
-  }
-  
-  .login-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  
-  .login-icon {
-    color: #3b82f6;
-    margin-bottom: 1rem;
-  }
-  
-  .login-header h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-  .login-header p { font-size: 0.875rem; }
 
-  .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
-  .input-group label { font-size: 0.875rem; font-weight: 600; color: #334155; }
-  .input-group input, .input-group select, .input-group textarea {
-    padding: 0.75rem 1rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-family: inherit;
-    transition: all 0.2s;
-  }
-  .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  .login-error {
-    background: #fef2f2;
-    color: #ef4444;
-    padding: 0.75rem;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    text-align: center;
-    border: 1px solid #fecaca;
-  }
 
   /* Buttons */
   button {
@@ -378,12 +315,22 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
   
   const client = createDirectus(DIRECTUS_URL).with(rest()).with(authentication('json', {
     storage: {
-      get() { return JSON.parse(sessionStorage.getItem('directus_auth') || 'null'); },
-      set(data) { sessionStorage.setItem('directus_auth', JSON.stringify(data)); }
+      get() {
+        return JSON.parse(sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth') || 'null');
+      },
+      set(data) {
+        if (data) {
+          const str = JSON.stringify(data);
+          sessionStorage.setItem('directus_auth', str);
+          localStorage.setItem('directus_auth', str);
+        } else {
+          sessionStorage.removeItem('directus_auth');
+          localStorage.removeItem('directus_auth');
+        }
+      }
     }
   }));
 
-  const loginView = document.getElementById('login-view') as HTMLElement;
   const dashboardView = document.getElementById('dashboard-view') as HTMLElement;
   const grantsContainer = document.getElementById('grants-container') as HTMLElement;
   
@@ -394,52 +341,35 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
   const btnCancelModal = document.getElementById('cancel-modal-btn') as HTMLButtonElement;
   const formAddGrant = document.getElementById('add-grant-form') as HTMLFormElement;
 
+  function redirectToLogin() {
+    sessionStorage.removeItem('directus_auth');
+    sessionStorage.removeItem('mchs_staff_auth');
+    sessionStorage.removeItem('mchs_staff_user');
+    localStorage.removeItem('directus_auth');
+    localStorage.removeItem('mchs_staff_auth');
+    localStorage.removeItem('mchs_staff_user');
+    window.location.replace('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+  }
+
   async function checkAuth() {
     try {
       const authData = await client.getToken();
       if (authData) {
-        showDashboard();
+        if (dashboardView) dashboardView.style.display = 'block';
+        loadGrants();
       } else {
-        showLogin();
+        redirectToLogin();
       }
     } catch (e) {
-      showLogin();
+      redirectToLogin();
     }
   }
-
-  function showLogin() {
-    if (loginView) loginView.style.display = 'block';
-    if (dashboardView) dashboardView.style.display = 'none';
-  }
-
-  function showDashboard() {
-    if (loginView) loginView.style.display = 'none';
-    if (dashboardView) dashboardView.style.display = 'block';
-    loadGrants();
-  }
-
-  document.getElementById('login-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const emailInput = document.getElementById('email') as HTMLInputElement;
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
-    const loginError = document.getElementById('login-error') as HTMLElement;
-    
-    try {
-      await client.login({ 
-        email: emailInput.value, 
-        password: passwordInput.value 
-      });
-      if (loginError) loginError.style.display = 'none';
-      showDashboard();
-    } catch (error) {
-      if (loginError) loginError.style.display = 'block';
-    }
-  });
 
   document.getElementById('logout-btn')?.addEventListener('click', async () => {
-    await client.logout();
-    sessionStorage.removeItem('directus_auth');
-    showLogin();
+    try {
+      await client.logout();
+    } catch (e) {}
+    redirectToLogin();
   });
 
   async function loadGrants() {
@@ -501,9 +431,8 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
       const errorCode = error?.errors?.[0]?.extensions?.code;
       
       if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
-        // Token expired or invalid, force re-login
-        sessionStorage.removeItem('directus_auth');
-        showLogin();
+        // Token expired or invalid, redirect to staff login
+        redirectToLogin();
         return;
       }
       
@@ -568,8 +497,7 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
       const errorCode = error?.errors?.[0]?.extensions?.code;
       if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
         alert("Your session has expired. Please log in again.");
-        sessionStorage.removeItem('directus_auth');
-        showLogin();
+        redirectToLogin();
       } else {
         alert("Failed to create grant. Ensure the schema is deployed and you have permission.");
       }

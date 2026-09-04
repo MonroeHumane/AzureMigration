@@ -39,6 +39,21 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HSMC Board Financial Packet - 2026 YTD Print</title>
+  <script is:inline>
+    (function() {
+      try {
+        var hasAuth = !!(
+          sessionStorage.getItem('directus_auth') ||
+          localStorage.getItem('directus_auth') ||
+          sessionStorage.getItem('mchs_staff_auth') ||
+          localStorage.getItem('mchs_staff_auth')
+        );
+        if (!hasAuth) {
+          window.location.replace('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style>
     @page {
       size: letter portrait;
