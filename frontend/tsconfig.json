@@ -6,5 +6,5 @@
       "@/*": ["src/*"]
     }
   },
-  "exclude": ["public/**/*"]
+  "exclude": ["public/**/*", "dist/**/*"]
 }

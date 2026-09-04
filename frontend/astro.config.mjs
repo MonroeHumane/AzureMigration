@@ -6,7 +6,12 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://monroe-humane.org',
   output: 'static',
-  integrations: [sitemap(), partytown()],
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes('/internal/'),
+    }),
+    partytown(),
+  ],
 
   vite: {
     plugins: [tailwindcss()],

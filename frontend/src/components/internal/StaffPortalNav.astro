@@ -1,0 +1,137 @@
+---
+interface Props {
+  activeTab?: 'petsync' | 'financials' | 'grants' | 'overview';
+}
+
+const { activeTab = 'overview' } = Astro.props;
+
+const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/admin';
+---
+
+<header class="bg-[#173a39] text-white border-b border-teal-800 shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-lg bg-teal-800/80 text-emerald-300 border border-teal-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold text-white tracking-tight">
+              Humane Society of Monroe County
+            </h1>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Staff Portal
+            </span>
+          </div>
+          <p class="text-xs text-teal-200/80">
+            Unified Internal Operations: PetSync Shelter Roster · Board Financials & Treasury · Grants Pipeline
+          </p>
+        </div>
+      </div>
+
+      <!-- System Status Pills & Actions -->
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-900/80 border border-teal-700 text-teal-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Directus CMS: <strong class="text-white font-medium">Online</strong></span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-900/80 border border-teal-700 text-teal-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>PetSync Job: <strong class="text-white font-medium">Every 30m</strong></span>
+        </div>
+        <a
+          href="/"
+          class="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-teal-800 hover:bg-teal-700 text-white transition border border-teal-600 shadow-xs"
+        >
+          &larr; Public Site
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-teal-800/80" aria-label="Staff Portal Modules">
+      <a
+        href="/internal?tab=overview"
+        data-nav-tab="overview"
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+          activeTab === 'overview'
+            ? 'bg-emerald-600 text-white shadow-xs'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+          <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+          <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+          <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+        </svg>
+        Overview
+      </a>
+
+      <a
+        href="/internal?tab=petsync"
+        data-nav-tab="petsync"
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+          activeTab === 'petsync'
+            ? 'bg-emerald-600 text-white shadow-xs'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="m10 15 5-3-5-3v6Z"></path>
+        </svg>
+        🐾 PetSync Operations (Current & Past)
+      </a>
+
+      <a
+        href="/internal?tab=financials"
+        data-nav-tab="financials"
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+          activeTab === 'financials'
+            ? 'bg-emerald-600 text-white shadow-xs'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        📊 Board Financials & Treasury
+      </a>
+
+      <a
+        href="/internal?tab=grants"
+        data-nav-tab="grants"
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+          activeTab === 'grants'
+            ? 'bg-emerald-600 text-white shadow-xs'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        📋 Grants Pipeline
+      </a>
+
+      <a
+        href={directusAdminUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800 transition ml-auto"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Directus CMS Console ↗
+      </a>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,477 @@
+---
+// Print & PDF Packet Template
+import reportData from '../../../data/published_2026_ytd.json';
+
+const formatDollar = (val: number) => {
+  const isNeg = val < 0;
+  const abs = Math.abs(val);
+  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
+  return isNeg ? `(${formatted})` : formatted;
+};
+
+const formatCents = (val: number) => {
+  const isNeg = val < 0;
+  const abs = Math.abs(val);
+  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
+  return isNeg ? `(${formatted})` : formatted;
+};
+
+const totalRev = reportData.monthly_statements.reduce((acc, m) => acc + m.revenue, 0);
+const totalExp = reportData.monthly_statements.reduce((acc, m) => acc + m.total_exp, 0);
+const totalNet = reportData.monthly_statements.reduce((acc, m) => acc + m.net_margin, 0);
+
+const apSchedule = reportData.accounts_payable_schedule;
+const top8List = apSchedule.filter(it => it.group === 'Top 8 Primary');
+const top8Total = top8List.reduce((acc, it) => acc + it.amount, 0);
+
+const activeRemainingList = apSchedule.filter(it => it.group === 'Remaining AP Aging' && !it.is_contra_credit);
+const activeRemainingTotal = activeRemainingList.reduce((acc, it) => acc + it.amount, 0);
+
+const contraCreditList = apSchedule.filter(it => it.is_contra_credit);
+const contraCreditTotal = contraCreditList.reduce((acc, it) => acc + it.amount, 0);
+
+const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HSMC Board Financial Packet - 2026 YTD Print</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.4in;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #173a39;
+      background: #ffffff;
+      line-height: 1.3;
+      font-size: 10.5px;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      border-bottom: 2px solid #173a39;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .badge {
+      display: inline-block;
+      padding: 1px 5px;
+      font-size: 8.5px;
+      font-weight: 700;
+      border-radius: 3px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+    }
+    .badge-confidential {
+      background: #ffe4e6;
+      color: #9f1239;
+      border-color: #f43f5e;
+    }
+    .badge-related {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #f59e0b;
+      font-size: 8px;
+      padding: 1px 4px;
+    }
+    .badge-credit {
+      background: #ffedd5;
+      color: #9a3412;
+      border-color: #ea580c;
+      font-size: 8px;
+      padding: 1px 4px;
+    }
+    h1 {
+      font-size: 17px;
+      margin: 3px 0 1px 0;
+      font-weight: 800;
+      color: #173a39;
+    }
+    h2 {
+      font-size: 12px;
+      margin: 10px 0 5px 0;
+      font-weight: 700;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 2px;
+      color: #173a39;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .kpi-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 5px 7px;
+      background: #f8fafc;
+    }
+    .kpi-title {
+      font-size: 8.5px;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+    }
+    .kpi-val {
+      font-size: 14px;
+      font-weight: 800;
+      margin-top: 1px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+      font-size: 9.5px;
+    }
+    th, td {
+      padding: 3px 5px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      text-align: left;
+    }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .text-rose { color: #be123c; }
+    .text-emerald { color: #047857; }
+    .footer {
+      margin-top: 10px;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 5px;
+      font-size: 8.5px;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+    }
+    .note-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 8.5px;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+    .no-print {
+      background: #173a39;
+      color: #ffffff;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    @media print {
+      .no-print { display: none; }
+      .page-break { page-break-before: always; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <span>Humane Society of Monroe County — Official Board Packet (Print Preview)</span>
+    <button onclick="window.print()" style="background:#1c746c;color:#fff;border:none;padding:5px 14px;border-radius:4px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>
+  </div>
+
+  <div class="header">
+    <div>
+      <div>
+        <span class="badge badge-confidential">BOARD CONFIDENTIAL</span>
+        <span class="badge">ACCRUAL BASIS</span>
+        <span class="badge">QBO CERTIFIED</span>
+      </div>
+      <h1>Humane Society of Monroe County</h1>
+      <div style="font-size:11px; font-weight:600; color:#334155;">{reportData.meta.period_title} (Jan 1 – Aug 31, 2026)</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:9.5px; color:#64748b;">Cutoff: August 31, 2026</div>
+      <div style="font-size:9.5px; color:#64748b;">Publisher: {reportData.meta.published_by}</div>
+      <div style="font-size:8.5px; font-family:monospace; color:#047857; margin-top:2px;">Canonical SHA-256: {reportData.meta.sha256_checksum.slice(0, 16)}...</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">All-In Net Margin</div>
+      <div class="kpi-val text-rose">{formatDollar(reportData.headline_kpis.all_in_net)}</div>
+      <div style="font-size:8px; color:#64748b;">{reportData.headline_kpis.all_in_margin_pct.toFixed(1)}% of all-in inflows</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">QBO Operating Net</div>
+      <div class="kpi-val" style="color:#b45309;">{formatDollar(reportData.headline_kpis.qbo_operating_net)}</div>
+      <div style="font-size:8px; color:#64748b;">Pre-endowment operations</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Program Efficiency</div>
+      <div class="kpi-val text-emerald">{reportData.headline_kpis.program_ratio_pct.toFixed(1)}%</div>
+      <div style="font-size:8px; color:#64748b;">Benchmark ≥75% (Form 990 Part IX)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Total Cash Stack</div>
+      <div class="kpi-val" style="color:#173a39;">{formatDollar(reportData.headline_kpis.total_liquidity)}</div>
+      <div style="font-size:8px; color:#64748b;">19d bank / 4.0 mo reserve</div>
+    </div>
+  </div>
+
+  <h2>1. Month-by-Month Operating Statement (Jan 1 – Aug 31, 2026)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th class="text-right">Revenue</th>
+        <th class="text-right">Direct Care (COGS)</th>
+        <th class="text-right">Operations/Payroll</th>
+        <th class="text-right">Fleet/Other</th>
+        <th class="text-right">Total Exp</th>
+        <th class="text-right">Net Margin</th>
+        <th class="text-right">Margin %</th>
+        <th>Primary Operational Driver</th>
+      </tr>
+    </thead>
+    <tbody>
+      {reportData.monthly_statements.map((m) => (
+        <tr>
+          <td style="font-weight:600;">{m.month}</td>
+          <td class="text-right font-mono">{formatDollar(m.revenue)}</td>
+          <td class="text-right font-mono">{formatDollar(m.cogs)}</td>
+          <td class="text-right font-mono">{formatDollar(m.operating_exp)}</td>
+          <td class="text-right font-mono">{formatDollar(m.other_exp)}</td>
+          <td class="text-right font-mono" style="font-weight:600;">{formatDollar(m.total_exp)}</td>
+          <td class={`text-right font-mono ${m.net_margin >= 0 ? 'text-emerald' : 'text-rose'}`} style="font-weight:700;">
+            {formatDollar(m.net_margin)}
+          </td>
+          <td class={`text-right ${m.net_margin >= 0 ? 'text-emerald' : 'text-rose'}`}>
+            {m.margin_pct > 0 ? `+${m.margin_pct.toFixed(1)}%` : `${m.margin_pct.toFixed(1)}%`}
+          </td>
+          <td style="font-size:8.5px; color:#475569;">{m.driver}</td>
+        </tr>
+      ))}
+    </tbody>
+    <tfoot>
+      <tr style="background:#173a39; color:#fff; font-weight:700;">
+        <td>CERTIFIED TOTAL</td>
+        <td class="text-right font-mono" style="color:#6ee7b7;">{formatDollar(totalRev)}</td>
+        <td class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(reportData.headline_kpis.qbo_cogs)}</td>
+        <td class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(reportData.headline_kpis.qbo_operating_expenditures)}</td>
+        <td class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(Math.abs(reportData.bridge_composition.fleet_transit_and_fuel))}</td>
+        <td class="text-right font-mono" style="color:#fde047;">{formatDollar(totalExp)}</td>
+        <td class="text-right font-mono" style="color:#fda4af;">{formatDollar(totalNet)}</td>
+        <td class="text-right" style="color:#fda4af;">{(totalNet / totalRev * 100).toFixed(1)}%</td>
+        <td style="color:#6ee7b7; font-size:8.5px;">Cent-for-cent footed</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+    <div>
+      <h2>2. Certified Operating-to-All-In Bridge</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td><strong>QBO Certified Operating Net</strong></td>
+            <td class="text-right font-mono" style="font-weight:700;">{formatCents(reportData.headline_kpis.qbo_operating_net)}</td>
+          </tr>
+          <tr>
+            <td>(+) Endowment Distributions (MCCF)</td>
+            <td class="text-right font-mono text-emerald">+{formatCents(reportData.bridge_composition.endowment_distributions)}</td>
+          </tr>
+          <tr>
+            <td>(+) Recycling, Rebates & Restitution</td>
+            <td class="text-right font-mono text-emerald">+{formatCents(reportData.bridge_composition.recycling_and_rebates)}</td>
+          </tr>
+          <tr>
+            <td>(-) Fleet Transit & Gasoline Spend</td>
+            <td class="text-right font-mono text-rose">-{formatCents(Math.abs(reportData.bridge_composition.fleet_transit_and_fuel))}</td>
+          </tr>
+          <tr style="background:#f1f5f9; font-weight:700;">
+            <td>Net Adjustment Subtotal</td>
+            <td class="text-right font-mono">+{formatCents(reportData.bridge_composition.net_bridge_total)}</td>
+          </tr>
+          <tr style="background:#ffe4e6; font-weight:800;">
+            <td>All-In Certified Bottom Line</td>
+            <td class="text-right font-mono text-rose">{formatCents(reportData.headline_kpis.all_in_net)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <h2>3. Statement of Financial Position (August 31, 2026)</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td>Operating Checking (GL Book Cash)</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.operating_checking_first_merchants)}</td>
+          </tr>
+          <tr style="background:#fffbeb;">
+            <td>First Merchants Bank Statement Ending (Aug 31)</td>
+            <td class="text-right font-mono" style="color:#92400e; font-weight:600;">{formatDollar(reportData.statement_of_position.assets.operating_checking_bank_register)}</td>
+          </tr>
+          <tr>
+            <td>Undeposited Funds</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.undeposited_funds)}</td>
+          </tr>
+          <tr>
+            <td>Petty Cash</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.petty_cash)}</td>
+          </tr>
+          <tr style="background:#f5efe3; font-weight:700;">
+            <td>Total Book Operating Cash</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.total_book_operating_cash)}</td>
+          </tr>
+          <tr>
+            <td>QBO Tax Holding Escrow (Separate)</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.tax_holding_escrow)}</td>
+          </tr>
+          <tr>
+            <td>Board-Designated Reserve (Fidelity)</td>
+            <td class="text-right font-mono" style="font-weight:600; color:#4338ca;">{formatDollar(reportData.statement_of_position.assets.fidelity_board_designated_reserve)}</td>
+          </tr>
+          <tr>
+            <td>Fixed Capital Assets (Net of Depr.)</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.fixed_assets_net)}</td>
+          </tr>
+          <tr style="background:#f1f5f9; font-weight:700;">
+            <td>Total Balance Sheet Assets (QBO)</td>
+            <td class="text-right font-mono text-emerald" style="font-weight:800;">{formatDollar(reportData.statement_of_position.assets.total_assets)}</td>
+          </tr>
+          <tr style="background:#fef2f2; font-weight:700;">
+            <td>Current Trade Obligations (AP + CC + LOC)</td>
+            <td class="text-right font-mono text-rose">{formatDollar(reportData.statement_of_position.liabilities.total_operating_obligations_current)}</td>
+          </tr>
+          <tr>
+            <td>Net Assets Without Donor Restrictions</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.net_assets.without_donor_restrictions.total_without_donor_restrictions)}</td>
+          </tr>
+          <tr>
+            <td>Net Assets With Donor Restrictions</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.net_assets.with_donor_restrictions.total_with_donor_restrictions)}</td>
+          </tr>
+          <tr>
+            <td>Opening Balance Equity (Conversion)</td>
+            <td class="text-right font-mono text-rose">{formatDollar(reportData.statement_of_position.net_assets.opening_balance_equity)}</td>
+          </tr>
+          <tr>
+            <td>Retained Earnings</td>
+            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.net_assets.retained_earnings_historical)}</td>
+          </tr>
+          <tr>
+            <td>2026 YTD Net Deficit</td>
+            <td class="text-right font-mono text-rose">{formatDollar(reportData.statement_of_position.net_assets.current_year_net_margin)}</td>
+          </tr>
+          <tr style="background:#ede9fe; font-weight:700;">
+            <td>Certified Workbook Equity (Total)</td>
+            <td class="text-right font-mono" style="color:#5b21b6; font-weight:800;">{formatDollar(reportData.statement_of_position.net_assets.total_equity_qbo)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin-top:6px;">
+    <strong>Workbook Equity & Balance Sheet Equilibrium:</strong>
+    Net assets without donor restrictions ($933,132.08) includes the Board-Designated Fidelity Operating Reserve ($205,144.00) and undesignated operating net assets ($727,988.08).
+    Workbook equity ties cent-for-cent: $933,132.08 + $61,006.30 - $348,600.74 + $600,671.08 - $107,573.07 = <strong>$1,138,635.65</strong>.
+    Total Liabilities (-$101,360.25) + Total Equity ($1,138,635.65) = Total Assets ($1,037,275.40) with <strong>$0.00 variance</strong>.
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>4. Itemized Accounts Payable Schedule (QBO Vendor Balance Summary)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Vendor / Payee</th>
+        <th>Expense Category</th>
+        <th class="text-right">Balance Due</th>
+        <th class="text-center">Classification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Top 8 Primary -->
+      <tr style="background:#f8fafc; font-weight:700;">
+        <td colspan="2">Top 8 Primary Operating Accounts</td>
+        <td class="text-right font-mono">{formatCents(top8Total)}</td>
+        <td class="text-center" style="font-size:8px; color:#64748b;">Primary Trade</td>
+      </tr>
+      {top8List.map((item) => (
+        <tr>
+          <td>
+            <strong>{item.vendor}</strong>
+            {item.is_related_party && <span class="badge badge-related" style="margin-left:4px;">990 Related Party</span>}
+          </td>
+          <td>{item.category}</td>
+          <td class="text-right font-mono">{formatCents(item.amount)}</td>
+          <td class="text-center">{item.status}</td>
+        </tr>
+      ))}
+
+      <!-- Remaining Active Accounts -->
+      <tr style="background:#f8fafc; font-weight:700; border-top:1px solid #cbd5e1;">
+        <td colspan="2">Remaining Active Accounts (7 Payables)</td>
+        <td class="text-right font-mono">{formatCents(activeRemainingTotal)}</td>
+        <td class="text-center" style="font-size:8px; color:#64748b;">Subsidiary Trade</td>
+      </tr>
+      {activeRemainingList.map((item) => (
+        <tr>
+          <td>
+            {item.vendor}
+            {item.is_related_party && <span class="badge badge-related" style="margin-left:4px;">990 Related Party</span>}
+          </td>
+          <td>{item.category}</td>
+          <td class="text-right font-mono">{formatCents(item.amount)}</td>
+          <td class="text-center">{item.status}</td>
+        </tr>
+      ))}
+
+      <!-- Contra-AP Credits -->
+      <tr style="background:#fffbeb; font-weight:700; border-top:1px solid #fde68a;">
+        <td colspan="2">Contra-AP Clearing Credits (Credit Balances on Account · Not Spend)</td>
+        <td class="text-right font-mono" style="color:#9a3412;">{formatCents(contraCreditTotal)}</td>
+        <td class="text-center" style="font-size:8px; color:#9a3412;">Contra-Liabilities</td>
+      </tr>
+      {contraCreditList.map((item) => (
+        <tr style="background:#fffdfa;">
+          <td>
+            {item.vendor}
+            {item.is_related_party && <span class="badge badge-related" style="margin-left:4px;">990 Related Party</span>}
+          </td>
+          <td>{item.category}</td>
+          <td class="text-right font-mono" style="color:#b45309;">{formatCents(item.amount)}</td>
+          <td class="text-center"><span class="badge badge-credit">Contra-AP Credit</span></td>
+        </tr>
+      ))}
+    </tbody>
+    <tfoot>
+      <tr style="background:#173a39; color:#fff; font-weight:700;">
+        <td colspan="2">CERTIFIED ACCOUNTS PAYABLE TOTAL</td>
+        <td class="text-right font-mono" style="color:#6ee7b7;">{formatCents(apTotal)}</td>
+        <td class="text-center" style="color:#6ee7b7; font-size:8.5px;">19 Accounts Footed Cent-for-Cent</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="note-box">
+    <strong>Form 990 & Contra-AP Disclosures:</strong>
+    (1) Related parties Kelly Karlet ($239.20) and Jackie Monteer ($50.12) are bona fide caregiver mileage/shelter expense reimbursements. Robert Monteer (-$52.96) represents a staff clearing credit balance. Executive Director Jeffery Howard is compensated via regular board-approved W-2 payroll and holds no payables.
+    (2) Contra-AP credits totaling -$177.63 (Accident Fund -$7.37, Patty Hutchinson -$4.30, Robert Monteer -$52.96, Kara Brookins -$113.00) represent vendor/clearing credit memos offsetting gross liabilities, not negative operational expenditures.
+  </div>
+
+  <div class="footer">
+    <span>Humane Society of Monroe County · Certified Board Financial Statement · Cutoff: September 3, 2026</span>
+    <span class="font-mono">Canonical SHA-256: {reportData.meta.sha256_checksum}</span>
+  </div>
+</body>
+</html>

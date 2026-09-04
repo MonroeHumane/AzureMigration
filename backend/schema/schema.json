@@ -131,6 +131,34 @@
       "schema": {
         "name": "grants"
       }
+    },
+    {
+      "collection": "board_meetings",
+      "meta": {
+        "collection": "board_meetings",
+        "icon": "event_available",
+        "note": "Official board meeting schedules, agendas, and packet links",
+        "display_template": "{{title}} ({{date}})",
+        "hidden": false,
+        "singleton": false
+      },
+      "schema": {
+        "name": "board_meetings"
+      }
+    },
+    {
+      "collection": "board_documents",
+      "meta": {
+        "collection": "board_documents",
+        "icon": "description",
+        "note": "Executive Director reports, financial audit memos, and governance policies",
+        "display_template": "{{title}} ({{category}})",
+        "hidden": false,
+        "singleton": false
+      },
+      "schema": {
+        "name": "board_documents"
+      }
     }
   ],
   "fields": [
@@ -1013,6 +1041,189 @@
       "type": "string",
       "meta": {
         "interface": "input"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_meetings",
+      "field": "id",
+      "type": "string",
+      "meta": {
+        "primary_key": true,
+        "required": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "is_nullable": false
+      }
+    },
+    {
+      "collection": "board_meetings",
+      "field": "title",
+      "type": "string",
+      "meta": {
+        "interface": "input",
+        "required": true
+      },
+      "schema": {
+        "is_nullable": false
+      }
+    },
+    {
+      "collection": "board_meetings",
+      "field": "date",
+      "type": "dateTime",
+      "meta": {
+        "interface": "datetime",
+        "required": true
+      },
+      "schema": {
+        "is_nullable": false
+      }
+    },
+    {
+      "collection": "board_meetings",
+      "field": "location",
+      "type": "string",
+      "meta": {
+        "interface": "input"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_meetings",
+      "field": "status",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_meetings",
+      "field": "description",
+      "type": "text",
+      "meta": {
+        "interface": "input-multiline"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_meetings",
+      "field": "agenda_items",
+      "type": "json",
+      "meta": {
+        "interface": "list"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_meetings",
+      "field": "packet_url",
+      "type": "string",
+      "meta": {
+        "interface": "input"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_documents",
+      "field": "id",
+      "type": "string",
+      "meta": {
+        "primary_key": true,
+        "required": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "is_nullable": false
+      }
+    },
+    {
+      "collection": "board_documents",
+      "field": "title",
+      "type": "string",
+      "meta": {
+        "interface": "input",
+        "required": true
+      },
+      "schema": {
+        "is_nullable": false
+      }
+    },
+    {
+      "collection": "board_documents",
+      "field": "category",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_documents",
+      "field": "author",
+      "type": "string",
+      "meta": {
+        "interface": "input"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_documents",
+      "field": "date",
+      "type": "date",
+      "meta": {
+        "interface": "datetime"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_documents",
+      "field": "summary",
+      "type": "text",
+      "meta": {
+        "interface": "input-multiline"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_documents",
+      "field": "highlights",
+      "type": "json",
+      "meta": {
+        "interface": "list"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "collection": "board_documents",
+      "field": "status",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown"
       },
       "schema": {
         "is_nullable": true

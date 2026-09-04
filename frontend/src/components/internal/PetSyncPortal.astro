@@ -1,0 +1,534 @@
+---
+import { getStaffPetSyncData, type PetSyncSummary } from '../../lib/directus';
+
+interface Props {
+  syncData?: PetSyncSummary;
+}
+
+const { syncData } = Astro.props;
+const data = syncData || (await getStaffPetSyncData());
+
+const formatDate = (isoStr?: string | null) => {
+  if (!isoStr) return '—';
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return isoStr;
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+const formatDateTime = (isoStr?: string | null) => {
+  if (!isoStr) return '—';
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return isoStr;
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+};
+
+const calculateDaysAtShelter = (intakeStr?: string) => {
+  if (!intakeStr) return null;
+  const d = new Date(intakeStr);
+  if (isNaN(d.getTime())) return null;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+};
+
+const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))].sort();
+---
+
+<div class="space-y-6" id="petsync-portal-root">
+  <!-- Top Operational Status Banner -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="inline-flex p-2 rounded-lg bg-[#173a39] text-amber-300 shadow-xs">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v4"></path>
+              <path d="m4.93 4.93 2.83 2.83"></path>
+              <path d="M2 12h4"></path>
+              <path d="m4.93 19.07 2.83-2.83"></path>
+              <path d="M12 18v4"></path>
+              <path d="m19.07 19.07-2.83-2.83"></path>
+              <path d="M18 12h4"></path>
+              <path d="m19.07 4.93-2.83 2.83"></path>
+            </svg>
+          </span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold text-[#173a39] tracking-tight">
+                PetSync Operations & Animal Inventory
+              </h2>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                Auto Sync: RUNNING
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Native Azure Container Job (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">mchs-petsync-job</code>) · Scrapes Petango every 30 minutes directly into Directus & Blob Storage.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Status Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+        <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Active In Shelter</span>
+          <span class="font-mono font-bold text-emerald-700 text-sm">{data.activeCount} pets</span>
+        </div>
+        <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Archived / Past</span>
+          <span class="font-mono font-bold text-purple-700 text-sm">{data.archivedCount} pets</span>
+        </div>
+        <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Total In Database</span>
+          <span class="font-mono font-bold text-slate-800 text-sm">{data.totalCount} pets</span>
+        </div>
+        <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Last Full Sync</span>
+          <span class="font-mono font-bold text-slate-900 text-[11px] block truncate" title={data.lastSyncTimestamp}>
+            {formatDateTime(data.lastSyncTimestamp)}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Roster Explorer -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4">
+    <!-- Filter Bar & Search -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+      <!-- Status Filter Tabs -->
+      <div class="flex flex-wrap items-center gap-1.5 text-xs">
+        <span class="text-[11px] font-semibold text-slate-500 mr-1">Roster:</span>
+        <button
+          type="button"
+          data-status-filter="active"
+          class="petsync-status-pill active px-3 py-1 rounded-md font-semibold bg-[#173a39] text-white transition shadow-xs"
+        >
+          Active ({data.activeCount})
+        </button>
+        <button
+          type="button"
+          data-status-filter="archived"
+          class="petsync-status-pill px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-purple-800 hover:bg-purple-50 transition"
+        >
+          Archived / Past ({data.archivedCount})
+        </button>
+        <button
+          type="button"
+          data-status-filter="all"
+          class="petsync-status-pill px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition"
+        >
+          All Tracked ({data.totalCount})
+        </button>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="export-csv-btn"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-xs"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Secondary Filters: Species, Location & Search -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+      <!-- Search -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <input
+          type="text"
+          id="petsync-search-input"
+          placeholder="Search name, ID, breed, color..."
+          class="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-[#173a39] focus:border-[#173a39]"
+        />
+      </div>
+
+      <!-- Species -->
+      <div>
+        <select
+          id="petsync-species-filter"
+          class="w-full py-1.5 px-2.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-[#173a39]"
+        >
+          <option value="">All Species</option>
+          <option value="dog">Dogs</option>
+          <option value="cat">Cats</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- Location -->
+      <div>
+        <select
+          id="petsync-location-filter"
+          class="w-full py-1.5 px-2.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-[#173a39]"
+        >
+          <option value="">All Shelter Locations</option>
+          {locations.map((loc) => <option value={loc}>{loc}</option>)}
+        </select>
+      </div>
+
+      <!-- Reset -->
+      <div>
+        <button
+          type="button"
+          id="petsync-reset-btn"
+          class="w-full py-1.5 px-3 text-xs rounded-md border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition"
+        >
+          Reset Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Counter -->
+    <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+      <div>
+        Showing <span id="petsync-filtered-count" class="font-bold text-slate-800">{data.activeCount}</span> of {data.totalCount} total animals
+      </div>
+      <div class="text-[11px] text-slate-400">
+        Click PetPoint link to open PetPoint WebServices record
+      </div>
+    </div>
+
+    <!-- Roster Table -->
+    <div class="border border-slate-200 rounded-lg overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-slate-100/80 text-slate-700 font-semibold border-b border-slate-200">
+            <th class="py-2.5 px-3 w-14">Photo</th>
+            <th class="py-2.5 px-3">Pet ID & PetPoint</th>
+            <th class="py-2.5 px-3">Name & Species</th>
+            <th class="py-2.5 px-3">Breed & Color</th>
+            <th class="py-2.5 px-3">Sex & Age</th>
+            <th class="py-2.5 px-3">Location</th>
+            <th class="py-2.5 px-3">Intake & Days</th>
+            <th class="py-2.5 px-3">Status</th>
+            <th class="py-2.5 px-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="petsync-tbody" class="divide-y divide-slate-100">
+          {data.pets.map((pet) => {
+            const isArchived = !!pet.archived_at;
+            const daysAtShelter = calculateDaysAtShelter(pet.intake_date);
+            const petPointUrl = pet.url || `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${pet.id}&css=&authkey=40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp&PopUp=true`;
+            const publicUrl = `/adopt/${pet.id}`;
+            const photoUrl = pet.image || '/assets/recovered/images/placeholder.svg';
+
+            return (
+              <tr
+                class="hover:bg-slate-50/80 transition petsync-row"
+                data-is-archived={isArchived ? 'true' : 'false'}
+                data-species={pet.type}
+                data-location={pet.location || ''}
+                data-search={`${pet.id} ${pet.name} ${pet.breed} ${pet.color || ''} ${pet.location || ''} ${pet.gender}`.toLowerCase()}
+                data-pet-id={pet.id}
+                data-pet-name={pet.name}
+                data-pet-breed={pet.breed}
+                data-pet-species={pet.species_label || pet.type}
+                data-intake-date={pet.intake_date || ''}
+                data-days-at-shelter={daysAtShelter !== null ? daysAtShelter : ''}
+              >
+                <!-- Thumbnail -->
+                <td class="py-2 px-3">
+                  <div class="w-11 h-11 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 relative group">
+                    <img
+                      src={photoUrl}
+                      alt={pet.name}
+                      loading="lazy"
+                      class="w-full h-full object-cover group-hover:scale-110 transition duration-200"
+                      onerror="this.src='/assets/recovered/images/placeholder.svg'"
+                    />
+                  </div>
+                </td>
+
+                <!-- ID & PetPoint Link -->
+                <td class="py-2 px-3 whitespace-nowrap">
+                  <span class="font-mono font-bold text-slate-900 block">{pet.id}</span>
+                  <a
+                    href={petPointUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-0.5 text-[10px] font-bold text-teal-700 hover:text-teal-900 hover:underline mt-0.5"
+                    title="Open official PetPoint WebServices details popup"
+                  >
+                    Open PetPoint ↗
+                  </a>
+                </td>
+
+                <!-- Name & Species -->
+                <td class="py-2 px-3">
+                  <div class="font-bold text-slate-900 flex items-center gap-1">
+                    <span>{pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+                    <span class="text-sm">{pet.name}</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 block uppercase tracking-wider font-semibold">
+                    {pet.species_label || pet.type}
+                  </span>
+                </td>
+
+                <!-- Breed & Color -->
+                <td class="py-2 px-3">
+                  <span class="text-slate-800 font-medium block truncate max-w-xs" title={pet.breed}>
+                    {pet.breed}
+                  </span>
+                  {pet.color && (
+                    <span class="text-[11px] text-slate-500 block">
+                      Color: {pet.color}
+                    </span>
+                  )}
+                </td>
+
+                <!-- Sex & Age -->
+                <td class="py-2 px-3 whitespace-nowrap">
+                  <span class="font-medium text-slate-800 block">
+                    {pet.gender === 'female' ? '♀ Female' : pet.gender === 'male' ? '♂ Male' : 'Unknown'}
+                  </span>
+                  <span class="text-[11px] text-slate-500 block">
+                    {pet.age_display || pet.age}
+                  </span>
+                </td>
+
+                <!-- Location -->
+                <td class="py-2 px-3 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                    📍 {pet.location || 'Shelter'}
+                  </span>
+                </td>
+
+                <!-- Intake Date & Days -->
+                <td class="py-2 px-3 whitespace-nowrap">
+                  <span class="text-slate-800 font-medium block">
+                    {formatDate(pet.intake_date)}
+                  </span>
+                  {daysAtShelter !== null && (
+                    <span class={`text-[10px] font-semibold ${
+                      daysAtShelter > 180
+                        ? 'text-purple-700'
+                        : daysAtShelter < 14
+                        ? 'text-emerald-700'
+                        : 'text-slate-500'
+                    }`}>
+                      {daysAtShelter} days in care
+                    </span>
+                  )}
+                </td>
+
+                <!-- Status / Stage -->
+                <td class="py-2 px-3 whitespace-nowrap">
+                  {isArchived ? (
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                      Archived / Adopted
+                    </span>
+                  ) : (
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      {pet.stage || 'Available'}
+                    </span>
+                  )}
+                </td>
+
+                <!-- Actions -->
+                <td class="py-2 px-3 text-right whitespace-nowrap">
+                  <a
+                    href={publicUrl}
+                    target="_blank"
+                    class="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                  >
+                    Public Card ↗
+                  </a>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div id="petsync-empty-state" class="hidden text-center py-10 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+      <p class="font-semibold text-slate-700">No animals match your search or filter</p>
+      <p class="text-xs text-slate-400 mt-1">Try resetting the filters or clearing the search query.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initPetSyncPortal() {
+    const root = document.getElementById('petsync-portal-root');
+    if (!root) return;
+
+    const statusPills = root.querySelectorAll<HTMLButtonElement>('.petsync-status-pill');
+    const searchInput = root.querySelector<HTMLInputElement>('#petsync-search-input');
+    const speciesFilter = root.querySelector<HTMLSelectElement>('#petsync-species-filter');
+    const locationFilter = root.querySelector('#petsync-location-filter') as HTMLSelectElement | null;
+    const resetBtn = root.querySelector('#petsync-reset-btn');
+    const exportBtn = root.querySelector('#export-csv-btn');
+    const rows = root.querySelectorAll<HTMLTableRowElement>('.petsync-row');
+    const counterEl = root.querySelector('#petsync-filtered-count');
+    const emptyStateEl = root.querySelector('#petsync-empty-state');
+
+    let activeStatus = 'active'; // 'active' | 'archived' | 'all'
+    let activeSpecies = '';
+    let activeLocation = '';
+    let searchQuery = '';
+
+    const applyFilters = () => {
+      let visibleCount = 0;
+
+      rows.forEach((row) => {
+        const isArchived = row.getAttribute('data-is-archived') === 'true';
+        const species = row.getAttribute('data-species') || '';
+        const location = row.getAttribute('data-location') || '';
+        const searchContent = row.getAttribute('data-search') || '';
+
+        // Status filter
+        let matchesStatus = true;
+        if (activeStatus === 'active') matchesStatus = !isArchived;
+        else if (activeStatus === 'archived') matchesStatus = isArchived;
+
+        // Species filter
+        let matchesSpecies = true;
+        if (activeSpecies) matchesSpecies = species === activeSpecies;
+
+        // Location filter
+        let matchesLocation = true;
+        if (activeLocation) matchesLocation = location === activeLocation;
+
+        // Search query
+        let matchesSearch = true;
+        if (searchQuery.trim()) {
+          matchesSearch = searchContent.includes(searchQuery.toLowerCase().trim());
+        }
+
+        if (matchesStatus && matchesSpecies && matchesLocation && matchesSearch) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (counterEl) counterEl.textContent = visibleCount.toString();
+      if (emptyStateEl) {
+        if (visibleCount === 0) emptyStateEl.classList.remove('hidden');
+        else emptyStateEl.classList.add('hidden');
+      }
+    };
+
+    statusPills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const val = pill.getAttribute('data-status-filter') || 'active';
+        activeStatus = val;
+
+        statusPills.forEach((p) => {
+          p.classList.remove('active', 'bg-[#173a39]', 'text-white');
+          p.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        });
+        pill.classList.add('active', 'bg-[#173a39]', 'text-white');
+        pill.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+
+        applyFilters();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = (e.target as HTMLInputElement).value;
+        applyFilters();
+      });
+    }
+
+    if (speciesFilter) {
+      speciesFilter.addEventListener('change', (e) => {
+        activeSpecies = (e.target as HTMLSelectElement).value;
+        applyFilters();
+      });
+    }
+
+    if (locationFilter) {
+      locationFilter.addEventListener('change', (e) => {
+        activeLocation = (e.target as HTMLSelectElement).value;
+        applyFilters();
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        activeStatus = 'active';
+        activeSpecies = '';
+        activeLocation = '';
+        searchQuery = '';
+        if (searchInput) (searchInput as HTMLInputElement).value = '';
+        if (speciesFilter) speciesFilter.value = '';
+        if (locationFilter) locationFilter.value = '';
+
+        statusPills.forEach((p) => {
+          const isAct = p.getAttribute('data-status-filter') === 'active';
+          if (isAct) {
+            p.classList.add('active', 'bg-[#173a39]', 'text-white');
+            p.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+          } else {
+            p.classList.remove('active', 'bg-[#173a39]', 'text-white');
+            p.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+          }
+        });
+
+        applyFilters();
+      });
+    }
+
+    // Export CSV
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const visibleRows = Array.from(rows).filter((r) => r.style.display !== 'none');
+        const headers = ['Pet ID', 'Name', 'Species', 'Breed', 'Location', 'Intake Date', 'Days in Care', 'Status'];
+        const csvRows = [headers.join(',')];
+
+        visibleRows.forEach((row) => {
+          const id = `"${row.getAttribute('data-pet-id') || ''}"`;
+          const name = `"${row.getAttribute('data-pet-name') || ''}"`;
+          const species = `"${row.getAttribute('data-pet-species') || ''}"`;
+          const breed = `"${(row.getAttribute('data-pet-breed') || '').replace(/"/g, '""')}"`;
+          const loc = `"${row.getAttribute('data-location') || ''}"`;
+          const intake = `"${row.getAttribute('data-intake-date') || ''}"`;
+          const days = `"${row.getAttribute('data-days-at-shelter') || ''}"`;
+          const status = row.getAttribute('data-is-archived') === 'true' ? '"Archived"' : '"Active"';
+
+          csvRows.push([id, name, species, breed, loc, intake, days, status].join(','));
+        });
+
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `monroe-petsync-roster-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    applyFilters();
+  }
+
+  document.addEventListener('astro:page-load', initPetSyncPortal);
+</script>

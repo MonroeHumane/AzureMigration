@@ -1,0 +1,457 @@
+---
+interface Props {
+  operatingCash: number;
+  fidelityReserve: number;
+  avgMonthlyRevenue: number;
+  avgMonthlyExpense: number;
+  cutoffDate?: string;
+}
+
+const {
+  operatingCash = 37678.61,
+  fidelityReserve = 205144.00,
+  avgMonthlyRevenue = 42844.10,
+  avgMonthlyExpense = 55435.69,
+  cutoffDate = 'August 31, 2026',
+} = Astro.props;
+---
+
+<div
+  id="scenario-simulator-root"
+  data-base-rev={avgMonthlyRevenue}
+  data-base-exp={avgMonthlyExpense}
+  data-base-checking={operatingCash}
+  data-base-fidelity={fidelityReserve}
+  class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden transition-all duration-300"
+>
+  <!-- Header Bar -->
+  <div class="px-6 py-4 border-b border-slate-100 bg-[#fbf9f5] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex p-1.5 rounded-lg bg-teal-800 text-teal-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </span>
+        <h3 class="text-base font-bold text-[#173a39]">
+          Cash Runway & Operating Scenario Simulator
+        </h3>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        Interactive stress-testing and board contingency modeling based on 8 closed months of 2026 (ended {cutoffDate}).
+      </p>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="flex flex-wrap items-center gap-1.5 self-start md:self-auto">
+      <span class="text-[11px] font-semibold text-slate-400 mr-1">Presets:</span>
+      <button
+        type="button"
+        id="preset-baseline"
+        class="preset-btn px-2.5 py-1 text-[11px] font-medium rounded-md bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs"
+        data-rev="0"
+        data-exp="0"
+        data-reserve="true"
+        data-event="0"
+      >
+        Baseline
+      </button>
+      <button
+        type="button"
+        id="preset-conservative"
+        class="preset-btn px-2.5 py-1 text-[11px] font-medium rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        data-rev="-15"
+        data-exp="10"
+        data-reserve="true"
+        data-event="0"
+      >
+        Conservative (-15%/+10%)
+      </button>
+      <button
+        type="button"
+        id="preset-optimistic"
+        class="preset-btn px-2.5 py-1 text-[11px] font-medium rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        data-rev="20"
+        data-exp="-5"
+        data-reserve="true"
+        data-event="25000"
+      >
+        Growth (+20% Rev + $25k Grant)
+      </button>
+      <button
+        type="button"
+        id="preset-checking-only"
+        class="preset-btn px-2.5 py-1 text-[11px] font-medium rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        data-rev="0"
+        data-exp="0"
+        data-reserve="false"
+        data-event="0"
+      >
+        Checking Only (No Reserve)
+      </button>
+    </div>
+  </div>
+
+  <div class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Controls (5 cols) -->
+    <div class="lg:col-span-5 space-y-5 bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <label for="slider-rev" class="text-xs font-bold text-slate-700">
+            Monthly Inflows & Donations Shift
+          </label>
+          <span id="readout-rev-pct" class="font-mono text-xs font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+            0% ($42,844/mo)
+          </span>
+        </div>
+        <input
+          id="slider-rev"
+          type="range"
+          min="-40"
+          max="50"
+          step="1"
+          value="0"
+          class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#173a39]"
+        />
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+          <span>-40% ($25.7k)</span>
+          <span>Baseline ($42.8k)</span>
+          <span>+50% ($64.3k)</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <label for="slider-exp" class="text-xs font-bold text-slate-700">
+            Monthly Operating Expenditures Shift
+          </label>
+          <span id="readout-exp-pct" class="font-mono text-xs font-bold text-slate-800 bg-slate-200/70 px-2 py-0.5 rounded border border-slate-300">
+            0% ($55,436/mo)
+          </span>
+        </div>
+        <input
+          id="slider-exp"
+          type="range"
+          min="-30"
+          max="40"
+          step="1"
+          value="0"
+          class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#173a39]"
+        />
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+          <span>-30% ($38.8k)</span>
+          <span>Baseline ($55.4k)</span>
+          <span>+40% ($77.6k)</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <label for="slider-event" class="text-xs font-bold text-slate-700">
+            One-Time Capital Event / Inflow / Outflow
+          </label>
+          <span id="readout-event" class="font-mono text-xs font-bold text-slate-800 bg-slate-200/70 px-2 py-0.5 rounded border border-slate-300">
+            $0
+          </span>
+        </div>
+        <input
+          id="slider-event"
+          type="range"
+          min="-50000"
+          max="100000"
+          step="5000"
+          value="0"
+          class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#173a39]"
+        />
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+          <span>-$50k (Major Outlay)</span>
+          <span>$0</span>
+          <span>+$100k (Bequest / Grant)</span>
+        </div>
+      </div>
+
+      <!-- Toggle: Include Fidelity Reserve -->
+      <div class="pt-3 border-t border-slate-200 flex items-start gap-3">
+        <input
+          id="toggle-reserve"
+          type="checkbox"
+          checked
+          class="mt-0.5 w-4 h-4 rounded text-teal-800 focus:ring-teal-600 cursor-pointer"
+        />
+        <label for="toggle-reserve" class="text-xs text-slate-700 cursor-pointer select-none">
+          <strong class="text-slate-900 block font-semibold">Include Fidelity Reserve ($205,144)</strong>
+          <span class="text-[11px] text-slate-500">
+            When checked, models total organizational liquidity ($242,823 base). Uncheck to stress-test checking cash alone ($37,679 base).
+          </span>
+        </label>
+      </div>
+
+      <!-- Baseline Info Box -->
+      <div class="p-3 bg-white rounded-lg border border-slate-200 text-[11px] text-slate-600 space-y-1">
+        <div class="flex justify-between">
+          <span>8-Mo Historical Avg Revenue:</span>
+          <span class="font-mono font-medium text-slate-800">$42,844 / mo</span>
+        </div>
+        <div class="flex justify-between">
+          <span>8-Mo Historical Avg Expenses:</span>
+          <span class="font-mono font-medium text-slate-800">$55,436 / mo</span>
+        </div>
+        <div class="flex justify-between font-semibold text-rose-700 pt-1 border-t border-slate-100">
+          <span>Historical Baseline Net Burn:</span>
+          <span class="font-mono">-$12,592 / mo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Outputs & Sensitivity Analysis (7 cols) -->
+    <div class="lg:col-span-7 flex flex-col justify-between space-y-5">
+      <!-- 4 Live Metric Tiles -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Tile 1: Projected Monthly Net -->
+        <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs">
+          <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
+            Projected Net
+          </span>
+          <div id="metric-net" class="text-xl font-bold font-mono mt-1 text-rose-600">
+            -$12,592
+          </div>
+          <span id="metric-net-label" class="text-[10px] text-rose-700 font-medium">Monthly Burn</span>
+        </div>
+
+        <!-- Tile 2: Liquid Capital Pool -->
+        <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs">
+          <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
+            Starting Liquidity
+          </span>
+          <div id="metric-liquidity" class="text-xl font-bold font-mono mt-1 text-slate-900">
+            $242,823
+          </div>
+          <span id="metric-liquidity-label" class="text-[10px] text-slate-500">Checking + Fidelity</span>
+        </div>
+
+        <!-- Tile 3: Cash Runway (Months) -->
+        <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs">
+          <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
+            Runway (Months)
+          </span>
+          <div id="metric-runway-months" class="text-xl font-bold font-mono mt-1 text-[#173a39]">
+            19.3 mo
+          </div>
+          <span id="metric-runway-days" class="text-[10px] text-slate-500">~587 days</span>
+        </div>
+
+        <!-- Tile 4: Estimated Exhaustion -->
+        <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs">
+          <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
+            Zero-Cash Horizon
+          </span>
+          <div id="metric-exhaustion" class="text-lg font-bold mt-1 text-indigo-900">
+            April 2028
+          </div>
+          <span class="text-[10px] text-slate-400">Under modeled rate</span>
+        </div>
+      </div>
+
+      <!-- Runway Health Bar -->
+      <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold text-slate-700">Runway Health Indicator</span>
+          <span id="health-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800">
+            Healthy (>12 Months)
+          </span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+          <div id="health-bar" class="h-3 rounded-full bg-emerald-600 transition-all duration-300" style="width: 80%;"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-500 pt-0.5">
+          <span>Critical (&lt; 3 mo)</span>
+          <span>Caution (3–12 mo)</span>
+          <span>Sustainable (12–24 mo)</span>
+          <span>Perpetual (&gt; 24 mo / Surplus)</span>
+        </div>
+      </div>
+
+      <!-- Breakeven & Sensitivity Dynamic Assessment -->
+      <div id="assessment-box" class="p-4 rounded-xl border border-teal-200 bg-[#f0f9f8] text-xs space-y-2">
+        <div class="flex items-center gap-1.5 font-bold text-[#173a39]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#1c746c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>Breakeven & Sensitivity Assessment</span>
+        </div>
+        <p id="assessment-text" class="text-slate-700 leading-relaxed text-[11.5px]">
+          Under baseline operations, HSMC experiences a net cash burn of <strong>$12,592 per month</strong>. To achieve operational breakeven without dipping into the Fidelity reserve, the shelter requires either an additional <strong>+$12,592/mo in revenue (+29.4%)</strong>, or a <strong>$12,592/mo reduction in operating expenditures (-22.7%)</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('scenario-simulator-root');
+  const BASE_REV = root ? parseFloat(root.dataset.baseRev || '42844.10') : 42844.10;
+  const BASE_EXP = root ? parseFloat(root.dataset.baseExp || '55435.69') : 55435.69;
+  const BASE_CHECKING = root ? parseFloat(root.dataset.baseChecking || '37678.61') : 37678.61;
+  const BASE_FIDELITY = root ? parseFloat(root.dataset.baseFidelity || '205144.00') : 205144.00;
+
+  const sliderRev = document.getElementById('slider-rev');
+  const sliderExp = document.getElementById('slider-exp');
+  const sliderEvent = document.getElementById('slider-event');
+  const toggleReserve = document.getElementById('toggle-reserve');
+
+  const readoutRevPct = document.getElementById('readout-rev-pct');
+  const readoutExpPct = document.getElementById('readout-exp-pct');
+  const readoutEvent = document.getElementById('readout-event');
+
+  const metricNet = document.getElementById('metric-net');
+  const metricNetLabel = document.getElementById('metric-net-label');
+  const metricLiquidity = document.getElementById('metric-liquidity');
+  const metricLiquidityLabel = document.getElementById('metric-liquidity-label');
+  const metricRunwayMonths = document.getElementById('metric-runway-months');
+  const metricRunwayDays = document.getElementById('metric-runway-days');
+  const metricExhaustion = document.getElementById('metric-exhaustion');
+  const healthBadge = document.getElementById('health-badge');
+  const healthBar = document.getElementById('health-bar');
+  const assessmentText = document.getElementById('assessment-text');
+  const presetBtns = document.querySelectorAll('.preset-btn');
+
+  function formatCurrency(val) {
+    const isNeg = val < 0;
+    const abs = Math.abs(Math.round(val));
+    const formatted = '$' + abs.toLocaleString('en-US');
+    return isNeg ? '-' + formatted : formatted;
+  }
+
+  function calculate() {
+    const revPct = parseFloat(sliderRev.value) || 0;
+    const expPct = parseFloat(sliderExp.value) || 0;
+    const eventAmount = parseFloat(sliderEvent.value) || 0;
+    const includeReserve = toggleReserve.checked;
+
+    const projectedRev = BASE_REV * (1 + revPct / 100);
+    const projectedExp = BASE_EXP * (1 + expPct / 100);
+    const projectedNet = projectedRev - projectedExp;
+
+    let liquidPool = (includeReserve ? (BASE_CHECKING + BASE_FIDELITY) : BASE_CHECKING) + eventAmount;
+    if (liquidPool < 0) liquidPool = 0;
+
+    // Readout updates
+    const revSign = revPct > 0 ? '+' : '';
+    readoutRevPct.textContent = `${revSign}${revPct}% (${formatCurrency(projectedRev)}/mo)`;
+    
+    const expSign = expPct > 0 ? '+' : '';
+    readoutExpPct.textContent = `${expSign}${expPct}% (${formatCurrency(projectedExp)}/mo)`;
+
+    const eventSign = eventAmount > 0 ? '+' : '';
+    readoutEvent.textContent = `${eventSign}${formatCurrency(eventAmount)}`;
+
+    // Metric 1: Net
+    metricNet.textContent = formatCurrency(projectedNet);
+    if (projectedNet >= 0) {
+      metricNet.className = 'text-xl font-bold font-mono mt-1 text-emerald-600';
+      metricNetLabel.textContent = 'Monthly Surplus';
+      metricNetLabel.className = 'text-[10px] text-emerald-700 font-medium';
+    } else {
+      metricNet.className = 'text-xl font-bold font-mono mt-1 text-rose-600';
+      metricNetLabel.textContent = 'Monthly Net Burn';
+      metricNetLabel.className = 'text-[10px] text-rose-700 font-medium';
+    }
+
+    // Metric 2: Liquidity
+    metricLiquidity.textContent = formatCurrency(liquidPool);
+    metricLiquidityLabel.textContent = includeReserve ? 'Checking + Fidelity' : 'Checking Cash Only';
+
+    // Metric 3 & 4: Runway & Exhaustion
+    if (projectedNet >= 0) {
+      metricRunwayMonths.textContent = '∞';
+      metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-emerald-600';
+      metricRunwayDays.textContent = 'Cash Flow Positive';
+      metricExhaustion.textContent = 'Perpetual';
+      metricExhaustion.className = 'text-lg font-bold mt-1 text-emerald-700';
+
+      healthBadge.textContent = 'Sustainable / Surplus (Self-Funding)';
+      healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800';
+      healthBar.style.width = '100%';
+      healthBar.className = 'h-3 rounded-full bg-emerald-600 transition-all duration-300';
+
+      assessmentText.innerHTML = `At this operating level, HSMC generates a monthly surplus of <strong>${formatCurrency(projectedNet)}</strong>. The organization is fully cash-flow positive and adding to reserves without requiring reserve draws.`;
+    } else {
+      const burn = Math.abs(projectedNet);
+      const months = liquidPool / burn;
+      const days = Math.round(months * 30.4);
+
+      metricRunwayMonths.textContent = months.toFixed(1) + ' mo';
+      metricRunwayDays.textContent = `~${days} days`;
+
+      // Calculate exhaustion date from August 31, 2026
+      const baseDate = new Date(2026, 7, 31);
+      const targetDate = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000);
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      metricExhaustion.textContent = `${monthNames[targetDate.getMonth()]} ${targetDate.getFullYear()}`;
+
+      // Health bar & badge
+      if (months >= 12) {
+        metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-[#173a39]';
+        metricExhaustion.className = 'text-lg font-bold mt-1 text-indigo-900';
+        healthBadge.textContent = `Healthy (${months.toFixed(1)} Months)`;
+        healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800';
+        const barPct = Math.min(100, Math.round((months / 24) * 100));
+        healthBar.style.width = `${barPct}%`;
+        healthBar.className = 'h-3 rounded-full bg-emerald-600 transition-all duration-300';
+      } else if (months >= 6) {
+        metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-amber-700';
+        metricExhaustion.className = 'text-lg font-bold mt-1 text-amber-900';
+        healthBadge.textContent = `Caution (${months.toFixed(1)} Months)`;
+        healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800';
+        const barPct = Math.round((months / 24) * 100);
+        healthBar.style.width = `${barPct}%`;
+        healthBar.className = 'h-3 rounded-full bg-amber-500 transition-all duration-300';
+      } else {
+        metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-rose-600';
+        metricExhaustion.className = 'text-lg font-bold mt-1 text-rose-800';
+        healthBadge.textContent = `Critical (${months.toFixed(1)} Months)`;
+        healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-800';
+        const barPct = Math.max(5, Math.round((months / 24) * 100));
+        healthBar.style.width = `${barPct}%`;
+        healthBar.className = 'h-3 rounded-full bg-rose-500 transition-all duration-300';
+      }
+
+      // Assessment text
+      const neededRev = formatCurrency(burn);
+      const neededRevPct = ((burn / projectedRev) * 100).toFixed(1);
+      const neededExpPct = ((burn / projectedExp) * 100).toFixed(1);
+      assessmentText.innerHTML = `Under this scenario, monthly burn is <strong>${formatCurrency(burn)}</strong> against available liquidity of <strong>${formatCurrency(liquidPool)}</strong> (${includeReserve ? 'including' : 'excluding'} Fidelity reserve). To achieve breakeven, HSMC would require <strong>+${neededRev}/mo in additional revenue (+${neededRevPct}%)</strong>, or an expenditure reduction of <strong>${neededRev}/mo (-${neededExpPct}%)</strong>.`;
+    }
+  }
+
+  // Event Listeners
+  sliderRev?.addEventListener('input', calculate);
+  sliderExp?.addEventListener('input', calculate);
+  sliderEvent?.addEventListener('input', calculate);
+  toggleReserve?.addEventListener('change', calculate);
+
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      presetBtns.forEach(b => {
+        b.className = 'preset-btn px-2.5 py-1 text-[11px] font-medium rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+      });
+      this.className = 'preset-btn px-2.5 py-1 text-[11px] font-medium rounded-md bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs';
+
+      sliderRev.value = this.dataset.rev;
+      sliderExp.value = this.dataset.exp;
+      sliderEvent.value = this.dataset.event;
+      toggleReserve.checked = this.dataset.reserve === 'true';
+
+      calculate();
+    });
+  });
+
+  // Initial calculation
+  calculate();
+})();
+</script>

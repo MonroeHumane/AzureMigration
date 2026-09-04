@@ -1,0 +1,127 @@
+{
+  "meetings": [
+    {
+      "id": "mtg-2026-09",
+      "title": "September 2026 Regular Board Meeting",
+      "date": "2026-09-17T18:00:00",
+      "location": "Shelter Community Room (1704 N Telegraph Rd) & Microsoft Teams",
+      "status": "scheduled",
+      "description": "Regular monthly meeting of the Board of Directors. Review of certified August 31, 2026 financials, capital improvement bids, and fall fundraising campaign.",
+      "agenda_items": [
+        "Call to Order & Approval of August 20, 2026 Minutes",
+        "Executive Director Report (Shelter Operations, Intakes, and MDARD Compliance)",
+        "Presentation of August 31, 2026 Financial Package & ASC 250 True-Up",
+        "Cat Room Expansion (Architectural Review & Contractor Bid Selection)",
+        "Fall 2026 Gala & Annual Giving Campaign Strategy",
+        "Winter Kennel Weatherization & Heating Maintenance Allocation",
+        "Executive Session & Adjournment"
+      ],
+      "packet_status": "Ready for Review",
+      "packet_url": "/internal/board/print"
+    },
+    {
+      "id": "mtg-2026-08",
+      "title": "August 2026 Regular Board Meeting",
+      "date": "2026-08-20T18:00:00",
+      "location": "Shelter Community Room & Microsoft Teams",
+      "status": "completed",
+      "description": "Regular monthly meeting. Unanimous approval of July financials, MDARD shelter audit review, and authorization of cloud modernization sprint.",
+      "agenda_items": [
+        "Call to Order & Approval of July 16, 2026 Minutes",
+        "Review of July Financial Position & Revolving Line of Credit",
+        "MDARD Annual Shelter Inspection Report (100% Compliance Certification)",
+        "Directus CMS and Azure Enterprise Sponsorship Update",
+        "Adjournment"
+      ],
+      "packet_status": "Archived (Minutes Unanimously Approved)",
+      "packet_url": "/internal/board/print"
+    },
+    {
+      "id": "mtg-2026-07",
+      "title": "July 2026 Regular Board Meeting",
+      "date": "2026-07-16T18:00:00",
+      "location": "Shelter Community Room",
+      "status": "completed",
+      "description": "Mid-year operational review. Discussion of Q2 financial trends, spay/neuter voucher grant allocations, and volunteer program growth.",
+      "agenda_items": [
+        "Call to Order & Approval of June Minutes",
+        "Q2 2026 Financial Performance & Operating Margin Walk",
+        "Community Cat Spay/Neuter Voucher Grant Status",
+        "Volunteer & Foster Program Expansion Report",
+        "Adjournment"
+      ],
+      "packet_status": "Archived",
+      "packet_url": "/internal/board/print"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc-ed-2026-08",
+      "title": "Executive Director Monthly Report — August 2026",
+      "category": "ed_report",
+      "category_label": "ED Executive Report",
+      "author": "Jeffery Howard, Executive Director",
+      "date": "2026-09-02",
+      "summary": "Operational highlights: 48 successful adoptions, 12 lost pet reunions, and 32 spay/neuter surgeries subsidized through community voucher funds. Shelter occupancy remained steady at 88%. Reconciled QBO general ledger to August 31 bank statements with $0.00 credit card register variance. Architectural drawings finalized for the 800 sq ft Cat Room expansion.",
+      "highlights": [
+        "48 adoptions completed (28 dogs, 20 cats)",
+        "100% compliance rating on MDARD annual state shelter inspection",
+        "Reconciled QBO register to August 31 bank statement ($24,526.34 statement cash)",
+        "3 new staff members certified in Fear-Free Shelter Animal Handling"
+      ],
+      "file_type": "PDF / Executive Summary",
+      "status": "published"
+    },
+    {
+      "id": "doc-asc250-memo",
+      "title": "FASB ASC 250 Accounting Memorandum: Elan Credit Card True-Up",
+      "category": "financial",
+      "category_label": "Financial Compliance",
+      "author": "Finance & Audit Committee",
+      "date": "2026-08-31",
+      "summary": "Technical accounting memorandum detailing the elimination of arbitrary plug JE 7877 ($10,790.33), the posting of $645.32 in 2026 source-level rebate credits (Txns 7916, 7917, 7918), and the recording of a $10,145.01 prior-period adjustment (Txn 7919) against Net Assets to correct historical opening balance and 2025 statement credits.",
+      "highlights": [
+        "Eliminated arbitrary plug JE 7877",
+        "Live QBO register matches Elan bank feed to the penny ($7,129.84 = $7,129.84)",
+        "Aug 31 Balance Sheet credit card liability certified at $6,912.09",
+        "Fully compliant with GAAP and FASB ASC 250 reporting standards"
+      ],
+      "file_type": "PDF / Accounting Memo",
+      "status": "published"
+    },
+    {
+      "id": "doc-gov-manual-2026",
+      "title": "2026 Board Governance Manual, Conflict of Interest & Fiduciary Controls",
+      "category": "governance",
+      "category_label": "Board Governance",
+      "author": "HSMC Governance Committee",
+      "date": "2026-01-15",
+      "summary": "Official governance manual defining board trustee duties, Form 990 Schedule L conflict-of-interest guidelines, related-party transaction disclosure rules, dual-signature payment authorization thresholds, and investment policy criteria for the Fidelity reserve.",
+      "highlights": [
+        "Form 990 Schedule L annual conflict-of-interest disclosure standards",
+        "Dual-authorization required for operational disbursements exceeding $2,500",
+        "Board designated reserve withdrawal policy (supermajority vote required)",
+        "Whistleblower protection and document retention policies"
+      ],
+      "file_type": "PDF / Policy Manual",
+      "status": "published"
+    },
+    {
+      "id": "doc-mdard-2026",
+      "title": "MDARD Annual Animal Shelter Inspection — Certificate of Compliance",
+      "category": "regulatory",
+      "category_label": "Regulatory Audit",
+      "author": "Michigan Dept of Agriculture & Rural Development (MDARD)",
+      "date": "2026-08-14",
+      "summary": "Official State of Michigan shelter inspection certification verifying 100% compliance across canine housing, feline isolation, medical room sterilization, intake documentation, rabies vaccine tracking, and veterinary emergency protocols.",
+      "highlights": [
+        "100% pass across all 42 inspection categories",
+        "Commendation for new climate control and upgraded commercial sterilization equipment",
+        "Medical isolation room verified in full compliance with state rules",
+        "Valid through August 2027"
+      ],
+      "file_type": "PDF / State Audit",
+      "status": "published"
+    }
+  ]
+}

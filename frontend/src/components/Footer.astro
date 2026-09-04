@@ -6,8 +6,7 @@
  */
 
 import { SITE } from '../config/site';
-
-const staffPortalUrl = import.meta.env.PUBLIC_DIRECTUS_URL ?? 'http://localhost:8055';
+ 
 const year = new Date().getFullYear();
 ---
 
@@ -45,7 +44,7 @@ const year = new Date().getFullYear();
     </div>
 
     <div class="monroe-site-footer__staff">
-      <a href={staffPortalUrl} class="monroe-site-footer__staff-btn">Staff</a>
+      <a href="/internal" class="monroe-site-footer__staff-btn">Staff Portal</a>
     </div>
 
     <p class="monroe-site-footer__legal">&copy; {year} {SITE.name}. All rights reserved.</p>

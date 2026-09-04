@@ -24,7 +24,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@types/node": "^26.4.0",
+    "lighthouse": "^13.4.1",
     "typescript": "^6.0.3"
   }
 }
-

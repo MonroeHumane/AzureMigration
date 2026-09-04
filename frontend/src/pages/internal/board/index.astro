@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StaffPortalNav from '../../../components/internal/StaffPortalNav.astro';
+import ExecutiveBanner from '../../../components/board/ExecutiveBanner.astro';
+import HeadlineKpiGrid from '../../../components/board/HeadlineKpiGrid.astro';
+import OperatingBridgeCard from '../../../components/board/OperatingBridgeCard.astro';
+import MonthlyStatementTable from '../../../components/board/MonthlyStatementTable.astro';
+import PositionAndCashCard from '../../../components/board/PositionAndCashCard.astro';
+import BankStatementViewer from '../../../components/board/BankStatementViewer.astro';
+import MultiYearComparisonCard from '../../../components/board/MultiYearComparisonCard.astro';
+import ScenarioSimulatorCard from '../../../components/board/ScenarioSimulatorCard.astro';
+import GovernanceCard from '../../../components/board/GovernanceCard.astro';
+
+// Import single source of truth frozen JSON
+import reportData from '../../../data/published_2026_ytd.json';
+
+// Fetch Directus governance items (with resilient bundled fallback)
+import { getBoardMeetings, getBoardDocuments } from '../../../lib/directus';
+const boardMeetings = await getBoardMeetings();
+const boardDocuments = await getBoardDocuments();
+
+const avgMonthlyRev = reportData.headline_kpis.qbo_operating_revenue / (reportData.meta.closed_months_count || 8);
+const avgMonthlyExp = (reportData.headline_kpis.qbo_cogs + reportData.headline_kpis.qbo_operating_expenditures) / (reportData.meta.closed_months_count || 8);
+---
+
+<BaseLayout
+  title="Executive Board Financial Portal | Humane Society of Monroe County"
+  description="Humane Society of Monroe County Executive Board Financial Portal & Operating Statements."
+  bodyClass="bg-[#f9f7f2] text-slate-800"
+>
+  <div class="min-h-screen pb-16">
+    <!-- Staff Portal Navigation -->
+    <StaffPortalNav activeTab="financials" />
+
+    <!-- Component 1: Official Executive Banner -->
+    <ExecutiveBanner meta={reportData.meta} />
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8">
+      <!-- Component 2: Headline KPI Grid -->
+      <HeadlineKpiGrid kpis={reportData.headline_kpis} />
+
+      <!-- Component 3: Interactive Cash Runway & Operating Scenario Simulator -->
+      <ScenarioSimulatorCard
+        operatingCash={reportData.statement_of_position.assets.total_book_operating_cash}
+        fidelityReserve={reportData.statement_of_position.assets.fidelity_board_designated_reserve}
+        avgMonthlyRevenue={avgMonthlyRev}
+        avgMonthlyExpense={avgMonthlyExp}
+        cutoffDate="August 31, 2026"
+      />
+
+      <!-- Component 4: Certified Operating-to-All-In Bridge -->
+      <OperatingBridgeCard
+        qboOperatingNet={reportData.headline_kpis.qbo_operating_net}
+        allInNet={reportData.headline_kpis.all_in_net}
+        bridge={reportData.bridge_composition}
+      />
+
+      <!-- Component 5: Month-by-Month Operating Statement with Accordion Drawers -->
+      <MonthlyStatementTable statements={reportData.monthly_statements} />
+
+      <!-- Component 6: Statement of Financial Position & Restricted Watch & AP Schedule -->
+      <PositionAndCashCard
+        position={reportData.statement_of_position}
+        apSchedule={reportData.accounts_payable_schedule}
+      />
+
+      <!-- Component 7: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->
+      <BankStatementViewer />
+
+      <!-- Component 8: 3-Year Trajectory & Dual 2025 Disclosure -->
+      <MultiYearComparisonCard comparison={reportData.multiyear_comparison} />
+
+      <!-- Component 9: Directus Board Governance, Agendas & Executive Reports -->
+      <GovernanceCard
+        meetings={boardMeetings}
+        documents={boardDocuments}
+      />
+
+      <!-- Governance & Verification Footer -->
+      <footer class="mt-12 pt-6 border-t border-slate-200 text-center text-xs text-slate-500 space-y-2">
+        <p>
+          Humane Society of Monroe County (HSMC) · 501(c)(3) Non-Profit Organization · Monroe, Michigan
+        </p>
+        <p class="font-mono text-[11px] text-slate-400">
+          Source Data Canonical Checksum: {reportData.meta.sha256_checksum} · Accounting System: QuickBooks Online (Accrual)
+        </p>
+        <p class="text-[10px] text-slate-400">
+          Strictly Confidential — Protected by Microsoft Entra ID for Authorized Humane Society of Monroe County Board Members & Officers.
+        </p>
+      </footer>
+    </main>
+  </div>
+</BaseLayout>

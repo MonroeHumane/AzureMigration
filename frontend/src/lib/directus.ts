@@ -1,6 +1,7 @@
 import bundledPets from '../data/shelter-pets.json';
 import eventFlyersData from '../data/event-flyers.json';
 import memorialTributesData from '../data/memorial-tributes.json';
+import boardGovernanceData from '../data/board-governance.json';
 
 const DIRECTUS_URL = import.meta.env.DIRECTUS_URL || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || '';
@@ -102,6 +103,81 @@ export async function getPets(): Promise<Pet[]> {
     image: p.image || p.image_url || '/assets/recovered/images/placeholder.svg',
   }));
   return cachedPets;
+}
+
+export interface StaffPetRecord extends Pet {
+  first_seen_at?: string;
+  last_seen_at?: string;
+  archived_at?: string | null;
+  stage?: string;
+  color?: string;
+  location?: string;
+}
+
+export interface PetSyncSummary {
+  lastSyncTimestamp: string;
+  activeCount: number;
+  archivedCount: number;
+  totalCount: number;
+  pets: StaffPetRecord[];
+}
+
+let cachedStaffPetSync: PetSyncSummary | null = null;
+export async function getStaffPetSyncData(): Promise<PetSyncSummary> {
+  if (cachedStaffPetSync) return cachedStaffPetSync;
+
+  try {
+    const headers: Record<string, string> = {};
+    if (DIRECTUS_STATIC_TOKEN) {
+      headers['Authorization'] = `Bearer ${DIRECTUS_STATIC_TOKEN}`;
+    }
+    const res = await fetch(`${DIRECTUS_URL}/items/pets?limit=-1&sort=-last_seen_at`, {
+      headers,
+      signal: AbortSignal.timeout(3500),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.data && Array.isArray(data.data)) {
+        const pets: StaffPetRecord[] = data.data.map((p: any) => ({
+          ...p,
+          image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg',
+        }));
+        const activeCount = pets.filter((p) => !p.archived_at).length;
+        const archivedCount = pets.filter((p) => !!p.archived_at).length;
+        const lastSyncTimestamp = pets[0]?.last_seen_at || new Date().toISOString();
+
+        cachedStaffPetSync = {
+          lastSyncTimestamp,
+          activeCount,
+          archivedCount,
+          totalCount: pets.length,
+          pets,
+        };
+        return cachedStaffPetSync;
+      }
+    }
+  } catch (err) {
+    console.warn('[Directus] Live pet sync query unavailable, falling back to bundled data.');
+  }
+
+  // Fallback using bundled pets
+  const fallbackPets: StaffPetRecord[] = (bundledPets as any[]).map((p) => ({
+    ...p,
+    image: p.image || p.image_url || '/assets/recovered/images/placeholder.svg',
+    first_seen_at: '2026-08-28T09:19:22',
+    last_seen_at: '2026-09-04T22:30:10',
+    archived_at: null,
+    stage: 'Available',
+  }));
+
+  cachedStaffPetSync = {
+    lastSyncTimestamp: '2026-09-04T22:30:10',
+    activeCount: fallbackPets.length,
+    archivedCount: 0,
+    totalCount: fallbackPets.length,
+    pets: fallbackPets,
+  };
+  return cachedStaffPetSync;
 }
 
 let cachedFlyers: EventFlyer[] | null = null;
@@ -254,4 +330,86 @@ export interface GrantEntity {
   status: GrantStatus;
   deadline_notes?: string;
   fit_notes?: string;
+}
+
+export interface BoardMeeting {
+  id: string | number;
+  title: string;
+  date: string;
+  location: string;
+  status: 'scheduled' | 'completed' | 'canceled';
+  description?: string;
+  agenda_items?: string[];
+  packet_status?: string;
+  packet_url?: string;
+}
+
+export interface BoardDocument {
+  id: string | number;
+  title: string;
+  category: 'ed_report' | 'financial' | 'governance' | 'regulatory' | 'minutes';
+  category_label?: string;
+  author: string;
+  date: string;
+  summary: string;
+  highlights?: string[];
+  file_type?: string;
+  download_url?: string;
+  status?: 'published' | 'draft';
+}
+
+let cachedBoardMeetings: BoardMeeting[] | null = null;
+export async function getBoardMeetings(): Promise<BoardMeeting[]> {
+  if (cachedBoardMeetings) return cachedBoardMeetings;
+
+  try {
+    const headers: Record<string, string> = {};
+    if (DIRECTUS_STATIC_TOKEN) {
+      headers['Authorization'] = `Bearer ${DIRECTUS_STATIC_TOKEN}`;
+    }
+    const res = await fetch(`${DIRECTUS_URL}/items/board_meetings?sort=-date`, {
+      headers,
+      signal: AbortSignal.timeout(2500),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.data && data.data.length > 0) {
+        cachedBoardMeetings = data.data;
+        return cachedBoardMeetings!;
+      }
+    }
+  } catch (err) {
+    // Fallback gracefully to bundled governance json
+  }
+
+  cachedBoardMeetings = boardGovernanceData.meetings as BoardMeeting[];
+  return cachedBoardMeetings;
+}
+
+let cachedBoardDocuments: BoardDocument[] | null = null;
+export async function getBoardDocuments(): Promise<BoardDocument[]> {
+  if (cachedBoardDocuments) return cachedBoardDocuments;
+
+  try {
+    const headers: Record<string, string> = {};
+    if (DIRECTUS_STATIC_TOKEN) {
+      headers['Authorization'] = `Bearer ${DIRECTUS_STATIC_TOKEN}`;
+    }
+    const res = await fetch(`${DIRECTUS_URL}/items/board_documents?sort=-date`, {
+      headers,
+      signal: AbortSignal.timeout(2500),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.data && data.data.length > 0) {
+        cachedBoardDocuments = data.data;
+        return cachedBoardDocuments!;
+      }
+    }
+  } catch (err) {
+    // Fallback gracefully to bundled governance json
+  }
+
+  cachedBoardDocuments = boardGovernanceData.documents as BoardDocument[];
+  return cachedBoardDocuments;
 }

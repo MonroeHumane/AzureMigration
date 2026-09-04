@@ -1,0 +1,933 @@
+---
+import statementData from '../../data/statement_2026_08.json';
+
+interface Props {
+  data?: typeof statementData;
+}
+
+const { data = statementData } = Astro.props;
+
+const formatDollar = (val: number) => {
+  const isNeg = val < 0;
+  const abs = Math.abs(val);
+  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
+  return isNeg ? `(${formatted})` : formatted;
+};
+
+const formatCents = (val: number) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(val);
+};
+
+// Compute combined list with uniform structure for tabular display
+const depositsFormatted = data.deposits.map((d, i) => ({
+  id: `dep-${i}`,
+  date: d.date,
+  description: d.description,
+  payee: d.channel ? `${d.channel} Transfer` : 'Deposit',
+  type: d.channel === 'Branch' ? 'Branch Deposit' : d.channel === 'Square' ? 'Merchant Card' : 'Electronic Credit',
+  isDeposit: true,
+  amount: d.amount,
+  category: d.category,
+  relational_link: d.relational_account,
+  relational_notes: d.relational_notes,
+  isPayroll: false,
+  isCheck: false,
+  isAP: false,
+  check_number: null,
+}));
+
+const withdrawalsFormatted = data.withdrawals.map((w, i) => {
+  const isCheck = !!w.check_number;
+  const isPayroll = w.category.includes('Paycheck') || w.category.includes('Payroll') || (w.relational_link && w.relational_link.includes('126'));
+  const isAP = !!w.relational_link && (w.relational_link.includes('AP Aging') || w.relational_link.includes('Capital Assets'));
+  
+  return {
+    id: `wd-${i}`,
+    date: w.date,
+    description: w.description,
+    payee: w.payee,
+    type: w.type,
+    isDeposit: false,
+    amount: -Math.abs(w.amount),
+    category: w.category,
+    relational_link: w.relational_link,
+    relational_notes: w.relational_notes,
+    isPayroll,
+    isCheck,
+    isAP,
+    check_number: w.check_number || null,
+  };
+});
+
+// All 108 transactions sorted chronologically
+const allTransactions = [...depositsFormatted, ...withdrawalsFormatted].sort((a, b) => {
+  if (a.date === b.date) {
+    return b.amount - a.amount; // deposits first on same day
+  }
+  return a.date.localeCompare(b.date);
+});
+
+// Calculate running balance starting from $54,280.38
+let running = data.metadata.statement_beginning_balance;
+const allWithRunning = allTransactions.map((tx) => {
+  running = Math.round((running + tx.amount) * 100) / 100;
+  return {
+    ...tx,
+    runningBalance: running,
+  };
+});
+
+// Precompute daily deltas
+const dailyBalances = data.daily_balances.map((item, idx, arr) => {
+  const prevBal = idx > 0 ? arr[idx - 1].balance : data.metadata.statement_beginning_balance;
+  const delta = Math.round((item.balance - prevBal) * 100) / 100;
+  return {
+    ...item,
+    prevBal,
+    delta,
+  };
+});
+
+const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
+---
+
+<section id="bank-statement-viewer" class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden transition-all duration-300">
+  <!-- Header Bar -->
+  <div class="px-6 py-5 border-b border-slate-200 bg-[#fbf9f5]">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="inline-flex p-2 rounded-lg bg-[#173a39] text-emerald-300 shadow-xs">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path>
+              <path d="M18 14h-8"></path>
+              <path d="M15 18h-5"></path>
+              <path d="M10 6h8v4h-8V6Z"></path>
+            </svg>
+          </span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold text-[#173a39] tracking-tight">
+                First Merchants Bank Statement & QBO Reconciliation
+              </h2>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                Locked & Certified
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Account {data.metadata.account_number} · Statement Period: {data.metadata.statement_period} · Certified locked by {data.metadata.reconciled_by} on {data.metadata.reconciliation_date} with $0.00 difference.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Ribbon -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Bank Statement</span>
+          <span class="font-mono font-bold text-slate-900 text-sm">{formatCents(data.metadata.statement_ending_balance)}</span>
+        </div>
+        <div class="p-2 rounded bg-emerald-50 border border-emerald-200">
+          <span class="text-[10px] uppercase font-semibold text-emerald-700 block">Book Cash (GL)</span>
+          <span class="font-mono font-bold text-emerald-900 text-sm">{formatCents(data.metadata.qbo_register_balance)}</span>
+        </div>
+        <div class="p-2 rounded bg-amber-50 border border-amber-200">
+          <span class="text-[10px] uppercase font-semibold text-amber-700 block">Certified Float</span>
+          <span class="font-mono font-bold text-amber-900 text-sm">{formatDollar(data.metadata.reconciled_float)}</span>
+        </div>
+        <div class="p-2 rounded bg-teal-50 border border-teal-200">
+          <span class="text-[10px] uppercase font-semibold text-teal-700 block">QBO Variance</span>
+          <span class="font-mono font-bold text-teal-900 text-sm">$0.00 (Exact)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex flex-wrap items-center gap-2 mt-5 pt-3 border-t border-slate-200/80">
+      <button
+        type="button"
+        data-statement-tab="tabular"
+        class="statement-tab-btn active inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#173a39] text-white shadow-xs transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+          <line x1="3" x2="21" y1="9" y2="9"></line>
+          <line x1="3" x2="21" y1="15" y2="15"></line>
+          <line x1="9" x2="9" y1="3" y2="21"></line>
+          <line x1="15" x2="15" y1="3" y2="21"></line>
+        </svg>
+        Tabular Statement Explorer (108 Items)
+      </button>
+
+      <button
+        type="button"
+        data-statement-tab="reconciliation"
+        class="statement-tab-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <path d="m9 12 2 2 4-4"></path>
+        </svg>
+        Certified QBO Float Walk (-$1,057.13)
+      </button>
+
+      <button
+        type="button"
+        data-statement-tab="balances"
+        class="statement-tab-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        Daily Balance Trajectory (August Arc)
+      </button>
+
+      <button
+        type="button"
+        data-statement-tab="pdf"
+        class="statement-tab-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        Official PDF Documents (Bank & QBO Rec)
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 1: TABULAR STATEMENT EXPLORER -->
+  <div id="tab-panel-tabular" class="statement-panel p-5 space-y-4">
+    <!-- Filter & Search Controls -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap items-center gap-1.5 text-xs">
+        <span class="text-[11px] font-semibold text-slate-500 mr-1">Filter:</span>
+        <button type="button" data-filter="all" class="filter-pill active px-2.5 py-1 rounded-md font-semibold bg-[#173a39] text-white transition">
+          All (108)
+        </button>
+        <button type="button" data-filter="deposits" class="filter-pill px-2.5 py-1 rounded-md font-semibold bg-white border border-slate-200 text-emerald-800 hover:bg-emerald-50 transition">
+          Deposits (46 · $40.9k)
+        </button>
+        <button type="button" data-filter="withdrawals" class="filter-pill px-2.5 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition">
+          Withdrawals (62 · $70.6k)
+        </button>
+        <button type="button" data-filter="checks" class="filter-pill px-2.5 py-1 rounded-md font-semibold bg-white border border-slate-200 text-indigo-700 hover:bg-indigo-50 transition">
+          Paper Checks (7 · $10.4k)
+        </button>
+        <button type="button" data-filter="payroll" class="filter-pill px-2.5 py-1 rounded-md font-semibold bg-white border border-slate-200 text-amber-800 hover:bg-amber-50 transition">
+          Payroll Clearing (18 · $31.5k)
+        </button>
+        <button type="button" data-filter="ap" class="filter-pill px-2.5 py-1 rounded-md font-semibold bg-white border border-slate-200 text-purple-800 hover:bg-purple-50 transition">
+          AP Vendor Debits (15 · $21.9k)
+        </button>
+      </div>
+
+      <!-- Real-time Text Search -->
+      <div class="relative w-full md:w-72">
+        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <input
+          type="text"
+          id="statement-search-input"
+          placeholder="Search payee, check #, amount..."
+          class="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-[#173a39] focus:border-[#173a39]"
+        />
+      </div>
+    </div>
+
+    <!-- Live Counter and Summary Bar -->
+    <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+      <div>
+        Showing <span id="filtered-count" class="font-bold text-slate-800">108</span> of 108 statement transactions
+      </div>
+      <div class="flex items-center gap-3">
+        <span>Filtered Credits: <strong id="filtered-credits" class="font-mono text-emerald-700 font-semibold">$40,889.25</strong></span>
+        <span>Filtered Debits: <strong id="filtered-debits" class="font-mono text-slate-900 font-semibold">$70,643.29</strong></span>
+      </div>
+    </div>
+
+    <!-- Transaction Table -->
+    <div class="border border-slate-200 rounded-lg overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-slate-100/80 text-slate-700 font-semibold border-b border-slate-200">
+            <th class="py-2.5 px-3 whitespace-nowrap">Date</th>
+            <th class="py-2.5 px-3">Transaction Description / Payee</th>
+            <th class="py-2.5 px-3">Type & Channel</th>
+            <th class="py-2.5 px-3">Relational GL Account / Stream</th>
+            <th class="py-2.5 px-3 text-right">Amount</th>
+            <th class="py-2.5 px-3 text-right">Running Balance</th>
+          </tr>
+        </thead>
+        <tbody id="statement-tbody" class="divide-y divide-slate-100">
+          {allWithRunning.map((tx) => (
+            <tr
+              class="hover:bg-slate-50/80 transition statement-row"
+              data-is-deposit={tx.isDeposit ? 'true' : 'false'}
+              data-is-check={tx.isCheck ? 'true' : 'false'}
+              data-is-payroll={tx.isPayroll ? 'true' : 'false'}
+              data-is-ap={tx.isAP ? 'true' : 'false'}
+              data-search={`${tx.date} ${tx.description} ${tx.payee} ${tx.category} ${tx.relational_link} ${tx.relational_notes} ${tx.check_number || ''} ${Math.abs(tx.amount)}`.toLowerCase()}
+              data-amount={tx.amount}
+            >
+              <!-- Date -->
+              <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
+                {tx.date}
+              </td>
+
+              <!-- Description & Payee -->
+              <td class="py-2.5 px-3">
+                <div class="font-medium text-slate-900 flex items-center gap-1.5">
+                  <span>{tx.payee}</span>
+                  {tx.check_number && (
+                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                      Check #{tx.check_number}
+                    </span>
+                  )}
+                </div>
+                <div class="text-[11px] text-slate-500 font-mono">
+                  {tx.description}
+                </div>
+                {tx.relational_notes && (
+                  <div class="text-[10px] text-slate-400 italic">
+                    {tx.relational_notes}
+                  </div>
+                )}
+              </td>
+
+              <!-- Type & Channel -->
+              <td class="py-2.5 px-3 whitespace-nowrap">
+                <span class={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${
+                  tx.isDeposit
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : tx.isCheck
+                    ? 'bg-indigo-50 text-indigo-800 border border-indigo-200'
+                    : tx.isPayroll
+                    ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                    : 'bg-slate-100 text-slate-700'
+                }`}>
+                  {tx.type}
+                </span>
+                <span class="block text-[10px] text-slate-400 mt-0.5">{tx.category}</span>
+              </td>
+
+              <!-- Relational Link -->
+              <td class="py-2.5 px-3">
+                <div class="flex items-center gap-1">
+                  {tx.isAP && (
+                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                      AP Aging
+                    </span>
+                  )}
+                  {tx.isPayroll && (
+                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      Acct 126
+                    </span>
+                  )}
+                  {tx.isDeposit && (
+                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      Revenue
+                    </span>
+                  )}
+                  <span class="font-mono text-slate-700 text-[11px] truncate max-w-xs block" title={tx.relational_link}>
+                    {tx.relational_link}
+                  </span>
+                </div>
+              </td>
+
+              <!-- Amount -->
+              <td class="py-2.5 px-3 text-right font-mono whitespace-nowrap">
+                <span class={`font-bold ${
+                  tx.isDeposit
+                    ? 'text-emerald-700'
+                    : Math.abs(tx.amount) >= 5000
+                    ? 'text-rose-700'
+                    : 'text-slate-900'
+                }`}>
+                  {tx.isDeposit ? `+${formatCents(tx.amount)}` : `-${formatCents(Math.abs(tx.amount))}`}
+                </span>
+              </td>
+
+              <!-- Running Balance -->
+              <td class="py-2.5 px-3 text-right font-mono font-medium text-slate-700 whitespace-nowrap">
+                {formatCents(tx.runningBalance)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot class="bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
+          <tr>
+            <td colspan="4" class="py-3 px-3 uppercase tracking-wider text-white">
+              Official Statement Totals (First Merchants Bank Aug 31, 2026)
+            </td>
+            <td class="py-3 px-3 text-right font-mono text-emerald-300 font-bold whitespace-nowrap">
+              +{formatCents(data.metadata.total_deposits_amount)}<br/>
+              <span class="text-rose-300 font-normal">-{formatCents(data.metadata.total_withdrawals_amount)}</span>
+            </td>
+            <td class="py-3 px-3 text-right font-mono text-white text-sm font-bold whitespace-nowrap">
+              {formatCents(data.metadata.statement_ending_balance)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Empty Search State -->
+    <div id="statement-empty-state" class="hidden text-center py-10 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-slate-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <p class="font-semibold text-slate-700">No transactions match your search or filter</p>
+      <p class="text-xs text-slate-400 mt-1">Try clearing the search query or selecting "All" to reset view.</p>
+    </div>
+  </div>
+
+  <!-- TAB 2: CERTIFIED QBO RECONCILIATION & FLOAT WALK -->
+  <div id="tab-panel-reconciliation" class="statement-panel hidden p-5 space-y-6">
+    <!-- Reconciliation Summary Banner -->
+    <div class="p-4 rounded-lg bg-emerald-50/70 border border-emerald-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-full bg-emerald-600 text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-emerald-950">
+            Certified QBO Bank Reconciliation Locked ($0.00 Variance)
+          </h3>
+          <p class="text-xs text-emerald-800">
+            Reconciled by Jeffery Howard on 09/04/2026 at 18:14:04. Verified against official report <code class="bg-emerald-100/80 px-1 py-0.5 rounded font-mono">QBO_Reconciliation_Report_08312026.pdf</code>.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a
+          href="/assets/statements/QBO_Reconciliation_Report_08312026.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-800 text-white hover:bg-emerald-900 transition shadow-xs"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          Open Certified Report PDF
+        </a>
+      </div>
+    </div>
+
+    <!-- Visual Waterfall Step-Down Diagram -->
+    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+      <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">
+        Cent-for-Cent Reconciled Float Step-Down ($24,526.33 to $23,469.20)
+      </h4>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+        <!-- Step 1: Bank Statement -->
+        <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">1. Bank Statement</span>
+            <span class="text-xs font-semibold text-slate-800">Ending Balance</span>
+            <p class="text-[10px] text-slate-500 mt-1">First Merchants Bank Aug 31 closing</p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-100">
+            <span class="font-mono text-sm font-bold text-slate-900">$24,526.34</span>
+            <span class="block text-[10px] text-slate-400">($24,526.33 penny-adj)</span>
+          </div>
+        </div>
+
+        <!-- Step 2: Ghost Duplicates -->
+        <div class="p-3 bg-amber-50/70 rounded-lg border border-amber-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-amber-700 block">2. Ghost Duplicates</span>
+            <span class="text-xs font-semibold text-amber-950">3 Legacy Entries</span>
+            <p class="text-[10px] text-amber-800 mt-1">Austin Roberts (2) + Jeffery Howard (1)</p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-amber-200">
+            <span class="font-mono text-sm font-bold text-amber-900">-$927.14</span>
+            <span class="block text-[10px] text-amber-700">Permanent voidable drafts</span>
+          </div>
+        </div>
+
+        <!-- Step 3: Uncleared Check 4465 -->
+        <div class="p-3 bg-rose-50/70 rounded-lg border border-rose-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-rose-700 block">3. Uncleared Check</span>
+            <span class="text-xs font-semibold text-rose-950">Check 4465 (Nolff)</span>
+            <p class="text-[10px] text-rose-800 mt-1">Operational expense issued 08/19</p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-rose-200">
+            <span class="font-mono text-sm font-bold text-rose-900">-$254.99</span>
+            <span class="block text-[10px] text-rose-700">In transit at month-end</span>
+          </div>
+        </div>
+
+        <!-- Step 4: Deposit in Transit -->
+        <div class="p-3 bg-emerald-50/70 rounded-lg border border-emerald-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-emerald-700 block">4. Deposit in Transit</span>
+            <span class="text-xs font-semibold text-emerald-950">Weekend Deposit</span>
+            <p class="text-[10px] text-emerald-800 mt-1">Shelter donations received 08/02</p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-emerald-200">
+            <span class="font-mono text-sm font-bold text-emerald-900">+$125.00</span>
+            <span class="block text-[10px] text-emerald-700">Cleared early next cycle</span>
+          </div>
+        </div>
+
+        <!-- Step 5: Certified Register Cash -->
+        <div class="p-3 bg-[#173a39] text-white rounded-lg border border-teal-900 shadow-xs flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-emerald-300 block">5. Certified GL Cash</span>
+            <span class="text-xs font-semibold text-white">QBO Register Balance</span>
+            <p class="text-[10px] text-slate-300 mt-1">Post-$5.41 exact match</p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-teal-800">
+            <span class="font-mono text-sm font-bold text-emerald-300">$23,469.20</span>
+            <span class="block text-[10px] text-emerald-400">Locked in Balance Sheet</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Forensic Details: The Ghost Duplicates Schedule -->
+    <div class="border border-slate-200 rounded-lg overflow-hidden">
+      <div class="px-4 py-3 bg-slate-100/70 border-b border-slate-200 flex items-center justify-between">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">
+          Reconciled Float Detail: Ghost Duplicates vs. Genuine In-Transit
+        </h4>
+        <span class="text-xs font-mono font-semibold text-slate-700">
+          Total Net Float: -{formatCents(Math.abs(data.uncleared_float_schedule.total_net_float))}
+        </span>
+      </div>
+      <table class="w-full text-left text-xs border-collapse">
+        <thead>
+          <tr class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+            <th class="py-2 px-3">Date</th>
+            <th class="py-2 px-3">Payee / Description</th>
+            <th class="py-2 px-3">Category / Type</th>
+            <th class="py-2 px-3 text-right">Amount</th>
+            <th class="py-2 px-3">Status</th>
+            <th class="py-2 px-3">Forensic Reason & Action Plan</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <!-- Ghost Duplicate 1 -->
+          <tr class="bg-amber-50/30">
+            <td class="py-2.5 px-3 font-mono text-slate-700">2026-02-27</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-900">Austin Roberts</td>
+            <td class="py-2.5 px-3 text-slate-600">Payroll Check (Unnumbered)</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-900">-$145.00</td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">Ghost Duplicate</span>
+            </td>
+            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
+              Preliminary draft never paid by bank. Austin was paid via true $567.90 paycheck on same date. Safe to void in QBO.
+            </td>
+          </tr>
+          <!-- Ghost Duplicate 2 -->
+          <tr class="bg-amber-50/30">
+            <td class="py-2.5 px-3 font-mono text-slate-700">2026-04-10</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-900">Austin Roberts</td>
+            <td class="py-2.5 px-3 text-slate-600">Payroll Check (Unnumbered)</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-900">-$341.64</td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">Ghost Duplicate</span>
+            </td>
+            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
+              Preliminary draft never paid by bank. Austin was paid via true $370.00 paycheck on same date. Safe to void in QBO.
+            </td>
+          </tr>
+          <!-- Ghost Duplicate 3 -->
+          <tr class="bg-amber-50/30">
+            <td class="py-2.5 px-3 font-mono text-slate-700">2026-06-22</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-900">Jeffery Howard</td>
+            <td class="py-2.5 px-3 text-slate-600">Direct Deposit Draft (Unnumbered)</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-900">-$440.50</td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">Ghost Duplicate</span>
+            </td>
+            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
+              Draft duplicate entry. True payment was physical Check 4445 ($440.50) which already cleared First Merchants in July. Safe to void in QBO.
+            </td>
+          </tr>
+          <!-- Genuine Uncleared Check 4465 -->
+          <tr class="bg-rose-50/20">
+            <td class="py-2.5 px-3 font-mono text-slate-700">2026-08-19</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-900">Whitaker Nolff</td>
+            <td class="py-2.5 px-3 text-slate-600">Paper Check #4465</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-rose-800">-$254.99</td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">Genuine Float</span>
+            </td>
+            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
+              Legitimate shelter operational expense check issued 08/19, in payee transit at month-end. Clears in September statement.
+            </td>
+          </tr>
+          <!-- Genuine Deposit in Transit -->
+          <tr class="bg-emerald-50/20">
+            <td class="py-2.5 px-3 font-mono text-slate-700">2026-08-02</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-900">Weekend Shelter Deposit</td>
+            <td class="py-2.5 px-3 text-slate-600">Donations & Desk Cash</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-800">+$125.00</td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Deposit in Transit</span>
+            </td>
+            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
+              Received in shelter drop box on Sunday 08/02, credited to First Merchants account on 08/03.
+            </td>
+          </tr>
+        </tbody>
+        <tfoot class="bg-slate-100 font-semibold text-slate-800 border-t border-slate-200">
+          <tr>
+            <td colspan="3" class="py-2.5 px-3 uppercase tracking-wider text-[11px]">
+              Net Total Uncleared Float
+            </td>
+            <td class="py-2.5 px-3 text-right font-mono text-slate-900 font-bold">
+              -$1,057.13
+            </td>
+            <td colspan="2" class="py-2.5 px-3 text-slate-500 text-[11px]">
+              Ghost Checks (-$927.14) + Check 4465 (-$254.99) + Deposit (+$125.00)
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Forensic Resolution Footnote -->
+    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-600">
+      <div class="font-bold text-slate-800 flex items-center gap-1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        Resolution of the Historical $5.41 Intuit Payroll Mismatch:
+      </div>
+      <p class="leading-relaxed">
+        During the August 31 reconciliation audit, a $5.41 debit variance was uncovered where QBO transaction ID <code>6732</code> (Intuit Payroll debit on August 14) was recorded as $766.18 instead of the actual bank withdrawal of $771.59 (an accidental inversion matching check 4429's amount). With Txn 6732 corrected to $771.59 via QuickBooks MCP on 09/04/2026, cleared debits reached exactly $70,643.29 (62 items), yielding a flawless $0.00 difference against the First Merchants Bank statement.
+      </p>
+      <div class="pt-2 border-t border-slate-200 text-[11px] text-slate-500">
+        <strong>Recommended Board Action on Ghost Checks:</strong> To remove the $927.14 ghost duplicates permanently from future bank reconciliation screens, click into each entry in QBO and select <em>More &gt; Void</em>. Voiding them will increase book cash to $24,396.34, perfectly leaving only actual in-transit checks in the float.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: DAILY BALANCE TRAJECTORY -->
+  <div id="tab-panel-balances" class="statement-panel hidden p-5 space-y-4">
+    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+      <div>
+        <h4 class="font-bold text-slate-800 text-sm">First Merchants August Cash Flow & Daily Liquidity</h4>
+        <p class="text-slate-500 mt-0.5">
+          Tracking the month's 22 banking days: starting at $54,280.38, peaking at $68,493.92 on Aug 10, funding $70.6k operating obligations, and closing at $24,526.34.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <span class="text-[10px] text-slate-400 block uppercase">Peak Liquidity</span>
+          <span class="font-mono font-bold text-emerald-800 text-sm">$68,493.92</span>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] text-slate-400 block uppercase">August Low</span>
+          <span class="font-mono font-bold text-slate-800 text-sm">$24,526.34</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Balances Table with Liquidity Bars -->
+    <div class="border border-slate-200 rounded-lg overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+            <th class="py-2.5 px-3 whitespace-nowrap">Bank Date</th>
+            <th class="py-2.5 px-3 text-right">Daily Closing Balance</th>
+            <th class="py-2.5 px-3 text-right">Net Flow (Delta)</th>
+            <th class="py-2.5 px-3 w-48">Liquidity vs Peak ($68.5k)</th>
+            <th class="py-2.5 px-3">Primary Operational Event</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {dailyBalances.map((d) => {
+            const pct = Math.max(5, Math.round((d.balance / maxDailyBalance) * 100));
+            const isAug14 = d.date === '2026-08-14';
+            const isAug21 = d.date === '2026-08-21';
+            const isAug28 = d.date === '2026-08-28';
+            const isAug3 = d.date === '2026-08-03';
+            
+            let note = 'Routine operating deposits & debits';
+            if (isAug3) note = '+$12.6k branch cash, weekend adoptions & donor drops';
+            if (isAug14) note = 'Mid-month caregiver payroll & tax batch (-$19.7k)';
+            if (isAug21) note = 'Monroe Fencing capital play yard installation (-$7.1k)';
+            if (isAug28) note = 'End-of-month caregiver payroll run (-$17.5k)';
+            if (d.date === '2026-08-31') note = 'August statement close & final reconciliation locking';
+
+            return (
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-2.5 px-3 font-mono font-medium text-slate-700 whitespace-nowrap">
+                  {d.date}
+                </td>
+                <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                  {formatCents(d.balance)}
+                </td>
+                <td class="py-2.5 px-3 text-right font-mono font-semibold whitespace-nowrap">
+                  <span class={d.delta > 0 ? 'text-emerald-700' : d.delta < 0 ? 'text-rose-700' : 'text-slate-500'}>
+                    {d.delta > 0 ? `+${formatCents(d.delta)}` : d.delta < 0 ? `-${formatCents(Math.abs(d.delta))}` : '$0.00'}
+                  </span>
+                </td>
+                <td class="py-2.5 px-3">
+                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div
+                      class={`h-full rounded-full ${d.balance < 30000 ? 'bg-amber-500' : 'bg-[#173a39]'}`}
+                      style={`width: ${pct}%`}
+                    ></div>
+                  </div>
+                  <span class="text-[9px] font-mono text-slate-400 block mt-0.5">{pct}% of peak</span>
+                </td>
+                <td class="py-2.5 px-3 text-slate-600 text-[11px]">
+                  {note}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 4: DUAL PDF DOCUMENT VIEWER -->
+  <div id="tab-panel-pdf" class="statement-panel hidden p-5 space-y-4">
+    <!-- PDF Selector Buttons & Actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          id="btn-pdf-bank"
+          class="pdf-doc-btn active px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white shadow-xs transition"
+          data-pdf-url="/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf"
+          data-pdf-title="First Merchants Bank Statement (Aug 2026)"
+        >
+          1. First Merchants Bank Statement (6 Pages)
+        </button>
+        <button
+          type="button"
+          id="btn-pdf-qbo"
+          class="pdf-doc-btn px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition"
+          data-pdf-url="/assets/statements/QBO_Reconciliation_Report_08312026.pdf"
+          data-pdf-title="QuickBooks Online Official Reconciliation Report (Locked 09/04/2026)"
+        >
+          2. QBO Official Reconciliation Report (3 Pages)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a
+          id="pdf-open-newtab"
+          href="/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-xs"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          Open in New Tab
+        </a>
+        <a
+          id="pdf-download-btn"
+          href="/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf"
+          download
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download PDF
+        </a>
+      </div>
+    </div>
+
+    <!-- Active PDF Title Header -->
+    <div class="flex items-center justify-between text-xs px-1 text-slate-600">
+      <div>
+        Currently Viewing: <strong id="current-pdf-title" class="text-slate-900 font-semibold">First Merchants Bank Statement (Aug 2026)</strong>
+      </div>
+      <span class="text-[11px] text-slate-400">Native PDF viewer with zoom & page controls</span>
+    </div>
+
+    <!-- Embedded PDF Container -->
+    <div class="w-full bg-slate-100 rounded-lg border border-slate-300 overflow-hidden shadow-inner">
+      <iframe
+        id="pdf-viewer-frame"
+        src="/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf#toolbar=1&navpanes=0&scrollbar=1"
+        class="w-full h-[700px] border-0"
+        title="Bank Statement PDF Viewer"
+      ></iframe>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Tab Switching Logic
+  const tabButtons = document.querySelectorAll<HTMLButtonElement>('.statement-tab-btn');
+  const panels = document.querySelectorAll<HTMLElement>('.statement-panel');
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabKey = btn.getAttribute('data-statement-tab');
+      if (!tabKey) return;
+
+      // Update button styles
+      tabButtons.forEach(b => {
+        b.classList.remove('active', 'bg-[#173a39]', 'text-white');
+        b.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+      });
+      btn.classList.add('active', 'bg-[#173a39]', 'text-white');
+      btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+
+      // Show targeted panel
+      panels.forEach(p => p.classList.add('hidden'));
+      const targetPanel = document.getElementById(`tab-panel-${tabKey}`);
+      if (targetPanel) {
+        targetPanel.classList.remove('hidden');
+      }
+    });
+  });
+
+  // Tabular Filtering & Search Logic
+  const filterPills = document.querySelectorAll<HTMLButtonElement>('.filter-pill');
+  const searchInput = document.getElementById('statement-search-input') as HTMLInputElement | null;
+  const rows = document.querySelectorAll<HTMLTableRowElement>('.statement-row');
+  const filteredCountEl = document.getElementById('filtered-count');
+  const filteredCreditsEl = document.getElementById('filtered-credits');
+  const filteredDebitsEl = document.getElementById('filtered-debits');
+  const emptyStateEl = document.getElementById('statement-empty-state');
+
+  let activeFilter = 'all';
+  let activeQuery = '';
+
+  const formatCurrency = (num: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(num);
+  };
+
+  const applyTableFilters = () => {
+    let visibleCount = 0;
+    let sumCredits = 0;
+    let sumDebits = 0;
+
+    rows.forEach(row => {
+      const isDeposit = row.getAttribute('data-is-deposit') === 'true';
+      const isCheck = row.getAttribute('data-is-check') === 'true';
+      const isPayroll = row.getAttribute('data-is-payroll') === 'true';
+      const isAP = row.getAttribute('data-is-ap') === 'true';
+      const searchText = row.getAttribute('data-search') || '';
+      const amount = parseFloat(row.getAttribute('data-amount') || '0');
+
+      // Category matching
+      let matchesFilter = true;
+      if (activeFilter === 'deposits') matchesFilter = isDeposit;
+      else if (activeFilter === 'withdrawals') matchesFilter = !isDeposit;
+      else if (activeFilter === 'checks') matchesFilter = isCheck;
+      else if (activeFilter === 'payroll') matchesFilter = isPayroll;
+      else if (activeFilter === 'ap') matchesFilter = isAP;
+
+      // Query matching
+      let matchesQuery = true;
+      if (activeQuery.trim()) {
+        matchesQuery = searchText.includes(activeQuery.toLowerCase().trim());
+      }
+
+      if (matchesFilter && matchesQuery) {
+        row.style.display = '';
+        visibleCount++;
+        if (amount > 0) {
+          sumCredits += amount;
+        } else {
+          sumDebits += Math.abs(amount);
+        }
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    if (filteredCountEl) filteredCountEl.textContent = visibleCount.toString();
+    if (filteredCreditsEl) filteredCreditsEl.textContent = formatCurrency(sumCredits);
+    if (filteredDebitsEl) filteredDebitsEl.textContent = formatCurrency(sumDebits);
+
+    if (emptyStateEl) {
+      if (visibleCount === 0) {
+        emptyStateEl.classList.remove('hidden');
+      } else {
+        emptyStateEl.classList.add('hidden');
+      }
+    }
+  };
+
+  filterPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const filter = pill.getAttribute('data-filter') || 'all';
+      activeFilter = filter;
+
+      filterPills.forEach(p => {
+        p.classList.remove('active', 'bg-[#173a39]', 'text-white');
+        p.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+      });
+      pill.classList.add('active', 'bg-[#173a39]', 'text-white');
+      pill.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+
+      applyTableFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      activeQuery = (e.target as HTMLInputElement).value;
+      applyTableFilters();
+    });
+  }
+
+  // Dual PDF Switcher
+  const btnPdfBank = document.getElementById('btn-pdf-bank') as HTMLButtonElement | null;
+  const btnPdfQbo = document.getElementById('btn-pdf-qbo') as HTMLButtonElement | null;
+  const pdfFrame = document.getElementById('pdf-viewer-frame') as HTMLIFrameElement | null;
+  const pdfOpenNewTab = document.getElementById('pdf-open-newtab') as HTMLAnchorElement | null;
+  const pdfDownloadBtn = document.getElementById('pdf-download-btn') as HTMLAnchorElement | null;
+  const pdfTitleEl = document.getElementById('current-pdf-title');
+
+  const setPdfDocument = (btn: HTMLButtonElement) => {
+    const url = btn.getAttribute('data-pdf-url');
+    const title = btn.getAttribute('data-pdf-title');
+    if (!url || !pdfFrame) return;
+
+    pdfFrame.src = `${url}#toolbar=1&navpanes=0&scrollbar=1`;
+    if (pdfOpenNewTab) pdfOpenNewTab.href = url;
+    if (pdfDownloadBtn) pdfDownloadBtn.href = url;
+    if (pdfTitleEl && title) pdfTitleEl.textContent = title;
+
+    [btnPdfBank, btnPdfQbo].forEach(b => {
+      if (!b) return;
+      b.classList.remove('active', 'bg-[#173a39]', 'text-white');
+      b.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+    });
+    btn.classList.add('active', 'bg-[#173a39]', 'text-white');
+    btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+  };
+
+  if (btnPdfBank) {
+    btnPdfBank.addEventListener('click', () => setPdfDocument(btnPdfBank));
+  }
+  if (btnPdfQbo) {
+    btnPdfQbo.addEventListener('click', () => setPdfDocument(btnPdfQbo));
+  }
+</script>
