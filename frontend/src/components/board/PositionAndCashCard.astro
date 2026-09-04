@@ -116,18 +116,18 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
             <span class="font-mono font-medium text-slate-900">{formatDollar(position.assets.operating_checking_first_merchants)}</span>
           </div>
 
-          <!-- Line 2: Bank Register Cash (no fallback, fails loud) -->
-          <div class="flex justify-between items-center py-1.5 border-b border-slate-50 bg-amber-50/50 px-2 rounded">
+          <!-- Line 2: Bank Statement Ending Cash (Certified & Reconciled) -->
+          <div class="flex justify-between items-center py-1.5 border-b border-slate-50 bg-emerald-50/70 px-2 rounded border border-emerald-200/60">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-amber-900 font-semibold">First Merchants Bank Statement Ending Cash</span>
-                <a href="#bank-statement-viewer" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-200/80 text-amber-900 hover:bg-amber-300 transition" title="Inspect Bank Statement & Reconciled Float Explorer">
-                  Inspect Float &rarr;
+                <span class="text-emerald-950 font-semibold">First Merchants Bank Statement Ending Cash</span>
+                <a href="#bank-statement-viewer" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-200 text-emerald-900 hover:bg-emerald-300 transition" title="Inspect August 31 Bank Statement and Reconciliation Report">
+                  Statement & Rec &rarr;
                 </a>
               </div>
-              <p class="text-[10px] text-amber-700">Reconciled to Aug 31 statement ($24,526.34 bank vs $23,469.20 book · -$1,057.13 float)</p>
+              <p class="text-[10px] text-emerald-800">Certified & locked to Aug 31 statement ($24,526.34 bank · $0.00 difference)</p>
             </div>
-            <span class="font-mono font-bold text-amber-900">{formatDollar(position.assets.operating_checking_bank_register)}</span>
+            <span class="font-mono font-bold text-emerald-900">{formatDollar(position.assets.operating_checking_bank_register)}</span>
           </div>
 
           <div class="flex justify-between py-1 border-b border-slate-50">

@@ -19,8 +19,11 @@ import { getBoardMeetings, getBoardDocuments } from '../../../lib/directus';
 const boardMeetings = await getBoardMeetings();
 const boardDocuments = await getBoardDocuments();
 
-const avgMonthlyRev = reportData.headline_kpis.qbo_operating_revenue / (reportData.meta.closed_months_count || 8);
-const avgMonthlyExp = (reportData.headline_kpis.qbo_cogs + reportData.headline_kpis.qbo_operating_expenditures) / (reportData.meta.closed_months_count || 8);
+const closedMonths = reportData.meta.closed_months_count || 8;
+const avgMonthlyRev = reportData.headline_kpis.qbo_operating_revenue / closedMonths;
+const avgMonthlyExp = (reportData.headline_kpis.qbo_cogs + reportData.headline_kpis.qbo_operating_expenditures) / closedMonths;
+const allInMonthlyRev = reportData.headline_kpis.all_in_revenue / closedMonths;
+const allInMonthlyExp = reportData.headline_kpis.all_in_expenditures / closedMonths;
 ---
 
 <BaseLayout
@@ -45,6 +48,8 @@ const avgMonthlyExp = (reportData.headline_kpis.qbo_cogs + reportData.headline_k
         fidelityReserve={reportData.statement_of_position.assets.fidelity_board_designated_reserve}
         avgMonthlyRevenue={avgMonthlyRev}
         avgMonthlyExpense={avgMonthlyExp}
+        allInMonthlyRevenue={allInMonthlyRev}
+        allInMonthlyExpense={allInMonthlyExp}
         cutoffDate="August 31, 2026"
       />
 

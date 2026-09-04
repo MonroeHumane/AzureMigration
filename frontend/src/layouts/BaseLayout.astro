@@ -112,20 +112,21 @@ const schemaOrg = {
       rel="stylesheet"
     />
 
-    <!-- Facebook Pixel (Partytown) -->
-    <script type="text/partytown">
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      // Replace YOUR_PIXEL_ID with your actual Facebook Pixel ID
-      fbq('init', 'YOUR_PIXEL_ID');
-      fbq('track', 'PageView');
-    </script>
+    <!-- Facebook Pixel (Partytown) - only loaded if configured -->
+    {import.meta.env.PUBLIC_FACEBOOK_PIXEL_ID && import.meta.env.PUBLIC_FACEBOOK_PIXEL_ID !== 'YOUR_PIXEL_ID' && !Astro.url.pathname.startsWith('/internal') && (
+      <script is:inline type="text/partytown" define:vars={{ pixelId: import.meta.env.PUBLIC_FACEBOOK_PIXEL_ID }}>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', pixelId);
+        fbq('track', 'PageView');
+      </script>
+    )}
   </head>
   <body class:list={['monroe-rebuild-theme', bodyClass]}>
     <a class="monroe-skip-link" href="#monroe-main">Skip to content</a>

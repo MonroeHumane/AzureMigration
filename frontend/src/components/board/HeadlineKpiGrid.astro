@@ -129,23 +129,23 @@ const formatCents = (val: number) => {
     <div class="absolute top-0 left-0 right-0 h-1 bg-[#173a39]"></div>
     <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
       <span class="font-semibold uppercase tracking-wider text-slate-700">Cash Stack & Runway</span>
-      <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-        {kpis.runway_reserve_months.toFixed(1)} Mo Reserve
+      <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+        {(kpis.total_liquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1)} Mo Net Runway
       </span>
     </div>
     <div class="mt-2 flex items-baseline gap-2">
       <span class="text-3xl font-bold tracking-tight text-[#173a39]">
         {formatDollar(kpis.total_liquidity)}
       </span>
-      <span class="text-xs font-medium text-slate-500">Total Stack</span>
+      <span class="text-xs font-medium text-slate-500">Total Liquidity</span>
     </div>
     <p class="text-xs text-slate-500 mt-2">
-      Operating: <span class="font-medium text-slate-700">{formatDollar(kpis.operating_cash)}</span> ({kpis.runway_bank_days}d) · 
+      Operating: <span class="font-medium text-slate-700">{formatDollar(kpis.operating_cash)}</span> · 
       Fidelity: <span class="font-medium text-slate-700">{formatDollar(kpis.fidelity_reserve)}</span>
     </p>
     <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
-      <span>Checking + Undeposited + Petty:</span>
-      <span class="font-mono font-medium text-slate-800">{formatCents(kpis.operating_cash)}</span>
+      <span>Zero-Inflow Buffer:</span>
+      <span class="font-mono font-medium text-slate-800">{kpis.runway_reserve_months.toFixed(1)} Mo Gross OpExp</span>
     </div>
   </div>
 </section>\n
