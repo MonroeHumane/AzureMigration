@@ -15,45 +15,13 @@
       }
     },
     {
-      "route": "/internal/board/*",
-      "allowedRoles": [
-        "board",
-        "admin"
-      ],
-      "headers": {
-        "Cache-Control": "no-cache, no-store, must-revalidate"
-      }
-    },
-    {
-      "route": "/internal/board",
-      "allowedRoles": [
-        "board",
-        "admin"
-      ],
-      "headers": {
-        "Cache-Control": "no-cache, no-store, must-revalidate"
-      }
-    },
-    {
       "route": "/internal",
-      "allowedRoles": [
-        "board",
-        "admin",
-        "staff",
-        "authenticated"
-      ],
       "headers": {
         "Cache-Control": "no-cache, no-store, must-revalidate"
       }
     },
     {
       "route": "/internal/*",
-      "allowedRoles": [
-        "board",
-        "admin",
-        "staff",
-        "authenticated"
-      ],
       "headers": {
         "Cache-Control": "no-cache, no-store, must-revalidate"
       }
@@ -302,9 +270,6 @@
     "404": {
       "rewrite": "/404.html",
       "statusCode": 404
-    },
-    "401": {
-      "statusCode": 401
     }
   },
   "globalHeaders": {
