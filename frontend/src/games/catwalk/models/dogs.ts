@@ -332,19 +332,6 @@ export function drawDog(context: CanvasRenderingContext2D, pose: DogPose): void 
     // Draw Near legs second (in front of body)
     drawForeleg(shoulderX, chestDeepY * 0.7, sinA, false);
     drawHindleg(hipX, loinTuckY + 2, sinB, false);
-
-    // --- 7. DYNAMIC ALERT / BARK VECTORS ---
-    if (pose.alert) {
-      const pulsePhase = (pose.phase * 8) % 1;
-      const pulseDist1 = 8 + pulsePhase * 16;
-      const pulseDist2 = 14 + pulsePhase * 16;
-      const pulseAlpha = Math.max(0, 1 - pulsePhase);
-
-      wire(context, PALETTE.warning, 1.6, pulseAlpha, 4);
-      // Expanding acoustic shockwave arcs
-      line(context, { x: noseTipX + pulseDist1, y: noseTipY - 8 }, { x: noseTipX + pulseDist1 + 6, y: noseTipY - 14 });
-      line(context, { x: noseTipX + pulseDist2, y: noseTipY }, { x: noseTipX + pulseDist2 + 8, y: noseTipY });
-      line(context, { x: noseTipX + pulseDist1, y: noseTipY + 8 }, { x: noseTipX + pulseDist1 + 6, y: noseTipY + 14 });
-    }
   });
 }
+

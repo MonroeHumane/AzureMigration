@@ -1,5 +1,5 @@
 import { PALETTE } from '../rendering/palette';
-import { circle, curve, line, polyline, wire, withTransform } from '../rendering/primitives';
+import { circle, line, polyline, resetGlow, wire, withTransform } from '../rendering/primitives';
 
 export interface HousePose {
   x: number;
@@ -10,13 +10,12 @@ export interface HousePose {
 }
 
 export function drawHouse(context: CanvasRenderingContext2D, pose: HousePose): void {
-  const pulse = pose.occupied ? 1 + Math.sin(pose.phase * 4) * 0.025 : 1;
-  const houseColor = pose.occupied ? PALETTE.catGlow : PALETTE.homeDim;
+  const houseColor = pose.occupied ? PALETTE.cat : PALETTE.homeDim;
   const houseAlpha = pose.occupied ? 1.0 : 0.65;
 
-  withTransform(context, { x: pose.x, y: pose.y }, 0, pulse, pulse, () => {
+  withTransform(context, { x: pose.x, y: pose.y }, 0, 1, 1, () => {
     // --- 1. ARCHITECTURAL SANCTUARY / HOUSE PROFILE ---
-    wire(context, houseColor, 2.0, houseAlpha, pose.occupied ? 6 : 0);
+    wire(context, houseColor, 1.8, houseAlpha, pose.occupied ? 4 : 0);
 
     // Wall & Roof Polygon
     polyline(
@@ -64,19 +63,8 @@ export function drawHouse(context: CanvasRenderingContext2D, pose: HousePose): v
 
     if (pose.occupied) {
       // --- OCCUPIED: WARM SAFE HAVEN WITH HAPPY RESCUED CAT ---
-      // 1. Chimney wireframe smoke puffs rising
-      const smokePhase = (pose.phase * 1.5 + pose.index * 0.4) % 1;
-      const smokeY = chimneyY - 16 - smokePhase * 20;
-      const smokeDrift = Math.sin(smokePhase * Math.PI * 2) * 4;
-      const smokeAlpha = Math.max(0, 1 - smokePhase) * 0.7;
-      wire(context, PALETTE.catSoft, 1.2, smokeAlpha);
-      circle(context, { x: chimneyX + smokeDrift, y: smokeY }, 3 + smokePhase * 4);
-
-      // 2. Glowing hearth cat inside doorway
-      wire(context, PALETTE.cat, 2.0, 1, 6);
-
-      const breath = Math.sin(pose.phase * 3.5) * 0.6;
-      const catHeadY = 9 + breath;
+      wire(context, PALETTE.cat, 1.8, 1, 4);
+      const catHeadY = 9;
 
       // Head circle
       circle(context, { x: 0, y: catHeadY }, 6.5);
@@ -84,48 +72,29 @@ export function drawHouse(context: CanvasRenderingContext2D, pose: HousePose): v
       polyline(context, [{ x: -5.5, y: catHeadY - 2 }, { x: -5, y: catHeadY - 11 }, { x: -1, y: catHeadY - 5 }]);
       polyline(context, [{ x: 5.5, y: catHeadY - 2 }, { x: 5, y: catHeadY - 11 }, { x: 1, y: catHeadY - 5 }]);
 
-      // Contented crescent eyes (slow happy blinking)
-      const blink = (pose.phase * 0.6 + pose.index) % 3 < 0.25;
-      if (!blink) {
-        polyline(context, [{ x: -3.5, y: catHeadY - 0.5 }, { x: -2, y: catHeadY + 0.5 }, { x: -0.5, y: catHeadY - 0.5 }]);
-        polyline(context, [{ x: 3.5, y: catHeadY - 0.5 }, { x: 2, y: catHeadY + 0.5 }, { x: 0.5, y: catHeadY - 0.5 }]);
-      } else {
-        line(context, { x: -3.5, y: catHeadY }, { x: -0.5, y: catHeadY });
-        line(context, { x: 0.5, y: catHeadY }, { x: 3.5, y: catHeadY });
-      }
+      // Contented closed crescent eyes
+      polyline(context, [{ x: -3.5, y: catHeadY - 0.5 }, { x: -2, y: catHeadY + 0.5 }, { x: -0.5, y: catHeadY - 0.5 }]);
+      polyline(context, [{ x: 3.5, y: catHeadY - 0.5 }, { x: 2, y: catHeadY + 0.5 }, { x: 0.5, y: catHeadY - 0.5 }]);
 
       // Nose & happy cat smile
       polyline(context, [{ x: -0.6, y: catHeadY + 2 }, { x: 0, y: catHeadY + 2.5 }, { x: 0.6, y: catHeadY + 2 }]);
 
       // Whiskers
-      wire(context, PALETTE.catSoft, 1.0, 0.8);
+      wire(context, PALETTE.catSoft, 1.0, 0.7);
       line(context, { x: -3, y: catHeadY + 2 }, { x: -9, y: catHeadY + 1 });
       line(context, { x: -3, y: catHeadY + 3.5 }, { x: -8.5, y: catHeadY + 5 });
       line(context, { x: 3, y: catHeadY + 2 }, { x: 9, y: catHeadY + 1 });
       line(context, { x: 3, y: catHeadY + 3.5 }, { x: 8.5, y: catHeadY + 5 });
 
       // Paws resting on threshold
-      wire(context, PALETTE.cat, 1.6, 1, 3);
+      wire(context, PALETTE.cat, 1.5, 1);
       circle(context, { x: -4, y: 22 }, 2.0);
       circle(context, { x: 4, y: 22 }, 2.0);
     } else {
-      // --- UNOCCUPIED: PULSING HOMING BEACON & DOCKING RUNWAY CHEVRONS ---
-      // Homing radar sweep over the weather vane
-      const radarWave = (pose.phase * 2.2 + pose.index * 0.3) % 1;
-      const radarRadius = 4 + radarWave * 14;
-      const radarAlpha = (1 - radarWave) * 0.65;
-      wire(context, PALETTE.home, 1.2, radarAlpha);
-      context.beginPath();
-      context.arc(0, -34, radarRadius, -Math.PI * 0.8, -Math.PI * 0.2);
-      context.stroke();
-
-      // Pulsing runway docking chevrons in front of open doorway
-      const chevronStep = (pose.phase * 3.5) % 1;
-      wire(context, PALETTE.catSoft, 1.3, 0.45 + Math.sin(pose.phase * 4) * 0.25);
-      for (let c = 0; c < 2; c++) {
-        const cy = 20 - c * 5 + chevronStep * 3;
-        polyline(context, [{ x: -5, y: cy + 3 }, { x: 0, y: cy }, { x: 5, y: cy + 3 }]);
-      }
+      // --- UNOCCUPIED: STABLE, CLEAN TARGET MAT (NO FLASHING OR MOVING ARCS) ---
+      wire(context, '#1e4834', 1.0, 0.6);
+      line(context, { x: -8, y: 21 }, { x: 8, y: 21 });
+      line(context, { x: -5, y: 18 }, { x: 5, y: 18 });
     }
   });
 }
