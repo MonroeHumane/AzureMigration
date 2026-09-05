@@ -1,4 +1,4 @@
-﻿/*
+/*
  Homepage styles â€” Astro port of the monroe-rebuild theme's home-editable.css.
  Machine-extracted: rules matching the homepage section families only; the
  adopt-search / memorial / shelter / contest / shop / admin families stay with
@@ -2138,10 +2138,11 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
 }
 
 #sponsorMarqueeWidget {
-  --monroe-marquee-gap: 36px;
-  --monroe-marquee-speed: 30s;
+  --monroe-marquee-gap: 40px;
+  --monroe-marquee-speed: 28s;
   width: 100%;
   overflow: hidden;
+  margin-top: 1rem;
 }
 
 #sponsorMarqueeWidget .logo-slider {
@@ -2150,6 +2151,7 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   overflow: hidden;
   display: flex;
   align-items: center;
+  padding-block: 0.5rem;
 }
 
 #sponsorMarqueeWidget .logo-slider::before,
@@ -2165,12 +2167,12 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
 
 #sponsorMarqueeWidget .logo-slider::before {
   left: 0;
-  background: linear-gradient(to right, #fffaf2, transparent);
+  background: linear-gradient(to right, #fffaf2 10%, rgba(255, 250, 242, 0));
 }
 
 #sponsorMarqueeWidget .logo-slider::after {
   right: 0;
-  background: linear-gradient(to left, #fffaf2, transparent);
+  background: linear-gradient(to left, #fffaf2 10%, rgba(255, 250, 242, 0));
 }
 
 #sponsorMarqueeWidget .logo-track {
@@ -2203,22 +2205,69 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
 
 #sponsorMarqueeWidget .logo-set img {
   display: block;
-  height: auto;
-  max-height: 120px;
+  height: 64px;
+  max-height: 72px;
   width: auto;
-  max-width: 250px;
+  max-width: 180px;
   object-fit: contain;
   user-select: none;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  filter: drop-shadow(0 4px 12px rgba(28, 37, 52, 0.06));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+#sponsorMarqueeWidget .logo-set img:hover {
+  transform: translateY(-2px) scale(1.04);
+  filter: drop-shadow(0 8px 18px rgba(28, 37, 52, 0.12));
+}
+
+@media (max-width: 768px) {
+  #sponsorMarqueeWidget {
+    --monroe-marquee-gap: 24px;
+    --monroe-marquee-speed: 22s;
+  }
+
+  #sponsorMarqueeWidget .logo-slider::before,
+  #sponsorMarqueeWidget .logo-slider::after {
+    width: 36px;
+  }
+
+  #sponsorMarqueeWidget .logo-set {
+    gap: 24px;
+    padding-right: 24px;
+  }
+
+  #sponsorMarqueeWidget .logo-set img {
+    height: 48px;
+    max-height: 52px;
+    max-width: 130px;
+    padding: 4px 6px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-#sponsorMarqueeWidget .logo-set {
+  #sponsorMarqueeWidget .logo-track {
+    animation: none;
     flex-wrap: wrap;
     justify-content: center;
-    flex: 1 1 auto;
-    min-width: min(100%, 420px);
+    width: 100%;
+    min-width: 0;
+    gap: 1rem 1.5rem;
   }
-#sponsorMarqueeWidget .logo-slider::before,
+
+  #sponsorMarqueeWidget .logo-set {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    padding-right: 0;
+  }
+
+  #sponsorMarqueeWidget .logo-set[aria-hidden="true"] {
+    display: none;
+  }
+
+  #sponsorMarqueeWidget .logo-slider::before,
   #sponsorMarqueeWidget .logo-slider::after {
     display: none;
   }
@@ -2231,13 +2280,6 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
 
   100% {
     transform: translate3d(-50%, 0, 0);
-  }
-}
-
-@media (max-width: 768px) {
-#sponsorMarqueeWidget .logo-set img {
-    max-height: 70px;
-    max-width: 160px;
   }
 }
 

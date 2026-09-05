@@ -1,267 +1,378 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/humane-games-launcher.css';
+
+const GAMES = [
+  {
+    id: 'petsnake',
+    title: 'Pet Snake',
+    shortTitle: 'Pet Snake',
+    icon: '🐍',
+    desc: 'Guide a cat or dog through a snack trail — grab treats, dodge bombs, and chase a high score.',
+    badge: 'Play anytime',
+    url: '/games/petsnake.html?embed=1',
+    needsDex: false,
+  },
+  {
+    id: 'roguelike',
+    title: 'Pet Snake Adventure',
+    shortTitle: 'Adventure',
+    icon: '🗺️',
+    desc: 'A 15-floor roguelike journey with upgrades, affixes, and a vacuum boss.',
+    badge: 'Play anytime',
+    url: '/games/petsnakerouguelike.html?embed=1',
+    needsDex: false,
+  },
+  {
+    id: 'found',
+    title: 'Found',
+    shortTitle: 'Found',
+    icon: '🐱',
+    desc: 'A stray cat is trying to find its way home — jump, explore, and navigate a cozy neighborhood.',
+    badge: 'Play anytime',
+    url: '/games/found/index.html?embed=1',
+    needsDex: false,
+  },
+  {
+    id: 'match',
+    title: 'Pet Match',
+    shortTitle: 'Match',
+    icon: '🃏',
+    desc: 'Match pet photos — levels get bigger as you go and photos save to your album.',
+    badge: 'Saves to Adoptédex',
+    url: '/games/match/match.html?embed=1',
+    needsDex: true,
+  },
+  {
+    id: 'dex',
+    title: 'Adoptédex',
+    shortTitle: 'Album',
+    icon: '📖',
+    desc: 'Meet adoptable pets and build your permanent shelter card collection.',
+    badge: 'Saves to Adoptédex',
+    url: '/games/dex/dex.html?embed=1',
+    needsDex: true,
+  },
+  {
+    id: 'tycoon',
+    title: 'Shelter Tycoon',
+    shortTitle: 'Tycoon',
+    icon: '🏠',
+    desc: 'Run a humane society — intake real pets, complete care plans, and find forever homes.',
+    badge: 'Saves progress + Adoptédex',
+    url: '/games/shelter-tycoon/index.html?embed=1',
+    needsDex: true,
+  },
+];
 ---
 
 <BaseLayout
-  title="Games | 734-243-3669"
-  description="Free browser games featuring real adoptable pets from Monroe Humane. Play Flappy Cat, Match Memory, Shelter Run, and more - then meet the animals in real life."
+  title="Humane Games | Monroe County Humane Society"
+  description="Free browser games featuring real adoptable pets from Monroe Humane. Play Pet Snake, Match Memory, Shelter Tycoon, and build your Adoptédex album."
+  bodyClass="wp-singular page-template-default page page-id-200 monroe-inner-page page-slug-games"
 >
-  <div class="pb-24 px-4 max-w-7xl mx-auto" data-monroe-humane-games-root>
-    <header class="mb-20 flex flex-col lg:flex-row gap-12 items-center" aria-labelledby="monroe-games-title">
-      <div class="flex-1 text-center lg:text-left">
-        <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Services</p>
-        <h1 id="monroe-games-title" class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Humane Games</h1>
-        <p class="text-xl text-gray-600 mb-8 leading-relaxed">
-            Free browser games featuring real adoptable pets - play for a few minutes, then meet the animals on our site.
-        </p>
-        <ul class="flex flex-wrap justify-center lg:justify-start gap-3 mb-8" aria-label="Highlights">
-          <li class="px-5 py-2 bg-teal-50 text-teal-800 border border-teal-100 rounded-full font-medium">Free in your browser</li>
-          <li class="px-5 py-2 bg-teal-50 text-teal-800 border border-teal-100 rounded-full font-medium">Live shelter pets</li>
-          <li class="px-5 py-2 bg-teal-50 text-teal-800 border border-teal-100 rounded-full font-medium">Your Adopt�dex album</li>
-        </ul>
-        <p>
-          <button class="text-emerald-700 font-bold hover:text-emerald-900 underline underline-offset-4 decoration-emerald-200 transition-all" type="button" data-monroe-humane-games-about-open>
+  <div class="monroe-inner-page-shell monroe-native-inner monroe-native-inner--games">
+    <div class="monroe-inner-page-shell__content monroe-games-page" data-monroe-humane-games-root>
+
+      <!-- Hero & Nickname Auth Header -->
+      <header class="monroe-games-hero" aria-labelledby="monroe-games-title">
+        <div class="monroe-games-hero__copy">
+          <p class="monroe-native-eyebrow">Services</p>
+          <h1 id="monroe-games-title">Humane Games</h1>
+          <p class="monroe-native-lead">
+            Free browser games featuring real adoptable pets &mdash; play for a few minutes, then meet the animals on our site.
+          </p>
+          <ul class="monroe-games-feature-pills" aria-label="Highlights">
+            <li>Free in your browser</li>
+            <li>Live shelter pets</li>
+            <li>Your Adoptédex album</li>
+          </ul>
+          <p class="monroe-games-hero__about">
+            <button class="monroe-games-hero__about-link" type="button" data-monroe-humane-games-about-open>
               About Humane Games
-          </button>
-        </p>
-      </div>
+            </button>
+          </p>
+        </div>
 
-      <div class="w-full lg:w-5/12 max-w-md mx-auto">
-        <section class="bg-white border border-gray-200 rounded-3xl p-8 shadow-md relative overflow-hidden" aria-labelledby="monroe-dex-gate-heading">
-          <span class="absolute -top-6 -right-6 text-9xl opacity-5" aria-hidden="true">??</span>
-          <h2 class="text-2xl font-serif text-teal-900 mb-2 relative z-10" id="monroe-dex-gate-heading">Your Adopt�dex name</h2>
-          <p class="text-gray-600 mb-6 relative z-10">One nickname saves your Adopt�dex album and Shelter Tycoon progress.</p>
-
-          <div class="mb-6 relative z-10">
-            <div class="mb-4">
-              <label class="block font-bold text-teal-900 mb-2" for="monroeDexUsername">Nickname</label>
-              <input
-                class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-700 focus:bg-white transition-all outline-none"
-                type="text"
-                id="monroeDexUsername"
-                name="monroeDexUsername"
-                maxlength="20"
-                autocomplete="nickname"
-                placeholder="e.g. PetFriend42"
-                data-monroe-dex-username
-              >
+        <div class="monroe-games-hero__panel monroe-humane-games">
+          <span class="monroe-humane-games__panel-glyph" aria-hidden="true">🐾</span>
+          <section class="monroe-humane-games__dex-gate" aria-labelledby="monroe-dex-gate-heading">
+            <h2 class="monroe-humane-games__dex-gate-title" id="monroe-dex-gate-heading">Your Adoptédex name</h2>
+            <p class="monroe-humane-games__dex-gate-hint">One nickname saves your Adoptédex album and game progress.</p>
+            <div class="monroe-humane-games__dex-gate-fields">
+              <div class="monroe-humane-games__dex-gate-row">
+                <label class="monroe-humane-games__dex-label" for="monroeDexUsername">Nickname</label>
+                <input
+                  class="monroe-humane-games__dex-input"
+                  type="text"
+                  id="monroeDexUsername"
+                  name="monroeDexUsername"
+                  maxlength="20"
+                  autocomplete="nickname"
+                  placeholder="e.g. PetFriend42"
+                  data-monroe-dex-username
+                />
+              </div>
+              <label class="monroe-humane-games__dex-remember">
+                <input type="checkbox" checked data-monroe-dex-remember />
+                <span>Remember on this device</span>
+              </label>
             </div>
-            <label class="flex items-center gap-2 text-gray-600 cursor-pointer">
-              <input type="checkbox" class="rounded text-teal-700 focus:ring-teal-700" checked data-monroe-dex-remember>
-              <span>Remember on this device</span>
-            </label>
-          </div>
-
-          <div class="flex flex-wrap gap-3 relative z-10">
-            <button type="button" class="flex-1 basis-full sm:basis-0 px-4 py-2 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider text-sm hover:bg-teal-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" data-monroe-dex-view-album disabled>
+            <div class="monroe-humane-games__dex-actions">
+              <button type="button" class="monroe-humane-games__btn monroe-humane-games__btn--ghost" data-monroe-dex-view-album>
                 View my album
-            </button>
-            <button type="button" class="flex-1 basis-full sm:basis-0 px-4 py-2 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider text-sm hover:bg-teal-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" data-monroe-dex-copy-link disabled>
+              </button>
+              <button type="button" class="monroe-humane-games__btn monroe-humane-games__btn--ghost" data-monroe-dex-copy-link>
                 Copy share link
-            </button>
-            <button type="button" class="flex-1 basis-full sm:basis-0 px-4 py-2 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider text-sm hover:bg-teal-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" data-monroe-dex-share disabled style="display: none;">
-                Share my album
-            </button>
-          </div>
-          <p data-monroe-dex-privacy></p>
-          <p data-monroe-dex-toast hidden aria-live="polite"></p>
-        </section>
-      </div>
-    </header>
+              </button>
+            </div>
+            <p class="monroe-humane-games__dex-toast" data-monroe-dex-toast hidden aria-live="polite"></p>
+          </section>
+        </div>
+      </header>
 
+      <!-- Game Picker Grid -->
+      <section class="monroe-games-picker monroe-humane-games" aria-labelledby="monroe-games-picker-heading">
+        <div class="monroe-games-picker__intro">
+          <p class="monroe-native-eyebrow">Play now</p>
+          <h2 id="monroe-games-picker-heading">Choose a game</h2>
+          <p class="monroe-games-picker__lead">Six free games and counting &mdash; pick one and jump in.</p>
+        </div>
 
-    <section class="mb-24" aria-labelledby="monroe-games-picker-heading">
-      <div class="text-center mb-12">
-        <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Play now</p>
-        <h2 id="monroe-games-picker-heading" class="text-4xl font-serif text-teal-900 mb-4">Choose a game</h2>
-        <p class="text-xl text-gray-600">Six free games and counting - pick one and jump in.</p>
-      </div>
-      <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <li>
-          <button
-            type="button"
-            class="group w-full h-full flex flex-col bg-white border border-gray-200 rounded-3xl p-8 text-left shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            data-monroe-humane-game="petsnake"
-            aria-label="Play Pet Snake"
-          >
-            <span class="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center text-3xl mb-6" aria-hidden="true">
-              <span>??</span>
-            </span>
-            <span class="flex-col flex mb-4">
-              <span class="text-2xl font-bold text-teal-900 mb-2 group-hover:text-emerald-700 transition-colors">Pet Snake</span>
-              <span class="text-gray-600 leading-relaxed">Guide a cat or dog through a snack trail - grab treats, dodge bombs, chase a high score.</span>
-            </span>
-            <span class="mt-auto mb-4">
-              <span class="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider rounded-full">Play anytime</span>
-            </span>
-            <span class="text-emerald-600 font-bold uppercase tracking-widest text-sm" aria-hidden="true">Play &gt;</span>
-          </button>
-        </li>
-
-        <li>
-          <button
-            type="button"
-            class="group w-full h-full flex flex-col bg-white border border-gray-200 rounded-3xl p-8 text-left shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            data-monroe-humane-game="roguelike"
-            aria-label="Play Pet Snake Adventure"
-          >
-            <span class="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center text-3xl mb-6" aria-hidden="true">
-              <span>?????</span>
-            </span>
-            <span class="flex-col flex mb-4">
-              <span class="text-2xl font-bold text-teal-900 mb-2 group-hover:text-emerald-700 transition-colors">Pet Snake Adventure</span>
-              <span class="text-gray-600 leading-relaxed">A 15-floor roguelike journey with upgrades, affixes, and a vacuum boss.</span>
-            </span>
-            <span class="mt-auto mb-4">
-              <span class="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider rounded-full">Play anytime</span>
-            </span>
-            <span class="text-emerald-600 font-bold uppercase tracking-widest text-sm" aria-hidden="true">Play &gt;</span>
-          </button>
-        </li>
-
-        <li>
-          <button
-            type="button"
-            class="group w-full h-full flex flex-col bg-white border border-gray-200 rounded-3xl p-8 text-left shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            data-monroe-humane-game="found"
-            aria-label="Play Found"
-          >
-            <span class="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center text-3xl mb-6" aria-hidden="true">
-              <span>??</span>
-            </span>
-            <span class="flex-col flex mb-4">
-              <span class="text-2xl font-bold text-teal-900 mb-2 group-hover:text-emerald-700 transition-colors">Found</span>
-              <span class="text-gray-600 leading-relaxed">A stray cat is trying to find its way home - jump and explore a cozy neighborhood.</span>
-            </span>
-            <span class="mt-auto mb-4">
-              <span class="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider rounded-full">Play anytime</span>
-            </span>
-            <span class="text-emerald-600 font-bold uppercase tracking-widest text-sm" aria-hidden="true">Play &gt;</span>
-          </button>
-        </li>
-
-        <li>
-          <button
-            type="button"
-            class="group w-full h-full flex flex-col bg-white border border-gray-200 rounded-3xl p-8 text-left shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            data-monroe-humane-game="match"
-            data-needs-dex="1"
-            aria-label="Play Pet Match"
-          >
-            <span class="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center text-3xl mb-6" aria-hidden="true">
-              <span>??</span>
-            </span>
-            <span class="flex-col flex mb-4">
-              <span class="text-2xl font-bold text-teal-900 mb-2 group-hover:text-emerald-700 transition-colors">Pet Match</span>
-              <span class="text-gray-600 leading-relaxed">Match pet photos - levels get bigger as you go.</span>
-            </span>
-            <span class="mt-auto mb-4 flex flex-wrap gap-2">
-              <span class="inline-block px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold uppercase tracking-wider rounded-full">Saves to Adopt�dex</span>
-              <span class="inline-block px-3 py-1 bg-red-50 text-red-700 border border-red-200 text-xs font-bold uppercase tracking-wider rounded-full" data-monroe-dex-lock hidden>Nickname required</span>
-            </span>
-            <span class="text-emerald-600 font-bold uppercase tracking-widest text-sm" aria-hidden="true">Play &gt;</span>
-          </button>
-        </li>
-
-        <li>
-          <button
-            type="button"
-            class="group w-full h-full flex flex-col bg-white border border-gray-200 rounded-3xl p-8 text-left shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            data-monroe-humane-game="dex"
-            data-needs-dex="1"
-            aria-label="Play Adopt�dex"
-          >
-            <span class="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center text-3xl mb-6" aria-hidden="true">
-              <span>??</span>
-            </span>
-            <span class="flex-col flex mb-4">
-              <span class="text-2xl font-bold text-teal-900 mb-2 group-hover:text-emerald-700 transition-colors">Adopt�dex</span>
-              <span class="text-gray-600 leading-relaxed">Meet adoptable pets and build your album.</span>
-            </span>
-            <span class="mt-auto mb-4 flex flex-wrap gap-2">
-              <span class="inline-block px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold uppercase tracking-wider rounded-full">Saves to Adopt�dex</span>
-              <span class="inline-block px-3 py-1 bg-red-50 text-red-700 border border-red-200 text-xs font-bold uppercase tracking-wider rounded-full" data-monroe-dex-lock hidden>Nickname required</span>
-            </span>
-            <span class="text-emerald-600 font-bold uppercase tracking-widest text-sm" aria-hidden="true">Play &gt;</span>
-          </button>
-        </li>
-
-        <li>
-          <button
-            type="button"
-            class="group w-full h-full flex flex-col bg-white border border-gray-200 rounded-3xl p-8 text-left shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            data-monroe-humane-game="tycoon"
-            data-needs-dex="1"
-            aria-label="Play Shelter Tycoon"
-          >
-            <span class="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center text-3xl mb-6" aria-hidden="true">
-              <span>???</span>
-            </span>
-            <span class="flex-col flex mb-4">
-              <span class="text-2xl font-bold text-teal-900 mb-2 group-hover:text-emerald-700 transition-colors">Shelter Tycoon</span>
-              <span class="text-gray-600 leading-relaxed">Run a humane society - intake real pets, complete care plans, find forever homes.</span>
-            </span>
-            <span class="mt-auto mb-4 flex flex-wrap gap-2">
-              <span class="inline-block px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold uppercase tracking-wider rounded-full">Saves progress + Adopt�dex</span>
-              <span class="inline-block px-3 py-1 bg-red-50 text-red-700 border border-red-200 text-xs font-bold uppercase tracking-wider rounded-full" data-monroe-dex-lock hidden>Nickname required</span>
-            </span>
-            <span class="text-emerald-600 font-bold uppercase tracking-widest text-sm" aria-hidden="true">Play &gt;</span>
-          </button>
-        </li>
-      </ul>
-      <p class="text-center mt-8 text-gray-500 font-medium">
-          Opens on top of this page. Press Escape to close.
-      </p>
-    </section>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 bg-gray-50 rounded-3xl p-8 md:p-16 mb-24">
-      <section aria-labelledby="monroe-games-how-heading">
-        <h2 id="monroe-games-how-heading" class="text-3xl font-serif text-teal-900 mb-8">How to play</h2>
-        <ul class="flex flex-col gap-6">
-          <li class="flex gap-4">
-            <span class="w-10 h-10 bg-teal-100 text-teal-900 rounded-full flex items-center justify-center font-bold flex-shrink-0" aria-hidden="true">1</span>
-            <span class="text-gray-700 leading-relaxed pt-2">Choose your Adopt�dex nickname once - it works for every Humane Game.</span>
-          </li>
-          <li class="flex gap-4">
-            <span class="w-10 h-10 bg-teal-100 text-teal-900 rounded-full flex items-center justify-center font-bold flex-shrink-0" aria-hidden="true">2</span>
-            <span class="text-gray-700 leading-relaxed pt-2">The game opens in a full-screen layer on this page.</span>
-          </li>
-          <li class="flex gap-4">
-            <span class="w-10 h-10 bg-teal-100 text-teal-900 rounded-full flex items-center justify-center font-bold flex-shrink-0" aria-hidden="true">3</span>
-            <span class="text-gray-700 leading-relaxed pt-2">Close anytime with the Close game button or Escape to return here.</span>
-          </li>
+        <ul class="monroe-humane-games__grid">
+          {GAMES.map((game) => (
+            <li class="monroe-humane-games__grid-item">
+              <button
+                type="button"
+                class={`monroe-humane-games__card monroe-humane-games__card--${game.id}`}
+                data-monroe-humane-game={game.id}
+                data-needs-dex={game.needsDex ? '1' : '0'}
+                aria-label={`Play ${game.title}`}
+              >
+                <span class="monroe-humane-games__card-icon-wrap" aria-hidden="true">
+                  <span class="monroe-humane-games__card-icon">{game.icon}</span>
+                </span>
+                <span class="monroe-humane-games__card-body">
+                  <span class="monroe-humane-games__card-title">{game.title}</span>
+                  <span class="monroe-humane-games__card-desc">{game.desc}</span>
+                </span>
+                <span class="monroe-humane-games__card-meta">
+                  <span class="monroe-humane-games__card-badge">{game.badge}</span>
+                  {game.needsDex && (
+                    <span class="monroe-humane-games__card-lock" data-monroe-dex-lock hidden>Nickname required</span>
+                  )}
+                </span>
+                <span class="monroe-humane-games__card-action" aria-hidden="true">Play &rsaquo;</span>
+              </button>
+            </li>
+          ))}
         </ul>
-      </section>
-    </div>
 
-    <section class="bg-teal-900 text-white rounded-3xl p-10 sm:p-16 text-center shadow-xl" aria-labelledby="monroe-games-cta-heading">
-      <h2 id="monroe-games-cta-heading" class="text-4xl font-serif mb-6">Help real pets in Monroe County</h2>
-      <p class="text-teal-100 text-lg mb-10 max-w-2xl mx-auto leading-relaxed">When you are done playing, browse adoptable animals, volunteer, or see upcoming shelter events.</p>
-      <div class="flex flex-wrap justify-center gap-4">
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400 hover:-translate-y-1" href="/adopt/">
-              Adoptable pets
+        <p class="monroe-humane-games__hint">
+          Opens on top of this page. Press Escape to close.
+        </p>
+      </section>
+
+      <!-- How to Play Section -->
+      <section class="monroe-games-how" aria-labelledby="monroe-games-how-heading">
+        <h2 id="monroe-games-how-heading">How to play</h2>
+        <ol class="monroe-games-how__steps">
+          <li>
+            <span class="monroe-games-how__step-num" aria-hidden="true">1</span>
+            <span>Choose your Adoptédex nickname once &mdash; it works for every Humane Game.</span>
+          </li>
+          <li>
+            <span class="monroe-games-how__step-num" aria-hidden="true">2</span>
+            <span>The game opens in a full-screen layer right on this page.</span>
+          </li>
+          <li>
+            <span class="monroe-games-how__step-num" aria-hidden="true">3</span>
+            <span>Close anytime with the Close game button or Escape key to return here.</span>
+          </li>
+        </ol>
+      </section>
+
+      <!-- CTA Band -->
+      <section class="monroe-games-cta-band" aria-labelledby="monroe-games-cta-heading">
+        <h2 id="monroe-games-cta-heading">Help real pets in Monroe County</h2>
+        <p>When you are done playing, browse adoptable animals, volunteer, or see upcoming shelter events.</p>
+        <div class="monroe-games-cta-band__actions">
+          <a class="monroe-games-cta-band__link monroe-games-cta-band__link--primary" href="/adopt">
+            Adoptable pets
           </a>
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-white text-white hover:bg-white hover:text-teal-900 hover:-translate-y-1" href="/volunteer-form">
-              Volunteer
+          <a class="monroe-games-cta-band__link" href="/volunteer-form">
+            Volunteer
           </a>
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-white text-white hover:bg-white hover:text-teal-900 hover:-translate-y-1" href="/events">
-              Events
+          <a class="monroe-games-cta-band__link" href="/events">
+            Events
           </a>
-      </div>
-    </section>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- About Dialog -->
+  <div class="monroe-humane-games-about" data-monroe-humane-games-about hidden>
+    <div class="monroe-humane-games-about__panel" role="dialog" aria-modal="true" aria-labelledby="monroe-humane-games-about-title">
+      <button class="monroe-humane-games-about__close" type="button" data-monroe-humane-games-about-close aria-label="Close about dialog">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <p class="monroe-native-eyebrow">About Humane Games</p>
+      <h3 class="monroe-humane-games-about__title" id="monroe-humane-games-about-title">Small games for big hearts</h3>
+      <p class="monroe-humane-games-about__body">
+        Humane Games is a tiny browser arcade made for Monroe Humane supporters. Everything loads fast, plays nicely on phones, tablets, and computers, and stays gentle &mdash; no ads, no trackers, no surprise sound.
+      </p>
+      <p class="monroe-humane-games-about__body">
+        Grab a quick mood boost, then hop back to browse adoptable pets or see how you can help the shelter.
+      </p>
+      <a class="monroe-games-cta-band__link monroe-games-cta-band__link--primary" href="/adopt">
+        Browse adoptable pets
+      </a>
+    </div>
+  </div>
+
+  <!-- Fullscreen Game Modal Player -->
+  <div class="monroe-humane-games-player" data-monroe-humane-games-player hidden role="dialog" aria-modal="true" aria-labelledby="monroe-humane-games-player-title">
+    <div class="monroe-humane-games-player__toolbar">
+      <h2 class="monroe-humane-games-player__title" id="monroe-humane-games-player-title" data-monroe-humane-games-player-title>Humane Games</h2>
+      <button class="monroe-humane-games-player__close" type="button" data-monroe-humane-games-player-close aria-label="Close game">
+        &times; Close game
+      </button>
+    </div>
+    <div class="monroe-humane-games-player__frame-wrap">
+      <iframe
+        class="monroe-humane-games-player__frame"
+        data-monroe-humane-games-frame
+        title="Humane Games Player"
+        loading="lazy"
+        allow="autoplay; fullscreen; gamepad"
+      ></iframe>
+    </div>
   </div>
 </BaseLayout>
 
-<div class="fixed inset-0 z-[8000] flex flex-col bg-[#11201f] [writing-mode:horizontal-tb]" data-humane-games-overlay hidden>
-  <div class="flex items-center justify-between gap-4 px-4 py-3 bg-[#1173a39] text-[#1fffaf2] font-sans">
-    <strong class="font-medium" data-humane-games-title>Humane Games</strong>
-    <button type="button" class="border border-[#1fffaf2]/40 bg-transparent text-[#1fffaf2] rounded-full px-4 py-2 cursor-pointer font-semibold text-xs uppercase tracking-widest hover:bg-[#1fffaf2]/10 transition-colors" data-humane-games-close aria-label="Close game">&#x27D7; Close</button>
-  </div>
-  <iframe data-humane-games-frame title="Humane Games" allow="autoplay; fullscreen; gamepad" class="flex-1 w-full border-0"></iframe>
-</div>
-
 <style>
-  .data-humane-games-overlay[hidden] { display: none; }
+  [data-monroe-humane-games-player][hidden],
+  [data-monroe-humane-games-about][hidden] {
+    display: none !important;
+  }
+
+  .monroe-humane-games-player {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    background: #173a39;
+  }
+
+  .monroe-humane-games-player__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    background: #0f2d2c;
+    border-bottom: 1px solid rgba(255, 250, 242, 0.15);
+    color: #fffaf2;
+  }
+
+  .monroe-humane-games-player__title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fffaf2;
+  }
+
+  .monroe-humane-games-player__close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 1.1rem;
+    border: 1px solid rgba(255, 250, 242, 0.3);
+    border-radius: 999px;
+    background: transparent;
+    color: #fffaf2;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .monroe-humane-games-player__close:hover {
+    background: rgba(255, 250, 242, 0.15);
+    border-color: #fffaf2;
+  }
+
+  .monroe-humane-games-player__frame-wrap {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .monroe-humane-games-player__frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .monroe-humane-games-about {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(6px);
+  }
+
+  .monroe-humane-games-about__panel {
+    position: relative;
+    max-width: 520px;
+    width: 100%;
+    padding: 2.25rem;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .monroe-humane-games-about__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 0;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+
+  .monroe-humane-games-about__close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  .monroe-humane-games-about__title {
+    margin: 0.5rem 0 1rem;
+    font-size: 1.65rem;
+    color: #173a39;
+  }
+
+  .monroe-humane-games-about__body {
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
 </style>
 
 <script>
@@ -269,98 +380,121 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const GAME_URLS: Record<string, string> = {
       petsnake: '/games/petsnake.html?embed=1',
       roguelike: '/games/petsnakerouguelike.html?embed=1',
+      found: '/games/found/index.html?embed=1',
       match: '/games/match/match.html?embed=1',
       dex: '/games/dex/dex.html?embed=1',
       tycoon: '/games/shelter-tycoon/index.html?embed=1',
-      found: '/games/found/index.html?embed=1',
     };
 
     const root = document.querySelector<HTMLElement>('[data-monroe-humane-games-root]');
     if (!root) return;
 
-    const overlay = document.querySelector<HTMLElement>('[data-humane-games-overlay]');
-    const frame = overlay?.querySelector<HTMLIFrameElement>('[data-humane-games-frame]');
-    const titleEl = overlay?.querySelector<HTMLElement>('[data-humane-games-title]');
+    const player = document.querySelector<HTMLElement>('[data-monroe-humane-games-player]');
+    const frame = player?.querySelector<HTMLIFrameElement>('[data-monroe-humane-games-frame]');
+    const titleEl = player?.querySelector<HTMLElement>('[data-monroe-humane-games-player-title]');
     const input = document.getElementById('monroeDexUsername') as HTMLInputElement | null;
+    const toastEl = root.querySelector<HTMLElement>('[data-monroe-dex-toast]');
 
     const savedName = () => localStorage.getItem('monroeDexUser') || '';
-    if (input && savedName()) input.value = savedName();
+    if (input && savedName()) {
+      input.value = savedName();
+    }
 
-    const saveNick = () => {
-      const name = (input?.value ?? "").trim().slice(0, 24);
-      if (name) { localStorage.setItem("monroeDexUser", name); document.querySelectorAll("[data-monroe-dex-view-album], [data-monroe-dex-copy-link], [data-monroe-dex-share]").forEach(b => b.removeAttribute("disabled")); }
+    const showToast = (msg: string) => {
+      if (!toastEl) return;
+      toastEl.textContent = msg;
+      toastEl.removeAttribute('hidden');
+      setTimeout(() => toastEl.setAttribute('hidden', ''), 2500);
     };
 
-    document.querySelectorAll<HTMLButtonElement>('[data-monroe-dex-view-album], [data-monroe-dex-copy-link], [data-monroe-dex-share]').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        saveNick();
-      });
+    const saveNick = () => {
+      const name = (input?.value ?? '').trim().slice(0, 20);
+      if (name) {
+        localStorage.setItem('monroeDexUser', name);
+      }
+      return name;
+    };
+
+    input?.addEventListener('change', saveNick);
+    input?.addEventListener('blur', saveNick);
+
+    // View album button
+    root.querySelector<HTMLButtonElement>('[data-monroe-dex-view-album]')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const nick = saveNick() || savedName();
+      if (!nick) {
+        input?.focus();
+        showToast('Please choose a nickname first!');
+        return;
+      }
+      launchGame('dex', 'Adoptédex');
     });
+
+    // Copy share link button
+    root.querySelector<HTMLButtonElement>('[data-monroe-dex-copy-link]')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      saveNick();
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        showToast('Share link copied to clipboard!');
+      } catch {
+        showToast('Link copied!');
+      }
+    });
+
+    // Launch game cards
+    const launchGame = (id: string, name: string) => {
+      const url = GAME_URLS[id];
+      if (!url || !player || !frame) return;
+      frame.src = url;
+      if (titleEl) titleEl.textContent = name;
+      player.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+    };
 
     root.querySelectorAll<HTMLButtonElement>('[data-monroe-humane-game]').forEach((card) => {
       card.addEventListener('click', () => {
         const id = card.dataset.monroeHumaneGame ?? '';
-        const url = GAME_URLS[id];
-        if (!url) {
-          alert('This game is being updated and will return soon. Try Pet Snake Adventure, Pet Match, Adopt�dex, or Shelter Tycoon!');
-          return;
-        }
+        const name = card.querySelector('.monroe-humane-games__card-title')?.textContent ?? 'Humane Games';
         if (card.dataset.needsDex === '1' && !savedName()) {
           input?.focus();
-          input?.closest('.w-[flex].w-Max-0')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          showToast('Choose a nickname to save your progress!');
           return;
         }
         saveNick();
-        if (frame) frame.src = url;
-        const name = card.querySelector('span:nth-child(2) span:first-child')?.textContent ?? 'Humane Games';
-        if (titleEl) titleEl.textContent = name;
-        overlay?.removeAttribute('hidden');
-        document.body.style.overflow = 'hidden';
+        launchGame(id, name);
       });
     });
 
-    const close = () => {
-      overlay?.setAttribute('hidden', '');
+    // Close game modal
+    const closePlayer = () => {
+      if (!player) return;
+      player.setAttribute('hidden', '');
       if (frame) frame.src = 'about:blank';
       document.body.style.overflow = '';
     };
-    overlay?.querySelector('[data-humane-games-close]')?.addEventListener('click', close);
 
-    const shareBtn = document.querySelector<HTMLElement>("[data-monroe-dex-share]");
-    const copyBtn = document.querySelector<HTMLElement>("[data-monroe-dex-copy-link]");
-    if (navigator.share && shareBtn) {
-      shareBtn.style.display = "inline-block";
-      if (copyBtn) copyBtn.style.display = "none";
-      shareBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        saveNick();
-        const user = savedName();
-        if (!user) return;
-        try {
-          await navigator.share({
-            title: "My Humane Games Adopt�dex",
-            text: `Check out ${user}s shelter pets on Humane Games!`,
-            url: window.location.href,
-          });
-        } catch (err) {}
-      });
-    } else if (copyBtn) {
-      copyBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        saveNick();
-        const user = savedName();
-        if (!user) return;
-        try {
-          await navigator.clipboard.writeText(window.location.href);
-          const originalText = copyBtn.textContent;
-          copyBtn.textContent = "Copied!";
-          setTimeout(() => copyBtn.textContent = originalText, 2000);
-        } catch (err) {}
-      });
-    }
-    document.addEventListener("keydown", (e) => {
-      if (e.key === 'Escape' && overlay && !overlay.hasAttribute('hidden')) close();
+    player?.querySelector('[data-monroe-humane-games-player-close]')?.addEventListener('click', closePlayer);
+
+    // About modal
+    const aboutModal = document.querySelector<HTMLElement>('[data-monroe-humane-games-about]');
+    root.querySelector('[data-monroe-humane-games-about-open]')?.addEventListener('click', () => {
+      aboutModal?.removeAttribute('hidden');
+    });
+    aboutModal?.querySelector('[data-monroe-humane-games-about-close]')?.addEventListener('click', () => {
+      aboutModal?.setAttribute('hidden', '');
+    });
+    aboutModal?.addEventListener('click', (e) => {
+      if (e.target === aboutModal) aboutModal.setAttribute('hidden', '');
+    });
+
+    // Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (player && !player.hasAttribute('hidden')) closePlayer();
+        if (aboutModal && !aboutModal.hasAttribute('hidden')) aboutModal.setAttribute('hidden', '');
+      }
     });
   }
 

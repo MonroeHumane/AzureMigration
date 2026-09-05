@@ -382,8 +382,9 @@ const indexLabels: Record<string, string> = {
 
     <!-- 7. Vet partners -->
     <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
-      <div class="home-editable-news-card home-editable-runtime-card">
+      <div class="home-editable-news-card is-style-monroe-news-band home-editable-runtime-card">
         <p class="home-editable-section-label wp-block-paragraph">{home.vet_partners.label}</p>
+        <h2 class="wp-block-heading">{home.vet_partners.title}</h2>
         <p class="wp-block-paragraph">{home.vet_partners.intro}</p>
         <div class="sponsor-widget-shell">
           <section class="sponsor-widget" id="VetPartners" aria-labelledby="sponsor-widget-title">
@@ -393,13 +394,13 @@ const indexLabels: Record<string, string> = {
             </div>
             <div class="sponsor-grid">
               {sponsors.vet_partners.map((v) => (
-                <div class="sponsor-card">
-                  <figure>
+                <figure class={`sponsor-card ${v.modifier || ''}`}>
+                  <div class="sponsor-card__logo">
                     <img src={v.image} alt={v.alt} loading="lazy" decoding="async" />
-                    <figcaption>{v.name}</figcaption>
-                  </figure>
-                  <a class="sponsor-card__cta" href={v.link} target="_blank" rel="noopener noreferrer">Visit website</a>
-                </div>
+                  </div>
+                  <figcaption>{v.name}</figcaption>
+                  <a class="sponsor-card__cta" href={v.link} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${v.name} website`}>Visit website</a>
+                </figure>
               ))}
             </div>
           </section>
@@ -419,11 +420,11 @@ const indexLabels: Record<string, string> = {
             <div class="sponsor-grid">
               {sponsors.auction_sponsors.map((s) => (
                 <div class="sponsor-card">
-                  <figure>
+                  <div class="sponsor-card__logo">
                     <img src={s.image} alt={s.alt} loading="lazy" decoding="async" />
-                    <figcaption>{s.name}</figcaption>
-                  </figure>
-                  <a class="sponsor-card__cta" href={s.link} target="_blank" rel="noopener noreferrer">Visit website</a>
+                  </div>
+                  <figcaption>{s.name}</figcaption>
+                  <a class="sponsor-card__cta" href={s.link} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${s.name} website`}>{s.name.includes("Pavlov") ? "Visit Facebook" : "Visit website"}</a>
                 </div>
               ))}
             </div>
@@ -434,21 +435,23 @@ const indexLabels: Record<string, string> = {
 
     <!-- 9. Community partners marquee -->
     <div class="wp-block-group alignfull home-editable-sponsors">
-      <h5>{home.community_partners.title}</h5>
-      <p>{home.community_partners.intro}</p>
-      <section id="sponsorMarqueeWidget" class="sponsor-marquee" aria-label="Community partners">
-        <div class="logo-slider">
-          <div class="logo-track">
-            {[false, true].map((clone) => (
-              <div class="logo-set" aria-hidden={clone ? 'true' : undefined}>
-                {sponsors.community_partners.map((p) => (
-                  <img src={p.image} alt={p.name} loading="lazy" decoding="async" />
-                ))}
-              </div>
-            ))}
+      <div class="wp-block-group__inner-container is-layout-constrained">
+        <h2 class="wp-block-heading has-text-align-center" style="font-size:clamp(1.75rem, 3.2vw, 2.6rem);font-family:var(--wp--preset--font-family--abril, 'Abril Fatface', Georgia, serif);color:var(--wp--preset--color--contrast, #173a39);margin-bottom:0.75rem;">{home.community_partners.title}</h2>
+        <p class="has-text-align-center wp-block-paragraph" style="max-width:46rem;margin-inline:auto;margin-bottom:1.5rem;color:#475569;">{home.community_partners.intro}</p>
+        <section id="sponsorMarqueeWidget" class="sponsor-marquee" aria-label="Community partners">
+          <div class="logo-slider">
+            <div class="logo-track">
+              {[false, true].map((clone) => (
+                <div class="logo-set" aria-hidden={clone ? 'true' : undefined}>
+                  {sponsors.community_partners.map((p) => (
+                    <img src={p.image} alt={p.name} loading="lazy" decoding="async" />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
 
     <!-- 10. Membership -->

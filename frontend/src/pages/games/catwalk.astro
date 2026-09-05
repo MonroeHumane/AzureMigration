@@ -1,0 +1,79 @@
+---
+const embedded = Astro.url.searchParams.get('embed') === '1';
+---
+
+<!doctype html>
+<html lang="en-US" class:list={{ 'is-embedded': embedded }}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#07100c" />
+    <meta name="description" content="Guide a wireframe cat through the neighborhood and into five safe homes." />
+    <title>Catwalk | Humane Games</title>
+  </head>
+  <body>
+    <main class="catwalk" data-catwalk-root>
+      <header class="catwalk__header">
+        <div>
+          <p>HUMANE GAMES / NIGHT PATROL</p>
+          <h1>Catwalk</h1>
+        </div>
+        <button type="button" data-sound aria-pressed="false">Sound off</button>
+      </header>
+
+      <section class="catwalk__hud" aria-label="Game status">
+        <span>Score <strong data-score>00000</strong></span>
+        <span>Best <strong data-best>00000</strong></span>
+        <span>Level <strong data-level>01</strong></span>
+        <span>Lives <strong data-lives>|||||</strong></span>
+      </section>
+
+      <section class="catwalk__stage" aria-label="Catwalk game board">
+        <canvas width="720" height="780" data-game-canvas></canvas>
+        <div class="catwalk__overlay" data-overlay>
+          <p>Nine lives online</p>
+          <h2 data-overlay-title>Get the cats home</h2>
+          <p data-overlay-copy>Dodge the dogs. Ride the fishbones. Fill all five cat houses.</p>
+          <button type="button" data-start>Start patrol</button>
+        </div>
+      </section>
+
+      <nav class="catwalk__controls" aria-label="Movement controls">
+        <button type="button" data-move="up" aria-label="Move up">↑</button>
+        <div>
+          <button type="button" data-move="left" aria-label="Move left">←</button>
+          <button type="button" data-move="down" aria-label="Move down">↓</button>
+          <button type="button" data-move="right" aria-label="Move right">→</button>
+        </div>
+      </nav>
+    </main>
+    <script src="../../games/catwalk/main.ts"></script>
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(html) { color: #dfffe9; background: #07100c; font-family: Consolas, monospace; }
+  :global(body) { min-width: 320px; min-height: 100dvh; margin: 0; }
+  button { color: inherit; border: 1px solid #547565; border-radius: 3px; background: #07100c; font: inherit; cursor: pointer; }
+  button:hover, button:focus-visible { color: #07100c; background: #b8ff81; border-color: #b8ff81; outline: none; }
+  .catwalk { width: min(820px, 100%); min-height: 100dvh; margin: 0 auto; padding: 24px clamp(12px, 4vw, 40px); }
+  .catwalk__header, .catwalk__hud { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+  .catwalk__header p { margin: 0 0 3px; color: #81b59b; font-size: 12px; text-transform: uppercase; }
+  h1 { margin: 0; font-size: clamp(32px, 7vw, 52px); line-height: 1; text-transform: uppercase; }
+  .catwalk__header button { padding: 8px 10px; }
+  .catwalk__hud { margin-top: 18px; padding: 10px 0; border-block: 1px solid #29483a; color: #81b59b; font-size: clamp(11px, 2vw, 14px); }
+  .catwalk__hud strong { color: #dfffe9; font-weight: 400; }
+  .catwalk__stage { position: relative; margin-top: 14px; border: 1px solid #547565; }
+  canvas { display: block; width: 100%; height: auto; aspect-ratio: 12 / 13; }
+  .catwalk__overlay { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; padding: 24px; text-align: center; background: rgb(7 16 12 / 88%); }
+  .catwalk__overlay[hidden] { display: none; }
+  .catwalk__overlay h2 { margin: 5px 0 10px; font-size: clamp(28px, 6vw, 52px); text-transform: uppercase; }
+  .catwalk__overlay p { max-width: 440px; margin: 0 0 10px; color: #96b8a7; }
+  .catwalk__overlay button { margin-top: 8px; padding: 12px 22px; border-color: #b8ff81; }
+  .catwalk__controls { display: none; justify-items: center; gap: 6px; margin-top: 12px; }
+  .catwalk__controls div { display: flex; gap: 6px; }
+  .catwalk__controls button { width: 52px; height: 44px; font-size: 20px; }
+  @media (max-width: 700px), (pointer: coarse) { .catwalk__controls { display: grid; } }
+  @media (max-width: 430px) { .catwalk__hud span:nth-child(2) { display: none; } }
+</style>

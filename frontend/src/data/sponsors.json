@@ -5,25 +5,29 @@
       "name": "Temperance Animal Hospital",
       "link": "https://tahvet.com/",
       "image": "/assets/recovered/images/irp.cdn-website.com/77cfa591/dms3rep/multi/temperancetransparen.png",
-      "alt": "Temperance Animal Hospital sponsor artwork"
+      "alt": "Temperance Animal Hospital sponsor artwork",
+      "modifier": "sponsor-card--square"
     },
     {
       "name": "Heritage Animal Hospital",
       "link": "https://hahvet.com/",
       "image": "/assets/recovered/images/irp.cdn-website.com/77cfa591/dms3rep/multi/traansparentheritage.png",
-      "alt": "Heritage Animal Hospital sponsor banner"
+      "alt": "Heritage Animal Hospital sponsor banner",
+      "modifier": "sponsor-card--wide"
     },
     {
       "name": "Suburban Animal Hospital",
       "link": "https://www.suburbananimalhospital.net/",
       "image": "/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt/Suburban_Animal_Hospital-WebsiteFavicon-1920w.png",
-      "alt": "Suburban Animal Hospital crest"
+      "alt": "Suburban Animal Hospital crest",
+      "modifier": ""
     },
     {
       "name": "Dundee Vet Clinic",
       "link": "https://dundeevetclinic.com/",
       "image": "https://dundeevetclinic.com/wp-content/uploads/2018/03/Dundee_Vet_Clinic_logo.png",
-      "alt": "Dundee Vet Clinic brand mark"
+      "alt": "Dundee Vet Clinic brand mark",
+      "modifier": "sponsor-card--square"
     }
   ],
   "auction_sponsors": [
@@ -59,6 +63,7 @@
     }
   ],
   "community_partners": [
+    { "name": "Mugsy's Sports Grille & Bar", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/s-removebg-preview.png" },
     { "name": "Michigan Wine Bar", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/MichiganWin-bar.png" },
     { "name": "Allen of Monroe", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/Allenofmonroe.png" },
     { "name": "Vermeer Midwest", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/Vermeermidwest.png" },
@@ -67,7 +72,6 @@
     { "name": "Kroger", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/kroger.png" },
     { "name": "Gerdau", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/gerdau-logo-1-1.png" },
     { "name": "Applebee's", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/Applebees.png" },
-    { "name": "AiEase", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/aiease_1763411071204.png" },
-    { "name": "Sponsor", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/s-removebg-preview.png" }
+    { "name": "AiEase", "image": "/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/sponsors/aiease_1763411071204.png" }
   ]
 }
