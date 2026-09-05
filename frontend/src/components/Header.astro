@@ -38,6 +38,7 @@ const NAV: NavItem[] = [
       { label: 'Adoptable Pets', href: '/adopt' },
       { label: 'About Our Shelter', href: '/dog-and-cat-shelter' },
       { label: 'Hero Fence', href: '/#hs-hero-fence-widget' },
+      { label: 'Community Reviews', href: '/#Testimonials' },
       { label: 'Games', href: '/games' },
     ],
   },
@@ -59,7 +60,8 @@ const NAV: NavItem[] = [
       { label: 'Join online', href: MEMBERSHIP_URL, external: true },
       { label: 'FAQ', href: '/faq' },
       { label: 'Newsletter archive', href: '/newsletter' },
-      { label: '25 in Review', href: '/newsletter/issue/2025-in-review' },
+      { label: '2025 in Review', href: '/newsletter/issue/2025-in-review' },
+      { label: 'Community Reviews', href: '/#Testimonials' },
       { label: 'Fundraisers', href: DONATE_URL, external: true },
       { label: 'Volunteer', href: '/volunteer-form' },
     ],
@@ -122,16 +124,21 @@ const isCurrent = (item: NavItem) => {
         {NAV.map((item, i) =>
           item.children ? (
             <li class:list={['monroe-global-nav__item', 'has-children', { 'is-current': isCurrent(item) }]}>
-              <button
-                class="monroe-global-nav__trigger"
-                type="button"
-                aria-expanded="false"
-                aria-haspopup="true"
-                aria-controls={`monroe-nav-dd-${i}`}
-              >
-                <span>{item.label}</span>
-                <span class="monroe-global-nav__chevron" aria-hidden="true" />
-              </button>
+              <div class="monroe-global-nav__trigger-group">
+                <a class="monroe-global-nav__link monroe-global-nav__link--parent" href={item.overviewHref}>
+                  <span>{item.label}</span>
+                </a>
+                <button
+                  class="monroe-global-nav__trigger monroe-global-nav__trigger--chevron"
+                  type="button"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-label={`Toggle ${item.label} submenu`}
+                  aria-controls={`monroe-nav-dd-${i}`}
+                >
+                  <span class="monroe-global-nav__chevron" aria-hidden="true" />
+                </button>
+              </div>
               <div id={`monroe-nav-dd-${i}`} class="monroe-global-nav__dropdown" role="region" aria-label={`${item.label} submenu`}>
                 <a class="monroe-global-nav__dropdown-link monroe-global-nav__dropdown-link--top" href={item.overviewHref}>
                   <span>{item.label}</span>

@@ -3247,3 +3247,411 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   color: #153635;
 }
 
+/* ==========================================================================
+   Floating Side Homepage Navigation Dock
+   Completely seamless: fixed position overlay, zero layout shift or offset.
+   ========================================================================== */
+.home-side-dock {
+  position: fixed;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 95;
+  pointer-events: none;
+  font-family: var(--monroe-font-sans, "Montserrat", "Segoe UI", sans-serif);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 1320px) {
+  .home-side-dock {
+    display: none !important;
+  }
+}
+
+.home-side-dock__panel {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  box-shadow: 0 14px 34px rgba(15, 30, 29, 0.12), 0 2px 8px rgba(15, 30, 29, 0.04);
+  border-radius: 24px;
+  padding: 0.65rem 0.45rem;
+  width: 44px;
+  max-height: 84vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, background 0.28s ease;
+  scrollbar-width: none;
+}
+
+.home-side-dock__panel::-webkit-scrollbar {
+  display: none;
+}
+
+.home-side-dock__panel:hover,
+.home-side-dock__panel:focus-within {
+  width: 215px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 20px 48px rgba(15, 30, 29, 0.18), 0 4px 14px rgba(15, 30, 29, 0.06);
+}
+
+.home-side-dock__header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.5rem 0.55rem;
+  border-bottom: 1px solid rgba(15, 118, 110, 0.12);
+  margin-bottom: 0.35rem;
+  color: #0f766e;
+  user-select: none;
+}
+
+.home-side-dock__header-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke: #0f766e;
+}
+
+.home-side-dock__header-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #163433;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.home-side-dock__panel:hover .home-side-dock__header-title,
+.home-side-dock__panel:focus-within .home-side-dock__header-title {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.home-side-dock__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.home-side-dock__link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #47565f;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.25;
+  transition: all 0.16s ease;
+  white-space: nowrap;
+}
+
+.home-side-dock__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(15, 118, 110, 0.28);
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+  margin-left: 5px;
+}
+
+.home-side-dock__text {
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-side-dock__panel:hover .home-side-dock__text,
+.home-side-dock__panel:focus-within .home-side-dock__text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.home-side-dock__link:hover {
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f766e;
+}
+
+.home-side-dock__link:hover .home-side-dock__dot {
+  background: #0f766e;
+  transform: scale(1.3);
+}
+
+.home-side-dock__link.is-active {
+  background: #0f766e;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.28);
+}
+
+.home-side-dock__link.is-active .home-side-dock__dot {
+  background: #ffffff;
+  transform: scale(1.2);
+}
+
+/* ==========================================================================
+   Elevated Featured Pets ("Find your next best friend") Section
+   ========================================================================== */
+.home-featured-pets-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  background: #ffffff;
+  border-radius: 28px;
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  box-shadow: 0 16px 40px rgba(15, 30, 29, 0.05);
+}
+
+.home-featured-pets-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid rgba(15, 118, 110, 0.1);
+  padding-bottom: 1.5rem;
+}
+
+.home-featured-pets-header__copy {
+  flex: 1 1 500px;
+}
+
+.home-featured-pets-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.08);
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.home-featured-pets-title {
+  margin: 0 0 0.6rem;
+  font-family: var(--monroe-font-serif, "Lora", Georgia, serif);
+  font-size: clamp(1.85rem, 3.2vw, 2.65rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: #112d2c;
+  letter-spacing: -0.015em;
+}
+
+.home-featured-pets-intro {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+  color: #47565f;
+  max-width: 48rem;
+}
+
+.home-featured-pets-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.home-featured-pets-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 999px;
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.25);
+  transition: all 0.18s ease;
+}
+
+.home-featured-pets-btn-primary:hover {
+  background: #0c5f59;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(15, 118, 110, 0.32);
+}
+
+.home-featured-pets-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background: #fffaf2;
+  color: #0f766e;
+  border: 1.5px solid rgba(15, 118, 110, 0.35);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.home-featured-pets-btn-secondary:hover {
+  background: rgba(15, 118, 110, 0.08);
+  border-color: #0f766e;
+  transform: translateY(-1px);
+}
+
+.home-pet-card-elevated {
+  position: relative;
+  border-radius: 20px !important;
+  border: 1px solid rgba(15, 118, 110, 0.14) !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(15, 30, 29, 0.06) !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+}
+
+.home-pet-card-elevated:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 16px 36px rgba(15, 30, 29, 0.12) !important;
+}
+
+.home-pet-card-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(15, 30, 29, 0.75);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(4px);
+}
+
+.home-pet-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f766e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.home-pet-card-link:hover {
+  background: #0f766e;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Testimonials / Community Voices Section
+   ========================================================================== */
+.home-testimonials-section {
+  padding-block: 1rem;
+}
+
+.home-testimonials-card {
+  padding: clamp(1.75rem, 3.5vw, 2.75rem);
+  border-radius: 28px;
+  background: #fffaf2;
+  border: 1px solid rgba(15, 118, 110, 0.12);
+}
+
+.home-testimonials-header {
+  text-align: center;
+  max-width: 44rem;
+  margin: 0 auto 2.25rem;
+}
+
+.home-testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 1.5rem;
+}
+
+.home-testimonial-item {
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 118, 110, 0.1);
+  box-shadow: 0 6px 20px rgba(15, 30, 29, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-testimonial-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(15, 30, 29, 0.08);
+}
+
+.home-testimonial-stars {
+  display: flex;
+  gap: 0.2rem;
+  color: #f59e0b;
+  margin-bottom: 0.85rem;
+  font-size: 1rem;
+}
+
+.home-testimonial-text {
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0 0 1.25rem;
+  flex: 1 1 auto;
+  font-style: italic;
+}
+
+.home-testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(15, 118, 110, 0.08);
+  margin-top: auto;
+}
+
+.home-testimonial-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.home-testimonial-meta strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #112d2c;
+}
+
+.home-testimonial-meta span {
+  font-size: 0.76rem;
+  color: #64748b;
+}
+

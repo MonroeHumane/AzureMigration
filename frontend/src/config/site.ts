@@ -62,7 +62,7 @@ export const SITE = {
       url: 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io',
     },
     social: {
-      facebook: 'https://www.facebook.com/humanesocietyofmonroecounty',
+      facebook: 'https://www.facebook.com/adopthsmc',
     },
   },
 

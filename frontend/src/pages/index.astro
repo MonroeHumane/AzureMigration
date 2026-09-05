@@ -66,6 +66,27 @@ const petChips = (p: (typeof pets)[number]) => [
   p.location || 'Location',
 ];
 const TEL = SITE.contact.phoneTel;
+
+const sideNavSections = [
+  { id: 'Top', title: 'Top' },
+  { id: 'Events', title: 'Events & News' },
+  { id: 'Intro', title: 'About Our Shelter' },
+  { id: 'FeaturedPets', title: 'Find a Pet' },
+  { id: 'hs-hero-fence-widget', title: 'Hero Fence' },
+  { id: 'VetPartners', title: 'Vet Care Partners' },
+  { id: 'furry-friends-auction-sponsors', title: 'Auction Benefactors' },
+  { id: 'sponsorMarqueeWidget', title: 'Sponsors' },
+  { id: 'Membership', title: 'Membership' },
+  { id: 'Testimonials', title: 'Community Voices' },
+  { id: 'SupporterStory', title: 'Supporter Story' },
+  { id: 'Donations', title: 'Donations & Giving' },
+  { id: 'Social', title: 'Facebook' },
+  { id: 'Newsletter', title: '2025 in Review' },
+  { id: 'FAQ', title: 'Shelter FAQ' },
+  { id: 'Accomplishments', title: 'Annual Outcomes' },
+  { id: 'Games', title: 'Shelter Games' },
+  { id: 'Contact', title: 'Contact & Hours' },
+];
 ---
 
 <BaseLayout
@@ -73,6 +94,30 @@ const TEL = SITE.contact.phoneTel;
   description={home.hero.copy}
   bodyClass="home-editable-has-flyers-rail"
 >
+  <!-- Floating Side Homepage Navigation Dock: seamless hover overlay, zero layout shift -->
+  <nav class="home-side-dock" id="homeSideDock" aria-label="On this page navigation">
+    <div class="home-side-dock__panel">
+      <div class="home-side-dock__header" aria-hidden="true">
+        <svg class="home-side-dock__header-icon" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <span class="home-side-dock__header-title">On This Page</span>
+      </div>
+      <ul class="home-side-dock__list" role="list">
+        {sideNavSections.map((sec) => (
+          <li>
+            <a href={`#${sec.id}`} class="home-side-dock__link" data-dock-target={sec.id}>
+              <span class="home-side-dock__dot" aria-hidden="true"></span>
+              <span class="home-side-dock__text">{sec.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+
   <div class="home-editable-shell is-layout-constrained">
     <!-- 1. Hero -->
     <div class="wp-block-cover has-custom-content-position is-position-center-center home-editable-hero" id="Top">
@@ -227,40 +272,58 @@ const TEL = SITE.contact.phoneTel;
       </div>
     </div>
 
-    <!-- 4. Featured pets -->
+    <!-- 4. Featured pets ("Find your next best friend") -->
     <div class="wp-block-group alignwide home-editable-section is-layout-constrained" id="FeaturedPets">
-      <h2 class="wp-block-heading">{home.featured_pets.title}</h2>
-      <p class="wp-block-paragraph">{home.featured_pets.copy}</p>
-
-      <div id="featuredPetsWidget" data-monroe-static>
-        <div class="fpw-toolbar">
-          <button id="fpwExpandBtn" type="button" class="fpw-expand-btn" aria-controls="featuredPetsFsDialog">Expand view</button>
+      <div class="home-featured-pets-card">
+        <div class="home-featured-pets-header">
+          <div class="home-featured-pets-header__copy">
+            <span class="home-featured-pets-badge">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              Longest Residents
+            </span>
+            <h2 class="home-featured-pets-title">{home.featured_pets.title}</h2>
+            <p class="home-featured-pets-intro">{home.featured_pets.copy}</p>
+          </div>
+          <div class="home-featured-pets-header__actions">
+            <a class="home-featured-pets-btn-primary" href="/adopt">
+              <span>Search All Adoptable Pets</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </a>
+            <button id="fpwExpandBtn" type="button" class="home-featured-pets-btn-secondary fpw-expand-btn" aria-controls="featuredPetsFsDialog">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+              </svg>
+              <span>Full Screen Gallery</span>
+            </button>
+          </div>
         </div>
+
         <dialog id="featuredPetsFsDialog" class="fpw-fs-dialog">
           <div class="fpw-fs-header fpw-fs-dialog__head">
-            <h2>Adoptable Pets</h2>
+            <h2>Adoptable Pets — Longest Residents</h2>
             <button type="button" class="fpw-fs-close fpw-fs-dialog__close" aria-label="Close">Close</button>
           </div>
           <div class="widget-section">
-            <div class="title-row widget-title">
-              <h3>Longest residents</h3>
-              <a class="adopt-all-btn" href="/adopt">Search All Adoptable Pets</a>
-            </div>
             <div id="fpw-fs-longest" class="widget-grid"></div>
           </div>
         </dialog>
-        <div class="widget-section">
-          <div class="title-row widget-title">
-            <h3>Longest residents</h3>
-            <a class="adopt-all-btn" href="/adopt">Search All Adoptable Pets</a>
-          </div>
+
+        <div id="featuredPetsWidget" data-monroe-static class="home-featured-pets-slider-wrap">
           <div class="widget-grid" id="longestRow">
             <div class="scroll-viewport">
               <div class="scroll-track">
                 <div class="scroll-strip scroll-strip--primary">
                   {pets.map((pet) => (
-                    <div class="pet-card-widget">
+                    <div class="pet-card-widget home-pet-card-elevated">
                       <div class="photo-shell">
+                        <span class="home-pet-card-tag">Waiting for You</span>
                         <div class="photo-frame">
                           <img class="pet-photo-widget" src={pet.image} alt={pet.name} loading="lazy" decoding="async" />
                         </div>
@@ -272,7 +335,12 @@ const TEL = SITE.contact.phoneTel;
                           {petChips(pet).map((chip) => <span class="chip">{chip}</span>)}
                         </div>
                         <div class="view-profile-widget">
-                          <a href={pet.url || `/adopt/${pet.id}`}>View Profile</a>
+                          <a href={pet.url || `/adopt/${pet.id}`} class="home-pet-card-link">
+                            <span>Meet {pet.name}</span>
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -280,8 +348,9 @@ const TEL = SITE.contact.phoneTel;
                 </div>
                 <div class="scroll-strip scroll-strip--clone" aria-hidden="true">
                   {pets.map((pet) => (
-                    <div class="pet-card-widget">
+                    <div class="pet-card-widget home-pet-card-elevated">
                       <div class="photo-shell">
+                        <span class="home-pet-card-tag">Waiting for You</span>
                         <div class="photo-frame">
                           <img class="pet-photo-widget" src={pet.image} alt={pet.name} loading="lazy" decoding="async" />
                         </div>
@@ -293,7 +362,12 @@ const TEL = SITE.contact.phoneTel;
                           {petChips(pet).map((chip) => <span class="chip">{chip}</span>)}
                         </div>
                         <div class="view-profile-widget">
-                          <a href={pet.url || `/adopt/${pet.id}`}>View Profile</a>
+                          <a href={pet.url || `/adopt/${pet.id}`} class="home-pet-card-link">
+                            <span>Meet {pet.name}</span>
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -610,7 +684,7 @@ const TEL = SITE.contact.phoneTel;
                 <iframe
                   class="home-editable-social-embed__iframe border-0"
                   data-facebook-iframe
-                  src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(SITE.integrations.social.facebook)}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true`}
+                  src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(SITE.integrations.social.facebook)}&tabs=timeline&width=500&height=650&small_header=false&adapt_container_width=true&hide_cover=true&show_facepile=false`}
                   allowfullscreen={true}
                   allow="encrypted-media"
                   loading="lazy"
@@ -618,11 +692,14 @@ const TEL = SITE.contact.phoneTel;
                 ></iframe>
                 <div class="home-editable-social-embed__loader">
                   <div class="home-editable-social-embed__loader-icon" aria-hidden="true">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    <svg class="w-8 h-8 text-[#1877f2]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
                   </div>
-                  <p class="home-editable-social-embed__loader-text">Loading the Facebook feed…</p>
+                  <strong style="font-size: 1.05rem; font-weight: 700; color: #163433; margin-bottom: 0.25rem;">Humane Society of Monroe County</strong>
+                  <p class="home-editable-social-embed__loader-text">Daily shelter news, intakes & adoption stories</p>
                   <div class="home-editable-social-embed__cta">
-                    <a class="home-editable-social-embed__open" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Open on Facebook</a>
+                    <a class="home-editable-social-embed__open" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Visit @adopthsmc on Facebook</a>
                   </div>
                 </div>
               </div>
@@ -1072,6 +1149,33 @@ const TEL = SITE.contact.phoneTel;
     facebookIframe?.addEventListener('load', () => {
       facebookIframe.closest('[data-facebook-embed]')?.classList.add('is-loaded');
     });
+
+    // Side navigation dock: active scrollspy tracking
+    const dockLinks = document.querySelectorAll<HTMLAnchorElement>('.home-side-dock__link');
+    if (dockLinks.length && 'IntersectionObserver' in window) {
+      const sectionMap = new Map<string, HTMLAnchorElement>();
+      dockLinks.forEach((link) => {
+        const id = link.dataset.dockTarget;
+        if (id) sectionMap.set(id, link);
+      });
+
+      const dockIO = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const activeLink = sectionMap.get(entry.target.id);
+            if (activeLink) {
+              dockLinks.forEach((l) => l.classList.remove('is-active'));
+              activeLink.classList.add('is-active');
+            }
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+
+      sectionMap.forEach((_, id) => {
+        const el = document.getElementById(id);
+        if (el) dockIO.observe(el);
+      });
+    }
 
     // Shelter open/closed badge, computed from SITE.contact.hours (Tue-Fri 11am-4pm,
     // Sat 11am-3pm, closed Sun/Mon) — mirrors the same schedule already encoded in

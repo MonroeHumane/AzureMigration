@@ -245,7 +245,7 @@ body.monroe-rebuild-theme img {
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
@@ -355,9 +355,11 @@ body.monroe-rebuild-theme img {
   gap: 0.45rem;
   text-decoration: none;
   color: #173635;
-  font: 600 0.86rem/1.25 'Montserrat', 'Jost', 'Segoe UI', sans-serif;
-  letter-spacing: 0.055em;
+  font: 600 0.84rem/1.25 'Montserrat', 'Jost', 'Segoe UI', sans-serif;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
   box-sizing: border-box;
 }
 
@@ -417,6 +419,37 @@ body.monroe-rebuild-theme img {
   transition: transform 0.18s ease;
 }
 
+.monroe-global-nav__trigger-group {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.monroe-global-nav__link--parent {
+  padding-right: 0.25rem !important;
+}
+
+.monroe-global-nav__trigger--chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  min-height: var(--monroe-nav-pill-min-h);
+  padding: 0 0.35rem !important;
+  border-radius: var(--monroe-nav-pill-radius);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.monroe-global-nav__trigger--chevron:hover,
+.monroe-global-nav__trigger--chevron:focus-visible {
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+}
+
+.monroe-global-nav__item.is-open .monroe-global-nav__trigger .monroe-global-nav__chevron,
 .monroe-global-nav__item.is-open > .monroe-global-nav__trigger .monroe-global-nav__chevron {
   transform: rotate(-135deg) translateY(-1px);
 }
@@ -426,7 +459,8 @@ body.monroe-rebuild-theme img {
   top: 100%;
   left: 0;
   z-index: 5100;
-  min-width: 300px;
+  min-width: 280px;
+  max-width: min(340px, calc(100vw - 2rem));
   padding: 0.55rem 0.85rem 0.85rem;
   border-radius: 24px;
   background: rgba(255, 250, 242, 0.96);
@@ -439,6 +473,14 @@ body.monroe-rebuild-theme img {
   transform: translateY(6px);
   transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
   box-sizing: border-box;
+}
+
+/* Rightmost desktop dropdowns align to the right edge so they never overlap CTA buttons or overflow off-screen */
+@media (min-width: 1201px) {
+  .monroe-global-nav__item:nth-last-child(-n+3) > .monroe-global-nav__dropdown {
+    left: auto;
+    right: 0;
+  }
 }
 
 .monroe-global-nav__item:hover > .monroe-global-nav__dropdown,
@@ -915,6 +957,25 @@ body.monroe-rebuild-theme img {
     align-items: stretch;
   }
 
+  .monroe-global-nav__trigger-group {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .monroe-global-nav__trigger-group .monroe-global-nav__link--parent {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+  }
+
+  .monroe-global-nav__trigger-group .monroe-global-nav__trigger--chevron {
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem 0.8rem !important;
+  }
+
   /* Visual grouping for submenu pages */
   .monroe-global-nav__dropdown .monroe-global-nav__submenu {
     padding: 0.35rem 0 0 0.5rem;
@@ -1070,23 +1131,22 @@ body.monroe-rebuild-theme img {
     flex: 1 1 auto;
     min-width: 0;
     margin-left: 0;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
-    column-gap: clamp(0.75rem, 1vw, 1rem);
+    justify-content: space-between;
+    gap: clamp(0.5rem, 1.2vw, 1.25rem);
+    --monroe-nav-pill-pad-x: 0.72rem;
+    --monroe-nav-pill-pad-y: 0.55rem;
   }
 
   .monroe-global-nav__panel > .monroe-global-nav__list {
-    grid-column: 1;
-    flex: unset;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
+    display: flex;
+    align-items: center;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    align-content: center;
-    column-gap: 0.28rem;
-    /* Flyouts are position:absolute below/right of items */
+    column-gap: clamp(0.06rem, 0.22vw, 0.25rem);
+    flex: 0 1 auto;
+    min-width: 0;
     overflow: visible;
   }
 
@@ -1094,38 +1154,22 @@ body.monroe-rebuild-theme img {
     flex-shrink: 0;
   }
 
-  .monroe-global-nav__panel > .monroe-global-nav__list > .monroe-global-nav__item > .monroe-global-nav__link,
-  .monroe-global-nav__panel > .monroe-global-nav__list > .monroe-global-nav__item > .monroe-global-nav__trigger {
-    
-  }
-
-  .monroe-global-nav__panel > .monroe-global-nav__cta-row {
-    grid-column: 2;
-    flex-shrink: 0;
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-    margin-left: 0;
-  }
-
-  /* Desktop bar is capped at 1320px - keep pills compact so links + CTAs never collide */
-  .monroe-global-nav__panel {
-    --monroe-nav-pill-pad-x: 0.72rem;
-    --monroe-nav-pill-pad-y: 0.55rem;
-  }
-
-  .monroe-global-nav__panel > .monroe-global-nav__list {
-    column-gap: 0.12rem;
-  }
-
   .monroe-global-nav__panel > .monroe-global-nav__list .monroe-global-nav__link,
   .monroe-global-nav__panel > .monroe-global-nav__list .monroe-global-nav__trigger {
     font-size: 0.8rem;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.035em;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .monroe-global-nav__cta-row {
-    gap: 0.55rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    margin-left: auto;
+    gap: 0.5rem;
     white-space: nowrap;
   }
 
@@ -1137,10 +1181,12 @@ body.monroe-rebuild-theme img {
     letter-spacing: 0.08em;
     padding: var(--monroe-nav-pill-pad-y) 0.82rem;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  @media (max-width: 1380px) {
-    /* Below 1380px, hide redundant Call Us pill so Contact link never runs into Membership button */
+  /* Responsive desktop adaptations: eliminate collision at any viewport width */
+  @media (max-width: 1440px) {
+    /* Below 1440px, hide Call Us pill (Contact is in the primary nav list right beside it) */
     .monroe-global-nav__cta-row .monroe-global-nav__call {
       display: none !important;
     }
@@ -1148,18 +1194,18 @@ body.monroe-rebuild-theme img {
 
   @media (max-width: 1340px) {
     .monroe-global-nav__panel {
-      --monroe-nav-pill-pad-x: 0.52rem;
+      --monroe-nav-pill-pad-x: 0.5rem;
       --monroe-nav-pill-pad-y: 0.48rem;
-      column-gap: 0.5rem;
+      gap: 0.45rem;
     }
 
     .monroe-global-nav__inner {
       gap: 0.4rem;
-      padding-inline: 0.6rem 0.85rem;
+      padding-inline: 0.55rem 0.85rem;
     }
 
     .monroe-global-nav__brand img {
-      max-width: min(200px, 16vw);
+      max-width: min(180px, 15vw);
     }
 
     .monroe-global-nav__panel > .monroe-global-nav__list {
@@ -1172,12 +1218,16 @@ body.monroe-rebuild-theme img {
       letter-spacing: 0.02em;
     }
 
-    .monroe-global-nav__member,
+    /* Below 1340px, hide Membership CTA (already in Resources dropdown and homepage) */
+    .monroe-global-nav__cta-row .monroe-global-nav__member {
+      display: none !important;
+    }
+
     .monroe-global-nav__donate,
     .monroe-global-nav__application {
       font-size: 0.71rem;
       letter-spacing: 0.05em;
-      padding: var(--monroe-nav-pill-pad-y) 0.62rem;
+      padding: var(--monroe-nav-pill-pad-y) 0.65rem;
     }
 
     .monroe-global-nav__cta-row {
@@ -1185,16 +1235,20 @@ body.monroe-rebuild-theme img {
     }
   }
 
-  @media (max-width: 1280px) {
+  @media (max-width: 1260px) {
     .monroe-global-nav__panel {
-      --monroe-nav-pill-pad-x: 0.46rem;
-      --monroe-nav-pill-pad-y: 0.45rem;
-      column-gap: 0.35rem;
+      --monroe-nav-pill-pad-x: 0.42rem;
+      --monroe-nav-pill-pad-y: 0.44rem;
+      gap: 0.35rem;
     }
 
     .monroe-global-nav__inner {
       gap: 0.3rem;
-      padding-inline: 0.45rem 0.65rem;
+      padding-inline: 0.4rem 0.6rem;
+    }
+
+    .monroe-global-nav__brand img {
+      max-width: min(160px, 14vw);
     }
 
     .monroe-global-nav__panel > .monroe-global-nav__list {
@@ -1203,15 +1257,18 @@ body.monroe-rebuild-theme img {
 
     .monroe-global-nav__panel > .monroe-global-nav__list .monroe-global-nav__link,
     .monroe-global-nav__panel > .monroe-global-nav__list .monroe-global-nav__trigger {
-      font-size: 0.72rem;
+      font-size: 0.71rem;
       letter-spacing: 0.01em;
     }
 
-    .monroe-global-nav__member,
-    .monroe-global-nav__donate,
-    .monroe-global-nav__application {
-      font-size: 0.68rem;
-      padding: var(--monroe-nav-pill-pad-y) 0.52rem;
+    /* Below 1260px, hide Application CTA (already in Adopt dropdown); keep Donate pill */
+    .monroe-global-nav__cta-row .monroe-global-nav__application {
+      display: none !important;
+    }
+
+    .monroe-global-nav__donate {
+      font-size: 0.7rem;
+      padding: var(--monroe-nav-pill-pad-y) 0.58rem;
     }
   }
 
@@ -1244,22 +1301,24 @@ body.monroe-rebuild-theme img {
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 640px) {
   .monroe-global-nav__inner {
     padding-inline: 0.75rem;
   }
 
   .monroe-global-nav__bar {
     width: min(100%, calc(100vw - 1.5rem));
-    column-gap: 0.25rem;
+    column-gap: 0.35rem;
   }
 
+  /* Below 640px, keep Donate as the primary quick action in the header bar */
   .monroe-global-nav__bar-adopt {
-    display: none;
+    display: none !important;
   }
 
   .monroe-global-nav__brand img {
-    max-width: min(280px, 78vw) !important;
+    max-width: min(180px, 46vw) !important;
+    max-height: 46px !important;
   }
 
   .monroe-global-nav__cta-row {
