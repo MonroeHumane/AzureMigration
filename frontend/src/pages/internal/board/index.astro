@@ -3,31 +3,18 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
 import StaffSubNav from '../../../components/internal/StaffSubNav.astro';
 import ExecutiveBanner from '../../../components/board/ExecutiveBanner.astro';
 import HeadlineKpiGrid from '../../../components/board/HeadlineKpiGrid.astro';
-import OperatingBridgeCard from '../../../components/board/OperatingBridgeCard.astro';
 import MonthlyStatementTable from '../../../components/board/MonthlyStatementTable.astro';
-import PositionAndCashCard from '../../../components/board/PositionAndCashCard.astro';
 import BankStatementViewer from '../../../components/board/BankStatementViewer.astro';
-import MultiYearComparisonCard from '../../../components/board/MultiYearComparisonCard.astro';
-import ScenarioSimulatorCard from '../../../components/board/ScenarioSimulatorCard.astro';
-import GovernanceCard from '../../../components/board/GovernanceCard.astro';
 import ExpenseExplorer from '../../../components/board/ExpenseExplorer.astro';
 import financialData from '../../../data/published_2026_ytd.json';
 import statementData from '../../../data/statement_2026_08.json';
-
-// Fetch Directus governance items (with resilient bundled fallback)
-import { getBoardMeetings, getBoardDocuments } from '../../../lib/directus';
-const boardMeetings = await getBoardMeetings();
-const boardDocuments = await getBoardDocuments();
 
 const subNavItems = [
   { id: 'all',      label: 'All Financials',    icon: '📑' },
   { id: 'snapshot', label: 'Summary & KPIs',    icon: '📊' },
   { id: 'statement',label: 'Monthly Statement', icon: '📅' },
   { id: 'expenses', label: 'Cash Flow Explorer', icon: '🔄' },
-  { id: 'balance',  label: 'Assets & Balance',  icon: '🏦' },
-  { id: 'strategy', label: 'Cash Runway',       icon: '📈' },
   { id: 'audit',    label: 'Bank Statement',    icon: '🔍' },
-  { id: 'governance',label: 'Governance',       icon: '🏛️' },
 ];
 ---
 
@@ -65,41 +52,9 @@ const subNavItems = [
         />
       </section>
 
-      <!-- Section 3: Statement of Financial Position & Restricted Watch -->
-      <section id="sec-balance" class="financial-module space-y-6 scroll-mt-20">
-        <PositionAndCashCard position={financialData.statement_of_position} />
-      </section>
-
-      <!-- Section 4: Operating Bridge & Cash Runway Scenario Simulator -->
-      <section id="sec-strategy" class="financial-module space-y-6 scroll-mt-20">
-        <OperatingBridgeCard
-          qboOperatingNet={financialData.headline_kpis.qbo_operating_net}
-          allInNet={financialData.headline_kpis.all_in_net}
-          bridge={financialData.bridge_composition}
-        />
-        <ScenarioSimulatorCard
-          operatingCash={financialData.headline_kpis.bank_register_cash}
-          fidelityReserve={financialData.headline_kpis.fidelity_reserve}
-          avgMonthlyRevenue={financialData.headline_kpis.qbo_operating_revenue / 8}
-          avgMonthlyExpense={(financialData.headline_kpis.qbo_cogs + financialData.headline_kpis.qbo_operating_expenditures) / 8}
-          allInMonthlyRevenue={financialData.headline_kpis.all_in_revenue / 8}
-          allInMonthlyExpense={financialData.headline_kpis.all_in_expenditures / 8}
-          cutoffDate={financialData.meta.cutoff_date}
-        />
-        <MultiYearComparisonCard comparison={financialData.multiyear_comparison} />
-      </section>
-
-      <!-- Section 5: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->
+      <!-- Section 4: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->
       <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20">
         <BankStatementViewer />
-      </section>
-
-      <!-- Section 6: Directus Board Governance, Agendas & Executive Reports -->
-      <section id="sec-governance" class="financial-module space-y-6 scroll-mt-20">
-        <GovernanceCard
-          meetings={boardMeetings}
-          documents={boardDocuments}
-        />
       </section>
 
       <!-- Governance & Verification Footer -->

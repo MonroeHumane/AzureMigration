@@ -1,8 +1,9 @@
 ---
 // ExpenseExplorer.astro
 // Two-Way Cash Flow Explorer: Symmetric 3-Level Inflows & Expenses Drilldown
-// Level 1: Category → Level 2: Vendor/Channel → Level 3: Transaction
-// Data sources: statement_2026_08.json (withdrawals & deposits) + published_2026_ytd.json (AP schedule)
+// Level 1: Category → Level 2: Vendor/Channel/Payee → Level 3: Transaction
+// Multi-Month Support: Jan 2026 – Aug 2026 + All 2026 YTD
+import monthlyDrilldownsData from '../../data/monthly_drilldown_2026.json';
 
 interface Withdrawal {
   date: string;
@@ -39,15 +40,15 @@ interface ApVendor {
 }
 
 interface Props {
-  withdrawals: Withdrawal[];
+  withdrawals?: Withdrawal[];
   deposits?: Deposit[];
-  apSchedule: ApVendor[];
+  apSchedule?: ApVendor[];
   statementPeriod?: string;
 }
 
 const { withdrawals = [], deposits = [], apSchedule = [], statementPeriod = 'August 2026' } = Astro.props;
 
-// ── EXPENSE CATEGORY DEFINITIONS ──────────────────────────────────────────
+// ── EXPENSE CATEGORY DEFINITIONS FOR AUG BANK REC ─────────────────────────
 const EXPENSE_CATEGORY_DEFS = [
   {
     key: 'wages',
@@ -141,7 +142,7 @@ const EXPENSE_CATEGORY_DEFS = [
   },
 ];
 
-// ── INFLOW CATEGORY DEFINITIONS ───────────────────────────────────────────
+// ── INFLOW CATEGORY DEFINITIONS FOR AUG BANK REC ──────────────────────────
 const INFLOW_CATEGORY_DEFS = [
   {
     key: 'community',
@@ -185,7 +186,7 @@ const INFLOW_CATEGORY_DEFS = [
   },
 ];
 
-// ── BUILD EXPENSES TREE ───────────────────────────────────────────────────
+// ── BUILD DEFAULT EXPENSES TREE (August Bank Statement) ────────────────────
 type VendorEntry = {
   payee: string;
   total: number;
@@ -232,9 +233,8 @@ const expenseCategories: ExpenseCategoryEntry[] = EXPENSE_CATEGORY_DEFS.map((def
 }).filter((c) => c.txCount > 0).sort((a, b) => b.total - a.total);
 
 const grandTotalExpenses = expenseCategories.reduce((s, c) => s + c.total, 0);
-const totalExpenseTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
 
-// ── BUILD INFLOWS TREE ────────────────────────────────────────────────────
+// ── BUILD DEFAULT INFLOWS TREE (August Bank Statement) ─────────────────────
 type ChannelEntry = {
   payee: string;
   total: number;
@@ -281,8 +281,7 @@ const inflowCategories: InflowCategoryEntry[] = INFLOW_CATEGORY_DEFS.map((def) =
 }).filter((c) => c.txCount > 0).sort((a, b) => b.total - a.total);
 
 const grandTotalInflows = inflowCategories.reduce((s, c) => s + c.total, 0);
-const totalInflowTxs = inflowCategories.reduce((s, c) => s + c.txCount, 0);
-const netMonthVariance = grandTotalInflows - grandTotalExpenses; // -$29,754.04
+const netMonthVariance = grandTotalInflows - grandTotalExpenses;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function fmt(n: number) {
@@ -308,36 +307,77 @@ function cc(color: string): ColorSet {
   return map[color] ?? map['slate'];
 }
 
+// Available months from drilldown dataset
+const monthsMap = (monthlyDrilldownsData as any).months || {};
+const monthKeys = [
+  { id: 'month_2026_7', label: 'Aug 2026' },
+  { id: 'month_2026_6', label: 'Jul 2026' },
+  { id: 'month_2026_5', label: 'Jun 2026' },
+  { id: 'month_2026_4', label: 'May 2026' },
+  { id: 'month_2026_3', label: 'Apr 2026' },
+  { id: 'month_2026_2', label: 'Mar 2026' },
+  { id: 'month_2026_1', label: 'Feb 2026' },
+  { id: 'month_2026_0', label: 'Jan 2026' },
+  { id: 'all_ytd',      label: 'All 2026 YTD' },
+];
+
 // Serialize for client JS
 const expenseData = JSON.stringify(expenseCategories);
 const inflowData = JSON.stringify(inflowCategories);
 const apData = JSON.stringify(apSchedule);
+const allMonthsJson = JSON.stringify(monthsMap);
 ---
 
 <div id="expense-explorer-root" class="space-y-4">
 
   <!-- ── Mode Switcher & Flow Summary ──────────────────────────────────────── -->
   <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-4 sm:p-5">
+    
+    <!-- Month-to-Month Period Selector Tabs -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-slate-100 text-xs scrollbar-thin">
+      <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1.5 flex items-center gap-1">
+        <span>📅</span> Period:
+      </span>
+      {monthKeys.map((m) => (
+        <button
+          type="button"
+          class={`ee-period-btn px-2.5 py-1.5 rounded-lg font-bold text-xs whitespace-nowrap transition cursor-pointer ${
+            m.id === 'month_2026_7'
+              ? 'bg-[#173a39] text-white shadow-xs'
+              : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 border border-slate-200/70'
+          }`}
+          data-month-id={m.id}
+          data-month-label={m.label}
+        >
+          {m.label}
+        </button>
+      ))}
+    </div>
+
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-200">
             Cash Flow Explorer
           </span>
-          <span class="text-[11px] text-slate-400 font-medium">{statementPeriod} · Bank Statement Detail</span>
+          <span class="text-[11px] text-slate-400 font-medium" id="ee-period-subtitle">
+            {statementPeriod} · QuickBooks General Ledger Detail
+          </span>
         </div>
-        <h2 class="text-xl font-bold text-slate-800 tracking-tight" id="ee-title">Monthly Cash Flow Drilldown</h2>
+        <h2 class="text-xl font-bold text-slate-800 tracking-tight" id="ee-title">
+          August 2026 Cash Flow Drilldown
+        </h2>
         <p class="text-xs text-slate-500 mt-0.5" id="ee-desc">
-          Toggle between Expenses &amp; Inflows. Click any category to expand payees or channels, then click any row to reveal transactions.
+          Explore month-to-month transactions. Level 1: Categories · Level 2: Bundled payees &amp; vendors · Level 3: Individual transactions.
         </p>
       </div>
 
       <!-- Net Monthly Variance Callout -->
-      <div class="flex items-center gap-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200 shrink-0">
+      <div class="flex items-center gap-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200 shrink-0" id="ee-variance-card">
         <div class="text-right">
-          <div class="text-[10px] uppercase font-bold text-slate-400">August Net Cash Change</div>
-          <div class="font-mono font-black text-sm text-rose-700">{fmt(netMonthVariance)}</div>
-          <div class="text-[9px] text-slate-500">Covered by checking &amp; reserves</div>
+          <div class="text-[10px] uppercase font-bold text-slate-400" id="ee-variance-label">August Net Margin</div>
+          <div class="font-mono font-black text-sm text-rose-700" id="ee-variance-value">{fmt(netMonthVariance)}</div>
+          <div class="text-[9px] text-slate-500" id="ee-variance-caption">QuickBooks Online Verified</div>
         </div>
         <span class="text-2xl select-none">⚖️</span>
       </div>
@@ -347,68 +387,78 @@ const apData = JSON.stringify(apSchedule);
     <div class="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-100">
       <button
         id="ee-tab-expenses"
-        class="ee-mode-tab active px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition"
+        class="ee-mode-tab active px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition cursor-pointer"
         data-mode="expenses"
       >
-        <span>💸 Outflows &amp; Expenses</span>
-        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-rose-100 text-rose-800 border border-rose-200">
-          {fmt(grandTotalExpenses)}
+        <span>💸</span>
+        <span>Expenditures</span>
+        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-white/20 text-white" id="ee-badge-exp-count">
+          {expenseCategories.length} categories
         </span>
-        <span class="text-[10px] opacity-70">({totalExpenseTxs} txs)</span>
       </button>
 
       <button
         id="ee-tab-inflows"
-        class="ee-mode-tab px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+        class="ee-mode-tab px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer"
         data-mode="inflows"
       >
-        <span>💵 Inflows &amp; Revenue</span>
-        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-100 text-emerald-800 border border-emerald-200">
-          {fmt(grandTotalInflows)}
+        <span>💵</span>
+        <span>Revenue Inflows</span>
+        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-slate-100 text-slate-600" id="ee-badge-inf-count">
+          {inflowCategories.length} categories
         </span>
-        <span class="text-[10px] opacity-70">({totalInflowTxs} deposits)</span>
       </button>
 
-      <div class="ml-auto flex items-center gap-2">
+      <!-- Global Filter & Actions -->
+      <div class="ml-auto flex items-center gap-2 flex-wrap">
+        <div class="relative min-w-[180px]">
+          <input
+            type="text"
+            id="ee-global-search"
+            placeholder="Search payees, items, checks..."
+            class="w-full pl-7 pr-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-teal-600"
+          />
+          <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+
         <button
           id="ee-export-active-btn"
-          class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-teal-800 text-white hover:bg-teal-900 transition flex items-center gap-1.5 shadow-xs"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+          title="Download active view as CSV"
         >
-          ⬇ Export Summary CSV
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="ee-export-label">Export CSV</span>
         </button>
       </div>
     </div>
 
-    <!-- Filter chips + sort controls -->
-    <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100 items-center">
-      <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Filter:</span>
-      
-      <!-- Expense Filters -->
-      <div id="ee-expense-filters" class="flex flex-wrap gap-1.5 items-center">
-        <button data-ee-filter="all"        class="ee-filter-chip active">All Categories</button>
-        <button data-ee-filter="payroll"    class="ee-filter-chip">💰 Payroll</button>
-        <button data-ee-filter="operations" class="ee-filter-chip">⚙️ Operations</button>
-        <button data-ee-filter="capital"    class="ee-filter-chip">🏗️ Capital</button>
-      </div>
-
-      <!-- Inflow Filters (hidden by default) -->
-      <div id="ee-inflow-filters" class="hidden flex-wrap gap-1.5 items-center">
-        <button data-ee-filter="all"           class="ee-filter-chip active">All Inflows</button>
-        <button data-ee-filter="contributions" class="ee-filter-chip">🎁 Contributions</button>
-        <button data-ee-filter="contracts"     class="ee-filter-chip">🏛️ Contracts</button>
-        <button data-ee-filter="services"      class="ee-filter-chip">🐾 Adoption / Fees</button>
-      </div>
-
-      <span class="ml-auto flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
-        <span class="font-medium">Sort:</span>
-        <button data-ee-sort="amount-desc" class="ee-sort-btn active">$ Largest First</button>
-        <button data-ee-sort="amount-asc"  class="ee-sort-btn">$ Smallest First</button>
-        <button data-ee-sort="name-asc"    class="ee-sort-btn">A → Z</button>
-      </span>
+    <!-- Group Filter Chips (Expenses) -->
+    <div id="ee-expense-filters" class="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-slate-100">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Group:</span>
+      <button class="ee-filter-chip active" data-ee-filter="all">All Groups</button>
+      <button class="ee-filter-chip" data-ee-filter="payroll">Payroll &amp; Taxes</button>
+      <button class="ee-filter-chip" data-ee-filter="operations">Shelter &amp; Medical Ops</button>
+      <button class="ee-filter-chip" data-ee-filter="capital">Capital Projects</button>
     </div>
+
+    <!-- Group Filter Chips (Inflows) -->
+    <div id="ee-inflow-filters" class="hidden flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-slate-100">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Group:</span>
+      <button class="ee-filter-chip active" data-ee-filter="all">All Inflows</button>
+      <button class="ee-filter-chip" data-ee-filter="contributions">Donations &amp; Grants</button>
+      <button class="ee-filter-chip" data-ee-filter="services">Adoption Fees</button>
+      <button class="ee-filter-chip" data-ee-filter="contracts">Contracts</button>
+    </div>
+
   </div>
 
-  <!-- ── 1. EXPENSES VIEW ────────────────────────────────────────────────── -->
+  <!-- ── 1. EXPENSES VIEW ─────────────────────────────────────────────────── -->
   <div id="ee-view-expenses" class="space-y-2">
     <div id="ee-expense-category-list" class="space-y-2">
       {expenseCategories.map((cat, catIdx) => {
@@ -438,7 +488,7 @@ const apData = JSON.stringify(apSchedule);
               </div>
               <div class="text-right flex-shrink-0 mr-1">
                 <span class={`font-black font-mono text-base block ${c.text}`}>{fmt(cat.total)}</span>
-                <span class="text-[11px] text-slate-400 block">{cat.vendors.length} vendors · {cat.txCount} tx</span>
+                <span class="text-[11px] text-slate-400 block">{cat.vendors.length} payees · {cat.txCount} txs</span>
               </div>
               <span class="ee-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-200 flex-shrink-0 text-sm ml-1">▼</span>
             </button>
@@ -448,29 +498,17 @@ const apData = JSON.stringify(apSchedule);
               <!-- Vendor sort header -->
               <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
                 <span class="flex-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  <button
-                    class="ee-vendor-sort-btn hover:text-slate-700 transition"
-                    data-sort-field="name" data-sort-dir="asc" data-cat-idx={catIdx}
-                  >
-                    Vendor / Payee <span class="ee-sort-indicator opacity-50">↕</span>
-                  </button>
+                  Payee / Vendor / Employee
                 </span>
-                <span class="w-20 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Tx Count</span>
-                <span class="w-28 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  <button
-                    class="ee-vendor-sort-btn hover:text-slate-700 transition"
-                    data-sort-field="amount" data-sort-dir="desc" data-cat-idx={catIdx}
-                  >
-                    Amount <span class="ee-sort-indicator">↓</span>
-                  </button>
-                </span>
+                <span class="w-20 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Transactions</span>
+                <span class="w-28 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Amount</span>
                 <span class="w-5"></span>
               </div>
 
               <!-- Vendor rows -->
-              <div class="ee-vendor-rows divide-y divide-slate-50" data-cat-idx={catIdx}>
+              <div class="ee-vendor-rows divide-y divide-slate-50">
                 {cat.vendors.map((vendor, vIdx) => (
-                  <div class="ee-vendor-block" data-vendor-total={vendor.total.toFixed(2)} data-vendor-name={vendor.payee}>
+                  <div class="ee-vendor-block">
                     <!-- Level 2: Vendor toggle row -->
                     <button
                       class="ee-vendor-toggle w-full flex items-center gap-3 px-5 py-3 text-left transition hover:bg-slate-50/80 group"
@@ -478,20 +516,20 @@ const apData = JSON.stringify(apSchedule);
                       data-cat-idx={catIdx}
                       data-vendor-idx={vIdx}
                     >
-                      <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[9px] font-black flex items-center justify-center flex-shrink-0 select-none">
+                      <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 text-[9px] font-black flex items-center justify-center flex-shrink-0 select-none">
                         {vIdx + 1}
                       </span>
                       <span class="flex-1 min-w-0 font-semibold text-sm text-slate-800 truncate text-left">{vendor.payee}</span>
-                      <span class="w-20 text-right text-[11px] text-slate-400 hidden sm:block">{vendor.txCount} tx</span>
-                      <span class="w-28 text-right font-black font-mono text-sm text-slate-800 flex-shrink-0">{fmt(vendor.total)}</span>
+                      <span class="w-20 text-right text-[11px] text-slate-400 hidden sm:block">{vendor.txCount} txs</span>
+                      <span class="w-28 text-right font-black font-mono text-sm text-slate-900 flex-shrink-0">{fmt(vendor.total)}</span>
                       <span class="ee-vendor-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-150 text-xs w-5 text-center flex-shrink-0">▶</span>
                     </button>
 
-                    <!-- Level 3: Transaction panel -->
+                    <!-- Level 3: Transactions panel -->
                     <div class="ee-tx-panel hidden bg-slate-50/70 border-t border-slate-100" data-cat-idx={catIdx} data-vendor-idx={vIdx}>
                       <div class="px-6 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                          {vendor.payee} · {vendor.txCount} transaction{vendor.txCount !== 1 ? 's' : ''} · {statementPeriod}
+                          {vendor.payee} · {vendor.txCount} transaction{vendor.txCount !== 1 ? 's' : ''}
                         </span>
                         <button
                           class="ee-export-vendor-btn text-[10px] font-bold text-teal-700 hover:text-teal-900 transition whitespace-nowrap"
@@ -507,7 +545,7 @@ const apData = JSON.stringify(apSchedule);
                           <thead>
                             <tr class="border-b border-slate-200 bg-white">
                               <th class="text-left px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-16">Date</th>
-                              <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Description / Notes</th>
+                              <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Description / Memo</th>
                               <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hidden sm:table-cell w-28">Type</th>
                               <th class="text-right px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-24">Amount</th>
                             </tr>
@@ -634,7 +672,7 @@ const apData = JSON.stringify(apSchedule);
                     <div class="ee-inflow-tx-panel hidden bg-slate-50/70 border-t border-slate-100" data-cat-idx={catIdx} data-channel-idx={chIdx}>
                       <div class="px-6 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                          {channel.payee} · {channel.txCount} deposit{channel.txCount !== 1 ? 's' : ''} · {statementPeriod}
+                          {channel.payee} · {channel.txCount} deposit{channel.txCount !== 1 ? 's' : ''}
                         </span>
                         <button
                           class="ee-export-channel-btn text-[10px] font-bold text-teal-700 hover:text-teal-900 transition whitespace-nowrap"
@@ -721,7 +759,7 @@ const apData = JSON.stringify(apSchedule);
         <div class="font-black font-mono text-base text-slate-900">
           {fmt(apSchedule.reduce((s, v) => s + v.amount, 0))}
         </div>
-        <button id="ee-export-ap-btn" class="mt-1 text-[10px] font-bold text-teal-700 hover:text-teal-900 transition">
+        <button id="ee-export-ap-btn" class="mt-1 text-[10px] font-bold text-teal-700 hover:text-teal-900 transition cursor-pointer">
           ⬇ Export AP CSV
         </button>
       </div>
@@ -748,15 +786,17 @@ const apData = JSON.stringify(apSchedule);
                   <span class="font-semibold text-slate-800 text-xs">{v.vendor}</span>
                   {v.is_related_party && (
                     <span class="px-1 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                      990 Related
+                      Related Party
                     </span>
                   )}
                   {v.is_contra_credit && (
-                    <span class="px-1 rounded text-[9px] font-bold bg-slate-200 text-slate-600">Credit</span>
+                    <span class="px-1 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      Credit Balance
+                    </span>
                   )}
                 </div>
               </td>
-              <td class="px-3 py-2.5 text-slate-500 text-xs hidden sm:table-cell">{v.category}</td>
+              <td class="px-3 py-2.5 text-slate-600 hidden sm:table-cell">{v.category}</td>
               <td class="px-3 py-2.5 hidden md:table-cell">
                 <span class={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                   v.status === 'Active Current'        ? 'bg-emerald-100 text-emerald-800' :
@@ -803,20 +843,6 @@ const apData = JSON.stringify(apSchedule);
   .ee-filter-chip:hover:not(.active) {
     background: #f1f5f9;
   }
-  .ee-sort-btn {
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.375rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    border: 1px solid #e2e8f0;
-    background: white;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .ee-sort-btn.active { background: #f0fdf4; color: #166534; border-color: #86efac; font-weight: 700; }
-  .ee-sort-btn:hover:not(.active) { background: #f8fafc; }
-
   .ee-cat-toggle[aria-expanded="true"] .ee-chevron,
   .ee-inflow-toggle[aria-expanded="true"] .ee-inflow-chevron {
     transform: rotate(180deg);
@@ -827,45 +853,320 @@ const apData = JSON.stringify(apSchedule);
   }
 </style>
 
-<script is:inline define:vars={{ expenseData, inflowData, apData, statementPeriod }}>
-  const expenseCategories = JSON.parse(expenseData);
-  const inflowCategories = JSON.parse(inflowData);
+<script is:inline define:vars={{ expenseData, inflowData, apData, allMonthsJson, statementPeriod }}>
+  let defaultExpenseCategories = JSON.parse(expenseData);
+  let defaultInflowCategories = JSON.parse(inflowData);
   const apSchedule = JSON.parse(apData);
+  const allMonths = JSON.parse(allMonthsJson);
 
-  let currentMode  = 'expenses';
+  let activeMonthId = 'month_2026_7'; // Default August 2026
+  let currentMode = 'expenses';
   let activeFilter = 'all';
-  let activeSort   = 'amount-desc';
+
+  function fmtCurrency(val) {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(val);
+  }
 
   function csvRow(cols) {
     return cols.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',');
   }
+
   function downloadCsv(filename, rows) {
-    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url  = URL.createObjectURL(blob);
     const a    = Object.assign(document.createElement('a'), { href: url, download: filename });
     a.click();
     URL.revokeObjectURL(url);
   }
 
-  function applyFilterSort() {
-    const isExpenses = currentMode === 'expenses';
-    const selector = isExpenses ? '.ee-category-block' : '.ee-inflow-block';
-    const containerId = isExpenses ? 'ee-expense-category-list' : 'ee-inflow-category-list';
-    const list = document.getElementById(containerId);
-    if (!list) return;
+  function renderMonthData(monthId) {
+    activeMonthId = monthId;
+    const monthObj = allMonths[monthId];
+    if (!monthObj) return;
 
-    const blocks = [...document.querySelectorAll(selector)];
-    const visible = blocks.filter(b => activeFilter === 'all' || b.dataset.catGroup === activeFilter);
-    visible.sort((a, b) => {
-      if (activeSort === 'amount-desc') return parseFloat(b.dataset.catTotal) - parseFloat(a.dataset.catTotal);
-      if (activeSort === 'amount-asc')  return parseFloat(a.dataset.catTotal) - parseFloat(b.dataset.catTotal);
-      if (activeSort === 'name-asc')    return a.dataset.catName.localeCompare(b.dataset.catName);
-      return 0;
+    // Update title, subtitle, variance
+    const titleEl = document.getElementById('ee-title');
+    const subEl = document.getElementById('ee-period-subtitle');
+    const varLabel = document.getElementById('ee-variance-label');
+    const varVal = document.getElementById('ee-variance-value');
+    const varCap = document.getElementById('ee-variance-caption');
+
+    if (titleEl) titleEl.textContent = `${monthObj.monthName} Cash Flow Drilldown`;
+    if (subEl) subEl.textContent = `${monthObj.monthName} · QuickBooks Online General Ledger`;
+
+    const netVal = monthObj.net_margin;
+    if (varLabel) varLabel.textContent = `${monthObj.monthName.split(' ')[0]} Net Margin`;
+    if (varVal) {
+      varVal.textContent = fmtCurrency(netVal);
+      varVal.className = `font-mono font-black text-sm ${netVal >= 0 ? 'text-emerald-700' : 'text-rose-700'}`;
+    }
+    if (varCap) varCap.textContent = monthObj.status || 'Verified Ledger';
+
+    // Update period button active states
+    document.querySelectorAll('.ee-period-btn').forEach(btn => {
+      const isCur = btn.getAttribute('data-month-id') === monthId;
+      if (isCur) {
+        btn.classList.add('bg-[#173a39]', 'text-white', 'shadow-xs');
+        btn.classList.remove('bg-slate-100/90', 'text-slate-700', 'border-slate-200/70');
+      } else {
+        btn.classList.remove('bg-[#173a39]', 'text-white', 'shadow-xs');
+        btn.classList.add('bg-slate-100/90', 'text-slate-700', 'border-slate-200/70');
+      }
     });
 
-    blocks.forEach(b => b.classList.add('hidden'));
-    visible.forEach(b => { b.classList.remove('hidden'); list.appendChild(b); });
+    // Update expense list
+    const expContainer = document.getElementById('ee-expense-category-list');
+    const expBadge = document.getElementById('ee-badge-exp-count');
+    if (expBadge) expBadge.textContent = `${monthObj.expenseCategories.length} categories`;
+
+    if (expContainer) {
+      expContainer.innerHTML = '';
+      monthObj.expenseCategories.forEach((cat, cIdx) => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'ee-category-block rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden';
+        catDiv.dataset.catKey = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        catDiv.dataset.catGroup = (cat.group || 'Operations').toLowerCase();
+        catDiv.dataset.catTotal = cat.total.toString();
+        catDiv.dataset.catName = cat.name;
+
+        catDiv.innerHTML = `
+          <button class="ee-cat-toggle w-full flex items-center gap-3 px-5 py-4 text-left transition hover:bg-slate-50 group cursor-pointer" aria-expanded="false" data-cat-idx="${cIdx}">
+            <span class="text-xl flex-shrink-0">${cat.icon || '💸'}</span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-slate-800 text-sm">${cat.name}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${cat.group}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5 truncate">${cat.pctOfTotal}% of monthly spend</p>
+            </div>
+            <div class="text-right flex-shrink-0 mr-1">
+              <span class="font-black font-mono text-base block text-slate-900">${fmtCurrency(cat.total)}</span>
+              <span class="text-[11px] text-slate-400 block">${cat.payeeCount} payees · ${cat.txCount} txs</span>
+            </div>
+            <span class="ee-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-200 flex-shrink-0 text-sm ml-1">▼</span>
+          </button>
+
+          <div class="ee-vendor-panel hidden border-t border-slate-100" data-cat-idx="${cIdx}">
+            <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+              <span class="flex-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payee / Vendor / Employee</span>
+              <span class="w-20 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Txs</span>
+              <span class="w-28 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Amount</span>
+              <span class="w-5"></span>
+            </div>
+            <div class="ee-vendor-rows divide-y divide-slate-50">
+              ${cat.payees.map((payee, pIdx) => `
+                <div class="ee-vendor-block">
+                  <button class="ee-vendor-toggle w-full flex items-center gap-3 px-5 py-3 text-left transition hover:bg-slate-50/80 group cursor-pointer" aria-expanded="false" data-cat-idx="${cIdx}" data-vendor-idx="${pIdx}">
+                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 text-[9px] font-black flex items-center justify-center flex-shrink-0 select-none">${pIdx + 1}</span>
+                    <span class="flex-1 min-w-0 font-semibold text-sm text-slate-800 truncate text-left">${payee.name}</span>
+                    <span class="w-20 text-right text-[11px] text-slate-400 hidden sm:block">${payee.txCount} txs</span>
+                    <span class="w-28 text-right font-black font-mono text-sm text-slate-900 flex-shrink-0">${fmtCurrency(payee.total)}</span>
+                    <span class="ee-vendor-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-150 text-xs w-5 text-center flex-shrink-0">▶</span>
+                  </button>
+
+                  <div class="ee-tx-panel hidden bg-slate-50/70 border-t border-slate-100" data-cat-idx="${cIdx}" data-vendor-idx="${pIdx}">
+                    <div class="px-6 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${payee.name} · ${payee.txCount} transactions</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-xs min-w-[480px]">
+                        <thead>
+                          <tr class="border-b border-slate-200 bg-white">
+                            <th class="text-left px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-20">Date</th>
+                            <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Memo / Details</th>
+                            <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hidden sm:table-cell w-28">Type & Num</th>
+                            <th class="text-right px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-24">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                          ${payee.transactions.map(tx => `
+                            <tr class="hover:bg-white transition">
+                              <td class="px-6 py-2 text-slate-500 whitespace-nowrap font-medium">${tx.date}</td>
+                              <td class="px-3 py-2">
+                                <div class="font-semibold text-slate-700 leading-tight">${tx.memo || payee.name}</div>
+                                ${tx.split ? `<div class="text-slate-400 text-[10px] mt-0.5">${tx.split}</div>` : ''}
+                              </td>
+                              <td class="px-3 py-2 text-slate-500 hidden sm:table-cell whitespace-nowrap">
+                                <span>${tx.type}</span>
+                                ${tx.num ? `<span class="ml-1 px-1 rounded bg-slate-200 text-slate-700 text-[9px] font-mono">#${tx.num}</span>` : ''}
+                              </td>
+                              <td class="px-6 py-2 text-right font-black font-mono text-slate-800">${fmtCurrency(tx.amount)}</td>
+                            </tr>
+                          `).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="px-5 py-3 bg-white border-t border-slate-200 flex items-center justify-between">
+              <span class="text-xs text-slate-500">${cat.payees.length} payees in category</span>
+              <span class="font-black font-mono text-sm text-slate-900">${fmtCurrency(cat.total)}</span>
+            </div>
+          </div>
+        `;
+        expContainer.appendChild(catDiv);
+      });
+    }
+
+    // Update inflow list
+    const infContainer = document.getElementById('ee-inflow-category-list');
+    const infBadge = document.getElementById('ee-badge-inf-count');
+    if (infBadge) infBadge.textContent = `${monthObj.revenueCategories.length} categories`;
+
+    if (infContainer) {
+      infContainer.innerHTML = '';
+      monthObj.revenueCategories.forEach((cat, cIdx) => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'ee-inflow-block rounded-xl border border-emerald-200 bg-white shadow-xs overflow-hidden';
+        catDiv.dataset.catKey = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        catDiv.dataset.catGroup = (cat.group || 'Contributed').toLowerCase();
+        catDiv.dataset.catTotal = cat.total.toString();
+        catDiv.dataset.catName = cat.name;
+
+        catDiv.innerHTML = `
+          <button class="ee-inflow-toggle w-full flex items-center gap-3 px-5 py-4 text-left transition hover:bg-emerald-50/50 group cursor-pointer" aria-expanded="false" data-cat-idx="${cIdx}">
+            <span class="text-xl flex-shrink-0">${cat.icon || '💵'}</span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-slate-800 text-sm">${cat.name}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${cat.group}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5 truncate">${cat.pctOfTotal}% of monthly revenue</p>
+            </div>
+            <div class="text-right flex-shrink-0 mr-1">
+              <span class="font-black font-mono text-base block text-emerald-700">+${fmtCurrency(cat.total)}</span>
+              <span class="text-[11px] text-slate-400 block">${cat.payeeCount} entities · ${cat.txCount} deposits</span>
+            </div>
+            <span class="ee-inflow-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-200 flex-shrink-0 text-sm ml-1">▼</span>
+          </button>
+
+          <div class="ee-inflow-panel hidden border-t border-slate-100" data-cat-idx="${cIdx}">
+            <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+              <span class="flex-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Channel / Donor / Entity</span>
+              <span class="w-20 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Deposits</span>
+              <span class="w-28 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Amount</span>
+              <span class="w-5"></span>
+            </div>
+            <div class="ee-inflow-channel-rows divide-y divide-slate-50">
+              ${cat.payees.map((payee, pIdx) => `
+                <div class="ee-channel-block">
+                  <button class="ee-channel-toggle w-full flex items-center gap-3 px-5 py-3 text-left transition hover:bg-slate-50/80 group cursor-pointer" aria-expanded="false" data-cat-idx="${cIdx}" data-channel-idx="${pIdx}">
+                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black flex items-center justify-center flex-shrink-0 select-none">${pIdx + 1}</span>
+                    <span class="flex-1 min-w-0 font-semibold text-sm text-slate-800 truncate text-left">${payee.name}</span>
+                    <span class="w-20 text-right text-[11px] text-slate-400 hidden sm:block">${payee.txCount} dep</span>
+                    <span class="w-28 text-right font-black font-mono text-sm text-emerald-700 flex-shrink-0">+${fmtCurrency(payee.total)}</span>
+                    <span class="ee-channel-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-150 text-xs w-5 text-center flex-shrink-0">▶</span>
+                  </button>
+
+                  <div class="ee-inflow-tx-panel hidden bg-slate-50/70 border-t border-slate-100" data-cat-idx="${cIdx}" data-channel-idx="${pIdx}">
+                    <div class="px-6 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${payee.name} · ${payee.txCount} deposits</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-xs min-w-[480px]">
+                        <thead>
+                          <tr class="border-b border-slate-200 bg-white">
+                            <th class="text-left px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-20">Date</th>
+                            <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Memo / Description</th>
+                            <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hidden sm:table-cell w-28">Type & Num</th>
+                            <th class="text-right px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-24">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                          ${payee.transactions.map(tx => `
+                            <tr class="hover:bg-white transition">
+                              <td class="px-6 py-2 text-slate-500 whitespace-nowrap font-medium">${tx.date}</td>
+                              <td class="px-3 py-2">
+                                <div class="font-semibold text-slate-700 leading-tight">${tx.memo || payee.name}</div>
+                              </td>
+                              <td class="px-3 py-2 text-slate-500 hidden sm:table-cell whitespace-nowrap">
+                                <span>${tx.type}</span>
+                                ${tx.num ? `<span class="ml-1 px-1 rounded bg-slate-200 text-slate-700 text-[9px] font-mono">#${tx.num}</span>` : ''}
+                              </td>
+                              <td class="px-6 py-2 text-right font-black font-mono text-emerald-700">+${fmtCurrency(tx.amount)}</td>
+                            </tr>
+                          `).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="px-5 py-3 bg-white border-t border-emerald-100 flex items-center justify-between">
+              <span class="text-xs text-slate-500">${cat.payees.length} entities in category</span>
+              <span class="font-black font-mono text-sm text-emerald-700">+${fmtCurrency(cat.total)}</span>
+            </div>
+          </div>
+        `;
+        infContainer.appendChild(catDiv);
+      });
+    }
+
+    rebindAccordionListeners();
   }
+
+  function rebindAccordionListeners() {
+    const root = document.getElementById('expense-explorer-root');
+    if (!root) return;
+
+    // Level 1: Category toggle (Expenses)
+    root.querySelectorAll('.ee-cat-toggle').forEach(btn => {
+      btn.onclick = () => {
+        const i = btn.dataset.catIdx;
+        const panel = root.querySelector(`.ee-vendor-panel[data-cat-idx="${i}"]`);
+        if (!panel) return;
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.classList.toggle('hidden', open);
+      };
+    });
+
+    // Level 1: Inflow toggle (Inflows)
+    root.querySelectorAll('.ee-inflow-toggle').forEach(btn => {
+      btn.onclick = () => {
+        const i = btn.dataset.catIdx;
+        const panel = root.querySelector(`.ee-inflow-panel[data-cat-idx="${i}"]`);
+        if (!panel) return;
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.classList.toggle('hidden', open);
+      };
+    });
+
+    // Level 2: Vendor toggle (Expenses)
+    root.querySelectorAll('.ee-vendor-toggle').forEach(btn => {
+      btn.onclick = () => {
+        const ci = btn.dataset.catIdx;
+        const vi = btn.dataset.vendorIdx;
+        const panel = root.querySelector(`.ee-tx-panel[data-cat-idx="${ci}"][data-vendor-idx="${vi}"]`);
+        if (!panel) return;
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.classList.toggle('hidden', open);
+      };
+    });
+
+    // Level 2: Channel toggle (Inflows)
+    root.querySelectorAll('.ee-channel-toggle').forEach(btn => {
+      btn.onclick = () => {
+        const ci = btn.dataset.catIdx;
+        const chi = btn.dataset.channelIdx;
+        const panel = root.querySelector(`.ee-inflow-tx-panel[data-cat-idx="${ci}"][data-channel-idx="${chi}"]`);
+        if (!panel) return;
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.classList.toggle('hidden', open);
+      };
+    });
+  }
+
+  // Global function for cross-module activation
+  window.switchExpenseExplorerMonth = function(monthId) {
+    renderMonthData(monthId);
+  };
 
   function switchMode(mode) {
     currentMode = mode;
@@ -896,19 +1197,19 @@ const apData = JSON.stringify(apSchedule);
       infFilters?.classList.add('flex');
       expFilters?.classList.add('hidden');
     }
-
-    // Reset filter active states
-    document.querySelectorAll('.ee-filter-chip').forEach(b => {
-      b.classList.toggle('active', b.dataset.eeFilter === 'all');
-    });
-
-    applyFilterSort();
   }
 
   function initExpenseExplorer() {
     const root = document.getElementById('expense-explorer-root');
-    if (!root || root.dataset.eeInit === '1') return;
-    root.dataset.eeInit = '1';
+    if (!root) return;
+
+    // Period buttons
+    root.querySelectorAll('.ee-period-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mId = btn.getAttribute('data-month-id');
+        if (mId) renderMonthData(mId);
+      });
+    });
 
     // Mode tab switching
     root.querySelectorAll('.ee-mode-tab').forEach(btn => {
@@ -918,140 +1219,57 @@ const apData = JSON.stringify(apSchedule);
       });
     });
 
-    // Filter chips
-    root.querySelectorAll('.ee-filter-chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        activeFilter = btn.dataset.eeFilter;
-        const parent = btn.parentElement;
-        if (parent) parent.querySelectorAll('.ee-filter-chip').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        applyFilterSort();
-      });
-    });
+    // Global Search
+    const searchInput = document.getElementById('ee-global-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        const activeContainer = currentMode === 'expenses'
+          ? document.getElementById('ee-expense-category-list')
+          : document.getElementById('ee-inflow-category-list');
+        if (!activeContainer) return;
 
-    // Sort buttons
-    root.querySelectorAll('.ee-sort-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        activeSort = btn.dataset.eeSort;
-        root.querySelectorAll('.ee-sort-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        applyFilterSort();
+        const blocks = activeContainer.querySelectorAll('.ee-category-block, .ee-inflow-block');
+        blocks.forEach(block => {
+          const text = block.textContent.toLowerCase();
+          const match = text.includes(query);
+          block.classList.toggle('hidden', !match);
+          if (query && match) {
+            const panel = block.querySelector('.ee-vendor-panel, .ee-inflow-panel');
+            if (panel) panel.classList.remove('hidden');
+          }
+        });
       });
-    });
+    }
 
-    // Level 1: Category toggle (Expenses)
-    root.querySelectorAll('.ee-cat-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const i = btn.dataset.catIdx;
-        const panel = root.querySelector(`.ee-vendor-panel[data-cat-idx="${i}"]`);
-        if (!panel) return;
-        const open = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', String(!open));
-        panel.classList.toggle('hidden', open);
-      });
-    });
-
-    // Level 1: Inflow toggle (Inflows)
-    root.querySelectorAll('.ee-inflow-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const i = btn.dataset.catIdx;
-        const panel = root.querySelector(`.ee-inflow-panel[data-cat-idx="${i}"]`);
-        if (!panel) return;
-        const open = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', String(!open));
-        panel.classList.toggle('hidden', open);
-      });
-    });
-
-    // Level 2: Vendor toggle (Expenses)
-    root.querySelectorAll('.ee-vendor-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const ci = btn.dataset.catIdx;
-        const vi = btn.dataset.vendorIdx;
-        const panel = root.querySelector(`.ee-tx-panel[data-cat-idx="${ci}"][data-vendor-idx="${vi}"]`);
-        if (!panel) return;
-        const open = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', String(!open));
-        panel.classList.toggle('hidden', open);
-      });
-    });
-
-    // Level 2: Channel toggle (Inflows)
-    root.querySelectorAll('.ee-channel-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const ci = btn.dataset.catIdx;
-        const chi = btn.dataset.channelIdx;
-        const panel = root.querySelector(`.ee-inflow-tx-panel[data-cat-idx="${ci}"][data-channel-idx="${chi}"]`);
-        if (!panel) return;
-        const open = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', String(!open));
-        panel.classList.toggle('hidden', open);
-      });
-    });
-
-    // Export Active Summary
+    // Export CSV
     root.querySelector('#ee-export-active-btn')?.addEventListener('click', () => {
+      const monthObj = allMonths[activeMonthId];
+      if (!monthObj) return;
+
       const isExpenses = currentMode === 'expenses';
-      const items = isExpenses ? expenseCategories : inflowCategories;
-      const rows = [csvRow(['Category', 'Group', 'Vendors/Channels', 'Transactions/Deposits', 'Total'])];
-      items.forEach(cat => rows.push(csvRow([cat.name, cat.groupLabel, cat.vendors.length, cat.txCount, cat.total.toFixed(2)])));
-      downloadCsv(`${isExpenses ? 'expense' : 'inflow'}-summary-${statementPeriod.replace(/\s/g, '-')}.csv`, rows);
-    });
+      const cats = isExpenses ? monthObj.expenseCategories : monthObj.revenueCategories;
+      const rows = [csvRow(['Month', 'Category', 'Group', 'Payee/Entity', 'Date', 'Type', 'Check/Doc #', 'Memo', 'Amount'])];
 
-    // Export single expense category
-    root.querySelectorAll('.ee-export-cat-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const cat = expenseCategories[parseInt(btn.dataset.catIdx)];
-        if (!cat) return;
-        const rows = [csvRow(['Vendor', 'Transactions', 'Total'])];
-        cat.vendors.forEach(v => rows.push(csvRow([v.payee, v.txCount, v.total.toFixed(2)])));
-        downloadCsv(`expenses-${cat.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`, rows);
+      cats.forEach(cat => {
+        cat.payees.forEach(payee => {
+          payee.transactions.forEach(tx => {
+            rows.push(csvRow([
+              monthObj.monthName,
+              cat.name,
+              cat.group,
+              payee.name,
+              tx.date,
+              tx.type,
+              tx.num || '',
+              tx.memo || '',
+              tx.amount.toFixed(2)
+            ]));
+          });
+        });
       });
-    });
 
-    // Export single inflow category
-    root.querySelectorAll('.ee-export-inflow-cat-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const cat = inflowCategories[parseInt(btn.dataset.catIdx)];
-        if (!cat) return;
-        const rows = [csvRow(['Channel/Payer', 'Deposits', 'Total'])];
-        cat.vendors.forEach(v => rows.push(csvRow([v.payee, v.txCount, v.total.toFixed(2)])));
-        downloadCsv(`inflows-${cat.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`, rows);
-      });
-    });
-
-    // Export single vendor transactions (Expense)
-    root.querySelectorAll('.ee-export-vendor-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const cat = expenseCategories[parseInt(btn.dataset.catIdx)];
-        const vendor = cat?.vendors[parseInt(btn.dataset.vendorIdx)];
-        if (!vendor) return;
-        const rows = [csvRow(['Date', 'Payee', 'Description', 'Type', 'Check #', 'Amount', 'Notes'])];
-        vendor.transactions.forEach(tx => rows.push(csvRow([
-          tx.date, tx.payee, tx.description, tx.type,
-          tx.check_number ?? '', tx.amount.toFixed(2), tx.relational_notes ?? ''
-        ])));
-        downloadCsv(`transactions-${vendor.payee.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`, rows);
-      });
-    });
-
-    // Export single channel deposits (Inflow)
-    root.querySelectorAll('.ee-export-channel-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const cat = inflowCategories[parseInt(btn.dataset.catIdx)];
-        const channel = cat?.vendors[parseInt(btn.dataset.channelIdx)];
-        if (!channel) return;
-        const rows = [csvRow(['Date', 'Description', 'Channel', 'Relational Account', 'Amount', 'Notes'])];
-        channel.transactions.forEach(tx => rows.push(csvRow([
-          tx.date, tx.description, tx.channel, tx.relational_account ?? '',
-          tx.amount.toFixed(2), tx.relational_notes ?? ''
-        ])));
-        downloadCsv(`deposits-${channel.payee.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`, rows);
-      });
+      downloadCsv(`HSMC_${monthObj.monthKey}_${isExpenses ? 'Expenditures' : 'Inflows'}_Detail.csv`, rows);
     });
 
     // Export AP Schedule
@@ -1064,7 +1282,7 @@ const apData = JSON.stringify(apSchedule);
       downloadCsv('accounts-payable-schedule.csv', rows);
     });
 
-    applyFilterSort();
+    rebindAccordionListeners();
   }
 
   document.addEventListener('astro:page-load', initExpenseExplorer);

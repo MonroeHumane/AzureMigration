@@ -1,7 +1,10 @@
 ---
+import monthlyDrilldownsData from '../../data/monthly_drilldown_2026.json';
+
 interface MonthlyItem {
   name: string;
   amount: number;
+  group?: string;
 }
 
 interface MonthRow {
@@ -42,6 +45,8 @@ const totalOtherExp = statements.reduce((acc, m) => acc + m.other_exp, 0);
 const totalExp = statements.reduce((acc, m) => acc + m.total_exp, 0);
 const totalNet = statements.reduce((acc, m) => acc + m.net_margin, 0);
 const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
+
+const monthsMap = (monthlyDrilldownsData as any).months || {};
 ---
 
 <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" id="monthly-statement-root" data-statements={statements.length ? JSON.stringify(statements) : ''}>
@@ -51,7 +56,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
         2026 Month-by-Month Operating Statement
       </h3>
       <p class="text-xs text-slate-500 mt-0.5">
-        Reconciled from QuickBooks Online general ledger. Click any row to view itemized revenue and expense details.
+        Reconciled from QuickBooks Online general ledger. Click any month row to view 3-level interactive drilldown (Categories → Payees/Entities → Granular Transactions).
       </p>
     </div>
     <div class="flex items-center gap-2 self-start sm:self-auto">
@@ -74,6 +79,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
     </div>
   </div>
 
+  <!-- Desktop Table View -->
   <div class="hidden md:block overflow-x-auto">
     <table class="w-full text-left text-xs sm:text-sm">
       <thead class="bg-slate-100/80 text-slate-600 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
@@ -93,12 +99,17 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
         {statements.length > 0 ? (
           statements.map((m) => {
             const isSurplus = m.net_margin >= 0;
+            const drilldown = monthsMap[m.id] || null;
+            const revCats = drilldown?.revenueCategories || [];
+            const expCats = drilldown?.expenseCategories || [];
+
             return (
               <>
                 <tr
                   class="hover:bg-slate-50/80 transition cursor-pointer group"
                   id={`row-${m.id}`}
                   data-target={`drawer-${m.id}`}
+                  title="Click to toggle month drilldown"
                 >
                   <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap flex items-center gap-2">
                     <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition transform group-[.is-open]:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,34 +142,275 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
                     </span>
                   </td>
                 </tr>
+
+                {/* 3-Level Interactive Drawer */}
                 <tr id={`drawer-${m.id}`} class="hidden bg-[#fbf9f5] border-y border-slate-200/80">
                   <td colspan="9" class="p-4 sm:p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-800 pb-2 border-b border-slate-100 mb-2">
-                          Revenue Inflows Schedule ({m.month})
-                        </h4>
-                        <div class="space-y-1">
-                          {m.rev_items.map((it) => (
-                            <div class="flex justify-between text-slate-600">
-                              <span>{it.name}</span>
-                              <span class="font-mono font-medium text-slate-800">{formatDollar(it.amount)}</span>
-                            </div>
-                          ))}
+                    <div class="space-y-4">
+                      {/* Top Bar: Title, Live Search, Action to Jump to Cash Flow Explorer */}
+                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+                        <div>
+                          <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-slate-900">{m.month} Hierarchical Drilldown</span>
+                            <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">QuickBooks Verified</span>
+                            <span class="text-[11px] text-slate-500">
+                              ({drilldown?.totalExpenseTxs || 0} spend txs · {drilldown?.totalRevenueTxs || 0} inflow txs)
+                            </span>
+                          </div>
+                          <p class="text-xs text-slate-500 mt-0.5">
+                            Level 1: Categories with cost · Level 2: Bundled payees &amp; vendors · Level 3: Individual transactions
+                          </p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                          {/* Search Filter Input */}
+                          <div class="relative min-w-[220px]">
+                            <input
+                              type="text"
+                              placeholder="Filter categories, payees, checks..."
+                              class="drawer-search-input w-full pl-7 pr-2 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-teal-600 focus:border-teal-600"
+                              data-drawer-id={`drawer-${m.id}`}
+                            />
+                            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                          </div>
+
+                          {/* Action to Jump to Section 3 (Cash Flow Explorer) */}
+                          <button
+                            type="button"
+                            class="jump-to-explorer-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs cursor-pointer"
+                            data-month-id={m.id}
+                            title="Open this month in the interactive Cash Flow Explorer with search & export"
+                          >
+                            <span>Explore in Cash Flow Explorer</span>
+                            <svg class="w-3 h-3 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                          </button>
                         </div>
                       </div>
-                      <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-rose-800 pb-2 border-b border-slate-100 mb-2">
-                          Expenditures Schedule ({m.month})
-                        </h4>
-                        <div class="space-y-1">
-                          {m.exp_items.map((it) => (
-                            <div class="flex justify-between text-slate-600">
-                              <span>{it.name}</span>
-                              <span class="font-mono font-medium text-slate-800">{formatDollar(it.amount)}</span>
+
+                      {/* Side-by-Side: Revenue Inflows (Left) & Expenditures (Right) */}
+                      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                        {/* Revenue Inflows Schedule */}
+                        <div class="bg-white rounded-xl border border-emerald-200/80 shadow-2xs overflow-hidden flex flex-col">
+                          <div class="bg-emerald-900 text-white px-4 py-2.5 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                              <span class="text-sm">💵</span>
+                              <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-100">
+                                Revenue Inflows ({m.month})
+                              </h4>
                             </div>
-                          ))}
+                            <span class="text-xs font-mono font-bold text-emerald-200 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">
+                              {formatDollar(m.revenue)}
+                            </span>
+                          </div>
+
+                          <div class="p-3 divide-y divide-slate-100 max-h-[500px] overflow-y-auto drawer-cat-list" data-flow="revenue">
+                            {revCats.length > 0 ? (
+                              revCats.map((cat: any, catIdx: number) => {
+                                const catId = `rev-cat-${m.id}-${catIdx}`;
+                                return (
+                                  <div class="py-2 drawer-cat-item" data-cat-name={cat.name.toLowerCase()}>
+                                    {/* Level 1: Category Header (Clickable) */}
+                                    <button
+                                      type="button"
+                                      class="w-full flex items-center justify-between text-left p-2 rounded-lg hover:bg-emerald-50/60 transition cursor-pointer group/cat cat-toggle-btn"
+                                      data-toggle-target={catId}
+                                    >
+                                      <div class="flex items-center gap-2 min-w-0 pr-2">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0 transition-transform transform group-[.is-cat-open]/cat:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                        <span class="text-sm select-none">{cat.icon || '💵'}</span>
+                                        <div class="min-w-0">
+                                          <span class="font-semibold text-slate-800 text-xs block truncate">{cat.name}</span>
+                                          <span class="text-[10px] text-slate-400 block truncate">{cat.group}</span>
+                                        </div>
+                                      </div>
+                                      <div class="text-right shrink-0 flex items-center gap-2">
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-100/70 text-emerald-800">
+                                          {cat.payeeCount} {cat.payeeCount === 1 ? 'entity' : 'entities'} · {cat.txCount} txs
+                                        </span>
+                                        <span class="font-mono font-bold text-xs text-emerald-700 min-w-[70px] text-right">
+                                          +{formatDollar(cat.total)}
+                                        </span>
+                                      </div>
+                                    </button>
+
+                                    {/* Level 2: Bundled Payees / Donors List */}
+                                    <div id={catId} class="hidden pl-6 pr-2 pt-1 pb-2 space-y-1.5 bg-emerald-50/30 rounded-b-lg border-l-2 border-emerald-400 mt-1">
+                                      {cat.payees.map((payee: any, pIdx: number) => {
+                                        const payeeId = `rev-payee-${m.id}-${catIdx}-${pIdx}`;
+                                        return (
+                                          <div class="drawer-payee-item bg-white/80 rounded border border-emerald-100 p-2" data-payee-name={payee.name.toLowerCase()}>
+                                            <button
+                                              type="button"
+                                              class="w-full flex items-center justify-between text-left transition cursor-pointer group/payee payee-toggle-btn"
+                                              data-toggle-target={payeeId}
+                                            >
+                                              <div class="flex items-center gap-1.5 min-w-0 pr-2">
+                                                <svg class="w-3 h-3 text-slate-400 shrink-0 transition-transform transform group-[.is-payee-open]/payee:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                                <span class="text-xs font-medium text-slate-800 truncate">{payee.name}</span>
+                                              </div>
+                                              <div class="flex items-center gap-1.5 shrink-0">
+                                                <span class="text-[10px] text-slate-400 font-mono">({payee.txCount} txs)</span>
+                                                <span class="font-mono font-semibold text-xs text-emerald-800">+{formatDollar(payee.total)}</span>
+                                              </div>
+                                            </button>
+
+                                            {/* Level 3: Individual Transactions */}
+                                            <div id={payeeId} class="hidden mt-2 pt-2 border-t border-slate-100 space-y-1">
+                                              {payee.transactions.map((t: any) => (
+                                                <div class="flex items-center justify-between text-[11px] py-1 px-1.5 bg-slate-50/80 rounded hover:bg-emerald-50/50 transition">
+                                                  <div class="min-w-0 pr-2">
+                                                    <div class="flex items-center gap-1.5">
+                                                      <span class="text-[10px] font-mono text-slate-400 shrink-0">{t.date}</span>
+                                                      {t.num && <span class="px-1 py-0.2 rounded bg-slate-200 text-slate-700 text-[9px] font-mono shrink-0">#{t.num}</span>}
+                                                      <span class="text-slate-700 font-medium truncate">{t.type}</span>
+                                                    </div>
+                                                    {t.memo && <div class="text-[10px] text-slate-500 truncate mt-0.5">{t.memo}</div>}
+                                                  </div>
+                                                  <span class="font-mono font-bold text-xs text-emerald-700 shrink-0">+{formatDollar(t.amount)}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              (m.rev_items || []).map((it) => (
+                                <div class="py-2 px-2 flex items-center justify-between">
+                                  <span class="text-xs text-slate-800">{it.name}</span>
+                                  <span class="font-mono font-bold text-xs text-emerald-700">+{formatDollar(it.amount)}</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+
+                          <div class="mt-auto px-4 py-2.5 bg-emerald-50/70 border-t border-emerald-100 flex items-center justify-between text-xs text-emerald-900 font-bold">
+                            <span>Total Verified Inflows ({revCats.length || (m.rev_items || []).length} categories):</span>
+                            <span class="font-mono font-bold text-emerald-800">{formatDollar(m.revenue)}</span>
+                          </div>
                         </div>
+
+                        {/* Expenditures Schedule */}
+                        <div class="bg-white rounded-xl border border-rose-200/80 shadow-2xs overflow-hidden flex flex-col">
+                          <div class="bg-[#173a39] text-white px-4 py-2.5 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                              <span class="text-sm">💸</span>
+                              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">
+                                Expenditures by Category ({m.month})
+                              </h4>
+                            </div>
+                            <span class="text-xs font-mono font-bold text-amber-200 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-700/60">
+                              {formatDollar(m.total_exp)}
+                            </span>
+                          </div>
+
+                          <div class="p-3 divide-y divide-slate-100 max-h-[500px] overflow-y-auto drawer-cat-list" data-flow="expense">
+                            {expCats.length > 0 ? (
+                              expCats.map((cat: any, catIdx: number) => {
+                                const catId = `exp-cat-${m.id}-${catIdx}`;
+                                return (
+                                  <div class="py-2 drawer-cat-item" data-cat-name={cat.name.toLowerCase()}>
+                                    {/* Level 1: Category Header (Clickable) */}
+                                    <button
+                                      type="button"
+                                      class="w-full flex items-center justify-between text-left p-2 rounded-lg hover:bg-slate-50 transition cursor-pointer group/cat cat-toggle-btn"
+                                      data-toggle-target={catId}
+                                    >
+                                      <div class="flex items-center gap-2 min-w-0 pr-2">
+                                        <svg class="w-3.5 h-3.5 text-teal-700 shrink-0 transition-transform transform group-[.is-cat-open]/cat:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                        <span class="text-sm select-none">{cat.icon || '💸'}</span>
+                                        <div class="min-w-0">
+                                          <span class="font-semibold text-slate-800 text-xs block truncate">{cat.name}</span>
+                                          <span class="text-[10px] text-slate-400 block truncate">{cat.group}</span>
+                                        </div>
+                                      </div>
+                                      <div class="text-right shrink-0 flex items-center gap-2">
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">
+                                          {cat.payeeCount} {cat.payeeCount === 1 ? 'payee' : 'payees'} · {cat.txCount} txs
+                                        </span>
+                                        <span class="font-mono font-bold text-xs text-slate-900 min-w-[70px] text-right">
+                                          {formatDollar(cat.total)}
+                                        </span>
+                                      </div>
+                                    </button>
+
+                                    {/* Level 2: Bundled Payees / Vendors List */}
+                                    <div id={catId} class="hidden pl-6 pr-2 pt-1 pb-2 space-y-1.5 bg-slate-50/60 rounded-b-lg border-l-2 border-[#173a39] mt-1">
+                                      {cat.payees.map((payee: any, pIdx: number) => {
+                                        const payeeId = `exp-payee-${m.id}-${catIdx}-${pIdx}`;
+                                        return (
+                                          <div class="drawer-payee-item bg-white/90 rounded border border-slate-200 p-2" data-payee-name={payee.name.toLowerCase()}>
+                                            <button
+                                              type="button"
+                                              class="w-full flex items-center justify-between text-left transition cursor-pointer group/payee payee-toggle-btn"
+                                              data-toggle-target={payeeId}
+                                            >
+                                              <div class="flex items-center gap-1.5 min-w-0 pr-2">
+                                                <svg class="w-3 h-3 text-slate-400 shrink-0 transition-transform transform group-[.is-payee-open]/payee:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                                <span class="text-xs font-medium text-slate-800 truncate">{payee.name}</span>
+                                              </div>
+                                              <div class="flex items-center gap-1.5 shrink-0">
+                                                <span class="text-[10px] text-slate-400 font-mono">({payee.txCount} txs)</span>
+                                                <span class="font-mono font-semibold text-xs text-slate-900">{formatDollar(payee.total)}</span>
+                                              </div>
+                                            </button>
+
+                                            {/* Level 3: Individual Transactions */}
+                                            <div id={payeeId} class="hidden mt-2 pt-2 border-t border-slate-100 space-y-1">
+                                              {payee.transactions.map((t: any) => (
+                                                <div class="flex items-center justify-between text-[11px] py-1 px-1.5 bg-slate-50/80 rounded hover:bg-slate-100 transition">
+                                                  <div class="min-w-0 pr-2">
+                                                    <div class="flex items-center gap-1.5">
+                                                      <span class="text-[10px] font-mono text-slate-400 shrink-0">{t.date}</span>
+                                                      {t.num && <span class="px-1 py-0.2 rounded bg-slate-200 text-slate-700 text-[9px] font-mono shrink-0">#{t.num}</span>}
+                                                      <span class="text-slate-700 font-medium truncate">{t.type}</span>
+                                                    </div>
+                                                    {t.memo && <div class="text-[10px] text-slate-500 truncate mt-0.5">{t.memo}</div>}
+                                                    {t.split && <div class="text-[9px] text-slate-400 truncate">Account: {t.split}</div>}
+                                                  </div>
+                                                  <span class="font-mono font-bold text-xs text-slate-900 shrink-0">{formatDollar(t.amount)}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              (m.exp_items || []).map((it) => (
+                                <div class="py-2 px-2 flex items-center justify-between">
+                                  <span class="text-xs text-slate-800">{it.name}</span>
+                                  <span class="font-mono font-bold text-xs text-slate-900">{formatDollar(it.amount)}</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+
+                          <div class="mt-auto px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-900 font-bold">
+                            <span>Total Verified Spend ({expCats.length || (m.exp_items || []).length} categories):</span>
+                            <span class="font-mono font-bold text-slate-900">{formatDollar(m.total_exp)}</span>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
                   </td>
@@ -180,7 +432,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
           </tr>
         )}
       </tbody>
-      <!-- Certified Footing Row -->
+      {/* Certified Footing Row */}
       <tfoot class="bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
         <tr>
           <td class="py-3 px-4 font-bold text-white uppercase tracking-wider">
@@ -194,7 +446,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
           <td id="footing-net-margin" class="py-3 px-3 text-right font-mono text-rose-400 font-bold">{statements.length ? formatDollar(totalNet) : '--'}</td>
           <td id="footing-margin-pct" class="py-3 px-3 text-right text-rose-300 font-bold">{statements.length ? `${totalMarginPct.toFixed(1)}%` : '--%'}</td>
           <td class="py-3 px-4 text-emerald-400 text-xs">
-            ✓ Balanced & reconciled to QuickBooks Online
+            ✓ Balanced &amp; reconciled to QuickBooks Online
           </td>
         </tr>
       </tfoot>
@@ -206,6 +458,10 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
     {statements.length > 0 ? (
       statements.map((m) => {
         const isSurplus = m.net_margin >= 0;
+        const drilldown = monthsMap[m.id] || null;
+        const revCats = drilldown?.revenueCategories || [];
+        const expCats = drilldown?.expenseCategories || [];
+
         return (
           <div class="p-4 bg-white hover:bg-slate-50/80 transition" id={`mobile-card-${m.id}`}>
             <div class="flex items-start justify-between gap-2 mb-2">
@@ -248,7 +504,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
                 <span class="font-mono text-slate-600">{formatDollar(m.cogs)}</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Ops & Payroll</span>
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Ops &amp; Payroll</span>
                 <span class="font-mono text-slate-600">{formatDollar(m.operating_exp)}</span>
               </div>
             </div>
@@ -258,40 +514,89 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
               class="w-full py-1.5 px-3 rounded text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100/80 border border-teal-200/60 flex items-center justify-center gap-1.5 transition cursor-pointer"
               data-mobile-target={`mobile-drawer-${m.id}`}
             >
-              <span>View Breakdown</span>
+              <span>View Hierarchical Drilldown</span>
               <svg class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 
             <div id={`mobile-drawer-${m.id}`} class="hidden pt-3 space-y-3">
-              <div class="bg-emerald-50/40 p-3 rounded-lg border border-emerald-100 text-xs">
-                <h4 class="text-[11px] font-bold uppercase tracking-wider text-emerald-900 pb-1.5 border-b border-emerald-200/60 mb-1.5">
-                  Revenue Inflows Schedule ({m.month})
-                </h4>
-                <div class="space-y-1">
-                  {m.rev_items.map((it) => (
-                    <div class="flex justify-between text-slate-700">
-                      <span>{it.name}</span>
-                      <span class="font-mono font-medium text-slate-900">{formatDollar(it.amount)}</span>
+              {/* Mobile Revenue List */}
+              <div class="bg-white rounded-lg border border-emerald-200 shadow-2xs overflow-hidden">
+                <div class="bg-emerald-800 text-white px-3 py-2 flex items-center justify-between">
+                  <span class="text-xs font-bold">💵 Revenue Inflows ({m.month})</span>
+                  <span class="font-mono font-bold text-xs text-emerald-200">{formatDollar(m.revenue)}</span>
+                </div>
+                <div class="p-2 divide-y divide-slate-100 text-xs max-h-72 overflow-y-auto">
+                  {revCats.map((cat: any) => (
+                    <div class="py-2">
+                      <div class="flex justify-between items-center">
+                        <span class="font-semibold text-slate-800">{cat.icon} {cat.name}</span>
+                        <span class="font-mono font-bold text-emerald-700">+{formatDollar(cat.total)}</span>
+                      </div>
+                      <div class="text-[10px] text-slate-400 mt-0.5">
+                        {cat.payeeCount} {cat.payeeCount === 1 ? 'entity' : 'entities'} · {cat.txCount} transactions
+                      </div>
+                      {cat.payees && cat.payees.length > 0 && (
+                        <div class="mt-1 pl-2 border-l border-emerald-300 space-y-0.5">
+                          {cat.payees.slice(0, 3).map((p: any) => (
+                            <div class="flex justify-between text-[10px] text-slate-600">
+                              <span class="truncate pr-1">{p.name}</span>
+                              <span class="font-mono shrink-0">+{formatDollar(p.total)}</span>
+                            </div>
+                          ))}
+                          {cat.payees.length > 3 && (
+                            <div class="text-[9px] text-slate-400 italic">+{cat.payees.length - 3} more entities...</div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div class="bg-rose-50/40 p-3 rounded-lg border border-rose-100 text-xs">
-                <h4 class="text-[11px] font-bold uppercase tracking-wider text-rose-900 pb-1.5 border-b border-rose-200/60 mb-1.5">
-                  Expenditures Schedule ({m.month})
-                </h4>
-                <div class="space-y-1">
-                  {m.exp_items.map((it) => (
-                    <div class="flex justify-between text-slate-700">
-                      <span>{it.name}</span>
-                      <span class="font-mono font-medium text-slate-900">{formatDollar(it.amount)}</span>
+              {/* Mobile Expenditures List */}
+              <div class="bg-white rounded-lg border border-rose-200 shadow-2xs overflow-hidden">
+                <div class="bg-[#173a39] text-white px-3 py-2 flex items-center justify-between">
+                  <span class="text-xs font-bold">💸 Expenditures ({m.month})</span>
+                  <span class="font-mono font-bold text-xs text-amber-200">{formatDollar(m.total_exp)}</span>
+                </div>
+                <div class="p-2 divide-y divide-slate-100 text-xs max-h-72 overflow-y-auto">
+                  {expCats.map((cat: any) => (
+                    <div class="py-2">
+                      <div class="flex justify-between items-center">
+                        <span class="font-semibold text-slate-800">{cat.icon} {cat.name}</span>
+                        <span class="font-mono font-bold text-slate-900">{formatDollar(cat.total)}</span>
+                      </div>
+                      <div class="text-[10px] text-slate-400 mt-0.5">
+                        {cat.payeeCount} {cat.payeeCount === 1 ? 'payee' : 'payees'} · {cat.txCount} transactions
+                      </div>
+                      {cat.payees && cat.payees.length > 0 && (
+                        <div class="mt-1 pl-2 border-l border-[#173a39] space-y-0.5">
+                          {cat.payees.slice(0, 3).map((p: any) => (
+                            <div class="flex justify-between text-[10px] text-slate-600">
+                              <span class="truncate pr-1">{p.name}</span>
+                              <span class="font-mono shrink-0">{formatDollar(p.total)}</span>
+                            </div>
+                          ))}
+                          {cat.payees.length > 3 && (
+                            <div class="text-[9px] text-slate-400 italic">+{cat.payees.length - 3} more payees...</div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
+
+              {/* Mobile Button to Cash Flow Explorer */}
+              <button
+                type="button"
+                class="jump-to-explorer-btn w-full py-2 px-3 rounded-md text-xs font-bold bg-[#173a39] text-white flex items-center justify-center gap-1.5"
+                data-month-id={m.id}
+              >
+                <span>Explore in Full Cash Flow Explorer →</span>
+              </button>
             </div>
           </div>
         );
@@ -302,7 +607,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
       </div>
     )}
 
-    <!-- Mobile Certified Footing Card -->
+    {/* Mobile Certified Footing Card */}
     <div class="p-4 bg-[#173a39] text-white">
       <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-2 flex items-center justify-between">
         <span>2026 YTD Certified Footing</span>
@@ -332,7 +637,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
 
 <script>
   function initMonthlyStatement() {
-    // Desktop drawer expand/collapse
+    // Desktop drawer expand/collapse (Month level)
     document.querySelectorAll('[data-target]').forEach((row) => {
       row.addEventListener('click', () => {
         const targetId = row.getAttribute('data-target');
@@ -357,6 +662,99 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
             const svg = btn.querySelector('svg');
             if (svg) svg.classList.toggle('rotate-180');
           }
+        }
+      });
+    });
+
+    // Level 1: Category toggle inside drawer
+    document.querySelectorAll('.cat-toggle-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetId = btn.getAttribute('data-toggle-target');
+        if (targetId) {
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            targetEl.classList.toggle('hidden');
+            btn.classList.toggle('is-cat-open');
+          }
+        }
+      });
+    });
+
+    // Level 2: Payee toggle inside drawer
+    document.querySelectorAll('.payee-toggle-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetId = btn.getAttribute('data-toggle-target');
+        if (targetId) {
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            targetEl.classList.toggle('hidden');
+            btn.classList.toggle('is-payee-open');
+          }
+        }
+      });
+    });
+
+    // In-drawer real-time filter search
+    document.querySelectorAll('.drawer-search-input').forEach((input) => {
+      input.addEventListener('input', (e) => {
+        const query = (e.target as HTMLInputElement).value.toLowerCase().trim();
+        const drawerId = input.getAttribute('data-drawer-id');
+        if (!drawerId) return;
+        const drawer = document.getElementById(drawerId);
+        if (!drawer) return;
+
+        const catItems = drawer.querySelectorAll<HTMLElement>('.drawer-cat-item');
+        catItems.forEach((catItem) => {
+          const catName = catItem.getAttribute('data-cat-name') || '';
+          const payeeItems = catItem.querySelectorAll<HTMLElement>('.drawer-payee-item');
+          let catMatched = catName.includes(query);
+          let matchedPayeeCount = 0;
+
+          payeeItems.forEach((pItem) => {
+            const pName = pItem.getAttribute('data-payee-name') || '';
+            const textContent = pItem.textContent?.toLowerCase() || '';
+            const pMatch = pName.includes(query) || textContent.includes(query);
+            if (pMatch) {
+              pItem.classList.remove('hidden');
+              matchedPayeeCount++;
+            } else {
+              pItem.classList.add('hidden');
+            }
+          });
+
+          if (!query || catMatched || matchedPayeeCount > 0) {
+            catItem.classList.remove('hidden');
+            // Auto-expand if searching
+            if (query) {
+              const catSub = catItem.querySelector('[id^="rev-cat-"], [id^="exp-cat-"]');
+              if (catSub) catSub.classList.remove('hidden');
+            }
+          } else {
+            catItem.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Cross-module linking: Jump to Cash Flow Explorer for selected month
+    document.querySelectorAll('.jump-to-explorer-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const monthId = btn.getAttribute('data-month-id');
+        if (!monthId) return;
+
+        // Trigger month selection in Expense Explorer if function is available
+        if (typeof (window as any).switchExpenseExplorerMonth === 'function') {
+          (window as any).switchExpenseExplorerMonth(monthId);
+        }
+
+        // Show all modules or activate expenses section
+        const expensesSec = document.getElementById('sec-expenses');
+        if (expensesSec) {
+          expensesSec.classList.remove('hidden');
+          expensesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
     });

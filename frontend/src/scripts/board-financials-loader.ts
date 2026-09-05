@@ -242,6 +242,40 @@ function hydrateOperatingBridge(kpis: any, bridge: any) {
   }
 }
 
+function hydrateStatementFootings(statements: any[]) {
+  const totalRev = statements.reduce((acc, m) => acc + m.revenue, 0);
+  const totalCogs = statements.reduce((acc, m) => acc + m.cogs, 0);
+  const totalOpExp = statements.reduce((acc, m) => acc + m.operating_exp, 0);
+  const totalOtherExp = statements.reduce((acc, m) => acc + m.other_exp, 0);
+  const totalExp = statements.reduce((acc, m) => acc + m.total_exp, 0);
+  const totalNet = statements.reduce((acc, m) => acc + m.net_margin, 0);
+  const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
+
+  const fRev = document.getElementById('footing-rev');
+  if (fRev) fRev.textContent = formatDollar(totalRev);
+  const fCogs = document.getElementById('footing-cogs');
+  if (fCogs) fCogs.textContent = formatDollar(totalCogs);
+  const fOp = document.getElementById('footing-op-exp');
+  if (fOp) fOp.textContent = formatDollar(totalOpExp);
+  const fOther = document.getElementById('footing-other-exp');
+  if (fOther) fOther.textContent = formatDollar(totalOtherExp);
+  const fTotExp = document.getElementById('footing-total-exp');
+  if (fTotExp) fTotExp.textContent = formatDollar(totalExp);
+  const fNet = document.getElementById('footing-net-margin');
+  if (fNet) fNet.textContent = `${totalNet >= 0 ? '+' : ''}${formatDollar(totalNet)}`;
+  const fPct = document.getElementById('footing-margin-pct');
+  if (fPct) fPct.textContent = `${totalMarginPct.toFixed(1)}%`;
+
+  const mfRev = document.getElementById('mobile-footing-rev');
+  if (mfRev) mfRev.textContent = formatDollar(totalRev);
+  const mfTotExp = document.getElementById('mobile-footing-exp');
+  if (mfTotExp) mfTotExp.textContent = formatDollar(totalExp);
+  const mfNet = document.getElementById('mobile-footing-net');
+  if (mfNet) mfNet.textContent = `${totalNet >= 0 ? '+' : ''}${formatDollar(totalNet)}`;
+  const mfPct = document.getElementById('mobile-footing-pct');
+  if (mfPct) mfPct.textContent = `${totalMarginPct.toFixed(1)}%`;
+}
+
 function hydrateMonthlyStatements(statements: any[]) {
   if (!statements || !statements.length) return;
 
@@ -249,6 +283,15 @@ function hydrateMonthlyStatements(statements: any[]) {
   const root = document.getElementById('monthly-statement-root');
   if (root) {
     root.setAttribute('data-statements', JSON.stringify(statements));
+  }
+
+  // If statically rendered rows with 3-level drilldowns are already present, preserve them!
+  const hasExistingDrilldowns = document.getElementById('row-month_2026_0');
+  const hasLoadingRow = document.getElementById('statement-loading-row');
+  if (hasExistingDrilldowns && !hasLoadingRow) {
+    // Update footing only
+    hydrateStatementFootings(statements);
+    return;
   }
 
   if (tbody) {
@@ -293,37 +336,103 @@ function hydrateMonthlyStatements(statements: any[]) {
       drawerTr.className = 'hidden bg-[#fbf9f5] border-y border-slate-200/80';
 
       const revItemsHtml = (m.rev_items || [])
-        .map((it: any) => `
-          <div class="flex justify-between py-1 border-b border-slate-100 text-xs">
-            <span class="text-slate-600">${it.name}</span>
-            <span class="font-mono font-medium text-slate-900">${formatCents(it.amount)}</span>
-          </div>
-        `)
+        .map((it: any) => {
+          const pct = m.revenue > 0 ? ((it.amount / m.revenue) * 100).toFixed(1) : '0.0';
+          return `
+            <div class="py-2 px-2 flex items-center justify-between hover:bg-emerald-50/40 rounded transition">
+              <div class="pr-2 min-w-0">
+                <div class="font-semibold text-slate-800 text-xs truncate">${it.name}</div>
+                ${it.group ? `<span class="text-[10px] text-slate-400 font-medium block truncate">${it.group}</span>` : ''}
+              </div>
+              <div class="text-right shrink-0">
+                <span class="font-mono font-bold text-xs text-emerald-700 block">+${formatCents(it.amount)}</span>
+                <span class="text-[10px] text-slate-400 font-medium">${pct}% of rev</span>
+              </div>
+            </div>
+          `;
+        })
         .join('');
 
       const expItemsHtml = (m.exp_items || [])
-        .map((it: any) => `
-          <div class="flex justify-between py-1 border-b border-slate-100 text-xs">
-            <span class="text-slate-600">${it.name}</span>
-            <span class="font-mono font-medium text-slate-900">${formatCents(it.amount)}</span>
-          </div>
-        `)
+        .map((it: any) => {
+          const pct = m.total_exp > 0 ? ((it.amount / m.total_exp) * 100).toFixed(1) : '0.0';
+          return `
+            <div class="py-2 px-2 flex items-center justify-between hover:bg-slate-50 rounded transition">
+              <div class="pr-2 min-w-0">
+                <div class="font-semibold text-slate-800 text-xs truncate">${it.name}</div>
+                ${it.group ? `<span class="text-[10px] text-slate-400 font-medium block truncate">${it.group}</span>` : ''}
+              </div>
+              <div class="text-right shrink-0">
+                <span class="font-mono font-bold text-xs text-slate-900 block">${formatCents(it.amount)}</span>
+                <span class="text-[10px] text-slate-400 font-medium">${pct}% of spend</span>
+              </div>
+            </div>
+          `;
+        })
         .join('');
 
       drawerTr.innerHTML = `
         <td colspan="9" class="p-4 sm:p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-800 pb-2 border-b border-slate-100 mb-2">
-                Revenue Inflows Schedule (${m.month})
-              </h4>
-              <div class="space-y-1">${revItemsHtml}</div>
+          <div class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-slate-900">${m.month} Complete Category Breakdown</span>
+                <span class="text-[11px] text-slate-500 font-medium">QuickBooks Online Verified Ledger</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 text-xs">
+                <span class="font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                  Total Revenue: <strong class="font-mono">${formatDollar(m.revenue)}</strong> (${(m.rev_items || []).length} categories)
+                </span>
+                <span class="font-semibold text-rose-800 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">
+                  Total Expenditures: <strong class="font-mono">${formatDollar(m.total_exp)}</strong> (${(m.exp_items || []).length} categories)
+                </span>
+              </div>
             </div>
-            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-rose-800 pb-2 border-b border-slate-100 mb-2">
-                Expenditures Schedule (${m.month})
-              </h4>
-              <div class="space-y-1">${expItemsHtml}</div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Revenue Inflows Schedule -->
+              <div class="bg-white rounded-xl border border-emerald-200/80 shadow-2xs overflow-hidden flex flex-col">
+                <div class="bg-emerald-900 text-white px-4 py-2.5 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm">💵</span>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-100">
+                      Revenue Inflows (${m.month})
+                    </h4>
+                  </div>
+                  <span class="text-xs font-mono font-bold text-emerald-200 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">
+                    ${formatDollar(m.revenue)}
+                  </span>
+                </div>
+                <div class="p-3 divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                  ${revItemsHtml}
+                </div>
+                <div class="mt-auto px-4 py-2.5 bg-emerald-50/70 border-t border-emerald-100 flex items-center justify-between text-xs text-emerald-900 font-bold">
+                  <span>Total Verified Inflows (${(m.rev_items || []).length} categories):</span>
+                  <span class="font-mono font-bold text-emerald-800">${formatDollar(m.revenue)}</span>
+                </div>
+              </div>
+
+              <!-- Expenditures Schedule -->
+              <div class="bg-white rounded-xl border border-rose-200/80 shadow-2xs overflow-hidden flex flex-col">
+                <div class="bg-[#173a39] text-white px-4 py-2.5 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm">💸</span>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">
+                      Expenditures by Category (${m.month})
+                    </h4>
+                  </div>
+                  <span class="text-xs font-mono font-bold text-amber-200 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-700/60">
+                    ${formatDollar(m.total_exp)}
+                  </span>
+                </div>
+                <div class="p-3 divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                  ${expItemsHtml}
+                </div>
+                <div class="mt-auto px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-900 font-bold">
+                  <span>Total Verified Spend (${(m.exp_items || []).length} categories):</span>
+                  <span class="font-mono font-bold text-slate-900">${formatDollar(m.total_exp)}</span>
+                </div>
+              </div>
             </div>
           </div>
         </td>
@@ -352,20 +461,38 @@ function hydrateMonthlyStatements(statements: any[]) {
       card.id = `mobile-card-${m.id}`;
 
       const revItemsHtml = (m.rev_items || [])
-        .map((it: any) => `
-          <div class="flex justify-between text-slate-700">
-            <span>${it.name}</span>
-            <span class="font-mono font-medium text-slate-900">${formatDollar(it.amount)}</span>
-          </div>
-        `).join('');
+        .map((it: any) => {
+          const pct = m.revenue > 0 ? ((it.amount / m.revenue) * 100).toFixed(1) : '0.0';
+          return `
+            <div class="py-1.5 px-1 flex justify-between items-center text-slate-700">
+              <div class="min-w-0 pr-2">
+                <span class="font-medium text-slate-800 block truncate">${it.name}</span>
+                ${it.group ? `<span class="text-[10px] text-slate-400 block truncate">${it.group}</span>` : ''}
+              </div>
+              <div class="text-right shrink-0">
+                <span class="font-mono font-semibold text-emerald-700 block">+${formatDollar(it.amount)}</span>
+                <span class="text-[9px] text-slate-400">${pct}%</span>
+              </div>
+            </div>
+          `;
+        }).join('');
 
       const expItemsHtml = (m.exp_items || [])
-        .map((it: any) => `
-          <div class="flex justify-between text-slate-700">
-            <span>${it.name}</span>
-            <span class="font-mono font-medium text-slate-900">${formatDollar(it.amount)}</span>
-          </div>
-        `).join('');
+        .map((it: any) => {
+          const pct = m.total_exp > 0 ? ((it.amount / m.total_exp) * 100).toFixed(1) : '0.0';
+          return `
+            <div class="py-1.5 px-1 flex justify-between items-center text-slate-700">
+              <div class="min-w-0 pr-2">
+                <span class="font-medium text-slate-800 block truncate">${it.name}</span>
+                ${it.group ? `<span class="text-[10px] text-slate-400 block truncate">${it.group}</span>` : ''}
+              </div>
+              <div class="text-right shrink-0">
+                <span class="font-mono font-semibold text-slate-900 block">${formatDollar(it.amount)}</span>
+                <span class="text-[9px] text-slate-400">${pct}%</span>
+              </div>
+            </div>
+          `;
+        }).join('');
 
       card.innerHTML = `
         <div class="flex items-start justify-between gap-2 mb-2">
