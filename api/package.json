@@ -2,6 +2,14 @@
   "name": "monroe-humane-api",
   "version": "1.0.0",
   "description": "Authenticated backend API for Monroe Humane Society Staff Portal",
-  "main": "index.js",
-  "dependencies": {}
+  "main": "src/index.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

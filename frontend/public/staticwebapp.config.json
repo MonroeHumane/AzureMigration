@@ -1,6 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/staticwebapp.config.json",
   "trailingSlash": "auto",
+  "platform": {
+    "apiRuntime": "node:20"
+  },
   "routes": [
     {
       "route": "/assets/*",
@@ -275,6 +278,7 @@
   "navigationFallback": {
     "rewrite": "/404.html",
     "exclude": [
+      "/api/*",
       "/assets/*",
       "/favicon.ico",
       "/robots.txt",

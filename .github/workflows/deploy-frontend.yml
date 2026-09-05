@@ -32,6 +32,11 @@ jobs:
           cd frontend
           npm ci
 
+      - name: Install API Dependencies
+        run: |
+          cd api
+          npm ci
+
       - name: Type Check
         run: |
           cd frontend
