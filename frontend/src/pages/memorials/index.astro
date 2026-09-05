@@ -43,7 +43,7 @@ function processTributes(list) {
     const name = [t.data.firstName, t.data.lastName].filter(Boolean).join(' ');
     let line = 'In memory of ' + name;
     if (t.data.donorName) {
-      line += ' â€“ Gift by ' + t.data.donorName;
+      line += ' – Gift by ' + t.data.donorName;
     }
     
     return {
@@ -204,7 +204,11 @@ const totalTributes = peopleTributes.length + petTributes.length;
     ))}
 
     <div class="hidden text-center py-20 bg-gray-50 rounded-3xl border border-gray-200" data-tribute-global-empty>
-      <span class="text-4xl mb-4 block" aria-hidden="true">ðŸ•Šï¸</span>
+      <div class="w-12 h-12 mx-auto mb-4 rounded-2xl bg-teal-50 text-teal-800 border border-teal-200 flex items-center justify-center" aria-hidden="true">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+        </svg>
+      </div>
       <h3 class="text-2xl font-serif text-teal-900 mb-2">No tributes found</h3>
       <p class="text-gray-600">Try adjusting your search term.</p>
       <button type="button" class="mt-6 text-emerald-600 font-bold uppercase tracking-wider text-sm hover:text-emerald-800 underline underline-offset-4" data-tribute-clear-search>Clear search</button>
@@ -218,6 +222,39 @@ const totalTributes = peopleTributes.length + petTributes.length;
   function initTributes() {
     const root = document.querySelector('[data-tribute-root]');
     if (!root) return;
+
+    // Check for staff portal local storage overrides
+    try {
+      const rawStored = localStorage.getItem('mchs_site_content_v2');
+      if (rawStored) {
+        const stored = JSON.parse(rawStored);
+        if (stored && Array.isArray(stored.memorials) && stored.memorials.length > 0) {
+          const peopleGrid = root.querySelector('#people')?.closest('section')?.querySelector('.grid');
+          if (peopleGrid) {
+            const existingPlaques = Array.from(root.querySelectorAll('[data-tribute-plaque]'));
+            const existingNames = new Set(existingPlaques.map(p => p.getAttribute('data-tribute-name')));
+            stored.memorials.forEach(t => {
+              if (t.name && !existingNames.has(t.name.toLowerCase().trim())) {
+                const article = document.createElement('article');
+                article.className = 'relative overflow-hidden bg-white border-2 border-emerald-500/60 rounded-2xl p-6 shadow-sm flex flex-col group';
+                article.setAttribute('role', 'listitem');
+                article.setAttribute('data-tribute-plaque', '');
+                article.setAttribute('data-tribute-name', t.name.toLowerCase().trim());
+                article.innerHTML = `
+                  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+                  <div class="inline-flex items-center gap-1.5 mb-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 w-fit">
+                    <span>Staff Live Preview</span>
+                  </div>
+                  <h3 class="text-xl font-serif text-teal-900 mb-1">${t.name}</h3>
+                  <p class="text-xs text-slate-500 font-mono">${t.line || 'In Memory Of'} ${t.year ? '• ' + t.year : ''}</p>
+                `;
+                peopleGrid.prepend(article);
+              }
+            });
+          }
+        }
+      }
+    } catch (e) {}
 
     const searchInput = root.querySelector('[data-tribute-search]');
     const clearBtn = root.querySelector('[data-tribute-clear-search]');

@@ -90,7 +90,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             </div>
             <div>
               <div class="font-bold text-slate-900 group-hover:text-teal-900 text-xs">
-                Directus Headless CMS Console ↗
+                Directus Headless CMS Console
               </div>
               <div class="text-[11px] text-slate-500">
                 Manage animal records, users, newsletters & assets
@@ -101,6 +101,33 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
             <polyline points="15 3 21 3 21 9"></polyline>
             <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+
+        <!-- Website Content Manager -->
+        <a
+          href="/internal/content/"
+          data-astro-prefetch="hover"
+          class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-teal-50/60 border border-slate-200 transition group"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-amber-800 text-amber-100 flex items-center justify-center shadow-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="font-bold text-slate-900 group-hover:text-teal-900 text-xs">
+                Site Content Manager
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Memorial tributes, event flyers, newsletters & outcomes
+              </div>
+            </div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 group-hover:text-teal-700 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m9 18 6-6-6-6" />
           </svg>
         </a>
 
@@ -120,10 +147,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             </div>
             <div>
               <div class="font-bold text-slate-900 group-hover:text-teal-900 text-xs">
-                Board Financials Print Packet ↗
+                Board Financials Print Packet
               </div>
               <div class="text-[11px] text-slate-500">
-                Executive 8-month statement & AP schedule
+                Executive 8-month statement & bank reconciliation
               </div>
             </div>
           </div>
@@ -135,6 +162,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <!-- Bank Statement Reconciliation Viewer -->
         <a
           href="/internal/board/#bank-statement-viewer"
+          data-astro-prefetch="hover"
           class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-teal-50/60 border border-slate-200 transition group"
           id="mobile-sheet-bank-link"
         >
@@ -164,6 +192,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <!-- Donors & Giving Registry -->
         <a
           href="/internal/donors/"
+          data-astro-prefetch="hover"
           class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-teal-50/60 border border-slate-200 transition group"
         >
           <div class="flex items-center gap-3">

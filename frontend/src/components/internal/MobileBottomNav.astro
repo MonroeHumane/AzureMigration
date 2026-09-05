@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activeTab?: 'overview' | 'pets' | 'financials' | 'grants' | 'donors';
+  activeTab?: 'overview' | 'pets' | 'financials' | 'grants' | 'donors' | 'content';
 }
 
 const { activeTab = 'overview' } = Astro.props;
@@ -16,6 +16,7 @@ const { activeTab = 'overview' } = Astro.props;
     <!-- Tab 1: Hub / Overview -->
     <a
       href="/internal/"
+      data-astro-prefetch="hover"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'overview'
           ? 'text-emerald-300 font-bold bg-white/10 shadow-inner'
@@ -35,6 +36,7 @@ const { activeTab = 'overview' } = Astro.props;
     <!-- Tab 2: Shelter Animals / PetSync -->
     <a
       href="/internal/pets/"
+      data-astro-prefetch="hover"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'pets'
           ? 'text-amber-300 font-bold bg-white/10 shadow-inner'
@@ -52,6 +54,7 @@ const { activeTab = 'overview' } = Astro.props;
     <!-- Tab 3: Finance / Board -->
     <a
       href="/internal/board/"
+      data-astro-prefetch="hover"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'financials'
           ? 'text-emerald-300 font-bold bg-white/10 shadow-inner'
@@ -69,6 +72,7 @@ const { activeTab = 'overview' } = Astro.props;
     <!-- Tab 4: Grants -->
     <a
       href="/internal/grants/"
+      data-astro-prefetch="hover"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'grants'
           ? 'text-purple-300 font-bold bg-white/10 shadow-inner'
@@ -87,7 +91,11 @@ const { activeTab = 'overview' } = Astro.props;
     <button
       type="button"
       id="bottom-dock-more-btn"
-      class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-teal-200/80 hover:text-white hover:bg-white/5 transition cursor-pointer select-none"
+      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
+        activeTab === 'content'
+          ? 'text-amber-300 font-bold bg-white/10 shadow-inner'
+          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+      }`}
       aria-label="Open portal utilities menu"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

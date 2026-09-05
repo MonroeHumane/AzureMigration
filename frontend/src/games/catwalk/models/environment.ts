@@ -1,5 +1,5 @@
 import { PALETTE } from '../rendering/palette';
-import { circle, curve, line, polyline, resetGlow, wire } from '../rendering/primitives';
+import { line, polyline, resetGlow, wire } from '../rendering/primitives';
 
 export const BOARD_WIDTH = 720;
 export const BOARD_HEIGHT = 864; // 52px top HUD + 780px board + 32px bottom bar

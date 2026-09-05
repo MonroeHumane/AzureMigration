@@ -21,6 +21,10 @@ const { meta } = Astro.props;
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+          <a href="/internal/" class="text-xs text-slate-500 hover:text-teal-800 transition font-medium flex items-center gap-1">
+            &larr; Executive Hub
+          </a>
+          <span class="text-slate-300">/</span>
           <span id="banner-governance" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200">
             {meta?.governance_level || 'Board Confidential'}
           </span>
@@ -40,9 +44,19 @@ const { meta } = Astro.props;
 
       <div class="flex flex-wrap items-center gap-2.5">
         <a
+          href="/internal/donors/?recency=2026"
+          class="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs sm:text-sm font-semibold rounded-lg transition shadow-2xs"
+          title="Inspect reconciled donor ledger and lifetime contributions"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+          </svg>
+          <span>Donor Registry &rarr;</span>
+        </a>
+        <a
           href="/internal/board/print/"
           target="_blank"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-[#173a39] hover:bg-[#0f766e] text-white text-sm font-semibold rounded-lg transition shadow-xs"
+          class="inline-flex items-center gap-2 px-3.5 py-2 bg-[#173a39] hover:bg-[#0f766e] text-white text-xs sm:text-sm font-semibold rounded-lg transition shadow-xs"
           title="Open printable executive packet"
         >
           <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

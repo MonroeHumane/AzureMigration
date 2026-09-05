@@ -1,5 +1,5 @@
 import { PALETTE } from '../rendering/palette';
-import { circle, curve, line, polyline, resetGlow, wire, withTransform } from '../rendering/primitives';
+import { circle, curve, line, polyline, wire, withTransform } from '../rendering/primitives';
 
 export type CatAction = 'idle' | 'hop' | 'ride' | 'hit' | 'home';
 export type Direction = 'up' | 'down' | 'left' | 'right';
@@ -21,7 +21,6 @@ export function drawCat(context: CanvasRenderingContext2D, pose: CatPose): void 
   // --- KINEMATICS & SECONDARY MOTION ---
   const isHopping = pose.action === 'hop';
   const isRiding = pose.action === 'ride';
-  const isIdle = pose.action === 'idle';
 
   // Hop normalized progress (0 to 1)
   const hopProgress = isHopping ? Math.min(1, Math.max(0, pose.phase % 1)) : 0;

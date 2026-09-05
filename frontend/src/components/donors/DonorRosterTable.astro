@@ -40,7 +40,7 @@ const { donors = [] } = Astro.props;
 
 <div class="space-y-4" id="donor-roster-container">
   <!-- Controls: Search, Filter, Sort, Pagination, Export -->
-  <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3.5">
+  <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3.5 print:hidden">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
       <!-- Search Input -->
       <div class="relative flex-1 min-w-[240px]">
@@ -69,12 +69,26 @@ const { donors = [] } = Astro.props;
         </button>
       </div>
 
-      <!-- Quick Export CSV Button -->
+      <!-- Quick Export CSV & Print Buttons -->
       <div class="flex items-center gap-2">
+        <button
+          id="print-roster-btn"
+          type="button"
+          onclick="window.print()"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition shadow-xs cursor-pointer print:hidden"
+          title="Print official donor registry roster"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          Print Roster
+        </button>
         <button
           id="export-donors-csv-btn"
           type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white transition shadow-xs cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white transition shadow-xs cursor-pointer print:hidden"
           title="Export filtered donor list with mailing addresses"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -198,7 +212,7 @@ const { donors = [] } = Astro.props;
     </div>
 
     <!-- Pagination & Stats Footer -->
-    <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs text-slate-600">
+    <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs text-slate-600 print:hidden">
       <div class="flex items-center gap-2">
         <span>Showing <strong id="page-start" class="text-slate-900 font-bold">1</strong> to <strong id="page-end" class="text-slate-900 font-bold">50</strong> of <strong id="total-filtered-count" class="text-slate-900 font-bold">0</strong> donors</span>
         <span class="text-slate-300">|</span>
@@ -232,6 +246,47 @@ const { donors = [] } = Astro.props;
   </div>
 </div>
 
+<style>
+  @media print {
+    :global(nav),
+    :global(header),
+    :global(footer),
+    :global(aside),
+    .print\:hidden {
+      display: none !important;
+    }
+
+    #donor-roster-container {
+      margin: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      border: none !important;
+      background: white !important;
+    }
+
+    table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      font-size: 10px !important;
+    }
+
+    thead {
+      display: table-header-group !important;
+    }
+
+    tr {
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1 !important;
+      padding: 4px 6px !important;
+      color: #0f172a !important;
+    }
+  }
+</style>
+
 <!-- Embedded Raw Data Script for High Performance Client Operations -->
 <script is:inline define:vars={{ donors }}>
   window.__HSMC_DONORS__ = donors;
@@ -240,6 +295,31 @@ const { donors = [] } = Astro.props;
 <script is:inline>
   // Client-side Reactive State
   const allDonors = window.__HSMC_DONORS__ || [];
+  
+  // Security: HTML entity escaper to prevent XSS
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Precompute lowercase search index on each donor for sub-millisecond filtering
+  allDonors.forEach(d => {
+    d._searchStr = [
+      d.name,
+      d.email,
+      d.phone,
+      d.address,
+      d.givingTier,
+      (d.platformsList || []).join(' '),
+      (d.gifts || []).map(g => `${g.campaign || ''} ${g.memo || ''} ${g.dedication || ''} ${g.reference || ''}`).join(' ')
+    ].join(' ').toLowerCase();
+  });
+
   let filteredDonors = [...allDonors];
   let currentPage = 1;
   let pageSize = 50;
@@ -263,6 +343,17 @@ const { donors = [] } = Astro.props;
   const pageStartEl = document.getElementById('page-start');
   const pageEndEl = document.getElementById('page-end');
   const pageIndicatorEl = document.getElementById('page-indicator');
+
+  // Parse URL search parameters for seamless inter-portal deep linking
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('search') && searchInput) searchInput.value = urlParams.get('search') || '';
+    if (urlParams.has('tier') && filterTier) filterTier.value = urlParams.get('tier') || 'all';
+    if (urlParams.has('platform') && filterPlatform) filterPlatform.value = urlParams.get('platform') || 'all';
+    if (urlParams.has('address') && filterAddress) filterAddress.value = urlParams.get('address') || 'all';
+    if (urlParams.has('recency') && filterRecency) filterRecency.value = urlParams.get('recency') || 'all';
+    if (urlParams.has('sort') && filterSort) filterSort.value = urlParams.get('sort') || 'lifetime_desc';
+  } catch (e) {}
 
   function formatMoney(n) {
     return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -329,20 +420,8 @@ const { donors = [] } = Astro.props;
     }
 
     filteredDonors = allDonors.filter(d => {
-      // Search
-      if (q) {
-        const text = [
-          d.name,
-          d.email,
-          d.phone,
-          d.address,
-          d.givingTier,
-          d.platformsList?.join(' '),
-          d.gifts?.map(g => g.campaign + ' ' + g.memo + ' ' + g.reference).join(' ')
-        ].join(' ').toLowerCase();
-
-        if (!text.includes(q)) return false;
-      }
+      // Fast Search
+      if (q && !d._searchStr.includes(q)) return false;
 
       // Tier
       if (tier !== 'all' && d.tierId !== tier) return false;
@@ -462,14 +541,14 @@ const { donors = [] } = Astro.props;
           </td>
           <td class="py-3 px-4">
             <div class="font-bold text-slate-900 text-xs flex items-center gap-2">
-              <span>${donor.name}</span>
+              <span>${escapeHtml(donor.name)}</span>
               ${tributeBadge}
               ${addressBadge}
             </div>
             <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 mt-0.5">
-              ${donor.email ? `<span class="text-slate-600 font-mono text-[10px]">${donor.email}</span>` : ''}
-              ${donor.phone ? `<span>&bull; ${donor.phone}</span>` : ''}
-              ${donor.address ? `<span class="truncate max-w-[280px]" title="${donor.address}">&bull; ${donor.address}</span>` : ''}
+              ${donor.email ? `<span class="text-slate-600 font-mono text-[10px]">${escapeHtml(donor.email)}</span>` : ''}
+              ${donor.phone ? `<span>&bull; ${escapeHtml(donor.phone)}</span>` : ''}
+              ${donor.address ? `<span class="truncate max-w-[280px]" title="${escapeHtml(donor.address)}">&bull; ${escapeHtml(donor.address)}</span>` : ''}
             </div>
           </td>
           <td class="py-3 px-4 whitespace-nowrap">
@@ -477,7 +556,7 @@ const { donors = [] } = Astro.props;
           </td>
           <td class="py-3 px-4">
             <div class="flex flex-wrap gap-1">
-              ${(donor.platformsList || []).map(getPlatformPill).join('')}
+              ${(donor.platformsList || []).map(p => getPlatformPill(p)).join('')}
             </div>
           </td>
           <td class="py-3 px-4 text-center font-semibold text-slate-700">
@@ -510,13 +589,13 @@ const { donors = [] } = Astro.props;
             <tr class="${gIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} text-slate-700 hover:bg-slate-100/60 transition">
               <td class="py-2 px-3 font-mono text-[11px] text-slate-600">${formatDate(g.date)}</td>
               <td class="py-2 px-3">${getPlatformPill(g.platform)}</td>
-              <td class="py-2 px-3 font-medium text-slate-800">${g.campaign || 'Direct Support'}</td>
-              <td class="py-2 px-3 text-[11px] text-slate-500">${g.type || 'Direct Gift'}</td>
+              <td class="py-2 px-3 font-medium text-slate-800">${escapeHtml(g.campaign || 'Direct Support')}</td>
+              <td class="py-2 px-3 text-[11px] text-slate-500">${escapeHtml(g.type || 'Direct Gift')}</td>
               <td class="py-2 px-3 font-mono font-bold text-slate-900 text-right">${formatMoney(g.amount)}</td>
-              <td class="py-2 px-3 text-[11px] text-slate-600 max-w-[280px] truncate" title="${g.dedication || g.memo || ''}">
-                ${g.dedication ? `<span class="font-semibold text-rose-700">Tribute:</span> ${g.dedication}` : (g.memo || '—')}
+              <td class="py-2 px-3 text-[11px] text-slate-600 max-w-[280px] truncate" title="${escapeHtml(g.dedication || g.memo || '')}">
+                ${g.dedication ? `<span class="font-semibold text-rose-700">Tribute:</span> ${escapeHtml(g.dedication)}` : escapeHtml(g.memo || '—')}
               </td>
-              <td class="py-2 px-3 font-mono text-[10px] text-slate-400 text-right">${g.reference || '—'}</td>
+              <td class="py-2 px-3 font-mono text-[10px] text-slate-400 text-right">${escapeHtml(g.reference || '—')}</td>
             </tr>
           `).join('')
         : `
@@ -536,15 +615,15 @@ const { donors = [] } = Astro.props;
               <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-1">
                   <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Verified Contact Details</div>
-                  <div class="font-medium text-slate-900 text-xs truncate">${donor.name}</div>
-                  <div class="text-[11px] text-slate-600 truncate">${donor.email || 'No email on file'}</div>
-                  <div class="text-[11px] text-slate-600">${donor.phone || 'No phone on file'}</div>
+                  <div class="font-medium text-slate-900 text-xs truncate">${escapeHtml(donor.name)}</div>
+                  <div class="text-[11px] text-slate-600 truncate">${donor.email ? escapeHtml(donor.email) : 'No email on file'}</div>
+                  <div class="text-[11px] text-slate-600">${donor.phone ? escapeHtml(donor.phone) : 'No phone on file'}</div>
                 </div>
 
                 <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-1">
                   <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Mailing Address (Tax Letter)</div>
                   ${donor.hasMailingAddress
-                    ? `<div class="text-xs text-slate-800 leading-snug">${donor.address}</div>
+                    ? `<div class="text-xs text-slate-800 leading-snug">${escapeHtml(donor.address)}</div>
                        <div class="text-[10px] font-semibold text-emerald-700 flex items-center gap-1 mt-1">
                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Validated Postal Address
                        </div>`
@@ -626,9 +705,30 @@ const { donors = [] } = Astro.props;
     tableBody.innerHTML = rowsHtml;
   }
 
+  // Blob CSV Downloader helper for guaranteed reliability with large datasets
+  function triggerCsvDownload(filename, csvString) {
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   // Event Delegation for Table Clicks
   tableBody?.addEventListener('click', (e) => {
     const target = e.target;
+
+    // Prevent toggling drawer if the user is selecting/highlighting text to copy
+    const selection = window.getSelection();
+    if (selection && selection.toString().trim().length > 0) return;
+
+    // Prevent toggling when clicking inside an expanded drawer
+    if (target.closest('tr[id^="drawer-"]')) return;
+
     const row = target.closest('tr[data-donor-id]');
     if (!row) return;
 
@@ -644,7 +744,7 @@ const { donors = [] } = Astro.props;
     renderTable();
   });
 
-  // Export Single Donor Statement
+  // Export Single Donor Statement via Blob
   document.addEventListener('click', (e) => {
     const target = e.target;
     const btn = target.closest('.export-single-donor-btn');
@@ -678,17 +778,11 @@ const { donors = [] } = Astro.props;
       ]);
     });
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + csvRows.map(r => r.join(',')).join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `HSMC_Statement_${donor.name.replace(/[^a-zA-Z0-9]/g, '_')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const csvContent = csvRows.map(r => r.join(',')).join('\n');
+    triggerCsvDownload(`HSMC_Statement_${donor.name.replace(/[^a-zA-Z0-9]/g, '_')}.csv`, csvContent);
   });
 
-  // Export Full Filtered Roster CSV
+  // Export Full Filtered Roster CSV via Blob
   exportBtn?.addEventListener('click', () => {
     const headers = [
       'Donor ID',
@@ -720,14 +814,8 @@ const { donors = [] } = Astro.props;
       d.hasMailingAddress ? 'YES' : 'NO'
     ]);
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `HSMC_Master_Donors_Export_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    triggerCsvDownload(`HSMC_Master_Donors_Export_${new Date().toISOString().slice(0, 10)}.csv`, csvContent);
   });
 
   // Search input with debounce

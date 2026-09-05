@@ -394,7 +394,7 @@ function hydrateMonthlyStatements(statements: any[]) {
               <div class="bg-white rounded-xl border border-emerald-200/80 shadow-2xs overflow-hidden flex flex-col">
                 <div class="bg-emerald-900 text-white px-4 py-2.5 flex items-center justify-between">
                   <div class="flex items-center gap-2">
-                    <span class="text-sm">💵</span>
+                    <svg class="w-4 h-4 text-emerald-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75"/></svg>
                     <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-100">
                       Revenue Inflows (${m.month})
                     </h4>
@@ -416,7 +416,7 @@ function hydrateMonthlyStatements(statements: any[]) {
               <div class="bg-white rounded-xl border border-rose-200/80 shadow-2xs overflow-hidden flex flex-col">
                 <div class="bg-[#173a39] text-white px-4 py-2.5 flex items-center justify-between">
                   <div class="flex items-center gap-2">
-                    <span class="text-sm">💸</span>
+                    <svg class="w-4 h-4 text-rose-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75"/></svg>
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">
                       Expenditures by Category (${m.month})
                     </h4>

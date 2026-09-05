@@ -1,5 +1,5 @@
 import { PALETTE } from './palette';
-import { circle, line, polyline, resetGlow, wire } from './primitives';
+import { circle, line, resetGlow, wire } from './primitives';
 
 export interface Particle {
   x: number;

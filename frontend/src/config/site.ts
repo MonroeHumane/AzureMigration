@@ -36,10 +36,10 @@ export const SITE = {
 
   integrations: {
     betterUnite: {
-      generalDonation: '/donate',
-      membership: '/donate',
-      memorialPlaque: '/donate',
-      memorialGiving: '/donate',
+      generalDonation: 'https://www.paypal.com/US/fundraiser/charity/4JPVCLYXAW9BW',
+      membership: 'https://www.zeffy.com/ticketing/humane-society-of-monroe-membership-shirt-contest',
+      memorialPlaque: '/memorials/give',
+      memorialGiving: '/memorials/give',
     },
     payPal: {
       catRoomFund: 'https://www.paypal.com/US/fundraiser/charity/N9S3JQGK3HCTW',

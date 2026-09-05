@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'donors' | 'overview';
+  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'donors' | 'overview' | 'content';
 }
 
 const { activeTab = 'overview' } = Astro.props;
@@ -109,6 +109,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <nav class="hidden md:flex flex-wrap items-center gap-1.5 mt-3 pt-2.5 border-t border-teal-800/80" aria-label="Staff Portal Modules">
       <a
         href="/internal/"
+        data-astro-prefetch="hover"
         data-nav-tab="overview"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'overview'
@@ -127,6 +128,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/pets/"
+        data-astro-prefetch="hover"
         data-nav-tab="petsync"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'petsync' || activeTab === 'pets'
@@ -143,6 +145,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/board/"
+        data-astro-prefetch="hover"
         data-nav-tab="financials"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'financials'
@@ -159,6 +162,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/grants/"
+        data-astro-prefetch="hover"
         data-nav-tab="grants"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'grants'
@@ -175,6 +179,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/donors/"
+        data-astro-prefetch="hover"
         data-nav-tab="donors"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'donors'
@@ -189,6 +194,24 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       </a>
 
       <a
+        href="/internal/content/"
+        data-astro-prefetch="hover"
+        data-nav-tab="content"
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+          activeTab === 'content'
+            ? 'bg-emerald-600 text-white shadow-xs font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800/80'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+        </svg>
+        Site Content
+      </a>
+
+
+      <a
         href={directusAdminUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -198,7 +221,8 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
-        Directus Console ↗
+        <span>Directus Console</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
       </a>
     </nav>
 
@@ -210,6 +234,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     >
       <a
         href="/internal/"
+        data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
           activeTab === 'overview'
             ? 'bg-emerald-600 text-white font-bold'
@@ -227,6 +252,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/pets/"
+        data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
           activeTab === 'petsync' || activeTab === 'pets'
             ? 'bg-emerald-600 text-white font-bold'
@@ -242,6 +268,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/board/"
+        data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
           activeTab === 'financials'
             ? 'bg-emerald-600 text-white font-bold'
@@ -257,6 +284,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/grants/"
+        data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
           activeTab === 'grants'
             ? 'bg-emerald-600 text-white font-bold'
@@ -272,6 +300,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/donors/"
+        data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
           activeTab === 'donors'
             ? 'bg-emerald-600 text-white font-bold'
@@ -282,6 +311,22 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
         </svg>
         Donors & Giving
+      </a>
+
+      <a
+        href="/internal/content/"
+        data-astro-prefetch="hover"
+        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
+          activeTab === 'content'
+            ? 'bg-emerald-600 text-white font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+        </svg>
+        Site Content
       </a>
 
       <div class="pt-2 border-t border-teal-800/80 flex items-center justify-between text-xs text-teal-200 px-1">

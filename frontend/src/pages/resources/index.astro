@@ -3,46 +3,225 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-  title="Resources | 734-243-3669"
-  description="Practical services that support pets and people in Monroe County - from nail trims and microchipping to membership and volunteer opportunities."
+  title="Pet Care Resources & Community Support | Monroe County | 734-243-3669"
+  description="Comprehensive Monroe County pet resources: in-house clinic services, low-cost spay/neuter clinics, emergency veterinary hospitals, lost pet protocols, and pet food assistance."
 >
-  <div class="pb-24 px-4 max-w-4xl mx-auto">
-    <header class="mb-16 text-center">
-      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Services</p>
-      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Resources | Monroe County</h1>
-      <p class="text-xl text-gray-600 leading-relaxed">
-        Practical services that support pets and people in Monroe County - from nail trims and microchipping to membership and volunteer opportunities.
-      </p>
+  <div class="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+    <!-- Header Hero -->
+    <header class="bg-teal-900 text-cream p-8 sm:p-12 lg:p-16 rounded-3xl mb-12 shadow-lg relative overflow-hidden">
+      <div class="relative z-10 max-w-3xl">
+        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-3">Community Pet Support</p>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif text-white mb-6 leading-tight">Pet Care Resources</h1>
+        <p class="text-lg md:text-xl text-cream-100 opacity-90 leading-relaxed">
+          Keeping pets healthy, safe, and united with their families. Explore in-house shelter clinic services, low-cost veterinary options, regional emergency care, and lost pet recovery protocols across Monroe County.
+        </p>
+      </div>
     </header>
 
-    <div class="space-y-16">
-      <section aria-labelledby="monroe-resources-services-heading" class="bg-gray-50 rounded-3xl p-8 border border-gray-200">
-        <h2 id="monroe-resources-services-heading" class="text-3xl font-serif text-teal-900 mb-4">Shelter services</h2>
-        <p class="text-gray-600 mb-6 leading-relaxed">
-          We offer pet nail trims and microchipping by appointment. Call the shelter to schedule, ask about pricing, or learn what to bring the day of your visit.
-        </p>
-        <ul class="flex flex-col sm:flex-row gap-4">
-          <li>
-            <a href="tel:7342433669" class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-teal-700 text-white font-bold uppercase tracking-wider transition-all hover:bg-teal-900 hover:-translate-y-1 shadow-sm w-full sm:w-auto">Call 734-243-3669</a>
-          </li>
-          <li>
-            <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1 w-full sm:w-auto">Contact &amp; shelter hours</a>
-          </li>
-        </ul>
-      </section>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+      <!-- Main Content Column (2 cols) -->
+      <div class="lg:col-span-2 space-y-12">
+        
+        <!-- 1. Shelter In-House Services -->
+        <section class="bg-white rounded-3xl p-8 border border-teal-900/10 shadow-sm" aria-labelledby="shelter-services-heading">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-800 flex items-center justify-center font-bold text-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 14-7 7-7-7"/><path d="M12 3v18"/><circle cx="12" cy="5" r="2"/></svg>
+            </div>
+            <div>
+              <h2 id="shelter-services-heading" class="text-2xl sm:text-3xl font-serif text-teal-900">In-House Shelter Services</h2>
+              <p class="text-xs text-slate-500">Available at our facility: 1704 N Telegraph Rd, Monroe, MI</p>
+            </div>
+          </div>
 
-      <section aria-labelledby="monroe-resources-more-heading">
-        <h2 id="monroe-resources-more-heading" class="text-3xl font-serif text-teal-900 mb-4">Ways to get involved</h2>
-        <p class="text-gray-600 mb-8 leading-relaxed">
-          Become a member, browse fundraisers, read our FAQ, or explore volunteer needs from the sections linked below.
-        </p>
-        <div class="flex flex-wrap gap-4">
-          <a class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-1" href="/membership">Membership plans</a>
-          <a class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1" href="/donate" target="_blank" rel="noopener noreferrer">Join online</a>
-          <a class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1" href="/faq">Frequently Asked Questions</a>
-          <a class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1" href="/volunteer-form">Volunteer</a>
+          <div class="space-y-6 text-gray-700">
+            <div class="border-b border-gray-100 pb-5">
+              <div class="flex justify-between items-baseline mb-2">
+                <h3 class="font-bold text-teal-900 text-lg">Microchipping</h3>
+                <span class="text-sm font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">$20 Lifetime</span>
+              </div>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                Permanent identification microchip implanted by trained staff. Includes lifetime nationwide registration with zero annual renewal fees. Available during regular shelter hours or by appointment.
+              </p>
+            </div>
+
+            <div class="border-b border-gray-100 pb-5">
+              <div class="flex justify-between items-baseline mb-2">
+                <h3 class="font-bold text-teal-900 text-lg">Nail Trims</h3>
+                <span class="text-sm font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full">By Appointment</span>
+              </div>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                Routine canine and feline nail maintenance performed in a low-stress environment. Please call ahead to verify staff availability.
+              </p>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-baseline mb-2">
+                <h3 class="font-bold text-teal-900 text-lg">Emergency Pet Food Assistance</h3>
+                <span class="text-sm font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">Community Pantry</span>
+              </div>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                When times are tough, no family should have to surrender a beloved pet due to temporary food insecurity. We provide supplemental bags of dry dog and cat kibble for Monroe County families in need.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-teal-900/10 flex flex-wrap gap-4">
+            <a href="tel:7342433669" class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-teal-700 text-white font-bold uppercase tracking-wider text-xs hover:bg-teal-900 transition-colors shadow-xs">
+              Call Shelter: (734) 243-3669
+            </a>
+            <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 rounded-full border border-teal-700 text-teal-700 font-bold uppercase tracking-wider text-xs hover:bg-teal-50 transition-colors">
+              Hours &amp; Location
+            </a>
+          </div>
+        </section>
+
+        <!-- 2. Low-Cost Spay & Neuter -->
+        <section class="bg-white rounded-3xl p-8 border border-teal-900/10 shadow-sm" aria-labelledby="spay-neuter-heading">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold text-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <h2 id="spay-neuter-heading" class="text-2xl sm:text-3xl font-serif text-teal-900">Low-Cost Spay &amp; Neuter</h2>
+              <p class="text-xs text-slate-500">Preventing pet overpopulation and improving lifelong animal health</p>
+            </div>
+          </div>
+
+          <p class="text-gray-700 leading-relaxed text-sm mb-6">
+            Spaying and neutering reduces pet roaming, prevents costly reproductive health conditions, and directly combats animal homelessness. If you need financial assistance, please utilize regional partner resources:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+              <h3 class="font-bold text-teal-900 text-base mb-1">All About Animals Rescue</h3>
+              <p class="text-xs text-slate-500 mb-3">High-Quality Low-Cost Spay/Neuter</p>
+              <p class="text-xs text-gray-600 mb-4">Michigan's largest dedicated low-cost spay/neuter provider, offering public surgeries and preventative wellness vaccines.</p>
+              <a href="https://allaboutanimalsrescue.org" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-teal-700 hover:underline inline-flex items-center gap-1">
+                allaboutanimalsrescue.org &rarr;
+              </a>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+              <h3 class="font-bold text-teal-900 text-base mb-1">Humane Ohio</h3>
+              <p class="text-xs text-slate-500 mb-3">Regional Non-Profit Spay/Neuter Clinic</p>
+              <p class="text-xs text-gray-600 mb-4">Dedicated non-profit spay/neuter clinic located in Toledo, OH, regularly serving Monroe County dogs, cats, and free-roaming community cats.</p>
+              <a href="https://humaneohio.org" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-teal-700 hover:underline inline-flex items-center gap-1">
+                humaneohio.org &rarr;
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Lost & Found Pets Protocol -->
+        <section class="bg-white rounded-3xl p-8 border border-teal-900/10 shadow-sm" aria-labelledby="lost-found-heading">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-900 flex items-center justify-center font-bold text-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+            <div>
+              <h2 id="lost-found-heading" class="text-2xl sm:text-3xl font-serif text-teal-900">Lost &amp; Found Pet Recovery</h2>
+              <p class="text-xs text-slate-500">Immediate action steps when a pet goes missing or you find a stray</p>
+            </div>
+          </div>
+
+          <div class="space-y-4 text-sm text-gray-700">
+            <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-200">
+              <h3 class="font-bold text-amber-900 text-sm mb-1">1. Report to Monroe County Animal Control</h3>
+              <p class="text-xs text-amber-800 leading-relaxed mb-2">
+                Municipal stray intake and animal law enforcement in Monroe County are managed by Monroe County Animal Control. All found stray dogs must be reported to them:
+              </p>
+              <p class="text-xs font-bold text-amber-950">
+                Monroe County Animal Control: (734) 240-3125 | 911 S. Raisinville Rd, Monroe, MI
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200">
+              <h3 class="font-bold text-teal-900 text-sm mb-1">2. Scan for a Microchip</h3>
+              <p class="text-xs text-gray-600 leading-relaxed">
+                Bring any found animal to the Humane Society of Monroe County or any local veterinary clinic. Staff will scan the animal for a microchip at no charge.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200">
+              <h3 class="font-bold text-teal-900 text-sm mb-1">3. Check Universal Microchip Databases</h3>
+              <p class="text-xs text-gray-600 leading-relaxed">
+                If you have an animal's microchip number, look up the issuing registry at <a href="https://www.petmicrochiplookup.org" target="_blank" rel="noopener noreferrer" class="text-teal-700 underline font-bold">petmicrochiplookup.org</a> (AAHA Universal Pet Microchip Lookup).
+              </p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Sidebar (1 col) -->
+      <aside class="space-y-8">
+        
+        <!-- Emergency Vet Contacts Card -->
+        <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-md">
+          <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">24/7 Critical Care</span>
+          <h2 class="text-2xl font-serif mt-1 mb-4">Regional Emergency Hospitals</h2>
+          <p class="text-xs text-slate-300 mb-6 leading-relaxed">
+            For urgent after-hours veterinary crises, contact these regional 24-hour emergency trauma centers:
+          </p>
+
+          <div class="space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+              <h3 class="font-bold text-white text-sm">BluePearl Pet Hospital</h3>
+              <p class="text-xs text-slate-400 mb-2">4126 Packard St, Ann Arbor, MI</p>
+              <a href="tel:7349718774" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 hover:text-emerald-300">
+                (734) 971-8774 &rarr;
+              </a>
+            </div>
+
+            <div>
+              <h3 class="font-bold text-white text-sm">MedVet Toledo (Emergency)</h3>
+              <p class="text-xs text-slate-400 mb-2">2921 Douglas Rd, Toledo, OH</p>
+              <a href="tel:4194730328" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 hover:text-emerald-300">
+                (419) 473-0328 &rarr;
+              </a>
+            </div>
+          </div>
         </div>
-      </section>
+
+        <!-- Quick Links Card -->
+        <div class="bg-cream-200 border border-teal-900/10 rounded-3xl p-6 sm:p-8">
+          <h2 class="text-xl font-serif text-teal-900 mb-4">Shelter Programs</h2>
+          <ul class="space-y-3 text-sm font-semibold">
+            <li>
+              <a href="/adopt" class="text-teal-800 hover:text-teal-950 flex items-center justify-between group">
+                <span>Adopt a Pet</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </a>
+            </li>
+            <li>
+              <a href="/membership" class="text-teal-800 hover:text-teal-950 flex items-center justify-between group">
+                <span>Membership Plans</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </a>
+            </li>
+            <li>
+              <a href="/volunteer-form" class="text-teal-800 hover:text-teal-950 flex items-center justify-between group">
+                <span>Volunteer Opportunities</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </a>
+            </li>
+            <li>
+              <a href="/faq" class="text-teal-800 hover:text-teal-950 flex items-center justify-between group">
+                <span>Frequently Asked Questions</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </a>
+            </li>
+            <li>
+              <a href="/memorials" class="text-teal-800 hover:text-teal-950 flex items-center justify-between group">
+                <span>Memorial Wall &amp; Dedications</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </aside>
     </div>
   </div>
 </BaseLayout>

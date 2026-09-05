@@ -9,6 +9,28 @@ const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
 
 const currentEvents = eventData.filter(e => e.event_date && new Date(e.event_date) >= thirtyDaysAgo).sort((a,b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime());
 const historicEvents = eventData.filter(e => e.event_date && new Date(e.event_date) < thirtyDaysAgo).sort((a,b) => new Date(b.event_date!).getTime() - new Date(a.event_date!).getTime());
+
+function getEventCategory(title?: string, desc?: string): { key: string; label: string; badgeClass: string } {
+  const text = `${title || ''} ${desc || ''}`.toLowerCase();
+  if (text.includes('golf') || text.includes('birdie')) {
+    return { key: 'sports', label: 'Golf & Sports', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' };
+  }
+  if (text.includes('benefit') || text.includes('gala') || text.includes('auction')) {
+    return { key: 'gala', label: 'Benefits & Galas', badgeClass: 'bg-purple-50 text-purple-800 border-purple-200' };
+  }
+  if (text.includes('dine') || text.includes('applebee') || text.includes('breakfast') || text.includes('margarita') || text.includes('brewing') || text.includes('grille') || text.includes('bar ') || text.includes("jerry's")) {
+    return { key: 'dining', label: 'Dine to Donate', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200' };
+  }
+  return { key: 'community', label: 'Community', badgeClass: 'bg-teal-50 text-teal-800 border-teal-200' };
+}
+
+const filterCategories = [
+  { key: 'all', label: 'All Events' },
+  { key: 'dining', label: 'Dine to Donate' },
+  { key: 'sports', label: 'Golf & Sports' },
+  { key: 'gala', label: 'Benefits & Galas' },
+  { key: 'community', label: 'Community' },
+];
 ---
 
 <BaseLayout
@@ -24,18 +46,150 @@ const historicEvents = eventData.filter(e => e.event_date && new Date(e.event_da
       </p>
     </header>
 
-    <section id="Calendar" class="mb-16 text-center">
-      <p class="text-lg text-gray-700 bg-teal-50 border border-teal-100 rounded-2xl p-6 inline-block shadow-sm">
-        Want reminders on your own calendar? You can <a class="text-emerald-600 font-bold hover:text-emerald-700 underline underline-offset-4 decoration-2 decoration-emerald-200" href="https://delightful-dune-0d730f70f.7.azurestaticapps.net/events/#Calendar">add our events to your own calendar</a>.
-      </p>
+    <section id="Calendar" class="mb-16 text-center max-w-4xl mx-auto">
+      <div class="bg-gradient-to-r from-[#173a39] via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-md border border-teal-800/80">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-5 text-left">
+          <div class="space-y-1.5 max-w-xl">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Live Calendar Sync
+            </span>
+            <h2 class="text-xl sm:text-2xl font-serif font-bold text-white">Never Miss a Shelter Event</h2>
+            <p class="text-xs sm:text-sm text-teal-100/90 leading-relaxed">
+              Add our fundraisers, adoption promotions, and clinic dates to your personal phone calendar. Syncs automatically with Apple Calendar, Google Calendar, and Outlook.
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 w-full sm:w-auto">
+            <a
+              href="/events.ics"
+              download="monroe-humane-events.ics"
+              class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-teal-950 transition shadow-sm cursor-pointer"
+              title="Download iCalendar Subscription Feed"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <span>Subscribe (.ics)</span>
+            </a>
+            <button
+              type="button"
+              id="btn-open-sync-modal"
+              class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-teal-100 transition border border-white/10 cursor-pointer"
+            >
+              <span>Setup Guide</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
+    <!-- Calendar Sync Instructions Modal -->
+    <dialog id="calendar-sync-modal" class="p-0 rounded-3xl bg-white shadow-2xl border border-slate-200 max-w-lg w-full backdrop:bg-slate-900/60 backdrop:backdrop-blur-xs">
+      <div class="p-6 space-y-4 text-xs text-slate-700">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-teal-50 text-teal-800 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h3 class="text-base font-serif font-bold text-slate-900">Add to Your Calendar</h3>
+          </div>
+          <button type="button" id="btn-close-sync-modal" class="p-1 rounded-md text-slate-400 hover:text-slate-700 cursor-pointer" aria-label="Close modal">&times;</button>
+        </div>
+
+        <p class="leading-relaxed">
+          Subscribe once and any new shelter fundraisers, adoption clinics, and events will automatically appear on your phone or computer.
+        </p>
+
+        <div class="space-y-3">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <strong class="font-bold text-slate-900 block">Calendar Feed URL:</strong>
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                readonly
+                id="cal-feed-url-input"
+                value="https://monroe-humane.org/events.ics"
+                class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white font-mono text-[11px] select-all outline-none"
+              />
+              <button type="button" id="btn-copy-feed-url" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-800 hover:bg-teal-700 text-white transition cursor-pointer">
+                Copy
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-[11px] text-slate-600">
+            <div class="p-2.5 rounded-lg bg-slate-50">
+              <strong class="text-slate-900">iPhone / Mac (Apple Calendar):</strong>
+              <p>Tap the green "Subscribe (.ics)" button above, or in Calendar go to File &gt; New Calendar Subscription and paste the feed URL.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-50">
+              <strong class="text-slate-900">Google Calendar:</strong>
+              <p>Open Google Calendar on desktop, click the "+" next to "Other calendars", select "From URL", and paste the feed URL.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-50">
+              <strong class="text-slate-900">Outlook / Office 365:</strong>
+              <p>In Outlook Calendar, choose "Add calendar" &gt; "Subscribe from web", paste the feed URL, and click Import.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button type="button" id="btn-dismiss-sync-modal" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">
+            Close
+          </button>
+        </div>
+      </div>
+    </dialog>
+
     <section aria-labelledby="upcoming-events-heading" class="mb-24">
-      <div class="text-center mb-12">
+      <div class="text-center mb-10">
         <h2 id="upcoming-events-heading" class="text-3xl font-serif text-teal-900 mb-4">Current &amp; Upcoming Events</h2>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-          Fundraisers, adoption promotions, and community nights - click any flyer for the full details.
+          Fundraisers, adoption promotions, and community nights - explore below or search by host and category.
         </p>
+      </div>
+
+      <!-- Search & Category Filters Toolbar -->
+      <div class="mb-10 max-w-4xl mx-auto space-y-4">
+        <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input
+              type="search"
+              id="event-search-input"
+              placeholder="Search events by title, restaurant, or keyword..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent shadow-xs transition"
+              autocomplete="off"
+            />
+          </div>
+          <div class="flex items-center justify-between sm:justify-end gap-3 text-xs">
+            <span id="event-counter-text" class="text-xs font-semibold text-slate-500 whitespace-nowrap">
+              Showing {currentEvents.length} events
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="flex flex-wrap gap-2 items-center" id="event-filter-pills" role="tablist" aria-label="Event Categories">
+          {filterCategories.map((cat, idx) => (
+            <button
+              type="button"
+              data-cat-filter={cat.key}
+              class={`px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition border ${idx === 0 ? 'bg-teal-800 text-white border-teal-800 shadow-xs active-filter-pill' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+              role="tab"
+              aria-selected={idx === 0 ? "true" : "false"}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {currentEvents.length === 0 ? (
@@ -43,29 +197,91 @@ const historicEvents = eventData.filter(e => e.event_date && new Date(e.event_da
           <p class="text-xl text-gray-500">No upcoming events posted right now - check back soon.</p>
         </div>
       ) : (
-        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {currentEvents.map(event => (
-            <li class="flex">
-              <a href={event.link_url} class="group w-full flex flex-col bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300" target="_blank" rel="noopener noreferrer">
-                <div class="aspect-[4/5] bg-gray-100 relative overflow-hidden flex-shrink-0">
-                  {event.image ? (
-                    <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={event.image} alt={event.title} loading="lazy" decoding="async" />
-                  ) : (
-                    <div class="absolute inset-0 flex items-center justify-center text-4xl text-gray-300" aria-hidden="true">??</div>
-                  )}
+        <ul id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {currentEvents.map(event => {
+            const cat = getEventCategory(event.title, event.description);
+            const searchIndex = `${event.title} ${event.description} ${cat.label}`.toLowerCase();
+            return (
+              <li class="flex event-card-item" data-event-item data-category={cat.key} data-search={searchIndex}>
+                <div class="group w-full flex flex-col bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <a href={event.link_url} class="aspect-[4/5] bg-gray-100 relative overflow-hidden flex-shrink-0 block" target="_blank" rel="noopener noreferrer">
+                    {event.image ? (
+                      <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={event.image} alt={event.title} loading="lazy" decoding="async" />
+                    ) : (
+                      <div class="absolute inset-0 flex items-center justify-center bg-teal-900/5 text-teal-800/30" aria-hidden="true">
+                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      </div>
+                    )}
+                  </a>
+                  <div class="p-6 flex flex-col flex-1">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                      <span class="text-emerald-600 font-bold text-xs uppercase tracking-wider">
+                        {event.event_date && new Date(event.event_date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </span>
+                      <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${cat.badgeClass}`}>
+                        {cat.label}
+                      </span>
+                    </div>
+                    <a href={event.link_url} class="text-xl font-serif text-teal-900 mb-3 group-hover:text-emerald-700 transition-colors block" target="_blank" rel="noopener noreferrer">
+                      <strong>{event.title}</strong>
+                    </a>
+                    <p class="text-gray-600 line-clamp-3 text-sm leading-relaxed mb-4">{event.description}</p>
+                    
+                    <!-- 1-Click Add to Calendar Actions -->
+                    <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
+                      <a href={event.link_url} class="inline-flex items-center gap-1 font-bold text-teal-700 hover:text-emerald-700 transition" target="_blank" rel="noopener noreferrer">
+                        <span>Details</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                      </a>
+                      <div class="flex items-center gap-1.5">
+                        <a
+                          href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title || '')}&dates=${(event.event_date || '').replace(/-/g, '')}/${(event.event_date || '').replace(/-/g, '')}&details=${encodeURIComponent(event.description || '')}&location=Monroe%2C%20MI`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 font-semibold transition"
+                          title="Add to Google Calendar"
+                        >
+                          + Google
+                        </a>
+                        <a
+                          href={`https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(event.title || '')}&startdt=${event.event_date}T09:00:00&enddt=${event.event_date}T17:00:00&body=${encodeURIComponent(event.description || '')}&location=Monroe%2C%20MI`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 font-semibold transition"
+                          title="Add to Outlook"
+                        >
+                          + Outlook
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="p-6 flex flex-col flex-1">
-                  <span class="text-emerald-600 font-bold text-sm uppercase tracking-widest mb-2">
-                    {event.event_date && new Date(event.event_date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </span>
-                  <strong class="text-xl font-serif text-teal-900 mb-3 group-hover:text-emerald-700 transition-colors">{event.title}</strong>
-                  <span class="text-gray-600 line-clamp-3">{event.description}</span>
-                </div>
-              </a>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
+
+      <!-- Empty state when search or filter matches 0 events -->
+      <div id="event-empty-state" class="hidden bg-slate-50 border border-slate-200 rounded-3xl p-12 text-center max-w-xl mx-auto space-y-3 mt-6">
+        <div class="w-12 h-12 rounded-2xl bg-teal-100/60 text-teal-800 flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900">No matching events found</h3>
+        <p class="text-sm text-slate-600">Try adjusting your category filter or search keywords.</p>
+        <div class="pt-2">
+          <button
+            type="button"
+            id="btn-reset-filters"
+            class="px-4 py-2 rounded-xl text-xs font-bold bg-teal-800 hover:bg-teal-700 text-white transition cursor-pointer shadow-xs"
+          >
+            Reset Filters
+          </button>
+        </div>
+      </div>
     </section>
 
     {historicEvents.length > 0 && (
@@ -91,4 +307,145 @@ const historicEvents = eventData.filter(e => e.event_date && new Date(e.event_da
       </section>
     )}
   </div>
+
+  <script>
+    function setupCalendarModal() {
+      const modal = document.getElementById('calendar-sync-modal') as HTMLDialogElement | null;
+      const openBtn = document.getElementById('btn-open-sync-modal');
+      const closeBtn = document.getElementById('btn-close-sync-modal');
+      const dismissBtn = document.getElementById('btn-dismiss-sync-modal');
+      const copyBtn = document.getElementById('btn-copy-feed-url');
+      const feedInput = document.getElementById('cal-feed-url-input') as HTMLInputElement | null;
+
+      if (!modal) return;
+
+      if (feedInput && typeof window !== 'undefined') {
+        feedInput.value = `${window.location.origin}/events.ics`;
+      }
+
+      openBtn?.addEventListener('click', () => {
+        modal.showModal();
+      });
+
+      closeBtn?.addEventListener('click', () => {
+        modal.close();
+      });
+
+      dismissBtn?.addEventListener('click', () => {
+        modal.close();
+      });
+
+      modal.addEventListener('click', (e) => {
+        const rect = modal.getBoundingClientRect();
+        const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+          rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+          modal.close();
+        }
+      });
+
+      copyBtn?.addEventListener('click', async () => {
+        if (!feedInput) return;
+        try {
+          await navigator.clipboard.writeText(feedInput.value);
+          const prevText = copyBtn.textContent;
+          copyBtn.textContent = 'Copied!';
+          copyBtn.classList.add('bg-emerald-600');
+          setTimeout(() => {
+            copyBtn.textContent = prevText;
+            copyBtn.classList.remove('bg-emerald-600');
+          }, 2000);
+        } catch {
+          feedInput.select();
+        }
+      });
+    }
+
+    function setupEventFiltering() {
+      const searchInput = document.getElementById('event-search-input') as HTMLInputElement | null;
+      const pillButtons = document.querySelectorAll<HTMLButtonElement>('[data-cat-filter]');
+      const eventCards = document.querySelectorAll<HTMLElement>('[data-event-item]');
+      const counterText = document.getElementById('event-counter-text');
+      const emptyState = document.getElementById('event-empty-state');
+      const resetBtn = document.getElementById('btn-reset-filters');
+
+      if (!pillButtons.length || !eventCards.length) return;
+
+      let activeCategory = 'all';
+      let searchQuery = '';
+
+      function applyFilter() {
+        let visibleCount = 0;
+        const q = searchQuery.trim().toLowerCase();
+
+        eventCards.forEach((card) => {
+          const cardCat = card.dataset.category || '';
+          const cardSearch = card.dataset.search || '';
+
+          const matchesCat = activeCategory === 'all' || cardCat === activeCategory;
+          const matchesQuery = !q || cardSearch.includes(q);
+
+          if (matchesCat && matchesQuery) {
+            card.classList.remove('hidden');
+            card.classList.add('flex');
+            visibleCount++;
+          } else {
+            card.classList.remove('flex');
+            card.classList.add('hidden');
+          }
+        });
+
+        if (counterText) {
+          counterText.textContent = `Showing ${visibleCount} of ${eventCards.length} events`;
+        }
+
+        if (emptyState) {
+          if (visibleCount === 0) {
+            emptyState.classList.remove('hidden');
+          } else {
+            emptyState.classList.add('hidden');
+          }
+        }
+      }
+
+      pillButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const cat = btn.getAttribute('data-cat-filter') || 'all';
+          activeCategory = cat;
+
+          pillButtons.forEach((b) => {
+            b.classList.remove('bg-teal-800', 'text-white', 'border-teal-800', 'shadow-xs', 'active-filter-pill');
+            b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+            b.setAttribute('aria-selected', 'false');
+          });
+
+          btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+          btn.classList.add('bg-teal-800', 'text-white', 'border-teal-800', 'shadow-xs', 'active-filter-pill');
+          btn.setAttribute('aria-selected', 'true');
+
+          applyFilter();
+        });
+      });
+
+      searchInput?.addEventListener('input', () => {
+        searchQuery = searchInput.value;
+        applyFilter();
+      });
+
+      resetBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        searchQuery = '';
+        const allPill = document.querySelector<HTMLButtonElement>('[data-cat-filter="all"]');
+        allPill?.click();
+      });
+    }
+
+    setupCalendarModal();
+    setupEventFiltering();
+    document.addEventListener('astro:page-load', () => {
+      setupCalendarModal();
+      setupEventFiltering();
+    });
+  </script>
 </BaseLayout>
+

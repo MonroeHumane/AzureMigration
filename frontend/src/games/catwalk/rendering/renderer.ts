@@ -1,6 +1,6 @@
 import { drawCat } from '../models/cat';
 import { drawDog, DOG_PROFILES } from '../models/dogs';
-import { drawEnvironment, BOARD_HEIGHT, BOARD_WIDTH, CELL_SIZE, PLAY_TOP_Y, PLAY_BOTTOM_Y } from '../models/environment';
+import { drawEnvironment, BOARD_WIDTH, CELL_SIZE, PLAY_TOP_Y } from '../models/environment';
 import { drawFishbone } from '../models/fishbones';
 import { drawHouse } from '../models/houses';
 import {

@@ -47,7 +47,7 @@ const isLongTimer = daysAtShelter !== null && daysAtShelter >= 180;
 >
   <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
     <Image class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={pet.image_url || pet.image || ''} alt={pet.name} loading="lazy" decoding="async" width={480} height={360} />
-    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur w-9 h-9 rounded-full flex items-center justify-center text-lg shadow-sm z-10">{pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2.5 py-1 rounded-full text-[11px] font-bold text-teal-900 shadow-xs z-10 uppercase tracking-wider">{pet.type === 'dog' ? 'Dog' : pet.type === 'cat' ? 'Cat' : 'Pet'}</span>
     {isNewArrival && <span class="absolute top-3 right-3 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm z-10 text-white bg-emerald-500">New arrival</span>}
     {!isNewArrival && isLongTimer && <span class="absolute top-3 right-3 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm z-10 text-white bg-purple-500">Been waiting a while</span>}
   </div>

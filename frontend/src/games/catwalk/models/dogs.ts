@@ -94,9 +94,7 @@ export function drawDog(context: CanvasRenderingContext2D, pose: DogPose): void 
   // Diagonal pair A: Front-Left & Rear-Right
   // Diagonal pair B: Front-Right & Rear-Left
   const sinA = Math.sin(trotCycle);
-  const cosA = Math.cos(trotCycle);
   const sinB = Math.sin(trotCycle + Math.PI); // 180 degrees out of phase
-  const cosB = Math.cos(trotCycle + Math.PI);
 
   // Vertical body bounce (two bounces per full gait cycle)
   const verticalBounce = Math.abs(sinA) * 2.2;

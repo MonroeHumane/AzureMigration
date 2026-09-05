@@ -1,5 +1,5 @@
-export function reportClientError(error: unknown, extra?: Record<string, any>): Promise<Response | void> {
-  if (typeof window === 'undefined') return Promise.resolve();
+export async function reportClientError(error: unknown, extra?: Record<string, any>): Promise<Response | void> {
+  if (typeof window === 'undefined') return;
   const msg = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error ? error.stack || '' : '';
   try {

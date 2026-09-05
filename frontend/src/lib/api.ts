@@ -6,7 +6,7 @@
 export async function apiFetch(
   input: RequestInfo,
   init: RequestInit = {},
-  options: { ignoreAutoLogout?: boolean } = {}
+  _options: { ignoreAutoLogout?: boolean } = {}
 ): Promise<Response> {
   const response = await fetch(input, init);
   return response;

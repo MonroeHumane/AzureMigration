@@ -201,16 +201,19 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       position: absolute;
       top: 1.25rem;
       left: 1.25rem;
-      width: 3.25rem;
-      height: 3.25rem;
+      padding: 0.4rem 0.9rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
+      border-radius: 9999px;
       background: rgba(6, 24, 22, 0.85);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(45, 212, 191, 0.4);
-      font-size: 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #5eead4;
     }
 
     /* ---------------- Bottom caption bar: name + facts, over the scrim ---------------- */
@@ -358,7 +361,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     <div class="tv-card" id="petCard">
       <div class="tv-card__photo-wrap">
         <img id="petPhoto" class="tv-card__photo zooming" src="" alt="" />
-        <span class="tv-card__species-badge" id="petSpeciesBadge">🐕</span>
+        <span class="tv-card__species-badge" id="petSpeciesBadge">DOG</span>
       </div>
     </div>
   </div>
@@ -376,7 +379,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
   <!-- The one QR code on the whole page: always-on, always the same
        destination — the shelter's adoption application form. -->
   <div class="tv-apply-qr">
-    <span class="tv-apply-qr__label">🐾 Scan me<br />to apply!</span>
+    <span class="tv-apply-qr__label">Scan to<br />apply online</span>
     <div class="tv-apply-qr__ring">
       <div class="tv-apply-qr__code" id="applyQr"></div>
     </div>
@@ -514,7 +517,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
         petAge.textContent = pet.age_display || pet.age || 'Unknown age';
         petGender.textContent = (pet.gender || 'Unknown').replace(/^\w/, (c) => c.toUpperCase());
         petBreed.textContent = pet.breed || 'Shelter pet';
-        petSpeciesBadge.textContent = pet.type === 'cat' ? '🐈' : pet.type === 'dog' ? '🐕' : '🐾';
+        petSpeciesBadge.textContent = pet.type === 'cat' ? 'CAT' : pet.type === 'dog' ? 'DOG' : 'PET';
       };
 
       if (document.startViewTransition) {

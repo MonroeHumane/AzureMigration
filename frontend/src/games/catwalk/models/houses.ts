@@ -1,5 +1,5 @@
 import { PALETTE } from '../rendering/palette';
-import { circle, line, polyline, resetGlow, wire, withTransform } from '../rendering/primitives';
+import { circle, line, polyline, wire, withTransform } from '../rendering/primitives';
 
 export interface HousePose {
   x: number;

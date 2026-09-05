@@ -240,21 +240,21 @@ const getUrgencyBadge = (days: number | null) => {
         data-species-pill="dog"
         class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
       >
-        🐶 Dogs (<span id="species-count-dog">{dogsCount}</span>)
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block mr-1"></span> Dogs (<span id="species-count-dog">{dogsCount}</span>)
       </button>
       <button
         type="button"
         data-species-pill="cat"
         class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
       >
-        🐱 Cats (<span id="species-count-cat">{catsCount}</span>)
+        <span class="w-1.5 h-1.5 rounded-full bg-teal-500 inline-block mr-1"></span> Cats (<span id="species-count-cat">{catsCount}</span>)
       </button>
       <button
         type="button"
         data-species-pill="other"
         class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
       >
-        🐾 Other (<span id="species-count-other">{othersCount}</span>)
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block mr-1"></span> Other (<span id="species-count-other">{othersCount}</span>)
       </button>
       <span class="text-slate-300 mx-1">|</span>
       <button
@@ -263,7 +263,10 @@ const getUrgencyBadge = (days: number | null) => {
         id="petsync-longstay-btn"
         class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 transition shadow-xs flex items-center gap-1.5"
       >
-        <span>⏰ Long Stay (&gt;60d)</span>
+        <span class="inline-flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Long Stay (&gt;60d)</span>
+        </span>
         <span class="px-1.5 py-0.2 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold" id="species-count-longstay">
           {longStayPets.length}
         </span>
@@ -295,8 +298,8 @@ const getUrgencyBadge = (days: number | null) => {
           class="w-full py-1.5 px-2.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-[#173a39]"
         >
           <option value="">All Placements</option>
-          <option value="shelter">🏠 Shelter Facility (On-Site)</option>
-          <option value="foster">🏡 In Foster Care</option>
+          <option value="shelter">Shelter Facility (On-Site)</option>
+          <option value="foster">In Foster Care</option>
         </select>
       </div>
 
@@ -381,7 +384,7 @@ const getUrgencyBadge = (days: number | null) => {
                       alt={pet.name}
                       loading="lazy"
                       class="w-full h-full object-cover group-hover:scale-110 transition duration-200"
-                      onerror="this.src='/assets/recovered/images/placeholder.svg'"
+                      data-fallback="/assets/recovered/images/placeholder.svg"
                     />
                   </div>
                 </td>
@@ -416,7 +419,7 @@ const getUrgencyBadge = (days: number | null) => {
                 <!-- Name & Species -->
                 <td class="py-2 px-3">
                   <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span>{pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+                    <span class={`w-2 h-2 rounded-full ${pet.type === 'dog' ? 'bg-amber-500' : pet.type === 'cat' ? 'bg-teal-500' : 'bg-slate-400'} inline-block mr-1`}></span>
                     <span class="text-sm">{pet.name}</span>
                   </div>
                   <span class="text-[10px] text-slate-400 block uppercase tracking-wider font-semibold">
@@ -449,7 +452,7 @@ const getUrgencyBadge = (days: number | null) => {
                 <!-- Location -->
                 <td class="py-2 px-3 whitespace-nowrap">
                   <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                    📍 {pet.location || 'Shelter'}
+                    {pet.location || 'Shelter'}
                   </span>
                 </td>
 
@@ -503,7 +506,7 @@ const getUrgencyBadge = (days: number | null) => {
                       })}
                       title="Print official cage card for this animal"
                     >
-                      🖨️ Card
+                      Print Card
                     </button>
                     <a
                       href={publicUrl}
@@ -564,13 +567,13 @@ const getUrgencyBadge = (days: number | null) => {
                   alt={pet.name}
                   loading="lazy"
                   class="w-full h-full object-cover"
-                  onerror="this.src='/assets/recovered/images/placeholder.svg'"
+                  data-fallback="/assets/recovered/images/placeholder.svg"
                 />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-1">
                   <h3 class="text-base font-bold text-slate-900 truncate flex items-center gap-1.5">
-                    <span>{pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+                    <span class={`w-2 h-2 rounded-full ${pet.type === 'dog' ? 'bg-amber-500' : pet.type === 'cat' ? 'bg-teal-500' : 'bg-slate-400'} inline-block mr-1`}></span>
                     <span>{pet.name}</span>
                   </h3>
                   <span class="font-mono font-bold text-[11px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 border border-slate-200">
@@ -594,7 +597,7 @@ const getUrgencyBadge = (days: number | null) => {
                   <span class="text-slate-300">·</span>
                   <span class="text-slate-500">{pet.age_display || pet.age}</span>
                   <span class="text-slate-300">·</span>
-                  <span class="text-slate-700 font-medium">📍 {pet.location || 'Shelter'}</span>
+                  <span class="text-slate-700 font-medium">{pet.location || 'Shelter'}</span>
                 </div>
               </div>
             </div>
@@ -603,7 +606,7 @@ const getUrgencyBadge = (days: number | null) => {
               <div>
                 {urgency && (
                   <span class={`inline-flex items-center px-2 py-0.5 rounded-md font-semibold border text-[10px] ${urgency.color}`}>
-                    ⏱ {urgency.label} ({daysAtShelter}d)
+                    {urgency.label} ({daysAtShelter}d)
                   </span>
                 )}
               </div>
@@ -613,7 +616,7 @@ const getUrgencyBadge = (days: number | null) => {
                   class="petsync-print-card-btn inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition cursor-pointer"
                   data-pet-info={petInfoJson}
                 >
-                  🖨️ Card
+                  Print Card
                 </button>
                 <a
                   href={petPointUrl}
@@ -684,6 +687,16 @@ const getUrgencyBadge = (days: number | null) => {
     if (!root) return;
     if ((root as any).__petsync_initialized) return;
     (root as any).__petsync_initialized = true;
+
+    // Image fallback listener for pets with failed thumbnails
+    root.addEventListener('error', (e) => {
+      const target = e.target as HTMLImageElement | null;
+      if (target && target.tagName === 'IMG' && target.hasAttribute('data-fallback')) {
+        const fallback = target.getAttribute('data-fallback');
+        target.removeAttribute('data-fallback');
+        if (fallback) target.src = fallback;
+      }
+    }, true);
 
     // Filter controls and DOM elements
     const statusPills = root.querySelectorAll<HTMLButtonElement>('.petsync-status-pill');
@@ -866,7 +879,7 @@ const getUrgencyBadge = (days: number | null) => {
               </td>
               <td class="py-2 px-3">
                 <div class="font-bold text-slate-900 flex items-center gap-1">
-                  <span>${pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+                  <span class="w-2 h-2 rounded-full ${pet.type === 'dog' ? 'bg-amber-500' : pet.type === 'cat' ? 'bg-teal-500' : 'bg-slate-400'} inline-block mr-1"></span>
                   <span class="text-sm">${pet.name}</span>
                 </div>
                 <span class="text-[10px] text-slate-400 block uppercase tracking-wider font-semibold">
@@ -887,7 +900,7 @@ const getUrgencyBadge = (days: number | null) => {
               </td>
               <td class="py-2 px-3 whitespace-nowrap">
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                  📍 ${pet.location || 'Shelter'}
+                  ${pet.location || 'Shelter'}
                 </span>
               </td>
               <td class="py-2 px-3 whitespace-nowrap">
@@ -907,7 +920,7 @@ const getUrgencyBadge = (days: number | null) => {
                     data-pet-info='${petInfoStr}'
                     title="Print official cage card for this animal"
                   >
-                    🖨️ Card
+                    Print Card
                   </button>
                   <a
                     href="${petPointUrl}"
@@ -939,7 +952,7 @@ const getUrgencyBadge = (days: number | null) => {
             card.setAttribute('data-days-at-shelter', daysAtShelter !== null ? String(daysAtShelter) : '');
 
             const genderText = pet.gender === 'female' ? '♀ Female' : pet.gender === 'male' ? '♂ Male' : 'Unknown';
-            const speciesIcon = pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾';
+            const speciesIcon = pet.type === 'dog' ? '<span class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></span>' : pet.type === 'cat' ? '<span class="w-2 h-2 rounded-full bg-teal-500 inline-block mr-1"></span>' : '<span class="w-2 h-2 rounded-full bg-slate-400 inline-block mr-1"></span>';
 
             card.innerHTML = `
               <div class="flex items-start gap-3">
@@ -979,7 +992,7 @@ const getUrgencyBadge = (days: number | null) => {
                     <span class="text-slate-300">·</span>
                     <span class="text-slate-500">${pet.age_display || pet.age || 'Adult'}</span>
                     <span class="text-slate-300">·</span>
-                    <span class="text-slate-700 font-medium">📍 ${pet.location || 'Shelter'}</span>
+                    <span class="text-slate-700 font-medium">${pet.location || 'Shelter'}</span>
                   </div>
                 </div>
               </div>
@@ -996,7 +1009,7 @@ const getUrgencyBadge = (days: number | null) => {
                     class="petsync-print-card-btn inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition cursor-pointer"
                     data-pet-info='${petInfoStr}'
                   >
-                    🖨️ Card
+                    Print Card
                   </button>
                   <a
                     href="${petPointUrl}"
