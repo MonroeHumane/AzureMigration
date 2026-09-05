@@ -81,6 +81,27 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     <button type="button" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-teal-700 text-white transition-all hover:bg-teal-900" data-adopt-reset>Reset filters</button>
   </div>
 
+  <!-- Client-side card template for dynamically mounting new intakes between static builds -->
+  <template id="masw-card-template">
+    <a
+      class="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-teal-700 outline-none"
+      data-pet-card
+      href=""
+    >
+      <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
+        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="" alt="" loading="lazy" decoding="async" />
+        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur w-9 h-9 rounded-full flex items-center justify-center text-lg shadow-sm z-10" data-pet-icon>🐾</span>
+        <span class="absolute top-3 right-3 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm z-10 text-white bg-emerald-500 hidden" data-pet-badge>New arrival</span>
+      </div>
+      <div class="p-5 flex flex-col flex-1">
+        <h3 class="font-serif text-2xl text-teal-900 mb-1 leading-tight group-hover:text-teal-700 transition-colors" data-pet-name></h3>
+        <p class="text-sm text-gray-500 mb-4 line-clamp-1" data-pet-breed></p>
+        <div class="flex flex-wrap gap-1.5 mb-6" data-pet-chips></div>
+        <span class="mt-auto text-sm font-bold text-teal-700 uppercase tracking-widest group-hover:text-teal-900 transition-colors" data-pet-cta>Meet Pet &rarr;</span>
+      </div>
+    </a>
+  </template>
+
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-adopt-grid>
     {scoped.map((pet) => <PetCard pet={pet} />)}
   </div>
@@ -101,6 +122,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     const summary = root.querySelector<HTMLElement>('[data-adopt-summary]');
     const search = root.querySelector<HTMLInputElement>('[data-adopt-search]');
     const filters = Array.from(root.querySelectorAll<HTMLSelectElement>('[data-adopt-filter]'));
+    const template = document.getElementById('masw-card-template') as HTMLTemplateElement | null;
 
     const getCards = () => Array.from(grid?.querySelectorAll<HTMLElement>('[data-pet-card]') ?? []);
 
@@ -160,29 +182,27 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
 
     apply(false);
 
-    // Remember this listing (path + active filters) so a pet detail page's
-    // "Back to all pets" link can return here instead of resetting to the
-    // unfiltered /adopt — document.referrer doesn't work for this because
-    // Astro's <ClientRouter /> does client-side soft navigation, which never
-    // updates document.referrer the way a real page load would.
     try {
       sessionStorage.setItem('mchs:lastAdoptListing', window.location.pathname + window.location.search);
     } catch {
-      // sessionStorage unavailable (private browsing, etc.) — detail page falls back to /adopt
+      // sessionStorage unavailable
     }
 
-    // Safety net between static rebuilds: prune any card whose pet is no
-    // longer active on Directus (archived since this page was last built).
-    async function pruneArchived() {
+    // Two-way SWR sync: Prune adopted pets and dynamically mount newly ingested pets
+    async function syncLiveCatalog() {
       try {
-        const res = await fetch(`${DIRECTUS_URL}/items/pets?filter[archived_at][_null]=true&fields=id&limit=-1`, {
-          signal: AbortSignal.timeout(4000),
+        const res = await fetch(`${DIRECTUS_URL}/items/pets?filter[archived_at][_null]=true&limit=-1`, {
+          signal: AbortSignal.timeout(5000),
         });
         if (!res.ok) return;
         const json = await res.json();
-        if (!json.data) return;
-        const liveIds = new Set(json.data.map((p: { id: string }) => String(p.id)));
+        if (!json.data || !Array.isArray(json.data)) return;
+
+        const livePets = json.data;
+        const liveIds = new Set(livePets.map((p: any) => String(p.id)));
         let changed = false;
+
+        // 1. Prune archived/adopted pets
         getCards().forEach((card) => {
           const id = card.dataset.petId;
           if (id && !liveIds.has(id)) {
@@ -190,12 +210,86 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
             changed = true;
           }
         });
+
+        // 2. Mount new intakes not yet in the pre-rendered DOM
+        if (grid && template) {
+          const existingIds = new Set(getCards().map((c) => c.dataset.petId).filter(Boolean));
+
+          livePets.forEach((pet: any) => {
+            const petId = String(pet.id);
+            if (existingIds.has(petId)) return;
+            if (lockType && pet.type !== lockType) return;
+
+            const clone = template.content.cloneNode(true) as DocumentFragment;
+            const a = clone.querySelector<HTMLAnchorElement>('[data-pet-card]');
+            if (!a) return;
+
+            a.href = `/adopt/${petId}`;
+            a.dataset.petId = petId;
+            a.dataset.petType = pet.type || 'other';
+            a.dataset.petGender = pet.gender || 'unknown';
+            a.dataset.petSize = (pet.size || '').toLowerCase();
+            a.dataset.petAge = pet.age || 'adult';
+            a.dataset.petName = (pet.name || '').toLowerCase();
+            a.dataset.petBreed = (pet.breed || '').toLowerCase();
+            a.dataset.petSearch = `${pet.name || ''} ${pet.breed || ''} ${pet.description || ''}`.toLowerCase();
+            a.setAttribute('aria-label', `Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`);
+
+            const img = clone.querySelector<HTMLImageElement>('img');
+            if (img) {
+              img.src = pet.image_url || pet.image || '/assets/recovered/images/placeholder.svg';
+              img.alt = pet.name || 'Shelter pet';
+            }
+
+            const icon = clone.querySelector<HTMLElement>('[data-pet-icon]');
+            if (icon) {
+              icon.textContent = pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾';
+            }
+
+            const nameEl = clone.querySelector<HTMLElement>('[data-pet-name]');
+            if (nameEl) nameEl.textContent = pet.name;
+
+            const breedEl = clone.querySelector<HTMLElement>('[data-pet-breed]');
+            if (breedEl) breedEl.textContent = pet.breed || '';
+
+            const ctaEl = clone.querySelector<HTMLElement>('[data-pet-cta]');
+            if (ctaEl) ctaEl.innerHTML = `Meet ${pet.name} &rarr;`;
+
+            const chipsEl = clone.querySelector<HTMLElement>('[data-pet-chips]');
+            if (chipsEl) {
+              const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
+              const chipList = [pet.species_label || pet.type, pet.size, genderLabel, pet.age_display, pet.color].filter(Boolean);
+              chipList.forEach((chip) => {
+                const sp = document.createElement('span');
+                sp.className = 'px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md uppercase tracking-widest';
+                sp.textContent = String(chip);
+                chipsEl.appendChild(sp);
+              });
+            }
+
+            // Check if new arrival
+            let daysAtShelter: number | null = null;
+            if (pet.intake_date) {
+              const d = new Date(pet.intake_date);
+              if (!isNaN(d.getTime())) daysAtShelter = Math.floor((Date.now() - d.getTime()) / 86400000);
+            }
+            const badge = clone.querySelector<HTMLElement>('[data-pet-badge]');
+            if (badge && daysAtShelter !== null && daysAtShelter <= 14) {
+              badge.classList.remove('hidden');
+            }
+
+            grid.appendChild(clone);
+            changed = true;
+          });
+        }
+
         if (changed) apply(false);
       } catch {
-        // offline or Directus cold-starting — the static build is still a fine fallback
+        // Offline or Directus cold-starting — static build remains active fallback
       }
     }
-    pruneArchived();
+
+    syncLiveCatalog();
   }
 
   document.addEventListener('astro:page-load', initAdoptGrid);

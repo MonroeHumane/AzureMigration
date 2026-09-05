@@ -1,5 +1,6 @@
 ---
 import { getStaffPetSyncData, type PetSyncSummary } from '../../lib/directus';
+import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
 
 interface Props {
   syncData?: PetSyncSummary;
@@ -147,8 +148,8 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
       </div>
     </div>
 
-    <!-- Secondary Filters: Species, Location & Search -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+    <!-- Secondary Filters: Species, Location, Stay Duration & Search -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 text-xs">
       <!-- Search -->
       <div class="relative">
         <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
@@ -186,6 +187,20 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
         >
           <option value="">All Shelter Locations</option>
           {locations.map((loc) => <option value={loc}>{loc}</option>)}
+        </select>
+      </div>
+
+      <!-- Stay Duration Filter -->
+      <div>
+        <select
+          id="petsync-duration-filter"
+          class="w-full py-1.5 px-2.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-[#173a39]"
+        >
+          <option value="">All Stay Durations</option>
+          <option value="new">New Intakes (&lt; 14 days)</option>
+          <option value="standard">Standard Care (14 - 60 days)</option>
+          <option value="long">Long-Stay (60 - 180 days)</option>
+          <option value="urgent">Urgent Foster (&gt; 180 days)</option>
         </select>
       </div>
 
@@ -349,13 +364,39 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
 
                 <!-- Actions -->
                 <td class="py-2 px-3 text-right whitespace-nowrap">
-                  <a
-                    href={publicUrl}
-                    target="_blank"
-                    class="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                  >
-                    Public Card ↗
-                  </a>
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button
+                      type="button"
+                      class="petsync-print-card-btn inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition cursor-pointer"
+                      data-pet-info={JSON.stringify({
+                        id: pet.id,
+                        name: pet.name,
+                        type: pet.type,
+                        species_label: pet.species_label,
+                        breed: pet.breed,
+                        age: pet.age,
+                        age_display: pet.age_display,
+                        size: pet.size,
+                        color: pet.color,
+                        gender: pet.gender,
+                        location: pet.location,
+                        image: photoUrl,
+                        intake_date: pet.intake_date,
+                        days_at_shelter: daysAtShelter,
+                        description: pet.description
+                      })}
+                      title="Print official cage card for this animal"
+                    >
+                      🖨️ Card
+                    </button>
+                    <a
+                      href={publicUrl}
+                      target="_blank"
+                      class="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                    >
+                      Public ↗
+                    </a>
+                  </div>
                 </td>
               </tr>
             );
@@ -370,9 +411,14 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
       <p class="text-xs text-slate-400 mt-1">Try resetting the filters or clearing the search query.</p>
     </div>
   </div>
+
+  <!-- Printable Kennel Card Modal -->
+  <PrintableKennelCardModal />
 </div>
 
 <script>
+  import QRCodeStyling from 'qr-code-styling';
+
   function initPetSyncPortal() {
     const root = document.getElementById('petsync-portal-root');
     if (!root) return;
@@ -381,6 +427,7 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
     const searchInput = root.querySelector<HTMLInputElement>('#petsync-search-input');
     const speciesFilter = root.querySelector<HTMLSelectElement>('#petsync-species-filter');
     const locationFilter = root.querySelector('#petsync-location-filter') as HTMLSelectElement | null;
+    const durationFilter = root.querySelector('#petsync-duration-filter') as HTMLSelectElement | null;
     const resetBtn = root.querySelector('#petsync-reset-btn');
     const exportBtn = root.querySelector('#export-csv-btn');
     const rows = root.querySelectorAll<HTMLTableRowElement>('.petsync-row');
@@ -390,6 +437,7 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
     let activeStatus = 'active'; // 'active' | 'archived' | 'all'
     let activeSpecies = '';
     let activeLocation = '';
+    let activeDuration = '';
     let searchQuery = '';
 
     const applyFilters = () => {
@@ -400,6 +448,8 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
         const species = row.getAttribute('data-species') || '';
         const location = row.getAttribute('data-location') || '';
         const searchContent = row.getAttribute('data-search') || '';
+        const daysStr = row.getAttribute('data-days-at-shelter');
+        const days = daysStr ? parseInt(daysStr, 10) : null;
 
         // Status filter
         let matchesStatus = true;
@@ -414,13 +464,24 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
         let matchesLocation = true;
         if (activeLocation) matchesLocation = location === activeLocation;
 
+        // Duration filter
+        let matchesDuration = true;
+        if (activeDuration && days !== null) {
+          if (activeDuration === 'new') matchesDuration = days <= 14;
+          else if (activeDuration === 'standard') matchesDuration = days > 14 && days <= 60;
+          else if (activeDuration === 'long') matchesDuration = days > 60 && days <= 180;
+          else if (activeDuration === 'urgent') matchesDuration = days > 180;
+        } else if (activeDuration && days === null) {
+          matchesDuration = false;
+        }
+
         // Search query
         let matchesSearch = true;
         if (searchQuery.trim()) {
           matchesSearch = searchContent.includes(searchQuery.toLowerCase().trim());
         }
 
-        if (matchesStatus && matchesSpecies && matchesLocation && matchesSearch) {
+        if (matchesStatus && matchesSpecies && matchesLocation && matchesDuration && matchesSearch) {
           row.style.display = '';
           visibleCount++;
         } else {
@@ -472,15 +533,24 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
       });
     }
 
+    if (durationFilter) {
+      durationFilter.addEventListener('change', (e) => {
+        activeDuration = (e.target as HTMLSelectElement).value;
+        applyFilters();
+      });
+    }
+
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
         activeStatus = 'active';
         activeSpecies = '';
         activeLocation = '';
+        activeDuration = '';
         searchQuery = '';
         if (searchInput) (searchInput as HTMLInputElement).value = '';
         if (speciesFilter) speciesFilter.value = '';
         if (locationFilter) locationFilter.value = '';
+        if (durationFilter) durationFilter.value = '';
 
         statusPills.forEach((p) => {
           const isAct = p.getAttribute('data-status-filter') === 'active';
@@ -526,6 +596,100 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
         URL.revokeObjectURL(url);
       });
     }
+
+    // Kennel Card Print Modal Handling
+    const modal = document.getElementById('kennel-card-modal');
+    const closeBtn = document.getElementById('close-card-modal-btn');
+    const printBtn = document.getElementById('trigger-print-btn');
+
+    if (closeBtn && modal) {
+      closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+      });
+    }
+
+    if (printBtn) {
+      printBtn.addEventListener('click', () => window.print());
+    }
+
+    // Attach click handler to each Print Card button
+    root.querySelectorAll<HTMLButtonElement>('.petsync-print-card-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const raw = btn.getAttribute('data-pet-info');
+        if (!raw) return;
+
+        try {
+          const info = JSON.parse(raw);
+
+          // Populate printable elements
+          const photoEl = document.getElementById('card-pet-photo') as HTMLImageElement | null;
+          if (photoEl) photoEl.src = info.image || '/assets/recovered/images/placeholder.svg';
+
+          const idEl = document.getElementById('card-pet-id');
+          if (idEl) idEl.textContent = info.id || '00000000';
+
+          const nameEl = document.getElementById('card-pet-name');
+          if (nameEl) nameEl.textContent = info.name || 'Friend';
+
+          const genderAgeEl = document.getElementById('card-pet-gender-age');
+          if (genderAgeEl) {
+            const gender = info.gender === 'female' ? 'Female' : info.gender === 'male' ? 'Male' : 'Unknown';
+            genderAgeEl.textContent = `${gender} · ${info.age_display || info.age || 'Adult'}`;
+          }
+
+          const breedEl = document.getElementById('card-pet-breed');
+          if (breedEl) breedEl.textContent = `${info.breed || 'Mixed'} (${info.type || 'Animal'})`;
+
+          const sizeEl = document.getElementById('card-pet-size');
+          if (sizeEl) sizeEl.textContent = info.size ? info.size[0].toUpperCase() + info.size.slice(1) : 'Medium';
+
+          const colorEl = document.getElementById('card-pet-color');
+          if (colorEl) colorEl.textContent = info.color || 'Standard';
+
+          const intakeEl = document.getElementById('card-pet-intake');
+          if (intakeEl) {
+            const days = info.days_at_shelter !== null && info.days_at_shelter !== undefined ? `${info.days_at_shelter}d` : '';
+            intakeEl.textContent = `${info.intake_date ? new Date(info.intake_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'} ${days ? `(${days})` : ''}`;
+          }
+
+          const locEl = document.getElementById('card-kennel-location');
+          if (locEl) locEl.textContent = `Location: ${info.location || 'Main Kennel'}`;
+
+          const notesEl = document.getElementById('card-pet-notes');
+          if (notesEl) {
+            notesEl.textContent = info.description || 'Sweet, friendly companion ready for a forever home. Sociable and walked daily by volunteers.';
+          }
+
+          const urlEl = document.getElementById('card-direct-url');
+          const adoptUrl = `https://monroe-humane.org/adopt/${info.id}`;
+          if (urlEl) urlEl.textContent = adoptUrl;
+
+          // Render high-contrast QR code
+          const qrContainer = document.getElementById('card-qr-container');
+          if (qrContainer) {
+            qrContainer.innerHTML = '';
+            const qrCode = new QRCodeStyling({
+              width: 120,
+              height: 120,
+              type: 'svg',
+              data: adoptUrl,
+              margin: 4,
+              qrOptions: { errorCorrectionLevel: 'H' },
+              dotsOptions: { type: 'rounded', color: '#0f766e' },
+              cornersSquareOptions: { type: 'extra-rounded', color: '#0f766e' },
+              backgroundOptions: { color: '#ffffff' },
+            });
+            qrCode.append(qrContainer);
+          }
+
+          if (modal) modal.classList.remove('hidden');
+        } catch (err) {
+          console.error('Failed to prepare kennel card:', err);
+        }
+      });
+    });
 
     applyFilters();
   }

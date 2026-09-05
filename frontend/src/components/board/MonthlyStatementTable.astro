@@ -44,7 +44,7 @@ const totalNet = statements.reduce((acc, m) => acc + m.net_margin, 0);
 const totalMarginPct = (totalNet / totalRev) * 100;
 ---
 
-<div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+<div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" id="monthly-statement-root" data-statements={JSON.stringify(statements)}>
   <div class="px-5 py-4 border-b border-slate-100 bg-[#f5efe3]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     <div>
       <h3 class="text-base font-semibold text-[#173a39]">
@@ -54,9 +54,24 @@ const totalMarginPct = (totalNet / totalRev) * 100;
         CONF-3 Verified: Certified cent-for-cent QBO pull. Zero plug lines. Click any row to expand line-item schedule.
       </p>
     </div>
-    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
-      Exact Footing Reconciled
-    </span>
+    <div class="flex items-center gap-2 self-start sm:self-auto">
+      <button
+        id="export-statement-csv-btn"
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#173a39] border border-slate-300 hover:bg-slate-50 hover:border-slate-400 shadow-xs transition cursor-pointer"
+        title="Download certified 8-month statement as Excel/CSV"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Export CSV (Excel)</span>
+      </button>
+      <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+        Exact Footing Reconciled
+      </span>
+    </div>
   </div>
 
   <div class="overflow-x-auto">
@@ -180,17 +195,97 @@ const totalMarginPct = (totalNet / totalRev) * 100;
 </div>
 
 <script>
-  // Handle drawer expand/collapse
-  document.querySelectorAll('[data-target]').forEach((row) => {
-    row.addEventListener('click', () => {
-      const targetId = row.getAttribute('data-target');
-      if (targetId) {
-        const drawer = document.getElementById(targetId);
-        if (drawer) {
-          drawer.classList.toggle('hidden');
-          row.classList.toggle('is-open');
+  function initMonthlyStatement() {
+    // Handle drawer expand/collapse
+    document.querySelectorAll('[data-target]').forEach((row) => {
+      row.addEventListener('click', () => {
+        const targetId = row.getAttribute('data-target');
+        if (targetId) {
+          const drawer = document.getElementById(targetId);
+          if (drawer) {
+            drawer.classList.toggle('hidden');
+            row.classList.toggle('is-open');
+          }
         }
-      }
+      });
     });
-  });
+
+    // Handle CSV export
+    const exportBtn = document.getElementById('export-statement-csv-btn');
+    const root = document.getElementById('monthly-statement-root');
+    if (exportBtn && root) {
+      exportBtn.addEventListener('click', () => {
+        try {
+          const raw = root.getAttribute('data-statements');
+          if (!raw) return;
+          const statements = JSON.parse(raw);
+
+          const headers = [
+            'Period',
+            'Revenue ($)',
+            'Direct Care COGS ($)',
+            'Operations & Payroll ($)',
+            'Fleet & Other ($)',
+            'Total Expenditures ($)',
+            'Net Margin ($)',
+            'Margin (%)',
+            'Driver & Status'
+          ];
+
+          const rows = statements.map((s: any) => [
+            `"${s.month.replace(/"/g, '""')}"`,
+            s.revenue.toFixed(2),
+            s.cogs.toFixed(2),
+            s.operating_exp.toFixed(2),
+            s.other_exp.toFixed(2),
+            s.total_exp.toFixed(2),
+            s.net_margin.toFixed(2),
+            s.margin_pct.toFixed(1),
+            `"${(s.driver || '').replace(/"/g, '""')}"`
+          ]);
+
+          // Compute Footed Certified Totals
+          const totRev = statements.reduce((a: number, b: any) => a + b.revenue, 0);
+          const totCogs = statements.reduce((a: number, b: any) => a + b.cogs, 0);
+          const totOp = statements.reduce((a: number, b: any) => a + b.operating_exp, 0);
+          const totOther = statements.reduce((a: number, b: any) => a + b.other_exp, 0);
+          const totExp = statements.reduce((a: number, b: any) => a + b.total_exp, 0);
+          const totNet = statements.reduce((a: number, b: any) => a + b.net_margin, 0);
+          const totMarginPct = (totNet / totRev) * 100;
+
+          rows.push([
+            '"2026 YTD Certified Footing"',
+            totRev.toFixed(2),
+            totCogs.toFixed(2),
+            totOp.toFixed(2),
+            totOther.toFixed(2),
+            totExp.toFixed(2),
+            totNet.toFixed(2),
+            totMarginPct.toFixed(1),
+            '"Cent-for-cent QBO certified pull without plug lines"'
+          ]);
+
+          const csvString = [headers.join(','), ...rows.map((r: string[]) => r.join(','))].join('\r\n');
+          const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `HSMC_2026_Operating_Statement_YTD_${new Date().toISOString().slice(0, 10)}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error('Failed to export statement CSV:', err);
+        }
+      });
+    }
+  }
+
+  document.addEventListener('astro:page-load', initMonthlyStatement);
+  if (document.readyState !== 'loading') {
+    initMonthlyStatement();
+  } else {
+    document.addEventListener('DOMContentLoaded', initMonthlyStatement);
+  }
 </script>\n
