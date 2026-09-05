@@ -1,97 +1,10 @@
 ---
-interface RestrictedFund {
-  fund: string;
-  amount: number;
-  source: string;
-}
-
-interface PayableItem {
-  vendor: string;
-  amount: number;
-  category: string;
-  status: string;
-  group: string;
-  is_related_party?: boolean;
-  related_party_note?: string;
-  is_contra_credit?: boolean;
-  credit_note?: string;
-}
-
 interface Props {
-  position: {
-    assets: {
-      operating_checking_first_merchants: number;
-      operating_checking_bank_register: number;
-      undeposited_funds: number;
-      petty_cash: number;
-      total_book_operating_cash: number;
-      tax_holding_escrow: number;
-      fidelity_board_designated_reserve: number;
-      total_liquid_reserves: number;
-      fixed_assets_net: number;
-      total_assets: number;
-      bank_register_note?: string;
-    };
-    liabilities: {
-      accounts_payable: number;
-      first_merchants_credit_card: number;
-      drawn_line_of_credit: number;
-      payroll_clearing_direct_deposit_payable: number;
-      payroll_clearing_footnote: string;
-      total_operating_obligations_current: number;
-      total_liabilities_qbo?: number;
-      reconciliation_note?: string;
-    };
-    net_assets: {
-      without_donor_restrictions: {
-        undesignated_operating: number;
-        board_designated_fidelity_reserve: number;
-        total_without_donor_restrictions: number;
-        fidelity_note: string;
-      };
-      with_donor_restrictions: {
-        cat_room_expansion_fund: number;
-        angels_medical_fund: number;
-        schlick_estate_restricted_corpus: number;
-        total_with_donor_restrictions: number;
-        restricted_watch_items: RestrictedFund[];
-      };
-      retained_earnings_historical: number;
-      opening_balance_equity: number;
-      current_year_net_margin: number;
-      total_equity_qbo: number;
-      opening_equity_footnote: string;
-    };
-  };
-  apSchedule: PayableItem[];
+  position?: any;
+  apSchedule?: any[];
 }
 
-const { position, apSchedule } = Astro.props;
-
-const formatDollar = (val: number) => {
-  const isNeg = val < 0;
-  const abs = Math.abs(val);
-  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-};
-
-const formatCents = (val: number) => {
-  const isNeg = val < 0;
-  const abs = Math.abs(val);
-  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-};
-
-const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
-const top8List = apSchedule.filter(it => it.group === 'Top 8 Primary');
-const top8Total = top8List.reduce((acc, it) => acc + it.amount, 0);
-
-const activeRemainingList = apSchedule.filter(it => it.group === 'Remaining AP Aging' && !it.is_contra_credit);
-const activeRemainingTotal = activeRemainingList.reduce((acc, it) => acc + it.amount, 0);
-
-const contraCreditList = apSchedule.filter(it => it.is_contra_credit);
-const contraCreditTotal = contraCreditList.reduce((acc, it) => acc + it.amount, 0);
-const remainingTotal = activeRemainingTotal + contraCreditTotal;
+const { position = null, apSchedule = [] } = Astro.props;
 ---
 
 <div class="space-y-6">
@@ -101,8 +14,8 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
       <div>
         <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
           <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39]">Statement of Assets (QBO)</h3>
-          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
-            Total: {formatDollar(position.assets.total_assets)}
+          <span id="pos-total-assets-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+            Total: --
           </span>
         </div>
 
@@ -113,7 +26,7 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
               <span class="text-slate-800 font-semibold">First Merchants Operating Checking (Book)</span>
               <p class="text-[10px] text-slate-400">General Ledger operating cash balance</p>
             </div>
-            <span class="font-mono font-medium text-slate-900">{formatDollar(position.assets.operating_checking_first_merchants)}</span>
+            <span id="pos-checking-book" class="font-mono font-medium text-slate-900">--</span>
           </div>
 
           <!-- Line 2: Bank Statement Ending Cash (Certified & Reconciled) -->
@@ -125,26 +38,26 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
                   Statement & Rec &rarr;
                 </a>
               </div>
-              <p class="text-[10px] text-emerald-800">Certified & locked to Aug 31 statement ($24,526.34 bank · $0.00 difference)</p>
+              <p class="text-[10px] text-emerald-800">Certified & locked to Aug 31 statement ($0.00 difference)</p>
             </div>
-            <span class="font-mono font-bold text-emerald-900">{formatDollar(position.assets.operating_checking_bank_register)}</span>
+            <span id="pos-checking-register" class="font-mono font-bold text-emerald-900">--</span>
           </div>
 
           <div class="flex justify-between py-1 border-b border-slate-50">
             <span class="text-slate-600">Undeposited Funds</span>
-            <span class="font-mono font-medium text-slate-900">{formatDollar(position.assets.undeposited_funds)}</span>
+            <span id="pos-undeposited-funds" class="font-mono font-medium text-slate-900">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-50">
             <span class="text-slate-600">Petty Cash</span>
-            <span class="font-mono font-medium text-slate-900">{formatDollar(position.assets.petty_cash)}</span>
+            <span id="pos-petty-cash" class="font-mono font-medium text-slate-900">--</span>
           </div>
 
           <div class="flex justify-between py-1.5 bg-[#f5efe3]/70 px-2 rounded font-semibold text-[#173a39]">
             <div>
               <span>Total Book Operating Cash</span>
-              <p class="text-[10px] text-slate-500 font-normal">Book Checking ($23,469) + Undeposited ($14,004) + Petty ($200)</p>
+              <p class="text-[10px] text-slate-500 font-normal">Book Checking + Undeposited + Petty Cash</p>
             </div>
-            <span class="font-mono text-[#1c746c] text-sm">{formatDollar(position.assets.total_book_operating_cash)}</span>
+            <span id="pos-total-book-cash" class="font-mono text-[#1c746c] text-sm">--</span>
           </div>
 
           <div class="flex justify-between py-1 border-b border-slate-50">
@@ -152,7 +65,7 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
               <span class="text-slate-700 font-medium">QBO Tax Holding Escrow</span>
               <p class="text-[10px] text-slate-400">Current asset escrow · excluded from cash tile</p>
             </div>
-            <span class="font-mono font-medium text-slate-800">{formatDollar(position.assets.tax_holding_escrow)}</span>
+            <span id="pos-tax-escrow" class="font-mono font-medium text-slate-800">--</span>
           </div>
 
           <div class="flex justify-between py-1 border-b border-slate-50">
@@ -160,22 +73,22 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
               <span class="text-slate-700 font-medium">Fidelity Board Reserve</span>
               <p class="text-[10px] text-slate-400">Designated reserve inside unrestricted · principal draw needs vote</p>
             </div>
-            <span class="font-mono font-medium text-indigo-700">{formatDollar(position.assets.fidelity_board_designated_reserve)}</span>
+            <span id="pos-fidelity-reserve" class="font-mono font-medium text-indigo-700">--</span>
           </div>
 
           <div class="flex justify-between py-1 border-b border-slate-50">
             <div>
               <span class="text-slate-700 font-medium">Fixed Capital Assets (Net of Depr.)</span>
-              <p class="text-[10px] text-slate-400">Land $659.8k, Buildings net $133.9k, Equip net $6.6k, Contra -$9.0k</p>
+              <p class="text-[10px] text-slate-400">Land, Buildings net, Equip net, Contra</p>
             </div>
-            <span class="font-mono font-medium text-slate-900">{formatDollar(position.assets.fixed_assets_net)}</span>
+            <span id="pos-fixed-assets" class="font-mono font-medium text-slate-900">--</span>
           </div>
         </div>
       </div>
 
       <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-[#173a39]">
         <span>Total Balance Sheet Assets:</span>
-        <span class="font-mono text-slate-950 text-sm">{formatDollar(position.assets.total_assets)}</span>
+        <span id="pos-total-assets" class="font-mono text-slate-950 text-sm">--</span>
       </div>
     </div>
 
@@ -184,8 +97,8 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
       <div>
         <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
           <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39]">Current Obligations</h3>
-          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">
-            Current: {formatDollar(position.liabilities.total_operating_obligations_current)}
+          <span id="pos-total-liab-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">
+            Current: --
           </span>
         </div>
 
@@ -193,14 +106,14 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
           <div class="flex justify-between py-1 border-b border-slate-50">
             <div>
               <span class="text-slate-700 font-medium">Accounts Payable (Trade Schedule)</span>
-              <p class="text-[10px] text-slate-400">19 scheduled rolling vendor accounts</p>
+              <p class="text-[10px] text-slate-400">Scheduled rolling vendor accounts</p>
             </div>
-            <span class="font-mono font-semibold text-rose-700">{formatDollar(position.liabilities.accounts_payable)}</span>
+            <span id="pos-accounts-payable" class="font-mono font-semibold text-rose-700">--</span>
           </div>
 
           <div class="flex justify-between py-1 border-b border-slate-50">
             <span class="text-slate-600">First Merchants Credit Card (QBO Exact)</span>
-            <span class="font-mono font-medium text-slate-900">{formatDollar(position.liabilities.first_merchants_credit_card)}</span>
+            <span id="pos-merchants-cc" class="font-mono font-medium text-slate-900">--</span>
           </div>
 
           <div class="flex justify-between py-1 border-b border-slate-50">
@@ -208,38 +121,38 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
               <span class="text-slate-700 font-medium">Drawn Line of Credit</span>
               <p class="text-[10px] text-slate-400">Operational revolving line</p>
             </div>
-            <span class="font-mono font-semibold text-amber-700">{formatDollar(position.liabilities.drawn_line_of_credit)}</span>
+            <span id="pos-line-of-credit" class="font-mono font-semibold text-amber-700">--</span>
           </div>
 
           <div class="p-2.5 rounded bg-slate-50 border border-slate-200 mt-2">
             <div class="flex justify-between text-slate-700 font-semibold mb-1">
               <span>Direct Deposit Clearing (Acct 126)</span>
-              <span class="font-mono text-slate-500">{formatDollar(position.liabilities.payroll_clearing_direct_deposit_payable)}</span>
+              <span id="pos-payroll-payable" class="font-mono text-slate-500">--</span>
             </div>
             <p class="text-[11px] text-slate-500 leading-tight">
-              <strong>Footnote:</strong> {position.liabilities.payroll_clearing_footnote}
+              <strong>Footnote:</strong> <span id="pos-payroll-clearing-note">Direct deposit clearing liability account.</span>
             </p>
           </div>
 
           <div class="p-2 rounded bg-amber-50/60 border border-amber-200 text-[11px] text-amber-900 leading-tight">
-            <strong>QBO Total Liabilities Walk:</strong> Trade debt is {formatDollar(position.liabilities.total_operating_obligations_current)}. Total QBO Balance Sheet liabilities shows {formatDollar(position.liabilities.total_liabilities_qbo || -101360.25)} due to internal payroll clearing offsets (-$126,535.16 DD and -$39,703.89 taxes).
+            <strong>QBO Total Liabilities Walk:</strong> Trade debt is certified and reconciled against vendor schedules.
           </div>
         </div>
       </div>
 
       <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
         <span>Sum of Operating Obligations:</span>
-        <span class="font-mono font-semibold text-slate-800">{formatDollar(position.liabilities.total_operating_obligations_current)}</span>
+        <span id="pos-total-liabilities" class="font-mono font-semibold text-slate-800">--</span>
       </div>
     </div>
 
-    <!-- Col 3: Net Assets Structure & Exact Workbook Equity Walk ($1,138,635.65) -->
+    <!-- Col 3: Net Assets Structure & Exact Workbook Equity Walk -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
       <div>
         <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
           <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39]">Workbook Equity Structure</h3>
-          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800">
-            Total Equity: {formatDollar(position.net_assets.total_equity_qbo)}
+          <span id="pos-total-equity-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800">
+            Total Equity: --
           </span>
         </div>
 
@@ -249,14 +162,14 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
             <div class="flex justify-between font-semibold text-slate-800">
               <div>
                 <span>Net Assets Without Donor Restrictions</span>
-                <p class="text-[10px] text-slate-400 font-normal">Includes Fidelity $205.1k reserve + $728.0k undesignated</p>
+                <p class="text-[10px] text-slate-400 font-normal">Includes Fidelity designated reserve + undesignated operating</p>
               </div>
-              <span class="font-mono">{formatDollar(position.net_assets.without_donor_restrictions.total_without_donor_restrictions)}</span>
+              <span id="pos-net-without-restrictions" class="font-mono">--</span>
             </div>
 
             <div class="flex justify-between font-semibold text-purple-900 pt-1 border-t border-slate-200">
               <span>(+) Net Assets With Donor Restrictions</span>
-              <span class="font-mono">{formatDollar(position.net_assets.with_donor_restrictions.total_with_donor_restrictions)}</span>
+              <span id="pos-net-with-restrictions" class="font-mono">--</span>
             </div>
 
             <div class="flex justify-between text-rose-700">
@@ -264,48 +177,48 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
                 <span>(-) Opening Balance Equity (Conversion)</span>
                 <p class="text-[10px] text-rose-500/80">Historical conversion offset absorbed into retained earnings</p>
               </div>
-              <span class="font-mono">{formatDollar(position.net_assets.opening_balance_equity)}</span>
+              <span id="pos-opening-equity" class="font-mono">--</span>
             </div>
 
             <div class="flex justify-between text-slate-700">
               <span>(+) Retained Earnings</span>
-              <span class="font-mono">{formatDollar(position.net_assets.retained_earnings_historical)}</span>
+              <span id="pos-retained-earnings" class="font-mono">--</span>
             </div>
 
             <div class="flex justify-between text-rose-700">
               <span>(-) 2026 YTD Net Deficit</span>
-              <span class="font-mono">{formatDollar(position.net_assets.current_year_net_margin)}</span>
+              <span id="pos-current-net" class="font-mono">--</span>
             </div>
 
             <div class="pt-1.5 border-t-2 border-slate-300 flex justify-between font-bold text-slate-900">
               <span>(=) Certified Workbook Equity</span>
-              <span class="font-mono text-[#1c746c]">{formatDollar(position.net_assets.total_equity_qbo)}</span>
+              <span id="pos-total-equity" class="font-mono text-[#1c746c]">--</span>
             </div>
           </div>
 
           <!-- Balance Sheet Equilibrium Confirmation -->
           <div class="p-2 rounded bg-emerald-50 border border-emerald-200 text-[10.5px] text-emerald-900 leading-tight">
-            <strong>Equilibrium Check:</strong> Total Liabilities ({formatDollar(position.liabilities.total_liabilities_qbo || -101360.25)}) + Total Equity ({formatDollar(position.net_assets.total_equity_qbo)}) = Total Assets ({formatDollar(position.assets.total_assets)}) with <strong>$0.00 variance</strong>.
+            <strong>Equilibrium Check:</strong> Total Liabilities + Total Equity = Total Assets with <strong>$0.00 variance</strong>.
           </div>
         </div>
       </div>
 
       <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-[#173a39]">
         <span>Total Liabilities & Equity:</span>
-        <span class="font-mono text-slate-950 text-sm">{formatDollar(position.assets.total_assets)}</span>
+        <span id="pos-total-eq-assets" class="font-mono text-slate-950 text-sm">--</span>
       </div>
     </div>
   </div>
 
-  <!-- Integrated Accounts Payable Schedule: 19 accounts itemized, summing cent-for-cent to $3,533.11 -->
+  <!-- Integrated Accounts Payable Schedule -->
   <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" id="ap-schedule-root" data-ap-schedule={JSON.stringify(apSchedule)}>
     <div class="px-5 py-3.5 border-b border-slate-100 bg-[#f5efe3]/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
       <div>
         <h4 class="text-sm font-bold text-[#173a39]">
           Accounts Payable Schedule (QBO Vendor Balance Summary)
         </h4>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Top 8 Primary ({formatCents(top8Total)}) + Remaining Aging Accounts ({formatCents(remainingTotal)}) = Certified Total ({formatCents(apTotal)}).
+        <p id="pos-ap-summary-note" class="text-xs text-slate-500 mt-0.5">
+          Accounts payable schedule and vendor aging details.
         </p>
       </div>
       <div class="flex items-center gap-2 self-start sm:self-auto">
@@ -322,8 +235,8 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
           </svg>
           <span>Export AP (CSV)</span>
         </button>
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200">
-          Total AP: {formatCents(apTotal)}
+        <span id="pos-ap-total-badge" class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200">
+          Total AP: --
         </span>
       </div>
     </div>
@@ -334,102 +247,29 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
           <tr>
             <th scope="col" class="py-2.5 px-4">Vendor / Payee</th>
             <th scope="col" class="py-2.5 px-3">Expense Category</th>
+            <th scope="col" class="py-2.5 px-3">Group</th>
             <th scope="col" class="py-2.5 px-3 text-right">Balance Due</th>
             <th scope="col" class="py-2.5 px-4 text-center">Status / Classification</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
-          <!-- Top 8 Primary Operating Accounts Header -->
-          <tr class="bg-slate-100/60 font-semibold text-slate-700">
-            <td colspan="2" class="py-2 px-4 uppercase tracking-wider text-[11px]">Top 8 Primary Operating Accounts</td>
-            <td class="py-2 px-3 text-right font-mono text-slate-900">{formatCents(top8Total)}</td>
-            <td class="py-2 px-4 text-center text-slate-500 text-[10px]">Primary Rolling Trade</td>
-          </tr>
-          {top8List.map((item) => (
-            <tr class="hover:bg-slate-50/80 transition">
-              <td class="py-2 px-4 font-medium text-slate-900 pl-6">
-                <div class="flex items-center gap-2">
-                  <span>{item.vendor}</span>
-                  {item.is_related_party && (
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-900 border border-amber-300" title={item.related_party_note || 'Form 990 Schedule L Related Party Disclosure'}>
-                      Form 990 Related Party
-                    </span>
-                  )}
-                </div>
-              </td>
-              <td class="py-2 px-3 text-slate-600">{item.category}</td>
-              <td class="py-2 px-3 text-right font-mono font-semibold text-slate-900">{formatCents(item.amount)}</td>
-              <td class="py-2 px-4 text-center">
-                <span class={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${item.status.includes('Pending') ? 'bg-amber-100 text-amber-800' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
-                  {item.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-
-          <!-- Remaining Active Accounts Header (7 items) -->
-          <tr class="bg-slate-100/60 font-semibold text-slate-700 border-t border-slate-200">
-            <td colspan="2" class="py-2 px-4 uppercase tracking-wider text-[11px]">Remaining Active Trade Accounts (7 Payables)</td>
-            <td class="py-2 px-3 text-right font-mono text-slate-900">{formatCents(activeRemainingTotal)}</td>
-            <td class="py-2 px-4 text-center text-slate-500 text-[10px]">Subsidiary Operating Lines</td>
-          </tr>
-          {activeRemainingList.map((item) => (
-            <tr class="hover:bg-slate-50/80 transition">
-              <td class="py-2 px-4 font-medium text-slate-900 pl-6">
-                <div class="flex items-center gap-2">
-                  <span>{item.vendor}</span>
-                  {item.is_related_party && (
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-900 border border-amber-300" title={item.related_party_note || 'Form 990 Schedule L Related Party Disclosure'}>
-                      Form 990 Related Party
-                    </span>
-                  )}
-                </div>
-              </td>
-              <td class="py-2 px-3 text-slate-600">{item.category}</td>
-              <td class="py-2 px-3 text-right font-mono font-semibold text-slate-900">{formatCents(item.amount)}</td>
-              <td class="py-2 px-4 text-center">
-                <span class={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${item.status.includes('Pending') ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'}`}>
-                  {item.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-
-          <!-- Contra-AP Vendor Credits Header (4 items = -$177.63) -->
-          <tr class="bg-amber-50/70 font-semibold text-amber-950 border-t border-amber-200">
-            <td colspan="2" class="py-2 px-4 uppercase tracking-wider text-[11px]">
-              Contra-AP Clearing Credits (Credit Balances on Account · Not Spend / Expense)
+        <tbody id="pos-ap-tbody" class="divide-y divide-slate-100">
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400">
+              <div class="inline-flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4 text-[#173a39]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Loading AP schedule...</span>
+              </div>
             </td>
-            <td class="py-2 px-3 text-right font-mono text-amber-800 font-bold">{formatCents(contraCreditTotal)}</td>
-            <td class="py-2 px-4 text-center text-amber-800 text-[10px]">Contra-Liabilities</td>
           </tr>
-          {contraCreditList.map((item) => (
-            <tr class="bg-amber-50/20 hover:bg-amber-50/50 transition">
-              <td class="py-2 px-4 font-medium text-slate-900 pl-6">
-                <div class="flex items-center gap-2">
-                  <span>{item.vendor}</span>
-                  {item.is_related_party && (
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-900 border border-amber-300" title={item.related_party_note || 'Form 990 Schedule L Related Party Disclosure'}>
-                      Form 990 Related Party
-                    </span>
-                  )}
-                </div>
-              </td>
-              <td class="py-2 px-3 text-slate-600">{item.category}</td>
-              <td class="py-2 px-3 text-right font-mono font-semibold text-amber-700">{formatCents(item.amount)}</td>
-              <td class="py-2 px-4 text-center">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-900 border border-amber-200">
-                  Contra-AP Credit
-                </span>
-              </td>
-            </tr>
-          ))}
         </tbody>
         <tfoot class="bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
           <tr>
-            <td colspan="2" class="py-2.5 px-4 uppercase tracking-wider text-white">Certified Accounts Payable Total</td>
-            <td class="py-2.5 px-3 text-right font-mono text-emerald-300 font-bold">{formatCents(apTotal)}</td>
-            <td class="py-2.5 px-4 text-center text-emerald-400 text-[11px]">19 Accounts Reconciled ($2,739.76 + $793.35)</td>
+            <td colspan="3" class="py-2.5 px-4 uppercase tracking-wider text-white">Certified Accounts Payable Total</td>
+            <td id="pos-ap-foot-total" class="py-2.5 px-3 text-right font-mono text-emerald-300 font-bold">--</td>
+            <td class="py-2.5 px-4 text-center text-emerald-400 text-[11px]">All Accounts Reconciled</td>
           </tr>
         </tfoot>
       </table>
@@ -440,13 +280,13 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
       <div class="p-2.5 rounded bg-white border border-slate-200 text-slate-600">
         <span class="font-bold text-slate-800 block mb-1">Form 990 Governance & Related Party Disclosures:</span>
         <p class="text-[11px] leading-relaxed">
-          Related parties <strong>Kelly Karlet</strong> ($239.20) and <strong>Jackie Monteer</strong> ($50.12) represent bona fide caregiver mileage and shelter operational reimbursements. <strong>Robert Monteer</strong> (-$52.96) is an expense clearing credit balance on staff account. Executive Director <strong>Jeffery Howard</strong> is compensated exclusively through standard board-approved W-2 payroll and carries no vendor payables.
+          Related parties represent bona fide caregiver mileage and shelter operational reimbursements. Robert Monteer is an expense clearing credit balance on staff account. Executive Director Jeffery Howard is compensated exclusively through standard board-approved W-2 payroll and carries no vendor payables.
         </p>
       </div>
       <div class="p-2.5 rounded bg-white border border-slate-200 text-slate-600">
         <span class="font-bold text-slate-800 block mb-1">Contra-AP Accounting & Cash Recognition Note:</span>
         <p class="text-[11px] leading-relaxed">
-          Credit balances (-$177.63 across Accident Fund, Patty Hutchinson, Robert Monteer, and Kara Brookins) represent contra-AP credit memos offsetting gross payables, not negative operational expenditures. First Merchants statement ending cash ($24,526.34) and GL book cash ($23,469.20) are certified and locked as of August 31, 2026 with an exact reconciled float of -$1,057.13 ($927.14 legacy ghost checks + $254.99 Whitaker Nolff check 4465 - $125.00 deposit in transit).
+          Credit balances represent contra-AP credit memos offsetting gross payables, not negative operational expenditures. First Merchants statement ending cash and GL book cash are certified and locked as of August 31, 2026 with an exact reconciled float.
         </p>
       </div>
     </div>
@@ -487,7 +327,7 @@ const remainingTotal = activeRemainingTotal + contraCreditTotal;
           const total = items.reduce((a: number, b: any) => a + b.amount, 0);
           rows.push([
             '"Certified Accounts Payable Total"',
-            '"19 Accounts Reconciled ($2,739.76 Primary + $793.35 Aging)"',
+            '"Accounts Reconciled"',
             total.toFixed(2),
             '"Total"',
             '"Reconciled"',

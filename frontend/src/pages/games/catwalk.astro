@@ -15,7 +15,7 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <!-- Single unified viewport-fitting arcade cabinet cabinet window -->
+    <!-- Single unified viewport-fitting arcade cabinet window -->
     <main class="catwalk-cabinet" data-catwalk-root>
       <div class="catwalk-bezel">
         <canvas width="720" height="864" data-game-canvas></canvas>
@@ -31,16 +31,6 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
             </div>
             <p class="catwalk__overlay-hint">Keys: W A S D or Arrows • Space/P to Pause • Click audio icon to toggle sound</p>
           </div>
-        </div>
-
-        <!-- Sleek floating on-canvas quick controls (top right audio/pause shortcuts) -->
-        <div class="catwalk__canvas-hud-controls">
-          <button type="button" class="hud-btn" data-sound title="Toggle audio" aria-label="Toggle audio">
-            <span data-sound-label>🔊</span>
-          </button>
-          <button type="button" class="hud-btn" data-pause title="Pause game" aria-label="Pause game">
-            <span>⏸</span>
-          </button>
         </div>
 
         <!-- Touch/mobile d-pad controls embedded smoothly into bottom of bezel if on mobile -->
@@ -131,40 +121,6 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     object-fit: contain;
     aspect-ratio: 720 / 864;
     cursor: default;
-  }
-
-  /* Floating top-right shortcut buttons inside canvas window */
-  .catwalk__canvas-hud-controls {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    display: flex;
-    gap: 8px;
-    z-index: 5;
-  }
-
-  .hud-btn {
-    width: 32px;
-    height: 32px;
-    border: 1px solid #22a058;
-    border-radius: 4px;
-    background: rgba(4, 11, 8, 0.82);
-    color: #4dfa8b;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    backdrop-filter: blur(4px);
-  }
-
-  .hud-btn:hover, .hud-btn:focus-visible {
-    border-color: #4dfa8b;
-    background: #4dfa8b;
-    color: #040b08;
-    box-shadow: 0 0 12px rgba(77, 250, 139, 0.4);
-    outline: none;
   }
 
   /* Integrated In-Game Overlay */

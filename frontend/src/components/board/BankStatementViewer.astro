@@ -1,94 +1,9 @@
 ---
-import statementData from '../../data/statement_2026_08.json';
-
 interface Props {
-  data?: typeof statementData;
+  data?: any;
 }
 
-const { data = statementData } = Astro.props;
-
-const formatDollar = (val: number) => {
-  const isNeg = val < 0;
-  const abs = Math.abs(val);
-  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-};
-
-const formatCents = (val: number) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(val);
-};
-
-// Compute combined list with uniform structure for tabular display
-const depositsFormatted = data.deposits.map((d, i) => ({
-  id: `dep-${i}`,
-  date: d.date,
-  description: d.description,
-  payee: d.channel ? `${d.channel} Transfer` : 'Deposit',
-  type: d.channel === 'Branch' ? 'Branch Deposit' : d.channel === 'Square' ? 'Merchant Card' : 'Electronic Credit',
-  isDeposit: true,
-  amount: d.amount,
-  category: d.category,
-  relational_link: d.relational_account,
-  relational_notes: d.relational_notes,
-  isPayroll: false,
-  isCheck: false,
-  isAP: false,
-  check_number: null,
-}));
-
-const withdrawalsFormatted = data.withdrawals.map((w, i) => {
-  const isCheck = !!w.check_number;
-  const isPayroll = w.category.includes('Paycheck') || w.category.includes('Payroll') || (w.relational_link && w.relational_link.includes('126'));
-  const isAP = !!w.relational_link && (w.relational_link.includes('AP Aging') || w.relational_link.includes('Capital Assets'));
-  
-  return {
-    id: `wd-${i}`,
-    date: w.date,
-    description: w.description,
-    payee: w.payee,
-    type: w.type,
-    isDeposit: false,
-    amount: -Math.abs(w.amount),
-    category: w.category,
-    relational_link: w.relational_link,
-    relational_notes: w.relational_notes,
-    isPayroll,
-    isCheck,
-    isAP,
-    check_number: w.check_number || null,
-  };
-});
-
-// All 108 transactions sorted chronologically
-const allTransactions = [...depositsFormatted, ...withdrawalsFormatted].sort((a, b) => {
-  if (a.date === b.date) {
-    return b.amount - a.amount; // deposits first on same day
-  }
-  return a.date.localeCompare(b.date);
-});
-
-// Calculate running balance starting from $54,280.38
-let running = data.metadata.statement_beginning_balance;
-const allWithRunning = allTransactions.map((tx) => {
-  running = Math.round((running + tx.amount) * 100) / 100;
-  return {
-    ...tx,
-    runningBalance: running,
-  };
-});
-
-// Precompute daily deltas
-const dailyBalances = data.daily_balances.map((item, idx, arr) => {
-  const prevBal = idx > 0 ? arr[idx - 1].balance : data.metadata.statement_beginning_balance;
-  const delta = Math.round((item.balance - prevBal) * 100) / 100;
-  return {
-    ...item,
-    prevBal,
-    delta,
-  };
-});
-
-const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
+const { data = null } = Astro.props;
 ---
 
 <section id="bank-statement-viewer" class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden transition-all duration-300">
@@ -114,8 +29,8 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
                 Locked & Certified
               </span>
             </div>
-            <p class="text-xs text-slate-500 mt-0.5">
-              Account {data.metadata.account_number} · Statement Period: {data.metadata.statement_period} · Certified locked by {data.metadata.reconciled_by} on {data.metadata.reconciliation_date} with $0.00 difference.
+            <p id="bank-stat-meta-note" class="text-xs text-slate-500 mt-0.5">
+              Account XXXXXX8478 · Statement Period: August 1 – August 31, 2026 · Loading certified statement...
             </p>
           </div>
         </div>
@@ -125,15 +40,15 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
         <div class="p-2 rounded bg-slate-50 border border-slate-200">
           <span class="text-[10px] uppercase font-semibold text-slate-400 block">Bank Statement</span>
-          <span class="font-mono font-bold text-slate-900 text-sm">{formatCents(data.metadata.statement_ending_balance)}</span>
+          <span id="bank-stat-balance" class="font-mono font-bold text-slate-900 text-sm">--</span>
         </div>
         <div class="p-2 rounded bg-emerald-50 border border-emerald-200">
           <span class="text-[10px] uppercase font-semibold text-emerald-700 block">Book Cash (GL)</span>
-          <span class="font-mono font-bold text-emerald-900 text-sm">{formatCents(data.metadata.qbo_register_balance)}</span>
+          <span id="bank-stat-cash" class="font-mono font-bold text-emerald-900 text-sm">--</span>
         </div>
         <div class="p-2 rounded bg-amber-50 border border-amber-200">
           <span class="text-[10px] uppercase font-semibold text-amber-700 block">Certified Float</span>
-          <span class="font-mono font-bold text-amber-900 text-sm">{formatDollar(data.metadata.reconciled_float)}</span>
+          <span id="bank-stat-float" class="font-mono font-bold text-amber-900 text-sm">--</span>
         </div>
         <div class="p-2 rounded bg-teal-50 border border-teal-200">
           <span class="text-[10px] uppercase font-semibold text-teal-700 block">QBO Variance</span>
@@ -267,100 +182,17 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
           </tr>
         </thead>
         <tbody id="statement-tbody" class="divide-y divide-slate-100">
-          {allWithRunning.map((tx) => (
-            <tr
-              class="hover:bg-slate-50/80 transition statement-row"
-              data-is-deposit={tx.isDeposit ? 'true' : 'false'}
-              data-is-check={tx.isCheck ? 'true' : 'false'}
-              data-is-payroll={tx.isPayroll ? 'true' : 'false'}
-              data-is-ap={tx.isAP ? 'true' : 'false'}
-              data-search={`${tx.date} ${tx.description} ${tx.payee} ${tx.category} ${tx.relational_link} ${tx.relational_notes} ${tx.check_number || ''} ${Math.abs(tx.amount)}`.toLowerCase()}
-              data-amount={tx.amount}
-            >
-              <!-- Date -->
-              <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
-                {tx.date}
-              </td>
-
-              <!-- Description & Payee -->
-              <td class="py-2.5 px-3">
-                <div class="font-medium text-slate-900 flex items-center gap-1.5">
-                  <span>{tx.payee}</span>
-                  {tx.check_number && (
-                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-                      Check #{tx.check_number}
-                    </span>
-                  )}
-                </div>
-                <div class="text-[11px] text-slate-500 font-mono">
-                  {tx.description}
-                </div>
-                {tx.relational_notes && (
-                  <div class="text-[10px] text-slate-400 italic">
-                    {tx.relational_notes}
-                  </div>
-                )}
-              </td>
-
-              <!-- Type & Channel -->
-              <td class="py-2.5 px-3 whitespace-nowrap">
-                <span class={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${
-                  tx.isDeposit
-                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                    : tx.isCheck
-                    ? 'bg-indigo-50 text-indigo-800 border border-indigo-200'
-                    : tx.isPayroll
-                    ? 'bg-amber-50 text-amber-900 border border-amber-200'
-                    : 'bg-slate-100 text-slate-700'
-                }`}>
-                  {tx.type}
-                </span>
-                <span class="block text-[10px] text-slate-400 mt-0.5">{tx.category}</span>
-              </td>
-
-              <!-- Relational Link -->
-              <td class="py-2.5 px-3">
-                <div class="flex items-center gap-1">
-                  {tx.isAP && (
-                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
-                      AP Aging
-                    </span>
-                  )}
-                  {tx.isPayroll && (
-                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                      Acct 126
-                    </span>
-                  )}
-                  {tx.isDeposit && (
-                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                      Revenue
-                    </span>
-                  )}
-                  <span class="font-mono text-slate-700 text-[11px] truncate max-w-xs block" title={tx.relational_link}>
-                    {tx.relational_link}
-                  </span>
-                </div>
-              </td>
-
-              <!-- Amount -->
-              <td class="py-2.5 px-3 text-right font-mono whitespace-nowrap">
-                <span class={`font-bold ${
-                  tx.isDeposit
-                    ? 'text-emerald-700'
-                    : Math.abs(tx.amount) >= 5000
-                    ? 'text-rose-700'
-                    : 'text-slate-900'
-                }`}>
-                  {tx.isDeposit ? `+${formatCents(tx.amount)}` : `-${formatCents(Math.abs(tx.amount))}`}
-                </span>
-              </td>
-
-              <!-- Running Balance -->
-              <td class="py-2.5 px-3 text-right font-mono font-medium text-slate-700 whitespace-nowrap">
-                {formatCents(tx.runningBalance)}
-              </td>
-            </tr>
-          ))}
+          <tr id="statement-tx-loading-row">
+            <td colspan="6" class="py-12 text-center text-slate-400">
+              <div class="inline-flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4 text-[#173a39]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Loading certified transactions...</span>
+              </div>
+            </td>
+          </tr>
         </tbody>
         <tfoot class="bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
           <tr>
@@ -368,11 +200,11 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
               Official Statement Totals (First Merchants Bank Aug 31, 2026)
             </td>
             <td class="py-3 px-3 text-right font-mono text-emerald-300 font-bold whitespace-nowrap">
-              +{formatCents(data.metadata.total_deposits_amount)}<br/>
-              <span class="text-rose-300 font-normal">-{formatCents(data.metadata.total_withdrawals_amount)}</span>
+              <span id="stmt-total-deposits">--</span><br/>
+              <span id="stmt-total-withdrawals" class="text-rose-300 font-normal">--</span>
             </td>
             <td class="py-3 px-3 text-right font-mono text-white text-sm font-bold whitespace-nowrap">
-              {formatCents(data.metadata.statement_ending_balance)}
+              <span id="stmt-ending-balance">--</span>
             </td>
           </tr>
         </tfoot>
@@ -411,7 +243,8 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
       </div>
       <div class="flex items-center gap-2">
         <a
-          href="/assets/statements/QBO_Reconciliation_Report_08312026.pdf"
+          id="qbo-rec-report-pdf-link"
+          href="#"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-800 text-white hover:bg-emerald-900 transition shadow-xs"
@@ -428,7 +261,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
     <!-- Visual Waterfall Step-Down Diagram -->
     <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
       <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">
-        Cent-for-Cent Reconciled Float Step-Down ($24,526.33 to $23,469.20)
+        Cent-for-Cent Reconciled Float Step-Down (Statement Ending to Book Cash)
       </h4>
       <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
         <!-- Step 1: Bank Statement -->
@@ -439,8 +272,8 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
             <p class="text-[10px] text-slate-500 mt-1">First Merchants Bank Aug 31 closing</p>
           </div>
           <div class="mt-3 pt-2 border-t border-slate-100">
-            <span class="font-mono text-sm font-bold text-slate-900">$24,526.34</span>
-            <span class="block text-[10px] text-slate-400">($24,526.33 penny-adj)</span>
+            <span id="float-step-1-bank" class="font-mono text-sm font-bold text-slate-900">--</span>
+            <span class="block text-[10px] text-slate-400">(Bank closing)</span>
           </div>
         </div>
 
@@ -491,7 +324,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
             <p class="text-[10px] text-slate-300 mt-1">Post-$5.41 exact match</p>
           </div>
           <div class="mt-3 pt-2 border-t border-teal-800">
-            <span class="font-mono text-sm font-bold text-emerald-300">$23,469.20</span>
+            <span id="float-step-5-gl" class="font-mono text-sm font-bold text-emerald-300">--</span>
             <span class="block text-[10px] text-emerald-400">Locked in Balance Sheet</span>
           </div>
         </div>
@@ -505,7 +338,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
           Reconciled Float Detail: Ghost Duplicates vs. Genuine In-Transit
         </h4>
         <span class="text-xs font-mono font-semibold text-slate-700">
-          Total Net Float: -{formatCents(Math.abs(data.uncleared_float_schedule.total_net_float))}
+          Total Net Float: <span id="float-net-total">-$1,057.13</span>
         </span>
       </div>
       <table class="w-full text-left text-xs border-collapse">
@@ -616,7 +449,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
         During the August 31 reconciliation audit, a $5.41 debit variance was uncovered where QBO transaction ID <code>6732</code> (Intuit Payroll debit on August 14) was recorded as $766.18 instead of the actual bank withdrawal of $771.59 (an accidental inversion matching check 4429's amount). With Txn 6732 corrected to $771.59 via QuickBooks MCP on 09/04/2026, cleared debits reached exactly $70,643.29 (62 items), yielding a flawless $0.00 difference against the First Merchants Bank statement.
       </p>
       <div class="pt-2 border-t border-slate-200 text-[11px] text-slate-500">
-        <strong>Recommended Board Action on Ghost Checks:</strong> To remove the $927.14 ghost duplicates permanently from future bank reconciliation screens, click into each entry in QBO and select <em>More &gt; Void</em>. Voiding them will increase book cash to $24,396.34, perfectly leaving only actual in-transit checks in the float.
+        <strong>Recommended Board Action on Ghost Checks:</strong> To remove the $927.14 ghost duplicates permanently from future bank reconciliation screens, click into each entry in QBO and select <em>More &gt; Void</em>. Voiding them will adjust book cash to perfectly match only actual in-transit checks in the float.
       </div>
     </div>
   </div>
@@ -627,17 +460,17 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
       <div>
         <h4 class="font-bold text-slate-800 text-sm">First Merchants August Cash Flow & Daily Liquidity</h4>
         <p class="text-slate-500 mt-0.5">
-          Tracking the month's 22 banking days: starting at $54,280.38, peaking at $68,493.92 on Aug 10, funding $70.6k operating obligations, and closing at $24,526.34.
+          Tracking the month's 22 banking days from opening to month-end reconciliation close.
         </p>
       </div>
       <div class="flex items-center gap-3">
         <div class="text-right">
           <span class="text-[10px] text-slate-400 block uppercase">Peak Liquidity</span>
-          <span class="font-mono font-bold text-emerald-800 text-sm">$68,493.92</span>
+          <span id="daily-peak-val" class="font-mono font-bold text-emerald-800 text-sm">$68,493.92</span>
         </div>
         <div class="text-right">
           <span class="text-[10px] text-slate-400 block uppercase">August Low</span>
-          <span class="font-mono font-bold text-slate-800 text-sm">$24,526.34</span>
+          <span id="daily-august-low-val" class="font-mono font-bold text-slate-800 text-sm">--</span>
         </div>
       </div>
     </div>
@@ -650,53 +483,22 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
             <th class="py-2.5 px-3 whitespace-nowrap">Bank Date</th>
             <th class="py-2.5 px-3 text-right">Daily Closing Balance</th>
             <th class="py-2.5 px-3 text-right">Net Flow (Delta)</th>
-            <th class="py-2.5 px-3 w-48">Liquidity vs Peak ($68.5k)</th>
+            <th class="py-2.5 px-3 w-48">Liquidity vs Peak</th>
             <th class="py-2.5 px-3">Primary Operational Event</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
-          {dailyBalances.map((d) => {
-            const pct = Math.max(5, Math.round((d.balance / maxDailyBalance) * 100));
-            const isAug14 = d.date === '2026-08-14';
-            const isAug21 = d.date === '2026-08-21';
-            const isAug28 = d.date === '2026-08-28';
-            const isAug3 = d.date === '2026-08-03';
-            
-            let note = 'Routine operating deposits & debits';
-            if (isAug3) note = '+$12.6k branch cash, weekend adoptions & donor drops';
-            if (isAug14) note = 'Mid-month caregiver payroll & tax batch (-$19.7k)';
-            if (isAug21) note = 'Monroe Fencing capital play yard installation (-$7.1k)';
-            if (isAug28) note = 'End-of-month caregiver payroll run (-$17.5k)';
-            if (d.date === '2026-08-31') note = 'August statement close & final reconciliation locking';
-
-            return (
-              <tr class="hover:bg-slate-50/80 transition">
-                <td class="py-2.5 px-3 font-mono font-medium text-slate-700 whitespace-nowrap">
-                  {d.date}
-                </td>
-                <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
-                  {formatCents(d.balance)}
-                </td>
-                <td class="py-2.5 px-3 text-right font-mono font-semibold whitespace-nowrap">
-                  <span class={d.delta > 0 ? 'text-emerald-700' : d.delta < 0 ? 'text-rose-700' : 'text-slate-500'}>
-                    {d.delta > 0 ? `+${formatCents(d.delta)}` : d.delta < 0 ? `-${formatCents(Math.abs(d.delta))}` : '$0.00'}
-                  </span>
-                </td>
-                <td class="py-2.5 px-3">
-                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div
-                      class={`h-full rounded-full ${d.balance < 30000 ? 'bg-amber-500' : 'bg-[#173a39]'}`}
-                      style={`width: ${pct}%`}
-                    ></div>
-                  </div>
-                  <span class="text-[9px] font-mono text-slate-400 block mt-0.5">{pct}% of peak</span>
-                </td>
-                <td class="py-2.5 px-3 text-slate-600 text-[11px]">
-                  {note}
-                </td>
-              </tr>
-            );
-          })}
+        <tbody id="daily-balances-tbody" class="divide-y divide-slate-100">
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400">
+              <div class="inline-flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4 text-[#173a39]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Loading daily balance arc...</span>
+              </div>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -711,7 +513,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
           type="button"
           id="btn-pdf-bank"
           class="pdf-doc-btn active px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white shadow-xs transition"
-          data-pdf-url="/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf"
+          data-pdf-url=""
           data-pdf-title="First Merchants Bank Statement (Aug 2026)"
         >
           1. First Merchants Bank Statement (6 Pages)
@@ -720,7 +522,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
           type="button"
           id="btn-pdf-qbo"
           class="pdf-doc-btn px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition"
-          data-pdf-url="/assets/statements/QBO_Reconciliation_Report_08312026.pdf"
+          data-pdf-url=""
           data-pdf-title="QuickBooks Online Official Reconciliation Report (Locked 09/04/2026)"
         >
           2. QBO Official Reconciliation Report (3 Pages)
@@ -730,7 +532,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
       <div class="flex items-center gap-2">
         <a
           id="pdf-open-newtab"
-          href="/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf"
+          href="#"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-xs"
@@ -744,7 +546,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
         </a>
         <a
           id="pdf-download-btn"
-          href="/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf"
+          href="#"
           download
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs"
         >
@@ -770,7 +572,7 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
     <div class="w-full bg-slate-100 rounded-lg border border-slate-300 overflow-hidden shadow-inner">
       <iframe
         id="pdf-viewer-frame"
-        src="/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf#toolbar=1&navpanes=0&scrollbar=1"
+        src=""
         class="w-full h-[700px] border-0"
         title="Bank Statement PDF Viewer"
       ></iframe>
@@ -808,7 +610,6 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
   // Tabular Filtering & Search Logic
   const filterPills = document.querySelectorAll<HTMLButtonElement>('.filter-pill');
   const searchInput = document.getElementById('statement-search-input') as HTMLInputElement | null;
-  const rows = document.querySelectorAll<HTMLTableRowElement>('.statement-row');
   const filteredCountEl = document.getElementById('filtered-count');
   const filteredCreditsEl = document.getElementById('filtered-credits');
   const filteredDebitsEl = document.getElementById('filtered-debits');
@@ -822,11 +623,12 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
   };
 
   const applyTableFilters = () => {
+    const currentRows = document.querySelectorAll<HTMLTableRowElement>('.statement-row');
     let visibleCount = 0;
     let sumCredits = 0;
     let sumDebits = 0;
 
-    rows.forEach(row => {
+    currentRows.forEach(row => {
       const isDeposit = row.getAttribute('data-is-deposit') === 'true';
       const isCheck = row.getAttribute('data-is-check') === 'true';
       const isPayroll = row.getAttribute('data-is-payroll') === 'true';
@@ -930,4 +732,8 @@ const maxDailyBalance = Math.max(...data.daily_balances.map(d => d.balance));
   if (btnPdfQbo) {
     btnPdfQbo.addEventListener('click', () => setPdfDocument(btnPdfQbo));
   }
+
+  window.addEventListener('bank-statement-rendered', () => {
+    applyTableFilters();
+  });
 </script>

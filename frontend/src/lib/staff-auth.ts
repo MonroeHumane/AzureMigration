@@ -130,7 +130,7 @@ export async function loginStaff(opts: {
 /**
  * Signs out of Directus (revoking refresh token on server) and wipes client-side storage.
  */
-export async function logoutStaff(redirectUrl: string = '/internal'): Promise<void> {
+export async function logoutStaff(redirectUrl: string = '/internal/'): Promise<void> {
   try {
     await staffClient.logout();
   } catch {
@@ -159,8 +159,15 @@ export async function logoutStaff(redirectUrl: string = '/internal'): Promise<vo
  */
 export async function getStaffToken(): Promise<string | null> {
   try {
-    return await staffClient.getToken();
-  } catch {
-    return null;
-  }
+    const token = await staffClient.getToken();
+    if (token) return token;
+  } catch {}
+  try {
+    const raw = sessionStorage.getItem(DIRECTUS_AUTH_KEY) || localStorage.getItem(DIRECTUS_AUTH_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.access_token) return parsed.access_token;
+    }
+  } catch {}
+  return null;
 }

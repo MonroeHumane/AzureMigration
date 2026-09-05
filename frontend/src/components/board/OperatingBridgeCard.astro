@@ -1,8 +1,8 @@
 ---
 interface Props {
-  qboOperatingNet: number;
-  allInNet: number;
-  bridge: {
+  qboOperatingNet?: number;
+  allInNet?: number;
+  bridge?: {
     endowment_distributions: number;
     recycling_and_rebates: number;
     recycling_detail: {
@@ -47,8 +47,8 @@ const formatSigned = (val: number) => {
         CONF-1 Certified: Preserving QBO operating net on certified statements with C2 commentary for substance.
       </p>
     </div>
-    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
-      Cent-for-Cent Reconciled (+{formatCents(bridge.net_bridge_total).replace('(', '').replace(')', '')})
+    <span id="bridge-badge" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
+      {bridge ? `Cent-for-Cent Reconciled (+${formatCents(bridge.net_bridge_total).replace('(', '').replace(')', '')})` : 'Cent-for-Cent Reconciled'}
     </span>
   </div>
 
@@ -58,9 +58,9 @@ const formatSigned = (val: number) => {
       <div class="flex items-center justify-between p-3 rounded-lg bg-amber-50/60 border border-amber-200/70">
         <div>
           <span class="text-sm font-bold text-amber-950">QBO Certified Operating Net</span>
-          <p class="text-xs text-amber-800/80">Operating Inflows ($344,249.31) less COGS & Operating Outflows ($480,595.48)</p>
+          <p class="text-xs text-amber-800/80">Operating Inflows <span id="bridge-op-inflows">{qboOperatingNet !== undefined ? '' : ''}</span> less COGS & Operating Outflows <span id="bridge-op-outflows"></span></p>
         </div>
-        <span class="text-base font-bold font-mono text-amber-900">{formatCents(qboOperatingNet)}</span>
+        <span id="bridge-qbo-net" class="text-base font-bold font-mono text-amber-900">{qboOperatingNet !== undefined ? formatCents(qboOperatingNet) : '--'}</span>
       </div>
 
       <!-- Additions & Subtractions -->
@@ -72,7 +72,7 @@ const formatSigned = (val: number) => {
             <span class="text-slate-700 font-medium">Endowment Distributions</span>
             <span class="text-xs text-slate-400">(Monroe County Community Foundation quarterly draws)</span>
           </div>
-          <span class="font-mono font-medium text-emerald-700">{formatSigned(bridge.endowment_distributions)}</span>
+          <span id="bridge-endowment" class="font-mono font-medium text-emerald-700">{bridge ? formatSigned(bridge.endowment_distributions) : '--'}</span>
         </div>
 
         <!-- Recycling & Rebates -->
@@ -80,9 +80,9 @@ const formatSigned = (val: number) => {
           <div class="flex items-center gap-2">
             <span class="text-emerald-600 font-bold text-xs">+</span>
             <span class="text-slate-700 font-medium">Recycling, Rebates & Restitution</span>
-            <span class="text-xs text-slate-400">(Can drive $8.2k · Kroger/Meijer $3.0k · Court $60)</span>
+            <span class="text-xs text-slate-400">(Can drive · Kroger/Meijer · Court)</span>
           </div>
-          <span class="font-mono font-medium text-emerald-700">{formatSigned(bridge.recycling_and_rebates)}</span>
+          <span id="bridge-recycling" class="font-mono font-medium text-emerald-700">{bridge ? formatSigned(bridge.recycling_and_rebates) : '--'}</span>
         </div>
 
         <!-- Fleet Transit -->
@@ -90,25 +90,25 @@ const formatSigned = (val: number) => {
           <div class="flex items-center gap-2">
             <span class="text-rose-600 font-bold text-xs">-</span>
             <span class="text-slate-700 font-medium">Fleet Transit & Gasoline Spend</span>
-            <span class="text-xs text-slate-400">(Fuel card $10.8k · Maintenance $190.10)</span>
+            <span class="text-xs text-slate-400">(Fuel card · Maintenance)</span>
           </div>
-          <span class="font-mono font-medium text-rose-700">{formatSigned(bridge.fleet_transit_and_fuel)}</span>
+          <span id="bridge-fleet" class="font-mono font-medium text-rose-700">{bridge ? formatSigned(bridge.fleet_transit_and_fuel) : '--'}</span>
         </div>
       </div>
 
       <!-- Net Bridge Subtotal -->
       <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
         <span class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Net Non-Operating Adjustment</span>
-        <span class="text-sm font-bold font-mono text-emerald-700">+{formatCents(bridge.net_bridge_total)}</span>
+        <span id="bridge-net-total" class="text-sm font-bold font-mono text-emerald-700">{bridge ? `+${formatCents(bridge.net_bridge_total)}` : '--'}</span>
       </div>
 
       <!-- Final Bottom Line -->
       <div class="flex items-center justify-between p-3.5 rounded-lg bg-rose-50 border border-rose-300">
         <div>
           <span class="text-sm font-bold text-rose-950">All-In Certified Bottom Line</span>
-          <p class="text-xs text-rose-800/80">Total Inflows ($383,968.86) less Total Expenditures ($491,541.93)</p>
+          <p class="text-xs text-rose-800/80">Total Inflows <span id="bridge-allin-inflows"></span> less Total Expenditures <span id="bridge-allin-outflows"></span></p>
         </div>
-        <span class="text-lg font-bold font-mono text-rose-700">{formatCents(allInNet)}</span>
+        <span id="bridge-all-in-net" class="text-lg font-bold font-mono text-rose-700">{allInNet !== undefined ? formatCents(allInNet) : '--'}</span>
       </div>
     </div>
 
@@ -120,8 +120,8 @@ const formatSigned = (val: number) => {
         </svg>
         <div>
           <span class="font-semibold text-[#173a39]">Governance Standard Note (CONF-1 & C2):</span>
-          <span>
-            {bridge.c2_commentary} Per board governance determination, the certified financial statement adheres strictly to QBO account types to prevent duplicate accounting versions, while this bridge details operational substance.
+          <span id="bridge-c2-commentary">
+            {bridge ? `${bridge.c2_commentary} ` : ''}Per board governance determination, the certified financial statement adheres strictly to QBO account types to prevent duplicate accounting versions, while this bridge details operational substance.
           </span>
         </div>
       </div>

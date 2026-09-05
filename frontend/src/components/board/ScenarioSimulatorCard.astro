@@ -1,30 +1,32 @@
 ---
 interface Props {
-  operatingCash: number;
-  fidelityReserve: number;
-  avgMonthlyRevenue: number;
-  avgMonthlyExpense: number;
+  operatingCash?: number;
+  fidelityReserve?: number;
+  avgMonthlyRevenue?: number;
+  avgMonthlyExpense?: number;
   allInMonthlyRevenue?: number;
   allInMonthlyExpense?: number;
   cutoffDate?: string;
 }
 
 const {
-  operatingCash = 37673.20,
-  fidelityReserve = 205144.00,
-  avgMonthlyRevenue = 42825.75,
-  avgMonthlyExpense = 59846.56,
-  allInMonthlyRevenue = 47790.70,
-  allInMonthlyExpense = 61214.86,
+  operatingCash = 0,
+  fidelityReserve = 0,
+  avgMonthlyRevenue = 0,
+  avgMonthlyExpense = 0,
+  allInMonthlyRevenue = 0,
+  allInMonthlyExpense = 0,
   cutoffDate = 'August 31, 2026',
 } = Astro.props;
 
 const formatK = (val: number) => {
+  if (val === 0) return '$0k';
   const k = Math.round(val / 100) / 10;
   return `$${k.toFixed(1)}k`;
 };
 
 const formatDollar = (val: number) => {
+  if (val === 0) return '--';
   const isNeg = val < 0;
   const abs = Math.abs(Math.round(val));
   const formatted = '$' + abs.toLocaleString('en-US');
@@ -34,17 +36,17 @@ const formatDollar = (val: number) => {
 // Initial calculations based on Core Operating baseline
 const initRev = avgMonthlyRevenue;
 const initExp = avgMonthlyExpense;
-const initNet = initRev - initExp; // -17,020.81
-const initBurn = Math.abs(initNet); // 17,020.81
-const initLiquidity = operatingCash + fidelityReserve; // 242,817.20
-const initMonths = initLiquidity / initBurn; // 14.3
-const initDays = Math.round(initMonths * 30.4); // ~434 days
+const initNet = initRev - initExp;
+const initBurn = Math.abs(initNet);
+const initLiquidity = operatingCash + fidelityReserve;
+const initMonths = initBurn > 0 ? initLiquidity / initBurn : 0;
+const initDays = Math.round(initMonths * 30.4);
 
 // Calculate date offset from August 31, 2026
 const baseCutoff = new Date(2026, 7, 31);
 const targetCutoff = new Date(baseCutoff.getTime() + initDays * 24 * 60 * 60 * 1000);
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const initTargetMonth = `${monthNames[targetCutoff.getMonth()]} ${targetCutoff.getFullYear()}`;
+const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} ${targetCutoff.getFullYear()}` : '--';
 ---
 
 <div
@@ -357,10 +359,10 @@ const initTargetMonth = `${monthNames[targetCutoff.getMonth()]} ${targetCutoff.g
   if (!root) return;
 
   let currentMode = 'core'; // 'core' or 'allin'
-  let BASE_REV = parseFloat(root.dataset.coreRev || '42825.75');
-  let BASE_EXP = parseFloat(root.dataset.coreExp || '59846.56');
-  const BASE_CHECKING = parseFloat(root.dataset.baseChecking || '37673.20');
-  const BASE_FIDELITY = parseFloat(root.dataset.baseFidelity || '205144.00');
+  let BASE_REV = parseFloat(root.dataset.coreRev || '0');
+  let BASE_EXP = parseFloat(root.dataset.coreExp || '0');
+  let BASE_CHECKING = parseFloat(root.dataset.baseChecking || '0');
+  let BASE_FIDELITY = parseFloat(root.dataset.baseFidelity || '0');
 
   const sliderRev = document.getElementById('slider-rev');
   const sliderExp = document.getElementById('slider-exp');
@@ -555,16 +557,30 @@ const initTargetMonth = `${monthNames[targetCutoff.getMonth()]} ${targetCutoff.g
       this.className = 'mode-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-[#173a39] text-white transition shadow-xs';
 
       if (currentMode === 'core') {
-        BASE_REV = parseFloat(root.dataset.coreRev || '42825.75');
-        BASE_EXP = parseFloat(root.dataset.coreExp || '59846.56');
+        BASE_REV = parseFloat(root.dataset.coreRev || '0');
+        BASE_EXP = parseFloat(root.dataset.coreExp || '0');
       } else {
-        BASE_REV = parseFloat(root.dataset.allinRev || '47790.70');
-        BASE_EXP = parseFloat(root.dataset.allinExp || '61214.86');
+        BASE_REV = parseFloat(root.dataset.allinRev || '0');
+        BASE_EXP = parseFloat(root.dataset.allinExp || '0');
       }
 
       updateMarkers();
       calculate();
     });
+  });
+
+  window.addEventListener('update-scenario-simulator', () => {
+    if (currentMode === 'core') {
+      BASE_REV = parseFloat(root.dataset.coreRev || '0');
+      BASE_EXP = parseFloat(root.dataset.coreExp || '0');
+    } else {
+      BASE_REV = parseFloat(root.dataset.allinRev || '0');
+      BASE_EXP = parseFloat(root.dataset.allinExp || '0');
+    }
+    BASE_CHECKING = parseFloat(root.dataset.baseChecking || '0');
+    BASE_FIDELITY = parseFloat(root.dataset.baseFidelity || '0');
+    updateMarkers();
+    calculate();
   });
 
   // Run on load

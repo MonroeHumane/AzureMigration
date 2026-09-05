@@ -493,5 +493,10 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
     checkAuth();
   }
 
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGrantsPortal);
+  } else {
+    initGrantsPortal();
+  }
   document.addEventListener('astro:page-load', initGrantsPortal);
 </script>

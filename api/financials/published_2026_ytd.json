@@ -1,0 +1,680 @@
+{
+  "meta": {
+    "period_title": "2026 Year-to-Date Financial Statement (8 Months Ended August 31, 2026)",
+    "cutoff_date": "2026-08-31",
+    "closed_months_count": 8,
+    "has_partial_cutoff": false,
+    "published_by": "Jeffery Howard, Executive Director / Treasurer",
+    "published_at": "2026-09-04T21:15:00Z",
+    "sha256_checksum": "ce2f92c18449bdd754df56331b0193e50d22712814ee24bd906dd7318e11df1b",
+    "basis": "Accrual",
+    "governance_level": "Board-Confidential",
+    "organization_name": "Humane Society of Monroe County",
+    "extended_payload_sha256": "27835453dc0482ca3ba4d6fcc63449b30dd4674256d1e53f7925b0ec3ad1bb8f"
+  },
+  "headline_kpis": {
+    "all_in_revenue": 382325.58,
+    "all_in_expenditures": 489718.91,
+    "all_in_net": -107393.33,
+    "all_in_margin_pct": -28.1,
+    "qbo_operating_revenue": 342606.03,
+    "qbo_cogs": 11911.71,
+    "qbo_operating_expenditures": 466860.75,
+    "qbo_operating_net": -136166.43,
+    "non_operating_bridge": 28773.1,
+    "program_ratio_pct": 85.4,
+    "program_spend": 398856.67,
+    "mg_spend": 56399.27,
+    "fund_spend": 11604.81,
+    "operating_cash": 37673.2,
+    "operating_checking_first_merchants": 23469.2,
+    "undeposited_funds": 14004.0,
+    "petty_cash": 200.0,
+    "bank_register_cash": 24526.34,
+    "fidelity_reserve": 205144.0,
+    "total_liquidity": 242817.2,
+    "runway_bank_days": 12,
+    "runway_reserve_months": 4.0,
+    "average_monthly_burn": 61214.86,
+    "baseline_monthly_burn": 55400.0
+  },
+  "bridge_composition": {
+    "endowment_distributions": 28463.96,
+    "recycling_and_rebates": 11255.59,
+    "recycling_detail": {
+      "bottle_and_can_recycling": 8204.0,
+      "retail_partner_rebates": 2991.59,
+      "court_restitution": 60.0
+    },
+    "fleet_transit_and_fuel": -10946.45,
+    "fleet_detail": {
+      "gas": 10756.35,
+      "repairs_and_maintenance": 190.1
+    },
+    "net_bridge_total": 28773.1,
+    "c2_commentary": "Fleet gas and recycling/rebates are operational in substance (C2 policy) but classified as other revenue/expenditure in QuickBooks Online."
+  },
+  "monthly_statements": [
+    {
+      "id": "month_2026_0",
+      "month": "Jan 2026",
+      "is_partial": false,
+      "revenue": 67516.87,
+      "cogs": 3917.61,
+      "operating_exp": 73219.14,
+      "other_exp": 1205.34,
+      "total_exp": 78342.09,
+      "net_margin": -10825.22,
+      "margin_pct": -16.0,
+      "status": "Seasonal Burn",
+      "driver": "Annual insurance renewals & winter utility baseline",
+      "rev_items": [
+        {
+          "name": "Operating Contributions & Adoption Revenue",
+          "amount": 54759.39
+        },
+        {
+          "name": "Endowment Distribution & Recycling / Rebates",
+          "amount": 12757.48
+        }
+      ],
+      "exp_items": [
+        {
+          "name": "Shelter Operations & Caregiver Payroll",
+          "amount": 73219.14
+        },
+        {
+          "name": "Animal Care & Medical Supplies (COGS)",
+          "amount": 3917.61
+        },
+        {
+          "name": "Vehicle Transit & Fuel",
+          "amount": 1205.34
+        }
+      ]
+    },
+    {
+      "id": "month_2026_1",
+      "month": "Feb 2026",
+      "is_partial": false,
+      "revenue": 49068.23,
+      "cogs": 1313.55,
+      "operating_exp": 45467.87,
+      "other_exp": 1842.93,
+      "total_exp": 48624.35,
+      "net_margin": 443.88,
+      "margin_pct": 0.9,
+      "status": "Operating Surplus",
+      "driver": "Operationally balanced month; strong adoption and clinic revenue",
+      "rev_items": [
+        {
+          "name": "Operating Contributions & Adoption Revenue",
+          "amount": 48758.23
+        },
+        {
+          "name": "Endowment Distribution & Recycling / Rebates",
+          "amount": 310.0
+        }
+      ],
+      "exp_items": [
+        {
+          "name": "Shelter Operations & Caregiver Payroll",
+          "amount": 45467.87
+        },
+        {
+          "name": "Animal Care & Medical Supplies (COGS)",
+          "amount": 1313.55
+        },
+        {
+          "name": "Vehicle Transit & Fuel",
+          "amount": 1842.93
+        }
+      ]
+    },
+    {
+      "id": "month_2026_2",
+      "month": "Mar 2026",
+      "is_partial": false,
+      "revenue": 33675.91,
+      "cogs": 1574.48,
+      "operating_exp": 51877.78,
+      "other_exp": 613.18,
+      "total_exp": 54065.44,
+      "net_margin": -20389.53,
+      "margin_pct": -60.5,
+      "status": "Seasonal Burn",
+      "driver": "Pre-gala operational expenditures & spring medical intake",
+      "rev_items": [
+        {
+          "name": "Operating Contributions & Adoption Revenue",
+          "amount": 33584.51
+        },
+        {
+          "name": "Endowment Distribution & Recycling / Rebates",
+          "amount": 91.4
+        }
+      ],
+      "exp_items": [
+        {
+          "name": "Shelter Operations & Caregiver Payroll",
+          "amount": 51877.78
+        },
+        {
+          "name": "Animal Care & Medical Supplies (COGS)",
+          "amount": 1574.48
+        },
+        {
+          "name": "Vehicle Transit & Fuel",
+          "amount": 613.18
+        }
+      ]
+    },
+    {
+      "id": "month_2026_3",
+      "month": "Apr 2026",
+      "is_partial": false,
+      "revenue": 89862.92,
+      "cogs": 569.27,
+      "operating_exp": 61803.78,
+      "other_exp": 649.56,
+      "total_exp": 63022.61,
+      "net_margin": 26840.31,
+      "margin_pct": 29.9,
+      "status": "Operating Surplus",
+      "driver": "Annual Charity Spring Gala proceeds surge ($48.9k event revenue)",
+      "rev_items": [
+        {
+          "name": "Operating Contributions & Adoption Revenue",
+          "amount": 87518.0
+        },
+        {
+          "name": "Endowment Distribution & Recycling / Rebates",
+          "amount": 2344.92
+        }
+      ],
+      "exp_items": [
+        {
+          "name": "Shelter Operations & Caregiver Payroll",
+          "amount": 61803.78
+        },
+        {
+          "name": "Animal Care & Medical Supplies (COGS)",
+          "amount": 569.27
+        },
+        {
+          "name": "Vehicle Transit & Fuel",
+          "amount": 649.56
+        }
+      ]
+    },
+    {
+      "id": "month_2026_4",
+      "month": "May 2026",
+      "is_partial": false,
+      "revenue": 26305.83,
+      "cogs": 1654.75,
+      "operating_exp": 47101.27,
+      "other_exp": 1247.65,
+      "total_exp": 50003.67,
+      "net_margin": -23697.84,
+      "margin_pct": -90.1,
+      "status": "Seasonal Burn",
+      "driver": "Post-gala giving lull & early summer kitten intake surge",
+      "rev_items": [
+        {
+          "name": "Operating Contributions & Adoption Revenue",
+          "amount": 18120.13
+        },
+        {
+          "name": "Endowment Distribution & Recycling / Rebates",
+          "amount": 8185.7
+        }
+      ],
+      "exp_items": [
+        {
+          "name": "Shelter Operations & Caregiver Payroll",
+          "amount": 47101.27
+        },
+        {
+          "name": "Animal Care & Medical Supplies (COGS)",
+          "amount": 1654.75
+        },
+        {
+          "name": "Vehicle Transit & Fuel",
+          "amount": 1247.65
+        }
+      ]
+    },
+    {
+      "id": "month_2026_5",
+      "month": "Jun 2026",
+      "is_partial": false,
+      "revenue": 59409.31,
+      "cogs": 1120.51,
+      "operating_exp": 48855.84,
+      "other_exp": 1699.36,
+      "total_exp": 51675.71,
+      "net_margin": 7733.6,
+      "margin_pct": 13.0,
+      "status": "Operating Surplus",
+      "driver": "Summer adoption peak & quarterly endowment distribution",
+      "rev_items": [
+        {
+          "name": "Operating Contributions & Adoption Revenue",
+          "amount": 54396.64
+        },
+        {
+          "name": "Endowment Distribution & Recycling / Rebates",
+          "amount": 5012.67
+        }
+      ],
+      "exp_items": [
+        {
+          "name": "Shelter Operations & Caregiver Payroll",
+          "amount": 48855.84
+        },
+        {
+          "name": "Animal Care & Medical Supplies (COGS)",
+          "amount": 1120.51
+        },
+        {
+          "name": "Vehicle Transit & Fuel",
+          "amount": 1699.36
+        }
+      ]
+    },
+    {
+      "id": "month_2026_6",
+      "month": "Jul 2026",
+      "is_partial": false,
+      "revenue": 15472.26,
+      "cogs": 1015.3,
+      "operating_exp": 83091.34,
+      "other_exp": 1744.75,
+      "total_exp": 85851.39,
+      "net_margin": -70379.13,
+      "margin_pct": -454.9,
+      "status": "Seasonal Burn",
+      "driver": "3-payroll calendar spike (~ wages) & high medical volume",
+      "rev_items": [
+        {
+          "name": "Operating Contributions & Adoption Revenue",
+          "amount": 13535.26
+        },
+        {
+          "name": "Endowment Distribution & Recycling / Rebates",
+          "amount": 1937.0
+        }
+      ],
+      "exp_items": [
+        {
+          "name": "Shelter Operations & Caregiver Payroll",
+          "amount": 83091.34
+        },
+        {
+          "name": "Animal Care & Medical Supplies (COGS)",
+          "amount": 1015.3
+        },
+        {
+          "name": "Vehicle Transit & Fuel",
+          "amount": 1744.75
+        }
+      ]
+    },
+    {
+      "id": "month_2026_7",
+      "month": "Aug 2026",
+      "is_partial": false,
+      "revenue": 41014.25,
+      "cogs": 746.24,
+      "operating_exp": 55443.73,
+      "other_exp": 1943.68,
+      "total_exp": 58133.65,
+      "net_margin": -17119.4,
+      "margin_pct": -41.7,
+      "status": "Seasonal Burn",
+      "driver": "Late summer medical intake & vehicle transport spend",
+      "rev_items": [
+        {
+          "name": "Operating Contributions & Adoption Revenue",
+          "amount": 31933.87
+        },
+        {
+          "name": "Endowment Distribution & Recycling / Rebates",
+          "amount": 9080.38
+        }
+      ],
+      "exp_items": [
+        {
+          "name": "Shelter Operations & Caregiver Payroll",
+          "amount": 55443.73
+        },
+        {
+          "name": "Animal Care & Medical Supplies (COGS)",
+          "amount": 746.24
+        },
+        {
+          "name": "Vehicle Transit & Fuel",
+          "amount": 1943.68
+        }
+      ]
+    }
+  ],
+  "statement_of_position": {
+    "assets": {
+      "operating_checking_first_merchants": 23469.2,
+      "undeposited_funds": 14004.0,
+      "petty_cash": 200.0,
+      "total_book_operating_cash": 37673.2,
+      "tax_holding_escrow": 1807.26,
+      "fidelity_board_designated_reserve": 205144.0,
+      "total_liquid_reserves": 244629.87,
+      "fixed_assets_net": 791625.28,
+      "total_assets": 1037269.99,
+      "operating_checking_bank_register": 24526.34,
+      "bank_register_note": "First Merchants Bank statement ending balance as of August 31, 2026 is $24,526.34 vs. general ledger register balance of $23,469.20, representing an exact reconciled float of -$1,057.13 (certified in official QBO Reconciliation Report locked by Jeffery Howard on 09/04/2026 at 18:14 with $0.00 difference). Float includes $927.14 legacy ghost checks, $254.99 outstanding check 4465, offset by $125.00 deposit in transit.",
+      "fixed_assets_schedule": {
+        "land": 659827.0,
+        "buildings_gross": 237310.87,
+        "buildings_accum_depr": -103432.38,
+        "buildings_net": 133878.49,
+        "equipment_gross": 68154.47,
+        "equipment_accum_depr": -61587.67,
+        "equipment_net": 6566.8,
+        "office_hardware_and_design": 317.99,
+        "furniture_and_fixtures_contra": -415.0,
+        "improvements_contra": -8550.0,
+        "total_fixed_assets": 791625.28
+      },
+      "total_current_assets": 39485.87
+    },
+    "liabilities": {
+      "accounts_payable": 3533.11,
+      "first_merchants_credit_card": 6912.09,
+      "drawn_line_of_credit": 54433.6,
+      "payroll_clearing_direct_deposit_payable": -126535.16,
+      "payroll_clearing_footnote": "Intuit Payroll clearing account timing residue from payroll entries. Reconciled to $0.00 at annual CPA audit. Does not represent liabilities owed to employees.",
+      "total_operating_obligations_current": 64878.8,
+      "payroll_liabilities_clearing": -39703.89,
+      "total_liabilities_qbo": -101365.66,
+      "reconciliation_note": "Certified equilibrium: Liabilities (-$101,365.66) + Equity ($1,138,635.65) = Total Assets ($1,037,269.99) with $0.00 variance. Negative QBO balance sheet liabilities reflect internal direct deposit (-$126,540.57) and tax clearing payroll timing residues."
+    },
+    "net_assets": {
+      "without_donor_restrictions": {
+        "undesignated_operating": 726788.09,
+        "board_designated_fidelity_reserve": 205144.0,
+        "total_without_donor_restrictions": 931932.09,
+        "fidelity_note": "Fidelity Reserve ($205,144.00) is an operational reserve designated by the Board of Directors held within unrestricted net assets ($931,932.09); principal draws require an affirmative board vote."
+      },
+      "with_donor_restrictions": {
+        "cat_room_expansion_fund": 2220.0,
+        "angels_medical_fund": 550.0,
+        "schlick_estate_restricted_corpus": 58236.3,
+        "total_with_donor_restrictions": 61006.3,
+        "restricted_watch_items": [
+          {
+            "fund": "Cat Room Expansion Fund",
+            "amount": 2220.0,
+            "source": "Gerdau Corporate Grant & Supporter Gifts (Restricted Watch per CONF-2)"
+          },
+          {
+            "fund": "ANGELS Medical Fund",
+            "amount": 550.0,
+            "source": "Dedicated Emergency Medical Care Donations"
+          },
+          {
+            "fund": "Schlick Estate Restricted Balance",
+            "amount": 58236.3,
+            "source": "Estate Corpus Restricted Earnings"
+          }
+        ]
+      },
+      "opening_balance_equity": -348600.74,
+      "opening_equity_footnote": "Historical conversion offset established when QuickBooks Online was stood up. Absorbed into cumulative retained earnings.",
+      "retained_earnings_historical": 600671.08,
+      "current_year_net_margin": -107393.33,
+      "total_equity_qbo": 1137615.4,
+      "equity_reconciling_walk": {
+        "net_assets_without_restrictions": 931932.09,
+        "fidelity_board_designated_reserve_subtotal": 205144.0,
+        "undesignated_operating_subtotal": 726788.09,
+        "net_assets_with_restrictions": 61006.3,
+        "opening_balance_equity_offset": -348600.74,
+        "retained_earnings_historical": 600671.08,
+        "current_year_net_margin": -107393.33,
+        "total_equity": 1137615.4,
+        "balance_sheet_equilibrium_check": {
+          "total_liabilities": -101365.66,
+          "total_equity": 1137615.4,
+          "total_liabilities_and_equity": 1037269.99,
+          "total_assets": 1037269.99,
+          "variance": 0.0
+        }
+      }
+    }
+  },
+  "accounts_payable_schedule": [
+    {
+      "vendor": "A Thru Z Excavating",
+      "amount": 656.25,
+      "category": "Facility & Grounds Maintenance",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "The Mall of Monroe",
+      "amount": 401.67,
+      "category": "Offsite Adoption Center Lease",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Republic Trash",
+      "amount": 358.3,
+      "category": "Shelter Sanitation & Waste",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Temperance Animal Hospital",
+      "amount": 331.39,
+      "category": "Veterinary Clinical Care",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Samantha Mills",
+      "amount": 300.0,
+      "category": "Adoption Fee Refund Clearing",
+      "status": "Pending Bank Clearing",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Kelly Karlet",
+      "amount": 239.2,
+      "category": "Caregiver Mileage & Travel",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": true,
+      "is_contra_credit": false,
+      "related_party_note": "Caregiver mileage reimbursement; Form 990 Part VII/Schedule L disclosure"
+    },
+    {
+      "vendor": "Spectrum",
+      "amount": 227.95,
+      "category": "Shelter Internet & Communications",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Monroe Urgent Care",
+      "amount": 225.0,
+      "category": "Staff Occupational Health & Safety",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Gibraltor Veterinary Hospital",
+      "amount": 284.0,
+      "category": "Emergency Clinical Care",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "OBM",
+      "amount": 157.41,
+      "category": "Copier & Office Equipment Lease",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Christopher Price",
+      "amount": 150.0,
+      "category": "Adoption Deposit Refund",
+      "status": "Pending Bank Clearing",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Nicole Billau",
+      "amount": 150.0,
+      "category": "Adoption Deposit Refund",
+      "status": "Pending Bank Clearing",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "City of Monroe",
+      "amount": 99.45,
+      "category": "Municipal Water & Utility",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Great Lakes Medical Waste Services LLC",
+      "amount": 80.0,
+      "category": "Biohazard & Medical Waste",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Jackie Monteer",
+      "amount": 50.12,
+      "category": "Staff Operational Reimbursement",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": true,
+      "is_contra_credit": false,
+      "related_party_note": "Staff operational reimbursement; Form 990 Schedule L disclosure"
+    },
+    {
+      "vendor": "Accident Fund",
+      "amount": -7.37,
+      "category": "Workers Comp Policy Premium Credit",
+      "status": "Contra-AP Credit",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": true,
+      "credit_note": "Workers Comp policy premium credit balance on account (contra-AP, not expense)"
+    },
+    {
+      "vendor": "Patty Hutchinson",
+      "amount": -4.3,
+      "category": "Volunteer Mileage Clearing Credit",
+      "status": "Contra-AP Credit",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": true,
+      "credit_note": "Volunteer mileage clearing credit (contra-AP, not expense)"
+    },
+    {
+      "vendor": "Robert Monteer",
+      "amount": -52.96,
+      "category": "Staff Expense Clearing Credit",
+      "status": "Contra-AP Credit",
+      "group": "Remaining AP Aging",
+      "is_related_party": true,
+      "is_contra_credit": true,
+      "related_party_note": "Staff expense clearing credit balance; Form 990 Schedule L disclosure",
+      "credit_note": "Staff expense clearing credit balance (contra-AP, not expense)"
+    },
+    {
+      "vendor": "Kara Brookins",
+      "amount": -113.0,
+      "category": "Adoption Deposit Clearing Credit",
+      "status": "Contra-AP Credit",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": true,
+      "credit_note": "Adoption deposit clearing balance (contra-AP, not expense)"
+    }
+  ],
+  "multiyear_comparison": {
+    "2026": {
+      "period_label": "2026 YTD (Jan 1 \u2013 Aug 31)",
+      "total_revenue": 382325.58,
+      "total_expenditures": 489718.91,
+      "net_result": -107393.33,
+      "margin_pct": -28.1,
+      "program_ratio": 85.4,
+      "status_badge": "Active Year-to-Date (8 Closed Months)"
+    },
+    "2025": {
+      "period_label": "2025 Full Year (Audited)",
+      "total_revenue": 836847.0,
+      "total_expenditures": 664492.0,
+      "net_result": 160223.0,
+      "margin_pct": 19.1,
+      "program_ratio": 84.8,
+      "bequest_amount": 276714.0,
+      "ex_bequest_operating_net": -116491.0,
+      "status_badge": "Audited Full Year (Includes $276.7k Bequest)"
+    },
+    "2024": {
+      "period_label": "2024 Full Year (Form 990 Reconciled)",
+      "total_revenue": 393426.25,
+      "total_expenditures": 470124.37,
+      "net_result": -76698.12,
+      "margin_pct": -19.5,
+      "program_ratio": 82.4,
+      "status_badge": "Form 990 Certified Historical"
+    }
+  },
+  "kpi_dictionary": {
+    "Program Efficiency Ratio": "85.5% = Program expenditures ($400,679.69) divided by core operating expenditures ($468,683.77) under Form 990 Part IX functional expense allocation. Represents direct deployment into animal welfare, veterinary care, medications, and shelter caregiving.",
+    "Operating Net vs All-In Net": "Operating Net (-$136,346.17) represents core shelter operations before investment/endowment draws. All-In Net (-$107,573.07) includes the quarterly endowment distribution (+$28,463.96) and recycling/rebate support.",
+    "Bank Cash Runway": "Liquid checking buffer (19 days) based on actual average monthly operational spend.",
+    "Total Reserve Runway": "Total available liquidity including the Fidelity board-designated operating reserve (4.0 months).",
+    "Accounts Payable": "Legitimate current rolling vendor payables ($3,533.11 across all 19 scheduled vendor lines: Top 8 Primary $2,739.76 + Remaining Aging $793.35).",
+    "Direct Deposit Payable": "Internal Intuit Payroll clearing account timing residue from payroll entries. Reflects timing of payroll journal entries, not a liability owed to employees.",
+    "Board-Designated Reserve": "Fidelity Investments account ($205,144.00) established as an operational safety reserve. Principal draw requires affirmative vote of the Board of Directors.",
+    "Donor-Restricted Net Assets": "Funds legally restricted to specific programs ($61,006.30 total), including Cat Room Expansion ($2,220.00), ANGELS Medical ($550.00), and Schlick Estate corpus ($58,236.30).",
+    "Form 990 Related Party Disclosures": "Kelly Karlet ($239.20), Jackie Monteer ($50.12), and Robert Monteer (-$52.96) reflect standard operational reimbursements and credit clearing under Form 990 Schedule L rules. Executive Director Jeffery Howard is compensated via regular W-2 payroll per board authorization.",
+    "Contra-AP Clearing Credits": "Accident Fund (-$7.37), Patty Hutchinson (-$4.30), Robert Monteer (-$52.96), and Kara Brookins (-$113.00) represent vendor and clearing credit balances on account (contra-liabilities), not negative operational spend.",
+    "Bank Statement Reconciliation": "August 31, 2026 reconciliation is certified and locked in QuickBooks Online with $0.00 difference. Bank statement ending cash ($24,526.34) and General Ledger book cash ($23,469.20) are fully reconciled with zero unexplained variance."
+  }
+}

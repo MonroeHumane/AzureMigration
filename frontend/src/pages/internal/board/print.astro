@@ -1,36 +1,5 @@
 ---
-// Print & PDF Packet Template
-import reportData from '../../../data/published_2026_ytd.json';
-
-const formatDollar = (val: number) => {
-  const isNeg = val < 0;
-  const abs = Math.abs(val);
-  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-};
-
-const formatCents = (val: number) => {
-  const isNeg = val < 0;
-  const abs = Math.abs(val);
-  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-};
-
-const totalRev = reportData.monthly_statements.reduce((acc, m) => acc + m.revenue, 0);
-const totalExp = reportData.monthly_statements.reduce((acc, m) => acc + m.total_exp, 0);
-const totalNet = reportData.monthly_statements.reduce((acc, m) => acc + m.net_margin, 0);
-
-const apSchedule = reportData.accounts_payable_schedule;
-const top8List = apSchedule.filter(it => it.group === 'Top 8 Primary');
-const top8Total = top8List.reduce((acc, it) => acc + it.amount, 0);
-
-const activeRemainingList = apSchedule.filter(it => it.group === 'Remaining AP Aging' && !it.is_contra_credit);
-const activeRemainingTotal = activeRemainingList.reduce((acc, it) => acc + it.amount, 0);
-
-const contraCreditList = apSchedule.filter(it => it.is_contra_credit);
-const contraCreditTotal = contraCreditList.reduce((acc, it) => acc + it.amount, 0);
-
-const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
+// Print & PDF Packet Template — Authenticated Client-Side Rendering
 ---
 
 <!DOCTYPE html>
@@ -42,14 +11,19 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
   <script is:inline>
     (function() {
       try {
-        var hasAuth = !!(
-          sessionStorage.getItem('directus_auth') ||
-          localStorage.getItem('directus_auth') ||
-          sessionStorage.getItem('mchs_staff_auth') ||
-          localStorage.getItem('mchs_staff_auth')
-        );
+        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
+        var hasAuth = false;
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && (parsed.access_token || parsed.refresh_token)) {
+            hasAuth = true;
+          }
+        }
         if (!hasAuth) {
-          window.location.replace('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+          hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
+        }
+        if (!hasAuth) {
+          window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
         }
       } catch (e) {}
     })();
@@ -197,7 +171,7 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
 <body>
   <div class="no-print">
     <span>Humane Society of Monroe County — Official Board Packet (Print Preview)</span>
-    <button onclick="window.print()" style="background:#1c746c;color:#fff;border:none;padding:5px 14px;border-radius:4px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>
+    <button id="print-action-btn" onclick="window.print()" style="background:#1c746c;color:#fff;border:none;padding:5px 14px;border-radius:4px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>
   </div>
 
   <div class="header">
@@ -208,35 +182,35 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
         <span class="badge">QBO CERTIFIED</span>
       </div>
       <h1>Humane Society of Monroe County</h1>
-      <div style="font-size:11px; font-weight:600; color:#334155;">{reportData.meta.period_title} (Jan 1 – Aug 31, 2026)</div>
+      <div id="print-period-title" style="font-size:11px; font-weight:600; color:#334155;">Financial Packet (Jan 1 – Aug 31, 2026)</div>
     </div>
     <div style="text-align:right;">
       <div style="font-size:9.5px; color:#64748b;">Cutoff: August 31, 2026</div>
-      <div style="font-size:9.5px; color:#64748b;">Publisher: {reportData.meta.published_by}</div>
-      <div style="font-size:8.5px; font-family:monospace; color:#047857; margin-top:2px;">Canonical SHA-256: {reportData.meta.sha256_checksum.slice(0, 16)}...</div>
+      <div id="print-publisher" style="font-size:9.5px; color:#64748b;">Publisher: Executive Director</div>
+      <div id="print-checksum" style="font-size:8.5px; font-family:monospace; color:#047857; margin-top:2px;">Canonical SHA-256: --</div>
     </div>
   </div>
 
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-title">All-In Net Margin</div>
-      <div class="kpi-val text-rose">{formatDollar(reportData.headline_kpis.all_in_net)}</div>
-      <div style="font-size:8px; color:#64748b;">{reportData.headline_kpis.all_in_margin_pct.toFixed(1)}% of all-in inflows</div>
+      <div id="print-allin-net" class="kpi-val text-rose">--</div>
+      <div id="print-allin-margin" style="font-size:8px; color:#64748b;">--% of all-in inflows</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-title">QBO Operating Net</div>
-      <div class="kpi-val" style="color:#b45309;">{formatDollar(reportData.headline_kpis.qbo_operating_net)}</div>
+      <div id="print-qbo-net" class="kpi-val" style="color:#b45309;">--</div>
       <div style="font-size:8px; color:#64748b;">Pre-endowment operations</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-title">Program Efficiency</div>
-      <div class="kpi-val text-emerald">{reportData.headline_kpis.program_ratio_pct.toFixed(1)}%</div>
+      <div id="print-prog-ratio" class="kpi-val text-emerald">--%</div>
       <div style="font-size:8px; color:#64748b;">Benchmark ≥75% (Form 990 Part IX)</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-title">Total Cash Stack</div>
-      <div class="kpi-val" style="color:#173a39;">{formatDollar(reportData.headline_kpis.total_liquidity)}</div>
-      <div style="font-size:8px; color:#64748b;">19d bank / 4.0 mo reserve</div>
+      <div id="print-total-liq" class="kpi-val" style="color:#173a39;">--</div>
+      <div style="font-size:8px; color:#64748b;">Liquid Operating & Reserves</div>
     </div>
   </div>
 
@@ -255,35 +229,21 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
         <th>Primary Operational Driver</th>
       </tr>
     </thead>
-    <tbody>
-      {reportData.monthly_statements.map((m) => (
-        <tr>
-          <td style="font-weight:600;">{m.month}</td>
-          <td class="text-right font-mono">{formatDollar(m.revenue)}</td>
-          <td class="text-right font-mono">{formatDollar(m.cogs)}</td>
-          <td class="text-right font-mono">{formatDollar(m.operating_exp)}</td>
-          <td class="text-right font-mono">{formatDollar(m.other_exp)}</td>
-          <td class="text-right font-mono" style="font-weight:600;">{formatDollar(m.total_exp)}</td>
-          <td class={`text-right font-mono ${m.net_margin >= 0 ? 'text-emerald' : 'text-rose'}`} style="font-weight:700;">
-            {formatDollar(m.net_margin)}
-          </td>
-          <td class={`text-right ${m.net_margin >= 0 ? 'text-emerald' : 'text-rose'}`}>
-            {m.margin_pct > 0 ? `+${m.margin_pct.toFixed(1)}%` : `${m.margin_pct.toFixed(1)}%`}
-          </td>
-          <td style="font-size:8.5px; color:#475569;">{m.driver}</td>
-        </tr>
-      ))}
+    <tbody id="print-monthly-tbody">
+      <tr>
+        <td colspan="9" style="text-align:center; padding:12px; color:#64748b;">Loading certified operating statement...</td>
+      </tr>
     </tbody>
     <tfoot>
       <tr style="background:#173a39; color:#fff; font-weight:700;">
         <td>CERTIFIED TOTAL</td>
-        <td class="text-right font-mono" style="color:#6ee7b7;">{formatDollar(totalRev)}</td>
-        <td class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(reportData.headline_kpis.qbo_cogs)}</td>
-        <td class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(reportData.headline_kpis.qbo_operating_expenditures)}</td>
-        <td class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(Math.abs(reportData.bridge_composition.fleet_transit_and_fuel))}</td>
-        <td class="text-right font-mono" style="color:#fde047;">{formatDollar(totalExp)}</td>
-        <td class="text-right font-mono" style="color:#fda4af;">{formatDollar(totalNet)}</td>
-        <td class="text-right" style="color:#fda4af;">{(totalNet / totalRev * 100).toFixed(1)}%</td>
+        <td id="print-foot-rev" class="text-right font-mono" style="color:#6ee7b7;">--</td>
+        <td id="print-foot-cogs" class="text-right font-mono" style="color:#cbd5e1;">--</td>
+        <td id="print-foot-opexp" class="text-right font-mono" style="color:#cbd5e1;">--</td>
+        <td id="print-foot-other" class="text-right font-mono" style="color:#cbd5e1;">--</td>
+        <td id="print-foot-total-exp" class="text-right font-mono" style="color:#fde047;">--</td>
+        <td id="print-foot-net" class="text-right font-mono" style="color:#fda4af;">--</td>
+        <td id="print-foot-margin" class="text-right" style="color:#fda4af;">--%</td>
         <td style="color:#6ee7b7; font-size:8.5px;">Cent-for-cent footed</td>
       </tr>
     </tfoot>
@@ -296,27 +256,27 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
         <tbody>
           <tr>
             <td><strong>QBO Certified Operating Net</strong></td>
-            <td class="text-right font-mono" style="font-weight:700;">{formatCents(reportData.headline_kpis.qbo_operating_net)}</td>
+            <td id="print-bridge-qbo-net" class="text-right font-mono" style="font-weight:700;">--</td>
           </tr>
           <tr>
             <td>(+) Endowment Distributions (MCCF)</td>
-            <td class="text-right font-mono text-emerald">+{formatCents(reportData.bridge_composition.endowment_distributions)}</td>
+            <td id="print-bridge-endowment" class="text-right font-mono text-emerald">--</td>
           </tr>
           <tr>
             <td>(+) Recycling, Rebates & Restitution</td>
-            <td class="text-right font-mono text-emerald">+{formatCents(reportData.bridge_composition.recycling_and_rebates)}</td>
+            <td id="print-bridge-recycling" class="text-right font-mono text-emerald">--</td>
           </tr>
           <tr>
             <td>(-) Fleet Transit & Gasoline Spend</td>
-            <td class="text-right font-mono text-rose">-{formatCents(Math.abs(reportData.bridge_composition.fleet_transit_and_fuel))}</td>
+            <td id="print-bridge-fleet" class="text-right font-mono text-rose">--</td>
           </tr>
           <tr style="background:#f1f5f9; font-weight:700;">
             <td>Net Adjustment Subtotal</td>
-            <td class="text-right font-mono">+{formatCents(reportData.bridge_composition.net_bridge_total)}</td>
+            <td id="print-bridge-net-adj" class="text-right font-mono">--</td>
           </tr>
           <tr style="background:#ffe4e6; font-weight:800;">
             <td>All-In Certified Bottom Line</td>
-            <td class="text-right font-mono text-rose">{formatCents(reportData.headline_kpis.all_in_net)}</td>
+            <td id="print-bridge-allin" class="text-right font-mono text-rose">--</td>
           </tr>
         </tbody>
       </table>
@@ -328,67 +288,67 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
         <tbody>
           <tr>
             <td>Operating Checking (GL Book Cash)</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.operating_checking_first_merchants)}</td>
+            <td id="print-pos-checking-book" class="text-right font-mono">--</td>
           </tr>
           <tr style="background:#fffbeb;">
             <td>First Merchants Bank Statement Ending (Aug 31)</td>
-            <td class="text-right font-mono" style="color:#92400e; font-weight:600;">{formatDollar(reportData.statement_of_position.assets.operating_checking_bank_register)}</td>
+            <td id="print-pos-checking-bank" class="text-right font-mono" style="color:#92400e; font-weight:600;">--</td>
           </tr>
           <tr>
             <td>Undeposited Funds</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.undeposited_funds)}</td>
+            <td id="print-pos-undeposited" class="text-right font-mono">--</td>
           </tr>
           <tr>
             <td>Petty Cash</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.petty_cash)}</td>
+            <td id="print-pos-petty" class="text-right font-mono">--</td>
           </tr>
           <tr style="background:#f5efe3; font-weight:700;">
             <td>Total Book Operating Cash</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.total_book_operating_cash)}</td>
+            <td id="print-pos-total-book-cash" class="text-right font-mono">--</td>
           </tr>
           <tr>
             <td>QBO Tax Holding Escrow (Separate)</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.tax_holding_escrow)}</td>
+            <td id="print-pos-tax-escrow" class="text-right font-mono">--</td>
           </tr>
           <tr>
             <td>Board-Designated Reserve (Fidelity)</td>
-            <td class="text-right font-mono" style="font-weight:600; color:#4338ca;">{formatDollar(reportData.statement_of_position.assets.fidelity_board_designated_reserve)}</td>
+            <td id="print-pos-fidelity" class="text-right font-mono" style="font-weight:600; color:#4338ca;">--</td>
           </tr>
           <tr>
             <td>Fixed Capital Assets (Net of Depr.)</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.assets.fixed_assets_net)}</td>
+            <td id="print-pos-fixed" class="text-right font-mono">--</td>
           </tr>
           <tr style="background:#f1f5f9; font-weight:700;">
             <td>Total Balance Sheet Assets (QBO)</td>
-            <td class="text-right font-mono text-emerald" style="font-weight:800;">{formatDollar(reportData.statement_of_position.assets.total_assets)}</td>
+            <td id="print-pos-total-assets" class="text-right font-mono text-emerald" style="font-weight:800;">--</td>
           </tr>
           <tr style="background:#fef2f2; font-weight:700;">
             <td>Current Trade Obligations (AP + CC + LOC)</td>
-            <td class="text-right font-mono text-rose">{formatDollar(reportData.statement_of_position.liabilities.total_operating_obligations_current)}</td>
+            <td id="print-pos-obligations" class="text-right font-mono text-rose">--</td>
           </tr>
           <tr>
             <td>Net Assets Without Donor Restrictions</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.net_assets.without_donor_restrictions.total_without_donor_restrictions)}</td>
+            <td id="print-pos-without-restrictions" class="text-right font-mono">--</td>
           </tr>
           <tr>
             <td>Net Assets With Donor Restrictions</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.net_assets.with_donor_restrictions.total_with_donor_restrictions)}</td>
+            <td id="print-pos-with-restrictions" class="text-right font-mono">--</td>
           </tr>
           <tr>
             <td>Opening Balance Equity (Conversion)</td>
-            <td class="text-right font-mono text-rose">{formatDollar(reportData.statement_of_position.net_assets.opening_balance_equity)}</td>
+            <td id="print-pos-opening-equity" class="text-right font-mono text-rose">--</td>
           </tr>
           <tr>
             <td>Retained Earnings</td>
-            <td class="text-right font-mono">{formatDollar(reportData.statement_of_position.net_assets.retained_earnings_historical)}</td>
+            <td id="print-pos-retained-earnings" class="text-right font-mono">--</td>
           </tr>
           <tr>
             <td>2026 YTD Net Deficit</td>
-            <td class="text-right font-mono text-rose">{formatDollar(reportData.statement_of_position.net_assets.current_year_net_margin)}</td>
+            <td id="print-pos-current-margin" class="text-right font-mono text-rose">--</td>
           </tr>
           <tr style="background:#ede9fe; font-weight:700;">
             <td>Certified Workbook Equity (Total)</td>
-            <td class="text-right font-mono" style="color:#5b21b6; font-weight:800;">{formatDollar(reportData.statement_of_position.net_assets.total_equity_qbo)}</td>
+            <td id="print-pos-total-equity" class="text-right font-mono" style="color:#5b21b6; font-weight:800;">--</td>
           </tr>
         </tbody>
       </table>
@@ -397,9 +357,7 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
 
   <div class="note-box" style="margin-top:6px;">
     <strong>Workbook Equity & Balance Sheet Equilibrium:</strong>
-    Net assets without donor restrictions ($933,132.08) includes the Board-Designated Fidelity Operating Reserve ($205,144.00) and undesignated operating net assets ($727,988.08).
-    Workbook equity ties cent-for-cent: $933,132.08 + $61,006.30 - $348,600.74 + $600,671.08 - $107,573.07 = <strong>$1,138,635.65</strong>.
-    Total Liabilities (-$101,360.25) + Total Equity ($1,138,635.65) = Total Assets ($1,037,275.40) with <strong>$0.00 variance</strong>.
+    Net assets without donor restrictions includes the Board-Designated Fidelity Operating Reserve and undesignated operating net assets. Total Liabilities + Total Equity = Total Assets with <strong>$0.00 variance</strong>.
   </div>
 
   <div class="page-break"></div>
@@ -414,79 +372,207 @@ const apTotal = apSchedule.reduce((acc, it) => acc + it.amount, 0);
         <th class="text-center">Classification</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Top 8 Primary -->
-      <tr style="background:#f8fafc; font-weight:700;">
-        <td colspan="2">Top 8 Primary Operating Accounts</td>
-        <td class="text-right font-mono">{formatCents(top8Total)}</td>
-        <td class="text-center" style="font-size:8px; color:#64748b;">Primary Trade</td>
+    <tbody id="print-ap-tbody">
+      <tr>
+        <td colspan="4" style="text-align:center; padding:12px; color:#64748b;">Loading itemized accounts payable schedule...</td>
       </tr>
-      {top8List.map((item) => (
-        <tr>
-          <td>
-            <strong>{item.vendor}</strong>
-            {item.is_related_party && <span class="badge badge-related" style="margin-left:4px;">990 Related Party</span>}
-          </td>
-          <td>{item.category}</td>
-          <td class="text-right font-mono">{formatCents(item.amount)}</td>
-          <td class="text-center">{item.status}</td>
-        </tr>
-      ))}
-
-      <!-- Remaining Active Accounts -->
-      <tr style="background:#f8fafc; font-weight:700; border-top:1px solid #cbd5e1;">
-        <td colspan="2">Remaining Active Accounts (7 Payables)</td>
-        <td class="text-right font-mono">{formatCents(activeRemainingTotal)}</td>
-        <td class="text-center" style="font-size:8px; color:#64748b;">Subsidiary Trade</td>
-      </tr>
-      {activeRemainingList.map((item) => (
-        <tr>
-          <td>
-            {item.vendor}
-            {item.is_related_party && <span class="badge badge-related" style="margin-left:4px;">990 Related Party</span>}
-          </td>
-          <td>{item.category}</td>
-          <td class="text-right font-mono">{formatCents(item.amount)}</td>
-          <td class="text-center">{item.status}</td>
-        </tr>
-      ))}
-
-      <!-- Contra-AP Credits -->
-      <tr style="background:#fffbeb; font-weight:700; border-top:1px solid #fde68a;">
-        <td colspan="2">Contra-AP Clearing Credits (Credit Balances on Account · Not Spend)</td>
-        <td class="text-right font-mono" style="color:#9a3412;">{formatCents(contraCreditTotal)}</td>
-        <td class="text-center" style="font-size:8px; color:#9a3412;">Contra-Liabilities</td>
-      </tr>
-      {contraCreditList.map((item) => (
-        <tr style="background:#fffdfa;">
-          <td>
-            {item.vendor}
-            {item.is_related_party && <span class="badge badge-related" style="margin-left:4px;">990 Related Party</span>}
-          </td>
-          <td>{item.category}</td>
-          <td class="text-right font-mono" style="color:#b45309;">{formatCents(item.amount)}</td>
-          <td class="text-center"><span class="badge badge-credit">Contra-AP Credit</span></td>
-        </tr>
-      ))}
     </tbody>
     <tfoot>
       <tr style="background:#173a39; color:#fff; font-weight:700;">
         <td colspan="2">CERTIFIED ACCOUNTS PAYABLE TOTAL</td>
-        <td class="text-right font-mono" style="color:#6ee7b7;">{formatCents(apTotal)}</td>
-        <td class="text-center" style="color:#6ee7b7; font-size:8.5px;">19 Accounts Footed Cent-for-Cent</td>
+        <td id="print-ap-foot-total" class="text-right font-mono" style="color:#6ee7b7;">--</td>
+        <td class="text-center" style="color:#6ee7b7; font-size:8.5px;">Accounts Reconciled Cent-for-Cent</td>
       </tr>
     </tfoot>
   </table>
 
   <div class="note-box">
     <strong>Form 990 & Contra-AP Disclosures:</strong>
-    (1) Related parties Kelly Karlet ($239.20) and Jackie Monteer ($50.12) are bona fide caregiver mileage/shelter expense reimbursements. Robert Monteer (-$52.96) represents a staff clearing credit balance. Executive Director Jeffery Howard is compensated via regular board-approved W-2 payroll and holds no payables.
-    (2) Contra-AP credits totaling -$177.63 (Accident Fund -$7.37, Patty Hutchinson -$4.30, Robert Monteer -$52.96, Kara Brookins -$113.00) represent vendor/clearing credit memos offsetting gross liabilities, not negative operational expenditures.
+    (1) Related parties Kelly Karlet and Jackie Monteer represent bona fide caregiver mileage/shelter expense reimbursements. Robert Monteer represents a staff clearing credit balance. Executive Director Jeffery Howard is compensated via regular board-approved W-2 payroll and holds no payables.
+    (2) Contra-AP credits represent vendor/clearing credit memos offsetting gross liabilities, not negative operational expenditures.
   </div>
 
   <div class="footer">
     <span>Humane Society of Monroe County · Certified Board Financial Statement · Closed Period: August 31, 2026</span>
-    <span class="font-mono">Canonical SHA-256: {reportData.meta.sha256_checksum}</span>
+    <span id="print-footer-checksum" class="font-mono">Canonical SHA-256: --</span>
   </div>
+
+  <script>
+    import { isStaffAuthenticated, getStaffToken, logoutStaff } from '../../../lib/staff-auth';
+
+    function formatDollar(val: number, maxDigits = 0): string {
+      const isNeg = val < 0;
+      const abs = Math.abs(Math.round(val));
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: maxDigits,
+      }).format(abs);
+      return isNeg ? `(${formatted})` : formatted;
+    }
+
+    function formatCents(val: number): string {
+      const isNeg = val < 0;
+      const abs = Math.abs(val);
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(abs);
+      return isNeg ? `(${formatted})` : formatted;
+    }
+
+    async function initPrintView(): Promise<void> {
+      if (!isStaffAuthenticated()) {
+        window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+        return;
+      }
+
+      const token = await getStaffToken();
+      if (!token) {
+        window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/financials', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            await logoutStaff('/internal/?error=session_expired');
+          }
+          return;
+        }
+
+        const data = await res.json();
+        if (!data) return;
+
+        const setEl = (id: string, text: string) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = text;
+        };
+
+        // Header
+        if (data.meta) {
+          setEl('print-period-title', `${data.meta.period_title} (Jan 1 – Aug 31, 2026)`);
+          setEl('print-publisher', `Publisher: ${data.meta.published_by}`);
+          setEl('print-checksum', `Canonical SHA-256: ${data.meta.sha256_checksum.slice(0, 16)}...`);
+          setEl('print-footer-checksum', `Canonical SHA-256: ${data.meta.sha256_checksum}`);
+        }
+
+        // KPIs
+        if (data.headline_kpis) {
+          const k = data.headline_kpis;
+          setEl('print-allin-net', formatDollar(k.all_in_net));
+          setEl('print-allin-margin', `${k.all_in_margin_pct.toFixed(1)}% of all-in inflows`);
+          setEl('print-qbo-net', formatDollar(k.qbo_operating_net));
+          setEl('print-prog-ratio', `${k.program_ratio_pct.toFixed(1)}%`);
+          setEl('print-total-liq', formatDollar(k.total_liquidity));
+        }
+
+        // Monthly Statements
+        if (data.monthly_statements) {
+          const tbody = document.getElementById('print-monthly-tbody');
+          if (tbody) {
+            tbody.innerHTML = '';
+            data.monthly_statements.forEach((m: any) => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td style="font-weight:600;">${m.month}</td>
+                <td class="text-right font-mono">${formatDollar(m.revenue)}</td>
+                <td class="text-right font-mono">${formatDollar(m.cogs)}</td>
+                <td class="text-right font-mono">${formatDollar(m.operating_exp)}</td>
+                <td class="text-right font-mono">${formatDollar(m.other_exp)}</td>
+                <td class="text-right font-mono" style="font-weight:600;">${formatDollar(m.total_exp)}</td>
+                <td class="text-right font-mono ${m.net_margin >= 0 ? 'text-emerald' : 'text-rose'}" style="font-weight:700;">${formatDollar(m.net_margin)}</td>
+                <td class="text-right ${m.net_margin >= 0 ? 'text-emerald' : 'text-rose'}">${m.margin_pct > 0 ? '+' : ''}${m.margin_pct.toFixed(1)}%</td>
+                <td style="font-size:8.5px; color:#475569;">${m.driver}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+
+            const totalRev = data.monthly_statements.reduce((a: number, b: any) => a + b.revenue, 0);
+            const totalExp = data.monthly_statements.reduce((a: number, b: any) => a + b.total_exp, 0);
+            const totalNet = data.monthly_statements.reduce((a: number, b: any) => a + b.net_margin, 0);
+            setEl('print-foot-rev', formatDollar(totalRev));
+            setEl('print-foot-cogs', formatDollar(data.headline_kpis.qbo_cogs));
+            setEl('print-foot-opexp', formatDollar(data.headline_kpis.qbo_operating_expenditures));
+            setEl('print-foot-other', formatDollar(Math.abs(data.bridge_composition.fleet_transit_and_fuel)));
+            setEl('print-foot-total-exp', formatDollar(totalExp));
+            setEl('print-foot-net', formatDollar(totalNet));
+            setEl('print-foot-margin', `${((totalNet / totalRev) * 100).toFixed(1)}%`);
+          }
+        }
+
+        // Bridge
+        if (data.bridge_composition) {
+          const b = data.bridge_composition;
+          setEl('print-bridge-qbo-net', formatCents(data.headline_kpis.qbo_operating_net));
+          setEl('print-bridge-endowment', `+${formatCents(b.endowment_distributions)}`);
+          setEl('print-bridge-recycling', `+${formatCents(b.recycling_and_rebates)}`);
+          setEl('print-bridge-fleet', `-${formatCents(Math.abs(b.fleet_transit_and_fuel))}`);
+          setEl('print-bridge-net-adj', `+${formatCents(b.net_bridge_total)}`);
+          setEl('print-bridge-allin', formatCents(data.headline_kpis.all_in_net));
+        }
+
+        // Statement of Position
+        if (data.statement_of_position) {
+          const pos = data.statement_of_position;
+          setEl('print-pos-checking-book', formatDollar(pos.assets.operating_checking_first_merchants));
+          setEl('print-pos-checking-bank', formatDollar(pos.assets.operating_checking_bank_register));
+          setEl('print-pos-undeposited', formatDollar(pos.assets.undeposited_funds));
+          setEl('print-pos-petty', formatDollar(pos.assets.petty_cash));
+          setEl('print-pos-total-book-cash', formatDollar(pos.assets.total_book_operating_cash));
+          setEl('print-pos-tax-escrow', formatDollar(pos.assets.tax_holding_escrow));
+          setEl('print-pos-fidelity', formatDollar(pos.assets.fidelity_board_designated_reserve));
+          setEl('print-pos-fixed', formatDollar(pos.assets.fixed_assets_net));
+          setEl('print-pos-total-assets', formatDollar(pos.assets.total_assets));
+          setEl('print-pos-obligations', formatDollar(pos.liabilities.total_operating_obligations_current));
+          setEl('print-pos-without-restrictions', formatDollar(pos.net_assets.without_donor_restrictions.total_without_donor_restrictions));
+          setEl('print-pos-with-restrictions', formatDollar(pos.net_assets.with_donor_restrictions.total_with_donor_restrictions));
+          setEl('print-pos-opening-equity', formatDollar(pos.net_assets.opening_balance_equity));
+          setEl('print-pos-retained-earnings', formatDollar(pos.net_assets.retained_earnings_historical));
+          setEl('print-pos-current-margin', formatDollar(pos.net_assets.current_year_net_margin));
+          setEl('print-pos-total-equity', formatDollar(pos.net_assets.total_equity_qbo));
+        }
+
+        // Accounts Payable Schedule
+        if (data.accounts_payable_schedule) {
+          const ap = data.accounts_payable_schedule;
+          const tbody = document.getElementById('print-ap-tbody');
+          if (tbody) {
+            tbody.innerHTML = '';
+            ap.forEach((item: any) => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td><strong>${item.vendor}</strong> ${item.is_related_party ? '<span class="badge badge-related" style="margin-left:4px;">990 Related Party</span>' : ''}</td>
+                <td>${item.category}</td>
+                <td class="text-right font-mono">${formatCents(item.amount)}</td>
+                <td class="text-center">${item.status}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+            const apTotal = ap.reduce((a: number, b: any) => a + b.amount, 0);
+            setEl('print-ap-foot-total', formatCents(apTotal));
+          }
+        }
+
+        const printBtn = document.getElementById('print-action-btn') as HTMLButtonElement | null;
+        if (printBtn) printBtn.removeAttribute('disabled');
+      } catch (e) {
+        console.error('Error loading print financials:', e);
+      }
+    }
+
+    document.addEventListener('astro:page-load', initPrintView);
+    if (document.readyState !== 'loading') {
+      initPrintView();
+    } else {
+      document.addEventListener('DOMContentLoaded', initPrintView);
+    }
+  </script>
 </body>
 </html>

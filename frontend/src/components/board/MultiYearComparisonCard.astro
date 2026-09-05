@@ -1,30 +1,9 @@
 ---
-interface YearData {
-  period_label: string;
-  total_revenue: number;
-  total_expenditures: number;
-  net_result: number;
-  margin_pct: number;
-  program_ratio: number;
-  bequest_amount?: number;
-  ex_bequest_operating_net?: number;
-  status_badge: string;
-}
-
 interface Props {
-  comparison: {
-    [year: string]: YearData;
-  };
+  comparison?: any;
 }
 
-const { comparison } = Astro.props;
-
-const formatDollar = (val: number) => {
-  const isNeg = val < 0;
-  const abs = Math.abs(Math.round(val));
-  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-};
+const { comparison = null } = Astro.props;
 ---
 
 <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -34,7 +13,7 @@ const formatDollar = (val: number) => {
         3-Year Multi-Year Operational Trajectory (2024 – 2026 YTD)
       </h3>
       <p class="text-xs text-slate-500 mt-0.5">
-        Benchmarking against 2025 Audited Actuals (highlighting the $276.7k estate bequest) and 2024 Form 990 Reconciled Run-Rate.
+        Benchmarking against 2025 Audited Actuals and 2024 Form 990 Reconciled Run-Rate.
       </p>
     </div>
     <div class="inline-flex items-center gap-1.5 text-xs text-slate-500">
@@ -53,33 +32,33 @@ const formatDollar = (val: number) => {
             Form 990 Reconciled
           </span>
         </div>
-        <p class="text-xs text-slate-500 mb-4">{comparison['2024'].period_label}</p>
+        <p class="text-xs text-slate-500 mb-4">Historical Baseline</p>
 
         <div class="space-y-2 text-xs">
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-600">Total Revenue:</span>
-            <span class="font-mono font-semibold text-slate-800">{formatDollar(comparison['2024'].total_revenue)}</span>
+            <span id="my-2024-rev" class="font-mono font-semibold text-slate-800">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-600">Total Expenditures:</span>
-            <span class="font-mono font-semibold text-slate-800">{formatDollar(comparison['2024'].total_expenditures)}</span>
+            <span id="my-2024-exp" class="font-mono font-semibold text-slate-800">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-600">Net Margin:</span>
-            <span class="font-mono font-bold text-rose-700">{formatDollar(comparison['2024'].net_result)}</span>
+            <span id="my-2024-net" class="font-mono font-bold text-rose-700">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-600">Margin %:</span>
-            <span class="font-semibold text-rose-600">{comparison['2024'].margin_pct.toFixed(1)}%</span>
+            <span id="my-2024-margin" class="font-semibold text-rose-600">--%</span>
           </div>
           <div class="flex justify-between py-1">
             <span class="text-slate-600">Program Efficiency:</span>
-            <span class="font-semibold text-emerald-700">{comparison['2024'].program_ratio.toFixed(1)}%</span>
+            <span id="my-2024-prog" class="font-semibold text-emerald-700">--%</span>
           </div>
         </div>
       </div>
       <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500 leading-snug">
-        Baseline operational deficit funded from cash reserves; baseline monthly operational spend averaged ~$39.2k.
+        Baseline operational deficit funded from cash reserves.
       </div>
     </div>
 
@@ -93,37 +72,37 @@ const formatDollar = (val: number) => {
             Audited Actual
           </span>
         </div>
-        <p class="text-xs text-blue-700 font-medium mb-4">{comparison['2025'].status_badge}</p>
+        <p class="text-xs text-blue-700 font-medium mb-4">Audited Statement</p>
 
         <div class="space-y-2 text-xs">
           <div class="flex justify-between py-1 border-b border-blue-100">
             <span class="text-slate-600">Total Revenue:</span>
-            <span class="font-mono font-semibold text-slate-800">{formatDollar(comparison['2025'].total_revenue)}</span>
+            <span id="my-2025-rev" class="font-mono font-semibold text-slate-800">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-blue-100">
             <span class="text-slate-600">Total Expenditures:</span>
-            <span class="font-mono font-semibold text-slate-800">{formatDollar(comparison['2025'].total_expenditures)}</span>
+            <span id="my-2025-exp" class="font-mono font-semibold text-slate-800">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-blue-100 bg-emerald-50/80 px-1.5 rounded">
             <span class="font-semibold text-emerald-950">Audited All-In Net:</span>
-            <span class="font-mono font-bold text-emerald-700">+{formatDollar(comparison['2025'].net_result)}</span>
+            <span id="my-2025-net" class="font-mono font-bold text-emerald-700">--</span>
           </div>
           <!-- Critical dual disclosure: Operating net ex-bequest -->
           <div class="flex justify-between py-1 border-b border-blue-100 bg-amber-50/80 px-1.5 rounded">
             <div>
               <span class="font-semibold text-amber-950">Ex-Bequest Operating Net:</span>
-              <p class="text-[10px] text-amber-800">Excludes $276.7k one-time gift</p>
+              <p class="text-[10px] text-amber-800">Excludes one-time estate gift</p>
             </div>
-            <span class="font-mono font-bold text-amber-800">{formatDollar(comparison['2025'].ex_bequest_operating_net || 0)}</span>
+            <span id="my-2025-ex-bequest" class="font-mono font-bold text-amber-800">--</span>
           </div>
           <div class="flex justify-between py-1">
             <span class="text-slate-600">Program Efficiency:</span>
-            <span class="font-semibold text-emerald-700">{comparison['2025'].program_ratio.toFixed(1)}%</span>
+            <span id="my-2025-prog" class="font-semibold text-emerald-700">--%</span>
           </div>
         </div>
       </div>
       <div class="mt-4 pt-3 border-t border-blue-100 text-[11px] text-slate-500 leading-snug">
-        <strong>Governance Standard:</strong> The $160,223 surplus is always presented alongside the ex-bequest operating net of ($116,491) to accurately show recurring operational burn.
+        <strong>Governance Standard:</strong> Surplus is presented alongside the ex-bequest operating net to accurately show recurring operational burn.
       </div>
     </div>
 
@@ -137,34 +116,34 @@ const formatDollar = (val: number) => {
             Jan 1 – Aug 31
           </span>
         </div>
-        <p class="text-xs text-rose-700 font-medium mb-4">{comparison['2026'].status_badge}</p>
+        <p class="text-xs text-rose-700 font-medium mb-4">Certified Close</p>
 
         <div class="space-y-2 text-xs">
           <div class="flex justify-between py-1 border-b border-rose-100">
             <span class="text-slate-600">YTD Revenue:</span>
-            <span class="font-mono font-semibold text-slate-800">{formatDollar(comparison['2026'].total_revenue)}</span>
+            <span id="my-2026-rev" class="font-mono font-semibold text-slate-800">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-rose-100">
             <span class="text-slate-600">YTD Expenditures:</span>
-            <span class="font-mono font-semibold text-slate-800">{formatDollar(comparison['2026'].total_expenditures)}</span>
+            <span id="my-2026-exp" class="font-mono font-semibold text-slate-800">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-rose-100">
             <span class="text-slate-600">YTD All-In Net:</span>
-            <span class="font-mono font-bold text-rose-700">{formatDollar(comparison['2026'].net_result)}</span>
+            <span id="my-2026-net" class="font-mono font-bold text-rose-700">--</span>
           </div>
           <div class="flex justify-between py-1 border-b border-rose-100">
             <span class="text-slate-600">YTD Margin %:</span>
-            <span class="font-semibold text-rose-600">{comparison['2026'].margin_pct.toFixed(1)}%</span>
+            <span id="my-2026-margin" class="font-semibold text-rose-600">--%</span>
           </div>
           <div class="flex justify-between py-1">
             <span class="text-slate-600">Program Efficiency:</span>
-            <span class="font-semibold text-[#1c746c]">{comparison['2026'].program_ratio.toFixed(1)}%</span>
+            <span id="my-2026-prog" class="font-semibold text-[#1c746c]">--%</span>
           </div>
         </div>
       </div>
       <div class="mt-4 pt-3 border-t border-rose-100 text-[11px] text-slate-500 leading-snug">
-        On track with historical seasonal shelter run-rates; program ratio (85.5%) continues to outperform charity benchmarks.
+        On track with historical seasonal shelter run-rates; program ratio continues to outperform charity benchmarks.
       </div>
     </div>
   </div>
-</div>\n
+</div>

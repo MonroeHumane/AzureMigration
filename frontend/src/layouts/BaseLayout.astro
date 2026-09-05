@@ -83,7 +83,7 @@ const schemaOrg = {
     <!-- Preload the logo — it is the first visible image on every page -->
     <link rel="preload" as="image" href={SITE.assets.logo} />
     <meta name="generator" content={Astro.generator} />
-    <ClientRouter />
+    {!hidePublicNav && <ClientRouter />}
 
     <!-- SEO Meta -->
     <title>{title}</title>

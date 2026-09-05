@@ -3,16 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import StaffPortalNav from '../../components/internal/StaffPortalNav.astro';
 import PetSyncPortal from '../../components/internal/PetSyncPortal.astro';
 import { getStaffPetSyncData } from '../../lib/directus';
-import reportData from '../../data/published_2026_ytd.json';
 
 const petSyncData = await getStaffPetSyncData();
-
-const formatDollar = (val: number) => {
-  const isNeg = val < 0;
-  const abs = Math.abs(val);
-  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-};
 ---
 
 <BaseLayout
@@ -198,16 +190,16 @@ const formatDollar = (val: number) => {
 
           <div class="p-3.5 rounded-lg bg-teal-50/70 border border-teal-200/80">
             <span class="text-[11px] font-bold uppercase tracking-wider text-teal-900 block">Bank Operating Cash</span>
-            <div class="text-2xl font-black text-teal-950 mt-1 font-mono">
-              {formatDollar(reportData.statement_of_position.assets.operating_checking_bank_register)}
+            <div id="metric-bank-cash" class="text-2xl font-black text-teal-950 mt-1 font-mono">
+              <span class="inline-block w-24 h-7 bg-teal-200/50 rounded animate-pulse"></span>
             </div>
             <span class="text-[11px] text-teal-700 block mt-0.5">First Merchants (Aug 31)</span>
           </div>
 
           <div class="p-3.5 rounded-lg bg-emerald-50/70 border border-emerald-200/80">
             <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-900 block">Cash Runway</span>
-            <div class="text-2xl font-black text-emerald-950 mt-1 font-mono">
-              14.3 <span class="text-xs font-normal text-emerald-800">months</span>
+            <div id="metric-cash-runway" class="text-2xl font-black text-emerald-950 mt-1 font-mono">
+              <span class="inline-block w-20 h-7 bg-emerald-200/50 rounded animate-pulse"></span>
             </div>
             <span class="text-[11px] text-emerald-700 block mt-0.5">~434 Days of Operations</span>
           </div>
@@ -313,7 +305,9 @@ const formatDollar = (val: number) => {
               <div class="mt-4 pt-3 border-t border-teal-100 space-y-1.5 text-xs">
                 <div class="flex justify-between text-slate-700">
                   <span>First Merchants Bank Cash:</span>
-                  <strong class="font-mono text-teal-950 font-bold">{formatDollar(reportData.statement_of_position.assets.operating_checking_bank_register)}</strong>
+                  <strong id="card-bank-cash" class="font-mono text-teal-950 font-bold">
+                    <span class="inline-block w-16 h-4 bg-slate-200 rounded animate-pulse"></span>
+                  </strong>
                 </div>
                 <div class="flex justify-between text-slate-500">
                   <span>Reconciliation Difference:</span>
@@ -322,7 +316,7 @@ const formatDollar = (val: number) => {
               </div>
             </div>
             <a
-              href="/internal/board"
+              href="/internal/board/"
               class="mt-6 inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-lg text-xs font-bold bg-teal-800 hover:bg-teal-900 text-white transition shadow-xs"
             >
               Open Financials Portal &rarr;
@@ -359,7 +353,7 @@ const formatDollar = (val: number) => {
               </div>
             </div>
             <a
-              href="/internal/grants"
+              href="/internal/grants/"
               class="mt-6 inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-lg text-xs font-bold bg-purple-800 hover:bg-purple-900 text-white transition shadow-xs"
             >
               Open Grants Tracker &rarr;
@@ -377,7 +371,7 @@ const formatDollar = (val: number) => {
               </p>
             </div>
             <a
-              href="/internal/board#bank-statement-viewer"
+              href="/internal/board/#bank-statement-viewer"
               class="px-3 py-1.5 rounded-md font-bold bg-[#173a39] text-white hover:bg-teal-900 transition whitespace-nowrap ml-3"
             >
               View &rarr;
@@ -392,7 +386,7 @@ const formatDollar = (val: number) => {
               </p>
             </div>
             <a
-              href="/internal/board/print"
+              href="/internal/board/print/"
               target="_blank"
               class="px-3 py-1.5 rounded-md font-bold bg-teal-800 text-white hover:bg-teal-900 transition whitespace-nowrap ml-3"
             >
@@ -469,7 +463,37 @@ const formatDollar = (val: number) => {
 </style>
 
 <script>
-  import { loginStaff, getStaffUserEmail } from '../../lib/staff-auth';
+  import { loginStaff, getStaffUserEmail, isStaffAuthenticated, getStaffToken } from '../../lib/staff-auth';
+
+  async function loadFinancialMetrics() {
+    const token = await getStaffToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch('/api/financials', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !data.statement_of_position) return;
+
+      const cash = data.statement_of_position.assets.operating_checking_bank_register;
+      const formattedCash = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(cash);
+
+      const bankCashEl = document.getElementById('metric-bank-cash');
+      if (bankCashEl) bankCashEl.textContent = formattedCash;
+
+      const cardCashEl = document.getElementById('card-bank-cash');
+      if (cardCashEl) cardCashEl.textContent = formattedCash;
+
+      const runwayEl = document.getElementById('metric-cash-runway');
+      if (runwayEl) runwayEl.innerHTML = '14.3 <span class="text-xs font-normal text-emerald-800">months</span>';
+    } catch (e) {
+      console.warn('[StaffPortal] Could not load financial metrics:', e);
+    }
+  }
 
   function initStaffPortal() {
     const loginForm = document.getElementById('unified-login-form') as HTMLFormElement | null;
@@ -494,6 +518,11 @@ const formatDollar = (val: number) => {
     const panePetSync = document.getElementById('pane-petsync');
     const inspectPetsBtn = document.getElementById('hub-inspect-pets-btn') as HTMLButtonElement | null;
     const backToHubBtn = document.getElementById('back-to-hub-btn') as HTMLButtonElement | null;
+
+    // Load financials if already authenticated
+    if (isStaffAuthenticated()) {
+      loadFinancialMetrics();
+    }
 
     // Password visibility toggle
     if (passwordRevealBtn && passwordInput && passwordRevealBtn.dataset.bound !== '1') {
@@ -585,6 +614,9 @@ const formatDollar = (val: number) => {
             staffUserEmail.textContent = email;
           }
 
+          // Hydrate metrics immediately upon login
+          loadFinancialMetrics();
+
           // Check if there was a redirect query parameter
           const redirect = urlParams.get('redirect');
           if (redirect && redirect.startsWith('/internal')) {
@@ -611,6 +643,11 @@ const formatDollar = (val: number) => {
     }
   }
 
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStaffPortal);
+  } else {
+    initStaffPortal();
+  }
   document.addEventListener('astro:page-load', initStaffPortal);
 </script>
 </BaseLayout>

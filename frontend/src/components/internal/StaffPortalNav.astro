@@ -69,8 +69,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <!-- Navigation Tabs -->
     <nav class="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-teal-800/80" aria-label="Staff Portal Modules">
       <a
-        href="/internal"
-        data-astro-reload
+        href="/internal/"
         data-nav-tab="overview"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'overview'
@@ -88,8 +87,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       </a>
 
       <a
-        href="/internal?tab=petsync"
-        data-astro-reload
+        href="/internal/?tab=petsync"
         data-nav-tab="petsync"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'petsync'
@@ -105,8 +103,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       </a>
 
       <a
-        href="/internal/board"
-        data-astro-reload
+        href="/internal/board/"
         data-nav-tab="financials"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'financials'
@@ -122,8 +119,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       </a>
 
       <a
-        href="/internal/grants"
-        data-astro-reload
+        href="/internal/grants/"
         data-nav-tab="grants"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'grants'
@@ -168,5 +164,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     });
   }
 
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStaffNav);
+  } else {
+    initStaffNav();
+  }
   document.addEventListener('astro:page-load', initStaffNav);
 </script>

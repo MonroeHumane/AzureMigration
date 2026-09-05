@@ -22,10 +22,10 @@ interface MonthRow {
 }
 
 interface Props {
-  statements: MonthRow[];
+  statements?: MonthRow[];
 }
 
-const { statements } = Astro.props;
+const { statements = [] } = Astro.props;
 
 const formatDollar = (val: number) => {
   const isNeg = val < 0;
@@ -34,17 +34,17 @@ const formatDollar = (val: number) => {
   return isNeg ? `(${formatted})` : formatted;
 };
 
-// Compute certified totals
+// Compute certified totals if provided
 const totalRev = statements.reduce((acc, m) => acc + m.revenue, 0);
 const totalCogs = statements.reduce((acc, m) => acc + m.cogs, 0);
 const totalOpExp = statements.reduce((acc, m) => acc + m.operating_exp, 0);
 const totalOtherExp = statements.reduce((acc, m) => acc + m.other_exp, 0);
 const totalExp = statements.reduce((acc, m) => acc + m.total_exp, 0);
 const totalNet = statements.reduce((acc, m) => acc + m.net_margin, 0);
-const totalMarginPct = (totalNet / totalRev) * 100;
+const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
 ---
 
-<div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" id="monthly-statement-root" data-statements={JSON.stringify(statements)}>
+<div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" id="monthly-statement-root" data-statements={statements.length ? JSON.stringify(statements) : ''}>
   <div class="px-5 py-4 border-b border-slate-100 bg-[#f5efe3]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     <div>
       <h3 class="text-base font-semibold text-[#173a39]">
@@ -89,88 +89,96 @@ const totalMarginPct = (totalNet / totalRev) * 100;
           <th scope="col" class="py-3 px-4">Driver & Status</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-slate-200/70">
-        {statements.map((m) => {
-          const isSurplus = m.net_margin >= 0;
-          return (
-            <>
-              <tr
-                class="hover:bg-slate-50/80 transition cursor-pointer group"
-                id={`row-${m.id}`}
-                data-target={`drawer-${m.id}`}
-              >
-                <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap flex items-center gap-2">
-                  <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition transform group-[.is-open]:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                  <span>{m.month}</span>
-                  {m.is_partial && (
-                    <span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded border border-amber-200">
-                      Partial
+      <tbody id="statement-rows-tbody" class="divide-y divide-slate-200/70">
+        {statements.length > 0 ? (
+          statements.map((m) => {
+            const isSurplus = m.net_margin >= 0;
+            return (
+              <>
+                <tr
+                  class="hover:bg-slate-50/80 transition cursor-pointer group"
+                  id={`row-${m.id}`}
+                  data-target={`drawer-${m.id}`}
+                >
+                  <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition transform group-[.is-open]:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                    <span>{m.month}</span>
+                    {m.is_partial && (
+                      <span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded border border-amber-200">
+                        Partial
+                      </span>
+                    )}
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono font-medium text-slate-900 whitespace-nowrap">{formatDollar(m.revenue)}</td>
+                  <td class="py-3 px-3 text-right font-mono text-slate-700 whitespace-nowrap">{formatDollar(m.cogs)}</td>
+                  <td class="py-3 px-3 text-right font-mono text-slate-700 whitespace-nowrap">{formatDollar(m.operating_exp)}</td>
+                  <td class="py-3 px-3 text-right font-mono text-slate-700 whitespace-nowrap">{formatDollar(m.other_exp)}</td>
+                  <td class="py-3 px-3 text-right font-mono font-medium text-slate-900 whitespace-nowrap">{formatDollar(m.total_exp)}</td>
+                  <td class={`py-3 px-3 text-right font-mono font-bold whitespace-nowrap ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {isSurplus ? '+' : ''}{formatDollar(m.net_margin)}
+                  </td>
+                  <td class={`py-3 px-3 text-right font-semibold whitespace-nowrap ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {m.margin_pct.toFixed(1)}%
+                  </td>
+                  <td class="py-3 px-4 text-xs text-slate-500 whitespace-nowrap flex items-center justify-between">
+                    <span class="truncate max-w-[140px] sm:max-w-xs" title={m.driver}>{m.driver}</span>
+                    <span class={`ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                      isSurplus ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                    }`}>
+                      {m.status}
                     </span>
-                  )}
-                </td>
-                <td class="py-3 px-3 text-right font-mono text-slate-800">{formatDollar(m.revenue)}</td>
-                <td class="py-3 px-3 text-right font-mono text-slate-600">{formatDollar(m.cogs)}</td>
-                <td class="py-3 px-3 text-right font-mono text-slate-600">{formatDollar(m.operating_exp)}</td>
-                <td class="py-3 px-3 text-right font-mono text-slate-600">{formatDollar(m.other_exp)}</td>
-                <td class="py-3 px-3 text-right font-mono font-medium text-slate-800">{formatDollar(m.total_exp)}</td>
-                <td class={`py-3 px-3 text-right font-mono font-semibold ${isSurplus ? 'text-emerald-700' : 'text-rose-700'}`}>
-                  {formatDollar(m.net_margin)}
-                </td>
-                <td class={`py-3 px-3 text-right font-medium ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}`}>
-                  {m.margin_pct > 0 ? `+${m.margin_pct.toFixed(1)}%` : `${m.margin_pct.toFixed(1)}%`}
-                </td>
-                <td class="py-3 px-4 text-xs text-slate-600">
-                  <div class="flex items-center gap-1.5">
-                    <span class={`inline-block w-2 h-2 rounded-full ${isSurplus ? 'bg-emerald-500' : m.is_partial ? 'bg-blue-500' : 'bg-amber-500'}`}></span>
-                    <span class="font-medium text-slate-800">{m.status}:</span>
-                    <span class="text-slate-500 truncate max-w-xs">{m.driver}</span>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- Detail Drawer Accordion -->
-              <tr id={`drawer-${m.id}`} class="hidden bg-slate-50/50">
-                <td colspan="9" class="p-4 pl-12 border-b border-slate-200">
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <!-- Revenue breakdown -->
-                    <div class="p-3 bg-white rounded border border-slate-200 shadow-2xs">
-                      <div class="font-semibold text-slate-700 mb-2 pb-1 border-b border-slate-100 flex justify-between">
-                        <span>Revenue Composition ({m.month})</span>
-                        <span class="font-mono text-emerald-700 font-bold">{formatDollar(m.revenue)}</span>
+                  </td>
+                </tr>
+                <tr id={`drawer-${m.id}`} class="hidden bg-[#fbf9f5] border-y border-slate-200/80">
+                  <td colspan="9" class="p-4 sm:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-800 pb-2 border-b border-slate-100 mb-2">
+                          Revenue Inflows Schedule ({m.month})
+                        </h4>
+                        <div class="space-y-1">
+                          {m.rev_items.map((it) => (
+                            <div class="flex justify-between text-slate-600">
+                              <span>{it.name}</span>
+                              <span class="font-mono font-medium text-slate-800">{formatDollar(it.amount)}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div class="space-y-1.5">
-                        {m.rev_items.map((it) => (
-                          <div class="flex justify-between text-slate-600">
-                            <span>{it.name}</span>
-                            <span class="font-mono font-medium text-slate-800">{formatDollar(it.amount)}</span>
-                          </div>
-                        ))}
+                      <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-rose-800 pb-2 border-b border-slate-100 mb-2">
+                          Expenditures Schedule ({m.month})
+                        </h4>
+                        <div class="space-y-1">
+                          {m.exp_items.map((it) => (
+                            <div class="flex justify-between text-slate-600">
+                              <span>{it.name}</span>
+                              <span class="font-mono font-medium text-slate-800">{formatDollar(it.amount)}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-
-                    <!-- Expense breakdown -->
-                    <div class="p-3 bg-white rounded border border-slate-200 shadow-2xs">
-                      <div class="font-semibold text-slate-700 mb-2 pb-1 border-b border-slate-100 flex justify-between">
-                        <span>Expenditure Composition ({m.month})</span>
-                        <span class="font-mono text-rose-700 font-bold">{formatDollar(m.total_exp)}</span>
-                      </div>
-                      <div class="space-y-1.5">
-                        {m.exp_items.map((it) => (
-                          <div class="flex justify-between text-slate-600">
-                            <span>{it.name}</span>
-                            <span class="font-mono font-medium text-slate-800">{formatDollar(it.amount)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </>
-          );
-        })}
+                  </td>
+                </tr>
+              </>
+            );
+          })
+        ) : (
+          <tr id="statement-loading-row" class="animate-pulse">
+            <td colspan="9" class="py-8 text-center text-slate-400">
+              <div class="inline-flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4 text-teal-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Loading certified monthly statements...</span>
+              </div>
+            </td>
+          </tr>
+        )}
       </tbody>
       <!-- Certified Footing Row -->
       <tfoot class="bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
@@ -178,13 +186,13 @@ const totalMarginPct = (totalNet / totalRev) * 100;
           <td class="py-3 px-4 font-bold text-white uppercase tracking-wider">
             2026 YTD Certified Footing
           </td>
-          <td class="py-3 px-3 text-right font-mono text-emerald-300 font-bold">{formatDollar(totalRev)}</td>
-          <td class="py-3 px-3 text-right font-mono text-slate-300">{formatDollar(totalCogs)}</td>
-          <td class="py-3 px-3 text-right font-mono text-slate-300">{formatDollar(totalOpExp)}</td>
-          <td class="py-3 px-3 text-right font-mono text-slate-300">{formatDollar(totalOtherExp)}</td>
-          <td class="py-3 px-3 text-right font-mono text-amber-300 font-bold">{formatDollar(totalExp)}</td>
-          <td class="py-3 px-3 text-right font-mono text-rose-400 font-bold">{formatDollar(totalNet)}</td>
-          <td class="py-3 px-3 text-right text-rose-300 font-bold">{totalMarginPct.toFixed(1)}%</td>
+          <td id="footing-rev" class="py-3 px-3 text-right font-mono text-emerald-300 font-bold">{statements.length ? formatDollar(totalRev) : '--'}</td>
+          <td id="footing-cogs" class="py-3 px-3 text-right font-mono text-slate-300">{statements.length ? formatDollar(totalCogs) : '--'}</td>
+          <td id="footing-op-exp" class="py-3 px-3 text-right font-mono text-slate-300">{statements.length ? formatDollar(totalOpExp) : '--'}</td>
+          <td id="footing-other-exp" class="py-3 px-3 text-right font-mono text-slate-300">{statements.length ? formatDollar(totalOtherExp) : '--'}</td>
+          <td id="footing-total-exp" class="py-3 px-3 text-right font-mono text-amber-300 font-bold">{statements.length ? formatDollar(totalExp) : '--'}</td>
+          <td id="footing-net-margin" class="py-3 px-3 text-right font-mono text-rose-400 font-bold">{statements.length ? formatDollar(totalNet) : '--'}</td>
+          <td id="footing-margin-pct" class="py-3 px-3 text-right text-rose-300 font-bold">{statements.length ? `${totalMarginPct.toFixed(1)}%` : '--%'}</td>
           <td class="py-3 px-4 text-emerald-400 text-xs">
             ✓ Cent-for-cent footed without plug lines
           </td>

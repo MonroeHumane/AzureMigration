@@ -1,0 +1,1217 @@
+{
+  "metadata": {
+    "bank_name": "First Merchants Bank",
+    "account_number": "XXXXXX8478",
+    "account_type": "Commercial Checking",
+    "statement_period": "08/01/2026 to 08/31/2026",
+    "statement_date": "2026-08-31",
+    "statement_beginning_balance": 54280.38,
+    "total_deposits_amount": 40889.25,
+    "total_deposits_count": 46,
+    "total_withdrawals_amount": 70643.29,
+    "total_withdrawals_count": 62,
+    "statement_ending_balance": 24526.34,
+    "penny_adjusted_ending_balance": 24526.33,
+    "qbo_register_balance": 23469.2,
+    "reconciled_float": -1057.13,
+    "reconciliation_date": "2026-09-04",
+    "reconciled_by": "Jeffery Howard",
+    "reconciliation_status": "Certified & Locked (Difference: $0.00)",
+    "pdf_url": "/assets/statements/First_Merchant_Chkng_XXXXXX8478_08312026.pdf",
+    "qbo_rec_pdf_url": "/assets/statements/QBO_Reconciliation_Report_08312026.pdf"
+  },
+  "deposits": [
+    {
+      "date": "2026-08-03",
+      "description": "DEPOSIT",
+      "amount": 10593.38,
+      "category": "Branch Deposit",
+      "channel": "Branch",
+      "relational_account": "Contributed income:Donations directed by individuals",
+      "relational_notes": "Shelter operational donations & weekend drop box"
+    },
+    {
+      "date": "2026-08-03",
+      "description": "DEPOSIT",
+      "amount": 1765.0,
+      "category": "Branch Deposit",
+      "channel": "Branch",
+      "relational_account": "Contributed income:Donations directed by individuals",
+      "relational_notes": "Adoption fees & retail desk cash"
+    },
+    {
+      "date": "2026-08-03",
+      "description": "DEPOSIT",
+      "amount": 287.0,
+      "category": "Branch Deposit",
+      "channel": "Branch",
+      "relational_account": "Event Donation",
+      "relational_notes": "Community event proceeds"
+    },
+    {
+      "date": "2026-08-03",
+      "description": "SQUARE INC/SQUAR 0803",
+      "amount": 384.66,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption card processing"
+    },
+    {
+      "date": "2026-08-03",
+      "description": "PAYPAL/TRANSFER",
+      "amount": 175.03,
+      "category": "Digital Donations",
+      "channel": "PayPal",
+      "relational_account": "Contributed income:Online Donations",
+      "relational_notes": "Website digital gifts"
+    },
+    {
+      "date": "2026-08-03",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 50.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Recurring donor pledge"
+    },
+    {
+      "date": "2026-08-04",
+      "description": "SQUARE INC/SQUAR 0804",
+      "amount": 766.42,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-05",
+      "description": "SQUARE INC/SQUAR 0805",
+      "amount": 606.81,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-06",
+      "description": "SQUARE INC/SQUAR 0806",
+      "amount": 450.15,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-06",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 50.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Recurring donor pledge"
+    },
+    {
+      "date": "2026-08-07",
+      "description": "SQUARE INC/SQUAR 0807",
+      "amount": 243.45,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-10",
+      "description": "SQUARE INC/SQUAR 0810",
+      "amount": 555.29,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Weekend adoptions"
+    },
+    {
+      "date": "2026-08-11",
+      "description": "SQUARE INC/SQUAR 0811",
+      "amount": 97.35,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-12",
+      "description": "THRIVENTGRANT GR/BATCHPAY",
+      "amount": 2929.0,
+      "category": "Institutional Grants",
+      "channel": "EFT / ACH",
+      "relational_account": "Grant Revenue:Thrivent Financial",
+      "relational_notes": "Thrivent Financial Foundation community outreach grant"
+    },
+    {
+      "date": "2026-08-12",
+      "description": "SQUARE INC/SQUAR 0812",
+      "amount": 194.85,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-12",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 50.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Recurring donor pledge"
+    },
+    {
+      "date": "2026-08-13",
+      "description": "DEPOSIT",
+      "amount": 216.77,
+      "category": "Branch Deposit",
+      "channel": "Branch",
+      "relational_account": "Contributed income:Donations directed by individuals",
+      "relational_notes": "Shelter register deposit"
+    },
+    {
+      "date": "2026-08-13",
+      "description": "SQUARE INC/SQUAR 0813",
+      "amount": 146.1,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-13",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 100.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Individual donor contribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "DEPOSIT",
+      "amount": 972.04,
+      "category": "Branch Deposit",
+      "channel": "Branch",
+      "relational_account": "Contributed income:Donations directed by individuals",
+      "relational_notes": "Mid-month shelter donation drop"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "SQUARE INC/SQUAR 0814",
+      "amount": 438.45,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 100.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Individual donor contribution"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "DEPOSIT",
+      "amount": 1135.0,
+      "category": "Branch Deposit",
+      "channel": "Branch",
+      "relational_account": "Contributed income:Donations directed by individuals",
+      "relational_notes": "Weekend public donations"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "DEPOSIT",
+      "amount": 844.0,
+      "category": "Branch Deposit",
+      "channel": "Branch",
+      "relational_account": "Contributed income:Donations directed by individuals",
+      "relational_notes": "Shelter adoption cash receipts"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 1220.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Major online summer campaign gifts"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "SQUARE INC/SQUAR 0817",
+      "amount": 425.46,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Weekend adoptions"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "SQUARE INC/SQUAR 0817",
+      "amount": 316.57,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Retail merchandise sales"
+    },
+    {
+      "date": "2026-08-18",
+      "description": "SQUARE INC/SQUAR 0818",
+      "amount": 292.04,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-18",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 100.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Individual donor contribution"
+    },
+    {
+      "date": "2026-08-19",
+      "description": "SQUARE INC/SQUAR 0819",
+      "amount": 121.72,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-21",
+      "description": "SQUARE INC/SQUAR 0821",
+      "amount": 706.27,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-24",
+      "description": "SQUARE INC/SQUAR 0824",
+      "amount": 1437.37,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Weekend adoptions"
+    },
+    {
+      "date": "2026-08-24",
+      "description": "SQUARE INC/SQUAR 0824",
+      "amount": 292.35,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Retail desk sales"
+    },
+    {
+      "date": "2026-08-24",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 141.11,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Donations payout"
+    },
+    {
+      "date": "2026-08-24",
+      "description": "ZEFFY US/ZEFFY US",
+      "amount": 132.0,
+      "category": "Fee-Free Platform",
+      "channel": "Zeffy",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Zeffy 100% fee-free donation payout"
+    },
+    {
+      "date": "2026-08-25",
+      "description": "DEPOSIT",
+      "amount": 8754.17,
+      "category": "Municipal Contract",
+      "channel": "EFT / Check",
+      "relational_account": "County Contract Service Revenue",
+      "relational_notes": "Monroe County Sheriff Dept shelter partner monthly contract installment"
+    },
+    {
+      "date": "2026-08-25",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 200.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Monthly donor contribution"
+    },
+    {
+      "date": "2026-08-26",
+      "description": "DEPOSIT",
+      "amount": 1233.0,
+      "category": "Branch Deposit",
+      "channel": "Branch",
+      "relational_account": "Contributed income:Donations directed by individuals",
+      "relational_notes": "Shelter branch deposit"
+    },
+    {
+      "date": "2026-08-27",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 230.0,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Online donations payout"
+    },
+    {
+      "date": "2026-08-27",
+      "description": "SQUARE INC/SQUAR 0827",
+      "amount": 207.37,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "SQUARE INC/SQUAR 0828",
+      "amount": 160.57,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Adoption processing"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 72.48,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Online donation gift"
+    },
+    {
+      "date": "2026-08-31",
+      "description": "SQUARE INC/SQUAR 0831",
+      "amount": 803.12,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "End of month adoptions"
+    },
+    {
+      "date": "2026-08-31",
+      "description": "BETTERUNITE PAYO/BETTERUNIT",
+      "amount": 672.3,
+      "category": "Fundraising Platform",
+      "channel": "BetterUnite",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "End-of-month BetterUnite donor payout"
+    },
+    {
+      "date": "2026-08-31",
+      "description": "ZEFFY US/ZEFFY US",
+      "amount": 172.0,
+      "category": "Fee-Free Platform",
+      "channel": "Zeffy",
+      "relational_account": "Contributed income:Individual Donations",
+      "relational_notes": "Zeffy online gifts payout"
+    },
+    {
+      "date": "2026-08-31",
+      "description": "SQUARE INC/SQUAR 0831",
+      "amount": 48.6,
+      "category": "Merchant Processing",
+      "channel": "Square",
+      "relational_account": "Animal Adoptions",
+      "relational_notes": "Retail desk sales"
+    }
+  ],
+  "withdrawals": [
+    {
+      "date": "2026-08-03",
+      "description": "INTUIT */QBOOKS ONL",
+      "amount": 356.0,
+      "category": "Software & Technology",
+      "payee": "Intuit",
+      "type": "EFT / Debit",
+      "relational_link": "Office Expenses:Software Subscriptions",
+      "relational_notes": "QuickBooks Online Advanced monthly subscription"
+    },
+    {
+      "date": "2026-08-03",
+      "description": "SQUARE INC/SQ260803",
+      "amount": 49.0,
+      "category": "Bank & Processing Fees",
+      "payee": "Square Inc",
+      "type": "EFT / Debit",
+      "relational_link": "Office Expenses:Bank & Merchant Fees",
+      "relational_notes": "Monthly terminal hardware fee"
+    },
+    {
+      "date": "2026-08-03",
+      "description": "BANKCARD/MTHLY FEES",
+      "amount": 10.0,
+      "category": "Bank & Processing Fees",
+      "payee": "First Merchants Bank",
+      "type": "Bank Fee",
+      "relational_link": "Office Expenses:Bank Fees",
+      "relational_notes": "Monthly commercial analysis fee"
+    },
+    {
+      "date": "2026-08-04",
+      "description": "UNV LAUNDRY HOLD/VSP*UNV L",
+      "amount": 482.0,
+      "category": "Facilities & Sanitation",
+      "payee": "UNV Laundry",
+      "type": "EFT / Debit",
+      "relational_link": "Shelter Operations:Laundry & Sanitation",
+      "relational_notes": "Shelter towel & bedding commercial laundry service"
+    },
+    {
+      "date": "2026-08-04",
+      "description": "AUTHNET GATEWAY/BILLING",
+      "amount": 30.0,
+      "category": "Bank & Processing Fees",
+      "payee": "Authorize.Net",
+      "type": "EFT / Debit",
+      "relational_link": "Office Expenses:Merchant Fees",
+      "relational_notes": "Monthly payment gateway fee"
+    },
+    {
+      "date": "2026-08-11",
+      "description": "MWI VS COMPANY/WEB PYMNT",
+      "amount": 2832.13,
+      "category": "Veterinary & Medical Care",
+      "payee": "MWI Animal Health",
+      "type": "EFT / Debit",
+      "relational_link": "AP Schedule: MWI Animal Health ($2,739.76 Rolling)",
+      "relational_notes": "Bulk vaccines, microchips, and medical shelter inventory"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 43308705/TAX",
+      "amount": 4691.78,
+      "category": "Payroll Taxes",
+      "payee": "IRS / State of Michigan",
+      "type": "Tax EFT",
+      "relational_link": "Payroll Liabilities:Payroll Taxes",
+      "relational_notes": "Federal, FICA, and Michigan payroll tax withholding batch"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "PENNVETERINARY/DEBIT",
+      "amount": 2898.99,
+      "category": "Veterinary & Medical Care",
+      "payee": "Penn Veterinary Supply",
+      "type": "EFT / Debit",
+      "relational_link": "Veterinary & Medical Care:Medications & Vaccines",
+      "relational_notes": "Heartworm preventatives and surgical medical supplies"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 1585.11,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 1458.48,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 1075.08,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 905.88,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 854.44,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 810.13,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 771.59,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit (Corrected from $766.18 - reconciled $5.41)"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 743.1,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 733.73,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 693.96,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 525.02,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 522.47,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 454.88,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 381.71,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 356.73,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 334.48,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 300.0,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "INTUIT 01753169/PAYROLL",
+      "amount": 200.0,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "CINCINNATI INSUR/INS.PREM",
+      "amount": 597.0,
+      "category": "Insurance & Risk",
+      "payee": "Cincinnati Insurance Co",
+      "type": "EFT / Debit",
+      "relational_link": "Insurance:Commercial & Liability Policy",
+      "relational_notes": "Monthly property & shelter liability insurance installment"
+    },
+    {
+      "date": "2026-08-19",
+      "description": "UNV LAUNDRY HOLD/VSP*UNV L",
+      "amount": 482.0,
+      "category": "Facilities & Sanitation",
+      "payee": "UNV Laundry",
+      "type": "EFT / Debit",
+      "relational_link": "Shelter Operations:Laundry & Sanitation",
+      "relational_notes": "Commercial laundry services"
+    },
+    {
+      "date": "2026-08-19",
+      "description": "INTUIT 24189260/TAX",
+      "amount": 65.57,
+      "category": "Payroll Taxes",
+      "payee": "State of Michigan",
+      "type": "Tax EFT",
+      "relational_link": "Payroll Liabilities:State Unemployment (UIA)",
+      "relational_notes": "State unemployment tax adjustment"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 77200502/TAX",
+      "amount": 4721.43,
+      "category": "Payroll Taxes",
+      "payee": "IRS / State of Michigan",
+      "type": "Tax EFT",
+      "relational_link": "Payroll Liabilities:Payroll Taxes",
+      "relational_notes": "Federal and state payroll tax withholding for Aug 28 payroll"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 1585.12,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 1458.47,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 1134.16,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 976.56,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 921.26,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 857.65,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 822.95,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 822.83,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 802.99,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 797.09,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 782.25,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 691.95,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 689.92,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 492.89,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-28",
+      "description": "INTUIT 03256288/PAYROLL",
+      "amount": 200.0,
+      "category": "Staff Payroll",
+      "payee": "Intuit Payroll",
+      "type": "Direct Deposit",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Staff Direct Deposit distribution"
+    },
+    {
+      "date": "2026-08-31",
+      "description": "ELAN/WEB PYMT BILL,CENTRAL 53",
+      "amount": 13166.74,
+      "category": "Credit Card Liability",
+      "payee": "Elan Cardmember Services",
+      "type": "Autopay ACH",
+      "relational_link": "Liabilities: First Merchants Credit Card ($6,912.09)",
+      "relational_notes": "Monthly automated payment for shelter credit card expenses"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "POS PURCHASE MSFT * E03010DAQ5",
+      "amount": 9.54,
+      "category": "Software & Cloud",
+      "payee": "Microsoft",
+      "type": "Debit Card (x4288)",
+      "relational_link": "Office Expenses:Technology Subscriptions",
+      "relational_notes": "Microsoft Azure / Office 365 license subscription"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "Check 4429",
+      "amount": 766.18,
+      "category": "Staff Paycheck",
+      "payee": "Brian R Harrington Jr",
+      "type": "Paper Check",
+      "check_number": "4429",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Caregiver compensation physical check"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "Check 4438",
+      "amount": 110.0,
+      "category": "Staff Paycheck",
+      "payee": "Joshua Wilkins",
+      "type": "Paper Check",
+      "check_number": "4438",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Shelter caregiver check (Written in July, cleared Aug 17)"
+    },
+    {
+      "date": "2026-08-11",
+      "description": "Check 4444",
+      "amount": 683.49,
+      "category": "Staff Paycheck",
+      "payee": "Brian R Harrington Jr",
+      "type": "Paper Check",
+      "check_number": "4444",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Caregiver paycheck (Written in July, cleared Aug 11)"
+    },
+    {
+      "date": "2026-08-04",
+      "description": "Check 4447",
+      "amount": 162.0,
+      "category": "Staff Paycheck",
+      "payee": "Alyssah Renkiewicz",
+      "type": "Paper Check",
+      "check_number": "4447",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Shelter caregiver check (Written in July, cleared Aug 4)"
+    },
+    {
+      "date": "2026-08-12",
+      "description": "Check 4449",
+      "amount": 112.0,
+      "category": "Staff Paycheck",
+      "payee": "Melissa Szymanski",
+      "type": "Paper Check",
+      "check_number": "4449",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Shelter caregiver check (Written in July, cleared Aug 12)"
+    },
+    {
+      "date": "2026-08-06",
+      "description": "Check 4452",
+      "amount": 303.21,
+      "category": "Veterinary Supply",
+      "payee": "Wedgewood Pharmacy",
+      "type": "Paper Check",
+      "check_number": "4452",
+      "relational_link": "AP Schedule: Wedgewood Pharmacy",
+      "relational_notes": "Compounded animal medications (Written in July, cleared Aug 6)"
+    },
+    {
+      "date": "2026-08-03",
+      "description": "Check 4456",
+      "amount": 211.44,
+      "category": "Staff Paycheck",
+      "payee": "Jeffery Howard",
+      "type": "Paper Check",
+      "check_number": "4456",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "W-2 compensation check"
+    },
+    {
+      "date": "2026-08-13",
+      "description": "Check 4458",
+      "amount": 1055.98,
+      "category": "Staff Paycheck",
+      "payee": "Jeremy Somers",
+      "type": "Paper Check",
+      "check_number": "4458",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Shelter maintenance and caregiver compensation"
+    },
+    {
+      "date": "2026-08-05",
+      "description": "Check 4459",
+      "amount": 110.0,
+      "category": "Staff Paycheck",
+      "payee": "Joshua Wilkins",
+      "type": "Paper Check",
+      "check_number": "4459",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Shelter caregiver check (Written in July, cleared Aug 5)"
+    },
+    {
+      "date": "2026-08-17",
+      "description": "Check 4460",
+      "amount": 844.02,
+      "category": "Staff Paycheck",
+      "payee": "Brian R Harrington Jr",
+      "type": "Paper Check",
+      "check_number": "4460",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Caregiver compensation physical check"
+    },
+    {
+      "date": "2026-08-14",
+      "description": "Check 4461",
+      "amount": 893.68,
+      "category": "Staff Paycheck",
+      "payee": "Jeffery Howard",
+      "type": "Paper Check",
+      "check_number": "4461",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "W-2 executive compensation physical check"
+    },
+    {
+      "date": "2026-08-20",
+      "description": "Check 4462",
+      "amount": 966.52,
+      "category": "Staff Paycheck",
+      "payee": "Jeremy Somers",
+      "type": "Paper Check",
+      "check_number": "4462",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Shelter facility maintenance check"
+    },
+    {
+      "date": "2026-08-21",
+      "description": "Check 4464",
+      "amount": 7100.0,
+      "category": "Capital Improvements",
+      "payee": "Monroe Fencing",
+      "type": "Paper Check",
+      "check_number": "4464",
+      "relational_link": "Capital Assets: Play Yards & Kennels",
+      "relational_notes": "Outdoor covered kennel & play yard security fencing installation"
+    },
+    {
+      "date": "2026-08-31",
+      "description": "Check 4466",
+      "amount": 893.69,
+      "category": "Staff Paycheck",
+      "payee": "Jeffery Howard",
+      "type": "Paper Check",
+      "check_number": "4466",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "W-2 executive compensation physical check"
+    },
+    {
+      "date": "2026-08-31",
+      "description": "Check 4468",
+      "amount": 296.02,
+      "category": "Staff Paycheck",
+      "payee": "Samantha Orns",
+      "type": "Paper Check",
+      "check_number": "4468",
+      "relational_link": "Direct Deposit Payable (126)",
+      "relational_notes": "Shelter caregiver compensation physical check"
+    }
+  ],
+  "daily_balances": [
+    {
+      "date": "2026-08-01",
+      "balance": 54280.38
+    },
+    {
+      "date": "2026-08-03",
+      "balance": 66909.01
+    },
+    {
+      "date": "2026-08-04",
+      "balance": 67001.43
+    },
+    {
+      "date": "2026-08-05",
+      "balance": 67498.24
+    },
+    {
+      "date": "2026-08-06",
+      "balance": 67695.18
+    },
+    {
+      "date": "2026-08-07",
+      "balance": 67938.63
+    },
+    {
+      "date": "2026-08-10",
+      "balance": 68493.92
+    },
+    {
+      "date": "2026-08-11",
+      "balance": 65075.65
+    },
+    {
+      "date": "2026-08-12",
+      "balance": 68137.5
+    },
+    {
+      "date": "2026-08-13",
+      "balance": 67544.39
+    },
+    {
+      "date": "2026-08-14",
+      "balance": 47863.64
+    },
+    {
+      "date": "2026-08-17",
+      "balance": 49477.93
+    },
+    {
+      "date": "2026-08-18",
+      "balance": 49869.97
+    },
+    {
+      "date": "2026-08-19",
+      "balance": 49444.12
+    },
+    {
+      "date": "2026-08-20",
+      "balance": 48477.6
+    },
+    {
+      "date": "2026-08-21",
+      "balance": 42083.87
+    },
+    {
+      "date": "2026-08-24",
+      "balance": 44086.7
+    },
+    {
+      "date": "2026-08-25",
+      "balance": 53040.87
+    },
+    {
+      "date": "2026-08-26",
+      "balance": 54273.87
+    },
+    {
+      "date": "2026-08-27",
+      "balance": 54711.24
+    },
+    {
+      "date": "2026-08-28",
+      "balance": 37186.77
+    },
+    {
+      "date": "2026-08-31",
+      "balance": 24526.34
+    }
+  ],
+  "uncleared_float_schedule": {
+    "total_net_float": -1057.13,
+    "ghost_duplicate_checks": [
+      {
+        "date": "2026-02-27",
+        "payee": "Austin Roberts",
+        "amount": -145.0,
+        "type": "Payroll Check (DD)",
+        "status": "Ghost Duplicate",
+        "explanation": "Preliminary payroll draft never paid by bank; Austin was paid via true $567.90 paycheck on same date."
+      },
+      {
+        "date": "2026-04-10",
+        "payee": "Austin Roberts",
+        "amount": -341.64,
+        "type": "Payroll Check (DD)",
+        "status": "Ghost Duplicate",
+        "explanation": "Preliminary payroll draft never paid by bank; Austin was paid via true $370.00 paycheck on same date."
+      },
+      {
+        "date": "2026-06-22",
+        "payee": "Jeffery Howard",
+        "amount": -440.5,
+        "type": "Check (unnumbered)",
+        "status": "Ghost Duplicate",
+        "explanation": "Duplicate check draft entry; true payment was physical Check 4445 ($440.50) cleared in July."
+      }
+    ],
+    "ghost_duplicate_subtotal": -927.14,
+    "genuine_uncleared_checks": [
+      {
+        "date": "2026-08-19",
+        "payee": "Whitaker Nolff",
+        "check_number": "4465",
+        "amount": -254.99,
+        "type": "Paper Check",
+        "status": "Outstanding Check",
+        "explanation": "Operational expense check issued Aug 19, in transit at month end."
+      }
+    ],
+    "genuine_uncleared_deposits": [
+      {
+        "date": "2026-08-02",
+        "payee": "Deposit",
+        "amount": 125.0,
+        "type": "Deposit",
+        "status": "Deposit in Transit",
+        "explanation": "Donation deposit in transit over the weekend."
+      }
+    ]
+  }
+}

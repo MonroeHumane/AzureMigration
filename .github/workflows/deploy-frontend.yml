@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'frontend/**'
+      - 'api/**'
       - '.github/workflows/deploy-frontend.yml'
   repository_dispatch:
     types: [cms_rebuild]
@@ -48,4 +49,5 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: 'upload'
           app_location: 'frontend/dist'
+          api_location: 'api'
           skip_app_build: true
