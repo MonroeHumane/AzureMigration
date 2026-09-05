@@ -182,7 +182,7 @@ const schemaOrg = {
       document.addEventListener('astro:page-load', initErrorReporter);
     </script>
   </head>
-  <body class:list={['monroe-rebuild-theme', bodyClass]}>
+  <body class:list={['monroe-rebuild-theme', bodyClass, hidePublicNav && 'staff-portal-body']}>
     <a class="monroe-skip-link" href="#monroe-main">Skip to content</a>
 
     {!hidePublicNav && <Header currentPath={Astro.url.pathname} />}
@@ -194,3 +194,12 @@ const schemaOrg = {
     {!hidePublicNav && <Footer />}
   </body>
 </html>
+
+<style is:global>
+  body.staff-portal-body,
+  body.monroe-rebuild-theme.staff-portal-body,
+  body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+</style>

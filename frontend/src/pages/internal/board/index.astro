@@ -13,6 +13,7 @@ import BankStatementViewer from '../../../components/board/BankStatementViewer.a
 import MultiYearComparisonCard from '../../../components/board/MultiYearComparisonCard.astro';
 import ScenarioSimulatorCard from '../../../components/board/ScenarioSimulatorCard.astro';
 import GovernanceCard from '../../../components/board/GovernanceCard.astro';
+import financialData from '../../../data/published_2026_ytd.json';
 
 // Fetch Directus governance items (with resilient bundled fallback)
 import { getBoardMeetings, getBoardDocuments } from '../../../lib/directus';
@@ -63,7 +64,7 @@ const subNavItems = [
     <StaffPortalNav activeTab="financials" />
 
     <!-- Executive Banner -->
-    <ExecutiveBanner />
+    <ExecutiveBanner meta={financialData.meta} />
 
     <!-- Modular Financial Sub-Navigation Bar (Sticky) -->
     <StaffSubNav items={subNavItems} activeId="all" ariaLabel="Financial modules subnavigation" />
@@ -71,29 +72,41 @@ const subNavItems = [
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8" id="financials-main-content">
       <!-- Section 1: Headline KPI Grid -->
       <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20">
-        <HeadlineKpiGrid />
+        <HeadlineKpiGrid kpis={financialData.headline_kpis} />
       </section>
 
       <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
       <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20">
-        <MonthlyStatementTable />
+        <MonthlyStatementTable statements={financialData.monthly_statements} />
       </section>
 
       <!-- Section 3: Statement of Financial Position & Restricted Watch & AP Schedule -->
       <section id="sec-balance" class="financial-module space-y-6 scroll-mt-20">
-        <PositionAndCashCard />
+        <PositionAndCashCard position={financialData.statement_of_position} apSchedule={financialData.accounts_payable_schedule} />
       </section>
 
       <!-- Section 4: Operating Bridge & Cash Runway Scenario Simulator -->
       <section id="sec-strategy" class="financial-module space-y-6 scroll-mt-20">
-        <OperatingBridgeCard />
-        <ScenarioSimulatorCard />
-        <MultiYearComparisonCard />
+        <OperatingBridgeCard
+          qboOperatingNet={financialData.headline_kpis.qbo_operating_net}
+          allInNet={financialData.headline_kpis.all_in_net}
+          bridge={financialData.bridge_composition}
+        />
+        <ScenarioSimulatorCard
+          operatingCash={financialData.headline_kpis.bank_register_cash}
+          fidelityReserve={financialData.headline_kpis.fidelity_reserve}
+          avgMonthlyRevenue={financialData.headline_kpis.qbo_operating_revenue / 8}
+          avgMonthlyExpense={(financialData.headline_kpis.qbo_cogs + financialData.headline_kpis.qbo_operating_expenditures) / 8}
+          allInMonthlyRevenue={financialData.headline_kpis.all_in_revenue / 8}
+          allInMonthlyExpense={financialData.headline_kpis.all_in_expenditures / 8}
+          cutoffDate={financialData.meta.cutoff_date}
+        />
+        <MultiYearComparisonCard comparison={financialData.multiyear_comparison} />
       </section>
 
       <!-- Section 5: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->
       <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20">
-        <BankStatementViewer />
+        <BankStatementViewer data={financialData.bank_statement} />
       </section>
 
       <!-- Section 6: Directus Board Governance, Agendas & Executive Reports -->
