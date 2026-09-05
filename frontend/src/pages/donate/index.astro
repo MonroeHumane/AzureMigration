@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { SITE } from '../../config/site';
+import ImpactTrustBadge from '../../components/common/ImpactTrustBadge.astro';
 
 const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
 ---
@@ -22,6 +23,11 @@ const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
         </p>
       </div>
     </header>
+
+    <!-- Unified Fiduciary Trust & Impact Badge -->
+    <div class="mb-8">
+      <ImpactTrustBadge />
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-8">
       <!-- Direct Donation -->

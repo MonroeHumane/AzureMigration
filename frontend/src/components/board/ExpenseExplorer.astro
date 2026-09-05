@@ -1,0 +1,1073 @@
+---
+// ExpenseExplorer.astro
+// Two-Way Cash Flow Explorer: Symmetric 3-Level Inflows & Expenses Drilldown
+// Level 1: Category → Level 2: Vendor/Channel → Level 3: Transaction
+// Data sources: statement_2026_08.json (withdrawals & deposits) + published_2026_ytd.json (AP schedule)
+
+interface Withdrawal {
+  date: string;
+  description: string;
+  amount: number;
+  category: string;
+  payee: string;
+  type: string;
+  relational_link?: string;
+  relational_notes?: string;
+  check_number?: string;
+}
+
+interface Deposit {
+  date: string;
+  description: string;
+  amount: number;
+  category: string;
+  channel: string;
+  relational_account?: string;
+  relational_notes?: string;
+}
+
+interface ApVendor {
+  vendor: string;
+  amount: number;
+  category: string;
+  status: string;
+  group: string;
+  is_related_party?: boolean;
+  is_contra_credit?: boolean;
+  related_party_note?: string;
+  credit_note?: string;
+}
+
+interface Props {
+  withdrawals: Withdrawal[];
+  deposits?: Deposit[];
+  apSchedule: ApVendor[];
+  statementPeriod?: string;
+}
+
+const { withdrawals = [], deposits = [], apSchedule = [], statementPeriod = 'August 2026' } = Astro.props;
+
+// ── EXPENSE CATEGORY DEFINITIONS ──────────────────────────────────────────
+const EXPENSE_CATEGORY_DEFS = [
+  {
+    key: 'wages',
+    name: 'Wages & Payroll',
+    icon: '💰',
+    color: 'amber',
+    group: 'payroll',
+    groupLabel: 'Payroll',
+    description: 'Staff direct deposit + physical paychecks across shelter operations',
+    sourceCategories: ['Staff Payroll', 'Staff Paycheck'],
+  },
+  {
+    key: 'taxes',
+    name: 'Payroll Taxes',
+    icon: '🏛️',
+    color: 'rose',
+    group: 'payroll',
+    groupLabel: 'Payroll',
+    description: 'Federal, FICA & Michigan state payroll tax remittances',
+    sourceCategories: ['Payroll Taxes'],
+  },
+  {
+    key: 'medical',
+    name: 'Veterinary & Medical',
+    icon: '🏥',
+    color: 'teal',
+    group: 'operations',
+    groupLabel: 'Operations',
+    description: 'Vaccines, medications, surgical supplies, compounded drugs, clinics',
+    sourceCategories: ['Veterinary & Medical Care', 'Veterinary Supply'],
+  },
+  {
+    key: 'facilities',
+    name: 'Facilities & Sanitation',
+    icon: '🧺',
+    color: 'slate',
+    group: 'operations',
+    groupLabel: 'Operations',
+    description: 'Laundry, bedding, cleaning chemicals, waste management',
+    sourceCategories: ['Facilities & Sanitation'],
+  },
+  {
+    key: 'insurance',
+    name: 'Insurance',
+    icon: '🛡️',
+    color: 'blue',
+    group: 'operations',
+    groupLabel: 'Operations',
+    description: 'Commercial property & shelter animal liability policy',
+    sourceCategories: ['Insurance & Risk'],
+  },
+  {
+    key: 'capital',
+    name: 'Capital Projects',
+    icon: '🏗️',
+    color: 'emerald',
+    group: 'capital',
+    groupLabel: 'Capital',
+    description: 'Play yard fencing, kennel improvements, fixed assets',
+    sourceCategories: ['Capital Improvements'],
+  },
+  {
+    key: 'creditcard',
+    name: 'Credit Card Clearing',
+    icon: '💳',
+    color: 'purple',
+    group: 'operations',
+    groupLabel: 'Operations',
+    description: 'Monthly Elan credit card autopayment covering shelter card purchases',
+    sourceCategories: ['Credit Card Liability'],
+  },
+  {
+    key: 'software',
+    name: 'Software & Technology',
+    icon: '💻',
+    color: 'indigo',
+    group: 'operations',
+    groupLabel: 'Operations',
+    description: 'QuickBooks, Microsoft 365, PetPoint/PetSync cloud subscriptions',
+    sourceCategories: ['Software & Technology', 'Software & Cloud'],
+  },
+  {
+    key: 'bankfees',
+    name: 'Bank & Merchant Fees',
+    icon: '🏦',
+    color: 'gray',
+    group: 'operations',
+    groupLabel: 'Operations',
+    description: 'Processing fees, merchant gateway charges, bank analysis fees',
+    sourceCategories: ['Bank & Processing Fees'],
+  },
+];
+
+// ── INFLOW CATEGORY DEFINITIONS ───────────────────────────────────────────
+const INFLOW_CATEGORY_DEFS = [
+  {
+    key: 'community',
+    name: 'Branch & Community Donations',
+    icon: '🏢',
+    color: 'emerald',
+    group: 'contributions',
+    groupLabel: 'Contributions',
+    description: 'Community gifts, cash & checks deposited at the Telegraph Rd branch',
+    sourceCategories: ['Branch Deposit'],
+  },
+  {
+    key: 'contract',
+    name: 'Municipal Animal Control Contract',
+    icon: '🏛️',
+    color: 'blue',
+    group: 'contracts',
+    groupLabel: 'Contracts',
+    description: 'City & County municipal shelter animal holding & intake contracts',
+    sourceCategories: ['Municipal Contract'],
+  },
+  {
+    key: 'adoptions',
+    name: 'Adoption & Service Fees (Square)',
+    icon: '🐾',
+    color: 'teal',
+    group: 'services',
+    groupLabel: 'Earned Revenue',
+    description: 'Pet adoption processing fees, microchipping, retail counter supplies',
+    sourceCategories: ['Merchant Processing'],
+  },
+  {
+    key: 'digital',
+    name: 'Digital Donations & Grants',
+    icon: '🌐',
+    color: 'purple',
+    group: 'contributions',
+    groupLabel: 'Contributions',
+    description: 'BetterUnite pledges, institutional foundation grants, Zeffy fee-free, PayPal',
+    sourceCategories: ['Fundraising Platform', 'Institutional Grants', 'Fee-Free Platform', 'Digital Donations'],
+  },
+];
+
+// ── BUILD EXPENSES TREE ───────────────────────────────────────────────────
+type VendorEntry = {
+  payee: string;
+  total: number;
+  txCount: number;
+  transactions: Withdrawal[];
+};
+
+type ExpenseCategoryEntry = {
+  key: string;
+  name: string;
+  icon: string;
+  color: string;
+  group: string;
+  groupLabel: string;
+  description: string;
+  total: number;
+  txCount: number;
+  vendors: VendorEntry[];
+};
+
+const expenseCategories: ExpenseCategoryEntry[] = EXPENSE_CATEGORY_DEFS.map((def) => {
+  const txs = withdrawals.filter((w) => def.sourceCategories.includes(w.category));
+  const vendorMap = new Map<string, Withdrawal[]>();
+  for (const tx of txs) {
+    const k = tx.payee ?? 'Unknown';
+    if (!vendorMap.has(k)) vendorMap.set(k, []);
+    vendorMap.get(k)!.push(tx);
+  }
+  const vendors: VendorEntry[] = Array.from(vendorMap.entries())
+    .map(([payee, vtxs]) => ({
+      payee,
+      total: vtxs.reduce((s, t) => s + t.amount, 0),
+      txCount: vtxs.length,
+      transactions: [...vtxs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    }))
+    .sort((a, b) => b.total - a.total);
+
+  return {
+    ...def,
+    total: txs.reduce((s, t) => s + t.amount, 0),
+    txCount: txs.length,
+    vendors,
+  };
+}).filter((c) => c.txCount > 0).sort((a, b) => b.total - a.total);
+
+const grandTotalExpenses = expenseCategories.reduce((s, c) => s + c.total, 0);
+const totalExpenseTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
+
+// ── BUILD INFLOWS TREE ────────────────────────────────────────────────────
+type ChannelEntry = {
+  payee: string;
+  total: number;
+  txCount: number;
+  transactions: Deposit[];
+};
+
+type InflowCategoryEntry = {
+  key: string;
+  name: string;
+  icon: string;
+  color: string;
+  group: string;
+  groupLabel: string;
+  description: string;
+  total: number;
+  txCount: number;
+  vendors: ChannelEntry[];
+};
+
+const inflowCategories: InflowCategoryEntry[] = INFLOW_CATEGORY_DEFS.map((def) => {
+  const txs = deposits.filter((d) => def.sourceCategories.includes(d.category));
+  const channelMap = new Map<string, Deposit[]>();
+  for (const tx of txs) {
+    const k = tx.channel || tx.category || 'Direct';
+    if (!channelMap.has(k)) channelMap.set(k, []);
+    channelMap.get(k)!.push(tx);
+  }
+  const vendors: ChannelEntry[] = Array.from(channelMap.entries())
+    .map(([channel, dtxs]) => ({
+      payee: channel,
+      total: dtxs.reduce((s, t) => s + t.amount, 0),
+      txCount: dtxs.length,
+      transactions: [...dtxs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    }))
+    .sort((a, b) => b.total - a.total);
+
+  return {
+    ...def,
+    total: txs.reduce((s, t) => s + t.amount, 0),
+    txCount: txs.length,
+    vendors,
+  };
+}).filter((c) => c.txCount > 0).sort((a, b) => b.total - a.total);
+
+const grandTotalInflows = inflowCategories.reduce((s, c) => s + c.total, 0);
+const totalInflowTxs = inflowCategories.reduce((s, c) => s + c.txCount, 0);
+const netMonthVariance = grandTotalInflows - grandTotalExpenses; // -$29,754.04
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function fmt(n: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n);
+}
+function fmtDate(d: string) {
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+type ColorSet = { bg: string; border: string; text: string; badge: string; badgeText: string; row: string };
+function cc(color: string): ColorSet {
+  const map: Record<string, ColorSet> = {
+    amber:   { bg: 'bg-amber-50',   border: 'border-amber-200',   text: 'text-amber-900',   badge: 'bg-amber-100',   badgeText: 'text-amber-800',   row: 'hover:bg-amber-50/60' },
+    rose:    { bg: 'bg-rose-50',    border: 'border-rose-200',    text: 'text-rose-900',    badge: 'bg-rose-100',    badgeText: 'text-rose-800',    row: 'hover:bg-rose-50/60' },
+    teal:    { bg: 'bg-teal-50',    border: 'border-teal-200',    text: 'text-teal-900',    badge: 'bg-teal-100',    badgeText: 'text-teal-800',    row: 'hover:bg-teal-50/60' },
+    slate:   { bg: 'bg-slate-50',   border: 'border-slate-200',   text: 'text-slate-700',   badge: 'bg-slate-100',   badgeText: 'text-slate-700',   row: 'hover:bg-slate-50/60' },
+    blue:    { bg: 'bg-blue-50',    border: 'border-blue-200',    text: 'text-blue-900',    badge: 'bg-blue-100',    badgeText: 'text-blue-800',    row: 'hover:bg-blue-50/60' },
+    emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-900', badge: 'bg-emerald-100', badgeText: 'text-emerald-800', row: 'hover:bg-emerald-50/60' },
+    purple:  { bg: 'bg-purple-50',  border: 'border-purple-200',  text: 'text-purple-900',  badge: 'bg-purple-100',  badgeText: 'text-purple-800',  row: 'hover:bg-purple-50/60' },
+    indigo:  { bg: 'bg-indigo-50',  border: 'border-indigo-200',  text: 'text-indigo-900',  badge: 'bg-indigo-100',  badgeText: 'text-indigo-800',  row: 'hover:bg-indigo-50/60' },
+    gray:    { bg: 'bg-gray-50',    border: 'border-gray-200',    text: 'text-gray-700',    badge: 'bg-gray-100',    badgeText: 'text-gray-700',    row: 'hover:bg-gray-50/60' },
+  };
+  return map[color] ?? map['slate'];
+}
+
+// Serialize for client JS
+const expenseData = JSON.stringify(expenseCategories);
+const inflowData = JSON.stringify(inflowCategories);
+const apData = JSON.stringify(apSchedule);
+---
+
+<div id="expense-explorer-root" class="space-y-4">
+
+  <!-- ── Mode Switcher & Flow Summary ──────────────────────────────────────── -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-4 sm:p-5">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-200">
+            Cash Flow Explorer
+          </span>
+          <span class="text-[11px] text-slate-400 font-medium">{statementPeriod} · Bank Statement Detail</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800 tracking-tight" id="ee-title">Monthly Cash Flow Drilldown</h2>
+        <p class="text-xs text-slate-500 mt-0.5" id="ee-desc">
+          Toggle between Expenses &amp; Inflows. Click any category to expand payees or channels, then click any row to reveal transactions.
+        </p>
+      </div>
+
+      <!-- Net Monthly Variance Callout -->
+      <div class="flex items-center gap-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200 shrink-0">
+        <div class="text-right">
+          <div class="text-[10px] uppercase font-bold text-slate-400">August Net Cash Change</div>
+          <div class="font-mono font-black text-sm text-rose-700">{fmt(netMonthVariance)}</div>
+          <div class="text-[9px] text-slate-500">Covered by checking &amp; reserves</div>
+        </div>
+        <span class="text-2xl select-none">⚖️</span>
+      </div>
+    </div>
+
+    <!-- Mode Selector Tabs -->
+    <div class="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+      <button
+        id="ee-tab-expenses"
+        class="ee-mode-tab active px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition"
+        data-mode="expenses"
+      >
+        <span>💸 Outflows &amp; Expenses</span>
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-rose-100 text-rose-800 border border-rose-200">
+          {fmt(grandTotalExpenses)}
+        </span>
+        <span class="text-[10px] opacity-70">({totalExpenseTxs} txs)</span>
+      </button>
+
+      <button
+        id="ee-tab-inflows"
+        class="ee-mode-tab px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+        data-mode="inflows"
+      >
+        <span>💵 Inflows &amp; Revenue</span>
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-100 text-emerald-800 border border-emerald-200">
+          {fmt(grandTotalInflows)}
+        </span>
+        <span class="text-[10px] opacity-70">({totalInflowTxs} deposits)</span>
+      </button>
+
+      <div class="ml-auto flex items-center gap-2">
+        <button
+          id="ee-export-active-btn"
+          class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-teal-800 text-white hover:bg-teal-900 transition flex items-center gap-1.5 shadow-xs"
+        >
+          ⬇ Export Summary CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter chips + sort controls -->
+    <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100 items-center">
+      <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Filter:</span>
+      
+      <!-- Expense Filters -->
+      <div id="ee-expense-filters" class="flex flex-wrap gap-1.5 items-center">
+        <button data-ee-filter="all"        class="ee-filter-chip active">All Categories</button>
+        <button data-ee-filter="payroll"    class="ee-filter-chip">💰 Payroll</button>
+        <button data-ee-filter="operations" class="ee-filter-chip">⚙️ Operations</button>
+        <button data-ee-filter="capital"    class="ee-filter-chip">🏗️ Capital</button>
+      </div>
+
+      <!-- Inflow Filters (hidden by default) -->
+      <div id="ee-inflow-filters" class="hidden flex-wrap gap-1.5 items-center">
+        <button data-ee-filter="all"           class="ee-filter-chip active">All Inflows</button>
+        <button data-ee-filter="contributions" class="ee-filter-chip">🎁 Contributions</button>
+        <button data-ee-filter="contracts"     class="ee-filter-chip">🏛️ Contracts</button>
+        <button data-ee-filter="services"      class="ee-filter-chip">🐾 Adoption / Fees</button>
+      </div>
+
+      <span class="ml-auto flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+        <span class="font-medium">Sort:</span>
+        <button data-ee-sort="amount-desc" class="ee-sort-btn active">$ Largest First</button>
+        <button data-ee-sort="amount-asc"  class="ee-sort-btn">$ Smallest First</button>
+        <button data-ee-sort="name-asc"    class="ee-sort-btn">A → Z</button>
+      </span>
+    </div>
+  </div>
+
+  <!-- ── 1. EXPENSES VIEW ────────────────────────────────────────────────── -->
+  <div id="ee-view-expenses" class="space-y-2">
+    <div id="ee-expense-category-list" class="space-y-2">
+      {expenseCategories.map((cat, catIdx) => {
+        const c = cc(cat.color);
+        return (
+          <div
+            class={`ee-category-block rounded-xl border ${c.border} bg-white shadow-xs overflow-hidden`}
+            data-cat-key={cat.key}
+            data-cat-group={cat.group}
+            data-cat-total={cat.total.toFixed(2)}
+            data-cat-name={cat.name}
+          >
+            <!-- Level 1: Category header row -->
+            <button
+              class={`ee-cat-toggle w-full flex items-center gap-3 px-5 py-4 text-left transition ${c.row} group`}
+              aria-expanded="false"
+              data-cat-idx={catIdx}
+              data-view="expense"
+            >
+              <span class="text-xl flex-shrink-0">{cat.icon}</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-bold text-slate-800 text-sm">{cat.name}</span>
+                  <span class={`px-1.5 py-0.5 rounded text-[10px] font-bold ${c.badge} ${c.badgeText}`}>{cat.groupLabel}</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5 truncate">{cat.description}</p>
+              </div>
+              <div class="text-right flex-shrink-0 mr-1">
+                <span class={`font-black font-mono text-base block ${c.text}`}>{fmt(cat.total)}</span>
+                <span class="text-[11px] text-slate-400 block">{cat.vendors.length} vendors · {cat.txCount} tx</span>
+              </div>
+              <span class="ee-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-200 flex-shrink-0 text-sm ml-1">▼</span>
+            </button>
+
+            <!-- Level 2: Vendor panel -->
+            <div class="ee-vendor-panel hidden border-t border-slate-100" data-cat-idx={catIdx}>
+              <!-- Vendor sort header -->
+              <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+                <span class="flex-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <button
+                    class="ee-vendor-sort-btn hover:text-slate-700 transition"
+                    data-sort-field="name" data-sort-dir="asc" data-cat-idx={catIdx}
+                  >
+                    Vendor / Payee <span class="ee-sort-indicator opacity-50">↕</span>
+                  </button>
+                </span>
+                <span class="w-20 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Tx Count</span>
+                <span class="w-28 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <button
+                    class="ee-vendor-sort-btn hover:text-slate-700 transition"
+                    data-sort-field="amount" data-sort-dir="desc" data-cat-idx={catIdx}
+                  >
+                    Amount <span class="ee-sort-indicator">↓</span>
+                  </button>
+                </span>
+                <span class="w-5"></span>
+              </div>
+
+              <!-- Vendor rows -->
+              <div class="ee-vendor-rows divide-y divide-slate-50" data-cat-idx={catIdx}>
+                {cat.vendors.map((vendor, vIdx) => (
+                  <div class="ee-vendor-block" data-vendor-total={vendor.total.toFixed(2)} data-vendor-name={vendor.payee}>
+                    <!-- Level 2: Vendor toggle row -->
+                    <button
+                      class="ee-vendor-toggle w-full flex items-center gap-3 px-5 py-3 text-left transition hover:bg-slate-50/80 group"
+                      aria-expanded="false"
+                      data-cat-idx={catIdx}
+                      data-vendor-idx={vIdx}
+                    >
+                      <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[9px] font-black flex items-center justify-center flex-shrink-0 select-none">
+                        {vIdx + 1}
+                      </span>
+                      <span class="flex-1 min-w-0 font-semibold text-sm text-slate-800 truncate text-left">{vendor.payee}</span>
+                      <span class="w-20 text-right text-[11px] text-slate-400 hidden sm:block">{vendor.txCount} tx</span>
+                      <span class="w-28 text-right font-black font-mono text-sm text-slate-800 flex-shrink-0">{fmt(vendor.total)}</span>
+                      <span class="ee-vendor-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-150 text-xs w-5 text-center flex-shrink-0">▶</span>
+                    </button>
+
+                    <!-- Level 3: Transaction panel -->
+                    <div class="ee-tx-panel hidden bg-slate-50/70 border-t border-slate-100" data-cat-idx={catIdx} data-vendor-idx={vIdx}>
+                      <div class="px-6 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          {vendor.payee} · {vendor.txCount} transaction{vendor.txCount !== 1 ? 's' : ''} · {statementPeriod}
+                        </span>
+                        <button
+                          class="ee-export-vendor-btn text-[10px] font-bold text-teal-700 hover:text-teal-900 transition whitespace-nowrap"
+                          data-cat-idx={catIdx}
+                          data-vendor-idx={vIdx}
+                          data-type="expense"
+                        >
+                          ⬇ Export CSV
+                        </button>
+                      </div>
+                      <div class="overflow-x-auto">
+                        <table class="w-full text-xs min-w-[480px]">
+                          <thead>
+                            <tr class="border-b border-slate-200 bg-white">
+                              <th class="text-left px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-16">Date</th>
+                              <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Description / Notes</th>
+                              <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hidden sm:table-cell w-28">Type</th>
+                              <th class="text-right px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-24">Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-slate-100">
+                            {vendor.transactions.map((tx) => (
+                              <tr class="hover:bg-white transition">
+                                <td class="px-6 py-2.5 text-slate-500 whitespace-nowrap font-medium">{fmtDate(tx.date)}</td>
+                                <td class="px-3 py-2.5">
+                                  <div class="font-semibold text-slate-700 leading-tight">{tx.description}</div>
+                                  {tx.relational_notes && (
+                                    <div class="text-slate-400 text-[10px] mt-0.5 leading-tight">{tx.relational_notes}</div>
+                                  )}
+                                  {tx.check_number && (
+                                    <span class="inline-block mt-0.5 px-1.5 rounded text-[9px] font-bold bg-slate-200 text-slate-600">
+                                      Ck #{tx.check_number}
+                                    </span>
+                                  )}
+                                </td>
+                                <td class="px-3 py-2.5 text-slate-500 hidden sm:table-cell whitespace-nowrap">{tx.type}</td>
+                                <td class="px-6 py-2.5 text-right font-black font-mono text-slate-800">{fmt(tx.amount)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr class="border-t-2 border-slate-200 bg-white">
+                              <td colspan={3} class="px-6 py-2 text-xs font-bold text-slate-600">Subtotal — {vendor.payee}</td>
+                              <td class="px-6 py-2 text-right font-black font-mono text-slate-900">{fmt(vendor.total)}</td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+
+              <!-- Category subtotal footer -->
+              <div class="px-5 py-3 bg-white border-t-2 border-slate-200 flex items-center justify-between gap-2">
+                <button class="ee-export-cat-btn text-[11px] font-bold text-teal-700 hover:text-teal-900 transition" data-cat-idx={catIdx} data-type="expense">
+                  ⬇ Export {cat.name} CSV
+                </button>
+                <div class="text-right">
+                  <span class="text-[10px] text-slate-400 block">Category Total</span>
+                  <span class={`font-black font-mono text-sm ${c.text}`}>{fmt(cat.total)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- ── 2. INFLOWS VIEW ─────────────────────────────────────────────────── -->
+  <div id="ee-view-inflows" class="hidden space-y-2">
+    <div id="ee-inflow-category-list" class="space-y-2">
+      {inflowCategories.map((cat, catIdx) => {
+        const c = cc(cat.color);
+        return (
+          <div
+            class={`ee-inflow-block rounded-xl border ${c.border} bg-white shadow-xs overflow-hidden`}
+            data-cat-key={cat.key}
+            data-cat-group={cat.group}
+            data-cat-total={cat.total.toFixed(2)}
+            data-cat-name={cat.name}
+          >
+            <!-- Level 1: Category header row -->
+            <button
+              class={`ee-inflow-toggle w-full flex items-center gap-3 px-5 py-4 text-left transition ${c.row} group`}
+              aria-expanded="false"
+              data-cat-idx={catIdx}
+              data-view="inflow"
+            >
+              <span class="text-xl flex-shrink-0">{cat.icon}</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-bold text-slate-800 text-sm">{cat.name}</span>
+                  <span class={`px-1.5 py-0.5 rounded text-[10px] font-bold ${c.badge} ${c.badgeText}`}>{cat.groupLabel}</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5 truncate">{cat.description}</p>
+              </div>
+              <div class="text-right flex-shrink-0 mr-1">
+                <span class={`font-black font-mono text-base block ${c.text}`}>{fmt(cat.total)}</span>
+                <span class="text-[11px] text-slate-400 block">{cat.vendors.length} channels · {cat.txCount} deposits</span>
+              </div>
+              <span class="ee-inflow-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-200 flex-shrink-0 text-sm ml-1">▼</span>
+            </button>
+
+            <!-- Level 2: Channel panel -->
+            <div class="ee-inflow-panel hidden border-t border-slate-100" data-cat-idx={catIdx}>
+              <!-- Channel sort header -->
+              <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+                <span class="flex-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Channel / Payer Source
+                </span>
+                <span class="w-20 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Deposits</span>
+                <span class="w-28 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Amount</span>
+                <span class="w-5"></span>
+              </div>
+
+              <!-- Channel rows -->
+              <div class="ee-inflow-channel-rows divide-y divide-slate-50">
+                {cat.vendors.map((channel, chIdx) => (
+                  <div class="ee-channel-block">
+                    <!-- Level 2: Channel toggle row -->
+                    <button
+                      class="ee-channel-toggle w-full flex items-center gap-3 px-5 py-3 text-left transition hover:bg-slate-50/80 group"
+                      aria-expanded="false"
+                      data-cat-idx={catIdx}
+                      data-channel-idx={chIdx}
+                    >
+                      <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black flex items-center justify-center flex-shrink-0 select-none">
+                        {chIdx + 1}
+                      </span>
+                      <span class="flex-1 min-w-0 font-semibold text-sm text-slate-800 truncate text-left">{channel.payee}</span>
+                      <span class="w-20 text-right text-[11px] text-slate-400 hidden sm:block">{channel.txCount} dep</span>
+                      <span class="w-28 text-right font-black font-mono text-sm text-emerald-700 flex-shrink-0">{fmt(channel.total)}</span>
+                      <span class="ee-channel-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-150 text-xs w-5 text-center flex-shrink-0">▶</span>
+                    </button>
+
+                    <!-- Level 3: Inflow Transactions panel -->
+                    <div class="ee-inflow-tx-panel hidden bg-slate-50/70 border-t border-slate-100" data-cat-idx={catIdx} data-channel-idx={chIdx}>
+                      <div class="px-6 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          {channel.payee} · {channel.txCount} deposit{channel.txCount !== 1 ? 's' : ''} · {statementPeriod}
+                        </span>
+                        <button
+                          class="ee-export-channel-btn text-[10px] font-bold text-teal-700 hover:text-teal-900 transition whitespace-nowrap"
+                          data-cat-idx={catIdx}
+                          data-channel-idx={chIdx}
+                        >
+                          ⬇ Export CSV
+                        </button>
+                      </div>
+                      <div class="overflow-x-auto">
+                        <table class="w-full text-xs min-w-[480px]">
+                          <thead>
+                            <tr class="border-b border-slate-200 bg-white">
+                              <th class="text-left px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-16">Date</th>
+                              <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Description / Memo</th>
+                              <th class="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hidden sm:table-cell w-28">Channel</th>
+                              <th class="text-right px-6 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-24">Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-slate-100">
+                            {channel.transactions.map((tx) => (
+                              <tr class="hover:bg-white transition">
+                                <td class="px-6 py-2.5 text-slate-500 whitespace-nowrap font-medium">{fmtDate(tx.date)}</td>
+                                <td class="px-3 py-2.5">
+                                  <div class="font-semibold text-slate-700 leading-tight">{tx.description}</div>
+                                  {tx.relational_notes && (
+                                    <div class="text-slate-400 text-[10px] mt-0.5 leading-tight">{tx.relational_notes}</div>
+                                  )}
+                                  {tx.relational_account && (
+                                    <span class="inline-block mt-0.5 px-1.5 rounded text-[9px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                                      {tx.relational_account.split(':').pop()}
+                                    </span>
+                                  )}
+                                </td>
+                                <td class="px-3 py-2.5 text-slate-500 hidden sm:table-cell whitespace-nowrap">{tx.channel}</td>
+                                <td class="px-6 py-2.5 text-right font-black font-mono text-emerald-700">+{fmt(tx.amount)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr class="border-t-2 border-slate-200 bg-white">
+                              <td colspan={3} class="px-6 py-2 text-xs font-bold text-slate-600">Subtotal — {channel.payee}</td>
+                              <td class="px-6 py-2 text-right font-black font-mono text-emerald-800">+{fmt(channel.total)}</td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+
+              <!-- Inflow Category subtotal footer -->
+              <div class="px-5 py-3 bg-white border-t-2 border-slate-200 flex items-center justify-between gap-2">
+                <button class="ee-export-inflow-cat-btn text-[11px] font-bold text-teal-700 hover:text-teal-900 transition" data-cat-idx={catIdx}>
+                  ⬇ Export {cat.name} CSV
+                </button>
+                <div class="text-right">
+                  <span class="text-[10px] text-slate-400 block">Category Total</span>
+                  <span class={`font-black font-mono text-sm ${c.text}`}>+{fmt(cat.total)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- ── 3. ACCOUNTS PAYABLE SCHEDULE (PINNED AT BOTTOM) ───────────────────── -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+    <div class="px-5 py-4 flex items-center justify-between gap-3 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📋</span>
+          <h3 class="font-bold text-slate-800 text-base">Accounts Payable — Open Balances</h3>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Accrual</span>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-0.5 ml-8">Unpaid vendor invoices as of Aug 31 · click Name or Balance to sort</p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="text-[10px] text-slate-400">Net AP Balance</div>
+        <div class="font-black font-mono text-base text-slate-900">
+          {fmt(apSchedule.reduce((s, v) => s + v.amount, 0))}
+        </div>
+        <button id="ee-export-ap-btn" class="mt-1 text-[10px] font-bold text-teal-700 hover:text-teal-900 transition">
+          ⬇ Export AP CSV
+        </button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs min-w-[400px]">
+        <thead>
+          <tr class="border-b border-slate-100 bg-slate-50">
+            <th class="text-left px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <button class="ee-ap-sort-btn hover:text-slate-700 transition" data-sort="vendor">Vendor ↕</button>
+            </th>
+            <th class="text-left px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 hidden sm:table-cell">Category</th>
+            <th class="text-left px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 hidden md:table-cell">Status</th>
+            <th class="text-right px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <button class="ee-ap-sort-btn hover:text-slate-700 transition" data-sort="amount">Balance ↕</button>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="ee-ap-tbody" class="divide-y divide-slate-100">
+          {apSchedule.map((v) => (
+            <tr class={`hover:bg-slate-50/60 transition ${v.is_contra_credit ? 'opacity-55' : ''}`}>
+              <td class="px-5 py-2.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-semibold text-slate-800 text-xs">{v.vendor}</span>
+                  {v.is_related_party && (
+                    <span class="px-1 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      990 Related
+                    </span>
+                  )}
+                  {v.is_contra_credit && (
+                    <span class="px-1 rounded text-[9px] font-bold bg-slate-200 text-slate-600">Credit</span>
+                  )}
+                </div>
+              </td>
+              <td class="px-3 py-2.5 text-slate-500 text-xs hidden sm:table-cell">{v.category}</td>
+              <td class="px-3 py-2.5 hidden md:table-cell">
+                <span class={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                  v.status === 'Active Current'        ? 'bg-emerald-100 text-emerald-800' :
+                  v.status === 'Pending Bank Clearing' ? 'bg-amber-100 text-amber-800'    :
+                                                         'bg-slate-100 text-slate-600'
+                }`}>
+                  {v.status}
+                </span>
+              </td>
+              <td class={`px-5 py-2.5 text-right font-black font-mono text-xs ${v.amount < 0 ? 'text-emerald-700' : 'text-slate-900'}`}>
+                {fmt(v.amount)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .ee-mode-tab.active {
+    background: #173a39;
+    color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  .ee-filter-chip {
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ee-filter-chip.active {
+    background: #173a39;
+    color: white;
+    border-color: #173a39;
+  }
+  .ee-filter-chip:hover:not(.active) {
+    background: #f1f5f9;
+  }
+  .ee-sort-btn {
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ee-sort-btn.active { background: #f0fdf4; color: #166534; border-color: #86efac; font-weight: 700; }
+  .ee-sort-btn:hover:not(.active) { background: #f8fafc; }
+
+  .ee-cat-toggle[aria-expanded="true"] .ee-chevron,
+  .ee-inflow-toggle[aria-expanded="true"] .ee-inflow-chevron {
+    transform: rotate(180deg);
+  }
+  .ee-vendor-toggle[aria-expanded="true"] .ee-vendor-chevron,
+  .ee-channel-toggle[aria-expanded="true"] .ee-channel-chevron {
+    transform: rotate(90deg);
+  }
+</style>
+
+<script is:inline define:vars={{ expenseData, inflowData, apData, statementPeriod }}>
+  const expenseCategories = JSON.parse(expenseData);
+  const inflowCategories = JSON.parse(inflowData);
+  const apSchedule = JSON.parse(apData);
+
+  let currentMode  = 'expenses';
+  let activeFilter = 'all';
+  let activeSort   = 'amount-desc';
+
+  function csvRow(cols) {
+    return cols.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',');
+  }
+  function downloadCsv(filename, rows) {
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = Object.assign(document.createElement('a'), { href: url, download: filename });
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function applyFilterSort() {
+    const isExpenses = currentMode === 'expenses';
+    const selector = isExpenses ? '.ee-category-block' : '.ee-inflow-block';
+    const containerId = isExpenses ? 'ee-expense-category-list' : 'ee-inflow-category-list';
+    const list = document.getElementById(containerId);
+    if (!list) return;
+
+    const blocks = [...document.querySelectorAll(selector)];
+    const visible = blocks.filter(b => activeFilter === 'all' || b.dataset.catGroup === activeFilter);
+    visible.sort((a, b) => {
+      if (activeSort === 'amount-desc') return parseFloat(b.dataset.catTotal) - parseFloat(a.dataset.catTotal);
+      if (activeSort === 'amount-asc')  return parseFloat(a.dataset.catTotal) - parseFloat(b.dataset.catTotal);
+      if (activeSort === 'name-asc')    return a.dataset.catName.localeCompare(b.dataset.catName);
+      return 0;
+    });
+
+    blocks.forEach(b => b.classList.add('hidden'));
+    visible.forEach(b => { b.classList.remove('hidden'); list.appendChild(b); });
+  }
+
+  function switchMode(mode) {
+    currentMode = mode;
+    activeFilter = 'all';
+
+    const tabExpenses = document.getElementById('ee-tab-expenses');
+    const tabInflows  = document.getElementById('ee-tab-inflows');
+    const viewExpenses = document.getElementById('ee-view-expenses');
+    const viewInflows  = document.getElementById('ee-view-inflows');
+    const expFilters = document.getElementById('ee-expense-filters');
+    const infFilters = document.getElementById('ee-inflow-filters');
+
+    if (mode === 'expenses') {
+      tabExpenses?.classList.add('active');
+      tabInflows?.classList.remove('active');
+      tabInflows?.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+      viewExpenses?.classList.remove('hidden');
+      viewInflows?.classList.add('hidden');
+      expFilters?.classList.remove('hidden');
+      infFilters?.classList.add('hidden');
+    } else {
+      tabInflows?.classList.add('active');
+      tabExpenses?.classList.remove('active');
+      tabExpenses?.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+      viewInflows?.classList.remove('hidden');
+      viewExpenses?.classList.add('hidden');
+      infFilters?.classList.remove('hidden');
+      infFilters?.classList.add('flex');
+      expFilters?.classList.add('hidden');
+    }
+
+    // Reset filter active states
+    document.querySelectorAll('.ee-filter-chip').forEach(b => {
+      b.classList.toggle('active', b.dataset.eeFilter === 'all');
+    });
+
+    applyFilterSort();
+  }
+
+  function initExpenseExplorer() {
+    const root = document.getElementById('expense-explorer-root');
+    if (!root || root.dataset.eeInit === '1') return;
+    root.dataset.eeInit = '1';
+
+    // Mode tab switching
+    root.querySelectorAll('.ee-mode-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        if (mode) switchMode(mode);
+      });
+    });
+
+    // Filter chips
+    root.querySelectorAll('.ee-filter-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeFilter = btn.dataset.eeFilter;
+        const parent = btn.parentElement;
+        if (parent) parent.querySelectorAll('.ee-filter-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilterSort();
+      });
+    });
+
+    // Sort buttons
+    root.querySelectorAll('.ee-sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeSort = btn.dataset.eeSort;
+        root.querySelectorAll('.ee-sort-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilterSort();
+      });
+    });
+
+    // Level 1: Category toggle (Expenses)
+    root.querySelectorAll('.ee-cat-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = btn.dataset.catIdx;
+        const panel = root.querySelector(`.ee-vendor-panel[data-cat-idx="${i}"]`);
+        if (!panel) return;
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.classList.toggle('hidden', open);
+      });
+    });
+
+    // Level 1: Inflow toggle (Inflows)
+    root.querySelectorAll('.ee-inflow-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = btn.dataset.catIdx;
+        const panel = root.querySelector(`.ee-inflow-panel[data-cat-idx="${i}"]`);
+        if (!panel) return;
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.classList.toggle('hidden', open);
+      });
+    });
+
+    // Level 2: Vendor toggle (Expenses)
+    root.querySelectorAll('.ee-vendor-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const ci = btn.dataset.catIdx;
+        const vi = btn.dataset.vendorIdx;
+        const panel = root.querySelector(`.ee-tx-panel[data-cat-idx="${ci}"][data-vendor-idx="${vi}"]`);
+        if (!panel) return;
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.classList.toggle('hidden', open);
+      });
+    });
+
+    // Level 2: Channel toggle (Inflows)
+    root.querySelectorAll('.ee-channel-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const ci = btn.dataset.catIdx;
+        const chi = btn.dataset.channelIdx;
+        const panel = root.querySelector(`.ee-inflow-tx-panel[data-cat-idx="${ci}"][data-channel-idx="${chi}"]`);
+        if (!panel) return;
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.classList.toggle('hidden', open);
+      });
+    });
+
+    // Export Active Summary
+    root.querySelector('#ee-export-active-btn')?.addEventListener('click', () => {
+      const isExpenses = currentMode === 'expenses';
+      const items = isExpenses ? expenseCategories : inflowCategories;
+      const rows = [csvRow(['Category', 'Group', 'Vendors/Channels', 'Transactions/Deposits', 'Total'])];
+      items.forEach(cat => rows.push(csvRow([cat.name, cat.groupLabel, cat.vendors.length, cat.txCount, cat.total.toFixed(2)])));
+      downloadCsv(`${isExpenses ? 'expense' : 'inflow'}-summary-${statementPeriod.replace(/\s/g, '-')}.csv`, rows);
+    });
+
+    // Export single expense category
+    root.querySelectorAll('.ee-export-cat-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const cat = expenseCategories[parseInt(btn.dataset.catIdx)];
+        if (!cat) return;
+        const rows = [csvRow(['Vendor', 'Transactions', 'Total'])];
+        cat.vendors.forEach(v => rows.push(csvRow([v.payee, v.txCount, v.total.toFixed(2)])));
+        downloadCsv(`expenses-${cat.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`, rows);
+      });
+    });
+
+    // Export single inflow category
+    root.querySelectorAll('.ee-export-inflow-cat-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const cat = inflowCategories[parseInt(btn.dataset.catIdx)];
+        if (!cat) return;
+        const rows = [csvRow(['Channel/Payer', 'Deposits', 'Total'])];
+        cat.vendors.forEach(v => rows.push(csvRow([v.payee, v.txCount, v.total.toFixed(2)])));
+        downloadCsv(`inflows-${cat.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`, rows);
+      });
+    });
+
+    // Export single vendor transactions (Expense)
+    root.querySelectorAll('.ee-export-vendor-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const cat = expenseCategories[parseInt(btn.dataset.catIdx)];
+        const vendor = cat?.vendors[parseInt(btn.dataset.vendorIdx)];
+        if (!vendor) return;
+        const rows = [csvRow(['Date', 'Payee', 'Description', 'Type', 'Check #', 'Amount', 'Notes'])];
+        vendor.transactions.forEach(tx => rows.push(csvRow([
+          tx.date, tx.payee, tx.description, tx.type,
+          tx.check_number ?? '', tx.amount.toFixed(2), tx.relational_notes ?? ''
+        ])));
+        downloadCsv(`transactions-${vendor.payee.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`, rows);
+      });
+    });
+
+    // Export single channel deposits (Inflow)
+    root.querySelectorAll('.ee-export-channel-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const cat = inflowCategories[parseInt(btn.dataset.catIdx)];
+        const channel = cat?.vendors[parseInt(btn.dataset.channelIdx)];
+        if (!channel) return;
+        const rows = [csvRow(['Date', 'Description', 'Channel', 'Relational Account', 'Amount', 'Notes'])];
+        channel.transactions.forEach(tx => rows.push(csvRow([
+          tx.date, tx.description, tx.channel, tx.relational_account ?? '',
+          tx.amount.toFixed(2), tx.relational_notes ?? ''
+        ])));
+        downloadCsv(`deposits-${channel.payee.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`, rows);
+      });
+    });
+
+    // Export AP Schedule
+    root.querySelector('#ee-export-ap-btn')?.addEventListener('click', () => {
+      const rows = [csvRow(['Vendor', 'Category', 'Status', 'Balance', 'Related Party', 'Contra Credit'])];
+      apSchedule.forEach(v => rows.push(csvRow([
+        v.vendor, v.category, v.status, v.amount.toFixed(2),
+        v.is_related_party ? 'Yes' : 'No', v.is_contra_credit ? 'Yes' : 'No'
+      ])));
+      downloadCsv('accounts-payable-schedule.csv', rows);
+    });
+
+    applyFilterSort();
+  }
+
+  document.addEventListener('astro:page-load', initExpenseExplorer);
+  if (document.readyState !== 'loading') initExpenseExplorer();
+  else document.addEventListener('DOMContentLoaded', initExpenseExplorer);
+</script>

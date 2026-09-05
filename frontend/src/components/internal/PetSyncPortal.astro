@@ -47,6 +47,26 @@ const dogsCount = activePets.filter((p) => p.type === 'dog').length;
 const catsCount = activePets.filter((p) => p.type === 'cat').length;
 const othersCount = activePets.filter((p) => p.type !== 'dog' && p.type !== 'cat').length;
 
+// Shelter Operational Pulse metrics
+const activeWithDays = activePets.map((p) => ({
+  ...p,
+  daysInCare: calculateDaysAtShelter(p.intake_date || p.first_seen_at) || 0,
+}));
+const longStayPets = activeWithDays.filter((p) => p.daysInCare > 60);
+const avgDaysInCare = Math.round(
+  activeWithDays.reduce((s, p) => s + p.daysInCare, 0) / (activeWithDays.length || 1)
+);
+const dogsAvgDays = Math.round(
+  activeWithDays.filter((p) => p.type === 'dog').reduce((s, p) => s + p.daysInCare, 0) / (dogsCount || 1)
+);
+const catsAvgDays = Math.round(
+  activeWithDays.filter((p) => p.type === 'cat').reduce((s, p) => s + p.daysInCare, 0) / (catsCount || 1)
+);
+
+const totalServed2026 = 527;
+const ytdAdoptions = 440;
+const dailyCareCost = '3.87';
+
 const getUrgencyBadge = (days: number | null) => {
   if (days === null) return null;
   if (days <= 14) return { label: 'New Intake (<14d)', color: 'bg-emerald-50 text-emerald-800 border-emerald-200' };
@@ -109,6 +129,47 @@ const getUrgencyBadge = (days: number | null) => {
           <span class="font-mono font-bold text-slate-900 text-[11px] block truncate" title={data.lastSyncTimestamp}>
             {formatDateTime(data.lastSyncTimestamp)}
           </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shelter Operational Pulse & Care Cost Card -->
+  <div class="bg-gradient-to-r from-teal-900 to-[#173a39] text-white rounded-xl shadow-xs p-5 border border-teal-800">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-800/80 text-teal-200 border border-teal-700">
+            Shelter Operational Pulse
+          </span>
+          <span class="text-xs text-teal-200/80">Money &amp; Mission Unified</span>
+        </div>
+        <h3 class="text-lg font-bold text-white tracking-tight">2026 Animal Care &amp; Life-Saving Impact</h3>
+        <p class="text-xs text-teal-100/80 mt-0.5 max-w-2xl">
+          Every operating dollar directly funds care, feeding, and medical treatment for Monroe County animals.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs shrink-0">
+        <div class="bg-white/10 backdrop-blur-xs rounded-lg p-2.5 border border-white/10">
+          <span class="text-[10px] uppercase font-bold text-teal-200 block">2026 Served YTD</span>
+          <span class="font-mono font-black text-base text-white">{totalServed2026} pets</span>
+          <span class="text-[10px] text-teal-200/70 block">{ytdAdoptions} adoptions YTD</span>
+        </div>
+        <div class="bg-white/10 backdrop-blur-xs rounded-lg p-2.5 border border-white/10">
+          <span class="text-[10px] uppercase font-bold text-teal-200 block">Avg Length of Stay</span>
+          <span class="font-mono font-black text-base text-white">{avgDaysInCare} days</span>
+          <span class="text-[10px] text-teal-200/70 block">Dogs {dogsAvgDays}d · Cats {catsAvgDays}d</span>
+        </div>
+        <div class="bg-white/10 backdrop-blur-xs rounded-lg p-2.5 border border-white/10">
+          <span class="text-[10px] uppercase font-bold text-teal-200 block">Daily Care Cost</span>
+          <span class="font-mono font-black text-base text-amber-300">${dailyCareCost}/day</span>
+          <span class="text-[10px] text-teal-200/70 block">Per animal in care</span>
+        </div>
+        <div class="bg-white/10 backdrop-blur-xs rounded-lg p-2.5 border border-white/10">
+          <span class="text-[10px] uppercase font-bold text-teal-200 block">Long Stay Alert</span>
+          <span class="font-mono font-black text-base text-amber-300">{longStayPets.length} pets</span>
+          <span class="text-[10px] text-teal-200/70 block">&gt;60 days in care</span>
         </div>
       </div>
     </div>
@@ -194,6 +255,18 @@ const getUrgencyBadge = (days: number | null) => {
         class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
       >
         🐾 Other (<span id="species-count-other">{othersCount}</span>)
+      </button>
+      <span class="text-slate-300 mx-1">|</span>
+      <button
+        type="button"
+        data-species-pill="longstay"
+        id="petsync-longstay-btn"
+        class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 transition shadow-xs flex items-center gap-1.5"
+      >
+        <span>⏰ Long Stay (&gt;60d)</span>
+        <span class="px-1.5 py-0.2 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold" id="species-count-longstay">
+          {longStayPets.length}
+        </span>
       </button>
     </div>
 
@@ -478,6 +551,7 @@ const getUrgencyBadge = (days: number | null) => {
           <div
             class="petsync-mobile-card bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3 transition"
             data-is-archived="false"
+            data-pet-id={pet.id}
             data-species={pet.type}
             data-location={pet.location || ''}
             data-search={`${pet.id} ${pet.name} ${pet.breed} ${pet.color || ''} ${pet.location || ''} ${pet.gender}`.toLowerCase()}
@@ -608,6 +682,8 @@ const getUrgencyBadge = (days: number | null) => {
   function initPetSyncPortal() {
     const root = document.getElementById('petsync-portal-root');
     if (!root) return;
+    if ((root as any).__petsync_initialized) return;
+    (root as any).__petsync_initialized = true;
 
     // Filter controls and DOM elements
     const statusPills = root.querySelectorAll<HTMLButtonElement>('.petsync-status-pill');
@@ -619,6 +695,8 @@ const getUrgencyBadge = (days: number | null) => {
     const exportBtn = root.querySelector('#export-csv-btn');
     const counterEl = root.querySelector('#petsync-filtered-count');
     const emptyStateEl = root.querySelector('#petsync-empty-state');
+    const tbody = root.querySelector('#petsync-tbody') as HTMLElement | null;
+    const mobileContainer = root.querySelector('#petsync-mobile-container') as HTMLElement | null;
 
     // State
     let activeStatus = 'active'; // 'active' | 'archived' | 'all'
@@ -629,12 +707,18 @@ const getUrgencyBadge = (days: number | null) => {
     let archivedInflated = false;
 
     async function ensureArchivedInflated() {
-      if (archivedInflated) return;
+      // Prevent duplicate inflation: if already marked inflated or if archived elements exist in DOM
+      if (
+        archivedInflated ||
+        (tbody && tbody.querySelector('.petsync-row[data-is-archived="true"]')) ||
+        (mobileContainer && mobileContainer.querySelector('.petsync-mobile-card[data-is-archived="true"]'))
+      ) {
+        archivedInflated = true;
+        return;
+      }
       archivedInflated = true;
 
       const scriptEl = document.getElementById('petsync-archive-data');
-      const tbody = document.getElementById('petsync-tbody');
-      const mobileContainer = document.getElementById('petsync-mobile-container');
       if (!scriptEl) return;
 
       let archivedList: any[] = [];
@@ -685,7 +769,25 @@ const getUrgencyBadge = (days: number | null) => {
         const tableFragment = document.createDocumentFragment();
         const mobileFragment = document.createDocumentFragment();
 
+        // Track existing IDs so we never add duplicate records
+        const existingTablePetIds = new Set<string>();
+        if (tbody) {
+          tbody.querySelectorAll<HTMLElement>('.petsync-row').forEach((r) => {
+            const pid = r.getAttribute('data-pet-id');
+            if (pid) existingTablePetIds.add(pid);
+          });
+        }
+
+        const existingMobilePetIds = new Set<string>();
+        if (mobileContainer) {
+          mobileContainer.querySelectorAll<HTMLElement>('.petsync-mobile-card').forEach((c) => {
+            const pid = c.getAttribute('data-pet-id');
+            if (pid) existingMobilePetIds.add(pid);
+          });
+        }
+
         archivedList.forEach((pet) => {
+          const petIdStr = String(pet.id);
           const daysAtShelter = pet.intake_date
             ? Math.floor((Date.now() - new Date(pet.intake_date).getTime()) / 86400000)
             : null;
@@ -719,8 +821,9 @@ const getUrgencyBadge = (days: number | null) => {
             description: pet.description,
           }).replace(/'/g, '&#39;');
 
-          // 1. Desktop Table Row
-          if (tbody) {
+          // 1. Desktop Table Row (strictly deduplicated)
+          if (tbody && !existingTablePetIds.has(petIdStr)) {
+            existingTablePetIds.add(petIdStr);
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-50/80 transition petsync-row';
             tr.setAttribute('data-is-archived', 'true');
@@ -730,7 +833,7 @@ const getUrgencyBadge = (days: number | null) => {
               'data-search',
               `${pet.id} ${pet.name} ${pet.breed} ${pet.color || ''} ${pet.location || ''} ${pet.gender}`.toLowerCase()
             );
-            tr.setAttribute('data-pet-id', pet.id);
+            tr.setAttribute('data-pet-id', petIdStr);
             tr.setAttribute('data-pet-name', pet.name);
             tr.setAttribute('data-pet-breed', pet.breed);
             tr.setAttribute('data-pet-species', pet.species_label || pet.type);
@@ -820,11 +923,13 @@ const getUrgencyBadge = (days: number | null) => {
             tableFragment.appendChild(tr);
           }
 
-          // 2. Mobile Card
-          if (mobileContainer) {
+          // 2. Mobile Card (strictly deduplicated)
+          if (mobileContainer && !existingMobilePetIds.has(petIdStr)) {
+            existingMobilePetIds.add(petIdStr);
             const card = document.createElement('div');
             card.className = 'petsync-mobile-card bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3 transition';
             card.setAttribute('data-is-archived', 'true');
+            card.setAttribute('data-pet-id', petIdStr);
             card.setAttribute('data-species', pet.type || '');
             card.setAttribute('data-location', pet.location || '');
             card.setAttribute(
@@ -921,9 +1026,17 @@ const getUrgencyBadge = (days: number | null) => {
       let dogsForStatus = 0;
       let catsForStatus = 0;
       let othersForStatus = 0;
+      let longStayForStatus = 0;
 
-      const currentRows = root.querySelectorAll<HTMLElement>('.petsync-row');
+      const seenPetIds = new Set<string>();
+      const currentRows = tbody ? tbody.querySelectorAll<HTMLElement>('.petsync-row') : root.querySelectorAll<HTMLElement>('tr.petsync-row');
       currentRows.forEach((row) => {
+        const petId = row.getAttribute('data-pet-id');
+        if (petId) {
+          if (seenPetIds.has(petId)) return;
+          seenPetIds.add(petId);
+        }
+
         const isArchived = row.getAttribute('data-is-archived') === 'true';
         let matchesStatus = true;
         if (activeStatus === 'active') matchesStatus = !isArchived;
@@ -931,7 +1044,11 @@ const getUrgencyBadge = (days: number | null) => {
 
         if (matchesStatus) {
           totalForStatus++;
-          const species = row.getAttribute('data-species') || '';
+          const species = (row.getAttribute('data-species') || '').toLowerCase();
+          const daysStr = row.getAttribute('data-days-at-shelter');
+          const days = daysStr ? parseInt(daysStr, 10) : null;
+          if (days !== null && days > 60) longStayForStatus++;
+
           if (species === 'dog') dogsForStatus++;
           else if (species === 'cat') catsForStatus++;
           else othersForStatus++;
@@ -942,11 +1059,13 @@ const getUrgencyBadge = (days: number | null) => {
       const countDog = root.querySelector('#species-count-dog');
       const countCat = root.querySelector('#species-count-cat');
       const countOther = root.querySelector('#species-count-other');
+      const countLongStay = root.querySelector('#species-count-longstay');
 
       if (countAll) countAll.textContent = String(totalForStatus);
       if (countDog) countDog.textContent = String(dogsForStatus);
       if (countCat) countCat.textContent = String(catsForStatus);
       if (countOther) countOther.textContent = String(othersForStatus);
+      if (countLongStay) countLongStay.textContent = String(longStayForStatus);
     };
 
     const applyFilters = () => {
@@ -969,7 +1088,11 @@ const getUrgencyBadge = (days: number | null) => {
 
         // Species filter
         let matchesSpecies = true;
-        if (activeSpecies) matchesSpecies = species === activeSpecies;
+        if (activeSpecies === 'longstay') {
+          matchesSpecies = days !== null && days > 60;
+        } else if (activeSpecies) {
+          matchesSpecies = species === activeSpecies;
+        }
 
         // Placement filter ('shelter' vs 'foster')
         let matchesLocation = true;
@@ -1125,9 +1248,14 @@ const getUrgencyBadge = (days: number | null) => {
         const visibleRows = Array.from(currentRows).filter((r) => r.style.display !== 'none');
         const headers = ['Pet ID', 'Name', 'Species', 'Breed', 'Location', 'Intake Date', 'Days in Care', 'Status'];
         const csvRows = [headers.join(',')];
+        const seenCsvIds = new Set<string>();
 
         visibleRows.forEach((row) => {
-          const id = `"${row.getAttribute('data-pet-id') || ''}"`;
+          const rawId = row.getAttribute('data-pet-id') || '';
+          if (rawId && seenCsvIds.has(rawId)) return;
+          if (rawId) seenCsvIds.add(rawId);
+
+          const id = `"${rawId}"`;
           const name = `"${row.getAttribute('data-pet-name') || ''}"`;
           const species = `"${row.getAttribute('data-pet-species') || ''}"`;
           const breed = `"${(row.getAttribute('data-pet-breed') || '').replace(/"/g, '""')}"`;

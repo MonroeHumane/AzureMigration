@@ -139,25 +139,25 @@ const formatCents = (val: number) => {
     <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
       <span class="font-semibold uppercase tracking-wider text-slate-700">Cash & Board Reserves</span>
       <span id="kpi-runway-badge" class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-        {kpis ? `${(kpis.total_liquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1)} Mo Net Runway` : '-- Mo Net Runway'}
+        {kpis ? `${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1)} Months of Cash` : '-- Months of Cash'}
       </span>
     </div>
     <div class="mt-2 flex items-baseline gap-2">
       <span id="kpi-total-liquidity" class="text-3xl font-bold tracking-tight text-[#173a39]">
-        {kpis ? formatDollar(kpis.total_liquidity) : '--'}
+        {kpis ? formatDollar((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) : '--'}
       </span>
       <span class="text-xs font-medium text-slate-500">Total Available</span>
     </div>
     <p class="text-xs text-slate-500 mt-2">
-      Checking: <span id="kpi-operating-cash" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.operating_cash) : '--'}</span> · 
+      Checking: <span id="kpi-operating-cash" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.bank_register_cash || kpis.operating_checking_first_merchants) : '--'}</span> · 
       Board Reserve: <span id="kpi-fidelity-reserve" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.fidelity_reserve) : '--'}</span>
     </p>
     <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
       <span>Zero-revenue buffer:</span>
-      <span id="kpi-zero-inflow" class="font-mono font-medium text-slate-800">{kpis ? `${kpis.runway_reserve_months.toFixed(1)} Mo Gross OpExp` : '-- Mo Gross OpExp'}</span>
+      <span id="kpi-zero-inflow" class="font-mono font-medium text-slate-800">{kpis ? `${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / ((kpis.qbo_cogs + kpis.qbo_operating_expenditures) / 8)).toFixed(1)} Months (Zero Inflow)` : '-- Months'}</span>
     </div>
     <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
-      14.3 months of runway at our current deficit pace (or 4.0 months if zero donor revenue came in).
+      13.5 months of runway at our current deficit pace (or 3.8 months if zero donor revenue came in).
     </p>
   </div>
 </section>

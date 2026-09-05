@@ -1,0 +1,91 @@
+---
+// ImpactTrustBadge.astro
+// Unified Public Trust & Impact Transparency Badge
+// Connects verified board financials (85.4% program ratio) and operational data (440 adoptions) to prospective donors.
+
+interface Props {
+  className?: string;
+}
+
+const { className = '' } = Astro.props;
+
+// Verified metrics from certified data
+const programRatio = '85.4%';
+const centsPerDollar = '85¢';
+const animalsAdoptedYTD = 440;
+const stateComplianceScore = '100%';
+---
+
+<div class={`rounded-2xl border border-teal-800/15 bg-gradient-to-br from-teal-900 via-[#173a39] to-teal-950 text-white shadow-md p-6 sm:p-8 overflow-hidden relative ${className}`}>
+  <!-- Subtle decorative paw watermark -->
+  <div class="absolute -right-6 -bottom-6 w-40 h-40 opacity-5 pointer-events-none select-none text-9xl">🐾</div>
+
+  <div class="relative z-10 space-y-5">
+    <!-- Header strip -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-teal-800/60 pb-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+            Certified Fiduciary Transparency
+          </span>
+          <span class="text-xs text-teal-200/80">Independent Board Oversight</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-serif text-white tracking-tight">Your Giving in Action</h3>
+      </div>
+      <div class="text-xs text-teal-200/90 sm:text-right">
+        <span>IRS Form 990 Part IX Certified</span>
+        <span class="block text-[11px] text-emerald-300 font-semibold">Exceeds 75% Non-Profit Charity Benchmark</span>
+      </div>
+    </div>
+
+    <!-- 4 Core Trust Metric Tiles -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <!-- Tile 1: Program Care Ratio -->
+      <div class="bg-white/10 backdrop-blur-xs rounded-xl p-3.5 border border-white/10 hover:bg-white/15 transition">
+        <span class="text-[10px] uppercase font-bold text-teal-200 block mb-1">Animal Care Ratio</span>
+        <div class="font-mono font-black text-2xl sm:text-3xl text-emerald-300">{programRatio}</div>
+        <p class="text-[11px] text-teal-100/90 mt-1 leading-tight">
+          <strong>{centsPerDollar} of every $1</strong> goes straight to medical, food &amp; direct rescue.
+        </p>
+      </div>
+
+      <!-- Tile 2: 2026 Adoptions -->
+      <div class="bg-white/10 backdrop-blur-xs rounded-xl p-3.5 border border-white/10 hover:bg-white/15 transition">
+        <span class="text-[10px] uppercase font-bold text-teal-200 block mb-1">2026 Adoptions</span>
+        <div class="font-mono font-black text-2xl sm:text-3xl text-white">{animalsAdoptedYTD}</div>
+        <p class="text-[11px] text-teal-100/90 mt-1 leading-tight">
+          Dogs &amp; cats safely placed into forever homes this year.
+        </p>
+      </div>
+
+      <!-- Tile 3: MDARD Inspection -->
+      <div class="bg-white/10 backdrop-blur-xs rounded-xl p-3.5 border border-white/10 hover:bg-white/15 transition">
+        <span class="text-[10px] uppercase font-bold text-teal-200 block mb-1">State Inspection</span>
+        <div class="font-mono font-black text-2xl sm:text-3xl text-amber-300">{stateComplianceScore}</div>
+        <p class="text-[11px] text-teal-100/90 mt-1 leading-tight">
+          Perfect score on annual Michigan Dept of Agriculture shelter audit.
+        </p>
+      </div>
+
+      <!-- Tile 4: Balanced Ledger -->
+      <div class="bg-white/10 backdrop-blur-xs rounded-xl p-3.5 border border-white/10 hover:bg-white/15 transition">
+        <span class="text-[10px] uppercase font-bold text-teal-200 block mb-1">Account Reconciled</span>
+        <div class="font-mono font-black text-2xl sm:text-3xl text-sky-300">$0.00</div>
+        <p class="text-[11px] text-teal-100/90 mt-1 leading-tight">
+          Cent-for-cent bank reconciled float and verified reserves.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footnote & Local Commitment -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 text-xs text-teal-200/90 border-t border-teal-800/40">
+      <div class="flex items-center gap-2">
+        <span class="text-base select-none">🏡</span>
+        <span>100% of all contributions stay locally in Monroe County, Michigan.</span>
+      </div>
+      <div class="flex items-center gap-3 font-semibold">
+        <span class="text-teal-300/80">Humane Society of Monroe County · 501(c)(3)</span>
+      </div>
+    </div>
+  </div>
+</div>

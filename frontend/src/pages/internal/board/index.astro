@@ -10,7 +10,9 @@ import BankStatementViewer from '../../../components/board/BankStatementViewer.a
 import MultiYearComparisonCard from '../../../components/board/MultiYearComparisonCard.astro';
 import ScenarioSimulatorCard from '../../../components/board/ScenarioSimulatorCard.astro';
 import GovernanceCard from '../../../components/board/GovernanceCard.astro';
+import ExpenseExplorer from '../../../components/board/ExpenseExplorer.astro';
 import financialData from '../../../data/published_2026_ytd.json';
+import statementData from '../../../data/statement_2026_08.json';
 
 // Fetch Directus governance items (with resilient bundled fallback)
 import { getBoardMeetings, getBoardDocuments } from '../../../lib/directus';
@@ -18,13 +20,14 @@ const boardMeetings = await getBoardMeetings();
 const boardDocuments = await getBoardDocuments();
 
 const subNavItems = [
-  { id: 'all', label: 'All Financials', icon: '📑' },
-  { id: 'snapshot', label: 'Summary & KPIs', icon: '📊' },
-  { id: 'statement', label: 'Monthly Statement', icon: '📅' },
-  { id: 'balance', label: 'Assets & Balance', icon: '🏦' },
-  { id: 'strategy', label: 'Cash Runway', icon: '📈' },
-  { id: 'audit', label: 'Bank Statement', icon: '🔍' },
-  { id: 'governance', label: 'Governance', icon: '🏛️' },
+  { id: 'all',      label: 'All Financials',    icon: '📑' },
+  { id: 'snapshot', label: 'Summary & KPIs',    icon: '📊' },
+  { id: 'statement',label: 'Monthly Statement', icon: '📅' },
+  { id: 'expenses', label: 'Cash Flow Explorer', icon: '🔄' },
+  { id: 'balance',  label: 'Assets & Balance',  icon: '🏦' },
+  { id: 'strategy', label: 'Cash Runway',       icon: '📈' },
+  { id: 'audit',    label: 'Bank Statement',    icon: '🔍' },
+  { id: 'governance',label: 'Governance',       icon: '🏛️' },
 ];
 ---
 
@@ -50,6 +53,16 @@ const subNavItems = [
       <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
       <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20">
         <MonthlyStatementTable statements={financialData.monthly_statements} />
+      </section>
+
+      <!-- Section 3: Cash Flow Explorer Drilldown (Inflows & Outflows) -->
+      <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20">
+        <ExpenseExplorer
+          withdrawals={statementData.withdrawals}
+          deposits={statementData.deposits}
+          apSchedule={financialData.accounts_payable_schedule}
+          statementPeriod="August 2026"
+        />
       </section>
 
       <!-- Section 3: Statement of Financial Position & Restricted Watch -->

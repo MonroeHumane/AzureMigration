@@ -473,7 +473,17 @@ const indexLabels: Record<string, string> = {
         <p class="home-editable-section-label wp-block-paragraph">{home.testimonials.label}</p>
         <h2 class="wp-block-heading">{home.testimonials.title}</h2>
         <p class="wp-block-paragraph">{home.testimonials.intro}</p>
-        <div class="monroe-testimonials">
+
+        <!-- Live Google reviews via Trustindex. TRUSTINDEX_WIDGET_ID is a placeholder —
+             swap in the real widget ID once the org's Trustindex account is connected
+             to its Google Business Profile. If the embed fails to load (blocked script,
+             bad widget ID), the static .monroe-testimonials grid below is revealed as a
+             fallback so the section never shows empty. -->
+        <div class="monroe-testimonials-live" data-trustindex-widget>
+          <div class="ti-widget" data-widget-id="TRUSTINDEX_WIDGET_ID"></div>
+          <script is:inline src="https://cdn.trustindex.io/loader.js?TRUSTINDEX_WIDGET_ID" async defer></script>
+        </div>
+        <div class="monroe-testimonials" data-testimonials-fallback hidden>
           {reviews.slice(0, 6).map((review) => (
             <figure class="monroe-testimonials__card">
               <blockquote class="monroe-testimonials__quote">{review.text}</blockquote>
@@ -484,6 +494,7 @@ const indexLabels: Record<string, string> = {
             </figure>
           ))}
         </div>
+        <noscript><style>[data-testimonials-fallback] { display: grid !important; }</style></noscript>
       </div>
     </div>
 
@@ -582,8 +593,14 @@ const indexLabels: Record<string, string> = {
       </div>
     </div>
 
-    <!-- 13. Social: static follow card (a live Facebook iframe embed is unreliable —
-         blocked by Safari/Firefox tracking protection and most ad-blockers by default) -->
+    <!-- 13. Social: live Facebook Page Plugin. The `.home-editable-social-embed__*`
+         classes below already existed in monroe-home.css (a chrome/viewport/iframe/
+         loader structure with an always-visible "Open on Facebook" CTA baked into the
+         loader itself) from an earlier attempt at this same embed — reusing it here
+         rather than inventing new markup. That CTA is plain HTML, not JS-gated, so a
+         real Facebook link stays visible even if the iframe is blocked by tracking
+         protection/ad-blockers (the reason a live embed was reverted once before) or
+         if JS never runs at all. -->
     <div class="wp-block-group alignwide home-editable-section is-layout-constrained" id="Social">
       <div class="wp-block-group home-editable-social-follow-card is-layout-constrained">
         <div class="home-editable-social-follow-card__icon" aria-hidden="true">
@@ -592,7 +609,33 @@ const indexLabels: Record<string, string> = {
         <p class="home-editable-section-label">Follow along</p>
         <h2 class="wp-block-heading">Find us on Facebook</h2>
         <p class="wp-block-paragraph">Photos, adoption updates, and shelter news, posted as they happen. Give us a follow to stay in the loop between visits.</p>
-        <a class="wp-block-button__link has-base-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Visit our Facebook page</a>
+
+        <div class="home-editable-social-embed__frame">
+          <div class="home-editable-social-embed" data-facebook-embed>
+            <div class="home-editable-social-embed__chrome">
+              <div class="home-editable-social-embed__viewport">
+                <iframe
+                  class="home-editable-social-embed__iframe"
+                  data-facebook-iframe
+                  src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(SITE.integrations.social.facebook)}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true`}
+                  scrolling="no"
+                  frameborder="0"
+                  allowfullscreen={true}
+                  allow="encrypted-media"
+                  loading="lazy"
+                  title="Humane Society of Monroe County on Facebook"
+                ></iframe>
+                <div class="home-editable-social-embed__loader">
+                  <div class="home-editable-social-embed__loader-icon" aria-hidden="true">f</div>
+                  <p class="home-editable-social-embed__loader-text">Loading the Facebook feed…</p>
+                  <div class="home-editable-social-embed__cta">
+                    <a class="home-editable-social-embed__open" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Open on Facebook</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -826,6 +869,32 @@ const indexLabels: Record<string, string> = {
             <a class="wp-block-button__link has-base-color has-contrast-background-color has-text-color has-background wp-element-button" href={TEL}>{home.contact.call_button}</a>
           </div>
         </div>
+
+        <div class="home-editable-contact-location">
+          <div class="home-editable-contact-location__map">
+            <iframe
+              src={`https://www.google.com/maps?q=${encodeURIComponent(SITE.contact.address.full)}&output=embed`}
+              width="100%"
+              height="280"
+              style="border:0;"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Map to Humane Society of Monroe County"
+            ></iframe>
+          </div>
+          <div class="home-editable-contact-location__details">
+            <p class="home-editable-contact-location__address">{SITE.contact.address.full}</p>
+            <p class="home-editable-contact-location__hours-badge" data-hours-badge>
+              <span class="home-editable-contact-location__hours-dot" data-hours-dot aria-hidden="true"></span>
+              <span data-hours-text>Checking hours…</span>
+            </p>
+            <ul class="home-editable-contact-location__hours-list">
+              <li><span>Tue – Fri</span><span>{SITE.contact.hours.tuesdayToFriday}</span></li>
+              <li><span>Saturday</span><span>{SITE.contact.hours.saturday}</span></li>
+              <li><span>Sun – Mon</span><span>{SITE.contact.hours.sundayMonday}</span></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1011,6 +1080,60 @@ const indexLabels: Record<string, string> = {
         if (feedback) feedback.textContent = 'Opening your email client to send your message. Thank you!';
         window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
       });
+    }
+
+    // Trustindex reviews embed: give the third-party script a moment to render.
+    // Fall back to the static reviews grid already in the DOM if the widget never
+    // produced real content (blocked script, ad-blocker) OR if Trustindex itself
+    // rendered its own "widget not found" error (confirmed live: an invalid/unset
+    // widget ID doesn't fail silently — Trustindex renders a visible, user-facing
+    // error message in the container, which the plain "is there any text" check
+    // alone would wrongly treat as successful content).
+    const trustindexLive = document.querySelector('[data-trustindex-widget]');
+    const trustindexFallback = document.querySelector<HTMLElement>('[data-testimonials-fallback]');
+    if (trustindexLive && trustindexFallback) {
+      window.setTimeout(() => {
+        const rect = trustindexLive.getBoundingClientRect();
+        const text = trustindexLive.textContent?.trim() ?? '';
+        const looksBroken = /widget not found|log in to the trustindex/i.test(text);
+        const hasContent = rect.height > 20 && text.length > 0 && !looksBroken;
+        if (!hasContent) {
+          (trustindexLive as HTMLElement).hidden = true;
+          trustindexFallback.hidden = false;
+        }
+      }, 2500);
+    }
+
+    // Facebook Page Plugin: best-effort fade of the loader overlay once the iframe
+    // reports loaded. The loader's "Open on Facebook" link is plain HTML (see the
+    // template), so it stays usable regardless of whether this fires.
+    const facebookIframe = document.querySelector<HTMLIFrameElement>('[data-facebook-iframe]');
+    facebookIframe?.addEventListener('load', () => {
+      facebookIframe.closest('[data-facebook-embed]')?.classList.add('is-loaded');
+    });
+
+    // Shelter open/closed badge, computed from SITE.contact.hours (Tue-Fri 11am-4pm,
+    // Sat 11am-3pm, closed Sun/Mon) — mirrors the same schedule already encoded in
+    // BaseLayout's schema.org openingHoursSpecification, just evaluated against "now".
+    const hoursBadge = document.querySelector<HTMLElement>('[data-hours-badge]');
+    if (hoursBadge) {
+      const hoursText = hoursBadge.querySelector<HTMLElement>('[data-hours-text]');
+      const hoursDot = hoursBadge.querySelector<HTMLElement>('[data-hours-dot]');
+      const now = new Date();
+      const day = now.getDay(); // 0=Sun ... 6=Sat
+      const minutes = now.getHours() * 60 + now.getMinutes();
+      const openRange = day >= 2 && day <= 5
+        ? { start: 11 * 60, end: 16 * 60, closeLabel: '4:00 PM' }
+        : day === 6
+          ? { start: 11 * 60, end: 15 * 60, closeLabel: '3:00 PM' }
+          : null;
+      const isOpen = !!openRange && minutes >= openRange.start && minutes < openRange.end;
+      if (hoursText) {
+        hoursText.textContent = isOpen
+          ? `Open now — closes ${openRange!.closeLabel}`
+          : 'Closed now — see hours below';
+      }
+      if (hoursDot) hoursDot.classList.toggle('is-open', isOpen);
     }
     }
 
