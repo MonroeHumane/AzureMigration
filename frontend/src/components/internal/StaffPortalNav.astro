@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'overview';
+  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'donors' | 'overview';
 }
 
 const { activeTab = 'overview' } = Astro.props;
@@ -138,7 +138,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <circle cx="12" cy="12" r="10"></circle>
           <path d="m10 15 5-3-5-3v6Z"></path>
         </svg>
-        🐾 Shelter Animals & Census
+        Shelter Animals & Census
       </a>
 
       <a
@@ -154,7 +154,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <line x1="12" y1="1" x2="12" y2="23"></line>
           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
         </svg>
-        📊 Board Financials & Treasury
+        Board Financials & Treasury
       </a>
 
       <a
@@ -170,7 +170,22 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
         </svg>
-        📋 Grants Pipeline
+        Grants Pipeline
+      </a>
+
+      <a
+        href="/internal/donors/"
+        data-nav-tab="donors"
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+          activeTab === 'donors'
+            ? 'bg-emerald-600 text-white shadow-xs font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800/80'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-rose-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+        </svg>
+        Donors & Giving
       </a>
 
       <a
@@ -222,7 +237,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <circle cx="12" cy="12" r="10"></circle>
           <path d="m10 15 5-3-5-3v6Z"></path>
         </svg>
-        🐾 Shelter Animals & Census
+        Shelter Animals & Census
       </a>
 
       <a
@@ -237,7 +252,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <line x1="12" y1="1" x2="12" y2="23"></line>
           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
         </svg>
-        📊 Board Financials & Treasury
+        Board Financials & Treasury
       </a>
 
       <a
@@ -252,7 +267,21 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
         </svg>
-        📋 Grants Pipeline
+        Grants Pipeline
+      </a>
+
+      <a
+        href="/internal/donors/"
+        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
+          activeTab === 'donors'
+            ? 'bg-emerald-600 text-white font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+        </svg>
+        Donors & Giving
       </a>
 
       <div class="pt-2 border-t border-teal-800/80 flex items-center justify-between text-xs text-teal-200 px-1">

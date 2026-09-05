@@ -198,7 +198,7 @@ const monthsMap = (monthlyDrilldownsData as any).months || {};
                         <div class="bg-white rounded-xl border border-emerald-200/80 shadow-2xs overflow-hidden flex flex-col">
                           <div class="bg-emerald-900 text-white px-4 py-2.5 flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                              <span class="text-sm">💵</span>
+                              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
                               <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-100">
                                 Revenue Inflows ({m.month})
                               </h4>
@@ -224,7 +224,7 @@ const monthsMap = (monthlyDrilldownsData as any).months || {};
                                         <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0 transition-transform transform group-[.is-cat-open]/cat:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                         </svg>
-                                        <span class="text-sm select-none">{cat.icon || '💵'}</span>
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                                         <div class="min-w-0">
                                           <span class="font-semibold text-slate-800 text-xs block truncate">{cat.name}</span>
                                           <span class="text-[10px] text-slate-400 block truncate">{cat.group}</span>
@@ -306,7 +306,7 @@ const monthsMap = (monthlyDrilldownsData as any).months || {};
                         <div class="bg-white rounded-xl border border-rose-200/80 shadow-2xs overflow-hidden flex flex-col">
                           <div class="bg-[#173a39] text-white px-4 py-2.5 flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                              <span class="text-sm">💸</span>
+                              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
                               <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">
                                 Expenditures by Category ({m.month})
                               </h4>
@@ -332,7 +332,7 @@ const monthsMap = (monthlyDrilldownsData as any).months || {};
                                         <svg class="w-3.5 h-3.5 text-teal-700 shrink-0 transition-transform transform group-[.is-cat-open]/cat:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                         </svg>
-                                        <span class="text-sm select-none">{cat.icon || '💸'}</span>
+                                        <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
                                         <div class="min-w-0">
                                           <span class="font-semibold text-slate-800 text-xs block truncate">{cat.name}</span>
                                           <span class="text-[10px] text-slate-400 block truncate">{cat.group}</span>
@@ -524,14 +524,20 @@ const monthsMap = (monthlyDrilldownsData as any).months || {};
               {/* Mobile Revenue List */}
               <div class="bg-white rounded-lg border border-emerald-200 shadow-2xs overflow-hidden">
                 <div class="bg-emerald-800 text-white px-3 py-2 flex items-center justify-between">
-                  <span class="text-xs font-bold">💵 Revenue Inflows ({m.month})</span>
+                  <span class="text-xs font-bold flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
+                    Revenue Inflows ({m.month})
+                  </span>
                   <span class="font-mono font-bold text-xs text-emerald-200">{formatDollar(m.revenue)}</span>
                 </div>
                 <div class="p-2 divide-y divide-slate-100 text-xs max-h-72 overflow-y-auto">
                   {revCats.map((cat: any) => (
                     <div class="py-2">
                       <div class="flex justify-between items-center">
-                        <span class="font-semibold text-slate-800">{cat.icon} {cat.name}</span>
+                        <span class="font-semibold text-slate-800 flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                          {cat.name}
+                        </span>
                         <span class="font-mono font-bold text-emerald-700">+{formatDollar(cat.total)}</span>
                       </div>
                       <div class="text-[10px] text-slate-400 mt-0.5">
@@ -558,14 +564,20 @@ const monthsMap = (monthlyDrilldownsData as any).months || {};
               {/* Mobile Expenditures List */}
               <div class="bg-white rounded-lg border border-rose-200 shadow-2xs overflow-hidden">
                 <div class="bg-[#173a39] text-white px-3 py-2 flex items-center justify-between">
-                  <span class="text-xs font-bold">💸 Expenditures ({m.month})</span>
+                  <span class="text-xs font-bold flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-300"></span>
+                    Expenditures ({m.month})
+                  </span>
                   <span class="font-mono font-bold text-xs text-amber-200">{formatDollar(m.total_exp)}</span>
                 </div>
                 <div class="p-2 divide-y divide-slate-100 text-xs max-h-72 overflow-y-auto">
                   {expCats.map((cat: any) => (
                     <div class="py-2">
                       <div class="flex justify-between items-center">
-                        <span class="font-semibold text-slate-800">{cat.icon} {cat.name}</span>
+                        <span class="font-semibold text-slate-800 flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
+                          {cat.name}
+                        </span>
                         <span class="font-mono font-bold text-slate-900">{formatDollar(cat.total)}</span>
                       </div>
                       <div class="text-[10px] text-slate-400 mt-0.5">

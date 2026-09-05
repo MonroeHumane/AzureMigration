@@ -48,15 +48,15 @@ const runwayMonths = (totalBankLiquidity / monthlyOperatingBurn).toFixed(1);
 
 // ── August 2026 Expense Explorer aggregation ────────────────────────────────
 const CATEGORY_DEFS = [
-  { key: 'wages',       name: 'Wages & Payroll',        icon: '💰', group: 'Payroll',    sourceCategories: ['Staff Payroll', 'Staff Paycheck'] },
-  { key: 'taxes',       name: 'Payroll Taxes',           icon: '🏛️', group: 'Payroll',    sourceCategories: ['Payroll Taxes'] },
-  { key: 'medical',     name: 'Veterinary & Medical',    icon: '🏥', group: 'Operations', sourceCategories: ['Veterinary & Medical Care', 'Veterinary Supply'] },
-  { key: 'facilities',  name: 'Facilities & Sanitation', icon: '🧺', group: 'Operations', sourceCategories: ['Facilities & Sanitation'] },
-  { key: 'insurance',   name: 'Insurance',               icon: '🛡️', group: 'Operations', sourceCategories: ['Insurance & Risk'] },
-  { key: 'capital',     name: 'Capital Projects',        icon: '🏗️', group: 'Capital',    sourceCategories: ['Capital Improvements'] },
-  { key: 'creditcard',  name: 'Credit Card Clearing',    icon: '💳', group: 'Operations', sourceCategories: ['Credit Card Liability'] },
-  { key: 'software',    name: 'Software & Technology',   icon: '💻', group: 'Operations', sourceCategories: ['Software & Technology', 'Software & Cloud'] },
-  { key: 'bankfees',    name: 'Bank & Merchant Fees',    icon: '🏦', group: 'Operations', sourceCategories: ['Bank & Processing Fees'] },
+  { key: 'wages',       name: 'Wages & Payroll',        group: 'Payroll',    sourceCategories: ['Staff Payroll', 'Staff Paycheck'] },
+  { key: 'taxes',       name: 'Payroll Taxes',           group: 'Payroll',    sourceCategories: ['Payroll Taxes'] },
+  { key: 'medical',     name: 'Veterinary & Medical',    group: 'Operations', sourceCategories: ['Veterinary & Medical Care', 'Veterinary Supply'] },
+  { key: 'facilities',  name: 'Facilities & Sanitation', group: 'Operations', sourceCategories: ['Facilities & Sanitation'] },
+  { key: 'insurance',   name: 'Insurance',               group: 'Operations', sourceCategories: ['Insurance & Risk'] },
+  { key: 'capital',     name: 'Capital Projects',        group: 'Capital',    sourceCategories: ['Capital Improvements'] },
+  { key: 'creditcard',  name: 'Credit Card Clearing',    group: 'Operations', sourceCategories: ['Credit Card Liability'] },
+  { key: 'software',    name: 'Software & Technology',   group: 'Operations', sourceCategories: ['Software & Technology', 'Software & Cloud'] },
+  { key: 'bankfees',    name: 'Bank & Merchant Fees',    group: 'Operations', sourceCategories: ['Bank & Processing Fees'] },
 ];
 
 const expenseCategories = CATEGORY_DEFS.map((def) => {
@@ -497,7 +497,7 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
       {expenseCategories.map((c) => (
         <tr>
           <td>
-            <strong>{c.icon} {c.name}</strong>
+            <strong>{c.name}</strong>
           </td>
           <td>
             <span class="badge" style="font-size:7.5px;">{c.group}</span>

@@ -6,7 +6,7 @@
     "has_partial_cutoff": false,
     "published_by": "Jeffery Howard, Director's Assistant",
     "published_at": "2026-09-04T21:15:00Z",
-    "sha256_checksum": "d54b4ff816e8ee18f1598522956e2647e5fb118661c66ae805a4d4c8077604c8",
+    "sha256_checksum": "e3e33d570dcd2994575e640858295580cda96a1945e5f9a752290e824aa43198",
     "basis": "Accrual",
     "governance_level": "Board-Confidential",
     "organization_name": "Humane Society of Monroe County",
@@ -72,7 +72,7 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 25392.4
+          "amount": 25292.4
         },
         {
           "name": "Corporate Donations",
@@ -92,7 +92,7 @@
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 915
+          "amount": 1015.0
         },
         {
           "name": "Event Donation",
@@ -571,7 +571,7 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 16313.09
+          "amount": 16213.09
         },
         {
           "name": "Government grants & contracts",
@@ -581,7 +581,7 @@
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 2905
+          "amount": 3005.0
         },
         {
           "name": "Retail Partner Rebates",
@@ -882,7 +882,7 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 34962.96
+          "amount": 34862.96
         },
         {
           "name": "Animal Adoptions",
@@ -948,6 +948,11 @@
           "name": "Foundation Grants",
           "group": "Contributed income",
           "amount": 10
+        },
+        {
+          "name": "Memorial Donations",
+          "group": "Contributed income",
+          "amount": 100.0
         }
       ],
       "exp_items": [
@@ -1080,7 +1085,7 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 4192.46
+          "amount": 4067.46
         },
         {
           "name": "Bottle & Can Recycling Revenue",
@@ -1090,7 +1095,7 @@
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 1715
+          "amount": 1840.0
         },
         {
           "name": "Foundation Grants",
@@ -1263,7 +1268,7 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 10997.55
+          "amount": 10747.55
         },
         {
           "name": "Animal Adoptions",
@@ -1278,7 +1283,7 @@
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 7749.17
+          "amount": 7999.17
         },
         {
           "name": "Event Donation",

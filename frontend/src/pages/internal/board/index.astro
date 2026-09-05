@@ -10,11 +10,11 @@ import financialData from '../../../data/published_2026_ytd.json';
 import statementData from '../../../data/statement_2026_08.json';
 
 const subNavItems = [
-  { id: 'all',      label: 'All Financials',    icon: '📑' },
-  { id: 'snapshot', label: 'Summary & KPIs',    icon: '📊' },
-  { id: 'statement',label: 'Monthly Statement', icon: '📅' },
-  { id: 'expenses', label: 'Cash Flow Explorer', icon: '🔄' },
-  { id: 'audit',    label: 'Bank Statement',    icon: '🔍' },
+  { id: 'all',      label: 'All Financials' },
+  { id: 'snapshot', label: 'Summary & KPIs' },
+  { id: 'statement',label: 'Monthly Statement' },
+  { id: 'expenses', label: 'Cash Flow Explorer' },
+  { id: 'audit',    label: 'Bank Statement' },
 ];
 ---
 
@@ -47,7 +47,6 @@ const subNavItems = [
         <ExpenseExplorer
           withdrawals={statementData.withdrawals}
           deposits={statementData.deposits}
-          apSchedule={financialData.accounts_payable_schedule}
           statementPeriod="August 2026"
         />
       </section>

@@ -1,0 +1,778 @@
+---
+interface Gift {
+  date: string;
+  amount: number;
+  platform: string;
+  campaign: string;
+  type: string;
+  memo: string;
+  dedication: string;
+  isTribute: boolean;
+  reference: string;
+}
+
+export interface Donor {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  lifetimeTotal: number;
+  transactionsCount: number;
+  firstGiftDate: string;
+  latestGiftDate: string;
+  givingTier: string;
+  tierId: string;
+  tierColor: string;
+  platformsList: string[];
+  campaignsList: string[];
+  hasMailingAddress: boolean;
+  tributesCount: number;
+  gifts: Gift[];
+}
+
+interface Props {
+  donors: Donor[];
+}
+
+const { donors = [] } = Astro.props;
+---
+
+<div class="space-y-4" id="donor-roster-container">
+  <!-- Controls: Search, Filter, Sort, Pagination, Export -->
+  <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3.5">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <!-- Search Input -->
+      <div class="relative flex-1 min-w-[240px]">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+        </div>
+        <input
+          type="text"
+          id="donor-search-input"
+          placeholder="Search by donor name, email, phone, city, state, or dedication memo..."
+          class="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-slate-900 transition outline-none"
+        />
+        <button
+          id="donor-search-clear-btn"
+          type="button"
+          class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600"
+          title="Clear search"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Export CSV Button -->
+      <div class="flex items-center gap-2">
+        <button
+          id="export-donors-csv-btn"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white transition shadow-xs cursor-pointer"
+          title="Export filtered donor list with mailing addresses"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export CSV (<span id="export-count-label">{donors.length}</span>)
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 pt-2 border-t border-slate-100 text-xs">
+      <!-- Tier Filter -->
+      <div>
+        <label for="filter-tier" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Giving Tier</label>
+        <select
+          id="filter-tier"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
+        >
+          <option value="all">All Tiers</option>
+          <option value="visionary">Visionary ($10k+)</option>
+          <option value="benefactor">Benefactor ($5k–$10k)</option>
+          <option value="patron">Patron ($1k–$5k)</option>
+          <option value="sustainer">Sustainer ($500–$1k)</option>
+          <option value="friend">Friend ($100–$500)</option>
+          <option value="supporter">Supporter (&lt; $100)</option>
+        </select>
+      </div>
+
+      <!-- Platform Filter -->
+      <div>
+        <label for="filter-platform" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Source Platform</label>
+        <select
+          id="filter-platform"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
+        >
+          <option value="all">All Platforms</option>
+          <option value="BetterUnite">BetterUnite</option>
+          <option value="PayPal">PayPal</option>
+          <option value="Paper Check">Paper Check / Bank</option>
+          <option value="multi">Multi-Platform Donors</option>
+        </select>
+      </div>
+
+      <!-- Address Status Filter -->
+      <div>
+        <label for="filter-address" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Tax Mailing Address</label>
+        <select
+          id="filter-address"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
+        >
+          <option value="all">All Donors</option>
+          <option value="has_address">Has Verified Address (Ready)</option>
+          <option value="no_address">Missing Address</option>
+        </select>
+      </div>
+
+      <!-- Recency Filter -->
+      <div>
+        <label for="filter-recency" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Activity Period</label>
+        <select
+          id="filter-recency"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
+        >
+          <option value="all">All Giving History</option>
+          <option value="2026">Active in 2026 YTD</option>
+          <option value="2025">Active in 2025</option>
+          <option value="earlier">Prior to 2025</option>
+        </select>
+      </div>
+
+      <!-- Sort Filter -->
+      <div>
+        <label for="filter-sort" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Sort By</label>
+        <select
+          id="filter-sort"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs font-medium"
+        >
+          <option value="lifetime_desc">Lifetime Total (High &rarr; Low)</option>
+          <option value="lifetime_asc">Lifetime Total (Low &rarr; High)</option>
+          <option value="recent_desc">Most Recent Gift</option>
+          <option value="gifts_desc">Most Transactions</option>
+          <option value="name_asc">Donor Name (A &rarr; Z)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-slate-50/90 text-slate-600 border-b border-slate-200 font-semibold uppercase tracking-wider text-[10px]">
+            <th class="py-3 px-4 w-10 text-center"></th>
+            <th class="py-3 px-4">Donor & Contact</th>
+            <th class="py-3 px-4">Giving Tier</th>
+            <th class="py-3 px-4">Channels Used</th>
+            <th class="py-3 px-4 text-center">Gifts</th>
+            <th class="py-3 px-4">Latest Gift</th>
+            <th class="py-3 px-4 text-right">Lifetime Total</th>
+            <th class="py-3 px-4 text-center w-24">Action</th>
+          </tr>
+        </thead>
+        <tbody id="donor-table-body" class="divide-y divide-slate-100">
+          <!-- Populated client-side via JavaScript for fast sorting/filtering/pagination -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div id="donor-empty-state" class="hidden py-12 text-center text-slate-500 space-y-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <div class="text-sm font-semibold text-slate-700">No donors match your search criteria</div>
+      <p class="text-xs text-slate-500">Try adjusting your filters, clearing your search query, or selecting "All Tiers".</p>
+    </div>
+
+    <!-- Pagination & Stats Footer -->
+    <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs text-slate-600">
+      <div class="flex items-center gap-2">
+        <span>Showing <strong id="page-start" class="text-slate-900 font-bold">1</strong> to <strong id="page-end" class="text-slate-900 font-bold">50</strong> of <strong id="total-filtered-count" class="text-slate-900 font-bold">0</strong> donors</span>
+        <span class="text-slate-300">|</span>
+        <label for="page-size" class="text-slate-500">Per page:</label>
+        <select id="page-size" class="py-1 px-2 rounded border border-slate-200 bg-white text-xs text-slate-800 outline-none">
+          <option value="25">25</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+          <option value="250">250</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-1.5 self-end sm:self-auto">
+        <button
+          id="pagination-prev-btn"
+          type="button"
+          class="px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
+        >
+          Previous
+        </button>
+        <span id="page-indicator" class="px-2 font-medium text-slate-700">Page 1 of 1</span>
+        <button
+          id="pagination-next-btn"
+          type="button"
+          class="px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Embedded Raw Data Script for High Performance Client Operations -->
+<script is:inline define:vars={{ donors }}>
+  window.__HSMC_DONORS__ = donors;
+</script>
+
+<script is:inline>
+  // Client-side Reactive State
+  const allDonors = window.__HSMC_DONORS__ || [];
+  let filteredDonors = [...allDonors];
+  let currentPage = 1;
+  let pageSize = 50;
+  const openDrawers = new Set();
+
+  const searchInput = document.getElementById('donor-search-input');
+  const clearSearchBtn = document.getElementById('donor-search-clear-btn');
+  const filterTier = document.getElementById('filter-tier');
+  const filterPlatform = document.getElementById('filter-platform');
+  const filterAddress = document.getElementById('filter-address');
+  const filterRecency = document.getElementById('filter-recency');
+  const filterSort = document.getElementById('filter-sort');
+  const pageSizeSelect = document.getElementById('page-size');
+  const prevBtn = document.getElementById('pagination-prev-btn');
+  const nextBtn = document.getElementById('pagination-next-btn');
+  const tableBody = document.getElementById('donor-table-body');
+  const emptyState = document.getElementById('donor-empty-state');
+  const exportBtn = document.getElementById('export-donors-csv-btn');
+  const exportCountLabel = document.getElementById('export-count-label');
+  const totalFilteredCountEl = document.getElementById('total-filtered-count');
+  const pageStartEl = document.getElementById('page-start');
+  const pageEndEl = document.getElementById('page-end');
+  const pageIndicatorEl = document.getElementById('page-indicator');
+
+  function formatMoney(n) {
+    return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const parts = d.split('-');
+    if (parts.length === 3) {
+      const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    return d;
+  }
+
+  function getTierBadge(tierId, label) {
+    let dotColor = 'bg-slate-400';
+    let badgeBg = 'bg-slate-50 border-slate-200 text-slate-700';
+
+    if (tierId === 'visionary') {
+      dotColor = 'bg-purple-500';
+      badgeBg = 'bg-purple-50 border-purple-200 text-purple-800';
+    } else if (tierId === 'benefactor') {
+      dotColor = 'bg-emerald-500';
+      badgeBg = 'bg-emerald-50 border-emerald-200 text-emerald-800';
+    } else if (tierId === 'patron') {
+      dotColor = 'bg-blue-500';
+      badgeBg = 'bg-blue-50 border-blue-200 text-blue-800';
+    } else if (tierId === 'sustainer') {
+      dotColor = 'bg-teal-500';
+      badgeBg = 'bg-teal-50 border-teal-200 text-teal-800';
+    } else if (tierId === 'friend') {
+      dotColor = 'bg-amber-500';
+      badgeBg = 'bg-amber-50 border-amber-200 text-amber-800';
+    }
+
+    return `
+      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${badgeBg}">
+        <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+        <span>${label}</span>
+      </span>
+    `;
+  }
+
+  function getPlatformPill(p) {
+    let color = 'bg-slate-100 text-slate-600 border-slate-200';
+    if (p === 'BetterUnite') color = 'bg-teal-50 text-teal-700 border-teal-200';
+    else if (p === 'PayPal') color = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    else if (p.includes('Check')) color = 'bg-amber-50 text-amber-800 border-amber-200';
+
+    return `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border ${color}">${p}</span>`;
+  }
+
+  function applyFilters() {
+    const q = (searchInput?.value || '').trim().toLowerCase();
+    const tier = filterTier?.value || 'all';
+    const plat = filterPlatform?.value || 'all';
+    const addr = filterAddress?.value || 'all';
+    const rec = filterRecency?.value || 'all';
+    const sort = filterSort?.value || 'lifetime_desc';
+
+    if (clearSearchBtn) {
+      clearSearchBtn.classList.toggle('hidden', !q);
+    }
+
+    filteredDonors = allDonors.filter(d => {
+      // Search
+      if (q) {
+        const text = [
+          d.name,
+          d.email,
+          d.phone,
+          d.address,
+          d.givingTier,
+          d.platformsList?.join(' '),
+          d.gifts?.map(g => g.campaign + ' ' + g.memo + ' ' + g.reference).join(' ')
+        ].join(' ').toLowerCase();
+
+        if (!text.includes(q)) return false;
+      }
+
+      // Tier
+      if (tier !== 'all' && d.tierId !== tier) return false;
+
+      // Platform
+      if (plat !== 'all') {
+        if (plat === 'multi') {
+          if (!d.platformsList || d.platformsList.length < 2) return false;
+        } else {
+          if (!d.platformsList || !d.platformsList.some(p => p.toLowerCase().includes(plat.toLowerCase()))) return false;
+        }
+      }
+
+      // Address
+      if (addr === 'has_address' && !d.hasMailingAddress) return false;
+      if (addr === 'no_address' && d.hasMailingAddress) return false;
+
+      // Recency
+      if (rec !== 'all') {
+        const yr = (d.latestGiftDate || '').substring(0, 4);
+        if (rec === '2026' && yr !== '2026') return false;
+        if (rec === '2025' && yr !== '2025') return false;
+        if (rec === 'earlier' && (yr === '2026' || yr === '2025')) return false;
+      }
+
+      return true;
+    });
+
+    // Sorting
+    filteredDonors.sort((a, b) => {
+      if (sort === 'lifetime_desc') return b.lifetimeTotal - a.lifetimeTotal;
+      if (sort === 'lifetime_asc') return a.lifetimeTotal - b.lifetimeTotal;
+      if (sort === 'recent_desc') return (b.latestGiftDate || '').localeCompare(a.latestGiftDate || '');
+      if (sort === 'gifts_desc') return b.transactionsCount - a.transactionsCount;
+      if (sort === 'name_asc') return a.name.localeCompare(b.name);
+      return 0;
+    });
+
+    currentPage = 1;
+    renderTable();
+  }
+
+  function renderTable() {
+    if (!tableBody) return;
+
+    const total = filteredDonors.length;
+    if (exportCountLabel) exportCountLabel.textContent = total.toLocaleString();
+    if (totalFilteredCountEl) totalFilteredCountEl.textContent = total.toLocaleString();
+
+    if (total === 0) {
+      tableBody.innerHTML = '';
+      if (emptyState) emptyState.classList.remove('hidden');
+      if (pageStartEl) pageStartEl.textContent = '0';
+      if (pageEndEl) pageEndEl.textContent = '0';
+      if (pageIndicatorEl) pageIndicatorEl.textContent = 'Page 0 of 0';
+      if (prevBtn) prevBtn.disabled = true;
+      if (nextBtn) nextBtn.disabled = true;
+      return;
+    }
+
+    if (emptyState) emptyState.classList.add('hidden');
+
+    const totalPages = Math.ceil(total / pageSize);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIdx = (currentPage - 1) * pageSize;
+    const endIdx = Math.min(startIdx + pageSize, total);
+
+    if (pageStartEl) pageStartEl.textContent = (startIdx + 1).toLocaleString();
+    if (pageEndEl) pageEndEl.textContent = endIdx.toLocaleString();
+    if (pageIndicatorEl) pageIndicatorEl.textContent = `Page ${currentPage} of ${totalPages}`;
+
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+
+    const pageSlice = filteredDonors.slice(startIdx, endIdx);
+
+    const rowsHtml = pageSlice.map((donor, idx) => {
+      const isOpen = openDrawers.has(donor.id);
+      const isEven = idx % 2 === 0;
+
+      // Badges
+      const tributeBadge = donor.tributesCount > 0
+        ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200" title="${donor.tributesCount} tribute/memorial gifts">
+             <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+             ${donor.tributesCount} Tribute${donor.tributesCount > 1 ? 's' : ''}
+           </span>`
+        : '';
+
+      const addressBadge = donor.hasMailingAddress
+        ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Verified mailing address ready for tax acknowledgments">
+             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+             Tax Letter Ready
+           </span>`
+        : '';
+
+      // Main Row
+      const mainRow = `
+        <tr
+          id="row-${donor.id}"
+          class="hover:bg-slate-50/80 transition cursor-pointer ${isEven ? 'bg-white' : 'bg-slate-50/40'} ${isOpen ? 'bg-emerald-50/20' : ''}"
+          data-donor-id="${donor.id}"
+        >
+          <td class="py-3 px-4 text-center">
+            <button
+              type="button"
+              class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition cursor-pointer"
+              aria-expanded="${isOpen}"
+              aria-controls="drawer-${donor.id}"
+              title="${isOpen ? 'Collapse Details' : 'Expand Details'}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-90 text-emerald-600' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </td>
+          <td class="py-3 px-4">
+            <div class="font-bold text-slate-900 text-xs flex items-center gap-2">
+              <span>${donor.name}</span>
+              ${tributeBadge}
+              ${addressBadge}
+            </div>
+            <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 mt-0.5">
+              ${donor.email ? `<span class="text-slate-600 font-mono text-[10px]">${donor.email}</span>` : ''}
+              ${donor.phone ? `<span>&bull; ${donor.phone}</span>` : ''}
+              ${donor.address ? `<span class="truncate max-w-[280px]" title="${donor.address}">&bull; ${donor.address}</span>` : ''}
+            </div>
+          </td>
+          <td class="py-3 px-4 whitespace-nowrap">
+            ${getTierBadge(donor.tierId, donor.givingTier)}
+          </td>
+          <td class="py-3 px-4">
+            <div class="flex flex-wrap gap-1">
+              ${(donor.platformsList || []).map(getPlatformPill).join('')}
+            </div>
+          </td>
+          <td class="py-3 px-4 text-center font-semibold text-slate-700">
+            ${donor.transactionsCount}
+          </td>
+          <td class="py-3 px-4 text-slate-600 whitespace-nowrap text-[11px]">
+            ${formatDate(donor.latestGiftDate)}
+          </td>
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <span class="font-bold font-mono text-slate-900 text-xs">${formatMoney(donor.lifetimeTotal)}</span>
+          </td>
+          <td class="py-3 px-4 text-center whitespace-nowrap">
+            <button
+              type="button"
+              class="inspect-donor-btn px-2.5 py-1 rounded text-[11px] font-semibold transition border ${isOpen ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'}"
+              data-donor-id="${donor.id}"
+            >
+              ${isOpen ? 'Close' : 'Inspect'}
+            </button>
+          </td>
+        </tr>
+      `;
+
+      // Expandable Drawer Row
+      if (!isOpen) return mainRow;
+
+      const giftsList = donor.gifts || [];
+      const giftsHtml = giftsList.length > 0
+        ? giftsList.map((g, gIdx) => `
+            <tr class="${gIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} text-slate-700 hover:bg-slate-100/60 transition">
+              <td class="py-2 px-3 font-mono text-[11px] text-slate-600">${formatDate(g.date)}</td>
+              <td class="py-2 px-3">${getPlatformPill(g.platform)}</td>
+              <td class="py-2 px-3 font-medium text-slate-800">${g.campaign || 'Direct Support'}</td>
+              <td class="py-2 px-3 text-[11px] text-slate-500">${g.type || 'Direct Gift'}</td>
+              <td class="py-2 px-3 font-mono font-bold text-slate-900 text-right">${formatMoney(g.amount)}</td>
+              <td class="py-2 px-3 text-[11px] text-slate-600 max-w-[280px] truncate" title="${g.dedication || g.memo || ''}">
+                ${g.dedication ? `<span class="font-semibold text-rose-700">Tribute:</span> ${g.dedication}` : (g.memo || '—')}
+              </td>
+              <td class="py-2 px-3 font-mono text-[10px] text-slate-400 text-right">${g.reference || '—'}</td>
+            </tr>
+          `).join('')
+        : `
+            <tr>
+              <td colspan="7" class="py-6 text-center text-slate-400 text-xs italic">
+                Lifetime contributions derived from consolidated ledger balances. Individual sub-transactions are logged in annual master archives.
+              </td>
+            </tr>
+          `;
+
+      const drawerRow = `
+        ${mainRow}
+        <tr id="drawer-${donor.id}" class="bg-slate-50/80 border-b-2 border-emerald-600/30">
+          <td colspan="8" class="p-0">
+            <div class="p-4 space-y-4">
+              <!-- High-level Donor 360 Card -->
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-1">
+                  <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Verified Contact Details</div>
+                  <div class="font-medium text-slate-900 text-xs truncate">${donor.name}</div>
+                  <div class="text-[11px] text-slate-600 truncate">${donor.email || 'No email on file'}</div>
+                  <div class="text-[11px] text-slate-600">${donor.phone || 'No phone on file'}</div>
+                </div>
+
+                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-1">
+                  <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Mailing Address (Tax Letter)</div>
+                  ${donor.hasMailingAddress
+                    ? `<div class="text-xs text-slate-800 leading-snug">${donor.address}</div>
+                       <div class="text-[10px] font-semibold text-emerald-700 flex items-center gap-1 mt-1">
+                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Validated Postal Address
+                       </div>`
+                    : `<div class="text-xs text-slate-400 italic">No physical mailing address on file.</div>
+                       <div class="text-[10px] text-amber-700 font-medium mt-1">Direct online giving profile</div>`}
+                </div>
+
+                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-1">
+                  <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Giving Span & Recency</div>
+                  <div class="text-xs text-slate-800">First Gift: <strong>${formatDate(donor.firstGiftDate)}</strong></div>
+                  <div class="text-xs text-slate-800">Latest Gift: <strong>${formatDate(donor.latestGiftDate)}</strong></div>
+                  <div class="text-[10px] text-slate-500 mt-1">Total Recorded Transactions: <strong>${donor.transactionsCount}</strong></div>
+                </div>
+
+                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs flex flex-col justify-between">
+                  <div>
+                    <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Lifetime Giving Level</div>
+                    <div class="text-base font-bold font-mono text-slate-900 mt-0.5">${formatMoney(donor.lifetimeTotal)}</div>
+                    <div class="mt-1">${getTierBadge(donor.tierId, donor.givingTier)}</div>
+                  </div>
+                  <button
+                    type="button"
+                    class="export-single-donor-btn mt-2 inline-flex items-center justify-center gap-1.5 py-1 px-2.5 rounded text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition border border-slate-200 cursor-pointer"
+                    data-donor-id="${donor.id}"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export Giving Statement
+                  </button>
+                </div>
+              </div>
+
+              <!-- Itemized Gift Ledger -->
+              <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-2xs">
+                <div class="px-3.5 py-2.5 bg-slate-100/70 border-b border-slate-200 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span class="text-xs font-bold text-slate-800">Historical Gift Ledger</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-200 text-slate-700">${giftsList.length} Entries</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500">
+                    Penny-accurate records reconciled against BetterUnite, PayPal, and First Merchants
+                  </div>
+                </div>
+
+                <div class="overflow-x-auto max-h-72 overflow-y-auto">
+                  <table class="w-full text-left border-collapse text-xs">
+                    <thead class="sticky top-0 bg-slate-50 border-b border-slate-200 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                      <tr>
+                        <th class="py-2 px-3">Date</th>
+                        <th class="py-2 px-3">Platform</th>
+                        <th class="py-2 px-3">Campaign / Cause</th>
+                        <th class="py-2 px-3">Type</th>
+                        <th class="py-2 px-3 text-right">Amount</th>
+                        <th class="py-2 px-3">Dedication / Memo</th>
+                        <th class="py-2 px-3 text-right">Reference ID</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                      ${giftsHtml}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+
+      return drawerRow;
+    }).join('');
+
+    tableBody.innerHTML = rowsHtml;
+  }
+
+  // Event Delegation for Table Clicks
+  tableBody?.addEventListener('click', (e) => {
+    const target = e.target;
+    const row = target.closest('tr[data-donor-id]');
+    if (!row) return;
+
+    const donorId = row.dataset.donorId;
+    if (!donorId) return;
+
+    // Toggle drawer
+    if (openDrawers.has(donorId)) {
+      openDrawers.delete(donorId);
+    } else {
+      openDrawers.add(donorId);
+    }
+    renderTable();
+  });
+
+  // Export Single Donor Statement
+  document.addEventListener('click', (e) => {
+    const target = e.target;
+    const btn = target.closest('.export-single-donor-btn');
+    if (!btn) return;
+    const donorId = btn.dataset.donorId;
+    const donor = allDonors.find(d => d.id === donorId);
+    if (!donor) return;
+
+    const csvRows = [
+      ['Humane Society of Monroe County - Donor Giving Statement'],
+      ['Donor Name', donor.name],
+      ['Email', donor.email],
+      ['Phone', donor.phone],
+      ['Mailing Address', `"${(donor.address || '').replace(/"/g, '""')}"`],
+      ['Lifetime Total', donor.lifetimeTotal.toFixed(2)],
+      ['Giving Tier', donor.givingTier],
+      ['Total Gifts', donor.transactionsCount],
+      [],
+      ['Date', 'Platform', 'Campaign', 'Type', 'Amount', 'Dedication', 'Reference ID']
+    ];
+
+    (donor.gifts || []).forEach(g => {
+      csvRows.push([
+        g.date,
+        g.platform,
+        `"${(g.campaign || '').replace(/"/g, '""')}"`,
+        g.type,
+        g.amount.toFixed(2),
+        `"${(g.dedication || g.memo || '').replace(/"/g, '""')}"`,
+        `"${(g.reference || '').replace(/"/g, '""')}"`
+      ]);
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + csvRows.map(r => r.join(',')).join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `HSMC_Statement_${donor.name.replace(/[^a-zA-Z0-9]/g, '_')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+  // Export Full Filtered Roster CSV
+  exportBtn?.addEventListener('click', () => {
+    const headers = [
+      'Donor ID',
+      'Primary Name',
+      'Email',
+      'Phone',
+      'Mailing Address',
+      'Lifetime Total Given',
+      'Total Transactions',
+      'Giving Tier',
+      'Platforms Used',
+      'First Gift Date',
+      'Latest Gift Date',
+      'Has Mailing Address'
+    ];
+
+    const rows = filteredDonors.map(d => [
+      d.id,
+      `"${(d.name || '').replace(/"/g, '""')}"`,
+      `"${(d.email || '').replace(/"/g, '""')}"`,
+      `"${(d.phone || '').replace(/"/g, '""')}"`,
+      `"${(d.address || '').replace(/"/g, '""')}"`,
+      d.lifetimeTotal.toFixed(2),
+      d.transactionsCount,
+      `"${d.givingTier}"`,
+      `"${(d.platformsList || []).join('; ')}"`,
+      d.firstGiftDate || '',
+      d.latestGiftDate || '',
+      d.hasMailingAddress ? 'YES' : 'NO'
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `HSMC_Master_Donors_Export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+  // Search input with debounce
+  let debounceTimeout;
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(applyFilters, 150);
+  });
+
+  clearSearchBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    applyFilters();
+  });
+
+  // Filter change handlers
+  filterTier?.addEventListener('change', applyFilters);
+  filterPlatform?.addEventListener('change', applyFilters);
+  filterAddress?.addEventListener('change', applyFilters);
+  filterRecency?.addEventListener('change', applyFilters);
+  filterSort?.addEventListener('change', applyFilters);
+
+  // Pagination change handlers
+  pageSizeSelect?.addEventListener('change', () => {
+    pageSize = parseInt(pageSizeSelect.value) || 50;
+    currentPage = 1;
+    renderTable();
+  });
+
+  prevBtn?.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTable();
+      document.getElementById('donor-roster-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredDonors.length / pageSize);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderTable();
+      document.getElementById('donor-roster-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  // Initial table render
+  applyFilters();
+</script>

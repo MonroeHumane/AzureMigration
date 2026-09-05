@@ -23,54 +23,54 @@ const EXCLUDE_TOP = new Set([
 ]);
 
 const ACCOUNT_NORMALIZATION = {
-  'Salaries & Wages-1': { name: 'Caregiver Salaries & Wages', group: 'Personnel & Staffing', icon: '💰' },
-  'Salaries & Wages': { name: 'Caregiver Salaries & Wages', group: 'Personnel & Staffing', icon: '💰' },
-  'Payroll Taxes': { name: 'Payroll Taxes', group: 'Personnel & Staffing', icon: '🏛️' },
-  'Workplace Injury & Medical Care': { name: 'Workplace Injury Care', group: 'Personnel & Staffing', icon: '🩹' },
-  'Staff & Volunteer Appreciation Meals': { name: 'Staff & Volunteer Meals', group: 'Personnel & Staffing', icon: '🍱' },
-  'Animal Care Supplies': { name: 'Animal Care Supplies & Food', group: 'Shelter Operations', icon: '🐾' },
-  'Facility & Cleaning Supplies': { name: 'Facility & Cleaning Supplies', group: 'Shelter Operations', icon: '🧹' },
-  'General Shelter Supplies': { name: 'General Shelter Supplies', group: 'Shelter Operations', icon: '📦' },
-  'Laundry & Sanitation Services': { name: 'Laundry & Sanitation Services', group: 'Shelter Operations', icon: '🧺' },
-  'Microchips & Registries': { name: 'Microchips & Registries', group: 'Shelter Operations', icon: '🏷️' },
-  'Adoption Fee Refunds & Returns': { name: 'Adoption Fee Refunds & Returns', group: 'Shelter Operations', icon: '↩️' },
-  'Building Repairs': { name: 'Building Repairs & Maintenance', group: 'Shelter Operations', icon: '🔧' },
-  'Cleaning': { name: 'Facility Deep Cleaning', group: 'Shelter Operations', icon: '🧼' },
-  'Emergency & Specialty Care': { name: 'Emergency & Specialty Veterinary', group: 'Veterinary & Medical Care', icon: '🚑' },
-  'Medications & Vaccines': { name: 'Medications & Vaccines', group: 'Veterinary & Medical Care', icon: '💊' },
-  'Primary Care & Wellness': { name: 'Primary Care & Wellness Clinics', group: 'Veterinary & Medical Care', icon: '🩺' },
-  'Spay & Neuter Program': { name: 'Spay & Neuter Program', group: 'Veterinary & Medical Care', icon: '✂️' },
-  'Vendor Rebates & Credits': { name: 'Medical Vendor Rebates', group: 'Veterinary & Medical Care', icon: '🏷️' },
-  'Gas': { name: 'Rescue Van Fuel & Transit', group: 'Vehicle Expenses', icon: '🚐' },
-  'Vehicle Repairs & Maintenance': { name: 'Vehicle Repairs & Maintenance', group: 'Vehicle Expenses', icon: '🔩' },
-  'Liability insurance': { name: 'Shelter Property & Liability Insurance', group: 'Insurance & Risk', icon: '🛡️' },
-  'Software & Apps': { name: 'Software & Cloud Apps', group: 'Office & Admin', icon: '💻' },
-  'Equipment Lease & Maintenance': { name: 'Equipment Lease & Maintenance', group: 'Office & Admin', icon: '🖨️' },
-  'Office Supplies': { name: 'Office Supplies', group: 'Office & Admin', icon: '📎' },
-  'Printing & Photocopying': { name: 'Printing & Photocopying', group: 'Office & Admin', icon: '📄' },
-  'Shipping & Postage': { name: 'Shipping & Postage', group: 'Office & Admin', icon: '✉️' },
-  'Bank Fees & Service Charges': { name: 'Bank & Account Fees', group: 'Financial Operations', icon: '🏦' },
-  'Merchant Account Fees': { name: 'Merchant Gateway & Card Fees', group: 'Financial Operations', icon: '💳' },
-  'Fundraising fees': { name: 'Fundraising Platform Fees', group: 'Financial Operations', icon: '🎗️' },
-  'Promotional Items': { name: 'Promotional Items & Outreach', group: 'Marketing & Outreach', icon: '📣' },
-  'Special Events & Gala Expenses': { name: 'Special Events & Gala Expenses', group: 'Fundraising & Events', icon: '🎉' },
+  'Salaries & Wages-1': { name: 'Caregiver Salaries & Wages', group: 'Personnel & Staffing' },
+  'Salaries & Wages': { name: 'Caregiver Salaries & Wages', group: 'Personnel & Staffing' },
+  'Payroll Taxes': { name: 'Payroll Taxes', group: 'Personnel & Staffing' },
+  'Workplace Injury & Medical Care': { name: 'Workplace Injury Care', group: 'Personnel & Staffing' },
+  'Staff & Volunteer Appreciation Meals': { name: 'Staff & Volunteer Meals', group: 'Personnel & Staffing' },
+  'Animal Care Supplies': { name: 'Animal Care Supplies & Food', group: 'Shelter Operations' },
+  'Facility & Cleaning Supplies': { name: 'Facility & Cleaning Supplies', group: 'Shelter Operations' },
+  'General Shelter Supplies': { name: 'General Shelter Supplies', group: 'Shelter Operations' },
+  'Laundry & Sanitation Services': { name: 'Laundry & Sanitation Services', group: 'Shelter Operations' },
+  'Microchips & Registries': { name: 'Microchips & Registries', group: 'Shelter Operations' },
+  'Adoption Fee Refunds & Returns': { name: 'Adoption Fee Refunds & Returns', group: 'Shelter Operations' },
+  'Building Repairs': { name: 'Building Repairs & Maintenance', group: 'Shelter Operations' },
+  'Cleaning': { name: 'Facility Deep Cleaning', group: 'Shelter Operations' },
+  'Emergency & Specialty Care': { name: 'Emergency & Specialty Veterinary', group: 'Veterinary & Medical Care' },
+  'Medications & Vaccines': { name: 'Medications & Vaccines', group: 'Veterinary & Medical Care' },
+  'Primary Care & Wellness': { name: 'Primary Care & Wellness Clinics', group: 'Veterinary & Medical Care' },
+  'Spay & Neuter Program': { name: 'Spay & Neuter Program', group: 'Veterinary & Medical Care' },
+  'Vendor Rebates & Credits': { name: 'Medical Vendor Rebates', group: 'Veterinary & Medical Care' },
+  'Gas': { name: 'Rescue Van Fuel & Transit', group: 'Vehicle Expenses' },
+  'Vehicle Repairs & Maintenance': { name: 'Vehicle Repairs & Maintenance', group: 'Vehicle Expenses' },
+  'Liability insurance': { name: 'Shelter Property & Liability Insurance', group: 'Insurance & Risk' },
+  'Software & Apps': { name: 'Software & Cloud Apps', group: 'Office & Admin' },
+  'Equipment Lease & Maintenance': { name: 'Equipment Lease & Maintenance', group: 'Office & Admin' },
+  'Office Supplies': { name: 'Office Supplies', group: 'Office & Admin' },
+  'Printing & Photocopying': { name: 'Printing & Photocopying', group: 'Office & Admin' },
+  'Shipping & Postage': { name: 'Shipping & Postage', group: 'Office & Admin' },
+  'Bank Fees & Service Charges': { name: 'Bank & Account Fees', group: 'Financial Operations' },
+  'Merchant Account Fees': { name: 'Merchant Gateway & Card Fees', group: 'Financial Operations' },
+  'Fundraising fees': { name: 'Fundraising Platform Fees', group: 'Financial Operations' },
+  'Promotional Items': { name: 'Promotional Items & Outreach', group: 'Marketing & Outreach' },
+  'Special Events & Gala Expenses': { name: 'Special Events & Gala Expenses', group: 'Fundraising & Events' },
   // Revenue
-  'Donations directed by individuals': { name: 'Individual Donor Contributions', group: 'Contributed Income', icon: '🤝' },
-  'Corporate Donations': { name: 'Corporate Donations', group: 'Contributed Income', icon: '🏢' },
-  'Donation Canisters (Dog Banks)': { name: 'Canister & Community Coin Banks', group: 'Contributed Income', icon: '🪙' },
-  'Cat Room Expansion Fund': { name: 'Cat Room Expansion Fund', group: 'Contributed Income', icon: '🐱' },
-  'Foundation Grants': { name: 'Foundation Grants', group: 'Contributed Income', icon: '🏛️' },
-  'Government grants & contracts': { name: 'Municipal Contracts & Grants', group: 'Contributed Income', icon: '📜' },
-  'Grants from other nonprofits': { name: 'Grants from Other Nonprofits', group: 'Contributed Income', icon: '🎗️' },
-  'Memorial Donations': { name: 'Memorial Donations', group: 'Contributed Income', icon: '💐' },
-  'Animal Adoptions': { name: 'Animal Adoption Fees', group: 'Earned Revenue', icon: '🐶' },
-  'cremation': { name: 'Pet Cremation Services', group: 'Earned Revenue', icon: '🕊️' },
-  'Event Donation': { name: 'Event Proceeds & Ticket Donations', group: 'Earned Revenue', icon: '🎟️' },
-  'Merchandise Sales (Swag)': { name: 'Merchandise & Swag Sales', group: 'Earned Revenue', icon: '👕' },
-  'Bottle & Can Recycling Revenue': { name: 'Bottle & Can Recycling Proceeds', group: 'Community Support', icon: '♻️' },
-  'Court Restitution': { name: 'Court Restitution', group: 'Community Support', icon: '⚖️' },
-  'Quarterly Endowment Distributions': { name: 'Community Foundation Endowment Grants', group: 'Endowment Support', icon: '🌳' },
-  'Retail Partner Rebates': { name: 'Retail Partner Rebates (Kroger/Meijer)', group: 'Community Support', icon: '🛒' },
+  'Donations directed by individuals': { name: 'Individual Donor Contributions', group: 'Contributed Income' },
+  'Corporate Donations': { name: 'Corporate Donations', group: 'Contributed Income' },
+  'Donation Canisters (Dog Banks)': { name: 'Canister & Community Coin Banks', group: 'Contributed Income' },
+  'Cat Room Expansion Fund': { name: 'Cat Room Expansion Fund', group: 'Contributed Income' },
+  'Foundation Grants': { name: 'Foundation Grants', group: 'Contributed Income' },
+  'Government grants & contracts': { name: 'Municipal Contracts & Grants', group: 'Contributed Income' },
+  'Grants from other nonprofits': { name: 'Grants from Other Nonprofits', group: 'Contributed Income' },
+  'Memorial Donations': { name: 'Memorial Donations', group: 'Contributed Income' },
+  'Animal Adoptions': { name: 'Animal Adoption Fees', group: 'Earned Revenue' },
+  'cremation': { name: 'Pet Cremation Services', group: 'Earned Revenue' },
+  'Event Donation': { name: 'Event Proceeds & Ticket Donations', group: 'Earned Revenue' },
+  'Merchandise Sales (Swag)': { name: 'Merchandise & Swag Sales', group: 'Earned Revenue' },
+  'Bottle & Can Recycling Revenue': { name: 'Bottle & Can Recycling Proceeds', group: 'Community Support' },
+  'Court Restitution': { name: 'Court Restitution', group: 'Community Support' },
+  'Quarterly Endowment Distributions': { name: 'Community Foundation Endowment Grants', group: 'Endowment Support' },
+  'Retail Partner Rebates': { name: 'Retail Partner Rebates (Kroger/Meijer)', group: 'Community Support' },
 };
 
 const REVENUE_ACCOUNTS = new Set([
@@ -118,7 +118,29 @@ function parseSection(sec, parentName = '') {
 
           const rawAmt = parseFloat(amtStr) || 0;
           const isRev = isRevenueAccount(name, parentName);
-          const meta = ACCOUNT_NORMALIZATION[name] || { name, group: parentName || (isRev ? 'Revenue' : 'Expenses'), icon: isRev ? '💵' : '💸' };
+          let meta = ACCOUNT_NORMALIZATION[name] || { name, group: parentName || (isRev ? 'Revenue' : 'Expenses') };
+
+          // Reclassify donations with explicit memorial/tribute dedications as Memorial Donations
+          const fullMemo = (memo + ' ' + payee).toLowerCase();
+          const hasDedication = fullMemo.includes('dedication:') || fullMemo.includes('in memory') || fullMemo.includes('in loving memory') || fullMemo.includes('memorial');
+          if (isRev && hasDedication) {
+            meta = { name: 'Memorial Donations', group: 'Contributed Income' };
+          }
+
+          // If donor name is embedded in memo (e.g. BetterUnite payouts), extract actual donor name
+          if ((cleanPayee === 'BETTER UNITE' || cleanPayee === 'Branch Deposit Batch') && memo.includes('Donor:')) {
+            const donorMatch = memo.match(/Donor:\s*([^|]+)/i);
+            if (donorMatch) {
+              cleanPayee = donorMatch[1].trim();
+            }
+          } else if (!payee.trim() && meta.name === 'Memorial Donations') {
+            const tributeMatch = memo.match(/(?:memorial(?:\s+for)?|in\s+(?:loving\s+)?memory\s+of|memory\s+of|in\s+honor\s+of)\s+([^,|;]+)/i);
+            if (tributeMatch) {
+              cleanPayee = `Memorial: ${tributeMatch[1].trim()}`;
+            } else if (memo.trim() && !memo.toLowerCase().includes('deposit')) {
+              cleanPayee = `Memorial: ${memo.trim()}`;
+            }
+          }
 
           txs.push({
             date,
@@ -131,7 +153,6 @@ function parseSection(sec, parentName = '') {
             rawAmount: rawAmt,
             category: meta.name,
             group: meta.group,
-            icon: meta.icon,
             isRevenue: isRev
           });
         }
@@ -181,7 +202,6 @@ for (const m of stepsMap) {
         catMap[t.category] = {
           name: t.category,
           group: t.group,
-          icon: t.icon,
           transactions: []
         };
       }
@@ -226,7 +246,6 @@ for (const m of stepsMap) {
       return {
         name: cat.name,
         group: cat.group,
-        icon: cat.icon,
         total: roundedTotal,
         pctOfTotal,
         payeeCount: payees.length,
@@ -274,7 +293,6 @@ function buildYtdRollup() {
         catMap[t.category] = {
           name: t.category,
           group: t.group,
-          icon: t.icon,
           transactions: []
         };
       }
@@ -319,7 +337,6 @@ function buildYtdRollup() {
       return {
         name: cat.name,
         group: cat.group,
-        icon: cat.icon,
         total: roundedTotal,
         pctOfTotal,
         payeeCount: payees.length,

@@ -1,0 +1,215 @@
+---
+import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
+import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro';
+import donorDatabase from '../../../data/donor_database.json';
+
+const { meta, donors } = donorDatabase;
+
+function formatCurrency(n: number) {
+  return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+---
+
+<StaffPortalLayout
+  title="Donor Registry & Lifetime Giving | Humane Society of Monroe County"
+  description="Consolidated, deduplicated donor profiles spanning BetterUnite, PayPal, Paper Checks, and QuickBooks Online."
+  activeTab="donors"
+>
+  <div class="space-y-6">
+    <!-- Executive Banner -->
+    <section class="bg-gradient-to-r from-[#173a39] via-teal-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-md border border-teal-800/80">
+      <div class="max-w-5xl space-y-3">
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+            Deduplicated Giving Registry
+          </span>
+          <span class="px-2.5 py-0.5 rounded-full font-medium bg-teal-800/60 text-teal-200 border border-teal-700/60">
+            BetterUnite &bull; PayPal &bull; Bank Checks &bull; QuickBooks
+          </span>
+          <span class="text-teal-300/80 font-mono text-[11px]">
+            Synced: September 2026
+          </span>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+          Donor Registry &amp; Lifetime Giving
+        </h1>
+
+        <p class="text-xs sm:text-sm text-teal-100 max-w-3xl leading-relaxed">
+          Comprehensive, single-source-of-truth directory uniting all shelter contributors. Duplicates across online campaigns, PayPal transfers, and paper checks are merged into single donor profiles with verified mailing addresses, giving tiers, and penny-accurate historical gift ledgers.
+        </p>
+
+        <!-- Quick Summary Metrics Bar -->
+        <div class="pt-3 flex flex-wrap items-center gap-4 text-xs text-teal-200/90 border-t border-teal-800/60 font-medium">
+          <div>
+            Total Consolidated Giving: <strong class="text-white font-bold font-mono">{formatCurrency(meta.total_lifetime_volume)}</strong>
+          </div>
+          <span class="text-teal-700">&bull;</span>
+          <div>
+            Master Donors: <strong class="text-white font-bold">{meta.total_donors.toLocaleString()}</strong>
+          </div>
+          <span class="text-teal-700">&bull;</span>
+          <div>
+            Verified Addresses: <strong class="text-emerald-300 font-bold">{meta.total_with_address.toLocaleString()}</strong>
+          </div>
+          <span class="text-teal-700">&bull;</span>
+          <div>
+            Memorial Tributes: <strong class="text-white font-bold">{meta.total_tributes_count.toLocaleString()} Dedications</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto space-y-6">
+      <!-- Headline KPI Cards Grid -->
+      <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        <!-- KPI 1: Total Volume -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
+            <span>Total Lifetime Giving</span>
+            <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-slate-900">
+            {formatCurrency(meta.total_lifetime_volume)}
+          </div>
+          <div class="mt-1 text-[10px] text-slate-500">
+            All channels combined
+          </div>
+        </div>
+
+        <!-- KPI 2: Total Donors -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
+            <span>Master Donors</span>
+            <div class="w-6 h-6 rounded-md bg-blue-50 text-blue-700 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-slate-900">
+            {meta.total_donors.toLocaleString()}
+          </div>
+          <div class="mt-1 text-[10px] text-slate-500">
+            100% deduplicated entities
+          </div>
+        </div>
+
+        <!-- KPI 3: Major Donors ($1,000+) -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
+            <span>Major Donors ($1k+)</span>
+            <div class="w-6 h-6 rounded-md bg-purple-50 text-purple-700 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-purple-900">
+            {meta.major_donors_count}
+          </div>
+          <div class="mt-1 text-[10px] text-purple-700 font-medium">
+            13 Visionary &bull; 15 Benefactor
+          </div>
+        </div>
+
+        <!-- KPI 4: Tax-Ready Addresses -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
+            <span>Tax-Letter Ready</span>
+            <div class="w-6 h-6 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-teal-900">
+            {meta.total_with_address.toLocaleString()}
+          </div>
+          <div class="mt-1 text-[10px] text-teal-700 font-medium">
+            {((meta.total_with_address / meta.total_donors) * 100).toFixed(1)}% validated postal addresses
+          </div>
+        </div>
+
+        <!-- KPI 5: 2026 Active Donors -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between col-span-2 sm:col-span-1">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
+            <span>2026 Active Giving</span>
+            <div class="w-6 h-6 rounded-md bg-amber-50 text-amber-700 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-amber-900">
+            {meta.active_2026_count}
+          </div>
+          <div class="mt-1 text-[10px] text-amber-700 font-medium">
+            Contributed in 2026 YTD
+          </div>
+        </div>
+      </section>
+
+      <!-- Giving Tiers Overview Ribbon -->
+      <section class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <span class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Donor Pyramid Breakdown:</span>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-[11px]">
+            <span class="inline-flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+              <span class="text-slate-600">Visionary:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.visionary}</strong>
+            </span>
+            <span class="text-slate-300">&bull;</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-slate-600">Benefactor:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.benefactor}</strong>
+            </span>
+            <span class="text-slate-300">&bull;</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span class="text-slate-600">Patron:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.patron}</strong>
+            </span>
+            <span class="text-slate-300">&bull;</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+              <span class="text-slate-600">Sustainer:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.sustainer}</strong>
+            </span>
+            <span class="text-slate-300">&bull;</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span class="text-slate-600">Friend:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.friend}</strong>
+            </span>
+            <span class="text-slate-300">&bull;</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+              <span class="text-slate-600">Supporter:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.supporter}</strong>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Interactive Donor Roster with Drilldowns -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Master Donor Roster</h2>
+            <p class="text-xs text-slate-500">Click any row or the Inspect button to drill down into the donor profile and historical gift ledger.</p>
+          </div>
+        </div>
+
+        <DonorRosterTable donors={donors} />
+      </section>
+    </main>
+  </div>
+</StaffPortalLayout>
