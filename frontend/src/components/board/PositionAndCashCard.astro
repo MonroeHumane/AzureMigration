@@ -133,8 +133,8 @@ const { position = null } = Astro.props;
             </p>
           </div>
 
-          <div class="p-2 rounded bg-amber-50/60 border border-amber-200 text-[11px] text-amber-900 leading-tight">
-            <strong>QBO Total Liabilities Walk:</strong> Trade debt is certified and reconciled against vendor schedules.
+          <div class="p-2 rounded bg-slate-50 border border-slate-200 text-[11px] text-slate-600 leading-tight">
+            Operational trade obligations reconciled against active accounts.
           </div>
         </div>
       </div>
@@ -145,18 +145,18 @@ const { position = null } = Astro.props;
       </div>
     </div>
 
-    <!-- Col 3: Net Assets Structure & Exact Workbook Equity Walk -->
+    <!-- Col 3: Net Assets Structure & Equity -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
       <div>
         <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39]">Workbook Equity Structure</h3>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39]">Net Assets & Equity Structure</h3>
           <span id="pos-total-equity-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800">
             Total Equity: --
           </span>
         </div>
 
         <div class="space-y-2 text-xs">
-          <!-- Exact Workbook Equity Walk Lines -->
+          <!-- Exact Net Assets Walk Lines -->
           <div class="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-1">
             <div class="flex justify-between font-semibold text-slate-800">
               <div>
@@ -190,14 +190,14 @@ const { position = null } = Astro.props;
             </div>
 
             <div class="pt-1.5 border-t-2 border-slate-300 flex justify-between font-bold text-slate-900">
-              <span>(=) Certified Workbook Equity</span>
+              <span>(=) Total Net Assets / Equity</span>
               <span id="pos-total-equity" class="font-mono text-[#1c746c]">--</span>
             </div>
           </div>
 
           <!-- Balance Sheet Equilibrium Confirmation -->
           <div class="p-2 rounded bg-emerald-50 border border-emerald-200 text-[10.5px] text-emerald-900 leading-tight">
-            <strong>Equilibrium Check:</strong> Total Liabilities + Total Equity = Total Assets with <strong>$0.00 variance</strong>.
+            <strong>Balanced:</strong> Total Liabilities + Equity = Total Assets (<strong>$0.00 variance</strong>).
           </div>
         </div>
       </div>

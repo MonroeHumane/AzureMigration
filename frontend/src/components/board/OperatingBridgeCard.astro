@@ -44,7 +44,7 @@ const formatSigned = (val: number) => {
         Certified Operating-to-All-In Reconciliation Bridge
       </h3>
       <p class="text-xs text-slate-500 mt-0.5">
-        CONF-1 Certified: Preserving QBO operating net on certified statements with C2 commentary for substance.
+        Reconciling QuickBooks Online operating net to total change in net assets.
       </p>
     </div>
     <span id="bridge-badge" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
@@ -119,9 +119,9 @@ const formatSigned = (val: number) => {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div>
-          <span class="font-semibold text-[#173a39]">Governance Standard Note (CONF-1 & C2):</span>
+          <span class="font-semibold text-[#173a39]">Accounting Reconciliation Note:</span>
           <span id="bridge-c2-commentary">
-            {bridge ? `${bridge.c2_commentary} ` : ''}Per board governance determination, the certified financial statement adheres strictly to QBO account types to prevent duplicate accounting versions, while this bridge details operational substance.
+            {bridge ? `${bridge.c2_commentary} ` : ''}The certified financial statements adhere strictly to QuickBooks Online account types, while this bridge reflects non-operating allocations (endowments, vehicle fuel, and recycling proceeds).
           </span>
         </div>
       </div>

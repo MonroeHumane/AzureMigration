@@ -51,7 +51,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
         2026 Month-by-Month Operating Statement
       </h3>
       <p class="text-xs text-slate-500 mt-0.5">
-        CONF-3 Verified: Certified cent-for-cent QBO pull. Zero plug lines. Click any row to expand line-item schedule.
+        Reconciled from QuickBooks Online general ledger. Click any row to view itemized revenue and expense details.
       </p>
     </div>
     <div class="flex items-center gap-2 self-start sm:self-auto">
@@ -194,7 +194,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
           <td id="footing-net-margin" class="py-3 px-3 text-right font-mono text-rose-400 font-bold">{statements.length ? formatDollar(totalNet) : '--'}</td>
           <td id="footing-margin-pct" class="py-3 px-3 text-right text-rose-300 font-bold">{statements.length ? `${totalMarginPct.toFixed(1)}%` : '--%'}</td>
           <td class="py-3 px-4 text-emerald-400 text-xs">
-            ✓ Cent-for-cent footed without plug lines
+            ✓ Balanced & reconciled to QuickBooks Online
           </td>
         </tr>
       </tfoot>
@@ -413,7 +413,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
             totExp.toFixed(2),
             totNet.toFixed(2),
             totMarginPct.toFixed(1),
-            '"Cent-for-cent QBO certified pull without plug lines"'
+            '"Reconciled to QuickBooks Online general ledger"'
           ]);
 
           const csvString = [headers.join(','), ...rows.map((r: string[]) => r.join(','))].join('\r\n');

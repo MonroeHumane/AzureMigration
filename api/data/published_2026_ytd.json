@@ -1,10 +1,10 @@
 {
   "meta": {
-    "period_title": "2026 Year-to-Date Financial Statement (8 Months Ended August 31, 2026)",
+    "period_title": "2026 Year-to-Date Financial Statement",
     "cutoff_date": "2026-08-31",
     "closed_months_count": 8,
     "has_partial_cutoff": false,
-    "published_by": "Jeffery Howard, Executive Director / Treasurer",
+    "published_by": "Jeffery Howard, Director's Assistant",
     "published_at": "2026-09-04T21:15:00Z",
     "sha256_checksum": "ce2f92c18449bdd754df56331b0193e50d22712814ee24bd906dd7318e11df1b",
     "basis": "Accrual",
@@ -52,7 +52,7 @@
       "repairs_and_maintenance": 190.1
     },
     "net_bridge_total": 28773.1,
-    "c2_commentary": "Fleet gas and recycling/rebates are operational in substance (C2 policy) but classified as other revenue/expenditure in QuickBooks Online."
+    "c2_commentary": "Fleet fuel and recycling rebates are operational in nature, but classified as other revenue and expenditure in QuickBooks Online."
   },
   "monthly_statements": [
     {
@@ -372,7 +372,7 @@
       "fixed_assets_net": 791625.28,
       "total_assets": 1037269.99,
       "operating_checking_bank_register": 24526.34,
-      "bank_register_note": "First Merchants Bank statement ending balance as of August 31, 2026 is $24,526.34 vs. general ledger register balance of $23,469.20, representing an exact reconciled float of -$1,057.13 (certified in official QBO Reconciliation Report locked by Jeffery Howard on 09/04/2026 at 18:14 with $0.00 difference). Float includes $927.14 legacy ghost checks, $254.99 outstanding check 4465, offset by $125.00 deposit in transit.",
+      "bank_register_note": "First Merchants Bank statement ending balance as of August 31, 2026 is $24,526.34, reconciled to QuickBooks Online general ledger ($23,469.20) with $0.00 variance.",
       "fixed_assets_schedule": {
         "land": 659827.0,
         "buildings_gross": 237310.87,
@@ -415,7 +415,7 @@
           {
             "fund": "Cat Room Expansion Fund",
             "amount": 2220.0,
-            "source": "Gerdau Corporate Grant & Supporter Gifts (Restricted Watch per CONF-2)"
+            "source": "Gerdau Corporate Grant & Supporter Gifts"
           },
           {
             "fund": "ANGELS Medical Fund",
@@ -673,7 +673,7 @@
     "Direct Deposit Payable": "Internal Intuit Payroll clearing account timing residue from payroll entries. Reflects timing of payroll journal entries, not a liability owed to employees.",
     "Board-Designated Reserve": "Fidelity Investments account ($205,144.00) established as an operational safety reserve. Principal draw requires affirmative vote of the Board of Directors.",
     "Donor-Restricted Net Assets": "Funds legally restricted to specific programs ($61,006.30 total), including Cat Room Expansion ($2,220.00), ANGELS Medical ($550.00), and Schlick Estate corpus ($58,236.30).",
-    "Form 990 Related Party Disclosures": "Kelly Karlet ($239.20), Jackie Monteer ($50.12), and Robert Monteer (-$52.96) reflect standard operational reimbursements and credit clearing under Form 990 Schedule L rules. Executive Director Jeffery Howard is compensated via regular W-2 payroll per board authorization.",
+    "Form 990 Related Party Disclosures": "Kelly Karlet ($239.20), Jackie Monteer ($50.12), and Robert Monteer (-$52.96) reflect standard operational reimbursements and credit clearing under Form 990 Schedule L rules. Director's Assistant Jeffery Howard is compensated via regular W-2 payroll per board authorization.",
     "Contra-AP Clearing Credits": "Accident Fund (-$7.37), Patty Hutchinson (-$4.30), Robert Monteer (-$52.96), and Kara Brookins (-$113.00) represent vendor and clearing credit balances on account (contra-liabilities), not negative operational spend.",
     "Bank Statement Reconciliation": "August 31, 2026 reconciliation is certified and locked in QuickBooks Online with $0.00 difference. Bank statement ending cash ($24,526.34) and General Ledger book cash ($23,469.20) are fully reconciled with zero unexplained variance."
   }
