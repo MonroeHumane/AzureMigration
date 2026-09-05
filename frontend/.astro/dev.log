@@ -2,5 +2,11 @@
 {"message":"Generated 1ms","label":"types","level":"info"}
 {"message":"connected.","label":"vite","level":"info"}
 {"message":"Re-optimizing dependencies because vite config has changed","label":"vite","level":"info"}
-{"message":" astro  v7.2.9 ready in 8515 ms\n┃ Local    http://localhost:4321/\n┃ Network  use --host to expose","label":"SKIP_FORMAT","level":"info"}
+{"message":" astro  v7.2.9 ready in 3505 ms\n┃ Local    http://localhost:4321/\n┃ Network  http://192.168.0.149:4321/\n           http://172.17.16.1:4321/","label":"SKIP_FORMAT","level":"info"}
 {"message":"watching for file changes...","label":null,"level":"info"}
+{"message":"[200] /games/catwalk 34ms","label":null,"level":"info"}
+{"message":"[200] /games/ 40ms","label":null,"level":"info"}
+{"message":"dependencies optimized: astro/virtual-modules/transitions-events.js, astro/virtual-modules/transitions-router.js, astro/virtual-modules/transitions-swap-functions.js, astro/virtual-modules/transitions-types.js","label":"vite","level":"info"}
+{"message":"src/pages/games/catwalk.astro","label":"watch","level":"info"}
+{"message":"[200] /games/ 43ms","label":null,"level":"info"}
+{"message":"[200] /games/catwalk 5ms","label":null,"level":"info"}

@@ -10,6 +10,9 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     <meta name="theme-color" content="#07100c" />
     <meta name="description" content="Guide a wireframe cat through the neighborhood and into five safe homes." />
     <title>Catwalk | Humane Games</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   </head>
   <body>
     <main class="catwalk" data-catwalk-root>
@@ -46,34 +49,53 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
           <button type="button" data-move="right" aria-label="Move right">→</button>
         </div>
       </nav>
+      <footer class="catwalk__footer">
+        <span aria-hidden="true">CAT-01 / PATROL ACTIVE</span>
+        <button type="button" data-pause aria-label="Pause game" title="Pause game">Ⅱ</button>
+      </footer>
     </main>
-    <script src="../../games/catwalk/main.ts"></script>
+    <script>
+      import '../../games/catwalk/main';
+    </script>
   </body>
 </html>
 
 <style>
   :global(*) { box-sizing: border-box; }
-  :global(html) { color: #dfffe9; background: #07100c; font-family: Consolas, monospace; }
-  :global(body) { min-width: 320px; min-height: 100dvh; margin: 0; }
+  :global(html) { color: #dfffe9; background: #07100c; font-family: 'Share Tech Mono', Consolas, monospace; }
+  :global(body) {
+    min-width: 320px;
+    min-height: 100dvh;
+    margin: 0;
+    background:
+      linear-gradient(rgb(116 222 236 / 3%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(184 255 129 / 3%) 1px, transparent 1px),
+      #07100c;
+    background-size: 32px 32px;
+  }
   button { color: inherit; border: 1px solid #547565; border-radius: 3px; background: #07100c; font: inherit; cursor: pointer; }
   button:hover, button:focus-visible { color: #07100c; background: #b8ff81; border-color: #b8ff81; outline: none; }
   .catwalk { width: min(820px, 100%); min-height: 100dvh; margin: 0 auto; padding: 24px clamp(12px, 4vw, 40px); }
   .catwalk__header, .catwalk__hud { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
   .catwalk__header p { margin: 0 0 3px; color: #81b59b; font-size: 12px; text-transform: uppercase; }
-  h1 { margin: 0; font-size: clamp(32px, 7vw, 52px); line-height: 1; text-transform: uppercase; }
+  h1 { margin: 0; font-family: 'Bebas Neue', sans-serif; font-size: clamp(38px, 7vw, 58px); font-weight: 400; line-height: .86; text-transform: uppercase; }
   .catwalk__header button { padding: 8px 10px; }
   .catwalk__hud { margin-top: 18px; padding: 10px 0; border-block: 1px solid #29483a; color: #81b59b; font-size: clamp(11px, 2vw, 14px); }
   .catwalk__hud strong { color: #dfffe9; font-weight: 400; }
-  .catwalk__stage { position: relative; margin-top: 14px; border: 1px solid #547565; }
+  .catwalk__stage { position: relative; margin-top: 14px; overflow: hidden; border: 1px solid #547565; box-shadow: 0 0 30px rgb(116 222 236 / 7%); }
+  .catwalk__stage::after { position: absolute; inset: 0; pointer-events: none; content: ''; background: repeating-linear-gradient(0deg, transparent 0 3px, rgb(0 0 0 / 12%) 3px 4px); }
   canvas { display: block; width: 100%; height: auto; aspect-ratio: 12 / 13; }
-  .catwalk__overlay { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; padding: 24px; text-align: center; background: rgb(7 16 12 / 88%); }
+  .catwalk__overlay { position: absolute; z-index: 2; inset: 0; display: grid; place-content: center; justify-items: center; padding: 24px; text-align: center; background: rgb(7 16 12 / 88%); }
   .catwalk__overlay[hidden] { display: none; }
-  .catwalk__overlay h2 { margin: 5px 0 10px; font-size: clamp(28px, 6vw, 52px); text-transform: uppercase; }
+  .catwalk__overlay h2 { margin: 5px 0 10px; font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px, 7vw, 62px); font-weight: 400; line-height: 1; text-transform: uppercase; }
   .catwalk__overlay p { max-width: 440px; margin: 0 0 10px; color: #96b8a7; }
   .catwalk__overlay button { margin-top: 8px; padding: 12px 22px; border-color: #b8ff81; }
   .catwalk__controls { display: none; justify-items: center; gap: 6px; margin-top: 12px; }
   .catwalk__controls div { display: flex; gap: 6px; }
   .catwalk__controls button { width: 52px; height: 44px; font-size: 20px; }
+  .catwalk__footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; color: #6c9b84; font-size: 11px; }
+  .catwalk__footer button { width: 38px; height: 32px; }
+  :global(.is-embedded) .catwalk { padding-top: 12px; }
   @media (max-width: 700px), (pointer: coarse) { .catwalk__controls { display: grid; } }
   @media (max-width: 430px) { .catwalk__hud span:nth-child(2) { display: none; } }
 </style>
