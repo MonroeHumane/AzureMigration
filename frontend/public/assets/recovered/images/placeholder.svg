@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="450" fill="url(#bg)"/>
+
+  <!-- Subtle Decorative Circles -->
+  <circle cx="300" cy="190" r="110" fill="#0f766e" fill-opacity="0.04"/>
+  <circle cx="300" cy="190" r="85" fill="#0f766e" fill-opacity="0.06"/>
+
+  <!-- Centered Paw Icon -->
+  <g transform="translate(240, 110)" filter="url(#shadow)">
+    <!-- Main Paw Pad -->
+    <path d="M60 100 C35 100 20 82 25 62 C29 46 45 42 60 42 C75 42 91 46 95 62 C100 82 85 100 60 100 Z" fill="#0f766e"/>
+    <!-- Top-Left Toe -->
+    <ellipse cx="28" cy="28" rx="14" ry="19" transform="rotate(-20 28 28)" fill="#0f766e"/>
+    <!-- Top-Center-Left Toe -->
+    <ellipse cx="49" cy="16" rx="13" ry="20" transform="rotate(-6 49 16)" fill="#0f766e"/>
+    <!-- Top-Center-Right Toe -->
+    <ellipse cx="71" cy="16" rx="13" ry="20" transform="rotate(6 71 16)" fill="#0f766e"/>
+    <!-- Top-Right Toe -->
+    <ellipse cx="92" cy="28" rx="14" ry="19" transform="rotate(20 92 28)" fill="#0f766e"/>
+  </g>
+
+  <!-- Text Labels -->
+  <text x="300" y="270" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#1e293b" letter-spacing="0.02em">
+    Photo Coming Soon
+  </text>
+  <text x="300" y="296" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#0f766e" letter-spacing="0.08em" text-transform="uppercase">
+    Humane Society of Monroe County
+  </text>
+</svg>
