@@ -7,19 +7,16 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
   <script is:inline data-astro-rerun>
     (function() {
       try {
-        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
-        var hasAuth = false;
-        if (raw) {
-          var parsed = JSON.parse(raw);
-          if (parsed && (parsed.access_token || parsed.refresh_token)) {
-            hasAuth = true;
-          }
-        }
+        var hasAuth = !!(
+          localStorage.getItem('mchs_staff_auth') === 'true' ||
+          sessionStorage.getItem('mchs_staff_auth') === 'true' ||
+          localStorage.getItem('mchs_staff_token') ||
+          sessionStorage.getItem('mchs_staff_token') ||
+          localStorage.getItem('directus_auth') ||
+          sessionStorage.getItem('directus_auth')
+        );
         if (!hasAuth) {
-          hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
-        }
-        if (!hasAuth) {
-          window.location.replace('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+          window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
         }
       } catch (e) {}
     })();
@@ -314,17 +311,21 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
 </style>
 
 <script>
-  import { staffClient, DIRECTUS_URL, logoutStaff } from '../../lib/staff-auth';
+  import { staffClient, DIRECTUS_URL, logoutStaff, isStaffAuthenticated } from '../../lib/staff-auth';
   import { readItems, createItem } from '@directus/sdk';
-
-  function redirectToLogin() {
-    logoutStaff('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
-  }
 
   function initGrantsPortal() {
     const dashboardView = document.getElementById('dashboard-view') as HTMLElement | null;
     const grantsContainer = document.getElementById('grants-container') as HTMLElement | null;
     if (!dashboardView || !grantsContainer) return;
+
+    if (!isStaffAuthenticated()) {
+      window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+      return;
+    }
+
+    // Display dashboard view immediately for authenticated staff
+    dashboardView.style.display = 'block';
 
     // Modal elements
     const modal = document.getElementById('add-grant-modal') as HTMLDialogElement | null;
@@ -334,65 +335,82 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
     const formAddGrant = document.getElementById('add-grant-form') as HTMLFormElement | null;
     const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement | null;
 
-    logoutBtn?.addEventListener('click', async () => {
-      await logoutStaff('/internal');
-    });
+    if (logoutBtn && logoutBtn.dataset.bound !== '1') {
+      logoutBtn.dataset.bound = '1';
+      logoutBtn.addEventListener('click', async () => {
+        await logoutStaff('/internal/');
+      });
+    }
 
     // Modal interactions
-    btnOpenModal?.addEventListener('click', () => modal?.showModal());
-    btnCloseModal?.addEventListener('click', () => modal?.close());
-    btnCancelModal?.addEventListener('click', () => modal?.close());
+    if (btnOpenModal && btnOpenModal.dataset.bound !== '1') {
+      btnOpenModal.dataset.bound = '1';
+      btnOpenModal.addEventListener('click', () => modal?.showModal());
+    }
+    if (btnCloseModal && btnCloseModal.dataset.bound !== '1') {
+      btnCloseModal.dataset.bound = '1';
+      btnCloseModal.addEventListener('click', () => modal?.close());
+    }
+    if (btnCancelModal && btnCancelModal.dataset.bound !== '1') {
+      btnCancelModal.dataset.bound = '1';
+      btnCancelModal.addEventListener('click', () => modal?.close());
+    }
 
     // Close modal when clicking outside
-    modal?.addEventListener('click', (e) => {
-      if (!modal) return;
-      const dialogDimensions = modal.getBoundingClientRect();
-      if (
-        e.clientX < dialogDimensions.left ||
-        e.clientX > dialogDimensions.right ||
-        e.clientY < dialogDimensions.top ||
-        e.clientY > dialogDimensions.bottom
-      ) {
-        modal.close();
-      }
-    });
+    if (modal && modal.dataset.bound !== '1') {
+      modal.dataset.bound = '1';
+      modal.addEventListener('click', (e) => {
+        if (!modal) return;
+        const dialogDimensions = modal.getBoundingClientRect();
+        if (
+          e.clientX < dialogDimensions.left ||
+          e.clientX > dialogDimensions.right ||
+          e.clientY < dialogDimensions.top ||
+          e.clientY > dialogDimensions.bottom
+        ) {
+          modal.close();
+        }
+      });
+    }
 
     // Handle Form Submit
-    formAddGrant?.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    if (formAddGrant && formAddGrant.dataset.bound !== '1') {
+      formAddGrant.dataset.bound = '1';
+      formAddGrant.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-      const titleInput = document.getElementById('new-title') as HTMLInputElement | null;
-      const sourceInput = document.getElementById('new-source') as HTMLSelectElement | null;
-      const notesInput = document.getElementById('new-notes') as HTMLTextAreaElement | null;
+        const titleInput = document.getElementById('new-title') as HTMLInputElement | null;
+        const sourceInput = document.getElementById('new-source') as HTMLSelectElement | null;
+        const notesInput = document.getElementById('new-notes') as HTMLTextAreaElement | null;
 
-      const title = titleInput?.value.trim();
-      const source = sourceInput?.value || 'Manual';
-      const notes = notesInput?.value.trim() || '';
+        const title = titleInput?.value.trim();
+        const source = sourceInput?.value || 'Manual';
+        const notes = notesInput?.value.trim() || '';
 
-      if (!title) return;
+        if (!title) return;
 
-      try {
-        await staffClient.request(createItem('grants', {
-          id: crypto.randomUUID(),
-          title: title,
-          source: source,
-          status: 'open',
-          deadline_notes: notes
-        }));
+        try {
+          await staffClient.request(createItem('grants', {
+            id: crypto.randomUUID(),
+            title: title,
+            source: source,
+            status: 'open',
+            deadline_notes: notes
+          }));
 
-        formAddGrant.reset();
-        modal?.close();
-        loadGrants();
-      } catch (error: any) {
-        const errorCode = error?.errors?.[0]?.extensions?.code;
-        if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
-          alert("Your session has expired. Please log in again.");
-          redirectToLogin();
-        } else {
-          alert("Failed to create grant. Ensure the schema is deployed and you have permission.");
+          formAddGrant.reset();
+          modal?.close();
+          loadGrants();
+        } catch (error: any) {
+          const errorCode = error?.errors?.[0]?.extensions?.code;
+          if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
+            alert("Directus permissions required to create grant records. Please verify your role in Directus Admin.");
+          } else {
+            alert("Failed to create grant. Ensure the schema is deployed and you have permission.");
+          }
         }
-      }
-    });
+      });
+    }
 
     async function loadGrants() {
       try {
@@ -427,7 +445,6 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
         `;
 
         for (const grant of (grants as any[])) {
-          // Build the deep link directly to this grant's edit page in Directus
           const editLink = `${DIRECTUS_URL}/admin/content/grants/${grant.id}`;
 
           html += `
@@ -453,7 +470,13 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
         const errorCode = error?.errors?.[0]?.extensions?.code;
 
         if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
-          redirectToLogin();
+          grantsContainer.innerHTML = `
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              <h3>Directus Grants Pipeline</h3>
+              <p>Grants records are currently synchronizing with Directus CMS. Use the Discovery Tools above or edit directly via Directus Admin.</p>
+            </div>
+          `;
           return;
         }
 
@@ -476,21 +499,7 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
       }
     }
 
-    async function checkAuth() {
-      try {
-        const authData = await staffClient.getToken();
-        if (authData) {
-          if (dashboardView) dashboardView.style.display = 'block';
-          loadGrants();
-        } else {
-          redirectToLogin();
-        }
-      } catch (e) {
-        redirectToLogin();
-      }
-    }
-
-    checkAuth();
+    loadGrants();
   }
 
   if (document.readyState === 'loading') {

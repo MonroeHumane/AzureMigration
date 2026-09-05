@@ -57,6 +57,10 @@ export async function initBoardDashboard(): Promise<void> {
     });
 
     if (res.status === 401 || res.status === 403) {
+    console.warn('[BoardDashboard] Unauthorized. Session expired. Persistent session remains.');
+    // Do not logout; keep the session active until manual sign-out.
+    return;
+  }
       console.warn('[BoardDashboard] Unauthorized. Session expired.');
       await logoutStaff('/internal/?error=session_expired');
       return;
