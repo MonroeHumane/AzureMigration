@@ -47,6 +47,33 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <!-- Quick Actions List -->
       <div class="p-4 space-y-2 text-xs">
+        <!-- PWA Install Action Card -->
+        <div
+          id="pwa-install-container"
+          class="p-3 rounded-xl bg-gradient-to-r from-teal-900 via-[#173a39] to-teal-950 text-white border border-teal-700/80 shadow-md flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
+              📲
+            </div>
+            <div>
+              <div class="font-bold text-white text-xs">
+                Install HSMC Ops App
+              </div>
+              <div class="text-[11px] text-teal-200/80" id="pwa-install-desc">
+                Fast home-screen access & offline census
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            id="pwa-install-btn"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition cursor-pointer shrink-0 shadow-xs"
+          >
+            Install
+          </button>
+        </div>
+
         <!-- Directus Admin link -->
         <a
           href={directusAdminUrl}
@@ -252,6 +279,44 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           localStorage.removeItem('mchs_staff_token');
           localStorage.removeItem('directus_auth');
           window.location.href = '/internal/';
+        }
+      });
+    }
+
+    // PWA Install prompt handling
+    let deferredPrompt: any = (window as any).__pwaInstallPrompt || null;
+    const installContainer = document.getElementById('pwa-install-container');
+    const installBtn = document.getElementById('pwa-install-btn');
+    const installDesc = document.getElementById('pwa-install-desc');
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    if (isStandalone && installContainer) {
+      installContainer.classList.add('hidden');
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      (window as any).__pwaInstallPrompt = e;
+      if (installContainer && !isStandalone) {
+        installContainer.classList.remove('hidden');
+      }
+    });
+
+    if (installBtn && installBtn.dataset.bound !== '1') {
+      installBtn.dataset.bound = '1';
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const choice = await deferredPrompt.userChoice;
+          if (choice.outcome === 'accepted') {
+            installContainer?.classList.add('hidden');
+          }
+          deferredPrompt = null;
+        } else {
+          if (installDesc) {
+            installDesc.textContent = 'Safari: Tap Share [↑] then "Add to Home Screen"';
+          }
         }
       });
     }

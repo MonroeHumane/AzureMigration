@@ -9,7 +9,7 @@ const { activeTab = 'overview' } = Astro.props;
 <!-- Fixed Mobile Bottom Navigation Dock (Thumb-Zone Reachable) -->
 <nav
   id="mobile-bottom-nav-dock"
-  class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#173a39]/95 backdrop-blur-md border-t border-teal-800/80 shadow-[0_-4px_16px_rgba(0,0,0,0.15)] px-2 py-1.5"
+  class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#173a39]/95 backdrop-blur-md border-t border-teal-800/80 shadow-[0_-4px_16px_rgba(0,0,0,0.15)] px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]"
   aria-label="Staff Portal Mobile Navigation"
 >
   <div class="max-w-md mx-auto grid grid-cols-5 gap-1 items-center text-center">

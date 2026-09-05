@@ -1,9 +1,6 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import StaffPortalNav from '../../../components/internal/StaffPortalNav.astro';
+import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
 import StaffSubNav from '../../../components/internal/StaffSubNav.astro';
-import MobileBottomNav from '../../../components/internal/MobileBottomNav.astro';
-import MobileMoreSheet from '../../../components/internal/MobileMoreSheet.astro';
 import ExecutiveBanner from '../../../components/board/ExecutiveBanner.astro';
 import HeadlineKpiGrid from '../../../components/board/HeadlineKpiGrid.astro';
 import OperatingBridgeCard from '../../../components/board/OperatingBridgeCard.astro';
@@ -31,37 +28,12 @@ const subNavItems = [
 ];
 ---
 
-<BaseLayout
+<StaffPortalLayout
   title="Executive Board Financial Portal | Humane Society of Monroe County"
   description="Humane Society of Monroe County Executive Board Financial Portal & Operating Statements."
-  bodyClass="bg-[#f9f7f2] text-slate-800"
+  activeTab="financials"
 >
-  <script is:inline data-astro-rerun>
-    (function() {
-      try {
-        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
-        var hasAuth = false;
-        if (raw) {
-          var parsed = JSON.parse(raw);
-          if (parsed && (parsed.access_token || parsed.refresh_token)) {
-            hasAuth = true;
-          }
-        }
-        if (!hasAuth) {
-          hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
-        }
-        if (!hasAuth) {
-          hasAuth = !!(sessionStorage.getItem('mchs_staff_token') || localStorage.getItem('mchs_staff_token'));
-        }
-        if (!hasAuth) {
-          window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <div class="min-h-screen pb-24 md:pb-16">
-    <!-- Staff Portal Navigation -->
-    <StaffPortalNav activeTab="financials" />
+  <div>
 
     <!-- Executive Banner -->
     <ExecutiveBanner meta={financialData.meta} />
@@ -106,7 +78,7 @@ const subNavItems = [
 
       <!-- Section 5: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->
       <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20">
-        <BankStatementViewer data={financialData.bank_statement} />
+        <BankStatementViewer />
       </section>
 
       <!-- Section 6: Directus Board Governance, Agendas & Executive Reports -->
@@ -122,20 +94,11 @@ const subNavItems = [
         <p>
           Humane Society of Monroe County (HSMC) · 501(c)(3) Non-Profit Organization · Monroe, Michigan
         </p>
-        <p id="footer-checksum" class="font-mono text-[11px] text-slate-400">
-          Source Data Canonical Checksum: -- · Accounting System: QuickBooks Online (Accrual)
-        </p>
-        <p class="text-[10px] text-slate-400">
-          Strictly Confidential — Protected by Microsoft Entra ID for Authorized Humane Society of Monroe County Board Members & Officers.
+        <p class="text-[11px] text-slate-400">
+          QuickBooks Online (Accrual) · Confidential Board Information
         </p>
       </footer>
     </main>
-
-    <!-- Mobile Bottom Thumb-Navigation Dock -->
-    <MobileBottomNav activeTab="financials" />
-
-    <!-- Mobile Slide-Up More Tools Sheet -->
-    <MobileMoreSheet />
   </div>
 
   <script>
@@ -214,4 +177,4 @@ const subNavItems = [
       document.addEventListener('DOMContentLoaded', runInit);
     }
   </script>
-</BaseLayout>
+</StaffPortalLayout>

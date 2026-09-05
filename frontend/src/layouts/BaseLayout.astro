@@ -83,7 +83,14 @@ const schemaOrg = {
     <!-- Preload the logo — it is the first visible image on every page -->
     <link rel="preload" as="image" href={SITE.assets.logo} />
     <meta name="generator" content={Astro.generator} />
-    {!hidePublicNav && <ClientRouter />}
+    <ClientRouter />
+
+    <!-- PWA & Standalone Web App Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="HSMC Ops" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/assets/brand-mark-paw-circle.png" />
 
     <!-- SEO Meta -->
     <title>{title}</title>
@@ -105,7 +112,7 @@ const schemaOrg = {
     <meta name="twitter:image" content={image} />
 
     <!-- Structured Data (Schema.org) -->
-    <script type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
 
     <!-- Theme fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -180,6 +187,15 @@ const schemaOrg = {
       import { initErrorReporter } from '../lib/error-reporter';
       initErrorReporter();
       document.addEventListener('astro:page-load', initErrorReporter);
+    </script>
+
+    <!-- Progressive Web App Service Worker Registration -->
+    <script is:inline>
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function() {});
+        });
+      }
     </script>
   </head>
   <body class:list={['monroe-rebuild-theme', bodyClass, hidePublicNav && 'staff-portal-body']}>

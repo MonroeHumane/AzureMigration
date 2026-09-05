@@ -48,7 +48,7 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
   description={`${pet.name} is a ${pet.age_display || ''} ${pet.breed || speciesTag} looking for a home at the Humane Society of Monroe County.`}
   image={photo}
 >
-  <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+  <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12 pb-28 sm:pb-12">
     <a class="inline-block text-teal-700 font-bold mb-8 hover:text-teal-900 transition-colors uppercase tracking-wider text-sm" href="/adopt" data-smart-back>&larr; Back to all pets</a>
 
     <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200 lg:flex gap-10 p-6 sm:p-10 mb-16">
@@ -97,6 +97,34 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
       </section>
     )}
   </div>
+
+  <!-- Mobile Sticky Action Dock -->
+  <aside class="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-gray-200/80 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" aria-label="Mobile quick actions">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <img src={photo} alt={pet.name} class="w-10 h-10 rounded-full object-cover border border-gray-200 flex-shrink-0" />
+        <div class="min-w-0">
+          <p class="font-bold text-teal-900 text-sm truncate leading-tight">{pet.name}</p>
+          <p class="text-xs text-gray-500 truncate">{pet.age_display || speciesTag}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <a
+          href="tel:734-243-3669"
+          class="inline-flex items-center justify-center w-11 h-11 rounded-full border border-teal-700 text-teal-700 hover:bg-teal-50 transition-colors"
+          aria-label="Call Monroe Humane"
+        >
+          📞
+        </a>
+        <a
+          href="/adoptions#Application"
+          class="inline-flex items-center justify-center font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-full bg-teal-700 text-white shadow-sm hover:bg-teal-800 transition-colors min-h-[44px]"
+        >
+          Apply to Adopt &rarr;
+        </a>
+      </div>
+    </div>
+  </aside>
 </BaseLayout>
 
 <script>

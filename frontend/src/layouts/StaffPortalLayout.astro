@@ -22,15 +22,46 @@ const {
   description={description}
   bodyClass="bg-[#f9f7f2] text-slate-800 antialiased"
 >
-  <!-- Unified Staff Top Navigation Header -->
+  <!-- Centralized Synchronous Auth Guard (Runs before first paint to eliminate flicker) -->
+  <script is:inline>
+    (function() {
+      try {
+        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
+        var hasAuth = false;
+        if (raw) {
+          try {
+            var parsed = JSON.parse(raw);
+            if (parsed && (parsed.access_token || parsed.refresh_token)) {
+              hasAuth = true;
+            }
+          } catch (e) {}
+        }
+        if (!hasAuth) {
+          hasAuth = !!(
+            localStorage.getItem('mchs_staff_auth') === 'true' ||
+            sessionStorage.getItem('mchs_staff_auth') === 'true' ||
+            localStorage.getItem('mchs_staff_token') ||
+            sessionStorage.getItem('mchs_staff_token')
+          );
+        }
+        if (!hasAuth) {
+          window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+        } else {
+          document.documentElement.classList.add('staff-authenticated');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Persistent App Header Shell -->
   <StaffPortalNav activeTab={activeTab} />
 
-  <!-- Main View Container (with bottom padding for mobile dock) -->
-  <div class="min-h-screen pb-24 md:pb-12">
+  <!-- Dynamic Content Workspace with Seamless 0ms View Transition -->
+  <div class="min-h-screen pb-24 md:pb-12" transition:animate="fade">
     <slot />
   </div>
 
-  <!-- Mobile Bottom Thumb-Navigation Dock -->
+  <!-- Persistent Mobile Bottom Thumb-Navigation Dock -->
   <MobileBottomNav activeTab={activeTab} />
 
   <!-- Mobile Slide-Up More Tools Sheet -->

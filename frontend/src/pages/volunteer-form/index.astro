@@ -18,11 +18,11 @@ const VOLUNTEER_FORM_URL = SITE.integrations.googleForms.volunteerApp;
       </p>
     </header>
     
-    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-12 mb-12" aria-labelledby="monroe-volunteer-form-heading">
+    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-12 mb-12" aria-labelledby="monroe-volunteer-form-heading">
       <h2 id="monroe-volunteer-form-heading" class="text-3xl font-serif text-teal-900 mb-8 text-center">Volunteer application</h2>
-      <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10">
-        <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-emerald-500 text-teal-900 hover:bg-emerald-400" href={VOLUNTEER_FORM_URL} target="_blank" rel="noopener noreferrer">Open form in new tab</a>
-        <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50" href="/#Volunteer">Volunteer on the homepage</a>
+      <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-10">
+        <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all shadow-md hover:-translate-y-1 bg-emerald-500 text-teal-900 hover:bg-emerald-400 min-h-[48px]" href={VOLUNTEER_FORM_URL} target="_blank" rel="noopener noreferrer">Open form in new tab</a>
+        <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50 min-h-[48px]" href="/#Volunteer">Volunteer on the homepage</a>
       </div>
       
       <div class="w-full relative min-h-[960px] md:min-h-[780px] bg-gray-50 rounded-2xl overflow-hidden shadow-inner">
@@ -32,8 +32,8 @@ const VOLUNTEER_FORM_URL = SITE.integrations.googleForms.volunteerApp;
           class="absolute inset-0 w-full h-full"
           loading="lazy"></iframe>
       </div>
-      <p class="text-sm text-gray-500 text-center mt-6">
-        Google Forms cannot auto-size in iframes. If the form is cut off or has extra space below, use Open form in new tab.
+      <p class="text-sm text-gray-500 text-center mt-4">
+        Prefer a full-screen view? <a href={VOLUNTEER_FORM_URL} target="_blank" rel="noopener noreferrer" class="text-teal-700 underline underline-offset-2 hover:text-teal-900">Open application in a new tab &rarr;</a>
       </p>
     </section>
     

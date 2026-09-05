@@ -1,38 +1,20 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
-import MobileBottomNav from "../../components/internal/MobileBottomNav.astro";
-import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
+import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
 ---
 
-<BaseLayout title="Staff Portal: Grants Tracker">
-  <script is:inline data-astro-rerun>
-    (function() {
-      try {
-        var hasAuth = !!(
-          localStorage.getItem('mchs_staff_auth') === 'true' ||
-          sessionStorage.getItem('mchs_staff_auth') === 'true' ||
-          localStorage.getItem('mchs_staff_token') ||
-          sessionStorage.getItem('mchs_staff_token') ||
-          localStorage.getItem('directus_auth') ||
-          sessionStorage.getItem('directus_auth')
-        );
-        if (!hasAuth) {
-          window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <StaffPortalNav activeTab="grants" />
-  <div class="grants-portal pb-24 md:pb-12">
+<StaffPortalLayout
+  title="Staff Portal: Grants Tracker | Humane Society of Monroe County"
+  description="Grant opportunities, awards tracking, deadlines, and philanthropic pipeline."
+  activeTab="grants"
+>
+  <div class="grants-portal">
     <!-- Dashboard Screen -->
     <div id="dashboard-view" class="portal-view">
       <header class="dashboard-header">
         <div class="header-titles">
           <h1>Grants Tracker</h1>
-          <p>Live Sync with Directus CMS</p>
+          <p>Pipeline & funding opportunities</p>
         </div>
-        <button id="logout-btn" class="btn-outline">Sign out</button>
       </header>
 
       <!-- Grants Pipeline Metrics Ribbon -->
@@ -54,9 +36,9 @@ import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
             <span class="text-[11px] text-amber-600 mt-0.5 block">In review / prep</span>
           </div>
           <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-            <span class="text-[10px] uppercase font-bold text-[#173a39] block tracking-wider">Sync Architecture</span>
-            <span id="grant-stat-sync" class="font-mono font-bold text-[#173a39] text-base block mt-1">Directus REST</span>
-            <span class="text-[11px] text-slate-500 mt-0.5 block">Role-scoped token</span>
+            <span class="text-[10px] uppercase font-bold text-teal-700 block tracking-wider">Status</span>
+            <span id="grant-stat-sync" class="font-bold text-teal-900 text-base block mt-1">Active</span>
+            <span class="text-[11px] text-slate-500 mt-0.5 block">Live Synced</span>
           </div>
         </div>
       </section>
@@ -144,18 +126,13 @@ import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
           </div>
           <div class="modal-actions">
             <button type="button" id="cancel-modal-btn" class="btn-outline">Cancel</button>
-            <button type="submit" class="btn-success">Save to Directus</button>
+            <button type="submit" class="btn-success">Save Grant</button>
           </div>
         </form>
       </div>
     </dialog>
-    <!-- Mobile Bottom Thumb-Navigation Dock -->
-    <MobileBottomNav activeTab="grants" />
-
-    <!-- Mobile Slide-Up More Tools Sheet -->
-    <MobileMoreSheet />
   </div>
-</BaseLayout>
+</StaffPortalLayout>
 
 <style>
   /* Base Layout & Reset for this portal */
@@ -367,7 +344,7 @@ import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
 </style>
 
 <script>
-  import { staffClient, DIRECTUS_URL, logoutStaff, isStaffAuthenticated } from '../../lib/staff-auth';
+  import { staffClient, DIRECTUS_URL, isStaffAuthenticated } from '../../lib/staff-auth';
   import { readItems, createItem } from '@directus/sdk';
 
   function initGrantsPortal() {
@@ -389,14 +366,6 @@ import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
     const btnCloseModal = document.getElementById('close-modal-btn') as HTMLButtonElement | null;
     const btnCancelModal = document.getElementById('cancel-modal-btn') as HTMLButtonElement | null;
     const formAddGrant = document.getElementById('add-grant-form') as HTMLFormElement | null;
-    const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement | null;
-
-    if (logoutBtn && logoutBtn.dataset.bound !== '1') {
-      logoutBtn.dataset.bound = '1';
-      logoutBtn.addEventListener('click', async () => {
-        await logoutStaff('/internal/');
-      });
-    }
 
     // Draft auto-save helpers
     const DRAFT_KEY = 'mchs_grant_draft_v1';
@@ -496,7 +465,7 @@ import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
         } catch (error: any) {
           const errorCode = error?.errors?.[0]?.extensions?.code;
           if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
-            alert("Directus permissions required to create grant records. Please verify your role in Directus Admin.");
+            alert("Staff permissions required to create grant records. Please verify your account role.");
           } else {
             alert("Failed to create grant. Ensure the schema is deployed and you have permission.");
           }
@@ -605,7 +574,7 @@ import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
           html += `
             <tr>
               <td class="td-title">
-                <a href="${editLink}" target="_blank" title="Edit in Directus">
+                <a href="${editLink}" target="_blank" title="Edit grant record">
                   ${grant.title}
                 </a>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -628,8 +597,8 @@ import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
           grantsContainer.innerHTML = `
             <div class="empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-              <h3>Directus Grants Pipeline</h3>
-              <p>Grants records are currently synchronizing with Directus CMS. Use the Discovery Tools above or edit directly via Directus Admin.</p>
+              <h3>Grants Pipeline</h3>
+              <p>Grants records are currently synchronizing. Use the tools above or edit directly via the CMS.</p>
             </div>
           `;
           return;

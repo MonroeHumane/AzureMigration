@@ -1,0 +1,24 @@
+{
+  "name": "Monroe County Humane Society — Staff Ops",
+  "short_name": "HSMC Ops",
+  "description": "Unified Operations & Governance Portal for the Humane Society of Monroe County",
+  "start_url": "/internal/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071a17",
+  "theme_color": "#071a17",
+  "icons": [
+    {
+      "src": "/assets/brand-mark-paw-circle.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/brand-mark-paw-circle.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

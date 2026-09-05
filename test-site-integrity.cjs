@@ -26,7 +26,9 @@ function getHtmlFiles(dir) {
     const fullPath = path.join(dir, file);
     const stat = fs.statSync(fullPath);
     if (stat && stat.isDirectory()) {
-      results = results.concat(getHtmlFiles(fullPath));
+      if (file !== 'assets') {
+        results = results.concat(getHtmlFiles(fullPath));
+      }
     } else if (file.endsWith('.html')) {
       results.push(fullPath);
     }
@@ -73,15 +75,16 @@ function isValidInternalLink(href, sourceFile) {
   }
 
   const targetRoute = cleanHref.startsWith('/') ? cleanHref : '/' + cleanHref;
+  const normalizedTarget = targetRoute.length > 1 ? targetRoute.replace(/\/$/, '') : targetRoute;
 
   // Exact route match
-  if (validRoutes.has(targetRoute)) return true;
-  if (validRoutes.has(targetRoute.replace(/\/$/, ''))) return true;
+  if (validRoutes.has(targetRoute) || validRoutes.has(normalizedTarget)) return true;
 
   // SWA Redirect match
-  if (redirectRoutes.has(targetRoute)) return true;
+  if (redirectRoutes.has(targetRoute) || redirectRoutes.has(normalizedTarget)) return true;
   for (const r of redirectRoutes) {
-    if (r.endsWith('/*') && targetRoute.startsWith(r.slice(0, -2))) {
+    const normR = r.endsWith('/*') ? r.slice(0, -2) : r;
+    if (r.endsWith('/*') && (targetRoute.startsWith(normR) || normalizedTarget.startsWith(normR))) {
       return true;
     }
   }
@@ -125,7 +128,9 @@ htmlFiles.forEach(file => {
       continue;
     }
     const cleanSrc = src.split('?')[0];
-    const assetPath = path.join(DIST_DIR, cleanSrc.startsWith('/') ? cleanSrc.slice(1) : cleanSrc);
+    const assetPath = cleanSrc.startsWith('/')
+      ? path.join(DIST_DIR, cleanSrc.slice(1))
+      : path.resolve(path.dirname(file), cleanSrc);
     if (!fs.existsSync(assetPath)) {
       warnings.push(`[${relPath}] Image asset not found in dist: src="${src}"`);
     }

@@ -9,8 +9,14 @@ interface Props {
 const { pet } = Astro.props;
 
 const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
-const genderIcon = pet.gender === 'female' ? '♀' : pet.gender === 'male' ? '♂' : '?';
-const chips = [pet.species_label || pet.type, pet.size, genderLabel, pet.age_display, pet.color].filter(Boolean);
+const genderIcon = pet.gender === 'female' ? '♀' : pet.gender === 'male' ? '♂' : '';
+const chips = [
+  pet.species_label || pet.type,
+  pet.size,
+  genderIcon ? `${genderIcon} ${genderLabel}` : genderLabel,
+  pet.age_display,
+  pet.color,
+].filter(Boolean);
 
 // Real intake_date from the Petango sync — surface it as a badge instead of
 // leaving it unused. New arrivals get a spotlight; long-time residents get
@@ -26,7 +32,7 @@ const isLongTimer = daysAtShelter !== null && daysAtShelter >= 180;
 ---
 
 <a
-  class="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-teal-700 outline-none"
+  class="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-teal-700 outline-none"
   href={`/adopt/${pet.id}`}
   data-pet-card
   data-pet-id={pet.id}

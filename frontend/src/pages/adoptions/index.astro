@@ -36,11 +36,11 @@ const ADOPTION_FORM_URL = SITE.integrations.googleForms.adoptionApp;
       </li>
     </ol>
 
-    <nav class="flex flex-wrap justify-center gap-4 mb-20" aria-label="On this page">
-      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-emerald-500 text-teal-900 hover:bg-emerald-400 transition-colors shadow-sm" href="/adopt">Browse adoptable pets</a>
-      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-gray-100 text-teal-900 hover:bg-gray-200 transition-colors" href="#AdoptionPolicy">Adoption policy</a>
-      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-gray-100 text-teal-900 hover:bg-gray-200 transition-colors" href="#Application">Application form</a>
-      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-transparent text-teal-700 hover:bg-teal-50 transition-colors" href="tel:734-243-3669">734-243-3669</a>
+    <nav class="flex flex-wrap justify-center gap-3 sm:gap-4 mb-16 sm:mb-20" aria-label="On this page">
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-emerald-500 text-teal-900 hover:bg-emerald-400 transition-colors shadow-sm min-h-[44px]" href="/adopt">Browse adoptable pets</a>
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-gray-100 text-teal-900 hover:bg-gray-200 transition-colors min-h-[44px]" href="#AdoptionPolicy">Adoption policy</a>
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-gray-100 text-teal-900 hover:bg-gray-200 transition-colors min-h-[44px]" href="#Application">Application form</a>
+      <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-transparent text-teal-700 hover:bg-teal-50 transition-colors min-h-[44px]" href="tel:734-243-3669">734-243-3669</a>
     </nav>
 
     <section id="AdoptionPolicy" class="mb-16 scroll-mt-32" tabindex="-1" aria-labelledby="monroe-adoptions-policy-heading">
@@ -61,7 +61,7 @@ const ADOPTION_FORM_URL = SITE.integrations.googleForms.adoptionApp;
       </ul>
     </section>
 
-    <section class="bg-gray-50 rounded-3xl p-8 md:p-12 mb-20 border border-gray-100" aria-labelledby="monroe-adoptions-expect-heading">
+    <section class="bg-gray-50 rounded-3xl p-6 sm:p-12 mb-20 border border-gray-100" aria-labelledby="monroe-adoptions-expect-heading">
       <h2 id="monroe-adoptions-expect-heading" class="text-2xl font-serif text-teal-900 mb-4">What happens next</h2>
       <div class="prose prose-teal max-w-none text-gray-700">
         <p>
@@ -73,12 +73,12 @@ const ADOPTION_FORM_URL = SITE.integrations.googleForms.adoptionApp;
       </div>
     </section>
 
-    <section id="Application" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-12 mb-12 scroll-mt-32" tabindex="-1" aria-labelledby="monroe-adoptions-application-heading">
+    <section id="Application" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-12 mb-12 scroll-mt-32" tabindex="-1" aria-labelledby="monroe-adoptions-application-heading">
       <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
         <h2 id="monroe-adoptions-application-heading" class="text-3xl font-serif text-teal-900">Adoption application</h2>
-        <div class="flex flex-col sm:flex-row gap-4">
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400 shadow-sm" href="https://forms.gle/oMTQAaDiLyDRXBwK8" target="_blank" rel="noopener noreferrer">Open form in new tab</a>
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:bg-teal-50" href="/adopt">Back to pet search</a>
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400 shadow-sm min-h-[48px]" href="https://forms.gle/oMTQAaDiLyDRXBwK8" target="_blank" rel="noopener noreferrer">Open form in new tab</a>
+          <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-6 py-4 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:bg-teal-50 min-h-[48px]" href="/adopt">Back to pet search</a>
         </div>
       </div>
       <div class="w-full relative min-h-[2800px] md:min-h-[2200px] bg-gray-50 rounded-2xl overflow-hidden shadow-inner">
@@ -88,8 +88,8 @@ const ADOPTION_FORM_URL = SITE.integrations.googleForms.adoptionApp;
           class="absolute inset-0 w-full h-full"
           loading="lazy"></iframe>
       </div>
-      <p class="text-sm text-gray-500 text-center mt-6">
-        Google Forms cannot auto-size in iframes. If the form is cut off or has extra space below, use Open form in new tab.
+      <p class="text-sm text-gray-500 text-center mt-4">
+        Prefer a full-screen view? <a href={ADOPTION_FORM_URL} target="_blank" rel="noopener noreferrer" class="text-teal-700 underline underline-offset-2 hover:text-teal-900">Open application in a new tab &rarr;</a>
       </p>
     </section>
 

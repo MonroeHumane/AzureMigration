@@ -1,8 +1,7 @@
 ---
 /*
- Global navigation — markup and behavior carried over from the monroe-rebuild
- theme's unified nav. One data model drives desktop flyouts and the mobile
- drawer; JS only toggles state classes also used by touch/keyboard users.
+ Global navigation — unified desktop flyouts and responsive mobile drawer.
+ One data model drives desktop dropdowns and mobile navigation.
  */
 
 interface NavChild {
@@ -280,7 +279,7 @@ const isCurrent = (item: NavItem) => {
         }
       });
 
-      trigger?.addEventListener('click', (e) => {
+      trigger?.addEventListener('click', () => {
         const wasOpen = item.classList.contains('is-open');
         // Accordion: one flyout open at a time within the same menu level
         item.parentElement?.querySelectorAll(':scope > .monroe-global-nav__item.is-open').forEach((other) => {
@@ -296,7 +295,7 @@ const isCurrent = (item: NavItem) => {
     });
 
     // Leaving drawer territory closes it.
-    mql.addEventListener('change', (e) => {
+    mql.addEventListener('change', () => {
       closeDrawer();
       measure();
       syncInert();

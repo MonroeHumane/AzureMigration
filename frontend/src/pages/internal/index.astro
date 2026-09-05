@@ -9,39 +9,141 @@ const petSyncData = await getStaffPetSyncData();
 ---
 
 <BaseLayout
-  title="Unified Staff Portal | Humane Society of Monroe County"
-  description="Humane Society of Monroe County Unified Staff Portal: PetSync Operations, Board Financials, Grants Tracker, and Directus CMS."
+  title="Staff Portal | Humane Society of Monroe County"
+  description="Humane Society of Monroe County Staff Portal: Animal Census, Board Financials, and Grants Pipeline."
   bodyClass="bg-[#f9f7f2] text-slate-800 antialiased"
 >
+  <!-- Zero-Flicker Synchronous Auth Hydration (Runs before paint) -->
+  <script is:inline>
+    (function() {
+      try {
+        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
+        var hasAuth = false;
+        if (raw) {
+          try {
+            var parsed = JSON.parse(raw);
+            if (parsed && (parsed.access_token || parsed.refresh_token)) {
+              hasAuth = true;
+            }
+          } catch (e) {}
+        }
+        if (!hasAuth) {
+          hasAuth = !!(
+            localStorage.getItem('mchs_staff_auth') === 'true' ||
+            sessionStorage.getItem('mchs_staff_auth') === 'true' ||
+            localStorage.getItem('mchs_staff_token') ||
+            sessionStorage.getItem('mchs_staff_token')
+          );
+        }
+        if (hasAuth) {
+          document.documentElement.classList.add('staff-authenticated');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- SCREEN 1: UNIFIED STAFF LOGIN GATE (Shown when unauthenticated) -->
-  <div id="staff-portal-auth-gate" class="min-h-screen flex items-center justify-center p-4 bg-[#f4f1ea]">
-    <div class="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden animate-fade-in">
-      <!-- Brand Header -->
-      <div class="bg-[#173a39] p-8 text-center text-white relative">
-        <div class="inline-flex p-3 rounded-xl bg-teal-800/80 text-emerald-300 border border-teal-700/80 shadow-inner mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          </svg>
+  <div id="staff-portal-auth-gate" class="min-h-dvh flex flex-col lg:flex-row w-full bg-[#071a17]">
+    
+    <!-- LEFT PANEL: Hero & Live Telemetry (Desktop 54% width) -->
+    <div class="hidden lg:flex lg:w-[54%] bg-gradient-to-br from-[#071a17] via-[#0b2622] to-[#061715] text-white p-10 xl:p-14 flex-col justify-between relative overflow-hidden border-r border-teal-900/60 shadow-2xl">
+      <!-- Ambient Glow Orbs -->
+      <div class="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <!-- Top Brand Header -->
+      <div class="relative z-10">
+        <div class="inline-flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-800/80 text-emerald-300 border border-teal-700/80 flex items-center justify-center shadow-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base font-bold tracking-tight text-white">Humane Society of Monroe County</h2>
+            <p class="text-xs text-teal-300/80 font-medium">Staff & Board Portal</p>
+          </div>
         </div>
-        <h1 class="text-xl font-bold tracking-tight text-white">
-          Humane Society of Monroe County
-        </h1>
-        <p class="text-xs text-teal-200/90 mt-1 font-medium">
-          Unified Staff & Board Portal
-        </p>
-        <span class="inline-block mt-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-          Authorized Access Only
-        </span>
       </div>
 
-      <!-- Login Form Card Body -->
-      <div class="p-6 sm:p-8 space-y-5">
-        <div class="text-xs text-slate-500 text-center">
-          Please sign in with your Directus CMS credentials to access shelter operations, financials, and grants.
+      <!-- Center Value Proposition & Live Telemetry Cards -->
+      <div class="relative z-10 my-auto py-12 max-w-xl">
+        <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-4">
+          Staff Portal
+        </span>
+        <h1 class="text-3xl xl:text-4xl font-serif text-white tracking-tight leading-snug mb-4">
+          Shelter operations, animal census, and financials.
+        </h1>
+        <p class="text-sm xl:text-base text-teal-100/80 leading-relaxed mb-8">
+          Manage shelter animal rosters, PetPoint sync, board operating statements, and grant applications in one unified workspace.
+        </p>
+
+        <!-- Live Operations Metrics Strip -->
+        <div class="grid grid-cols-3 gap-3 text-xs">
+          <div class="p-4 rounded-2xl bg-teal-950/60 border border-teal-800/60 backdrop-blur-sm shadow-inner">
+            <span class="text-[10px] uppercase font-bold text-teal-300/70 block tracking-wider">Active Census</span>
+            <span class="text-2xl font-bold font-mono text-emerald-300 block mt-1">{petSyncData.activeCount}</span>
+            <span class="text-[11px] text-teal-200/80 mt-0.5 block">Animals in shelter care</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-teal-950/60 border border-teal-800/60 backdrop-blur-sm shadow-inner">
+            <span class="text-[10px] uppercase font-bold text-teal-300/70 block tracking-wider">Accreditation</span>
+            <span class="text-base font-bold text-white block mt-2">Fear Free</span>
+            <span class="text-[11px] text-teal-200/80 mt-1 block">Certified shelter team</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-teal-950/60 border border-teal-800/60 backdrop-blur-sm shadow-inner">
+            <span class="text-[10px] uppercase font-bold text-teal-300/70 block tracking-wider">Annual Impact</span>
+            <span class="text-2xl font-bold font-mono text-amber-300 block mt-1">539</span>
+            <span class="text-[11px] text-teal-200/80 mt-0.5 block">2025 Adoptions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Platform Status Ticker -->
+      <div class="relative z-10 pt-6 border-t border-teal-900/60 flex items-center justify-between text-xs text-teal-300/80">
+        <div class="flex items-center gap-4">
+          <span class="inline-flex items-center gap-1.5 font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            CMS Online
+          </span>
+          <span class="inline-flex items-center gap-1.5 font-medium">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            PetSync Active
+          </span>
+        </div>
+        <span class="text-[11px] text-teal-400/60">Staff & Board Access</span>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Mobile Native Sheet / Desktop Interactive Auth Box -->
+    <div class="flex-1 flex flex-col justify-center items-center p-4 sm:p-8 lg:p-12 bg-[#f9f7f2] min-h-dvh lg:min-h-0">
+      <div class="w-full max-w-md bg-white rounded-3xl border border-slate-200/90 shadow-2xl p-6 sm:p-10 animate-fade-in my-auto">
+        <!-- Mobile Header (Visible only on <lg screens) -->
+        <div class="lg:hidden text-center mb-6 pb-6 border-b border-slate-100">
+          <div class="inline-flex p-3 rounded-2xl bg-[#173a39] text-emerald-300 mb-3 shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <h2 class="text-lg font-bold text-[#173a39]">Humane Society of Monroe County</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Staff & Board Portal</p>
         </div>
 
-        <div id="login-error-alert" class="hidden p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 leading-relaxed">
-          <div class="flex items-start gap-2">
+        <!-- Auth Card Heading -->
+        <div class="mb-6">
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-50 text-teal-800 border border-teal-200 mb-2">
+            Staff Portal
+          </span>
+          <h2 class="text-2xl font-serif font-bold text-[#173a39] tracking-tight">
+            Sign In
+          </h2>
+          <p class="text-xs text-slate-500 mt-1">
+            Sign in with your staff account to continue.
+          </p>
+        </div>
+
+        <!-- Error Alert Container -->
+        <div id="login-error-alert" class="hidden p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 leading-relaxed mb-5 animate-shake">
+          <div class="flex items-start gap-2.5">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -51,10 +153,11 @@ const petSyncData = await getStaffPetSyncData();
           </div>
         </div>
 
+        <!-- Interactive Form -->
         <form id="unified-login-form" class="space-y-4">
           <div>
             <label for="unified-email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Staff Email Address
+              Email Address
             </label>
             <div class="relative">
               <input
@@ -62,29 +165,32 @@ const petSyncData = await getStaffPetSyncData();
                 id="unified-email"
                 required
                 autocomplete="username"
+                autocapitalize="none"
                 placeholder="name@monroe-humane.org"
-                class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition"
+                class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition bg-slate-50/50 focus:bg-white"
               />
             </div>
           </div>
 
           <div>
-            <label for="unified-password" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Password
-            </label>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="unified-password" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Password
+              </label>
+            </div>
             <div class="relative">
               <input
                 type="password"
                 id="unified-password"
                 required
                 autocomplete="current-password"
-                placeholder="••••••••"
-                class="w-full pl-3.5 pr-10 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition"
+                placeholder="••••••••••••"
+                class="w-full pl-4 pr-11 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition bg-slate-50/50 focus:bg-white"
               />
               <button
                 type="button"
                 id="password-reveal-btn"
-                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 focus:outline-none cursor-pointer"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 focus:outline-none cursor-pointer rounded-lg hover:bg-slate-100 transition"
                 title="Toggle password visibility"
                 aria-label="Toggle password visibility"
               >
@@ -103,23 +209,23 @@ const petSyncData = await getStaffPetSyncData();
           </div>
 
           <div class="flex items-center justify-between text-xs pt-1">
-            <label class="flex items-center gap-2 text-slate-600 cursor-pointer select-none">
+            <label class="flex items-center gap-2.5 text-slate-600 cursor-pointer select-none">
               <input
                 type="checkbox"
                 id="unified-remember-me"
                 checked
                 class="w-4 h-4 rounded text-teal-800 focus:ring-teal-700 border-slate-300 cursor-pointer"
               />
-              <span>Remember me on this device</span>
+              <span class="font-medium">Remember this device (30 days)</span>
             </label>
           </div>
 
           <button
             type="submit"
             id="unified-submit-btn"
-            class="w-full py-2.5 px-4 rounded-lg bg-[#173a39] hover:bg-teal-900 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+            class="w-full py-3.5 px-6 rounded-xl bg-[#173a39] hover:bg-teal-900 active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-teal-950/20 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
           >
-            <span id="btn-text">Secure Sign In</span>
+            <span id="btn-text">Sign In &rarr;</span>
             <svg id="btn-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -127,18 +233,18 @@ const petSyncData = await getStaffPetSyncData();
           </button>
         </form>
 
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <a href="/" class="hover:text-teal-800 transition flex items-center gap-1 font-medium">
-            &larr; Return to Public Site
+        <div class="pt-5 mt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <a href="/" class="hover:text-teal-800 transition flex items-center gap-1.5 font-medium">
+            &larr; Return to Public Website
           </a>
-          <span class="text-slate-400 text-[11px]">Directus Single Sign-On</span>
+          <span class="text-slate-400 text-[11px] font-mono">Press ↵ to enter</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- SCREEN 2: UNIFIED STAFF PORTAL HUB (Shown when authenticated) -->
-  <div id="staff-portal-content" class="min-h-screen pb-16">
+  <div id="staff-portal-content" class="min-h-screen pb-16" transition:animate="fade">
     <!-- Component 1: Unified Staff Header Navigation with Global Sign Out -->
     <StaffPortalNav activeTab="overview" />
 
@@ -156,10 +262,10 @@ const petSyncData = await getStaffPetSyncData();
               </span>
             </div>
             <h1 class="text-2xl font-bold text-[#173a39] tracking-tight">
-              Shelter Operations & Executive Command
+              Operations Hub
             </h1>
             <p class="text-xs text-slate-500 mt-0.5">
-              Unified operational hub for shelter animal census, board financial governance, and grant pipeline.
+              Shelter animal census, board financials, and operational tools.
             </p>
           </div>
 
@@ -167,14 +273,14 @@ const petSyncData = await getStaffPetSyncData();
           <div class="flex flex-wrap items-center gap-2 text-xs">
             <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 inline-flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Directus CMS Online
+              CMS Online
             </span>
             <span class="px-2.5 py-1 rounded-md bg-amber-100 text-amber-900 font-semibold border border-amber-200 inline-flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-              PetSync: 30m Auto-Sync
+              PetSync Active
             </span>
             <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-medium border border-slate-200">
-              QBO (Accrual Reconciled)
+              QBO Synced
             </span>
           </div>
         </div>
@@ -210,7 +316,7 @@ const petSyncData = await getStaffPetSyncData();
             <div class="text-2xl font-black text-purple-950 mt-1">
               Active <span class="text-xs font-normal text-purple-800">sync</span>
             </div>
-            <span class="text-[11px] text-purple-700 block mt-0.5">Directus CMS API</span>
+            <span class="text-[11px] text-purple-700 block mt-0.5">Database Synced</span>
           </div>
         </div>
 
@@ -226,7 +332,7 @@ const petSyncData = await getStaffPetSyncData();
               <rect width="7" height="9" x="14" y="12" rx="1"></rect>
               <rect width="7" height="5" x="3" y="16" rx="1"></rect>
             </svg>
-            Executive Overview Hub
+            Overview
           </a>
           <a
             href="/internal/pets/"
@@ -237,7 +343,7 @@ const petSyncData = await getStaffPetSyncData();
               <circle cx="12" cy="12" r="10"></circle>
               <path d="m10 15 5-3-5-3v6Z"></path>
             </svg>
-            🐾 Shelter Animal Census ({petSyncData.activeCount} Pets) &rarr;
+            🐾 Animal Census ({petSyncData.activeCount}) &rarr;
           </a>
         </div>
 
@@ -275,7 +381,7 @@ const petSyncData = await getStaffPetSyncData();
             rel="noopener noreferrer"
             class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition shadow-2xs sm:ml-auto"
           >
-            Directus Console ↗
+            CMS Console ↗
           </a>
         </div>
       </div>
@@ -434,7 +540,7 @@ const petSyncData = await getStaffPetSyncData();
 
           <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
             <div>
-              <span class="font-bold text-slate-800 block text-sm">Directus CMS Console</span>
+              <span class="font-bold text-slate-800 block text-sm">CMS Content Manager</span>
               <p class="text-slate-500 mt-0.5 text-xs">
                 Manage pets, newsletters, tributes, flyers & users.
               </p>
@@ -481,6 +587,15 @@ const petSyncData = await getStaffPetSyncData();
   }
   .animate-fade-in {
     animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+  .animate-shake {
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
   }
 </style>
 
@@ -544,16 +659,10 @@ const petSyncData = await getStaffPetSyncData();
     const errorText = document.getElementById('login-error-text');
     const staffUserEmail = document.getElementById('staff-user-email');
 
-    // Tab switcher elements
-    const tabBtnHub = document.getElementById('tab-btn-hub') as HTMLButtonElement | null;
-    const tabBtnPetSync = document.getElementById('tab-btn-petsync') as HTMLButtonElement | null;
-    const paneHub = document.getElementById('pane-hub');
-    const panePetSync = document.getElementById('pane-petsync');
-    const inspectPetsBtn = document.getElementById('hub-inspect-pets-btn') as HTMLButtonElement | null;
-    const backToHubBtn = document.getElementById('back-to-hub-btn') as HTMLButtonElement | null;
 
     // Load financials if already authenticated
     if (isStaffAuthenticated()) {
+      document.documentElement.classList.add('staff-authenticated');
       loadFinancialMetrics();
     }
 
@@ -607,6 +716,7 @@ const petSyncData = await getStaffPetSyncData();
 
         try {
           await loginStaff({ email, password, rememberMe });
+          document.documentElement.classList.add('staff-authenticated');
 
           if (staffUserEmail) {
             staffUserEmail.textContent = email;
@@ -625,13 +735,18 @@ const petSyncData = await getStaffPetSyncData();
 
           const errorCode = err?.errors?.[0]?.extensions?.code;
           if (errorCode === 'INVALID_CREDENTIALS') {
-            if (errorText) errorText.textContent = 'Invalid email or password. Please verify your Directus credentials.';
+            if (errorText) errorText.textContent = 'Invalid email or password. Please verify your credentials.';
           } else {
             if (errorText) {
-              errorText.textContent = err?.message || 'Unable to connect to Directus authentication service. Please try again.';
+              errorText.textContent = err?.message || 'Unable to connect to authentication service. Please try again.';
             }
           }
-          if (errorAlert) errorAlert.classList.remove('hidden');
+          if (errorAlert) {
+            errorAlert.classList.remove('animate-shake');
+            void errorAlert.offsetWidth; // Trigger reflow for repeatable shake animation
+            errorAlert.classList.add('animate-shake');
+            errorAlert.classList.remove('hidden');
+          }
         } finally {
           if (submitBtn) submitBtn.disabled = false;
           if (btnText) btnText.textContent = 'Secure Sign In';
