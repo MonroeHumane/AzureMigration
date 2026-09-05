@@ -43,6 +43,22 @@ export const staffClient = createDirectus(DIRECTUS_URL)
   .with(rest())
   .with(authentication('json', { storage: getAuthStorage() }));
 
+// Preserve original logout method
+const _originalLogout = staffClient.logout.bind(staffClient);
+// Flag controlling whether logout should be allowed
+let _allowSdkLogout = false;
+// Expose helpers to enable/disable logout for explicit sign‑out
+export function enableSdkLogout(): void { _allowSdkLogout = true; }
+export function disableSdkLogout(): void { _allowSdkLogout = false; }
+// Monkey‑patch logout – suppress unless explicitly enabled
+staffClient.logout = async (...args: any[]) => {
+  if (!_allowSdkLogout) {
+    console.warn('[StaffAuth] Suppressed automatic SDK logout');
+    return; // no server call, keep session intact
+  }
+  return _originalLogout(...args);
+};
+
 /**
  * Synchronous client-side check whether staff is authenticated.
  * Session remains active until explicit logout on this browser.
@@ -187,8 +203,14 @@ export async function loginStaff(opts: {
  */
 export async function logoutStaff(redirectUrl: string = '/internal/'): Promise<void> {
   try {
+    // Allow the SDK to perform a real logout for explicit sign‑out
+    enableSdkLogout();
     await staffClient.logout();
   } catch {}
+  finally {
+    // Ensure automatic suppression is reinstated
+    disableSdkLogout();
+  }
 
   try {
     localStorage.removeItem(DIRECTUS_AUTH_KEY);

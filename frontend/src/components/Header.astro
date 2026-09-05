@@ -100,7 +100,6 @@ const isCurrent = (item: NavItem) => {
 ---
 
 <header class="monroe-global-nav" data-monroe-global-nav data-monroe-nav-drawer-max={SITE.ui.mobileDrawerBreakpoint}>
-  <button type="button" class="monroe-global-nav__backdrop" aria-label="Close menu" tabindex="-1" hidden></button>
   <div class="monroe-global-nav__inner">
     <div class="monroe-global-nav__bar">
       <div class="monroe-global-nav__bar-cta">
@@ -172,6 +171,7 @@ const isCurrent = (item: NavItem) => {
     </nav>
   </div>
 </header>
+<button type="button" class="monroe-global-nav__backdrop" aria-label="Close menu" tabindex="-1" hidden></button>
 
 <script>
   const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
@@ -179,7 +179,7 @@ const isCurrent = (item: NavItem) => {
   if (header) {
     const root = document.documentElement;
     const toggle = header.querySelector<HTMLButtonElement>('.monroe-global-nav__menu-toggle');
-    const backdrop = header.querySelector<HTMLButtonElement>('.monroe-global-nav__backdrop');
+    const backdrop = document.querySelector<HTMLButtonElement>('.monroe-global-nav__backdrop');
     const mql = window.matchMedia('(max-width: 1200px)');
 
     // Publish the closed-header height so body padding and anchors track it exactly.
@@ -189,6 +189,13 @@ const isCurrent = (item: NavItem) => {
     };
 
     const setCondensed = () => header.classList.toggle('is-condensed', window.scrollY > 12);
+
+    // Desktop flyouts don't track scroll position, so a scroll while one is open leaves it
+    // floating over content that has since moved. Mobile skips this: dropdowns there are
+    // accordion items inside the drawer, and closing them on scroll would fight the user.
+    const closeDropdownsOnScroll = () => {
+      if (!mql.matches) closeAllDropdowns();
+    };
 
     const closeAllDropdowns = () => {
       header.querySelectorAll('.monroe-global-nav__item.is-open').forEach((li) => {
@@ -214,6 +221,7 @@ const isCurrent = (item: NavItem) => {
     const closeDrawer = () => {
       header.classList.remove('is-open');
       toggle?.setAttribute('aria-expanded', 'false');
+      if (backdrop) backdrop.hidden = true;
       closeAllDropdowns();
     };
 
@@ -221,6 +229,7 @@ const isCurrent = (item: NavItem) => {
       const open = header.classList.toggle('is-open');
       toggle.setAttribute('aria-expanded', String(open));
       if (open) {
+        if (backdrop) backdrop.hidden = false;
         syncInert();
         header.querySelector<HTMLElement>('.monroe-global-nav__link')?.focus();
       } else {
@@ -298,6 +307,7 @@ const isCurrent = (item: NavItem) => {
     syncInert();
     window.addEventListener('resize', measure, { passive: true });
     window.addEventListener('scroll', setCondensed, { passive: true });
+    window.addEventListener('scroll', closeDropdownsOnScroll, { passive: true });
   }
 </script>
 

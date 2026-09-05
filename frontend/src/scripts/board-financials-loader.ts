@@ -1,4 +1,5 @@
-import { isStaffAuthenticated, getStaffToken, logoutStaff } from '../lib/staff-auth';
+import { isStaffAuthenticated, getStaffToken } from '../lib/staff-auth';
+import { apiFetch, getStoredStaffToken, getCachedFinancials, setCachedFinancials } from '../lib/api';
 
 function formatDollar(val: number, maxDigits = 0): string {
   const isNeg = val < 0;
@@ -36,33 +37,54 @@ function formatSigned(val: number): string {
 }
 
 export async function initBoardDashboard(): Promise<void> {
+  // 1. Instant cache hydration for zero-flicker rendering
+  const cached = getCachedFinancials();
+  if (cached && cached.headline_kpis) {
+    try {
+      hydrateExecutiveBanner(cached.meta);
+      hydrateHeadlineKpis(cached.headline_kpis);
+      hydrateOperatingBridge(cached.headline_kpis, cached.bridge_composition);
+      hydrateMonthlyStatements(cached.monthly_statements);
+      hydratePositionAndCash(cached.statement_of_position, cached.accounts_payable_schedule);
+      hydrateMultiYear(cached.multiyear_comparison);
+      hydrateScenarioSimulator(cached);
+      hydrateFooter(cached.meta);
+    } catch (e) {
+      console.warn('[BoardDashboard] Error rendering cached financials:', e);
+    }
+  }
+
   if (!isStaffAuthenticated()) {
     const target = encodeURIComponent(window.location.pathname + window.location.search);
     window.location.replace(`/internal/?redirect=${target}`);
     return;
   }
 
-  const token = await getStaffToken();
+  let token = getStoredStaffToken();
   if (!token) {
+    token = await getStaffToken();
+  }
+
+  if (!token && !cached) {
     const target = encodeURIComponent(window.location.pathname + window.location.search);
     window.location.replace(`/internal/?redirect=${target}`);
     return;
   }
 
+  if (!token) {
+    console.warn('[BoardDashboard] Token not yet loaded; using cached financials.');
+    return;
+  }
+
   try {
-    const res = await fetch('/api/financials', {
+    const res = await apiFetch('/api/financials', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    });
+    }, { ignoreAutoLogout: true });
 
     if (res.status === 401 || res.status === 403) {
-    console.warn('[BoardDashboard] Unauthorized. Session expired. Persistent session remains.');
-    // Do not logout; keep the session active until manual sign-out.
-    return;
-  }
-      console.warn('[BoardDashboard] Unauthorized. Session expired.');
-      await logoutStaff('/internal/?error=session_expired');
+      console.warn('[BoardDashboard] Unauthorized on /api/financials. Persistent session preserved.');
       return;
     }
 
@@ -76,6 +98,8 @@ export async function initBoardDashboard(): Promise<void> {
       console.error('[BoardDashboard] Invalid payload received from /api/financials');
       return;
     }
+
+    setCachedFinancials(data);
 
     hydrateExecutiveBanner(data.meta);
     hydrateHeadlineKpis(data.headline_kpis);
@@ -335,6 +359,139 @@ function hydrateMonthlyStatements(statements: any[]) {
     });
   }
 
+  // Hydrate mobile stacked cards
+  const mobileContainer = document.getElementById('monthly-statement-mobile-container');
+  if (mobileContainer) {
+    mobileContainer.innerHTML = '';
+    statements.forEach((m) => {
+      const isSurplus = m.net_margin >= 0;
+      const card = document.createElement('div');
+      card.className = 'p-4 bg-white hover:bg-slate-50/80 transition';
+      card.id = `mobile-card-${m.id}`;
+
+      const revItemsHtml = (m.rev_items || [])
+        .map((it: any) => `
+          <div class="flex justify-between text-slate-700">
+            <span>${it.name}</span>
+            <span class="font-mono font-medium text-slate-900">${formatDollar(it.amount)}</span>
+          </div>
+        `).join('');
+
+      const expItemsHtml = (m.exp_items || [])
+        .map((it: any) => `
+          <div class="flex justify-between text-slate-700">
+            <span>${it.name}</span>
+            <span class="font-mono font-medium text-slate-900">${formatDollar(it.amount)}</span>
+          </div>
+        `).join('');
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <div>
+            <div class="flex items-center gap-1.5 font-bold text-slate-900 text-sm">
+              <span>${m.month}</span>
+              ${m.is_partial ? '<span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded border border-amber-200">Partial</span>' : ''}
+            </div>
+            <div class="text-[11px] text-slate-500 mt-0.5" title="${m.driver}">${m.driver}</div>
+          </div>
+          <div class="text-right flex flex-col items-end shrink-0">
+            <span class="font-mono font-bold text-sm ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}">
+              ${isSurplus ? '+' : ''}${formatDollar(m.net_margin)}
+            </span>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold mt-0.5 ${
+              isSurplus ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+            }">
+              ${m.margin_pct.toFixed(1)}% &bull; ${m.status}
+            </span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80 text-xs mb-2.5">
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Revenue</span>
+            <span class="font-mono font-semibold text-slate-800">${formatDollar(m.revenue)}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Total Exp</span>
+            <span class="font-mono font-semibold text-slate-800">${formatDollar(m.total_exp)}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Direct Care</span>
+            <span class="font-mono text-slate-600">${formatDollar(m.cogs)}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Ops & Payroll</span>
+            <span class="font-mono text-slate-600">${formatDollar(m.operating_exp)}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="w-full py-1.5 px-3 rounded text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100/80 border border-teal-200/60 flex items-center justify-center gap-1.5 transition cursor-pointer"
+          data-mobile-target="mobile-drawer-${m.id}"
+        >
+          <span>View Breakdown</span>
+          <svg class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div id="mobile-drawer-${m.id}" class="hidden pt-3 space-y-3">
+          <div class="bg-emerald-50/40 p-3 rounded-lg border border-emerald-100 text-xs">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider text-emerald-900 pb-1.5 border-b border-emerald-200/60 mb-1.5">
+              Revenue Inflows Schedule (${m.month})
+            </h4>
+            <div class="space-y-1">${revItemsHtml}</div>
+          </div>
+          <div class="bg-rose-50/40 p-3 rounded-lg border border-rose-100 text-xs">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider text-rose-900 pb-1.5 border-b border-rose-200/60 mb-1.5">
+              Expenditures Schedule (${m.month})
+            </h4>
+            <div class="space-y-1">${expItemsHtml}</div>
+          </div>
+        </div>
+      `;
+
+      const btn = card.querySelector('[data-mobile-target]');
+      const drawer = card.querySelector(`#mobile-drawer-${m.id}`);
+      if (btn && drawer) {
+        btn.addEventListener('click', () => {
+          drawer.classList.toggle('hidden');
+          const svg = btn.querySelector('svg');
+          if (svg) svg.classList.toggle('rotate-180');
+        });
+      }
+
+      mobileContainer.appendChild(card);
+    });
+
+    // Mobile Footing card
+    const footingCard = document.createElement('div');
+    footingCard.className = 'p-4 bg-[#173a39] text-white';
+    footingCard.innerHTML = `
+      <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-2 flex items-center justify-between">
+        <span>2026 YTD Certified Footing</span>
+        <span class="text-[10px] text-emerald-400 font-normal">✓ Cent-for-cent</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div>
+          <span class="text-slate-300 block text-[10px]">Total Revenue</span>
+          <span id="mobile-footing-rev" class="font-mono font-bold text-emerald-300"></span>
+        </div>
+        <div>
+          <span class="text-slate-300 block text-[10px]">Total Expenditures</span>
+          <span id="mobile-footing-exp" class="font-mono font-bold text-amber-300"></span>
+        </div>
+        <div>
+          <span class="text-slate-300 block text-[10px]">Net Margin</span>
+          <span id="mobile-footing-net" class="font-mono font-bold text-rose-400"></span>
+        </div>
+        <div>
+          <span class="text-slate-300 block text-[10px]">Margin %</span>
+          <span id="mobile-footing-pct" class="font-mono font-bold text-rose-300"></span>
+        </div>
+      </div>
+    `;
+    mobileContainer.appendChild(footingCard);
+  }
+
   // Totals footing
   const totalRev = statements.reduce((acc, m) => acc + m.revenue, 0);
   const totalCogs = statements.reduce((acc, m) => acc + m.cogs, 0);
@@ -342,7 +499,7 @@ function hydrateMonthlyStatements(statements: any[]) {
   const totalOtherExp = statements.reduce((acc, m) => acc + m.other_exp, 0);
   const totalExp = statements.reduce((acc, m) => acc + m.total_exp, 0);
   const totalNet = statements.reduce((acc, m) => acc + m.net_margin, 0);
-  const totalMarginPct = (totalNet / totalRev) * 100;
+  const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
 
   const fRev = document.getElementById('footing-rev');
   if (fRev) fRev.textContent = formatDollar(totalRev);
@@ -358,6 +515,15 @@ function hydrateMonthlyStatements(statements: any[]) {
   if (fNet) fNet.textContent = `${totalNet >= 0 ? '+' : ''}${formatDollar(totalNet)}`;
   const fPct = document.getElementById('footing-margin-pct');
   if (fPct) fPct.textContent = `${totalMarginPct.toFixed(1)}%`;
+
+  const mfRev = document.getElementById('mobile-footing-rev');
+  if (mfRev) mfRev.textContent = formatDollar(totalRev);
+  const mfTotExp = document.getElementById('mobile-footing-exp');
+  if (mfTotExp) mfTotExp.textContent = formatDollar(totalExp);
+  const mfNet = document.getElementById('mobile-footing-net');
+  if (mfNet) mfNet.textContent = `${totalNet >= 0 ? '+' : ''}${formatDollar(totalNet)}`;
+  const mfPct = document.getElementById('mobile-footing-pct');
+  if (mfPct) mfPct.textContent = `${totalMarginPct.toFixed(1)}%`;
 }
 
 function hydratePositionAndCash(position: any, apSchedule: any[]) {

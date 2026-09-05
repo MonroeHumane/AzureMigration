@@ -57,6 +57,39 @@ const { data = null } = Astro.props;
       </div>
     </div>
 
+    <!-- Direct Access PDF & Print Ribbon (Mobile-Friendly) -->
+    <div class="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-200/80 text-xs">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-[11px] font-semibold text-slate-500">Official Artifacts:</span>
+        <a
+          href="/assets/recovered/docs/First_Merchants_Bank_Statement_August_2026.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 hover:text-teal-900 transition shadow-xs"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          Open Statement PDF (6 Pages) ↗
+        </a>
+        <a
+          href="/internal/board/print/"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 border border-emerald-300 text-emerald-900 hover:bg-emerald-100 transition shadow-xs"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect width="12" height="8" x="6" y="14"></rect>
+          </svg>
+          Print Board Packet ↗
+        </a>
+      </div>
+      <div class="text-[11px] text-slate-400">
+        Bank Rec ID: <code class="font-mono text-slate-600 bg-slate-100 px-1 py-0.5 rounded">FMB-8478-2026-08</code>
+      </div>
+    </div>
+
     <!-- Navigation Tabs -->
     <div class="flex flex-wrap items-center gap-2 mt-5 pt-3 border-t border-slate-200/80">
       <button

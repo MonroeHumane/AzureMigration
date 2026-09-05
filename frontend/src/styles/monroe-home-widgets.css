@@ -1147,6 +1147,11 @@ body.hs-lb-open { overflow:hidden; }
       flex-direction: row;
       flex-wrap: nowrap;
       gap: 1.1em;
+      /* Trailing gap after the last card, matching the inter-card gap, so the
+         seam between the primary strip and its clone (used for the seamless
+         -50% marquee loop) has the same spacing as every other card gap
+         instead of the cards touching with zero gap. */
+      padding-right: 1.1em;
     }
 
 #featuredPetsWidget .scroll-viewport:not(.scroll-viewport--static):hover .scroll-track:not(.scroll-track--static) {

@@ -876,9 +876,14 @@ const indexLabels: Record<string, string> = {
     if (fpwDialog && fpwExpand) {
       fpwExpand.addEventListener('click', () => {
         const mount = fpwDialog.querySelector('#fpw-fs-longest');
-        const row = document.getElementById('longestRow');
-        if (mount && row && !mount.childElementCount) {
-          mount.innerHTML = row.innerHTML;
+        // Pull cards from the primary strip only — `#longestRow` also
+        // contains an aria-hidden `.scroll-strip--clone` (duplicate cards
+        // used to loop the auto-scroll marquee) plus the marquee's own
+        // scroll-viewport/scroll-track wrapper and animation, none of which
+        // belong in the static full-screen grid.
+        const primaryStrip = document.querySelector('#longestRow .scroll-strip--primary');
+        if (mount && primaryStrip && !mount.childElementCount) {
+          mount.innerHTML = primaryStrip.innerHTML;
         }
         fpwDialog.showModal();
       });
@@ -990,6 +995,23 @@ const indexLabels: Record<string, string> = {
     }
 
     // Contact form: mailto submission (no backend on the static site).
+    const contactForm = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
+    if (contactForm) {
+      contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = new FormData(contactForm);
+        if (data.get('monroe_contact_website')) return; // honeypot
+        const name = String(data.get('monroe_contact_name') || '');
+        const email = String(data.get('monroe_contact_email') || '');
+        const phone = String(data.get('monroe_contact_phone') || '');
+        const message = String(data.get('monroe_contact_message') || '');
+        const subject = encodeURIComponent(`Website contact from ${name}`);
+        const body = encodeURIComponent(`${message}\n\n- ${name}${phone ? ` (${phone})` : ''}\n${email}`);
+        const feedback = contactForm.closest('.monroe-contact-form-wrap')?.querySelector<HTMLElement>('.monroe-contact-form__feedback');
+        if (feedback) feedback.textContent = 'Opening your email client to send your message. Thank you!';
+        window.location.href = `mailto:${contactForm.dataset.email}?subject=${subject}&body=${body}`;
+      });
+    }
     }
 
   document.addEventListener('astro:page-load', initHomePage);

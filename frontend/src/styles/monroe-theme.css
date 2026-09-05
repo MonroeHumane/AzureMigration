@@ -214,9 +214,13 @@ body.monroe-rebuild-theme img {
   display: none !important;
 }
 
-.monroe-global-nav.is-open .monroe-global-nav__backdrop:not([hidden]) {
+.monroe-global-nav__backdrop:not([hidden]) {
   display: block;
-  /* Dim only the page behind the drawer - the bar + menu use opaque #fffaf2 */
+  /* Dim only the page behind the drawer - the bar + menu use opaque #fffaf2.
+     Sibling of <header>, not a descendant — .monroe-global-nav has
+     transform: translateZ(0), which would make it the containing block for
+     a fixed-position descendant and trap this overlay inside the header's
+     own (opaque) box instead of covering the actual page. */
   top: var(--monroe-nav-height, 96px);
   bottom: 0;
   left: 0;

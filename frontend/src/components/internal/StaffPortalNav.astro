@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activeTab?: 'petsync' | 'financials' | 'grants' | 'overview';
+  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'overview';
 }
 
 const { activeTab = 'overview' } = Astro.props;
@@ -33,48 +33,90 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         </div>
       </div>
 
-      <!-- System Status Pills & Actions -->
-      <div class="flex flex-wrap items-center gap-2 text-xs">
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-900/80 border border-teal-700 text-teal-200">
+      <!-- Right Controls: Status, User Menu & Mobile Hamburger -->
+      <div class="flex items-center gap-2 sm:gap-3 text-xs">
+        <!-- Live status (hidden on small mobile) -->
+        <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-900/80 border border-teal-700/80 text-teal-200">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Directus CMS: <strong class="text-white font-medium">Online</strong></span>
+          <span>CMS: <strong class="text-white font-medium">Online</strong></span>
         </div>
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-900/80 border border-teal-700 text-teal-200">
+        <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-900/80 border border-teal-700/80 text-teal-200">
           <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>PetSync Job: <strong class="text-white font-medium">Every 30m</strong></span>
+          <span>PetSync: <strong class="text-white font-medium">Every 30m</strong></span>
         </div>
+
+        <!-- Public site return -->
         <a
           href="/"
           data-astro-reload
-          class="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-teal-800 hover:bg-teal-700 text-white transition border border-teal-600 shadow-xs"
+          class="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-900/60 hover:bg-teal-800 text-teal-100 hover:text-white transition border border-teal-700/80 shadow-2xs"
+          title="Return to Public Website"
         >
           &larr; Public Site
         </a>
+
+        <!-- User Profile Pill -->
+        <div class="flex items-center gap-2 pl-2 border-l border-teal-800/80">
+          <div
+            id="nav-user-avatar"
+            class="w-7 h-7 rounded-full bg-emerald-700 text-emerald-100 flex items-center justify-center font-bold text-xs shadow-inner flex-shrink-0"
+            title="Authenticated Staff Member"
+          >
+            SP
+          </div>
+          <span
+            id="nav-user-email"
+            class="hidden md:inline text-xs text-teal-200 max-w-[150px] truncate"
+            title="Signed in user"
+          >
+            staff@monroe-humane.org
+          </span>
+          <button
+            id="global-staff-logout-btn"
+            type="button"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-900/40 hover:bg-rose-800 text-rose-200 hover:text-white transition border border-rose-700/50 shadow-xs cursor-pointer"
+            title="Sign out of Staff Portal"
+          >
+            <span id="logout-btn-text" class="hidden sm:inline">Sign Out</span>
+            <svg id="logout-btn-icon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <svg id="logout-btn-spinner" class="hidden animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mobile Drawer Toggle Button -->
         <button
-          id="global-staff-logout-btn"
+          id="mobile-nav-toggle-btn"
           type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold bg-rose-900/40 hover:bg-rose-850 text-rose-200 hover:text-white transition border border-rose-700/50 shadow-xs cursor-pointer"
-          title="Sign out of Staff Portal"
+          class="md:hidden p-2 rounded-lg bg-teal-900/80 text-teal-200 hover:text-white border border-teal-700 focus:outline-none cursor-pointer"
+          aria-label="Toggle Staff Navigation Menu"
+          aria-expanded="false"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
+          <svg id="hamburger-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
-          Sign Out
+          <svg id="close-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <nav class="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-teal-800/80" aria-label="Staff Portal Modules">
+    <!-- Desktop Navigation Tabs -->
+    <nav class="hidden md:flex flex-wrap items-center gap-1.5 mt-3 pt-2.5 border-t border-teal-800/80" aria-label="Staff Portal Modules">
       <a
         href="/internal/"
         data-nav-tab="overview"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'overview'
-            ? 'bg-emerald-600 text-white shadow-xs'
-            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800'
+            ? 'bg-emerald-600 text-white shadow-xs font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800/80'
         }`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -87,28 +129,28 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       </a>
 
       <a
-        href="/internal/?tab=petsync"
+        href="/internal/pets/"
         data-nav-tab="petsync"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
-          activeTab === 'petsync'
-            ? 'bg-emerald-600 text-white shadow-xs'
-            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800'
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+          activeTab === 'petsync' || activeTab === 'pets'
+            ? 'bg-emerald-600 text-white shadow-xs font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800/80'
         }`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="m10 15 5-3-5-3v6Z"></path>
         </svg>
-        🐾 PetSync Operations
+        🐾 Shelter Animals & Census
       </a>
 
       <a
         href="/internal/board/"
         data-nav-tab="financials"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'financials'
-            ? 'bg-emerald-600 text-white shadow-xs'
-            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800'
+            ? 'bg-emerald-600 text-white shadow-xs font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800/80'
         }`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -121,10 +163,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       <a
         href="/internal/grants/"
         data-nav-tab="grants"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'grants'
-            ? 'bg-emerald-600 text-white shadow-xs'
-            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800'
+            ? 'bg-emerald-600 text-white shadow-xs font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800/80'
         }`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -138,30 +180,150 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         href={directusAdminUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800 transition ml-auto"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-900/60 text-teal-100 hover:bg-teal-800 border border-teal-800/80 transition ml-auto"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
-        Directus CMS Console ↗
+        Directus Console ↗
       </a>
+    </nav>
+
+    <!-- Mobile Drawer Menu (Collapsible) -->
+    <nav
+      id="mobile-nav-drawer"
+      class="hidden md:hidden pt-3 pb-2 space-y-1.5 border-t border-teal-800/80 mt-2.5 transition-all duration-200"
+      aria-label="Mobile Staff Modules"
+    >
+      <a
+        href="/internal/"
+        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
+          activeTab === 'overview'
+            ? 'bg-emerald-600 text-white font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+          <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+          <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+          <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+        </svg>
+        Overview Hub
+      </a>
+
+      <a
+        href="/internal/pets/"
+        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
+          activeTab === 'petsync' || activeTab === 'pets'
+            ? 'bg-emerald-600 text-white font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="m10 15 5-3-5-3v6Z"></path>
+        </svg>
+        🐾 Shelter Animals & Census
+      </a>
+
+      <a
+        href="/internal/board/"
+        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
+          activeTab === 'financials'
+            ? 'bg-emerald-600 text-white font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        📊 Board Financials & Treasury
+      </a>
+
+      <a
+        href="/internal/grants/"
+        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold ${
+          activeTab === 'grants'
+            ? 'bg-emerald-600 text-white font-bold'
+            : 'bg-teal-900/60 text-teal-100 hover:bg-teal-800'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        📋 Grants Pipeline
+      </a>
+
+      <div class="pt-2 border-t border-teal-800/80 flex items-center justify-between text-xs text-teal-200 px-1">
+        <a href="/" data-astro-reload class="hover:text-white transition">
+          &larr; Public Site
+        </a>
+        <a href={directusAdminUrl} target="_blank" rel="noopener noreferrer" class="hover:text-white transition">
+          Directus CMS ↗
+        </a>
+      </div>
     </nav>
   </div>
 </header>
 
 <script>
-  import { logoutStaff } from '../../lib/staff-auth';
+  import { logoutStaff, getStaffUserEmail } from '../../lib/staff-auth';
 
   function initStaffNav() {
-    const logoutBtn = document.getElementById('global-staff-logout-btn');
-    if (!logoutBtn || logoutBtn.dataset.bound === '1') return;
-    logoutBtn.dataset.bound = '1';
+    // 1. Hydrate User Info
+    const email = getStaffUserEmail();
+    const emailEl = document.getElementById('nav-user-email');
+    const avatarEl = document.getElementById('nav-user-avatar');
+    if (emailEl && email) {
+      emailEl.textContent = email;
+    }
+    if (avatarEl && email) {
+      const parts = email.split('@')[0].split(/[._-]/);
+      let initials = 'SP';
+      if (parts.length >= 2) {
+        initials = (parts[0][0] + parts[1][0]).toUpperCase();
+      } else if (parts.length === 1 && parts[0].length >= 2) {
+        initials = parts[0].slice(0, 2).toUpperCase();
+      }
+      avatarEl.textContent = initials;
+    }
 
-    logoutBtn.addEventListener('click', async () => {
-      logoutBtn.setAttribute('disabled', 'true');
-      await logoutStaff();
-    });
+    // 2. Mobile Drawer Toggle
+    const mobileBtn = document.getElementById('mobile-nav-toggle-btn');
+    const drawer = document.getElementById('mobile-nav-drawer');
+    const hamburgerIcon = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
+
+    if (mobileBtn && drawer && mobileBtn.dataset.bound !== '1') {
+      mobileBtn.dataset.bound = '1';
+      mobileBtn.addEventListener('click', () => {
+        const isHidden = drawer.classList.toggle('hidden');
+        mobileBtn.setAttribute('aria-expanded', String(!isHidden));
+        hamburgerIcon?.classList.toggle('hidden', !isHidden);
+        closeIcon?.classList.toggle('hidden', isHidden);
+      });
+    }
+
+    // 3. Logout Debounce & Spinner
+    const logoutBtn = document.getElementById('global-staff-logout-btn') as HTMLButtonElement | null;
+    const logoutText = document.getElementById('logout-btn-text');
+    const logoutIcon = document.getElementById('logout-btn-icon');
+    const logoutSpinner = document.getElementById('logout-btn-spinner');
+
+    if (logoutBtn && logoutBtn.dataset.bound !== '1') {
+      logoutBtn.dataset.bound = '1';
+      logoutBtn.addEventListener('click', async () => {
+        logoutBtn.disabled = true;
+        if (logoutText) logoutText.textContent = 'Signing out...';
+        logoutIcon?.classList.add('hidden');
+        logoutSpinner?.classList.remove('hidden');
+        await logoutStaff();
+      });
+    }
   }
 
   if (document.readyState === 'loading') {

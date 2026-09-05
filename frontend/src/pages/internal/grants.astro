@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
+import MobileBottomNav from "../../components/internal/MobileBottomNav.astro";
+import MobileMoreSheet from "../../components/internal/MobileMoreSheet.astro";
 ---
 
 <BaseLayout title="Staff Portal: Grants Tracker">
@@ -22,7 +24,7 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
     })();
   </script>
   <StaffPortalNav activeTab="grants" />
-  <div class="grants-portal">
+  <div class="grants-portal pb-24 md:pb-12">
     <!-- Dashboard Screen -->
     <div id="dashboard-view" class="portal-view">
       <header class="dashboard-header">
@@ -32,6 +34,32 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
         </div>
         <button id="logout-btn" class="btn-outline">Sign out</button>
       </header>
+
+      <!-- Grants Pipeline Metrics Ribbon -->
+      <section class="dashboard-section">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Total Tracked</span>
+            <span id="grant-stat-total" class="font-mono font-bold text-slate-900 text-xl block mt-1">--</span>
+            <span class="text-[11px] text-slate-500 mt-0.5 block">Pipeline applications</span>
+          </div>
+          <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
+            <span class="text-[10px] uppercase font-bold text-emerald-600 block tracking-wider">Awarded Grants</span>
+            <span id="grant-stat-awarded" class="font-mono font-bold text-emerald-700 text-xl block mt-1">--</span>
+            <span class="text-[11px] text-emerald-600 mt-0.5 block">Secured funding</span>
+          </div>
+          <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
+            <span class="text-[10px] uppercase font-bold text-amber-600 block tracking-wider">Open / Pending</span>
+            <span id="grant-stat-open" class="font-mono font-bold text-amber-700 text-xl block mt-1">--</span>
+            <span class="text-[11px] text-amber-600 mt-0.5 block">In review / prep</span>
+          </div>
+          <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
+            <span class="text-[10px] uppercase font-bold text-[#173a39] block tracking-wider">Sync Architecture</span>
+            <span id="grant-stat-sync" class="font-mono font-bold text-[#173a39] text-base block mt-1">Directus REST</span>
+            <span class="text-[11px] text-slate-500 mt-0.5 block">Role-scoped token</span>
+          </div>
+        </div>
+      </section>
 
       <!-- Discovery Tools Section -->
       <section class="dashboard-section discovery-section">
@@ -65,7 +93,19 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
             <h2>Active Grants</h2>
             <p>Your internal record of applications.</p>
           </div>
-          <button id="add-grant-btn" class="btn-success">+ Add Grant</button>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button id="export-grants-csv-btn" type="button" class="btn-outline">Export CSV</button>
+            <button id="add-grant-btn" class="btn-success">+ Add Grant</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <input
+            type="text"
+            id="grants-search-input"
+            placeholder="Search grants by title, source, status, or notes..."
+            style="width: 100%; padding: 0.625rem 0.875rem; font-size: 0.8125rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;"
+          />
         </div>
 
         <div id="grants-container" class="table-container">
@@ -109,6 +149,11 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
         </form>
       </div>
     </dialog>
+    <!-- Mobile Bottom Thumb-Navigation Dock -->
+    <MobileBottomNav activeTab="grants" />
+
+    <!-- Mobile Slide-Up More Tools Sheet -->
+    <MobileMoreSheet />
   </div>
 </BaseLayout>
 
@@ -161,6 +206,17 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
   .btn-outline:hover { background: #f1f5f9; color: #0f172a; }
 
   .btn-success {
+    background: #173a39;
+    color: white;
+    border: none;
+    padding: 0.625rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 4px rgba(23, 58, 57, 0.15);
+  }
+  .btn-success:hover { background: #112c2b; }
+  .btn-success-orig {
     background: #10b981;
     color: white;
     border: none;
@@ -342,10 +398,46 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
       });
     }
 
+    // Draft auto-save helpers
+    const DRAFT_KEY = 'mchs_grant_draft_v1';
+    const titleInput = document.getElementById('new-title') as HTMLInputElement | null;
+    const sourceInput = document.getElementById('new-source') as HTMLSelectElement | null;
+    const notesInput = document.getElementById('new-notes') as HTMLTextAreaElement | null;
+
+    function saveDraft() {
+      try {
+        const draft = {
+          title: titleInput?.value || '',
+          source: sourceInput?.value || 'Manual',
+          notes: notesInput?.value || '',
+        };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      } catch {}
+    }
+
+    function loadDraft() {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (raw) {
+          const draft = JSON.parse(raw);
+          if (titleInput && draft.title && !titleInput.value) titleInput.value = draft.title;
+          if (sourceInput && draft.source) sourceInput.value = draft.source;
+          if (notesInput && draft.notes && !notesInput.value) notesInput.value = draft.notes;
+        }
+      } catch {}
+    }
+
+    titleInput?.addEventListener('input', saveDraft);
+    sourceInput?.addEventListener('change', saveDraft);
+    notesInput?.addEventListener('input', saveDraft);
+
     // Modal interactions
     if (btnOpenModal && btnOpenModal.dataset.bound !== '1') {
       btnOpenModal.dataset.bound = '1';
-      btnOpenModal.addEventListener('click', () => modal?.showModal());
+      btnOpenModal.addEventListener('click', () => {
+        loadDraft();
+        modal?.showModal();
+      });
     }
     if (btnCloseModal && btnCloseModal.dataset.bound !== '1') {
       btnCloseModal.dataset.bound = '1';
@@ -379,10 +471,6 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
       formAddGrant.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const titleInput = document.getElementById('new-title') as HTMLInputElement | null;
-        const sourceInput = document.getElementById('new-source') as HTMLSelectElement | null;
-        const notesInput = document.getElementById('new-notes') as HTMLTextAreaElement | null;
-
         const title = titleInput?.value.trim();
         const source = sourceInput?.value || 'Manual';
         const notes = notesInput?.value.trim() || '';
@@ -398,6 +486,10 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
             deadline_notes: notes
           }));
 
+          try {
+            localStorage.removeItem(DRAFT_KEY);
+          } catch {}
+
           formAddGrant.reset();
           modal?.close();
           loadGrants();
@@ -412,11 +504,74 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
       });
     }
 
+    let currentGrants: any[] = [];
+
+    // Search filter input listener
+    const searchInput = document.getElementById('grants-search-input') as HTMLInputElement | null;
+    if (searchInput && searchInput.dataset.bound !== '1') {
+      searchInput.dataset.bound = '1';
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        const rows = grantsContainer?.querySelectorAll('tbody tr') || [];
+        rows.forEach((tr) => {
+          const text = tr.textContent?.toLowerCase() || '';
+          (tr as HTMLElement).style.display = text.includes(query) ? '' : 'none';
+        });
+      });
+    }
+
+    // CSV Export button listener
+    const exportBtn = document.getElementById('export-grants-csv-btn') as HTMLButtonElement | null;
+    if (exportBtn && exportBtn.dataset.bound !== '1') {
+      exportBtn.dataset.bound = '1';
+      exportBtn.addEventListener('click', () => {
+        if (!currentGrants || !currentGrants.length) {
+          alert('No grant records to export yet.');
+          return;
+        }
+
+        const headers = ['Grant Title', 'Source', 'Status', 'Deadline / Notes'];
+        const rows = currentGrants.map((g: any) => [
+          `"${(g.title || '').replace(/"/g, '""')}"`,
+          `"${(g.source || '').replace(/"/g, '""')}"`,
+          `"${(g.status || '').replace(/"/g, '""')}"`,
+          `"${(g.deadline_notes || '').replace(/"/g, '""')}"`,
+        ]);
+
+        const csvString = [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Monroe_Humane_Grants_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+    }
+
     async function loadGrants() {
       try {
         const grants = await staffClient.request(readItems('grants', {
           sort: ['-id'] // Show newest first
         }));
+
+        currentGrants = (grants as any[]) || [];
+
+        // Update KPI Summary Ribbon
+        const totalCount = currentGrants.length;
+        const awardedCount = currentGrants.filter(g => (g.status || '').toLowerCase() === 'awarded' || (g.status || '').toLowerCase() === 'won').length;
+        const openCount = currentGrants.filter(g => (g.status || '').toLowerCase() === 'open' || (g.status || '').toLowerCase() === 'submitted' || (g.status || '').toLowerCase() === 'pending').length;
+
+        const statTotal = document.getElementById('grant-stat-total');
+        if (statTotal) statTotal.textContent = totalCount > 0 ? totalCount.toString() : '0';
+
+        const statAwarded = document.getElementById('grant-stat-awarded');
+        if (statAwarded) statAwarded.textContent = awardedCount > 0 ? awardedCount.toString() : '0';
+
+        const statOpen = document.getElementById('grant-stat-open');
+        if (statOpen) statOpen.textContent = openCount > 0 ? openCount.toString() : totalCount.toString();
 
         if (!grantsContainer) return;
 

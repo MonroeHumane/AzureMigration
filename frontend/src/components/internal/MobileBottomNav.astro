@@ -1,0 +1,121 @@
+---
+interface Props {
+  activeTab?: 'overview' | 'pets' | 'financials' | 'grants';
+}
+
+const { activeTab = 'overview' } = Astro.props;
+---
+
+<!-- Fixed Mobile Bottom Navigation Dock (Thumb-Zone Reachable) -->
+<nav
+  id="mobile-bottom-nav-dock"
+  class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#173a39]/95 backdrop-blur-md border-t border-teal-800/80 shadow-[0_-4px_16px_rgba(0,0,0,0.15)] px-2 py-1.5"
+  aria-label="Staff Portal Mobile Navigation"
+>
+  <div class="max-w-md mx-auto grid grid-cols-5 gap-1 items-center text-center">
+    <!-- Tab 1: Hub / Overview -->
+    <a
+      href="/internal/"
+      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
+        activeTab === 'overview'
+          ? 'text-emerald-300 font-bold bg-white/10 shadow-inner'
+          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+      }`}
+      aria-current={activeTab === 'overview' ? 'page' : undefined}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+        <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+        <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+        <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+      </svg>
+      <span class="text-[10px] tracking-tight leading-none">Hub</span>
+    </a>
+
+    <!-- Tab 2: Shelter Animals / PetSync -->
+    <a
+      href="/internal/pets/"
+      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
+        activeTab === 'pets'
+          ? 'text-amber-300 font-bold bg-white/10 shadow-inner'
+          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+      }`}
+      aria-current={activeTab === 'pets' ? 'page' : undefined}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="m10 15 5-3-5-3v6Z"></path>
+      </svg>
+      <span class="text-[10px] tracking-tight leading-none">Animals</span>
+    </a>
+
+    <!-- Tab 3: Finance / Board -->
+    <a
+      href="/internal/board/"
+      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
+        activeTab === 'financials'
+          ? 'text-emerald-300 font-bold bg-white/10 shadow-inner'
+          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+      }`}
+      aria-current={activeTab === 'financials' ? 'page' : undefined}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"></line>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+      </svg>
+      <span class="text-[10px] tracking-tight leading-none">Finance</span>
+    </a>
+
+    <!-- Tab 4: Grants -->
+    <a
+      href="/internal/grants/"
+      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
+        activeTab === 'grants'
+          ? 'text-purple-300 font-bold bg-white/10 shadow-inner'
+          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+      }`}
+      aria-current={activeTab === 'grants' ? 'page' : undefined}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+      <span class="text-[10px] tracking-tight leading-none">Grants</span>
+    </a>
+
+    <!-- Tab 5: More Utilities Drawer -->
+    <button
+      type="button"
+      id="bottom-dock-more-btn"
+      class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-teal-200/80 hover:text-white hover:bg-white/5 transition cursor-pointer select-none"
+      aria-label="Open portal utilities menu"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="1"></circle>
+        <circle cx="19" cy="12" r="1"></circle>
+        <circle cx="5" cy="12" r="1"></circle>
+      </svg>
+      <span class="text-[10px] tracking-tight leading-none">More</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+  function setupBottomDock() {
+    const moreBtn = document.getElementById('bottom-dock-more-btn');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', () => {
+        if (typeof (window as any).openMobileMoreSheet === 'function') {
+          (window as any).openMobileMoreSheet();
+        }
+      });
+    }
+  }
+
+  document.addEventListener('astro:page-load', setupBottomDock);
+  if (document.readyState !== 'loading') {
+    setupBottomDock();
+  } else {
+    document.addEventListener('DOMContentLoaded', setupBottomDock);
+  }
+</script>

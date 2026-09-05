@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import StaffPortalNav from '../../../components/internal/StaffPortalNav.astro';
+import StaffSubNav from '../../../components/internal/StaffSubNav.astro';
+import MobileBottomNav from '../../../components/internal/MobileBottomNav.astro';
+import MobileMoreSheet from '../../../components/internal/MobileMoreSheet.astro';
 import ExecutiveBanner from '../../../components/board/ExecutiveBanner.astro';
 import HeadlineKpiGrid from '../../../components/board/HeadlineKpiGrid.astro';
 import OperatingBridgeCard from '../../../components/board/OperatingBridgeCard.astro';
@@ -15,6 +18,16 @@ import GovernanceCard from '../../../components/board/GovernanceCard.astro';
 import { getBoardMeetings, getBoardDocuments } from '../../../lib/directus';
 const boardMeetings = await getBoardMeetings();
 const boardDocuments = await getBoardDocuments();
+
+const subNavItems = [
+  { id: 'all', label: 'All Modules', icon: '📑' },
+  { id: 'snapshot', label: 'Executive KPIs', icon: '📊' },
+  { id: 'statement', label: 'Operating Statement', icon: '📅' },
+  { id: 'balance', label: 'Balance & AP', icon: '🏦' },
+  { id: 'strategy', label: 'Runway & Simulator', icon: '📈' },
+  { id: 'audit', label: 'Bank Statement Audit', icon: '🔍' },
+  { id: 'governance', label: 'Governance & Minutes', icon: '🏛️' },
+];
 ---
 
 <BaseLayout
@@ -37,45 +50,59 @@ const boardDocuments = await getBoardDocuments();
           hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
         }
         if (!hasAuth) {
+          hasAuth = !!(sessionStorage.getItem('mchs_staff_token') || localStorage.getItem('mchs_staff_token'));
+        }
+        if (!hasAuth) {
           window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
         }
       } catch (e) {}
     })();
   </script>
-  <div class="min-h-screen pb-16">
+  <div class="min-h-screen pb-24 md:pb-16">
     <!-- Staff Portal Navigation -->
     <StaffPortalNav activeTab="financials" />
 
-    <!-- Component 1: Official Executive Banner -->
+    <!-- Executive Banner -->
     <ExecutiveBanner />
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8">
-      <!-- Component 2: Headline KPI Grid -->
-      <HeadlineKpiGrid />
+    <!-- Modular Financial Sub-Navigation Bar (Sticky) -->
+    <StaffSubNav items={subNavItems} activeId="all" ariaLabel="Financial modules subnavigation" />
 
-      <!-- Component 3: Interactive Cash Runway & Operating Scenario Simulator -->
-      <ScenarioSimulatorCard />
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8" id="financials-main-content">
+      <!-- Section 1: Headline KPI Grid -->
+      <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20">
+        <HeadlineKpiGrid />
+      </section>
 
-      <!-- Component 4: Certified Operating-to-All-In Bridge -->
-      <OperatingBridgeCard />
+      <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
+      <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20">
+        <MonthlyStatementTable />
+      </section>
 
-      <!-- Component 5: Month-by-Month Operating Statement with Accordion Drawers -->
-      <MonthlyStatementTable />
+      <!-- Section 3: Statement of Financial Position & Restricted Watch & AP Schedule -->
+      <section id="sec-balance" class="financial-module space-y-6 scroll-mt-20">
+        <PositionAndCashCard />
+      </section>
 
-      <!-- Component 6: Statement of Financial Position & Restricted Watch & AP Schedule -->
-      <PositionAndCashCard />
+      <!-- Section 4: Operating Bridge & Cash Runway Scenario Simulator -->
+      <section id="sec-strategy" class="financial-module space-y-6 scroll-mt-20">
+        <OperatingBridgeCard />
+        <ScenarioSimulatorCard />
+        <MultiYearComparisonCard />
+      </section>
 
-      <!-- Component 7: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->
-      <BankStatementViewer />
+      <!-- Section 5: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->
+      <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20">
+        <BankStatementViewer />
+      </section>
 
-      <!-- Component 8: 3-Year Trajectory & Dual 2025 Disclosure -->
-      <MultiYearComparisonCard />
-
-      <!-- Component 9: Directus Board Governance, Agendas & Executive Reports -->
-      <GovernanceCard
-        meetings={boardMeetings}
-        documents={boardDocuments}
-      />
+      <!-- Section 6: Directus Board Governance, Agendas & Executive Reports -->
+      <section id="sec-governance" class="financial-module space-y-6 scroll-mt-20">
+        <GovernanceCard
+          meetings={boardMeetings}
+          documents={boardDocuments}
+        />
+      </section>
 
       <!-- Governance & Verification Footer -->
       <footer class="mt-12 pt-6 border-t border-slate-200 text-center text-xs text-slate-500 space-y-2">
@@ -90,16 +117,88 @@ const boardDocuments = await getBoardDocuments();
         </p>
       </footer>
     </main>
+
+    <!-- Mobile Bottom Thumb-Navigation Dock -->
+    <MobileBottomNav activeTab="financials" />
+
+    <!-- Mobile Slide-Up More Tools Sheet -->
+    <MobileMoreSheet />
   </div>
 
   <script>
     import { initBoardDashboard } from '../../../scripts/board-financials-loader';
 
-    document.addEventListener('astro:page-load', initBoardDashboard);
-    if (document.readyState !== 'loading') {
+    function initFinancialSubNav() {
+      const pills = document.querySelectorAll('[data-subnav-target]');
+      const sections = document.querySelectorAll('.financial-module');
+
+      function setActiveModule(targetId: string, scroll = true) {
+        pills.forEach((p) => {
+          const isTarget = p.getAttribute('data-subnav-target') === targetId;
+          if (isTarget) {
+            p.classList.add('bg-[#173a39]', 'text-white', 'shadow-xs', 'font-bold');
+            p.classList.remove('bg-slate-100/90', 'text-slate-700', 'border', 'border-slate-200/80');
+          } else {
+            p.classList.remove('bg-[#173a39]', 'text-white', 'shadow-xs', 'font-bold');
+            p.classList.add('bg-slate-100/90', 'text-slate-700', 'border', 'border-slate-200/80');
+          }
+        });
+
+        if (targetId === 'all') {
+          sections.forEach((sec) => sec.classList.remove('hidden'));
+          if (scroll) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        } else {
+          sections.forEach((sec) => {
+            if (sec.id === `sec-${targetId}`) {
+              sec.classList.remove('hidden');
+              if (scroll) {
+                sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            } else {
+              sec.classList.add('hidden');
+            }
+          });
+        }
+      }
+
+      pills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const target = pill.getAttribute('data-subnav-target');
+          if (target) {
+            setActiveModule(target);
+            const url = new URL(window.location.href);
+            if (target === 'all') {
+              url.searchParams.delete('section');
+            } else {
+              url.searchParams.set('section', target);
+            }
+            window.history.replaceState({}, '', url.toString());
+          }
+        });
+      });
+
+      // Handle initial hash or query
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialSec = urlParams.get('section');
+      if (initialSec) {
+        setActiveModule(initialSec, false);
+      } else if (window.location.hash === '#bank-statement-viewer') {
+        setActiveModule('audit', true);
+      }
+    }
+
+    function runInit() {
       initBoardDashboard();
+      initFinancialSubNav();
+    }
+
+    document.addEventListener('astro:page-load', runInit);
+    if (document.readyState !== 'loading') {
+      runInit();
     } else {
-      document.addEventListener('DOMContentLoaded', initBoardDashboard);
+      document.addEventListener('DOMContentLoaded', runInit);
     }
   </script>
 </BaseLayout>

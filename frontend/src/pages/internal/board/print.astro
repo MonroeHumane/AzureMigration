@@ -170,7 +170,13 @@
 </head>
 <body>
   <div class="no-print">
-    <span>Humane Society of Monroe County — Official Board Packet (Print Preview)</span>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <a href="/internal/board/" style="color:#a7f3d0; text-decoration:none; font-weight:bold; font-size:12px; display:inline-flex; align-items:center; gap:4px;">
+        ← Return to Board Financials
+      </a>
+      <span style="opacity:0.6;">|</span>
+      <span>Humane Society of Monroe County — Official Board Packet (Print Preview)</span>
+    </div>
     <button id="print-action-btn" onclick="window.print()" style="background:#1c746c;color:#fff;border:none;padding:5px 14px;border-radius:4px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>
   </div>
 
@@ -398,7 +404,8 @@
   </div>
 
   <script>
-    import { isStaffAuthenticated, getStaffToken, logoutStaff } from '../../../lib/staff-auth';
+    import { isStaffAuthenticated, getStaffToken } from '../../../lib/staff-auth';
+    import { getCachedFinancials } from '../../../lib/api';
 
     function formatDollar(val: number, maxDigits = 0): string {
       const isNeg = val < 0;
@@ -440,14 +447,13 @@
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        if (!res.ok) {
-          if (res.status === 401 || res.status === 403) {
-            await logoutStaff('/internal/?error=session_expired');
-          }
-          return;
+        let data = null;
+        if (res.ok) {
+          data = await res.json();
+        } else {
+          console.warn('[PrintView] /api/financials returned', res.status, '- attempting cache fallback');
+          data = getCachedFinancials();
         }
-
-        const data = await res.json();
         if (!data) return;
 
         const setEl = (id: string, text: string) => {

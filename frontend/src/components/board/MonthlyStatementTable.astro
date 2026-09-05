@@ -74,7 +74,7 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
     </div>
   </div>
 
-  <div class="overflow-x-auto">
+  <div class="hidden md:block overflow-x-auto">
     <table class="w-full text-left text-xs sm:text-sm">
       <thead class="bg-slate-100/80 text-slate-600 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
         <tr>
@@ -200,11 +200,139 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
       </tfoot>
     </table>
   </div>
+
+  <!-- Mobile Stacked Card View (hidden on md+) -->
+  <div id="monthly-statement-mobile-container" class="md:hidden divide-y divide-slate-200 bg-slate-50/50">
+    {statements.length > 0 ? (
+      statements.map((m) => {
+        const isSurplus = m.net_margin >= 0;
+        return (
+          <div class="p-4 bg-white hover:bg-slate-50/80 transition" id={`mobile-card-${m.id}`}>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <div class="flex items-center gap-1.5 font-bold text-slate-900 text-sm">
+                  <span>{m.month}</span>
+                  {m.is_partial && (
+                    <span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded border border-amber-200">
+                      Partial
+                    </span>
+                  )}
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5" title={m.driver}>
+                  {m.driver}
+                </div>
+              </div>
+              <div class="text-right flex flex-col items-end shrink-0">
+                <span class={`font-mono font-bold text-sm ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  {isSurplus ? '+' : ''}{formatDollar(m.net_margin)}
+                </span>
+                <span class={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold mt-0.5 ${
+                  isSurplus ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                }`}>
+                  {m.margin_pct.toFixed(1)}% &bull; {m.status}
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80 text-xs mb-2.5">
+              <div>
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Revenue</span>
+                <span class="font-mono font-semibold text-slate-800">{formatDollar(m.revenue)}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Total Exp</span>
+                <span class="font-mono font-semibold text-slate-800">{formatDollar(m.total_exp)}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Direct Care</span>
+                <span class="font-mono text-slate-600">{formatDollar(m.cogs)}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Ops & Payroll</span>
+                <span class="font-mono text-slate-600">{formatDollar(m.operating_exp)}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="w-full py-1.5 px-3 rounded text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100/80 border border-teal-200/60 flex items-center justify-center gap-1.5 transition cursor-pointer"
+              data-mobile-target={`mobile-drawer-${m.id}`}
+            >
+              <span>View Breakdown</span>
+              <svg class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <div id={`mobile-drawer-${m.id}`} class="hidden pt-3 space-y-3">
+              <div class="bg-emerald-50/40 p-3 rounded-lg border border-emerald-100 text-xs">
+                <h4 class="text-[11px] font-bold uppercase tracking-wider text-emerald-900 pb-1.5 border-b border-emerald-200/60 mb-1.5">
+                  Revenue Inflows Schedule ({m.month})
+                </h4>
+                <div class="space-y-1">
+                  {m.rev_items.map((it) => (
+                    <div class="flex justify-between text-slate-700">
+                      <span>{it.name}</span>
+                      <span class="font-mono font-medium text-slate-900">{formatDollar(it.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div class="bg-rose-50/40 p-3 rounded-lg border border-rose-100 text-xs">
+                <h4 class="text-[11px] font-bold uppercase tracking-wider text-rose-900 pb-1.5 border-b border-rose-200/60 mb-1.5">
+                  Expenditures Schedule ({m.month})
+                </h4>
+                <div class="space-y-1">
+                  {m.exp_items.map((it) => (
+                    <div class="flex justify-between text-slate-700">
+                      <span>{it.name}</span>
+                      <span class="font-mono font-medium text-slate-900">{formatDollar(it.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })
+    ) : (
+      <div class="p-6 text-center text-slate-400 text-xs">
+        Loading mobile statements...
+      </div>
+    )}
+
+    <!-- Mobile Certified Footing Card -->
+    <div class="p-4 bg-[#173a39] text-white">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-2 flex items-center justify-between">
+        <span>2026 YTD Certified Footing</span>
+        <span class="text-[10px] text-emerald-400 font-normal">✓ Cent-for-cent</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div>
+          <span class="text-slate-300 block text-[10px]">Total Revenue</span>
+          <span id="mobile-footing-rev" class="font-mono font-bold text-emerald-300">{statements.length ? formatDollar(totalRev) : '--'}</span>
+        </div>
+        <div>
+          <span class="text-slate-300 block text-[10px]">Total Expenditures</span>
+          <span id="mobile-footing-exp" class="font-mono font-bold text-amber-300">{statements.length ? formatDollar(totalExp) : '--'}</span>
+        </div>
+        <div>
+          <span class="text-slate-300 block text-[10px]">Net Margin</span>
+          <span id="mobile-footing-net" class="font-mono font-bold text-rose-400">{statements.length ? formatDollar(totalNet) : '--'}</span>
+        </div>
+        <div>
+          <span class="text-slate-300 block text-[10px]">Margin %</span>
+          <span id="mobile-footing-pct" class="font-mono font-bold text-rose-300">{statements.length ? `${totalMarginPct.toFixed(1)}%` : '--%'}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
   function initMonthlyStatement() {
-    // Handle drawer expand/collapse
+    // Desktop drawer expand/collapse
     document.querySelectorAll('[data-target]').forEach((row) => {
       row.addEventListener('click', () => {
         const targetId = row.getAttribute('data-target');
@@ -213,6 +341,21 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
           if (drawer) {
             drawer.classList.toggle('hidden');
             row.classList.toggle('is-open');
+          }
+        }
+      });
+    });
+
+    // Mobile drawer expand/collapse
+    document.querySelectorAll('[data-mobile-target]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-mobile-target');
+        if (targetId) {
+          const drawer = document.getElementById(targetId);
+          if (drawer) {
+            drawer.classList.toggle('hidden');
+            const svg = btn.querySelector('svg');
+            if (svg) svg.classList.toggle('rotate-180');
           }
         }
       });
@@ -296,4 +439,4 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
   } else {
     document.addEventListener('DOMContentLoaded', initMonthlyStatement);
   }
-</script>\n
+</script>

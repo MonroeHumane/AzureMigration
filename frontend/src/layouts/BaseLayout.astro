@@ -176,6 +176,11 @@ const schemaOrg = {
         });
       })();
     </script>
+    <script>
+      import { initErrorReporter } from '../lib/error-reporter';
+      initErrorReporter();
+      document.addEventListener('astro:page-load', initErrorReporter);
+    </script>
   </head>
   <body class:list={['monroe-rebuild-theme', bodyClass]}>
     <a class="monroe-skip-link" href="#monroe-main">Skip to content</a>

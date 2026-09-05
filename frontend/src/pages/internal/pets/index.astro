@@ -1,0 +1,58 @@
+---
+import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
+import PetSyncPortal from '../../../components/internal/PetSyncPortal.astro';
+import { getStaffPetSyncData } from '../../../lib/directus';
+
+const petSyncData = await getStaffPetSyncData();
+---
+
+<StaffPortalLayout
+  title="Shelter Animal Census & PetSync | Humane Society of Monroe County"
+  description="Real-time shelter animal census, PetPoint auto-sync diagnostics, kennel card printing, and adoption roster."
+  activeTab="pets"
+>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+    <!-- Header banner with contextual breadcrumb -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <a href="/internal/" class="text-xs text-slate-500 hover:text-teal-800 transition flex items-center gap-1 font-medium">
+              &larr; Executive Hub
+            </a>
+            <span class="text-slate-300">/</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200">
+              Active Census
+            </span>
+          </div>
+          <h1 class="text-2xl font-bold text-[#173a39] tracking-tight flex items-center gap-2">
+            <span>🐾 Shelter Animal Census & Operations</span>
+          </h1>
+          <p class="text-xs text-slate-500 mt-1">
+            Real-time shelter roster, PetPoint intake tracking, microchips, printable kennel cards, and 30-minute Azure synchronization health.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span>{petSyncData.activeCount} Animals in Care</span>
+          </div>
+          <a
+            href="https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/admin"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition shadow-xs"
+          >
+            Directus CMS ↗
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Embedded PetSync Portal Component with search, copy ID, and kennel card printing -->
+    <section id="section-petsync-main">
+      <PetSyncPortal syncData={petSyncData} />
+    </section>
+  </main>
+</StaffPortalLayout>

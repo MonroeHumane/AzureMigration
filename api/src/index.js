@@ -40,7 +40,15 @@ function verifyStaffToken(token) {
       return null;
     }
     const data = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
-    if (data && data.email) return data;
+    if (data && data.email) {
+      // Enforce 30-day maximum session lifetime (2,592,000,000 ms)
+      const MAX_SESSION_AGE = 30 * 24 * 60 * 60 * 1000;
+      if (data.iat && (Date.now() - data.iat > MAX_SESSION_AGE)) {
+        console.warn(`[StaffAuth] HMAC session expired for ${data.email}`);
+        return null;
+      }
+      return data;
+    }
   } catch {
     return null;
   }
@@ -361,3 +369,45 @@ app.http('statement', {
     };
   },
 });
+
+// 5. POST /api/client-error (Client telemetry & exception logger)
+app.http('client-error', {
+  methods: ['POST', 'OPTIONS'],
+  authLevel: 'anonymous',
+  handler: async (request, context) => {
+    if (request.method === 'OPTIONS') {
+      return {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      };
+    }
+
+    try {
+      const errorPayload = await request.json();
+      console.warn('[ClientTelemetry] Error reported:', {
+        timestamp: new Date().toISOString(),
+        page: errorPayload?.page || 'unknown',
+        error: errorPayload?.error || 'unspecified',
+        message: errorPayload?.message || '',
+        userAgent: request.headers.get('user-agent') || '',
+      });
+
+      return {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+        jsonBody: { ok: true },
+      };
+    } catch (e) {
+      return {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+        jsonBody: { error: 'Invalid error payload' },
+      };
+    }
+  },
+});
+
