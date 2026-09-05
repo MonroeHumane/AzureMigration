@@ -51,9 +51,9 @@ const formatCents = (val: number) => {
   <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition relative overflow-hidden group">
     <div class="absolute top-0 left-0 right-0 h-1 bg-rose-500"></div>
     <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-      <span class="font-semibold uppercase tracking-wider text-slate-700">All-In Net Margin</span>
+      <span class="font-semibold uppercase tracking-wider text-slate-700">Overall Net Result (YTD)</span>
       <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-        Certified Headline
+        8 Months Closed
       </span>
     </div>
     <div class="mt-2 flex items-baseline gap-2">
@@ -65,22 +65,25 @@ const formatCents = (val: number) => {
       </span>
     </div>
     <p class="text-xs text-slate-500 mt-2">
-      Rev: <span id="kpi-all-in-rev" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.all_in_revenue) : '--'}</span> · 
-      Exp: <span id="kpi-all-in-exp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.all_in_expenditures) : '--'}</span>
+      Inflows: <span id="kpi-all-in-rev" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.all_in_revenue) : '--'}</span> · 
+      Outflows: <span id="kpi-all-in-exp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.all_in_expenditures) : '--'}</span>
     </p>
     <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
       <span>Exact cent balance:</span>
       <span id="kpi-all-in-exact" class="font-mono font-medium text-slate-800">{kpis ? formatCents(kpis.all_in_net) : '--'}</span>
     </div>
+    <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
+      Total year-to-date operating deficit across all revenue and grants, funded from cash reserves.
+    </p>
   </div>
 
   <!-- Card 2: QBO Operating Net -->
   <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-amber-500"></div>
     <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-      <span class="font-semibold uppercase tracking-wider text-slate-700">QBO Operating Net</span>
+      <span class="font-semibold uppercase tracking-wider text-slate-700">Day-to-Day Shelter Net</span>
       <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-        Core Operations
+        Everyday Shelter
       </span>
     </div>
     <div class="mt-2 flex items-baseline gap-2">
@@ -90,20 +93,23 @@ const formatCents = (val: number) => {
       <span class="text-xs text-slate-500 font-medium">Pre-Endowment</span>
     </div>
     <p class="text-xs text-slate-500 mt-2">
-      Operating Rev: <span id="kpi-qbo-rev" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_operating_revenue) : '--'}</span> · 
-      OpExp: <span id="kpi-qbo-exp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_cogs + kpis.qbo_operating_expenditures) : '--'}</span>
+      Shelter Rev: <span id="kpi-qbo-rev" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_operating_revenue) : '--'}</span> · 
+      Shelter Exp: <span id="kpi-qbo-exp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_cogs + kpis.qbo_operating_expenditures) : '--'}</span>
     </p>
     <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
-      <span>Non-operating bridge:</span>
+      <span>Outside grants & support:</span>
       <span id="kpi-qbo-bridge" class="font-mono font-medium text-emerald-700">{kpis ? `+${formatDollar(kpis.non_operating_bridge)}` : '--'}</span>
     </div>
+    <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
+      Everyday shelter operations before community foundation endowment draws (+$28.5k) and recycling.
+    </p>
   </div>
 
   <!-- Card 3: Program Efficiency Ratio -->
   <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-[#1c746c]"></div>
     <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-      <span class="font-semibold uppercase tracking-wider text-slate-700">Program Ratio</span>
+      <span class="font-semibold uppercase tracking-wider text-slate-700">Animal Care & Mission Ratio</span>
       <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-[#1c746c] border border-emerald-200">
         Benchmark ≥75%
       </span>
@@ -112,23 +118,26 @@ const formatCents = (val: number) => {
       <span id="kpi-program-ratio" class="text-3xl font-bold tracking-tight text-[#1c746c]">
         {kpis ? `${kpis.program_ratio_pct.toFixed(1)}%` : '--%'}
       </span>
-      <span class="text-xs font-semibold text-emerald-700">High Efficiency</span>
+      <span class="text-xs font-semibold text-emerald-700">Exceeds Target</span>
     </div>
     <p class="text-xs text-slate-500 mt-2">
-      Program: <span id="kpi-program-spend" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.program_spend) : '--'}</span> ÷ 
-      OpExp: <span id="kpi-program-opexp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_operating_expenditures) : '--'}</span>
+      Animal Care: <span id="kpi-program-spend" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.program_spend) : '--'}</span> ÷ 
+      Total OpExp: <span id="kpi-program-opexp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_operating_expenditures) : '--'}</span>
     </p>
     <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
-      <span>Form 990 Part IX:</span>
+      <span>Animal care dollars:</span>
       <span id="kpi-program-exact" class="font-mono font-medium text-slate-800">{kpis ? formatCents(kpis.program_spend) : '--'}</span>
     </div>
+    <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
+      <strong>85¢ of every dollar</strong> spent goes directly to animal rescue, clinical veterinary care, and feeding.
+    </p>
   </div>
 
   <!-- Card 4: Total Liquidity & Runway -->
   <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-[#173a39]"></div>
     <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-      <span class="font-semibold uppercase tracking-wider text-slate-700">Cash Stack & Runway</span>
+      <span class="font-semibold uppercase tracking-wider text-slate-700">Cash & Board Reserves</span>
       <span id="kpi-runway-badge" class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
         {kpis ? `${(kpis.total_liquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1)} Mo Net Runway` : '-- Mo Net Runway'}
       </span>
@@ -137,15 +146,18 @@ const formatCents = (val: number) => {
       <span id="kpi-total-liquidity" class="text-3xl font-bold tracking-tight text-[#173a39]">
         {kpis ? formatDollar(kpis.total_liquidity) : '--'}
       </span>
-      <span class="text-xs font-medium text-slate-500">Total Liquidity</span>
+      <span class="text-xs font-medium text-slate-500">Total Available</span>
     </div>
     <p class="text-xs text-slate-500 mt-2">
-      Operating: <span id="kpi-operating-cash" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.operating_cash) : '--'}</span> · 
-      Fidelity: <span id="kpi-fidelity-reserve" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.fidelity_reserve) : '--'}</span>
+      Checking: <span id="kpi-operating-cash" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.operating_cash) : '--'}</span> · 
+      Board Reserve: <span id="kpi-fidelity-reserve" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.fidelity_reserve) : '--'}</span>
     </p>
     <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
-      <span>Zero-Inflow Buffer:</span>
+      <span>Zero-revenue buffer:</span>
       <span id="kpi-zero-inflow" class="font-mono font-medium text-slate-800">{kpis ? `${kpis.runway_reserve_months.toFixed(1)} Mo Gross OpExp` : '-- Mo Gross OpExp'}</span>
     </div>
+    <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
+      14.3 months of runway at our current deficit pace (or 4.0 months if zero donor revenue came in).
+    </p>
   </div>
 </section>

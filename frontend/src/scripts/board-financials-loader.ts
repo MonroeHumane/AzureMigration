@@ -175,7 +175,7 @@ function hydrateHeadlineKpis(kpis: any) {
   const runwayBadge = document.getElementById('kpi-runway-badge');
   if (runwayBadge) {
     const mo = (kpis.total_liquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1);
-    runwayBadge.textContent = `${mo} Mo Net Runway`;
+    runwayBadge.textContent = `${mo} Months of Cash`;
   }
 
   const totLiq = document.getElementById('kpi-total-liquidity');
@@ -188,7 +188,7 @@ function hydrateHeadlineKpis(kpis: any) {
   if (fidRes) fidRes.textContent = formatDollar(kpis.fidelity_reserve);
 
   const zeroInf = document.getElementById('kpi-zero-inflow');
-  if (zeroInf) zeroInf.textContent = `${kpis.runway_reserve_months.toFixed(1)} Mo Gross OpExp`;
+  if (zeroInf) zeroInf.textContent = `${kpis.runway_reserve_months.toFixed(1)} Months (Zero Inflow)`;
 }
 
 function hydrateOperatingBridge(kpis: any, bridge: any) {
@@ -197,7 +197,7 @@ function hydrateOperatingBridge(kpis: any, bridge: any) {
   const badge = document.getElementById('bridge-badge');
   if (badge) {
     const formatted = formatCents(bridge.net_bridge_total).replace('(', '').replace(')', '');
-    badge.textContent = `Cent-for-Cent Reconciled (+${formatted})`;
+    badge.textContent = `Net Outside Support: +${formatted}`;
   }
 
   const qboNet = document.getElementById('bridge-qbo-net');
@@ -232,7 +232,7 @@ function hydrateOperatingBridge(kpis: any, bridge: any) {
 
   const commEl = document.getElementById('bridge-c2-commentary');
   if (commEl) {
-    commEl.textContent = `${bridge.c2_commentary} Per board governance determination, the certified financial statement adheres strictly to QBO account types to prevent duplicate accounting versions, while this bridge details operational substance.`;
+    commEl.textContent = `${bridge.c2_commentary} QuickBooks records day-to-day shelter costs separately from foundation endowment grants and recycling proceeds. Everyday shelter operations ran a deficit of (-$136.2k), but with (+$28.8k) in outside endowment and community recycling help, our actual YTD change across all accounts is (-$107.4k).`;
   }
 }
 

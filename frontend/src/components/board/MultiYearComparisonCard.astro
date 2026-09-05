@@ -1,24 +1,38 @@
 ---
+import publishedFinancials from '../../data/published_2026_ytd.json';
+
 interface Props {
   comparison?: any;
 }
 
-const { comparison = null } = Astro.props;
+const { comparison = publishedFinancials?.multiyear_comparison } = Astro.props;
+const comp = comparison || publishedFinancials?.multiyear_comparison || {};
+const y2024 = comp['2024'] || {};
+const y2025 = comp['2025'] || {};
+const y2026 = comp['2026'] || {};
+
+const formatDollar = (val?: number) => {
+  if (val === undefined || val === null || isNaN(val)) return '--';
+  const isNeg = val < 0;
+  const abs = Math.abs(Math.round(val));
+  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(abs);
+  return isNeg ? `(${formatted})` : formatted;
+};
 ---
 
 <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
   <div class="px-5 py-4 border-b border-slate-100 bg-[#f5efe3]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     <div>
       <h3 class="text-base font-semibold text-[#173a39]">
-        3-Year Multi-Year Operational Trajectory (2024 – 2026 YTD)
+        3-Year Operational Trends (2024 – 2026 YTD)
       </h3>
       <p class="text-xs text-slate-500 mt-0.5">
-        Benchmarking against 2025 Audited Actuals and 2024 Form 990 Reconciled Run-Rate.
+        Comparing this year’s 8-month progress with audited 2025 figures and certified 2024 tax filings.
       </p>
     </div>
     <div class="inline-flex items-center gap-1.5 text-xs text-slate-500">
       <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-      <span>Audited / Certified Comparative</span>
+      <span>Audited & Certified Multi-Year Data</span>
     </div>
   </div>
 
@@ -26,39 +40,39 @@ const { comparison = null } = Astro.props;
     <!-- 2024 Column -->
     <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
       <div>
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-1">
           <span class="text-base font-bold text-slate-900">2024 Full Year</span>
           <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-200 text-slate-800">
-            Form 990 Reconciled
+            Form 990 Filed
           </span>
         </div>
-        <p class="text-xs text-slate-500 mb-4">Historical Baseline</p>
+        <p class="text-xs text-slate-500 mb-4">Normal baseline before major estate gifts</p>
 
         <div class="space-y-2 text-xs">
           <div class="flex justify-between py-1 border-b border-slate-200/60">
-            <span class="text-slate-600">Total Revenue:</span>
-            <span id="my-2024-rev" class="font-mono font-semibold text-slate-800">--</span>
+            <span class="text-slate-600">Total Donations & Revenue:</span>
+            <span id="my-2024-rev" class="font-mono font-semibold text-slate-800">{formatDollar(y2024.total_revenue)}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
-            <span class="text-slate-600">Total Expenditures:</span>
-            <span id="my-2024-exp" class="font-mono font-semibold text-slate-800">--</span>
+            <span class="text-slate-600">Total Shelter Expenses:</span>
+            <span id="my-2024-exp" class="font-mono font-semibold text-slate-800">{formatDollar(y2024.total_expenditures)}</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-slate-200/60">
+            <span class="text-slate-600">Net Annual Result:</span>
+            <span id="my-2024-net" class="font-mono font-bold text-rose-700">{formatDollar(y2024.net_result)}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-600">Net Margin:</span>
-            <span id="my-2024-net" class="font-mono font-bold text-rose-700">--</span>
-          </div>
-          <div class="flex justify-between py-1 border-b border-slate-200/60">
-            <span class="text-slate-600">Margin %:</span>
-            <span id="my-2024-margin" class="font-semibold text-rose-600">--%</span>
+            <span id="my-2024-margin" class="font-semibold text-rose-600">{y2024.margin_pct !== undefined ? `${y2024.margin_pct.toFixed(1)}%` : '--%'}</span>
           </div>
           <div class="flex justify-between py-1">
-            <span class="text-slate-600">Program Efficiency:</span>
-            <span id="my-2024-prog" class="font-semibold text-emerald-700">--%</span>
+            <span class="text-slate-600">Animal Care Ratio:</span>
+            <span id="my-2024-prog" class="font-semibold text-emerald-700">{y2024.program_ratio !== undefined ? `${y2024.program_ratio.toFixed(1)}%` : '--%'}</span>
           </div>
         </div>
       </div>
       <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500 leading-snug">
-        Baseline operational deficit funded from cash reserves.
+        Routine baseline operating deficit funded from cash reserves, consistent with animal shelter seasonal lifecycles.
       </div>
     </div>
 
@@ -66,43 +80,43 @@ const { comparison = null } = Astro.props;
     <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/30 flex flex-col justify-between relative overflow-hidden">
       <div class="absolute top-0 right-0 left-0 h-1 bg-blue-500"></div>
       <div>
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-1">
           <span class="text-base font-bold text-slate-900">2025 Full Year</span>
           <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800">
             Audited Actual
           </span>
         </div>
-        <p class="text-xs text-blue-700 font-medium mb-4">Audited Statement</p>
+        <p class="text-xs text-blue-700 font-medium mb-4">Included one-time $276.7k estate gift</p>
 
         <div class="space-y-2 text-xs">
           <div class="flex justify-between py-1 border-b border-blue-100">
-            <span class="text-slate-600">Total Revenue:</span>
-            <span id="my-2025-rev" class="font-mono font-semibold text-slate-800">--</span>
+            <span class="text-slate-600">Total Donations & Revenue:</span>
+            <span id="my-2025-rev" class="font-mono font-semibold text-slate-800">{formatDollar(y2025.total_revenue)}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-blue-100">
-            <span class="text-slate-600">Total Expenditures:</span>
-            <span id="my-2025-exp" class="font-mono font-semibold text-slate-800">--</span>
+            <span class="text-slate-600">Total Shelter Expenses:</span>
+            <span id="my-2025-exp" class="font-mono font-semibold text-slate-800">{formatDollar(y2025.total_expenditures)}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-blue-100 bg-emerald-50/80 px-1.5 rounded">
-            <span class="font-semibold text-emerald-950">Audited All-In Net:</span>
-            <span id="my-2025-net" class="font-mono font-bold text-emerald-700">--</span>
+            <span class="font-semibold text-emerald-950">Audited Total Net:</span>
+            <span id="my-2025-net" class="font-mono font-bold text-emerald-700">{y2025.net_result !== undefined ? `+${formatDollar(y2025.net_result)}` : '--'}</span>
           </div>
           <!-- Critical dual disclosure: Operating net ex-bequest -->
           <div class="flex justify-between py-1 border-b border-blue-100 bg-amber-50/80 px-1.5 rounded">
             <div>
-              <span class="font-semibold text-amber-950">Ex-Bequest Operating Net:</span>
-              <p class="text-[10px] text-amber-800">Excludes one-time estate gift</p>
+              <span class="font-semibold text-amber-950">Operating Net Without Estate Gift:</span>
+              <p class="text-[10px] text-amber-800">Excludes one-time $276.7k bequest</p>
             </div>
-            <span id="my-2025-ex-bequest" class="font-mono font-bold text-amber-800">--</span>
+            <span id="my-2025-ex-bequest" class="font-mono font-bold text-amber-800">{formatDollar(y2025.ex_bequest_operating_net)}</span>
           </div>
           <div class="flex justify-between py-1">
-            <span class="text-slate-600">Program Efficiency:</span>
-            <span id="my-2025-prog" class="font-semibold text-emerald-700">--%</span>
+            <span class="text-slate-600">Animal Care Ratio:</span>
+            <span id="my-2025-prog" class="font-semibold text-emerald-700">{y2025.program_ratio !== undefined ? `${y2025.program_ratio.toFixed(1)}%` : '--%'}</span>
           </div>
         </div>
       </div>
       <div class="mt-4 pt-3 border-t border-blue-100 text-[11px] text-slate-500 leading-snug">
-        <strong>Governance Standard:</strong> Surplus is presented alongside the ex-bequest operating net to accurately show recurring operational burn.
+        <strong>Governance Disclosure:</strong> Separating the one-time estate gift shows our true recurring shelter operating deficit of ($116.5k).
       </div>
     </div>
 
@@ -110,39 +124,39 @@ const { comparison = null } = Astro.props;
     <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/20 flex flex-col justify-between relative overflow-hidden">
       <div class="absolute top-0 right-0 left-0 h-1 bg-rose-500"></div>
       <div>
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-1">
           <span class="text-base font-bold text-slate-900">2026 YTD Current</span>
           <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800">
-            Jan 1 – Aug 31
+            Jan 1 – Aug 31 (8 Mo)
           </span>
         </div>
-        <p class="text-xs text-rose-700 font-medium mb-4">Certified Close</p>
+        <p class="text-xs text-rose-700 font-medium mb-4">Official 8-month closed cutoff</p>
 
         <div class="space-y-2 text-xs">
           <div class="flex justify-between py-1 border-b border-rose-100">
-            <span class="text-slate-600">YTD Revenue:</span>
-            <span id="my-2026-rev" class="font-mono font-semibold text-slate-800">--</span>
+            <span class="text-slate-600">YTD Revenue & Grants:</span>
+            <span id="my-2026-rev" class="font-mono font-semibold text-slate-800">{formatDollar(y2026.total_revenue)}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-rose-100">
-            <span class="text-slate-600">YTD Expenditures:</span>
-            <span id="my-2026-exp" class="font-mono font-semibold text-slate-800">--</span>
+            <span class="text-slate-600">YTD Shelter Expenses:</span>
+            <span id="my-2026-exp" class="font-mono font-semibold text-slate-800">{formatDollar(y2026.total_expenditures)}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-rose-100">
-            <span class="text-slate-600">YTD All-In Net:</span>
-            <span id="my-2026-net" class="font-mono font-bold text-rose-700">--</span>
+            <span class="text-slate-600">YTD Net Result:</span>
+            <span id="my-2026-net" class="font-mono font-bold text-rose-700">{formatDollar(y2026.net_result)}</span>
           </div>
           <div class="flex justify-between py-1 border-b border-rose-100">
-            <span class="text-slate-600">YTD Margin %:</span>
-            <span id="my-2026-margin" class="font-semibold text-rose-600">--%</span>
+            <span class="text-slate-600">YTD Net Margin:</span>
+            <span id="my-2026-margin" class="font-semibold text-rose-600">{y2026.margin_pct !== undefined ? `${y2026.margin_pct.toFixed(1)}%` : '--%'}</span>
           </div>
           <div class="flex justify-between py-1">
-            <span class="text-slate-600">Program Efficiency:</span>
-            <span id="my-2026-prog" class="font-semibold text-[#1c746c]">--%</span>
+            <span class="text-slate-600">Animal Care Ratio:</span>
+            <span id="my-2026-prog" class="font-semibold text-[#1c746c]">{y2026.program_ratio !== undefined ? `${y2026.program_ratio.toFixed(1)}%` : '--%'}</span>
           </div>
         </div>
       </div>
       <div class="mt-4 pt-3 border-t border-rose-100 text-[11px] text-slate-500 leading-snug">
-        On track with historical seasonal shelter run-rates; program ratio continues to outperform charity benchmarks.
+        On track with historical seasonal shelter run-rates; over 85% of all funds continue going directly to animal care and rescue.
       </div>
     </div>
   </div>

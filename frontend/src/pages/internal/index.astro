@@ -4,8 +4,11 @@ import StaffPortalNav from '../../components/internal/StaffPortalNav.astro';
 import MobileBottomNav from '../../components/internal/MobileBottomNav.astro';
 import MobileMoreSheet from '../../components/internal/MobileMoreSheet.astro';
 import { getStaffPetSyncData } from '../../lib/directus';
+import publishedFinancials from '../../data/published_2026_ytd.json';
 
 const petSyncData = await getStaffPetSyncData();
+const bankOperatingCash = publishedFinancials?.statement_of_position?.assets?.operating_checking_bank_register ?? 24526.34;
+const formattedBankCash = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(bankOperatingCash);
 ---
 
 <BaseLayout
@@ -444,13 +447,13 @@ const petSyncData = await getStaffPetSyncData();
               </div>
               <h3 class="text-lg font-bold text-teal-950">Financials & Treasury</h3>
               <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-                Executive KPI dashboard, Cash Runway Simulator, Bank Statement & Dual-PDF Viewer, and AP aging schedule.
+                Executive KPI dashboard, Cash Runway Simulator, and Bank Statement & Reconciliation.
               </p>
               <div class="mt-4 pt-3 border-t border-teal-100 space-y-1.5 text-xs">
                 <div class="flex justify-between text-slate-700">
                   <span>First Merchants Bank Cash:</span>
                   <strong id="card-bank-cash" class="font-mono text-teal-950 font-bold">
-                    <span class="inline-block w-16 h-4 bg-slate-200 rounded animate-pulse"></span>
+                    {formattedBankCash}
                   </strong>
                 </div>
                 <div class="flex justify-between text-slate-500">

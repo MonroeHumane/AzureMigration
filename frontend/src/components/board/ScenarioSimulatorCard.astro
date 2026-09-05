@@ -43,7 +43,7 @@ const initMonths = initBurn > 0 ? initLiquidity / initBurn : 0;
 const initDays = Math.round(initMonths * 30.4);
 
 // Calculate date offset from August 31, 2026
-const baseCutoff = new Date(2026, 7, 31);
+const baseCutoff = new Date(cutoffDate || '2026-08-31');
 const targetCutoff = new Date(baseCutoff.getTime() + initDays * 24 * 60 * 60 * 1000);
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} ${targetCutoff.getFullYear()}` : '--';
@@ -59,6 +59,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
   data-base-exp={avgMonthlyExpense}
   data-base-checking={operatingCash}
   data-base-fidelity={fidelityReserve}
+  data-cutoff-date={cutoffDate}
   class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden transition-all duration-300"
 >
   <!-- Header Bar -->
@@ -73,11 +74,11 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           </svg>
         </span>
         <h3 class="text-base font-bold text-[#173a39]">
-          Cash Runway & Operating Scenario Simulator
+          Cash Runway & What-If Planner
         </h3>
       </div>
       <p class="text-xs text-slate-500 mt-1">
-        Interactive stress-testing and board contingency modeling based on 8 closed months of 2026 (ended {cutoffDate}).
+        See how changes in monthly donations, expenses, or a one-time grant affect how long our cash and reserves will last.
       </p>
     </div>
 
@@ -90,16 +91,18 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           id="mode-core"
           class="mode-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-[#173a39] text-white transition shadow-xs"
           data-mode="core"
+          title="Routine shelter donations, adoption fees, and clinic care minus operating costs"
         >
-          Core Operating
+          Shelter Operations Only
         </button>
         <button
           type="button"
           id="mode-allin"
           class="mode-btn px-2.5 py-1 text-[11px] font-medium rounded-md text-slate-600 hover:text-slate-900 transition"
           data-mode="allin"
+          title="Includes community foundation endowment draws, recycling proceeds, and van fuel"
         >
-          All-In Certified
+          All Inflows & Costs
         </button>
       </div>
 
@@ -114,7 +117,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           data-reserve="true"
           data-event="0"
         >
-          Reset Baseline
+          Reset to Baseline
         </button>
         <button
           type="button"
@@ -125,7 +128,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           data-reserve="true"
           data-event="0"
         >
-          Conservative (-15%/+10%)
+          Lean (-15% Rev, +10% Cost)
         </button>
         <button
           type="button"
@@ -136,7 +139,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           data-reserve="true"
           data-event="25000"
         >
-          Growth (+20% Rev + $25k Grant)
+          Growth (+20% Rev, +$25k Grant)
         </button>
         <button
           type="button"
@@ -147,7 +150,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           data-reserve="false"
           data-event="0"
         >
-          Checking Only (No Reserve)
+          Checking Only (No Savings)
         </button>
       </div>
     </div>
@@ -160,7 +163,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
       <div>
         <div class="flex justify-between items-center mb-1.5">
           <label for="slider-rev" class="text-xs font-bold text-slate-700">
-            Monthly Inflows & Donations Shift
+            Monthly Donations & Revenue
           </label>
           <span id="readout-rev-pct" class="font-mono text-xs font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
             0% ({formatDollar(initRev)}/mo)
@@ -177,7 +180,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
         />
         <div class="flex justify-between text-[10px] text-slate-400 mt-1">
           <span id="slider-rev-min">-40% ({formatK(initRev * 0.6)})</span>
-          <span id="slider-rev-mid">Baseline ({formatK(initRev)})</span>
+          <span id="slider-rev-mid">Current Average ({formatK(initRev)})</span>
           <span id="slider-rev-max">+50% ({formatK(initRev * 1.5)})</span>
         </div>
       </div>
@@ -186,7 +189,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
       <div>
         <div class="flex justify-between items-center mb-1.5">
           <label for="slider-exp" class="text-xs font-bold text-slate-700">
-            Monthly Operating Expenditures Shift
+            Monthly Operating Expenses
           </label>
           <span id="readout-exp-pct" class="font-mono text-xs font-bold text-slate-800 bg-slate-200/70 px-2 py-0.5 rounded border border-slate-300">
             0% ({formatDollar(initExp)}/mo)
@@ -203,7 +206,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
         />
         <div class="flex justify-between text-[10px] text-slate-400 mt-1">
           <span id="slider-exp-min">-30% ({formatK(initExp * 0.7)})</span>
-          <span id="slider-exp-mid">Baseline ({formatK(initExp)})</span>
+          <span id="slider-exp-mid">Current Average ({formatK(initExp)})</span>
           <span id="slider-exp-max">+40% ({formatK(initExp * 1.4)})</span>
         </div>
       </div>
@@ -212,7 +215,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
       <div>
         <div class="flex justify-between items-center mb-1.5">
           <label for="slider-event" class="text-xs font-bold text-slate-700">
-            One-Time Capital Event / Inflow / Outflow
+            One-Time Grant or Major Expense
           </label>
           <span id="readout-event" class="font-mono text-xs font-bold text-slate-800 bg-slate-200/70 px-2 py-0.5 rounded border border-slate-300">
             $0
@@ -228,9 +231,9 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#173a39]"
         />
         <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-          <span>-$50k (Major Outlay)</span>
+          <span>-$50k (Major Repair)</span>
           <span>$0</span>
-          <span>+$100k (Bequest / Grant)</span>
+          <span>+$100k (Bequest or Grant)</span>
         </div>
       </div>
 
@@ -243,9 +246,9 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           class="mt-0.5 w-4 h-4 rounded text-teal-800 focus:ring-teal-600 cursor-pointer"
         />
         <label for="toggle-reserve" class="text-xs text-slate-700 cursor-pointer select-none">
-          <strong class="text-slate-900 block font-semibold">Include Fidelity Reserve ({formatDollar(fidelityReserve)})</strong>
+          <strong class="text-slate-900 block font-semibold">Include Fidelity Emergency Reserve ({formatDollar(fidelityReserve)})</strong>
           <span class="text-[11px] text-slate-500">
-            When checked, models total organizational liquidity ({formatDollar(initLiquidity)} base). Uncheck to stress-test checking cash alone ({formatDollar(operatingCash)} base).
+            Models total available cash ({formatDollar(initLiquidity)} total). Uncheck to test checking account alone ({formatDollar(operatingCash)}) without touching board savings.
           </span>
         </label>
       </div>
@@ -253,15 +256,15 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
       <!-- Baseline Info Box -->
       <div class="p-3 bg-white rounded-lg border border-slate-200 text-[11px] text-slate-600 space-y-1">
         <div class="flex justify-between">
-          <span id="base-rev-label">8-Mo Historical Inflows:</span>
+          <span id="base-rev-label">8-Month Average Revenue:</span>
           <span id="base-rev-val" class="font-mono font-medium text-slate-800">{formatDollar(initRev)} / mo</span>
         </div>
         <div class="flex justify-between">
-          <span id="base-exp-label">8-Mo Historical Expenditures:</span>
+          <span id="base-exp-label">8-Month Average Expenses:</span>
           <span id="base-exp-val" class="font-mono font-medium text-slate-800">{formatDollar(initExp)} / mo</span>
         </div>
         <div class="flex justify-between font-semibold text-rose-700 pt-1 border-t border-slate-100">
-          <span>Historical Baseline Net Burn:</span>
+          <span>Average Monthly Deficit:</span>
           <span id="base-net-val" class="font-mono">-{formatDollar(initBurn)} / mo</span>
         </div>
       </div>
@@ -274,18 +277,18 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
         <!-- Tile 1: Projected Monthly Net -->
         <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs">
           <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
-            Projected Net
+            Estimated Monthly Net
           </span>
           <div id="metric-net" class="text-xl font-bold font-mono mt-1 text-rose-600">
             -{formatDollar(initBurn)}
           </div>
-          <span id="metric-net-label" class="text-[10px] text-rose-700 font-medium">Monthly Net Burn</span>
+          <span id="metric-net-label" class="text-[10px] text-rose-700 font-medium">Monthly Deficit</span>
         </div>
 
         <!-- Tile 2: Liquid Capital Pool -->
         <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs">
           <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
-            Starting Liquidity
+            Available Cash & Savings
           </span>
           <div id="metric-liquidity" class="text-xl font-bold font-mono mt-1 text-slate-900">
             {formatDollar(initLiquidity)}
@@ -296,30 +299,30 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
         <!-- Tile 3: Cash Runway (Months) -->
         <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs">
           <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
-            Runway (Months)
+            Cash Runway
           </span>
           <div id="metric-runway-months" class="text-xl font-bold font-mono mt-1 text-[#173a39]">
             {initMonths.toFixed(1)} mo
           </div>
-          <span id="metric-runway-days" class="text-[10px] text-slate-500">~{initDays} days</span>
+          <span id="metric-runway-days" class="text-[10px] text-slate-500">~{initDays} days remaining</span>
         </div>
 
         <!-- Tile 4: Estimated Exhaustion -->
         <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs">
           <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
-            Zero-Cash Horizon
+            Estimated Cash Horizon
           </span>
           <div id="metric-exhaustion" class="text-lg font-bold mt-1 text-indigo-900">
             {initTargetMonth}
           </div>
-          <span class="text-[10px] text-slate-400">Under modeled rate</span>
+          <span class="text-[10px] text-slate-400">At current pace</span>
         </div>
       </div>
 
       <!-- Runway Health Bar -->
       <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
         <div class="flex justify-between items-center text-xs">
-          <span class="font-bold text-slate-700">Runway Health Indicator</span>
+          <span class="font-bold text-slate-700">Runway Status</span>
           <span id="health-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800">
             Healthy ({initMonths.toFixed(1)} Months)
           </span>
@@ -328,10 +331,10 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
           <div id="health-bar" class="h-3 rounded-full bg-emerald-600 transition-all duration-300" style={`width: ${Math.min(100, Math.round((initMonths / 24) * 100))}%;`}></div>
         </div>
         <div class="flex justify-between text-[10px] text-slate-500 pt-0.5">
-          <span>Critical (&lt; 3 mo)</span>
-          <span>Caution (3–12 mo)</span>
-          <span>Sustainable (12–24 mo)</span>
-          <span>Perpetual (&gt; 24 mo / Surplus)</span>
+          <span>&lt; 3 mo (Critical)</span>
+          <span>3–12 mo (Caution)</span>
+          <span>12–24 mo (Healthy)</span>
+          <span>&gt; 24 mo (Long-Term Reserve)</span>
         </div>
       </div>
 
@@ -343,10 +346,11 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
             <line x1="12" y1="16" x2="12" y2="12"></line>
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
           </svg>
-          <span>Breakeven & Sensitivity Assessment</span>
+          <span>What This Means for the Shelter</span>
         </div>
         <p id="assessment-text" class="text-slate-700 leading-relaxed text-[11.5px]">
-          Under baseline operations, HSMC experiences a monthly net operating burn of <strong>{formatDollar(initBurn)}</strong> against available liquidity of <strong>{formatDollar(initLiquidity)}</strong> (including Fidelity reserve). To achieve operational breakeven, HSMC would require <strong>+{formatDollar(initBurn)}/mo in additional revenue (+{((initBurn / initRev) * 100).toFixed(1)}%)</strong>, or an expenditure reduction of <strong>{formatDollar(initBurn)}/mo (-{((initBurn / initExp) * 100).toFixed(1)}%)</strong>.
+          At our current average rate, the shelter spends about <strong>{formatDollar(initBurn)} more per month</strong> than incoming revenue, against available funds of <strong>{formatDollar(initLiquidity)}</strong> (including our Fidelity emergency reserve). This gives HSMC approximately <strong>{initMonths.toFixed(1)} months of runway</strong>.<br/><br/>
+          To break even each month without drawing down reserves, the shelter would need <strong>+{formatDollar(initBurn)}/month in new donations (+{((initBurn / initRev) * 100).toFixed(1)}%)</strong>, or to reduce operating expenses by <strong>{formatDollar(initBurn)}/month (-{((initBurn / initExp) * 100).toFixed(1)}%)</strong>.
         </p>
       </div>
     </div>
@@ -413,11 +417,11 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
 
   function updateMarkers() {
     if (sliderRevMin) sliderRevMin.textContent = `-40% (${formatK(BASE_REV * 0.6)})`;
-    if (sliderRevMid) sliderRevMid.textContent = `Baseline (${formatK(BASE_REV)})`;
+    if (sliderRevMid) sliderRevMid.textContent = `Current Average (${formatK(BASE_REV)})`;
     if (sliderRevMax) sliderRevMax.textContent = `+50% (${formatK(BASE_REV * 1.5)})`;
 
     if (sliderExpMin) sliderExpMin.textContent = `-30% (${formatK(BASE_EXP * 0.7)})`;
-    if (sliderExpMid) sliderExpMid.textContent = `Baseline (${formatK(BASE_EXP)})`;
+    if (sliderExpMid) sliderExpMid.textContent = `Current Average (${formatK(BASE_EXP)})`;
     if (sliderExpMax) sliderExpMax.textContent = `+40% (${formatK(BASE_EXP * 1.4)})`;
 
     if (baseRevVal) baseRevVal.textContent = `${formatCurrency(BASE_REV)} / mo`;
@@ -425,8 +429,8 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
     const baseNet = BASE_REV - BASE_EXP;
     if (baseNetVal) baseNetVal.textContent = `${formatCurrency(baseNet)} / mo`;
 
-    if (baseRevLabel) baseRevLabel.textContent = currentMode === 'core' ? '8-Mo Core Inflows:' : '8-Mo All-In Inflows:';
-    if (baseExpLabel) baseExpLabel.textContent = currentMode === 'core' ? '8-Mo Core Expenditures:' : '8-Mo All-In Expenditures:';
+    if (baseRevLabel) baseRevLabel.textContent = currentMode === 'core' ? '8-Month Operations Revenue:' : '8-Month All-In Revenue:';
+    if (baseExpLabel) baseExpLabel.textContent = currentMode === 'core' ? '8-Month Operations Expenses:' : '8-Month All-In Expenses:';
   }
 
   function calculate() {
@@ -460,35 +464,35 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
       metricNetLabel.className = 'text-[10px] text-emerald-700 font-medium';
     } else {
       metricNet.className = 'text-xl font-bold font-mono mt-1 text-rose-600';
-      metricNetLabel.textContent = 'Monthly Net Burn';
+      metricNetLabel.textContent = 'Monthly Deficit';
       metricNetLabel.className = 'text-[10px] text-rose-700 font-medium';
     }
 
     // Metric 2: Liquidity
     metricLiquidity.textContent = formatCurrency(liquidPool);
-    metricLiquidityLabel.textContent = includeReserve ? 'Checking + Fidelity' : 'Checking Cash Only';
+    metricLiquidityLabel.textContent = includeReserve ? 'Checking + Savings' : 'Checking Cash Only';
 
     // Metric 3 & 4: Runway & Horizon
     if (projectedNet >= 0) {
       metricRunwayMonths.textContent = '∞';
       metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-emerald-600';
-      metricRunwayDays.textContent = 'Cash Flow Positive';
-      metricExhaustion.textContent = 'Perpetual';
+      metricRunwayDays.textContent = 'Self-Funding (Surplus)';
+      metricExhaustion.textContent = 'Indefinite';
       metricExhaustion.className = 'text-lg font-bold mt-1 text-emerald-700';
 
-      healthBadge.textContent = 'Sustainable / Surplus (Self-Funding)';
+      healthBadge.textContent = 'Self-Funding Surplus';
       healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800';
       healthBar.style.width = '100%';
       healthBar.className = 'h-3 rounded-full bg-emerald-600 transition-all duration-300';
 
-      assessmentText.innerHTML = `At this operating level, HSMC generates a monthly net surplus of <strong>${formatCurrency(projectedNet)}</strong>. The organization is fully cash-flow positive and adding to reserves without requiring principal draws.`;
+      assessmentText.innerHTML = `At this operating level, the shelter generates an estimated monthly surplus of <strong>${formatCurrency(projectedNet)}</strong>. Operations are fully self-funding and building our reserves without touching savings.`;
     } else {
       const burn = Math.abs(projectedNet);
       const months = liquidPool / burn;
       const days = Math.round(months * 30.4);
 
       metricRunwayMonths.textContent = months.toFixed(1) + ' mo';
-      metricRunwayDays.textContent = `~${days} days`;
+      metricRunwayDays.textContent = `~${days} days remaining`;
 
       // Exhaustion date from August 31, 2026
       const baseDate = new Date(2026, 7, 31);
@@ -525,7 +529,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
       const neededRev = formatCurrency(burn);
       const neededRevPct = ((burn / projectedRev) * 100).toFixed(1);
       const neededExpPct = ((burn / projectedExp) * 100).toFixed(1);
-      assessmentText.innerHTML = `Under this scenario, monthly net burn is <strong>${formatCurrency(burn)}</strong> against available liquidity of <strong>${formatCurrency(liquidPool)}</strong> (${includeReserve ? 'including' : 'excluding'} Fidelity reserve). To achieve breakeven, HSMC would require <strong>+${neededRev}/mo in additional revenue (+${neededRevPct}%)</strong>, or an expenditure reduction of <strong>${neededRev}/mo (-${neededExpPct}%)</strong>.`;
+      assessmentText.innerHTML = `Under this scenario, the shelter has an estimated monthly gap of <strong>${formatCurrency(burn)}</strong> against available funds of <strong>${formatCurrency(liquidPool)}</strong> (${includeReserve ? 'including' : 'excluding'} our Fidelity emergency reserve). This gives HSMC approximately <strong>${months.toFixed(1)} months of cash runway</strong>.<br/><br/>To break even each month without drawing down reserves, the shelter would need <strong>+${neededRev}/month in new donations (+${neededRevPct}%)</strong>, or to reduce operating expenses by <strong>${neededRev}/month (-${neededExpPct}%)</strong>.`;
     }
   }
 
