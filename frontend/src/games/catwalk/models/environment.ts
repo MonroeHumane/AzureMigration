@@ -2,7 +2,9 @@ import { PALETTE } from '../rendering/palette';
 import { curve, line, polyline, wire } from '../rendering/primitives';
 
 export const BOARD_WIDTH = 720;
-export const BOARD_HEIGHT = 780;
+export const BOARD_HEIGHT = 864; // 52px top HUD + 780px board + 32px bottom bar
+export const PLAY_TOP_Y = 52;
+export const PLAY_BOTTOM_Y = 832;
 export const CELL_SIZE = 60;
 
 export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: number): void {
@@ -10,23 +12,24 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
   context.fillStyle = PALETTE.background;
   context.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 
-  // 2. River Bank Depth Fill (Rows 1 to 5)
+  // 2. River Bank Depth Fill (Rows 1 to 5 of play area)
   // Gives clear visual distinction between water and road!
   context.fillStyle = PALETTE.waterDeep;
-  context.fillRect(0, 1 * CELL_SIZE, BOARD_WIDTH, 5 * CELL_SIZE);
+  context.fillRect(0, PLAY_TOP_Y + 1 * CELL_SIZE, BOARD_WIDTH, 5 * CELL_SIZE);
 
   // 3. Vector Grid Backdrop (Faint, high-tech radar style)
   wire(context, PALETTE.grid, 0.9, 0.45);
   for (let column = 0; column <= BOARD_WIDTH; column += CELL_SIZE) {
-    line(context, { x: column, y: 0 }, { x: column, y: BOARD_HEIGHT });
+    line(context, { x: column, y: PLAY_TOP_Y }, { x: column, y: PLAY_BOTTOM_Y });
   }
-  for (let row = 0; row <= BOARD_HEIGHT; row += CELL_SIZE) {
-    line(context, { x: 0, y: row }, { x: BOARD_WIDTH, y: row });
+  for (let r = 0; r <= 13; r++) {
+    const y = PLAY_TOP_Y + r * CELL_SIZE;
+    line(context, { x: 0, y }, { x: BOARD_WIDTH, y });
   }
 
   // 4. Flowing River Currents & Caustic Waves (Rows 1 to 5)
   for (let row = 1; row <= 5; row += 1) {
-    const centerY = row * CELL_SIZE + CELL_SIZE / 2;
+    const centerY = PLAY_TOP_Y + row * CELL_SIZE + CELL_SIZE / 2;
     // Alternate current direction to mirror water lanes
     const dir = row % 2 === 1 ? 1 : -1;
     const waveShift = ((elapsed * 24 * dir) % 120 + 120) % 120;
@@ -44,7 +47,7 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
 
     // River lane divider water lines
     wire(context, PALETTE.waterSoft, 0.8, 0.25);
-    line(context, { x: 0, y: row * CELL_SIZE }, { x: BOARD_WIDTH, y: row * CELL_SIZE });
+    line(context, { x: 0, y: PLAY_TOP_Y + row * CELL_SIZE }, { x: BOARD_WIDTH, y: PLAY_TOP_Y + row * CELL_SIZE });
   }
 
   // 5. Road Lane Markings (Rows 7 to 11)
@@ -52,22 +55,22 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
   wire(context, PALETTE.gridStrong, 1.2, 0.7);
   context.setLineDash([16, 16]);
   for (let row = 8; row <= 11; row += 1) {
-    line(context, { x: 0, y: row * CELL_SIZE }, { x: BOARD_WIDTH, y: row * CELL_SIZE });
+    line(context, { x: 0, y: PLAY_TOP_Y + row * CELL_SIZE }, { x: BOARD_WIDTH, y: PLAY_TOP_Y + row * CELL_SIZE });
   }
   context.setLineDash([]);
 
   // Road curb markers
   wire(context, PALETTE.gridStrong, 1.6, 0.85);
-  line(context, { x: 0, y: 7 * CELL_SIZE }, { x: BOARD_WIDTH, y: 7 * CELL_SIZE });
-  line(context, { x: 0, y: 12 * CELL_SIZE }, { x: BOARD_WIDTH, y: 12 * CELL_SIZE });
+  line(context, { x: 0, y: PLAY_TOP_Y + 7 * CELL_SIZE }, { x: BOARD_WIDTH, y: PLAY_TOP_Y + 7 * CELL_SIZE });
+  line(context, { x: 0, y: PLAY_TOP_Y + 12 * CELL_SIZE }, { x: BOARD_WIDTH, y: PLAY_TOP_Y + 12 * CELL_SIZE });
 
   // 6. Safe Sanctuary Fences (Rows 6 and 12)
   // Beautiful wireframe picket garden fence
   for (const safeRow of [6, 12]) {
-    const topY = safeRow * CELL_SIZE + 10;
-    const bottomY = safeRow * CELL_SIZE + CELL_SIZE - 10;
-    const railY1 = safeRow * CELL_SIZE + 20;
-    const railY2 = safeRow * CELL_SIZE + 40;
+    const topY = PLAY_TOP_Y + safeRow * CELL_SIZE + 10;
+    const bottomY = PLAY_TOP_Y + safeRow * CELL_SIZE + CELL_SIZE - 10;
+    const railY1 = PLAY_TOP_Y + safeRow * CELL_SIZE + 20;
+    const railY2 = PLAY_TOP_Y + safeRow * CELL_SIZE + 40;
 
     // Horizontal rails
     wire(context, PALETTE.fence, 1.6, 0.85);

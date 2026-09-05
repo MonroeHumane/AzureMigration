@@ -2,7 +2,7 @@ import type { Direction, CatAction } from '../models/cat';
 import type { DogBreed } from '../models/dogs';
 import { DOG_PROFILES } from '../models/dogs';
 import type { FishboneKind } from '../models/fishbones';
-import { BOARD_WIDTH, CELL_SIZE } from '../models/environment';
+import { BOARD_WIDTH, CELL_SIZE, PLAY_TOP_Y } from '../models/environment';
 
 export type GameStatus = 'idle' | 'playing' | 'paused' | 'defeat';
 export type GameEventType = 'step' | 'caught' | 'splash' | 'home' | 'level' | 'start' | 'pause' | 'resume' | 'defeat';
@@ -69,7 +69,7 @@ const speedScale = (level: number): number => 1 + Math.min(level - 1, 8) * 0.085
 
 export function positionsForLane(lane: MovingLane, state: GameState): number[] {
   const shift = lane.offset + state.elapsed * lane.speed * speedScale(state.level);
-  const first = ((shift % lane.gap) + lane.gap) % lane.gap - lane.gap;
+  const first = (((shift % lane.gap) + lane.gap) % lane.gap) - lane.gap;
   const positions: number[] = [];
   for (let center = first; center < BOARD_WIDTH + lane.gap; center += lane.gap) positions.push(center);
   return positions;
@@ -95,7 +95,12 @@ export class CatwalkEngine {
 
   start(): void {
     Object.assign(this.state, {
-      status: 'playing', score: 0, level: 1, lives: STARTING_LIVES, time: roundTime(1), elapsed: 0,
+      status: 'playing',
+      score: 0,
+      level: 1,
+      lives: STARTING_LIVES,
+      time: roundTime(1),
+      elapsed: 0,
     });
     this.state.homes.fill(false);
     this.state.cat = this.freshCat();
@@ -125,10 +130,15 @@ export class CatwalkEngine {
     this.state.cat.direction = direction;
     this.state.cat.action = 'hop';
     this.state.cat.actionTime = 0.16;
-    if (direction === 'up') this.state.cat.y = Math.max(CELL_SIZE / 2, this.state.cat.y - CELL_SIZE);
-    if (direction === 'down') this.state.cat.y = Math.min(12 * CELL_SIZE + CELL_SIZE / 2, this.state.cat.y + CELL_SIZE);
+
+    const minY = PLAY_TOP_Y + CELL_SIZE / 2;
+    const maxY = PLAY_TOP_Y + 12 * CELL_SIZE + CELL_SIZE / 2;
+
+    if (direction === 'up') this.state.cat.y = Math.max(minY, this.state.cat.y - CELL_SIZE);
+    if (direction === 'down') this.state.cat.y = Math.min(maxY, this.state.cat.y + CELL_SIZE);
     if (direction === 'left') this.state.cat.x = Math.max(CELL_SIZE / 2, this.state.cat.x - CELL_SIZE);
     if (direction === 'right') this.state.cat.x = Math.min(BOARD_WIDTH - CELL_SIZE / 2, this.state.cat.x + CELL_SIZE);
+
     if (this.state.cat.y < previousY) this.addScore(10);
     this.events.push('step');
   }
@@ -145,7 +155,7 @@ export class CatwalkEngine {
       return;
     }
 
-    const row = Math.floor(this.state.cat.y / CELL_SIZE);
+    const row = Math.floor((this.state.cat.y - PLAY_TOP_Y) / CELL_SIZE);
     if (row === 0) {
       this.reachHome();
       return;
@@ -155,7 +165,9 @@ export class CatwalkEngine {
       const lane = DOG_LANES.find((candidate) => candidate.row === row);
       if (lane) {
         const collisionWidth = DOG_PROFILES[lane.breed].collisionWidth * 0.82;
-        const caught = positionsForLane(lane, this.state).some((center) => Math.abs(this.state.cat.x - center) < collisionWidth / 2 + 12);
+        const caught = positionsForLane(lane, this.state).some(
+          (center) => Math.abs(this.state.cat.x - center) < collisionWidth / 2 + 12,
+        );
         if (caught) {
           this.loseLife('caught');
           return;
@@ -166,7 +178,9 @@ export class CatwalkEngine {
     if (row >= 1 && row <= 5) {
       const lane = FISHBONE_LANES.find((candidate) => candidate.row === row);
       if (!lane) return;
-      const platform = positionsForLane(lane, this.state).find((center) => Math.abs(this.state.cat.x - center) < lane.length / 2 - 8);
+      const platform = positionsForLane(lane, this.state).find(
+        (center) => Math.abs(this.state.cat.x - center) < lane.length / 2 - 8,
+      );
       if (platform === undefined) {
         if (this.state.cat.invulnerable === 0) this.loseLife('splash');
         return;
@@ -218,7 +232,7 @@ export class CatwalkEngine {
   private freshCat(): CatState {
     return {
       x: BOARD_WIDTH / 2,
-      y: 12 * CELL_SIZE + CELL_SIZE / 2,
+      y: PLAY_TOP_Y + 12 * CELL_SIZE + CELL_SIZE / 2,
       direction: 'up',
       action: 'idle',
       actionTime: 0,

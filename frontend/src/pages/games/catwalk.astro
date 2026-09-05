@@ -7,55 +7,54 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#07100c" />
-    <meta name="description" content="Guide a wireframe cat through the neighborhood and into five safe homes." />
+    <meta name="theme-color" content="#040b08" />
+    <meta name="description" content="Guide a vector cat through the night patrol into five safe homes." />
     <title>Catwalk | Humane Games</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <main class="catwalk" data-catwalk-root>
-      <header class="catwalk__header">
-        <div>
-          <p>HUMANE GAMES / NIGHT PATROL</p>
-          <h1>Catwalk</h1>
-        </div>
-        <button type="button" data-sound aria-pressed="false">Sound off</button>
-      </header>
+    <!-- Single unified viewport-fitting arcade cabinet cabinet window -->
+    <main class="catwalk-cabinet" data-catwalk-root>
+      <div class="catwalk-bezel">
+        <canvas width="720" height="864" data-game-canvas></canvas>
 
-      <section class="catwalk__hud" aria-label="Game status">
-        <span>Score <strong data-score>00000</strong></span>
-        <span>Best <strong data-best>00000</strong></span>
-        <span>Level <strong data-level>01</strong></span>
-        <span>Lives <strong data-lives>|||||</strong></span>
-      </section>
-      <p class="catwalk__status" data-status>Homes safe: 0 / 5</p>
-      <div class="catwalk__level-banner" aria-live="polite"><span>Night patrol</span><strong data-level-banner>Route 01</strong></div>
-
-      <section class="catwalk__stage" aria-label="Catwalk game board">
-        <canvas width="720" height="780" data-game-canvas></canvas>
+        <!-- In-game vector overlay modal -->
         <div class="catwalk__overlay" data-overlay>
-          <p>Nine lives online</p>
-          <h2 data-overlay-title>Get the cats home</h2>
-          <p data-overlay-copy>Dodge the dogs. Ride the fishbones. Fill all five cat houses.</p>
-          <button type="button" data-start>Start patrol</button>
+          <div class="catwalk__overlay-card">
+            <p class="catwalk__overlay-badge">Nine lives online</p>
+            <h2 data-overlay-title>Get the cats home</h2>
+            <p data-overlay-copy>Dodge the dogs. Ride the fishbones. Fill all five cat houses.</p>
+            <div class="catwalk__overlay-actions">
+              <button type="button" class="btn-primary" data-start>Start patrol</button>
+            </div>
+            <p class="catwalk__overlay-hint">Keys: W A S D or Arrows • Space/P to Pause • Click audio icon to toggle sound</p>
+          </div>
         </div>
-      </section>
 
-      <nav class="catwalk__controls" aria-label="Movement controls">
-        <button type="button" data-move="up" aria-label="Move up">↑</button>
-        <div>
-          <button type="button" data-move="left" aria-label="Move left">←</button>
-          <button type="button" data-move="down" aria-label="Move down">↓</button>
-          <button type="button" data-move="right" aria-label="Move right">→</button>
+        <!-- Sleek floating on-canvas quick controls (top right audio/pause shortcuts) -->
+        <div class="catwalk__canvas-hud-controls">
+          <button type="button" class="hud-btn" data-sound title="Toggle audio" aria-label="Toggle audio">
+            <span data-sound-label>🔊</span>
+          </button>
+          <button type="button" class="hud-btn" data-pause title="Pause game" aria-label="Pause game">
+            <span>⏸</span>
+          </button>
         </div>
-      </nav>
-      <footer class="catwalk__footer">
-        <span aria-hidden="true">CAT-01 / PATROL ACTIVE</span>
-        <button type="button" data-pause aria-label="Pause game" title="Pause game">Ⅱ</button>
-      </footer>
+
+        <!-- Touch/mobile d-pad controls embedded smoothly into bottom of bezel if on mobile -->
+        <nav class="catwalk__touch-dpad" aria-label="Movement controls">
+          <button type="button" data-move="up" aria-label="Move up">▲</button>
+          <div class="dpad-row">
+            <button type="button" data-move="left" aria-label="Move left">◀</button>
+            <button type="button" data-move="down" aria-label="Move down">▼</button>
+            <button type="button" data-move="right" aria-label="Move right">▶</button>
+          </div>
+        </nav>
+      </div>
     </main>
+
     <script>
       import '../../games/catwalk/main';
     </script>
@@ -63,44 +62,236 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
 </html>
 
 <style>
-  :global(*) { box-sizing: border-box; }
-  :global(html) { color: #dfffe9; background: #07100c; font-family: 'Share Tech Mono', Consolas, monospace; }
-  :global(body) {
-    min-width: 320px;
-    min-height: 100dvh;
-    margin: 0;
-    background:
-      linear-gradient(rgb(116 222 236 / 3%) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(184 255 129 / 3%) 1px, transparent 1px),
-      #07100c;
-    background-size: 32px 32px;
+  :global(*) { box-sizing: border-box; margin: 0; padding: 0; }
+  :global(html) {
+    color: #dfffe9;
+    background: #040b08;
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    height: 100%;
+    overflow: hidden;
   }
-  button { color: inherit; border: 1px solid #547565; border-radius: 3px; background: #07100c; font: inherit; cursor: pointer; }
-  button:hover, button:focus-visible { color: #07100c; background: #b8ff81; border-color: #b8ff81; outline: none; }
-  .catwalk { width: min(820px, 100%); min-height: 100dvh; margin: 0 auto; padding: 24px clamp(12px, 4vw, 40px); }
-  .catwalk__header, .catwalk__hud { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
-  .catwalk__header p { margin: 0 0 3px; color: #81b59b; font-size: 12px; text-transform: uppercase; }
-  h1 { margin: 0; font-family: 'Bebas Neue', sans-serif; font-size: clamp(38px, 7vw, 58px); font-weight: 400; line-height: .86; text-transform: uppercase; }
-  .catwalk__header button { padding: 8px 10px; }
-  .catwalk__hud { margin-top: 18px; padding: 10px 0; border-block: 1px solid #29483a; color: #81b59b; font-size: clamp(11px, 2vw, 14px); }
-  .catwalk__hud strong { color: #dfffe9; font-weight: 400; }
-  .catwalk__status { margin: 8px 0 0; color: #96b8a7; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
-  .catwalk__level-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 10px; padding: 9px 12px; border: 1px solid #2f4f42; background: rgb(12 29 23 / 90%); color: #81b59b; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
-  .catwalk__level-banner strong { color: #dfffe9; }
-  .catwalk__stage { position: relative; margin-top: 14px; overflow: hidden; border: 1px solid #547565; box-shadow: 0 0 30px rgb(116 222 236 / 7%); }
-  .catwalk__stage::after { position: absolute; inset: 0; pointer-events: none; content: ''; background: repeating-linear-gradient(0deg, transparent 0 3px, rgb(0 0 0 / 12%) 3px 4px); }
-  canvas { display: block; width: 100%; height: auto; aspect-ratio: 12 / 13; }
-  .catwalk__overlay { position: absolute; z-index: 2; inset: 0; display: grid; place-content: center; justify-items: center; padding: 24px; text-align: center; background: rgb(7 16 12 / 88%); }
-  .catwalk__overlay[hidden] { display: none; }
-  .catwalk__overlay h2 { margin: 5px 0 10px; font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px, 7vw, 62px); font-weight: 400; line-height: 1; text-transform: uppercase; }
-  .catwalk__overlay p { max-width: 440px; margin: 0 0 10px; color: #96b8a7; }
-  .catwalk__overlay button { margin-top: 8px; padding: 12px 22px; border-color: #b8ff81; }
-  .catwalk__controls { display: none; justify-items: center; gap: 6px; margin-top: 12px; }
-  .catwalk__controls div { display: flex; gap: 6px; }
-  .catwalk__controls button { width: 52px; height: 44px; font-size: 20px; }
-  .catwalk__footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; color: #6c9b84; font-size: 11px; }
-  .catwalk__footer button { width: 38px; height: 32px; }
-  :global(.is-embedded) .catwalk { padding-top: 12px; }
-  @media (max-width: 700px), (pointer: coarse) { .catwalk__controls { display: grid; } }
-  @media (max-width: 430px) { .catwalk__hud span:nth-child(2) { display: none; } }
+  :global(body) {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(ellipse at center, #091a13 0%, #040b08 75%, #010403 100%);
+  }
+
+  /* Single self-contained arcade window */
+  .catwalk-cabinet {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    max-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(4px, 1.5vh, 16px);
+  }
+
+  .catwalk-bezel {
+    position: relative;
+    height: 100%;
+    max-height: calc(100dvh - 16px);
+    aspect-ratio: 720 / 864;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #1a3c2c;
+    border-radius: 8px;
+    background: #040b08;
+    box-shadow:
+      0 0 0 1px #0d2218,
+      0 0 35px rgba(77, 250, 139, 0.12),
+      0 12px 40px rgba(0, 0, 0, 0.85);
+    overflow: hidden;
+  }
+
+  /* CRT glass curvature and scanline overlay */
+  .catwalk-bezel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+    border-radius: 6px;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.65);
+    background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    aspect-ratio: 720 / 864;
+    cursor: default;
+  }
+
+  /* Floating top-right shortcut buttons inside canvas window */
+  .catwalk__canvas-hud-controls {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 5;
+  }
+
+  .hud-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #22a058;
+    border-radius: 4px;
+    background: rgba(4, 11, 8, 0.82);
+    color: #4dfa8b;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  .hud-btn:hover, .hud-btn:focus-visible {
+    border-color: #4dfa8b;
+    background: #4dfa8b;
+    color: #040b08;
+    box-shadow: 0 0 12px rgba(77, 250, 139, 0.4);
+    outline: none;
+  }
+
+  /* Integrated In-Game Overlay */
+  .catwalk__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    padding: 24px;
+    text-align: center;
+    background: rgba(4, 11, 8, 0.88);
+    backdrop-filter: blur(6px);
+  }
+
+  .catwalk__overlay[hidden] {
+    display: none !important;
+  }
+
+  .catwalk__overlay-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 440px;
+    border: 1px solid #1a3c2c;
+    border-radius: 6px;
+    padding: 32px 28px;
+    background: rgba(9, 26, 19, 0.94);
+    box-shadow: 0 0 40px rgba(77, 250, 139, 0.15);
+  }
+
+  .catwalk__overlay-badge {
+    color: #22a058;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .catwalk__overlay h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(38px, 6vw, 56px);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    color: #dfffe9;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .catwalk__overlay p {
+    color: #81b59b;
+    font-size: 13px;
+    line-height: 1.45;
+    margin-bottom: 20px;
+  }
+
+  .catwalk__overlay-hint {
+    color: #476b58 !important;
+    font-size: 11px !important;
+    margin-top: 18px !important;
+    margin-bottom: 0 !important;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-primary {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #040b08;
+    background: #4dfa8b;
+    border: 1px solid #4dfa8b;
+    border-radius: 4px;
+    padding: 12px 32px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(77, 250, 139, 0.35);
+    transition: all 0.15s ease;
+  }
+
+  .btn-primary:hover, .btn-primary:focus-visible {
+    background: #e8ffef;
+    border-color: #e8ffef;
+    box-shadow: 0 0 28px rgba(77, 250, 139, 0.6);
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  /* Optional Touch D-Pad for Mobile screens */
+  .catwalk__touch-dpad {
+    display: none;
+    position: absolute;
+    bottom: 42px;
+    z-index: 6;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.85;
+  }
+
+  .dpad-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .catwalk__touch-dpad button {
+    width: 48px;
+    height: 42px;
+    border: 1px solid #22a058;
+    border-radius: 4px;
+    background: rgba(4, 11, 8, 0.8);
+    color: #4dfa8b;
+    font-size: 16px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .catwalk__touch-dpad button:active {
+    background: #4dfa8b;
+    color: #040b08;
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .catwalk__touch-dpad {
+      display: flex;
+    }
+  }
 </style>
