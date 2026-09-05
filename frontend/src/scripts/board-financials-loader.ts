@@ -50,7 +50,7 @@ export async function initBoardDashboard(): Promise<void> {
     hydrateHeadlineKpis(cached.headline_kpis);
     hydrateOperatingBridge(cached.headline_kpis, cached.bridge_composition);
     hydrateMonthlyStatements(cached.monthly_statements);
-    hydratePositionAndCash(cached.statement_of_position, cached.accounts_payable_schedule);
+    hydratePositionAndCash(cached.statement_of_position);
     hydrateMultiYear(cached.multiyear_comparison);
     hydrateScenarioSimulator(cached);
     hydrateBankStatement(cached.bank_statement, 'bundled');
@@ -103,7 +103,7 @@ export async function initBoardDashboard(): Promise<void> {
     hydrateHeadlineKpis(data.headline_kpis);
     hydrateOperatingBridge(data.headline_kpis, data.bridge_composition);
     hydrateMonthlyStatements(data.monthly_statements);
-    hydratePositionAndCash(data.statement_of_position, data.accounts_payable_schedule);
+    hydratePositionAndCash(data.statement_of_position);
     hydrateBankStatement(data.bank_statement, token);
     hydrateMultiYear(data.multiyear_comparison);
     hydrateScenarioSimulator(data);
@@ -123,33 +123,11 @@ function hydrateExecutiveBanner(meta: any) {
 
   const cutoffEl = document.getElementById('banner-cutoff');
   if (cutoffEl) {
-    cutoffEl.innerHTML = `<strong>Official Cutoff:</strong> ${meta.cutoff_date} · ${meta.closed_months_count} Closed & Reconciled Months (Jan 1 – Aug 31, 2026)`;
+    cutoffEl.innerHTML = `<strong>Period Closed:</strong> ${meta.cutoff_date} (8 Months)`;
   }
 
   const pubEl = document.getElementById('banner-publisher');
-  if (pubEl) pubEl.innerHTML = `<strong>Publisher:</strong> ${meta.published_by}`;
-
-  const hashBtn = document.getElementById('copy-hash-btn');
-  if (hashBtn) hashBtn.setAttribute('data-checksum', meta.sha256_checksum);
-
-  const hashSlice = document.getElementById('banner-hash-slice');
-  if (hashSlice) hashSlice.textContent = `Canonical SHA-256: ${meta.sha256_checksum.slice(0, 8)}...`;
-
-  const tooltipHash = document.getElementById('banner-tooltip-hash');
-  if (tooltipHash) tooltipHash.textContent = meta.sha256_checksum;
-
-  const tooltipPub = document.getElementById('banner-tooltip-published');
-  if (tooltipPub) {
-    const formatted = new Date(meta.published_at).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    });
-    tooltipPub.textContent = `Published: ${formatted}`;
-  }
+  if (pubEl) pubEl.innerHTML = `<strong>Prepared By:</strong> ${meta.published_by}`;
 }
 
 function hydrateHeadlineKpis(kpis: any) {
@@ -524,7 +502,7 @@ function hydrateMonthlyStatements(statements: any[]) {
   if (mfPct) mfPct.textContent = `${totalMarginPct.toFixed(1)}%`;
 }
 
-function hydratePositionAndCash(position: any, apSchedule: any[]) {
+function hydratePositionAndCash(position: any) {
   if (!position) return;
   const assets = position.assets || {};
   const liab = position.liabilities || {};
@@ -579,37 +557,6 @@ function hydratePositionAndCash(position: any, apSchedule: any[]) {
   if (liab.payroll_clearing_footnote) {
     setEl('pos-payroll-clearing-note', liab.payroll_clearing_footnote);
   }
-
-  const apTbody = document.getElementById('pos-ap-tbody');
-  if (apTbody && apSchedule && apSchedule.length) {
-    apTbody.innerHTML = '';
-    apSchedule.forEach((it: any) => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-slate-50/80 transition';
-      tr.innerHTML = `
-        <td class="py-2 px-3 font-medium text-slate-900">${it.vendor}</td>
-        <td class="py-2 px-3 text-slate-600">${it.category}</td>
-        <td class="py-2 px-3 text-slate-500">${it.group}</td>
-        <td class="py-2 px-3 text-right font-mono font-bold ${it.is_contra_credit ? 'text-emerald-700' : 'text-slate-900'}">
-          ${formatCents(it.amount)}
-        </td>
-        <td class="py-2 px-3">
-          <span class="px-2 py-0.5 rounded text-[10px] font-medium ${it.is_contra_credit ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-100 text-slate-700'}">
-            ${it.status}
-          </span>
-        </td>
-      `;
-      apTbody.appendChild(tr);
-    });
-
-    const apTotal = apSchedule.reduce((a: number, b: any) => a + (b.amount || 0), 0);
-    setEl('pos-ap-total-badge', `Total AP: ${formatCents(apTotal)}`);
-    setEl('pos-ap-foot-total', formatCents(apTotal));
-    const apRoot = document.getElementById('ap-schedule-root');
-    if (apRoot) {
-      apRoot.setAttribute('data-ap-schedule', JSON.stringify(apSchedule));
-    }
-  }
 }
 
 function hydrateBankStatement(stmt: any, token: string) {
@@ -623,16 +570,12 @@ function hydrateBankStatement(stmt: any, token: string) {
   // Quick metrics ribbon
   setEl('bank-stat-balance', formatCents(stmt.metadata.statement_ending_balance));
   setEl('bank-stat-cash', formatCents(stmt.metadata.qbo_register_balance));
-  setEl('bank-stat-float', formatDollar(stmt.metadata.reconciled_float));
-  setEl('bank-stat-meta-note', `Account ${stmt.metadata.account_number} · Statement Period: ${stmt.metadata.statement_period} · Certified locked by ${stmt.metadata.reconciled_by} on ${stmt.metadata.reconciliation_date} with $0.00 difference.`);
+  setEl('bank-stat-meta-note', `Account ••••${stmt.metadata.account_number.slice(-4)} · Statement Period: August 1 – August 31, 2026 · Reconciled by ${stmt.metadata.reconciled_by} with $0.00 difference.`);
 
-  // Float walk steps
-  setEl('float-step-1-bank', formatCents(stmt.metadata.statement_ending_balance));
-  setEl('float-step-5-gl', formatCents(stmt.metadata.qbo_register_balance));
+  // Statement totals
   setEl('stmt-total-deposits', `+${formatCents(stmt.metadata.total_deposits_amount)}`);
   setEl('stmt-total-withdrawals', `-${formatCents(stmt.metadata.total_withdrawals_amount)}`);
   setEl('stmt-ending-balance', formatCents(stmt.metadata.statement_ending_balance));
-  setEl('float-net-total', `-${formatCents(Math.abs(stmt.metadata.reconciled_float))}`);
   setEl('daily-august-low-val', formatCents(stmt.metadata.statement_ending_balance));
 
   // Update PDF Buttons and Iframe

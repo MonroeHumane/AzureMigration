@@ -1,4 +1,5 @@
 import bundledPets from '../data/shelter-pets.json';
+import bundledArchivedPets from '../data/archived-pets.json';
 import eventFlyersData from '../data/event-flyers.json';
 import memorialTributesData from '../data/memorial-tributes.json';
 import boardGovernanceData from '../data/board-governance.json';
@@ -133,7 +134,7 @@ export async function getStaffPetSyncData(): Promise<PetSyncSummary> {
     }
     const res = await fetch(`${DIRECTUS_URL}/items/pets?limit=-1&sort=-last_seen_at`, {
       headers,
-      signal: AbortSignal.timeout(3500),
+      signal: AbortSignal.timeout(8000),
     });
     if (res.ok) {
       const data = await res.json();
@@ -160,22 +161,33 @@ export async function getStaffPetSyncData(): Promise<PetSyncSummary> {
     console.warn('[Directus] Live pet sync query unavailable, falling back to bundled data.');
   }
 
-  // Fallback using bundled pets
-  const fallbackPets: StaffPetRecord[] = (bundledPets as any[]).map((p) => ({
+  // Fallback using bundled active and archived pets
+  const fallbackActive: StaffPetRecord[] = (bundledPets as any[]).map((p) => ({
     ...p,
     image: p.image || p.image_url || '/assets/recovered/images/placeholder.svg',
-    first_seen_at: '2026-08-28T09:19:22',
-    last_seen_at: '2026-09-04T22:30:10',
+    first_seen_at: p.first_seen_at || '2026-08-28T09:19:22',
+    last_seen_at: p.last_seen_at || '2026-09-04T22:30:10',
     archived_at: null,
-    stage: 'Available',
+    stage: p.stage || 'Available',
   }));
 
+  const fallbackArchived: StaffPetRecord[] = (bundledArchivedPets as any[]).map((p) => ({
+    ...p,
+    image: p.image || p.image_url || '/assets/recovered/images/placeholder.svg',
+    first_seen_at: p.first_seen_at || '2025-05-28T19:52:49',
+    last_seen_at: p.last_seen_at || '2026-09-03T17:00:16',
+    archived_at: p.archived_at || '2026-09-03T17:30:13',
+    stage: p.stage || 'Adopted',
+  }));
+
+  const fallbackAll: StaffPetRecord[] = [...fallbackActive, ...fallbackArchived];
+
   cachedStaffPetSync = {
-    lastSyncTimestamp: '2026-09-04T22:30:10',
-    activeCount: fallbackPets.length,
-    archivedCount: 0,
-    totalCount: fallbackPets.length,
-    pets: fallbackPets,
+    lastSyncTimestamp: fallbackActive[0]?.last_seen_at || '2026-09-04T22:30:10',
+    activeCount: fallbackActive.length,
+    archivedCount: fallbackArchived.length,
+    totalCount: fallbackAll.length,
+    pets: fallbackAll,
   };
   return cachedStaffPetSync;
 }

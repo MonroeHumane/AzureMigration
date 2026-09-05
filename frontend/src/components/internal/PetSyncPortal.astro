@@ -98,11 +98,11 @@ const getUrgencyBadge = (days: number | null) => {
         </div>
         <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
           <span class="text-[10px] uppercase font-semibold text-slate-400 block">Archived / Past</span>
-          <span class="font-mono font-bold text-purple-700 text-sm">{data.archivedCount} pets</span>
+          <span id="petsync-archived-count-badge" class="font-mono font-bold text-purple-700 text-sm">{data.archivedCount} pets</span>
         </div>
         <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
           <span class="text-[10px] uppercase font-semibold text-slate-400 block">Total In Database</span>
-          <span class="font-mono font-bold text-slate-800 text-sm">{data.totalCount} pets</span>
+          <span id="petsync-total-count-badge" class="font-mono font-bold text-slate-800 text-sm">{data.totalCount} pets</span>
         </div>
         <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
           <span class="text-[10px] uppercase font-semibold text-slate-400 block">Last Full Sync</span>
@@ -124,23 +124,26 @@ const getUrgencyBadge = (days: number | null) => {
         <button
           type="button"
           data-status-filter="active"
+          id="petsync-pill-active"
           class="petsync-status-pill active px-3 py-1 rounded-md font-semibold bg-[#173a39] text-white transition shadow-xs"
         >
-          Active ({data.activeCount})
+          Active (<span id="petsync-pill-active-count">{data.activeCount}</span>)
         </button>
         <button
           type="button"
           data-status-filter="archived"
+          id="petsync-pill-archived"
           class="petsync-status-pill px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-purple-800 hover:bg-purple-50 transition"
         >
-          Archived / Past ({data.archivedCount})
+          Archived / Past (<span id="petsync-pill-archived-count">{data.archivedCount}</span>)
         </button>
         <button
           type="button"
           data-status-filter="all"
+          id="petsync-pill-all"
           class="petsync-status-pill px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition"
         >
-          All Tracked ({data.totalCount})
+          All Tracked (<span id="petsync-pill-all-count">{data.totalCount}</span>)
         </button>
       </div>
 
@@ -169,28 +172,28 @@ const getUrgencyBadge = (days: number | null) => {
         data-species-pill=""
         class="petsync-species-btn active px-3 py-1 rounded-md font-semibold bg-[#173a39] text-white transition shadow-xs"
       >
-        All ({activePets.length})
+        All (<span id="species-count-all">{activePets.length}</span>)
       </button>
       <button
         type="button"
         data-species-pill="dog"
         class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
       >
-        🐶 Dogs ({dogsCount})
+        🐶 Dogs (<span id="species-count-dog">{dogsCount}</span>)
       </button>
       <button
         type="button"
         data-species-pill="cat"
         class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
       >
-        🐱 Cats ({catsCount})
+        🐱 Cats (<span id="species-count-cat">{catsCount}</span>)
       </button>
       <button
         type="button"
         data-species-pill="other"
         class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
       >
-        🐾 Other ({othersCount})
+        🐾 Other (<span id="species-count-other">{othersCount}</span>)
       </button>
     </div>
 
@@ -601,8 +604,6 @@ const getUrgencyBadge = (days: number | null) => {
 
 <script>
   import QRCodeStyling from 'qr-code-styling';
-  import { staffClient } from '../../lib/staff-auth';
-  import { readItems } from '@directus/sdk';
 
   function initPetSyncPortal() {
     const root = document.getElementById('petsync-portal-root');
@@ -627,7 +628,7 @@ const getUrgencyBadge = (days: number | null) => {
     let searchQuery = '';
     let archivedInflated = false;
 
-    function ensureArchivedInflated() {
+    async function ensureArchivedInflated() {
       if (archivedInflated) return;
       archivedInflated = true;
 
@@ -636,8 +637,51 @@ const getUrgencyBadge = (days: number | null) => {
       const mobileContainer = document.getElementById('petsync-mobile-container');
       if (!scriptEl) return;
 
+      let archivedList: any[] = [];
       try {
-        const archivedList: any[] = JSON.parse(scriptEl.textContent || '[]');
+        archivedList = JSON.parse(scriptEl.textContent || '[]');
+      } catch (e) {
+        archivedList = [];
+      }
+
+      // If embedded archive data was empty, dynamically fetch from Directus
+      if (archivedList.length === 0) {
+        try {
+          const liveRes = await fetch(
+            'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/items/pets?filter[archived_at][_nnull]=true&limit=-1&sort=-archived_at'
+          );
+          if (liveRes.ok) {
+            const liveData = await liveRes.json();
+            if (Array.isArray(liveData.data)) {
+              archivedList = liveData.data.map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                type: p.type,
+                species_label: p.species_label,
+                breed: p.breed,
+                color: p.color,
+                gender: p.gender,
+                age: p.age,
+                age_display: p.age_display,
+                size: p.size,
+                location: p.location,
+                intake_date: p.intake_date,
+                archived_at: p.archived_at,
+                stage: p.stage,
+                image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg',
+                url: p.url,
+                description: p.description,
+              }));
+            }
+          }
+        } catch (fetchErr) {
+          console.warn('[PetSync] Live fetch for archived pets failed:', fetchErr);
+        }
+      }
+
+      if (archivedList.length === 0) return;
+
+      try {
         const tableFragment = document.createDocumentFragment();
         const mobileFragment = document.createDocumentFragment();
 
@@ -649,7 +693,6 @@ const getUrgencyBadge = (days: number | null) => {
           const petPointUrl =
             pet.url ||
             `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${pet.id}&css=&authkey=40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp&PopUp=true`;
-          const publicUrl = `/adopt/${pet.id}`;
           const formattedIntake = pet.intake_date
             ? new Date(pet.intake_date).toLocaleDateString('en-US', {
                 month: 'short',
@@ -764,11 +807,12 @@ const getUrgencyBadge = (days: number | null) => {
                     🖨️ Card
                   </button>
                   <a
-                    href="${publicUrl}"
+                    href="${petPointUrl}"
                     target="_blank"
-                    class="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 transition"
                   >
-                    Public ↗
+                    PetPoint ↗
                   </a>
                 </div>
               </td>
@@ -857,13 +901,6 @@ const getUrgencyBadge = (days: number | null) => {
                   >
                     PetPoint ↗
                   </a>
-                  <a
-                    href="${publicUrl}"
-                    target="_blank"
-                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                  >
-                    Public ↗
-                  </a>
                 </div>
               </div>
             `;
@@ -873,10 +910,44 @@ const getUrgencyBadge = (days: number | null) => {
 
         if (tbody) tbody.appendChild(tableFragment);
         if (mobileContainer) mobileContainer.appendChild(mobileFragment);
+        applyFilters();
       } catch (e) {
         console.warn('Failed to inflate archived pet data:', e);
       }
     }
+
+    const updateSpeciesCounts = () => {
+      let totalForStatus = 0;
+      let dogsForStatus = 0;
+      let catsForStatus = 0;
+      let othersForStatus = 0;
+
+      const currentRows = root.querySelectorAll<HTMLElement>('.petsync-row');
+      currentRows.forEach((row) => {
+        const isArchived = row.getAttribute('data-is-archived') === 'true';
+        let matchesStatus = true;
+        if (activeStatus === 'active') matchesStatus = !isArchived;
+        else if (activeStatus === 'archived') matchesStatus = isArchived;
+
+        if (matchesStatus) {
+          totalForStatus++;
+          const species = row.getAttribute('data-species') || '';
+          if (species === 'dog') dogsForStatus++;
+          else if (species === 'cat') catsForStatus++;
+          else othersForStatus++;
+        }
+      });
+
+      const countAll = root.querySelector('#species-count-all');
+      const countDog = root.querySelector('#species-count-dog');
+      const countCat = root.querySelector('#species-count-cat');
+      const countOther = root.querySelector('#species-count-other');
+
+      if (countAll) countAll.textContent = String(totalForStatus);
+      if (countDog) countDog.textContent = String(dogsForStatus);
+      if (countCat) countCat.textContent = String(catsForStatus);
+      if (countOther) countOther.textContent = String(othersForStatus);
+    };
 
     const applyFilters = () => {
       let visibleDesktop = 0;
@@ -941,6 +1012,8 @@ const getUrgencyBadge = (days: number | null) => {
         if (count === 0) emptyStateEl.classList.remove('hidden');
         else emptyStateEl.classList.add('hidden');
       }
+
+      updateSpeciesCounts();
     };
 
     // Species 1-Tap Pills
@@ -1191,21 +1264,43 @@ const getUrgencyBadge = (days: number | null) => {
     // Background live revalidation against Directus API
     async function revalidateLivePetSync() {
       try {
-        const livePets = await staffClient.request(readItems('pets', {
-          filter: { status: { _eq: 'published' } },
-          limit: 100,
-          sort: ['-intake_date']
-        })) as any[];
+        const DIRECTUS_URL = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
+        const [activeMetaRes, archivedMetaRes] = await Promise.all([
+          fetch(`${DIRECTUS_URL}/items/pets?filter[archived_at][_null]=true&limit=1&meta=filter_count`),
+          fetch(`${DIRECTUS_URL}/items/pets?filter[archived_at][_nnull]=true&limit=1&meta=filter_count`),
+        ]);
 
-        if (Array.isArray(livePets) && livePets.length > 0) {
-          const liveBadge = document.getElementById('petsync-live-badge');
-          if (liveBadge) {
-            liveBadge.textContent = 'Live Directus Feed: Synced';
-            liveBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-900 border border-teal-300';
-          }
-          const countBadge = document.getElementById('petsync-active-count-badge');
-          if (countBadge) {
-            countBadge.textContent = `${livePets.length} pets`;
+        if (activeMetaRes.ok && archivedMetaRes.ok) {
+          const activeJson = await activeMetaRes.json();
+          const archivedJson = await archivedMetaRes.json();
+          const liveActiveCount = typeof activeJson.meta?.filter_count === 'number' ? activeJson.meta.filter_count : null;
+          const liveArchivedCount = typeof archivedJson.meta?.filter_count === 'number' ? archivedJson.meta.filter_count : null;
+
+          if (liveActiveCount !== null && liveArchivedCount !== null) {
+            const liveTotal = liveActiveCount + liveArchivedCount;
+
+            const liveBadge = document.getElementById('petsync-live-badge');
+            if (liveBadge) {
+              liveBadge.textContent = 'Live Directus Feed: Synced';
+              liveBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-900 border border-teal-300';
+            }
+            const activeBadge = document.getElementById('petsync-active-count-badge');
+            if (activeBadge) activeBadge.textContent = `${liveActiveCount} pets`;
+
+            const archivedBadge = document.getElementById('petsync-archived-count-badge');
+            if (archivedBadge) archivedBadge.textContent = `${liveArchivedCount} pets`;
+
+            const totalBadge = document.getElementById('petsync-total-count-badge');
+            if (totalBadge) totalBadge.textContent = `${liveTotal} pets`;
+
+            const pillActive = document.getElementById('petsync-pill-active-count');
+            if (pillActive) pillActive.textContent = String(liveActiveCount);
+
+            const pillArchived = document.getElementById('petsync-pill-archived-count');
+            if (pillArchived) pillArchived.textContent = String(liveArchivedCount);
+
+            const pillAll = document.getElementById('petsync-pill-all-count');
+            if (pillAll) pillAll.textContent = String(liveTotal);
           }
         }
       } catch (err) {

@@ -25,42 +25,37 @@ const { data = null } = Astro.props;
               <h2 class="text-lg font-bold text-[#173a39] tracking-tight">
                 First Merchants Bank Statement & QBO Reconciliation
               </h2>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
-                Locked & Certified
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                Reconciled ($0.00 Variance)
               </span>
             </div>
             <p id="bank-stat-meta-note" class="text-xs text-slate-500 mt-0.5">
-              Account XXXXXX8478 · Statement Period: August 1 – August 31, 2026 · Loading certified statement...
+              Account ••••8478 · Statement Period: August 1 – August 31, 2026
             </p>
           </div>
         </div>
       </div>
 
-      <!-- Quick Metrics Ribbon -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-        <div class="p-2 rounded bg-slate-50 border border-slate-200">
-          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Bank Statement</span>
-          <span id="bank-stat-balance" class="font-mono font-bold text-slate-900 text-sm">--</span>
+      <!-- Quick Metrics Ribbon (3 Clean Cards) -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs w-full lg:w-auto">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+          <span class="text-[10px] uppercase font-semibold text-slate-500 block">Bank Statement Ending</span>
+          <span id="bank-stat-balance" class="font-mono font-bold text-slate-900 text-sm">$24,526.34</span>
         </div>
-        <div class="p-2 rounded bg-emerald-50 border border-emerald-200">
-          <span class="text-[10px] uppercase font-semibold text-emerald-700 block">Book Cash (GL)</span>
-          <span id="bank-stat-cash" class="font-mono font-bold text-emerald-900 text-sm">--</span>
+        <div class="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200">
+          <span class="text-[10px] uppercase font-semibold text-emerald-700 block">Book Cash (GL Register)</span>
+          <span id="bank-stat-cash" class="font-mono font-bold text-emerald-900 text-sm">$23,469.20</span>
         </div>
-        <div class="p-2 rounded bg-amber-50 border border-amber-200">
-          <span class="text-[10px] uppercase font-semibold text-amber-700 block">Certified Float</span>
-          <span id="bank-stat-float" class="font-mono font-bold text-amber-900 text-sm">--</span>
-        </div>
-        <div class="p-2 rounded bg-teal-50 border border-teal-200">
-          <span class="text-[10px] uppercase font-semibold text-teal-700 block">QBO Variance</span>
-          <span class="font-mono font-bold text-teal-900 text-sm">$0.00 (Exact)</span>
+        <div class="p-2.5 rounded-lg bg-teal-50 border border-teal-200">
+          <span class="text-[10px] uppercase font-semibold text-teal-700 block">Reconciliation Status</span>
+          <span class="font-mono font-bold text-teal-900 text-sm">$0.00 (Balanced)</span>
         </div>
       </div>
     </div>
 
-    <!-- Direct Access PDF & Print Ribbon (Mobile-Friendly) -->
+    <!-- Direct Access PDF & Print Ribbon -->
     <div class="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-200/80 text-xs">
       <div class="flex flex-wrap items-center gap-2">
-        <span class="text-[11px] font-semibold text-slate-500">Official Artifacts:</span>
         <a
           href="/assets/recovered/docs/First_Merchants_Bank_Statement_August_2026.pdf"
           target="_blank"
@@ -85,13 +80,10 @@ const { data = null } = Astro.props;
           Print Board Packet ↗
         </a>
       </div>
-      <div class="text-[11px] text-slate-400">
-        Bank Rec ID: <code class="font-mono text-slate-600 bg-slate-100 px-1 py-0.5 rounded">FMB-8478-2026-08</code>
-      </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="flex flex-wrap items-center gap-2 mt-5 pt-3 border-t border-slate-200/80">
+    <!-- Navigation Tabs (3 Tabs) -->
+    <div class="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-slate-200/80">
       <button
         type="button"
         data-statement-tab="tabular"
@@ -104,19 +96,7 @@ const { data = null } = Astro.props;
           <line x1="9" x2="9" y1="3" y2="21"></line>
           <line x1="15" x2="15" y1="3" y2="21"></line>
         </svg>
-        Tabular Statement Explorer (108 Items)
-      </button>
-
-      <button
-        type="button"
-        data-statement-tab="reconciliation"
-        class="statement-tab-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          <path d="m9 12 2 2 4-4"></path>
-        </svg>
-        Certified QBO Float Walk (-$1,057.13)
+        Statement Transactions (108 Items)
       </button>
 
       <button
@@ -129,7 +109,7 @@ const { data = null } = Astro.props;
           <line x1="12" y1="20" x2="12" y2="4"></line>
           <line x1="6" y1="20" x2="6" y2="14"></line>
         </svg>
-        Daily Balance Trajectory (August Arc)
+        Daily Balance Trajectory
       </button>
 
       <button
@@ -141,7 +121,7 @@ const { data = null } = Astro.props;
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
         </svg>
-        Official PDF Documents (Bank & QBO Rec)
+        Official PDF Documents
       </button>
     </div>
   </div>
@@ -255,237 +235,6 @@ const { data = null } = Astro.props;
     </div>
   </div>
 
-  <!-- TAB 2: CERTIFIED QBO RECONCILIATION & FLOAT WALK -->
-  <div id="tab-panel-reconciliation" class="statement-panel hidden p-5 space-y-6">
-    <!-- Reconciliation Summary Banner -->
-    <div class="p-4 rounded-lg bg-emerald-50/70 border border-emerald-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="p-2 rounded-full bg-emerald-600 text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div>
-          <h3 class="text-sm font-bold text-emerald-950">
-            Certified QBO Bank Reconciliation Locked ($0.00 Variance)
-          </h3>
-          <p class="text-xs text-emerald-800">
-            Reconciled by Jeffery Howard on 09/04/2026 at 18:14:04. Verified against official report <code class="bg-emerald-100/80 px-1 py-0.5 rounded font-mono">QBO_Reconciliation_Report_08312026.pdf</code>.
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <a
-          id="qbo-rec-report-pdf-link"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-800 text-white hover:bg-emerald-900 transition shadow-xs"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-          </svg>
-          Open Certified Report PDF
-        </a>
-      </div>
-    </div>
-
-    <!-- Visual Waterfall Step-Down Diagram -->
-    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
-      <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">
-        Cent-for-Cent Reconciled Float Step-Down (Statement Ending to Book Cash)
-      </h4>
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
-        <!-- Step 1: Bank Statement -->
-        <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div>
-            <span class="text-[10px] uppercase font-bold text-slate-400 block">1. Bank Statement</span>
-            <span class="text-xs font-semibold text-slate-800">Ending Balance</span>
-            <p class="text-[10px] text-slate-500 mt-1">First Merchants Bank Aug 31 closing</p>
-          </div>
-          <div class="mt-3 pt-2 border-t border-slate-100">
-            <span id="float-step-1-bank" class="font-mono text-sm font-bold text-slate-900">--</span>
-            <span class="block text-[10px] text-slate-400">(Bank closing)</span>
-          </div>
-        </div>
-
-        <!-- Step 2: Ghost Duplicates -->
-        <div class="p-3 bg-amber-50/70 rounded-lg border border-amber-200 shadow-xs flex flex-col justify-between">
-          <div>
-            <span class="text-[10px] uppercase font-bold text-amber-700 block">2. Ghost Duplicates</span>
-            <span class="text-xs font-semibold text-amber-950">3 Legacy Entries</span>
-            <p class="text-[10px] text-amber-800 mt-1">Austin Roberts (2) + Jeffery Howard (1)</p>
-          </div>
-          <div class="mt-3 pt-2 border-t border-amber-200">
-            <span class="font-mono text-sm font-bold text-amber-900">-$927.14</span>
-            <span class="block text-[10px] text-amber-700">Permanent voidable drafts</span>
-          </div>
-        </div>
-
-        <!-- Step 3: Uncleared Check 4465 -->
-        <div class="p-3 bg-rose-50/70 rounded-lg border border-rose-200 shadow-xs flex flex-col justify-between">
-          <div>
-            <span class="text-[10px] uppercase font-bold text-rose-700 block">3. Uncleared Check</span>
-            <span class="text-xs font-semibold text-rose-950">Check 4465 (Nolff)</span>
-            <p class="text-[10px] text-rose-800 mt-1">Operational expense issued 08/19</p>
-          </div>
-          <div class="mt-3 pt-2 border-t border-rose-200">
-            <span class="font-mono text-sm font-bold text-rose-900">-$254.99</span>
-            <span class="block text-[10px] text-rose-700">In transit at month-end</span>
-          </div>
-        </div>
-
-        <!-- Step 4: Deposit in Transit -->
-        <div class="p-3 bg-emerald-50/70 rounded-lg border border-emerald-200 shadow-xs flex flex-col justify-between">
-          <div>
-            <span class="text-[10px] uppercase font-bold text-emerald-700 block">4. Deposit in Transit</span>
-            <span class="text-xs font-semibold text-emerald-950">Weekend Deposit</span>
-            <p class="text-[10px] text-emerald-800 mt-1">Shelter donations received 08/02</p>
-          </div>
-          <div class="mt-3 pt-2 border-t border-emerald-200">
-            <span class="font-mono text-sm font-bold text-emerald-900">+$125.00</span>
-            <span class="block text-[10px] text-emerald-700">Cleared early next cycle</span>
-          </div>
-        </div>
-
-        <!-- Step 5: Certified Register Cash -->
-        <div class="p-3 bg-[#173a39] text-white rounded-lg border border-teal-900 shadow-xs flex flex-col justify-between">
-          <div>
-            <span class="text-[10px] uppercase font-bold text-emerald-300 block">5. Certified GL Cash</span>
-            <span class="text-xs font-semibold text-white">QBO Register Balance</span>
-            <p class="text-[10px] text-slate-300 mt-1">Post-$5.41 exact match</p>
-          </div>
-          <div class="mt-3 pt-2 border-t border-teal-800">
-            <span id="float-step-5-gl" class="font-mono text-sm font-bold text-emerald-300">--</span>
-            <span class="block text-[10px] text-emerald-400">Locked in Balance Sheet</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Forensic Details: The Ghost Duplicates Schedule -->
-    <div class="border border-slate-200 rounded-lg overflow-hidden">
-      <div class="px-4 py-3 bg-slate-100/70 border-b border-slate-200 flex items-center justify-between">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">
-          Reconciled Float Detail: Ghost Duplicates vs. Genuine In-Transit
-        </h4>
-        <span class="text-xs font-mono font-semibold text-slate-700">
-          Total Net Float: <span id="float-net-total">-$1,057.13</span>
-        </span>
-      </div>
-      <table class="w-full text-left text-xs border-collapse">
-        <thead>
-          <tr class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-            <th class="py-2 px-3">Date</th>
-            <th class="py-2 px-3">Payee / Description</th>
-            <th class="py-2 px-3">Category / Type</th>
-            <th class="py-2 px-3 text-right">Amount</th>
-            <th class="py-2 px-3">Status</th>
-            <th class="py-2 px-3">Forensic Reason & Action Plan</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-          <!-- Ghost Duplicate 1 -->
-          <tr class="bg-amber-50/30">
-            <td class="py-2.5 px-3 font-mono text-slate-700">2026-02-27</td>
-            <td class="py-2.5 px-3 font-semibold text-slate-900">Austin Roberts</td>
-            <td class="py-2.5 px-3 text-slate-600">Payroll Check (Unnumbered)</td>
-            <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-900">-$145.00</td>
-            <td class="py-2.5 px-3">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">Ghost Duplicate</span>
-            </td>
-            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
-              Preliminary draft never paid by bank. Austin was paid via true $567.90 paycheck on same date. Safe to void in QBO.
-            </td>
-          </tr>
-          <!-- Ghost Duplicate 2 -->
-          <tr class="bg-amber-50/30">
-            <td class="py-2.5 px-3 font-mono text-slate-700">2026-04-10</td>
-            <td class="py-2.5 px-3 font-semibold text-slate-900">Austin Roberts</td>
-            <td class="py-2.5 px-3 text-slate-600">Payroll Check (Unnumbered)</td>
-            <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-900">-$341.64</td>
-            <td class="py-2.5 px-3">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">Ghost Duplicate</span>
-            </td>
-            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
-              Preliminary draft never paid by bank. Austin was paid via true $370.00 paycheck on same date. Safe to void in QBO.
-            </td>
-          </tr>
-          <!-- Ghost Duplicate 3 -->
-          <tr class="bg-amber-50/30">
-            <td class="py-2.5 px-3 font-mono text-slate-700">2026-06-22</td>
-            <td class="py-2.5 px-3 font-semibold text-slate-900">Jeffery Howard</td>
-            <td class="py-2.5 px-3 text-slate-600">Direct Deposit Draft (Unnumbered)</td>
-            <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-900">-$440.50</td>
-            <td class="py-2.5 px-3">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">Ghost Duplicate</span>
-            </td>
-            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
-              Draft duplicate entry. True payment was physical Check 4445 ($440.50) which already cleared First Merchants in July. Safe to void in QBO.
-            </td>
-          </tr>
-          <!-- Genuine Uncleared Check 4465 -->
-          <tr class="bg-rose-50/20">
-            <td class="py-2.5 px-3 font-mono text-slate-700">2026-08-19</td>
-            <td class="py-2.5 px-3 font-semibold text-slate-900">Whitaker Nolff</td>
-            <td class="py-2.5 px-3 text-slate-600">Paper Check #4465</td>
-            <td class="py-2.5 px-3 text-right font-mono font-bold text-rose-800">-$254.99</td>
-            <td class="py-2.5 px-3">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">Genuine Float</span>
-            </td>
-            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
-              Legitimate shelter operational expense check issued 08/19, in payee transit at month-end. Clears in September statement.
-            </td>
-          </tr>
-          <!-- Genuine Deposit in Transit -->
-          <tr class="bg-emerald-50/20">
-            <td class="py-2.5 px-3 font-mono text-slate-700">2026-08-02</td>
-            <td class="py-2.5 px-3 font-semibold text-slate-900">Weekend Shelter Deposit</td>
-            <td class="py-2.5 px-3 text-slate-600">Donations & Desk Cash</td>
-            <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-800">+$125.00</td>
-            <td class="py-2.5 px-3">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Deposit in Transit</span>
-            </td>
-            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
-              Received in shelter drop box on Sunday 08/02, credited to First Merchants account on 08/03.
-            </td>
-          </tr>
-        </tbody>
-        <tfoot class="bg-slate-100 font-semibold text-slate-800 border-t border-slate-200">
-          <tr>
-            <td colspan="3" class="py-2.5 px-3 uppercase tracking-wider text-[11px]">
-              Net Total Uncleared Float
-            </td>
-            <td class="py-2.5 px-3 text-right font-mono text-slate-900 font-bold">
-              -$1,057.13
-            </td>
-            <td colspan="2" class="py-2.5 px-3 text-slate-500 text-[11px]">
-              Ghost Checks (-$927.14) + Check 4465 (-$254.99) + Deposit (+$125.00)
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-
-    <!-- Forensic Resolution Footnote -->
-    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-600">
-      <div class="font-bold text-slate-800 flex items-center gap-1.5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
-        </svg>
-        Resolution of the Historical $5.41 Intuit Payroll Mismatch:
-      </div>
-      <p class="leading-relaxed">
-        During the August 31 reconciliation audit, a $5.41 debit variance was uncovered where QBO transaction ID <code>6732</code> (Intuit Payroll debit on August 14) was recorded as $766.18 instead of the actual bank withdrawal of $771.59 (an accidental inversion matching check 4429's amount). With Txn 6732 corrected to $771.59 via QuickBooks MCP on 09/04/2026, cleared debits reached exactly $70,643.29 (62 items), yielding a flawless $0.00 difference against the First Merchants Bank statement.
-      </p>
-      <div class="pt-2 border-t border-slate-200 text-[11px] text-slate-500">
-        <strong>Recommended Board Action on Ghost Checks:</strong> To remove the $927.14 ghost duplicates permanently from future bank reconciliation screens, click into each entry in QBO and select <em>More &gt; Void</em>. Voiding them will adjust book cash to perfectly match only actual in-transit checks in the float.
-      </div>
-    </div>
-  </div>
 
   <!-- TAB 3: DAILY BALANCE TRAJECTORY -->
   <div id="tab-panel-balances" class="statement-panel hidden p-5 space-y-4">

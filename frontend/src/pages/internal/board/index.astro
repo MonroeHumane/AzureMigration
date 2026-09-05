@@ -21,9 +21,9 @@ const subNavItems = [
   { id: 'all', label: 'All Modules', icon: '📑' },
   { id: 'snapshot', label: 'Executive KPIs', icon: '📊' },
   { id: 'statement', label: 'Operating Statement', icon: '📅' },
-  { id: 'balance', label: 'Balance & AP', icon: '🏦' },
+  { id: 'balance', label: 'Financial Position', icon: '🏦' },
   { id: 'strategy', label: 'Runway & Simulator', icon: '📈' },
-  { id: 'audit', label: 'Bank Statement Audit', icon: '🔍' },
+  { id: 'audit', label: 'Bank Statement & Rec', icon: '🔍' },
   { id: 'governance', label: 'Governance & Minutes', icon: '🏛️' },
 ];
 ---
@@ -52,9 +52,9 @@ const subNavItems = [
         <MonthlyStatementTable statements={financialData.monthly_statements} />
       </section>
 
-      <!-- Section 3: Statement of Financial Position & Restricted Watch & AP Schedule -->
+      <!-- Section 3: Statement of Financial Position & Restricted Watch -->
       <section id="sec-balance" class="financial-module space-y-6 scroll-mt-20">
-        <PositionAndCashCard position={financialData.statement_of_position} apSchedule={financialData.accounts_payable_schedule} />
+        <PositionAndCashCard position={financialData.statement_of_position} />
       </section>
 
       <!-- Section 4: Operating Bridge & Cash Runway Scenario Simulator -->
