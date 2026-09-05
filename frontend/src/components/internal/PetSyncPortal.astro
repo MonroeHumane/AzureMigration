@@ -41,6 +41,9 @@ const calculateDaysAtShelter = (intakeStr?: string) => {
 };
 
 const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))].sort();
+
+const activePets = data.pets.filter((p) => !p.archived_at);
+const archivedPets = data.pets.filter((p) => !!p.archived_at);
 ---
 
 <div class="space-y-6" id="petsync-portal-root">
@@ -243,8 +246,7 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
           </tr>
         </thead>
         <tbody id="petsync-tbody" class="divide-y divide-slate-100">
-          {data.pets.map((pet) => {
-            const isArchived = !!pet.archived_at;
+          {activePets.map((pet) => {
             const daysAtShelter = calculateDaysAtShelter(pet.intake_date);
             const petPointUrl = pet.url || `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${pet.id}&css=&authkey=40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp&PopUp=true`;
             const publicUrl = `/adopt/${pet.id}`;
@@ -253,7 +255,7 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
             return (
               <tr
                 class="hover:bg-slate-50/80 transition petsync-row"
-                data-is-archived={isArchived ? 'true' : 'false'}
+                data-is-archived="false"
                 data-species={pet.type}
                 data-location={pet.location || ''}
                 data-search={`${pet.id} ${pet.name} ${pet.breed} ${pet.color || ''} ${pet.location || ''} ${pet.gender}`.toLowerCase()}
@@ -351,15 +353,9 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
 
                 <!-- Status / Stage -->
                 <td class="py-2 px-3 whitespace-nowrap">
-                  {isArchived ? (
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
-                      Archived / Adopted
-                    </span>
-                  ) : (
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                      {pet.stage || 'Available'}
-                    </span>
-                  )}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    {pet.stage || 'Available'}
+                  </span>
                 </td>
 
                 <!-- Actions -->
@@ -405,6 +401,34 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
       </table>
     </div>
 
+    <!-- Embedded compressed JSON for archived pets (inflated on-demand when 'Archived' or 'All' filter is clicked) -->
+    <script
+      is:inline
+      id="petsync-archive-data"
+      type="application/json"
+      set:html={JSON.stringify(
+        archivedPets.map((p) => ({
+          id: p.id,
+          name: p.name,
+          type: p.type,
+          species_label: p.species_label,
+          breed: p.breed,
+          color: p.color,
+          gender: p.gender,
+          age: p.age,
+          age_display: p.age_display,
+          size: p.size,
+          location: p.location,
+          intake_date: p.intake_date,
+          archived_at: p.archived_at,
+          stage: p.stage,
+          image: p.image,
+          url: p.url,
+          description: p.description,
+        }))
+      )}
+    />
+
     <!-- Empty State -->
     <div id="petsync-empty-state" class="hidden text-center py-10 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-300">
       <p class="font-semibold text-slate-700">No animals match your search or filter</p>
@@ -430,7 +454,6 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
     const durationFilter = root.querySelector('#petsync-duration-filter') as HTMLSelectElement | null;
     const resetBtn = root.querySelector('#petsync-reset-btn');
     const exportBtn = root.querySelector('#export-csv-btn');
-    const rows = root.querySelectorAll<HTMLTableRowElement>('.petsync-row');
     const counterEl = root.querySelector('#petsync-filtered-count');
     const emptyStateEl = root.querySelector('#petsync-empty-state');
 
@@ -439,11 +462,164 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
     let activeLocation = '';
     let activeDuration = '';
     let searchQuery = '';
+    let archivedInflated = false;
+
+    function ensureArchivedInflated() {
+      if (archivedInflated) return;
+      archivedInflated = true;
+
+      const scriptEl = document.getElementById('petsync-archive-data');
+      const tbody = document.getElementById('petsync-tbody');
+      if (!scriptEl || !tbody) return;
+
+      try {
+        const archivedList: any[] = JSON.parse(scriptEl.textContent || '[]');
+        const fragment = document.createDocumentFragment();
+
+        archivedList.forEach((pet) => {
+          const daysAtShelter = pet.intake_date
+            ? Math.floor((Date.now() - new Date(pet.intake_date).getTime()) / 86400000)
+            : null;
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50/80 transition petsync-row';
+          tr.setAttribute('data-is-archived', 'true');
+          tr.setAttribute('data-species', pet.type || '');
+          tr.setAttribute('data-location', pet.location || '');
+          tr.setAttribute(
+            'data-search',
+            `${pet.id} ${pet.name} ${pet.breed} ${pet.color || ''} ${pet.location || ''} ${pet.gender}`.toLowerCase()
+          );
+          tr.setAttribute('data-pet-id', pet.id);
+          tr.setAttribute('data-pet-name', pet.name);
+          tr.setAttribute('data-pet-breed', pet.breed);
+          tr.setAttribute('data-pet-species', pet.species_label || pet.type);
+          tr.setAttribute('data-intake-date', pet.intake_date || '');
+          tr.setAttribute('data-days-at-shelter', daysAtShelter !== null ? String(daysAtShelter) : '');
+
+          const photoUrl = pet.image || '/assets/recovered/images/placeholder.svg';
+          const petPointUrl =
+            pet.url ||
+            `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${pet.id}&css=&authkey=40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp&PopUp=true`;
+          const publicUrl = `/adopt/${pet.id}`;
+          const formattedIntake = pet.intake_date
+            ? new Date(pet.intake_date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })
+            : '—';
+
+          const petInfoStr = JSON.stringify({
+            id: pet.id,
+            name: pet.name,
+            type: pet.type,
+            species_label: pet.species_label,
+            breed: pet.breed,
+            age: pet.age,
+            age_display: pet.age_display,
+            size: pet.size,
+            color: pet.color,
+            gender: pet.gender,
+            location: pet.location,
+            image: photoUrl,
+            intake_date: pet.intake_date,
+            days_at_shelter: daysAtShelter,
+            description: pet.description,
+          }).replace(/'/g, '&#39;');
+
+          tr.innerHTML = `
+            <td class="py-2 px-3">
+              <div class="w-11 h-11 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 relative group">
+                <img
+                  src="${photoUrl}"
+                  alt="${pet.name}"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-110 transition duration-200"
+                  onerror="this.src='/assets/recovered/images/placeholder.svg'"
+                />
+              </div>
+            </td>
+            <td class="py-2 px-3 whitespace-nowrap">
+              <span class="font-mono font-bold text-slate-900 block">${pet.id}</span>
+              <a
+                href="${petPointUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-0.5 text-[10px] font-bold text-teal-700 hover:text-teal-900 hover:underline mt-0.5"
+                title="Open official PetPoint WebServices details popup"
+              >
+                Open PetPoint ↗
+              </a>
+            </td>
+            <td class="py-2 px-3">
+              <div class="font-bold text-slate-900 flex items-center gap-1">
+                <span>${pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐾'}</span>
+                <span class="text-sm">${pet.name}</span>
+              </div>
+              <span class="text-[10px] text-slate-400 block uppercase tracking-wider font-semibold">
+                ${pet.species_label || pet.type}
+              </span>
+            </td>
+            <td class="py-2 px-3">
+              <span class="text-slate-800 font-medium block truncate max-w-xs" title="${pet.breed}">
+                ${pet.breed}
+              </span>
+              ${pet.color ? `<span class="text-[11px] text-slate-500 block">Color: ${pet.color}</span>` : ''}
+            </td>
+            <td class="py-2 px-3 whitespace-nowrap">
+              <span class="font-medium text-slate-800 block">
+                ${pet.gender === 'female' ? '♀ Female' : pet.gender === 'male' ? '♂ Male' : 'Unknown'}
+              </span>
+              <span class="text-[11px] text-slate-500 block">${pet.age_display || pet.age || 'Adult'}</span>
+            </td>
+            <td class="py-2 px-3 whitespace-nowrap">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                📍 ${pet.location || 'Shelter'}
+              </span>
+            </td>
+            <td class="py-2 px-3 whitespace-nowrap">
+              <span class="text-slate-800 font-medium block">${formattedIntake}</span>
+              ${daysAtShelter !== null ? `<span class="text-[10px] font-semibold text-slate-500">${daysAtShelter} days in care</span>` : ''}
+            </td>
+            <td class="py-2 px-3 whitespace-nowrap">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                Archived / Adopted
+              </span>
+            </td>
+            <td class="py-2 px-3 text-right whitespace-nowrap">
+              <div class="flex items-center justify-end gap-1.5">
+                <button
+                  type="button"
+                  class="petsync-print-card-btn inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition cursor-pointer"
+                  data-pet-info='${petInfoStr}'
+                  title="Print official cage card for this animal"
+                >
+                  🖨️ Card
+                </button>
+                <a
+                  href="${publicUrl}"
+                  target="_blank"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                >
+                  Public ↗
+                </a>
+              </div>
+            </td>
+          `;
+          fragment.appendChild(tr);
+        });
+
+        tbody.appendChild(fragment);
+      } catch (e) {
+        console.warn('Failed to inflate archived pet data:', e);
+      }
+    }
 
     const applyFilters = () => {
       let visibleCount = 0;
+      const currentRows = root.querySelectorAll<HTMLTableRowElement>('.petsync-row');
 
-      rows.forEach((row) => {
+      currentRows.forEach((row) => {
         const isArchived = row.getAttribute('data-is-archived') === 'true';
         const species = row.getAttribute('data-species') || '';
         const location = row.getAttribute('data-location') || '';
@@ -508,6 +684,10 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
         pill.classList.add('active', 'bg-[#173a39]', 'text-white');
         pill.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
 
+        if (val === 'archived' || val === 'all') {
+          ensureArchivedInflated();
+        }
+
         applyFilters();
       });
     });
@@ -515,6 +695,9 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         searchQuery = (e.target as HTMLInputElement).value;
+        if (searchQuery.trim().length > 1) {
+          ensureArchivedInflated();
+        }
         applyFilters();
       });
     }
@@ -567,10 +750,14 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
       });
     }
 
-    // Export CSV
+    // Export CSV (ensures archive is inflated first so all matching records are exported)
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {
-        const visibleRows = Array.from(rows).filter((r) => r.style.display !== 'none');
+        ensureArchivedInflated();
+        applyFilters();
+
+        const currentRows = root.querySelectorAll<HTMLTableRowElement>('.petsync-row');
+        const visibleRows = Array.from(currentRows).filter((r) => r.style.display !== 'none');
         const headers = ['Pet ID', 'Name', 'Species', 'Breed', 'Location', 'Intake Date', 'Days in Care', 'Status'];
         const csvRows = [headers.join(',')];
 
@@ -613,82 +800,83 @@ const locations = [...new Set(data.pets.map((p) => p.location).filter(Boolean))]
       printBtn.addEventListener('click', () => window.print());
     }
 
-    // Attach click handler to each Print Card button
-    root.querySelectorAll<HTMLButtonElement>('.petsync-print-card-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const raw = btn.getAttribute('data-pet-info');
-        if (!raw) return;
+    // Delegated click handler on root for Print Card buttons (handles active + dynamic archived rows)
+    root.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.petsync-print-card-btn');
+      if (!btn) return;
+      e.stopPropagation();
 
-        try {
-          const info = JSON.parse(raw);
+      const raw = btn.getAttribute('data-pet-info');
+      if (!raw) return;
 
-          // Populate printable elements
-          const photoEl = document.getElementById('card-pet-photo') as HTMLImageElement | null;
-          if (photoEl) photoEl.src = info.image || '/assets/recovered/images/placeholder.svg';
+      try {
+        const info = JSON.parse(raw);
 
-          const idEl = document.getElementById('card-pet-id');
-          if (idEl) idEl.textContent = info.id || '00000000';
+        // Populate printable elements
+        const photoEl = document.getElementById('card-pet-photo') as HTMLImageElement | null;
+        if (photoEl) photoEl.src = info.image || '/assets/recovered/images/placeholder.svg';
 
-          const nameEl = document.getElementById('card-pet-name');
-          if (nameEl) nameEl.textContent = info.name || 'Friend';
+        const idEl = document.getElementById('card-pet-id');
+        if (idEl) idEl.textContent = info.id || '00000000';
 
-          const genderAgeEl = document.getElementById('card-pet-gender-age');
-          if (genderAgeEl) {
-            const gender = info.gender === 'female' ? 'Female' : info.gender === 'male' ? 'Male' : 'Unknown';
-            genderAgeEl.textContent = `${gender} · ${info.age_display || info.age || 'Adult'}`;
-          }
+        const nameEl = document.getElementById('card-pet-name');
+        if (nameEl) nameEl.textContent = info.name || 'Friend';
 
-          const breedEl = document.getElementById('card-pet-breed');
-          if (breedEl) breedEl.textContent = `${info.breed || 'Mixed'} (${info.type || 'Animal'})`;
-
-          const sizeEl = document.getElementById('card-pet-size');
-          if (sizeEl) sizeEl.textContent = info.size ? info.size[0].toUpperCase() + info.size.slice(1) : 'Medium';
-
-          const colorEl = document.getElementById('card-pet-color');
-          if (colorEl) colorEl.textContent = info.color || 'Standard';
-
-          const intakeEl = document.getElementById('card-pet-intake');
-          if (intakeEl) {
-            const days = info.days_at_shelter !== null && info.days_at_shelter !== undefined ? `${info.days_at_shelter}d` : '';
-            intakeEl.textContent = `${info.intake_date ? new Date(info.intake_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'} ${days ? `(${days})` : ''}`;
-          }
-
-          const locEl = document.getElementById('card-kennel-location');
-          if (locEl) locEl.textContent = `Location: ${info.location || 'Main Kennel'}`;
-
-          const notesEl = document.getElementById('card-pet-notes');
-          if (notesEl) {
-            notesEl.textContent = info.description || 'Sweet, friendly companion ready for a forever home. Sociable and walked daily by volunteers.';
-          }
-
-          const urlEl = document.getElementById('card-direct-url');
-          const adoptUrl = `https://monroe-humane.org/adopt/${info.id}`;
-          if (urlEl) urlEl.textContent = adoptUrl;
-
-          // Render high-contrast QR code
-          const qrContainer = document.getElementById('card-qr-container');
-          if (qrContainer) {
-            qrContainer.innerHTML = '';
-            const qrCode = new QRCodeStyling({
-              width: 120,
-              height: 120,
-              type: 'svg',
-              data: adoptUrl,
-              margin: 4,
-              qrOptions: { errorCorrectionLevel: 'H' },
-              dotsOptions: { type: 'rounded', color: '#0f766e' },
-              cornersSquareOptions: { type: 'extra-rounded', color: '#0f766e' },
-              backgroundOptions: { color: '#ffffff' },
-            });
-            qrCode.append(qrContainer);
-          }
-
-          if (modal) modal.classList.remove('hidden');
-        } catch (err) {
-          console.error('Failed to prepare kennel card:', err);
+        const genderAgeEl = document.getElementById('card-pet-gender-age');
+        if (genderAgeEl) {
+          const gender = info.gender === 'female' ? 'Female' : info.gender === 'male' ? 'Male' : 'Unknown';
+          genderAgeEl.textContent = `${gender} · ${info.age_display || info.age || 'Adult'}`;
         }
-      });
+
+        const breedEl = document.getElementById('card-pet-breed');
+        if (breedEl) breedEl.textContent = `${info.breed || 'Mixed'} (${info.type || 'Animal'})`;
+
+        const sizeEl = document.getElementById('card-pet-size');
+        if (sizeEl) sizeEl.textContent = info.size ? info.size[0].toUpperCase() + info.size.slice(1) : 'Medium';
+
+        const colorEl = document.getElementById('card-pet-color');
+        if (colorEl) colorEl.textContent = info.color || 'Standard';
+
+        const intakeEl = document.getElementById('card-pet-intake');
+        if (intakeEl) {
+          const days = info.days_at_shelter !== null && info.days_at_shelter !== undefined ? `${info.days_at_shelter}d` : '';
+          intakeEl.textContent = `${info.intake_date ? new Date(info.intake_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'} ${days ? `(${days})` : ''}`;
+        }
+
+        const locEl = document.getElementById('card-kennel-location');
+        if (locEl) locEl.textContent = `Location: ${info.location || 'Main Kennel'}`;
+
+        const notesEl = document.getElementById('card-pet-notes');
+        if (notesEl) {
+          notesEl.textContent = info.description || 'Sweet, friendly companion ready for a forever home. Sociable and walked daily by volunteers.';
+        }
+
+        const urlEl = document.getElementById('card-direct-url');
+        const adoptUrl = `https://monroe-humane.org/adopt/${info.id}`;
+        if (urlEl) urlEl.textContent = adoptUrl;
+
+        // Render high-contrast QR code
+        const qrContainer = document.getElementById('card-qr-container');
+        if (qrContainer) {
+          qrContainer.innerHTML = '';
+          const qrCode = new QRCodeStyling({
+            width: 120,
+            height: 120,
+            type: 'svg',
+            data: adoptUrl,
+            margin: 4,
+            qrOptions: { errorCorrectionLevel: 'H' },
+            dotsOptions: { type: 'rounded', color: '#0f766e' },
+            cornersSquareOptions: { type: 'extra-rounded', color: '#0f766e' },
+            backgroundOptions: { color: '#ffffff' },
+          });
+          qrCode.append(qrContainer);
+        }
+
+        if (modal) modal.classList.remove('hidden');
+      } catch (err) {
+        console.error('Failed to prepare kennel card:', err);
+      }
     });
 
     applyFilters();

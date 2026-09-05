@@ -18,6 +18,8 @@ if (root && canvas && context) {
   const startButton = root.querySelector<HTMLButtonElement>('[data-start]');
   const soundButton = root.querySelector<HTMLButtonElement>('[data-sound]');
   const pauseButton = root.querySelector<HTMLButtonElement>('[data-pause]');
+  const statusText = root.querySelector<HTMLElement>('[data-status]');
+  const levelBanner = root.querySelector<HTMLElement>('[data-level-banner]');
   const debug = new URLSearchParams(window.location.search).get('debug') === '1';
   const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = BOARD_WIDTH * pixelRatio;
@@ -29,10 +31,13 @@ if (root && canvas && context) {
     if (element) element.textContent = value;
   };
   const syncHud = () => {
+    const homeCount = engine.state.homes.filter(Boolean).length;
     setText('[data-score]', String(engine.state.score).padStart(5, '0'));
     setText('[data-best]', String(engine.state.best).padStart(5, '0'));
     setText('[data-level]', String(engine.state.level).padStart(2, '0'));
     setText('[data-lives]', '|'.repeat(engine.state.lives) || '0');
+    if (statusText) statusText.textContent = `Homes safe: ${homeCount} / ${engine.state.homes.length}`;
+    if (levelBanner) levelBanner.textContent = `Route ${String(engine.state.level).padStart(2, '0')}`;
     localStorage.setItem('humane-catwalk-best', String(engine.state.best));
   };
   const showOverlay = (title: string, copy: string, action: string) => {
@@ -45,14 +50,18 @@ if (root && canvas && context) {
 
   const togglePause = () => {
     engine.togglePause();
-    if (engine.state.status === 'paused') showOverlay('Patrol paused', 'The neighborhood is holding still.', 'Resume patrol');
+    if (engine.state.status === 'paused') showOverlay('Patrol paused', 'The neighborhood is holding still. Make your next move count.', 'Resume patrol');
     else if (engine.state.status === 'playing') hideOverlay();
   };
 
   bindInput({ root, surface: canvas, onMove: (direction) => engine.move(direction), onPause: togglePause });
   startButton?.addEventListener('click', () => {
-    if (engine.state.status === 'paused') engine.resume();
-    else engine.start();
+    if (engine.state.status === 'paused') {
+      engine.resume();
+      hideOverlay();
+      return;
+    }
+    engine.start();
     hideOverlay();
   });
   pauseButton?.addEventListener('click', togglePause);
@@ -64,7 +73,7 @@ if (root && canvas && context) {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && engine.state.status === 'playing') {
       engine.pause();
-      showOverlay('Patrol paused', 'The neighborhood is holding still.', 'Resume patrol');
+      showOverlay('Patrol paused', 'The neighborhood is holding still. Resume when you are ready.', 'Resume patrol');
     }
   });
 
@@ -75,7 +84,8 @@ if (root && canvas && context) {
     engine.update(delta);
     engine.drainEvents().forEach((event) => {
       audio.play(event);
-      if (event === 'defeat') showOverlay('Out of lives', `The dogs ended this patrol at ${engine.state.score} points.`, 'Try again');
+      if (event === 'defeat') showOverlay('Out of lives', `The dogs ended this patrol at ${engine.state.score} points. Try again for a cleaner sweep.`, 'Try again');
+      if (event === 'level') showOverlay('New patrol route', `Level ${engine.state.level} is live. The dogs are moving faster and the fishbones are shifting harder.`, 'Keep going');
     });
     syncHud();
     renderGame(context, engine.state, debug);
@@ -83,5 +93,6 @@ if (root && canvas && context) {
   };
 
   syncHud();
+  renderGame(context, engine.state, debug);
   requestAnimationFrame(frame);
 }

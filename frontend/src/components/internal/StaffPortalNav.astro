@@ -45,6 +45,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         </div>
         <a
           href="/"
+          data-astro-reload
           class="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-teal-800 hover:bg-teal-700 text-white transition border border-teal-600 shadow-xs"
         >
           &larr; Public Site
@@ -69,6 +70,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <nav class="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-teal-800/80" aria-label="Staff Portal Modules">
       <a
         href="/internal"
+        data-astro-reload
         data-nav-tab="overview"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'overview'
@@ -87,6 +89,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal?tab=petsync"
+        data-astro-reload
         data-nav-tab="petsync"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'petsync'
@@ -103,6 +106,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/board"
+        data-astro-reload
         data-nav-tab="financials"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'financials'
@@ -119,6 +123,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
       <a
         href="/internal/grants"
+        data-astro-reload
         data-nav-tab="grants"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'grants'
@@ -150,16 +155,18 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 </header>
 
 <script>
-  document.getElementById('global-staff-logout-btn')?.addEventListener('click', () => {
-    try {
-      sessionStorage.removeItem('directus_auth');
-      sessionStorage.removeItem('mchs_staff_auth');
-      sessionStorage.removeItem('mchs_staff_user');
-      localStorage.removeItem('directus_auth');
-      localStorage.removeItem('mchs_staff_auth');
-      localStorage.removeItem('mchs_staff_user');
-      document.documentElement.classList.remove('staff-authenticated');
-    } catch (e) {}
-    window.location.href = '/internal';
-  });
+  import { logoutStaff } from '../../lib/staff-auth';
+
+  function initStaffNav() {
+    const logoutBtn = document.getElementById('global-staff-logout-btn');
+    if (!logoutBtn || logoutBtn.dataset.bound === '1') return;
+    logoutBtn.dataset.bound = '1';
+
+    logoutBtn.addEventListener('click', async () => {
+      logoutBtn.setAttribute('disabled', 'true');
+      await logoutStaff();
+    });
+  }
+
+  document.addEventListener('astro:page-load', initStaffNav);
 </script>

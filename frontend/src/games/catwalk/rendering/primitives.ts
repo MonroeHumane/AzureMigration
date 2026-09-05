@@ -3,12 +3,23 @@ export interface Point {
   y: number;
 }
 
-export function wire(context: CanvasRenderingContext2D, color: string, width = 2, alpha = 1): void {
+export function wire(context: CanvasRenderingContext2D, color: string, width = 2, alpha = 1, glow = 0): void {
   context.strokeStyle = color;
   context.lineWidth = width;
   context.globalAlpha = alpha;
   context.lineCap = 'round';
   context.lineJoin = 'round';
+  if (glow > 0) {
+    context.shadowColor = color;
+    context.shadowBlur = glow;
+  } else {
+    context.shadowBlur = 0;
+  }
+}
+
+export function resetGlow(context: CanvasRenderingContext2D): void {
+  context.shadowBlur = 0;
+  context.shadowColor = 'transparent';
 }
 
 export function line(context: CanvasRenderingContext2D, start: Point, end: Point): void {
@@ -81,4 +92,6 @@ export function withTransform(
   context.scale(scaleX, scaleY);
   draw();
   context.restore();
+  context.shadowBlur = 0;
+  context.shadowColor = 'transparent';
 }

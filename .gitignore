@@ -1,9 +1,11 @@
-﻿visual-test/
+visual-test/
 frontend/node_modules/
 node_modules/
 frontend/dist/
 cron/dist/
 cron/legacy-pets-export.json
+.astro/
+frontend/.astro/
 
 # Secrets - never commit real credentials
 .azure-secrets.txt

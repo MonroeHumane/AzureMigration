@@ -62,8 +62,10 @@ export const FISHBONE_LANES: FishboneLane[] = [
   { row: 5, speed: 50, length: 190, gap: 265, offset: 130, kind: 'sardine' },
 ];
 
-const roundTime = (level: number): number => Math.max(28, 48 - level * 2);
-const speedScale = (level: number): number => 1 + Math.min(level - 1, 8) * 0.075;
+const STARTING_LIVES = 6;
+const STARTING_INVULNERABILITY = 0.45;
+const roundTime = (level: number): number => Math.max(22, 58 - (level - 1) * 4.5);
+const speedScale = (level: number): number => 1 + Math.min(level - 1, 8) * 0.085;
 
 export function positionsForLane(lane: MovingLane, state: GameState): number[] {
   const shift = lane.offset + state.elapsed * lane.speed * speedScale(state.level);
@@ -83,7 +85,7 @@ export class CatwalkEngine {
       score: 0,
       best,
       level: 1,
-      lives: 5,
+      lives: STARTING_LIVES,
       time: roundTime(1),
       elapsed: 0,
       homes: [false, false, false, false, false],
@@ -93,7 +95,7 @@ export class CatwalkEngine {
 
   start(): void {
     Object.assign(this.state, {
-      status: 'playing', score: 0, level: 1, lives: 5, time: roundTime(1), elapsed: 0,
+      status: 'playing', score: 0, level: 1, lives: STARTING_LIVES, time: roundTime(1), elapsed: 0,
     });
     this.state.homes.fill(false);
     this.state.cat = this.freshCat();
@@ -190,7 +192,7 @@ export class CatwalkEngine {
     this.events.push('home');
     if (this.state.homes.every(Boolean)) {
       this.state.level += 1;
-      this.addScore(1000);
+      this.addScore(1000 + this.state.level * 250);
       this.state.homes.fill(false);
       this.events.push('level');
     }
@@ -220,7 +222,7 @@ export class CatwalkEngine {
       direction: 'up',
       action: 'idle',
       actionTime: 0,
-      invulnerable: 1.2,
+      invulnerable: STARTING_INVULNERABILITY,
     };
   }
 

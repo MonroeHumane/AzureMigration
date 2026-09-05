@@ -4,15 +4,20 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
 ---
 
 <BaseLayout title="Staff Portal: Grants Tracker">
-  <script is:inline>
+  <script is:inline data-astro-rerun>
     (function() {
       try {
-        var hasAuth = !!(
-          sessionStorage.getItem('directus_auth') ||
-          localStorage.getItem('directus_auth') ||
-          sessionStorage.getItem('mchs_staff_auth') ||
-          localStorage.getItem('mchs_staff_auth')
-        );
+        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
+        var hasAuth = false;
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && (parsed.access_token || parsed.refresh_token)) {
+            hasAuth = true;
+          }
+        }
+        if (!hasAuth) {
+          hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
+        }
         if (!hasAuth) {
           window.location.replace('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
         }
@@ -309,201 +314,184 @@ import StaffPortalNav from "../../components/internal/StaffPortalNav.astro";
 </style>
 
 <script>
-  import { createDirectus, rest, authentication, readItems, createItem } from '@directus/sdk';
+  import { staffClient, DIRECTUS_URL, logoutStaff } from '../../lib/staff-auth';
+  import { readItems, createItem } from '@directus/sdk';
 
-  const DIRECTUS_URL = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
-  
-  const client = createDirectus(DIRECTUS_URL).with(rest()).with(authentication('json', {
-    storage: {
-      get() {
-        return JSON.parse(sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth') || 'null');
-      },
-      set(data) {
-        if (data) {
-          const str = JSON.stringify(data);
-          sessionStorage.setItem('directus_auth', str);
-          localStorage.setItem('directus_auth', str);
+  function redirectToLogin() {
+    logoutStaff('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+  }
+
+  function initGrantsPortal() {
+    const dashboardView = document.getElementById('dashboard-view') as HTMLElement | null;
+    const grantsContainer = document.getElementById('grants-container') as HTMLElement | null;
+    if (!dashboardView || !grantsContainer) return;
+
+    // Modal elements
+    const modal = document.getElementById('add-grant-modal') as HTMLDialogElement | null;
+    const btnOpenModal = document.getElementById('add-grant-btn') as HTMLButtonElement | null;
+    const btnCloseModal = document.getElementById('close-modal-btn') as HTMLButtonElement | null;
+    const btnCancelModal = document.getElementById('cancel-modal-btn') as HTMLButtonElement | null;
+    const formAddGrant = document.getElementById('add-grant-form') as HTMLFormElement | null;
+    const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement | null;
+
+    logoutBtn?.addEventListener('click', async () => {
+      await logoutStaff('/internal');
+    });
+
+    // Modal interactions
+    btnOpenModal?.addEventListener('click', () => modal?.showModal());
+    btnCloseModal?.addEventListener('click', () => modal?.close());
+    btnCancelModal?.addEventListener('click', () => modal?.close());
+
+    // Close modal when clicking outside
+    modal?.addEventListener('click', (e) => {
+      if (!modal) return;
+      const dialogDimensions = modal.getBoundingClientRect();
+      if (
+        e.clientX < dialogDimensions.left ||
+        e.clientX > dialogDimensions.right ||
+        e.clientY < dialogDimensions.top ||
+        e.clientY > dialogDimensions.bottom
+      ) {
+        modal.close();
+      }
+    });
+
+    // Handle Form Submit
+    formAddGrant?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const titleInput = document.getElementById('new-title') as HTMLInputElement | null;
+      const sourceInput = document.getElementById('new-source') as HTMLSelectElement | null;
+      const notesInput = document.getElementById('new-notes') as HTMLTextAreaElement | null;
+
+      const title = titleInput?.value.trim();
+      const source = sourceInput?.value || 'Manual';
+      const notes = notesInput?.value.trim() || '';
+
+      if (!title) return;
+
+      try {
+        await staffClient.request(createItem('grants', {
+          id: crypto.randomUUID(),
+          title: title,
+          source: source,
+          status: 'open',
+          deadline_notes: notes
+        }));
+
+        formAddGrant.reset();
+        modal?.close();
+        loadGrants();
+      } catch (error: any) {
+        const errorCode = error?.errors?.[0]?.extensions?.code;
+        if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
+          alert("Your session has expired. Please log in again.");
+          redirectToLogin();
         } else {
-          sessionStorage.removeItem('directus_auth');
-          localStorage.removeItem('directus_auth');
+          alert("Failed to create grant. Ensure the schema is deployed and you have permission.");
+        }
+      }
+    });
+
+    async function loadGrants() {
+      try {
+        const grants = await staffClient.request(readItems('grants', {
+          sort: ['-id'] // Show newest first
+        }));
+
+        if (!grantsContainer) return;
+
+        if (!grants || (grants as any[]).length === 0) {
+          grantsContainer.innerHTML = `
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              <h3>No grants tracked yet</h3>
+              <p>Click "+ Add Grant" to start building your portfolio.</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Grant Title</th>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Notes / Deadlines</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        for (const grant of (grants as any[])) {
+          // Build the deep link directly to this grant's edit page in Directus
+          const editLink = `${DIRECTUS_URL}/admin/content/grants/${grant.id}`;
+
+          html += `
+            <tr>
+              <td class="td-title">
+                <a href="${editLink}" target="_blank" title="Edit in Directus">
+                  ${grant.title}
+                </a>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </td>
+              <td class="td-source">${grant.source}</td>
+              <td><span class="badge ${grant.status}">${grant.status}</span></td>
+              <td class="td-notes" title="${grant.deadline_notes || ''}">${grant.deadline_notes || "—"}</td>
+            </tr>
+          `;
+        }
+
+        html += '</tbody></table>';
+        grantsContainer.innerHTML = html;
+      } catch (error: any) {
+        if (!grantsContainer) return;
+
+        const errorCode = error?.errors?.[0]?.extensions?.code;
+
+        if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
+          redirectToLogin();
+          return;
+        }
+
+        if (errorCode === 'COLLECTION_UNKNOWN') {
+          grantsContainer.innerHTML = `
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+              <h3>Database Sync Pending</h3>
+              <p>The Grants table is pending creation in Directus. Please wait for the next deployment.</p>
+            </div>
+          `;
+        } else {
+          grantsContainer.innerHTML = `
+            <div class="empty-state">
+              <h3 style="color:#ef4444">Error loading grants</h3>
+              <p>Please check your connection and try again.</p>
+            </div>
+          `;
         }
       }
     }
-  }));
 
-  const dashboardView = document.getElementById('dashboard-view') as HTMLElement;
-  const grantsContainer = document.getElementById('grants-container') as HTMLElement;
-  
-  // Modal elements
-  const modal = document.getElementById('add-grant-modal') as HTMLDialogElement;
-  const btnOpenModal = document.getElementById('add-grant-btn') as HTMLButtonElement;
-  const btnCloseModal = document.getElementById('close-modal-btn') as HTMLButtonElement;
-  const btnCancelModal = document.getElementById('cancel-modal-btn') as HTMLButtonElement;
-  const formAddGrant = document.getElementById('add-grant-form') as HTMLFormElement;
-
-  function redirectToLogin() {
-    sessionStorage.removeItem('directus_auth');
-    sessionStorage.removeItem('mchs_staff_auth');
-    sessionStorage.removeItem('mchs_staff_user');
-    localStorage.removeItem('directus_auth');
-    localStorage.removeItem('mchs_staff_auth');
-    localStorage.removeItem('mchs_staff_user');
-    window.location.replace('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
-  }
-
-  async function checkAuth() {
-    try {
-      const authData = await client.getToken();
-      if (authData) {
-        if (dashboardView) dashboardView.style.display = 'block';
-        loadGrants();
-      } else {
+    async function checkAuth() {
+      try {
+        const authData = await staffClient.getToken();
+        if (authData) {
+          if (dashboardView) dashboardView.style.display = 'block';
+          loadGrants();
+        } else {
+          redirectToLogin();
+        }
+      } catch (e) {
         redirectToLogin();
       }
-    } catch (e) {
-      redirectToLogin();
     }
+
+    checkAuth();
   }
 
-  document.getElementById('logout-btn')?.addEventListener('click', async () => {
-    try {
-      await client.logout();
-    } catch (e) {}
-    redirectToLogin();
-  });
-
-  async function loadGrants() {
-    try {
-      const grants = await client.request(readItems('grants', {
-        sort: ['-id'] // Show newest first
-      }));
-      
-      if (!grantsContainer) return;
-
-      if (!grants || grants.length === 0) {
-        grantsContainer.innerHTML = `
-          <div class="empty-state">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-            <h3>No grants tracked yet</h3>
-            <p>Click "+ Add Grant" to start building your portfolio.</p>
-          </div>
-        `;
-        return;
-      }
-
-      let html = `
-        <table>
-          <thead>
-            <tr>
-              <th>Grant Title</th>
-              <th>Source</th>
-              <th>Status</th>
-              <th>Notes / Deadlines</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-      
-      for (const grant of grants) {
-        // Build the deep link directly to this grant's edit page in Directus
-        const editLink = `${DIRECTUS_URL}/admin/content/grants/${grant.id}`;
-        
-        html += `
-          <tr>
-            <td class="td-title">
-              <a href="${editLink}" target="_blank" title="Edit in Directus">
-                ${grant.title}
-              </a>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            </td>
-            <td class="td-source">${grant.source}</td>
-            <td><span class="badge ${grant.status}">${grant.status}</span></td>
-            <td class="td-notes" title="${grant.deadline_notes || ''}">${grant.deadline_notes || "—"}</td>
-          </tr>
-        `;
-      }
-      
-      html += '</tbody></table>';
-      grantsContainer.innerHTML = html;
-    } catch (error: any) {
-      if (!grantsContainer) return;
-      
-      const errorCode = error?.errors?.[0]?.extensions?.code;
-      
-      if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
-        // Token expired or invalid, redirect to staff login
-        redirectToLogin();
-        return;
-      }
-      
-      if (errorCode === 'COLLECTION_UNKNOWN') {
-        grantsContainer.innerHTML = `
-          <div class="empty-state">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-            <h3>Database Sync Pending</h3>
-            <p>The Grants table is pending creation in Directus. Please wait for the next deployment.</p>
-          </div>
-        `;
-      } else {
-        grantsContainer.innerHTML = `
-          <div class="empty-state">
-            <h3 style="color:#ef4444">Error loading grants</h3>
-            <p>Please check your connection and try again.</p>
-          </div>
-        `;
-      }
-    }
-  }
-
-  // Modal interactions
-  btnOpenModal?.addEventListener('click', () => modal?.showModal());
-  btnCloseModal?.addEventListener('click', () => modal?.close());
-  btnCancelModal?.addEventListener('click', () => modal?.close());
-  
-  // Close modal when clicking outside
-  modal?.addEventListener('click', (e) => {
-    const dialogDimensions = modal.getBoundingClientRect();
-    if (
-      e.clientX < dialogDimensions.left ||
-      e.clientX > dialogDimensions.right ||
-      e.clientY < dialogDimensions.top ||
-      e.clientY > dialogDimensions.bottom
-    ) {
-      modal.close();
-    }
-  });
-
-  // Handle Form Submit
-  formAddGrant?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const title = (document.getElementById('new-title') as HTMLInputElement).value;
-    const source = (document.getElementById('new-source') as HTMLSelectElement).value;
-    const notes = (document.getElementById('new-notes') as HTMLTextAreaElement).value;
-    
-    try {
-      await client.request(createItem('grants', {
-        id: crypto.randomUUID(),
-        title: title,
-        source: source,
-        status: 'open',
-        deadline_notes: notes
-      }));
-      
-      formAddGrant.reset();
-      modal?.close();
-      loadGrants();
-    } catch (error: any) {
-      const errorCode = error?.errors?.[0]?.extensions?.code;
-      if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || error?.response?.status === 403 || error?.response?.status === 401) {
-        alert("Your session has expired. Please log in again.");
-        redirectToLogin();
-      } else {
-        alert("Failed to create grant. Ensure the schema is deployed and you have permission.");
-      }
-    }
-  });
-
-  // Init
-  checkAuth();
+  document.addEventListener('astro:page-load', initGrantsPortal);
 </script>

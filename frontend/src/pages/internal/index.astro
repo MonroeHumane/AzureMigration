@@ -20,25 +20,6 @@ const formatDollar = (val: number) => {
   description="Humane Society of Monroe County Unified Staff Portal: PetSync Operations, Board Financials, Grants Tracker, and Directus CMS."
   bodyClass="bg-[#f9f7f2] text-slate-800 antialiased"
 >
-  <!-- Zero-flicker Synchronous Authentication Check -->
-  <script is:inline>
-    (function() {
-      try {
-        var hasAuth = !!(
-          sessionStorage.getItem('directus_auth') ||
-          localStorage.getItem('directus_auth') ||
-          sessionStorage.getItem('mchs_staff_auth') ||
-          localStorage.getItem('mchs_staff_auth')
-        );
-        if (hasAuth) {
-          document.documentElement.classList.add('staff-authenticated');
-        } else {
-          document.documentElement.classList.remove('staff-authenticated');
-        }
-      } catch (e) {}
-    })();
-  </script>
-
   <!-- SCREEN 1: UNIFIED STAFF LOGIN GATE (Shown when unauthenticated) -->
   <div id="staff-portal-auth-gate" class="min-h-screen flex items-center justify-center p-4 bg-[#f4f1ea]">
     <div class="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden animate-fade-in">
@@ -87,6 +68,7 @@ const formatDollar = (val: number) => {
                 type="email"
                 id="unified-email"
                 required
+                autocomplete="username"
                 placeholder="name@monroe-humane.org"
                 class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition"
               />
@@ -102,10 +84,41 @@ const formatDollar = (val: number) => {
                 type="password"
                 id="unified-password"
                 required
+                autocomplete="current-password"
                 placeholder="••••••••"
-                class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition"
+                class="w-full pl-3.5 pr-10 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition"
               />
+              <button
+                type="button"
+                id="password-reveal-btn"
+                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 focus:outline-none cursor-pointer"
+                title="Toggle password visibility"
+                aria-label="Toggle password visibility"
+              >
+                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg id="eye-off-icon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                  <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                  <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                  <line x1="2" x2="22" y1="2" y2="22"></line>
+                </svg>
+              </button>
             </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1">
+            <label class="flex items-center gap-2 text-slate-600 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                id="unified-remember-me"
+                checked
+                class="w-4 h-4 rounded text-teal-800 focus:ring-teal-700 border-slate-300 cursor-pointer"
+              />
+              <span>Remember me on this device</span>
+            </label>
           </div>
 
           <button
@@ -456,134 +469,148 @@ const formatDollar = (val: number) => {
 </style>
 
 <script>
-  import { createDirectus, rest, authentication } from '@directus/sdk';
+  import { loginStaff, getStaffUserEmail } from '../../lib/staff-auth';
 
-  const DIRECTUS_URL = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
+  function initStaffPortal() {
+    const loginForm = document.getElementById('unified-login-form') as HTMLFormElement | null;
+    const emailInput = document.getElementById('unified-email') as HTMLInputElement | null;
+    const passwordInput = document.getElementById('unified-password') as HTMLInputElement | null;
+    const rememberMeInput = document.getElementById('unified-remember-me') as HTMLInputElement | null;
+    const passwordRevealBtn = document.getElementById('password-reveal-btn') as HTMLButtonElement | null;
+    const eyeIcon = document.getElementById('eye-icon');
+    const eyeOffIcon = document.getElementById('eye-off-icon');
 
-  const client = createDirectus(DIRECTUS_URL).with(rest()).with(authentication('json', {
-    storage: {
-      get() {
-        return JSON.parse(sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth') || 'null');
-      },
-      set(data) {
-        if (data) {
-          const str = JSON.stringify(data);
-          sessionStorage.setItem('directus_auth', str);
-          localStorage.setItem('directus_auth', str);
-        } else {
-          sessionStorage.removeItem('directus_auth');
-          localStorage.removeItem('directus_auth');
+    const submitBtn = document.getElementById('unified-submit-btn') as HTMLButtonElement | null;
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const errorAlert = document.getElementById('login-error-alert');
+    const errorText = document.getElementById('login-error-text');
+    const staffUserEmail = document.getElementById('staff-user-email');
+
+    // Tab switcher elements
+    const tabBtnHub = document.getElementById('tab-btn-hub') as HTMLButtonElement | null;
+    const tabBtnPetSync = document.getElementById('tab-btn-petsync') as HTMLButtonElement | null;
+    const paneHub = document.getElementById('pane-hub');
+    const panePetSync = document.getElementById('pane-petsync');
+    const inspectPetsBtn = document.getElementById('hub-inspect-pets-btn') as HTMLButtonElement | null;
+    const backToHubBtn = document.getElementById('back-to-hub-btn') as HTMLButtonElement | null;
+
+    // Password visibility toggle
+    if (passwordRevealBtn && passwordInput && passwordRevealBtn.dataset.bound !== '1') {
+      passwordRevealBtn.dataset.bound = '1';
+      passwordRevealBtn.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        if (eyeIcon && eyeOffIcon) {
+          eyeIcon.classList.toggle('hidden', isPassword);
+          eyeOffIcon.classList.toggle('hidden', !isPassword);
         }
-      }
+        passwordInput.focus();
+      });
     }
-  }));
 
-  const loginForm = document.getElementById('unified-login-form') as HTMLFormElement;
-  const emailInput = document.getElementById('unified-email') as HTMLInputElement;
-  const passwordInput = document.getElementById('unified-password') as HTMLInputElement;
-  const submitBtn = document.getElementById('unified-submit-btn') as HTMLButtonElement;
-  const btnText = document.getElementById('btn-text') as HTMLElement;
-  const btnSpinner = document.getElementById('btn-spinner') as HTMLElement;
-  const errorAlert = document.getElementById('login-error-alert') as HTMLElement;
-  const errorText = document.getElementById('login-error-text') as HTMLElement;
-  const staffUserEmail = document.getElementById('staff-user-email') as HTMLElement;
-
-  // Tab switcher elements
-  const tabBtnHub = document.getElementById('tab-btn-hub') as HTMLButtonElement;
-  const tabBtnPetSync = document.getElementById('tab-btn-petsync') as HTMLButtonElement;
-  const paneHub = document.getElementById('pane-hub') as HTMLElement;
-  const panePetSync = document.getElementById('pane-petsync') as HTMLElement;
-  const inspectPetsBtn = document.getElementById('hub-inspect-pets-btn') as HTMLButtonElement;
-  const backToHubBtn = document.getElementById('back-to-hub-btn') as HTMLButtonElement;
-
-  function switchTab(target: 'hub' | 'petsync') {
-    if (target === 'petsync') {
-      paneHub?.classList.add('hidden');
-      panePetSync?.classList.remove('hidden');
-      tabBtnHub?.classList.remove('bg-[#173a39]', 'text-white', 'shadow-xs');
-      tabBtnHub?.classList.add('bg-slate-100', 'text-slate-700', 'border', 'border-slate-200');
-      tabBtnPetSync?.classList.add('bg-[#173a39]', 'text-white', 'shadow-xs');
-      tabBtnPetSync?.classList.remove('bg-slate-100', 'text-slate-700', 'border', 'border-slate-200');
-    } else {
-      panePetSync?.classList.add('hidden');
-      paneHub?.classList.remove('hidden');
-      tabBtnPetSync?.classList.remove('bg-[#173a39]', 'text-white', 'shadow-xs');
-      tabBtnPetSync?.classList.add('bg-slate-100', 'text-slate-700', 'border', 'border-slate-200');
-      tabBtnHub?.classList.add('bg-[#173a39]', 'text-white', 'shadow-xs');
-      tabBtnHub?.classList.remove('bg-slate-100', 'text-slate-700', 'border', 'border-slate-200');
-    }
-  }
-
-  tabBtnHub?.addEventListener('click', () => switchTab('hub'));
-  tabBtnPetSync?.addEventListener('click', () => switchTab('petsync'));
-  inspectPetsBtn?.addEventListener('click', () => switchTab('petsync'));
-  backToHubBtn?.addEventListener('click', () => switchTab('hub'));
-
-  // Check URL parameters for tab selection
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('tab') === 'petsync' || window.location.hash === '#section-petsync') {
-    switchTab('petsync');
-  }
-
-  // Update user display if saved
-  function updateStaffUserDisplay() {
-    const savedUser = sessionStorage.getItem('mchs_staff_user') || localStorage.getItem('mchs_staff_user');
-    if (savedUser && staffUserEmail) {
-      staffUserEmail.textContent = savedUser;
-    }
-  }
-  updateStaffUserDisplay();
-
-  // Login handler
-  loginForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-
-    if (!email || !password) return;
-
-    // Loading state
-    if (submitBtn) submitBtn.disabled = true;
-    if (btnText) btnText.textContent = 'Authenticating...';
-    if (btnSpinner) btnSpinner.classList.remove('hidden');
-    if (errorAlert) errorAlert.classList.add('hidden');
-
-    try {
-      // Authenticate via Directus
-      await client.login({ email, password });
-
-      // Save user session
-      sessionStorage.setItem('mchs_staff_auth', 'true');
-      localStorage.setItem('mchs_staff_auth', 'true');
-      sessionStorage.setItem('mchs_staff_user', email);
-      localStorage.setItem('mchs_staff_user', email);
-
-      document.documentElement.classList.add('staff-authenticated');
-      updateStaffUserDisplay();
-
-      // Check if there was a redirect query parameter
-      const redirect = urlParams.get('redirect');
-      if (redirect && redirect.startsWith('/internal')) {
-        window.location.href = redirect;
-      }
-    } catch (err: any) {
-      console.warn('Directus login error:', err);
-      
-      const errorCode = err?.errors?.[0]?.extensions?.code;
-      if (errorCode === 'INVALID_CREDENTIALS') {
-        if (errorText) errorText.textContent = 'Invalid email or password. Please verify your Directus credentials.';
-        if (errorAlert) errorAlert.classList.remove('hidden');
+    // Tab switching helper
+    function switchTab(target: 'hub' | 'petsync') {
+      if (target === 'petsync') {
+        paneHub?.classList.add('hidden');
+        panePetSync?.classList.remove('hidden');
+        tabBtnHub?.classList.remove('bg-[#173a39]', 'text-white', 'shadow-xs');
+        tabBtnHub?.classList.add('bg-slate-100', 'text-slate-700', 'border', 'border-slate-200');
+        tabBtnPetSync?.classList.add('bg-[#173a39]', 'text-white', 'shadow-xs');
+        tabBtnPetSync?.classList.remove('bg-slate-100', 'text-slate-700', 'border', 'border-slate-200');
       } else {
-        if (errorText) {
-          errorText.textContent = err?.message || 'Unable to connect to Directus authentication service. Please try again.';
-        }
-        if (errorAlert) errorAlert.classList.remove('hidden');
+        panePetSync?.classList.add('hidden');
+        paneHub?.classList.remove('hidden');
+        tabBtnPetSync?.classList.remove('bg-[#173a39]', 'text-white', 'shadow-xs');
+        tabBtnPetSync?.classList.add('bg-slate-100', 'text-slate-700', 'border', 'border-slate-200');
+        tabBtnHub?.classList.add('bg-[#173a39]', 'text-white', 'shadow-xs');
+        tabBtnHub?.classList.remove('bg-slate-100', 'text-slate-700', 'border', 'border-slate-200');
       }
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-      if (btnText) btnText.textContent = 'Secure Sign In';
-      if (btnSpinner) btnSpinner.classList.add('hidden');
     }
-  });
+
+    if (tabBtnHub && tabBtnHub.dataset.bound !== '1') {
+      tabBtnHub.dataset.bound = '1';
+      tabBtnHub.addEventListener('click', () => switchTab('hub'));
+    }
+    if (tabBtnPetSync && tabBtnPetSync.dataset.bound !== '1') {
+      tabBtnPetSync.dataset.bound = '1';
+      tabBtnPetSync.addEventListener('click', () => switchTab('petsync'));
+    }
+    if (inspectPetsBtn && inspectPetsBtn.dataset.bound !== '1') {
+      inspectPetsBtn.dataset.bound = '1';
+      inspectPetsBtn.addEventListener('click', () => switchTab('petsync'));
+    }
+    if (backToHubBtn && backToHubBtn.dataset.bound !== '1') {
+      backToHubBtn.dataset.bound = '1';
+      backToHubBtn.addEventListener('click', () => switchTab('hub'));
+    }
+
+    // Check URL parameters for tab selection
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'petsync' || window.location.hash === '#section-petsync') {
+      switchTab('petsync');
+    }
+
+    // Update user display
+    if (staffUserEmail) {
+      staffUserEmail.textContent = getStaffUserEmail();
+    }
+
+    // Clear error message when user starts typing
+    emailInput?.addEventListener('input', () => errorAlert?.classList.add('hidden'));
+    passwordInput?.addEventListener('input', () => errorAlert?.classList.add('hidden'));
+
+    // Login submit handler
+    if (loginForm && loginForm.dataset.bound !== '1') {
+      loginForm.dataset.bound = '1';
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = emailInput ? emailInput.value.trim() : '';
+        const password = passwordInput ? passwordInput.value : '';
+        const rememberMe = rememberMeInput ? rememberMeInput.checked : true;
+
+        if (!email || !password) return;
+
+        // Loading state
+        if (submitBtn) submitBtn.disabled = true;
+        if (btnText) btnText.textContent = 'Authenticating...';
+        if (btnSpinner) btnSpinner.classList.remove('hidden');
+        if (errorAlert) errorAlert.classList.add('hidden');
+
+        try {
+          await loginStaff({ email, password, rememberMe });
+
+          if (staffUserEmail) {
+            staffUserEmail.textContent = email;
+          }
+
+          // Check if there was a redirect query parameter
+          const redirect = urlParams.get('redirect');
+          if (redirect && redirect.startsWith('/internal')) {
+            window.location.href = redirect;
+          }
+        } catch (err: any) {
+          console.warn('[StaffPortal] Login error:', err);
+
+          const errorCode = err?.errors?.[0]?.extensions?.code;
+          if (errorCode === 'INVALID_CREDENTIALS') {
+            if (errorText) errorText.textContent = 'Invalid email or password. Please verify your Directus credentials.';
+          } else {
+            if (errorText) {
+              errorText.textContent = err?.message || 'Unable to connect to Directus authentication service. Please try again.';
+            }
+          }
+          if (errorAlert) errorAlert.classList.remove('hidden');
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+          if (btnText) btnText.textContent = 'Secure Sign In';
+          if (btnSpinner) btnSpinner.classList.add('hidden');
+        }
+      });
+    }
+  }
+
+  document.addEventListener('astro:page-load', initStaffPortal);
 </script>
 </BaseLayout>

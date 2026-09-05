@@ -31,15 +31,20 @@ const allInMonthlyExp = reportData.headline_kpis.all_in_expenditures / closedMon
   description="Humane Society of Monroe County Executive Board Financial Portal & Operating Statements."
   bodyClass="bg-[#f9f7f2] text-slate-800"
 >
-  <script is:inline>
+  <script is:inline data-astro-rerun>
     (function() {
       try {
-        var hasAuth = !!(
-          sessionStorage.getItem('directus_auth') ||
-          localStorage.getItem('directus_auth') ||
-          sessionStorage.getItem('mchs_staff_auth') ||
-          localStorage.getItem('mchs_staff_auth')
-        );
+        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
+        var hasAuth = false;
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && (parsed.access_token || parsed.refresh_token)) {
+            hasAuth = true;
+          }
+        }
+        if (!hasAuth) {
+          hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
+        }
         if (!hasAuth) {
           window.location.replace('/internal?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
         }

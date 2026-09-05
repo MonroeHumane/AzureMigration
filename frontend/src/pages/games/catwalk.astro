@@ -30,6 +30,8 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
         <span>Level <strong data-level>01</strong></span>
         <span>Lives <strong data-lives>|||||</strong></span>
       </section>
+      <p class="catwalk__status" data-status>Homes safe: 0 / 5</p>
+      <div class="catwalk__level-banner" aria-live="polite"><span>Night patrol</span><strong data-level-banner>Route 01</strong></div>
 
       <section class="catwalk__stage" aria-label="Catwalk game board">
         <canvas width="720" height="780" data-game-canvas></canvas>
@@ -82,6 +84,9 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
   .catwalk__header button { padding: 8px 10px; }
   .catwalk__hud { margin-top: 18px; padding: 10px 0; border-block: 1px solid #29483a; color: #81b59b; font-size: clamp(11px, 2vw, 14px); }
   .catwalk__hud strong { color: #dfffe9; font-weight: 400; }
+  .catwalk__status { margin: 8px 0 0; color: #96b8a7; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+  .catwalk__level-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 10px; padding: 9px 12px; border: 1px solid #2f4f42; background: rgb(12 29 23 / 90%); color: #81b59b; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+  .catwalk__level-banner strong { color: #dfffe9; }
   .catwalk__stage { position: relative; margin-top: 14px; overflow: hidden; border: 1px solid #547565; box-shadow: 0 0 30px rgb(116 222 236 / 7%); }
   .catwalk__stage::after { position: absolute; inset: 0; pointer-events: none; content: ''; background: repeating-linear-gradient(0deg, transparent 0 3px, rgb(0 0 0 / 12%) 3px 4px); }
   canvas { display: block; width: 100%; height: auto; aspect-ratio: 12 / 13; }
