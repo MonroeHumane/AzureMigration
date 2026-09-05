@@ -106,7 +106,7 @@ const isCurrent = (item: NavItem) => {
         <a class="monroe-global-nav__bar-donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
       </div>
       <a class="monroe-global-nav__brand" href="/" aria-label={`${SITE.name}, home`}>
-        <img src={LOGO_SRC} alt="Monroe Humane Logo" decoding="async" width="320" height="120" style="max-width: 200px;" />
+        <img src={LOGO_SRC} alt="Monroe Humane Logo" loading="eager" fetchpriority="high" decoding="async" width="320" height="120" style="max-width: 200px;" />
       </a>
 
       <button class="monroe-global-nav__menu-toggle" type="button" aria-expanded="false" aria-controls="monroe-global-nav-menu">

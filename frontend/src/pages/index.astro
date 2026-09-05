@@ -66,26 +66,6 @@ const petChips = (p: (typeof pets)[number]) => [
   p.location || 'Location',
 ];
 const TEL = SITE.contact.phoneTel;
-const indexLabels: Record<string, string> = {
-  Top: 'Top',
-  Events: 'Events',
-  Intro: 'Intro',
-  FeaturedPets: 'Adoptable Pets',
-  'hs-hero-fence-widget': 'Hero Fence',
-  VetPartners: 'Vet partners',
-  'furry-friends-auction-sponsors': 'Sponsors',
-  sponsorMarqueeWidget: 'Community partners',
-  Membership: 'Membership',
-  Testimonials: 'Testimonials',
-  SupporterStory: 'Supporter story',
-  Donations: 'Donations',
-  Social: 'Social',
-  Newsletter: 'Newsletter',
-  FAQ: 'FAQ',
-  Accomplishments: 'Accomplishments',
-  Games: 'Games',
-  Contact: 'Contact',
-};
 ---
 
 <BaseLayout
@@ -93,31 +73,6 @@ const indexLabels: Record<string, string> = {
   description={home.hero.copy}
   bodyClass="home-editable-has-flyers-rail"
 >
-  <div class="home-editable-page-index-shell">
-    <nav class="home-editable-page-index home-editable-page-index--mobile" aria-label="Jump to section">
-      <ul class="home-editable-page-index__list">
-        {home.page_index.map((id) => (
-          <li class="home-editable-page-index__item">
-            <a class="home-editable-page-index__link" href={`#${id}`}>{indexLabels[id] ?? id}</a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-
-    <div class="home-editable-side-rail">
-      <nav class="home-editable-page-index home-editable-page-index--desktop" aria-label="On this page">
-        <p class="home-editable-page-index__title">On this page</p>
-        <ul class="home-editable-page-index__list">
-          {home.page_index.map((id) => (
-            <li class="home-editable-page-index__item">
-              <a class="home-editable-page-index__link" href={`#${id}`}>{indexLabels[id] ?? id}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
-  </div>
-
   <div class="home-editable-shell is-layout-constrained">
     <!-- 1. Hero -->
     <div class="wp-block-cover has-custom-content-position is-position-center-center home-editable-hero" id="Top">
@@ -279,15 +234,15 @@ const indexLabels: Record<string, string> = {
 
       <div id="featuredPetsWidget" data-monroe-static>
         <div class="fpw-toolbar">
-          <button id="fpwExpandBtn" type="button" aria-controls="featuredPetsFsDialog">Expand view</button>
+          <button id="fpwExpandBtn" type="button" class="fpw-expand-btn" aria-controls="featuredPetsFsDialog">Expand view</button>
         </div>
         <dialog id="featuredPetsFsDialog" class="fpw-fs-dialog">
-          <div class="fpw-fs-dialog__head">
+          <div class="fpw-fs-header fpw-fs-dialog__head">
             <h2>Adoptable Pets</h2>
-            <button type="button" class="fpw-fs-dialog__close" aria-label="Close">Close</button>
+            <button type="button" class="fpw-fs-close fpw-fs-dialog__close" aria-label="Close">Close</button>
           </div>
           <div class="widget-section">
-            <div class="title-row">
+            <div class="title-row widget-title">
               <h3>Longest residents</h3>
               <a class="adopt-all-btn" href="/adopt">Search All Adoptable Pets</a>
             </div>
@@ -295,7 +250,7 @@ const indexLabels: Record<string, string> = {
           </div>
         </dialog>
         <div class="widget-section">
-          <div class="title-row">
+          <div class="title-row widget-title">
             <h3>Longest residents</h3>
             <a class="adopt-all-btn" href="/adopt">Search All Adoptable Pets</a>
           </div>
@@ -317,7 +272,7 @@ const indexLabels: Record<string, string> = {
                           {petChips(pet).map((chip) => <span class="chip">{chip}</span>)}
                         </div>
                         <div class="view-profile-widget">
-                          <a href={pet.url} target="_blank" rel="noopener noreferrer">View Profile</a>
+                          <a href={pet.url || `/adopt/${pet.id}`}>View Profile</a>
                         </div>
                       </div>
                     </div>
@@ -338,7 +293,7 @@ const indexLabels: Record<string, string> = {
                           {petChips(pet).map((chip) => <span class="chip">{chip}</span>)}
                         </div>
                         <div class="view-profile-widget">
-                          <a href={pet.url} target="_blank" rel="noopener noreferrer">View Profile</a>
+                          <a href={pet.url || `/adopt/${pet.id}`}>View Profile</a>
                         </div>
                       </div>
                     </div>
@@ -401,14 +356,10 @@ const indexLabels: Record<string, string> = {
     <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
       <div class="home-editable-news-card is-style-monroe-news-band home-editable-runtime-card">
         <p class="home-editable-section-label wp-block-paragraph">{home.vet_partners.label}</p>
-        <h2 class="wp-block-heading">{home.vet_partners.title}</h2>
+        <h2 id="sponsor-widget-title" class="wp-block-heading">{home.vet_partners.title}</h2>
         <p class="wp-block-paragraph">{home.vet_partners.intro}</p>
         <div class="sponsor-widget-shell">
           <section class="sponsor-widget" id="VetPartners" aria-labelledby="sponsor-widget-title">
-            <div class="sponsor-widget__header">
-              <h3 id="sponsor-widget-title" class="sponsor-widget__title">{home.vet_partners.title}</h3>
-              <p class="sponsor-widget__subtitle">{home.vet_partners.subtitle}</p>
-            </div>
             <div class="sponsor-grid">
               {sponsors.vet_partners.map((v) => (
                 <figure class={`sponsor-card ${v.modifier || ''}`}>
@@ -472,14 +423,16 @@ const indexLabels: Record<string, string> = {
     </div>
 
     <!-- 10. Membership -->
-    <div class="home-editable-donate-card">
-      <div id="Membership" class="monroe-membership-plans-shared monroe-membership-plans-shared--under-construction">
-        <div class="home-editable-membership-intro">
-          <p class="home-editable-section-label">{home.membership_home.label}</p>
-          <h2 class="wp-block-heading">{home.membership_home.title}</h2>
-        </div>
-        <div class="monroe-membership-under-construction" role="status">
-          <p>{home.membership_home.under_construction}</p>
+    <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
+      <div class="home-editable-donate-card">
+        <div id="Membership" class="monroe-membership-plans-shared monroe-membership-plans-shared--under-construction">
+          <div class="home-editable-membership-intro">
+            <p class="home-editable-section-label">{home.membership_home.label}</p>
+            <h2 class="wp-block-heading">{home.membership_home.title}</h2>
+          </div>
+          <div class="monroe-membership-under-construction" role="status">
+            <p>{home.membership_home.under_construction}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -588,30 +541,29 @@ const indexLabels: Record<string, string> = {
         <p class="wp-block-paragraph">{home.donations.intro}</p>
 
         <div class="home-editable-paypal-giving home-editable-paypal-giving--split">
-            <div class="home-editable-paypal-giving-split">
-              <div class="home-editable-paypal-giving-split__col">
-                <div class="pp-giving-wrapper">
-                  <iframe src={home.donations.cat_room.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Donate to the Cat Room"></iframe>
-                </div>
+          <div class="home-editable-paypal-giving-split">
+            <div class="home-editable-paypal-giving-split__col">
+              <div class="pp-giving-wrapper">
+                <iframe src={home.donations.cat_room.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Donate to the Cat Room"></iframe>
               </div>
-              <div class="home-editable-paypal-giving-split__col">
-                <div class="pp-giving-wrapper">
-                  <iframe src={home.donations.general.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Make a Difference"></iframe>
-                  
-                  <div class="offline-donations" style="margin-top:2rem;">
-                    <div class="offline-donations-header">
-                      <h4>{home.donations.offline.title}</h4>
-                      <p>{home.donations.offline.label}</p>
-                    </div>
-                    <div class="offline-donations-body">
-                      <div class="offline-donations-amount">{home.donations.offline.amount}</div>
-                      <div class="offline-donations-label">{home.donations.offline.caption}</div>
-                    </div>
-                  </div>
-                </div>
+            </div>
+            <div class="home-editable-paypal-giving-split__col">
+              <div class="pp-giving-wrapper">
+                <iframe src={home.donations.general.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Make a Difference"></iframe>
               </div>
             </div>
           </div>
+          <div class="offline-donations" style="margin-top:2rem;">
+            <div class="offline-donations-header">
+              <h4>{home.donations.offline.title}</h4>
+              <p>{home.donations.offline.label}</p>
+            </div>
+            <div class="offline-donations-body">
+              <div class="offline-donations-amount">{home.donations.offline.amount}</div>
+              <div class="offline-donations-label">{home.donations.offline.caption}</div>
+            </div>
+          </div>
+        </div>
           <div class="wp-block-columns home-editable-give-grid is-layout-flex">
           {home.donations.tiles.map((tile) => (
             <div class="wp-block-column is-layout-flow">
@@ -943,43 +895,6 @@ const indexLabels: Record<string, string> = {
 
 <script>
   function initHomePage() {
-    // Homepage Scrollspy (Left Navigation Rail)
-    const navLinks = Array.from(document.querySelectorAll('.home-editable-page-index__link'));
-    const sections = navLinks
-      .map((link) => {
-        try {
-          const url = new URL((link as HTMLAnchorElement).href);
-          return document.querySelector(url.hash);
-        } catch { return null; }
-      })
-      .filter(Boolean) as HTMLElement[];
-
-    if (sections.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          let visibleSection: string | null = null;
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              visibleSection = entry.target.id;
-            }
-          });
-          
-          if (visibleSection) {
-            navLinks.forEach((link) => {
-              try {
-                if (new URL((link as HTMLAnchorElement).href).hash === `#${visibleSection}`) {
-                  link.classList.add('is-active');
-                } else {
-                  link.classList.remove('is-active');
-                }
-              } catch {}
-            });
-          }
-        },
-        { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
-      );
-      sections.forEach((s) => observer.observe(s));
-    }
     // Featured pets: Expand view opens a <dialog> with the same cards.
     const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
     const fpwExpand = document.getElementById('fpwExpandBtn');
@@ -997,7 +912,7 @@ const indexLabels: Record<string, string> = {
         }
         fpwDialog.showModal();
       });
-      fpwDialog.querySelector('.fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
+      fpwDialog.querySelector('.fpw-fs-close, .fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
     }
 
     // Newsletter lightbox.

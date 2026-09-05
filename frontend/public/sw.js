@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hsmc-portal-cache-v2';
+const CACHE_NAME = 'hsmc-portal-cache-v3';
 
 const ASSETS_TO_CACHE = [
   '/internal/',
@@ -35,9 +35,32 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+/**
+ * Safely cache successful responses.
+ * Cache API explicitly rejects status 206 (Partial Content) with:
+ * "TypeError: Failed to execute 'put' on 'Cache': Partial response (status code 206) is unsupported"
+ * Only standard 200 responses are cached, with errors safely caught.
+ */
+function safeCachePut(cacheName, request, response) {
+  if (!response || !response.ok || response.status !== 200) {
+    return;
+  }
+  const resClone = response.clone();
+  caches.open(cacheName)
+    .then((cache) => {
+      cache.put(request, resClone).catch(() => {});
+    })
+    .catch(() => {});
+}
+
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
+
+  // Bypass cache for Range requests (streaming audio/video, partial byte requests)
+  if (event.request.headers.has('range')) {
+    return;
+  }
 
   const url = new URL(event.request.url);
 
@@ -46,12 +69,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response.ok) {
-            const resClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, resClone);
-            });
-          }
+          safeCachePut(CACHE_NAME, event.request, response);
           return response;
         })
         .catch(() => caches.match(event.request))
@@ -64,12 +82,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((networkResponse) => {
-          if (networkResponse.ok) {
-            const resClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, resClone);
-            });
-          }
+          safeCachePut(CACHE_NAME, event.request, networkResponse);
           return networkResponse;
         })
         .catch(() => {
@@ -86,12 +99,7 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
         .then((networkResponse) => {
-          if (networkResponse.ok) {
-            const resClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, resClone);
-            });
-          }
+          safeCachePut(CACHE_NAME, event.request, networkResponse);
           return networkResponse;
         })
         .catch(() => null);

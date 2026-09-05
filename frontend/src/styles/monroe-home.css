@@ -28,7 +28,9 @@ body.home-editable-has-flyers-rail {
 .home-editable-shell {
   display: block;
   width: 100%;
-  max-width: 100%;
+  max-width: var(--monroe-home-content-max, 1320px);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3.5vw, 2.5rem);
   box-sizing: border-box;
 }
 
@@ -1543,7 +1545,7 @@ body.home .sponsor-widget-shell .sponsor-card {
      as a bare `.home-editable-social-embed__frame` selector, and was winning the tie. */
   width: 100%;
   box-sizing: border-box;
-  background: linear-gradient(135deg, #50c878, #72cbff);
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
   padding: 2px;
   border-radius: 18px;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
@@ -1898,189 +1900,12 @@ body.home .sponsor-widget-shell .sponsor-card {
   display: none;
 }
 
-.home-editable-side-rail {
-  display: none;
-}
-
-.home-editable-page-index--mobile {
-  display: block;
-  position: sticky;
-  top: calc(var(--monroe-nav-height, 96px) + env(safe-area-inset-top, 0px));
-  z-index: 110;
-  margin: 0;
-  padding: 0.5rem max(0.65rem, env(safe-area-inset-right, 0px)) 0.55rem
-    max(0.65rem, env(safe-area-inset-left, 0px));
-  background: rgba(255, 250, 242, 0.97);
-  border-bottom: 1px solid rgba(25, 55, 54, 0.12);
-  box-shadow: 0 8px 20px rgba(15, 30, 29, 0.08);
-  font-family: "Jost", "Segoe UI", sans-serif;
-  -webkit-overflow-scrolling: touch;
-}
-
-.home-editable-page-index--mobile .home-editable-page-index__list {
-  list-style: none;
-  margin: 0;
-  padding: 0 0 0.15rem;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  gap: 0.45rem;
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
-}
-
-.home-editable-page-index--mobile .home-editable-page-index__item {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-}
-
-.home-editable-page-index--mobile .home-editable-page-index__link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0.4rem 0.85rem;
-  border-radius: 999px;
-  border: 1px solid rgba(25, 55, 54, 0.14);
-  background: #fff;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #163433;
-  text-decoration: none;
-  line-height: 1.2;
-  
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.home-editable-page-index--mobile .home-editable-page-index__link:hover {
-  background: rgba(15, 118, 110, 0.08);
-  color: #0f766e;
-  border-color: rgba(15, 118, 110, 0.35);
-}
-
-.home-editable-page-index--mobile .home-editable-page-index__link.is-active {
-  background: rgba(15, 118, 110, 0.16);
-  color: #0b534e;
-  border-color: #0f766e;
-  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.25);
-}
-
-@media (min-width: 1400px) {
-  /* Align rail + main column offset with the same horizontal grid: both derive
-     from one shared inset so the rail always tracks the centered content's
-     left edge instead of sitting at a fixed viewport offset. */
-  body.home-editable-has-flyers-rail {
-    --monroe-xl-nav-sync-inset: max(
-      env(safe-area-inset-left, 0px),
-      calc((100% - min(100%, 1320px)) / 2 + 1.4rem)
-    );
-    --monroe-xl-index-rail-width: 11rem;
-    --monroe-xl-index-rail-gap: 1rem;
-    --monroe-xl-main-pad-for-rail: calc(
-      var(--monroe-xl-nav-sync-inset) + var(--monroe-xl-index-rail-width) + var(--monroe-xl-index-rail-gap)
-    );
-  }
-
-  /* The shell's padding-left already reserves exactly enough room for the rail.
-     Sections' own centering rule (margin-left/right: auto !important, from the
-     is-layout-constrained core rule) would otherwise ALSO center each section
-     within that already-offset space, stacking a second, growing gap on top of
-     the rail gutter at wide viewports. Zero out the left half so content sits
-     flush against the reserved gutter; only the right side gets the leftover
-     whitespace. */
-  body.home-editable-has-flyers-rail .home-editable-shell > :not(.alignfull) {
-    margin-left: 0 !important;
-  }
-
-.home-editable-page-index--mobile {
-    display: none;
-  }
-.home-editable-side-rail {
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-    position: fixed;
-    z-index: 120;
-    box-sizing: border-box;
-    left: var(--monroe-xl-nav-sync-inset, max(0.65rem, env(safe-area-inset-left, 0px)));
-    top: calc(var(--monroe-nav-height, 96px) + 1rem);
-    width: var(--monroe-xl-index-rail-width, 11rem);
-    max-height: calc(100dvh - var(--monroe-nav-height, 96px) - 2rem);
-    overflow: auto;
-    overscroll-behavior: contain;
-    /* Content below scales continuously with viewport height (clamp(), not
-       a single breakpoint) so the link list fits without needing this
-       scroll at virtually any laptop/desktop height. overflow stays auto
-       (not hidden) as a safety net for extreme cases (e.g. heavy browser
-       zoom) - but the scrollbar itself is hidden either way, so it never
-       visibly shows even if it's technically still scrollable. */
-    scrollbar-width: none;
-  }
-.home-editable-side-rail::-webkit-scrollbar {
-    display: none;
-  }
+.home-editable-page-index-shell,
+.home-editable-side-rail,
+.home-editable-page-index--mobile,
 .home-editable-page-index--desktop {
-    display: block;
-    position: static;
-    top: auto;
-    left: auto;
-    width: auto;
-    max-height: none;
-    overflow: visible;
-    margin: 0;
-    padding: 0.85rem 1rem;
-    border-radius: 1rem;
-    background: rgba(255, 250, 242, 0.96);
-    border: 1px solid rgba(25, 55, 54, 0.12);
-    box-shadow: 0 18px 38px rgba(15, 30, 29, 0.1);
-    font-family: "Jost", "Segoe UI", sans-serif;
-  }
-.home-editable-page-index--desktop .home-editable-page-index__title {
-    /* Scales down continuously as the viewport gets shorter (clamp, not a
-       single breakpoint) so a growing link list keeps fitting without the
-       rail ever needing to scroll - see .home-editable-side-rail above. */
-    margin: 0 0 clamp(0.4rem, 1.2dvh, 0.6rem);
-    font-size: clamp(0.6rem, 0.9dvh + 0.35rem, 0.68rem);
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(22, 52, 51, 0.72);
-  }
-.home-editable-page-index--desktop .home-editable-page-index__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.08rem, 0.3dvh, 0.25rem);
-  }
-.home-editable-page-index--desktop .home-editable-page-index__link {
-    display: block;
-    min-height: 0;
-    padding: clamp(0.2rem, 0.5dvh, 0.35rem) 0.45rem;
-    border-radius: 0.45rem;
-    border: none;
-    background: transparent;
-    font-size: clamp(0.72rem, 0.9dvh + 0.4rem, 0.82rem);
-    font-weight: 600;
-    color: #163433;
-    text-decoration: none;
-    line-height: 1.2;
-    white-space: normal;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-.home-editable-page-index--desktop .home-editable-page-index__link:hover {
-    background: rgba(15, 118, 110, 0.11);
-    color: #0f766e;
-  }
-.home-editable-page-index--desktop .home-editable-page-index__link.is-active {
-    background: rgba(15, 118, 110, 0.18);
-    color: #084740;
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 #0f766e;
-  }
+  display: none !important;
+}
 body.home-editable-has-flyers-rail .home-editable-flyers-rail {
     display: block;
     margin: 0;
@@ -2148,7 +1973,6 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
     height: auto;
     border-radius: 8px;
   }
-}
 
 #sponsorMarqueeWidget {
   --monroe-marquee-gap: 40px;
@@ -3317,11 +3141,6 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   outline-offset: 2px;
 }
 
-@media (min-width: 1400px) {
-  body.home-editable-has-flyers-rail .home-editable-shell {
-    padding-left: var(--monroe-xl-main-pad-for-rail);
-  }
-}
 
 
 .monroe-newsletter-details summary {

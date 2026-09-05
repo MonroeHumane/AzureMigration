@@ -85,6 +85,9 @@ self.addEventListener('fetch', (event) => {
   // No caching on localhost
   if (isLocalhost) return;
 
+  // Bypass cache for Range requests (streaming audio/mp3, partial byte requests)
+  if (event.request.headers.has('range')) return;
+
   const url = new URL(event.request.url);
 
   // Network-first for external API calls (AI CEO advisor)
@@ -101,9 +104,9 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response.ok) {
+          if (response && response.ok && response.status === 200) {
             const clone = response.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, clone));
+            caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, clone).catch(() => {})).catch(() => {});
           }
           return response;
         })
@@ -116,9 +119,9 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return cached || fetch(event.request).then((response) => {
-        if (response.ok) {
+        if (response && response.ok && response.status === 200) {
           const clone = response.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, clone));
+          caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, clone).catch(() => {})).catch(() => {});
         }
         return response;
       });
