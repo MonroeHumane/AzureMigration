@@ -47,6 +47,12 @@ jobs:
           cd frontend
           npm run build
 
+      # Required Azure SWA application setting (not a GitHub secret):
+      #   STAFF_AUTH_SECRET — HMAC key for staff session tokens.
+      #   /api/login, /api/session, /api/financials, and /api/statement fail closed
+      #   with 503 if this setting is missing or empty. Generate a long random value
+      #   and set it once; do not commit the value.
+      #   az staticwebapp appsettings set -g MCHS-Platform-RG -n mchs-frontend-prod --setting-names STAFF_AUTH_SECRET=<generated>
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:

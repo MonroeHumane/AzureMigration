@@ -1,13 +1,11 @@
 ---
-import publishedFinancials from '../../data/published_2026_ytd.json';
-
 interface Props {
   position?: any;
 }
 
-const { position = publishedFinancials?.statement_of_position } = Astro.props;
+const { position } = Astro.props;
 
-const pos = position || publishedFinancials?.statement_of_position;
+const pos = position;
 const assets = pos?.assets || {};
 const liab = pos?.liabilities || {};
 const netAssets = pos?.net_assets || {};

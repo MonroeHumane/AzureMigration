@@ -37,6 +37,29 @@
 		return base + path.replace(/^\//, '');
 	}
 
+	var arcadeSessionPromise = null;
+
+	function ensureArcadeSession(base) {
+		if (arcadeSessionPromise) {
+			return arcadeSessionPromise;
+		}
+		arcadeSessionPromise = fetch(apiUrl(base, 'session/anonymous'), {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json' },
+			body: '{}',
+		}).then(function (res) {
+			if (!res.ok) {
+				arcadeSessionPromise = null;
+			}
+			return res;
+		}).catch(function (err) {
+			arcadeSessionPromise = null;
+			throw err;
+		});
+		return arcadeSessionPromise;
+	}
+
 	function fetchDex(base, user) {
 		return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user)), { credentials: 'same-origin' })
 			.then(function (res) {
@@ -48,11 +71,13 @@
 	}
 
 	function discoverPet(base, user, petId, source) {
-		return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/discover'), {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ pet_id: petId, source: source || 'dex' }),
+		return ensureArcadeSession(base).then(function () {
+			return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/discover'), {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ pet_id: petId, source: source || 'dex' }),
+			});
 		}).then(function (res) {
 			if (!res.ok) {
 				throw new Error('Could not save discovery.');
@@ -62,11 +87,13 @@
 	}
 
 	function discoverBulk(base, user, petIds, source) {
-		return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/discover/bulk'), {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ pet_ids: petIds, source: source || 'match' }),
+		return ensureArcadeSession(base).then(function () {
+			return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/discover/bulk'), {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ pet_ids: petIds, source: source || 'match' }),
+			});
 		}).then(function (res) {
 			if (!res.ok) {
 				throw new Error('Could not save discoveries.');
@@ -86,11 +113,13 @@
 	 */
 	function claimReward(base, user, gameId, rewardKey, extra) {
 		var body = Object.assign({ game_id: gameId, reward_key: rewardKey }, extra || {});
-		return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/rewards/claim'), {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(body),
+		return ensureArcadeSession(base).then(function () {
+			return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/rewards/claim'), {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body),
+			});
 		}).then(function (res) {
 			if (!res.ok) {
 				throw new Error('Could not claim reward.');
@@ -108,11 +137,13 @@
 	 * don't share a build step.
 	 */
 	function openPack(base, user, tier) {
-		return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/packs/open'), {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ tier: tier || 'standard' }),
+		return ensureArcadeSession(base).then(function () {
+			return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/packs/open'), {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ tier: tier || 'standard' }),
+			});
 		}).then(function (res) {
 			return res.json().then(function (data) {
 				if (!res.ok || !data || !data.ok) {
@@ -124,11 +155,13 @@
 	}
 
 	function awardCoins(base, user, amount, reason) {
-		return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/coins/award'), {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ amount: amount, reason: reason || 'game_award' }),
+		return ensureArcadeSession(base).then(function () {
+			return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/coins/award'), {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ amount: amount, reason: reason || 'game_award' }),
+			});
 		}).then(function (res) {
 			if (!res.ok) {
 				throw new Error('Could not award coins.');
@@ -138,11 +171,13 @@
 	}
 
 	function spendCoins(base, user, amount, reason) {
-		return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/coins/spend'), {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ amount: amount, reason: reason || 'game_spend' }),
+		return ensureArcadeSession(base).then(function () {
+			return fetch(apiUrl(base, 'adoptedex/' + encodeURIComponent(user) + '/coins/spend'), {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ amount: amount, reason: reason || 'game_spend' }),
+			});
 		}).then(function (res) {
 			return res.json().then(function (data) {
 				if (!res.ok || !data || !data.ok) {

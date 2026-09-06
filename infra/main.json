@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.46.1.21595",
-      "templateHash": "2794259817525633181"
+      "templateHash": "3928594821393639699"
     }
   },
   "parameters": {
@@ -41,6 +41,50 @@
       "metadata": {
         "description": "Directus Admin Password"
       }
+    },
+    "directusKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Directus KEY (data encryption key). If applying to the live app, pass the KEY already running on mchs-directus — do not generate a new one. Rotating KEY can make existing encrypted fields unreadable. The live value is not in git."
+      }
+    },
+    "directusSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Directus SECRET (session/JWT signing secret). If applying to the live app, pass the SECRET already running on mchs-directus — rotating it invalidates staff sessions."
+      }
+    },
+    "petsyncDirectusToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Static access token for the PetSync service account (Directus user, not the admin account)"
+      }
+    },
+    "petangoAuthkey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Petango authkey used by the PetSync job to query the shelter feed directly"
+      }
+    },
+    "githubDispatchToken": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "GitHub PAT (repo scope) the PetSync job uses to trigger a frontend rebuild via repository_dispatch. Optional — leave empty to skip auto-rebuild."
+      }
+    },
+    "arcadeCleanupSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Shared secret for Arcade cleanup/cron endpoints"
+      }
+    },
+    "extraMysqlFirewallRules": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Optional extra MySQL firewall rules. Each object: name, startIpAddress, endIpAddress. Empty keeps only AllowAzureServices (required for ACA without a VNet)."
+      }
     }
   },
   "variables": {
@@ -48,7 +92,9 @@
     "storageAccountName": "[format('mchsstorage{0}', variables('suffix'))]",
     "containerAppEnvName": "[format('mchs-aca-env-{0}', parameters('environmentName'))]",
     "mysqlServerName": "[format('mchs-mysql-{0}', variables('suffix'))]",
-    "swaName": "[format('mchs-frontend-{0}', parameters('environmentName'))]"
+    "swaName": "[format('mchs-frontend-{0}', parameters('environmentName'))]",
+    "logAnalyticsName": "[format('mchs-logs-{0}-{1}', parameters('environmentName'), variables('suffix'))]",
+    "directusCorsOrigin": "https://monroe-humane.org,https://delightful-dune-0d730f70f.7.azurestaticapps.net"
   },
   "resources": [
     {
@@ -105,6 +151,17 @@
       "apiVersion": "2023-01-01",
       "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', 'directus-uploads')]",
       "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', 'pet-photos')]",
+      "properties": {
         "publicAccess": "Blob"
       },
       "dependsOn": [
@@ -128,6 +185,13 @@
           "storageSizeGB": 20,
           "iops": 360,
           "autoGrow": "Enabled"
+        },
+        "backup": {
+          "backupRetentionDays": 7,
+          "geoRedundantBackup": "Disabled"
+        },
+        "network": {
+          "publicNetworkAccess": "Enabled"
         }
       }
     },
@@ -138,6 +202,22 @@
       "properties": {
         "startIpAddress": "0.0.0.0",
         "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "extraMysqlFirewall",
+        "count": "[length(parameters('extraMysqlFirewallRules'))]"
+      },
+      "type": "Microsoft.DBforMySQL/flexibleServers/firewallRules",
+      "apiVersion": "2023-12-30",
+      "name": "[format('{0}/{1}', variables('mysqlServerName'), parameters('extraMysqlFirewallRules')[copyIndex()].name)]",
+      "properties": {
+        "startIpAddress": "[parameters('extraMysqlFirewallRules')[copyIndex()].startIpAddress]",
+        "endIpAddress": "[parameters('extraMysqlFirewallRules')[copyIndex()].endIpAddress]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName'))]"
@@ -168,13 +248,35 @@
       ]
     },
     {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2023-09-01",
+      "name": "[variables('logAnalyticsName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30
+      }
+    },
+    {
       "type": "Microsoft.App/managedEnvironments",
       "apiVersion": "2024-03-01",
       "name": "[variables('containerAppEnvName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "zoneRedundant": false
-      }
+        "zoneRedundant": false,
+        "appLogsConfiguration": {
+          "destination": "log-analytics",
+          "logAnalyticsConfiguration": {
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName')), '2023-09-01').customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName')), '2023-09-01').primarySharedKey]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+      ]
     },
     {
       "type": "Microsoft.App/containerApps",
@@ -188,9 +290,35 @@
             "external": true,
             "targetPort": 8055,
             "transport": "auto"
-          }
+          },
+          "secrets": [
+            {
+              "name": "db-password",
+              "value": "[parameters('mysqlAdminPassword')]"
+            },
+            {
+              "name": "admin-password",
+              "value": "[parameters('directusAdminPassword')]"
+            },
+            {
+              "name": "directus-key",
+              "value": "[parameters('directusKey')]"
+            },
+            {
+              "name": "directus-secret",
+              "value": "[parameters('directusSecret')]"
+            },
+            {
+              "name": "storage-azure-account-key",
+              "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-01-01').keys[0].value]"
+            }
+          ]
         },
         "template": {
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 2
+          },
           "containers": [
             {
               "name": "directus",
@@ -222,7 +350,11 @@
                 },
                 {
                   "name": "DB_PASSWORD",
-                  "value": "[parameters('mysqlAdminPassword')]"
+                  "secretRef": "db-password"
+                },
+                {
+                  "name": "DB_SSL",
+                  "value": "true"
                 },
                 {
                   "name": "ADMIN_EMAIL",
@@ -230,7 +362,7 @@
                 },
                 {
                   "name": "ADMIN_PASSWORD",
-                  "value": "[parameters('directusAdminPassword')]"
+                  "secretRef": "admin-password"
                 },
                 {
                   "name": "CORS_ENABLED",
@@ -238,19 +370,19 @@
                 },
                 {
                   "name": "CORS_ORIGIN",
-                  "value": "true"
+                  "value": "[variables('directusCorsOrigin')]"
                 },
                 {
                   "name": "KEY",
-                  "value": "7b92f954-4a25-4c07-b088-3904e5482329"
+                  "secretRef": "directus-key"
                 },
                 {
                   "name": "SECRET",
-                  "value": "Mchs-Directus-Secret-Salt-2026-Xk9$"
+                  "secretRef": "directus-secret"
                 },
                 {
                   "name": "PUBLIC_URL",
-                  "value": "https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io"
+                  "value": "[format('https://mchs-directus.{0}', reference(resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvName')), '2024-03-01').defaultDomain)]"
                 },
                 {
                   "name": "WEBSOCKETS_ENABLED",
@@ -270,7 +402,7 @@
                 },
                 {
                   "name": "STORAGE_AZURE_ACCOUNT_KEY",
-                  "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-01-01').keys[0].value]"
+                  "secretRef": "storage-azure-account-key"
                 },
                 {
                   "name": "STORAGE_AZURE_CONTAINER_NAME",
@@ -303,13 +435,27 @@
             "external": true,
             "targetPort": 80,
             "transport": "auto"
-          }
+          },
+          "secrets": [
+            {
+              "name": "db-pass",
+              "value": "[parameters('mysqlAdminPassword')]"
+            },
+            {
+              "name": "cleanup-secret",
+              "value": "[parameters('arcadeCleanupSecret')]"
+            }
+          ]
         },
         "template": {
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 2
+          },
           "containers": [
             {
               "name": "arcade-api",
-              "image": "nginx:latest",
+              "image": "ghcr.io/monroehumane/monroe-humane-arcade:latest",
               "resources": {
                 "cpu": "[json('0.25')]",
                 "memory": "0.5Gi"
@@ -329,11 +475,19 @@
                 },
                 {
                   "name": "DB_PASS",
-                  "value": "[parameters('mysqlAdminPassword')]"
+                  "secretRef": "db-pass"
+                },
+                {
+                  "name": "DB_SSL",
+                  "value": "true"
                 },
                 {
                   "name": "CORS_ALLOWED_ORIGINS",
-                  "value": "[format('https://monroe-humane.org,https://{0}.azurestaticapps.net', variables('swaName'))]"
+                  "value": "[variables('directusCorsOrigin')]"
+                },
+                {
+                  "name": "CLEANUP_SECRET",
+                  "secretRef": "cleanup-secret"
                 }
               ]
             }
@@ -343,6 +497,94 @@
       "dependsOn": [
         "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvName'))]",
         "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('mysqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/jobs",
+      "apiVersion": "2024-03-01",
+      "name": "mchs-petsync-job",
+      "location": "[parameters('location')]",
+      "properties": {
+        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvName'))]",
+        "configuration": {
+          "triggerType": "Schedule",
+          "scheduleTriggerConfig": {
+            "cronExpression": "*/30 * * * *",
+            "parallelism": 1,
+            "replicaCompletionCount": 1
+          },
+          "replicaTimeout": 600,
+          "replicaRetryLimit": 1,
+          "secrets": [
+            {
+              "name": "directus-static-token",
+              "value": "[parameters('petsyncDirectusToken')]"
+            },
+            {
+              "name": "petango-authkey",
+              "value": "[parameters('petangoAuthkey')]"
+            },
+            {
+              "name": "storage-connection-string",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix=core.windows.net', variables('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-01-01').keys[0].value)]"
+            },
+            {
+              "name": "github-dispatch-token",
+              "value": "[parameters('githubDispatchToken')]"
+            }
+          ]
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "petsync",
+              "image": "ghcr.io/monroehumane/monroe-humane-petsync:latest",
+              "resources": {
+                "cpu": "[json('0.25')]",
+                "memory": "0.5Gi"
+              },
+              "env": [
+                {
+                  "name": "DIRECTUS_URL",
+                  "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', 'mchs-directus'), '2024-03-01').configuration.ingress.fqdn)]"
+                },
+                {
+                  "name": "DIRECTUS_STATIC_TOKEN",
+                  "secretRef": "directus-static-token"
+                },
+                {
+                  "name": "PETANGO_AUTHKEY",
+                  "secretRef": "petango-authkey"
+                },
+                {
+                  "name": "AZURE_STORAGE_CONNECTION_STRING",
+                  "secretRef": "storage-connection-string"
+                },
+                {
+                  "name": "PET_PHOTO_CONTAINER",
+                  "value": "pet-photos"
+                },
+                {
+                  "name": "GITHUB_DISPATCH_TOKEN",
+                  "secretRef": "github-dispatch-token"
+                },
+                {
+                  "name": "GITHUB_REPO",
+                  "value": "MonroeHumane/AzureMigration"
+                },
+                {
+                  "name": "PUBLIC_SITE_URL",
+                  "value": "https://monroe-humane.org"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvName'))]",
+        "[resourceId('Microsoft.App/containerApps', 'mchs-directus')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
     {

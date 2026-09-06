@@ -1,6 +1,4 @@
 ---
-import monthlyDrilldownsData from '../../data/monthly_drilldown_2026.json';
-
 interface MonthlyItem {
   name: string;
   amount: number;
@@ -46,7 +44,7 @@ const totalExp = statements.reduce((acc, m) => acc + m.total_exp, 0);
 const totalNet = statements.reduce((acc, m) => acc + m.net_margin, 0);
 const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
 
-const monthsMap = (monthlyDrilldownsData as any).months || {};
+const monthsMap: Record<string, any> = {};
 ---
 
 <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" id="monthly-statement-root" data-statements={statements.length ? JSON.stringify(statements) : ''}>

@@ -1,6 +1,31 @@
 import { isStaffAuthenticated, getStaffToken } from '../lib/staff-auth';
 import { apiFetch, getStoredStaffToken, getCachedFinancials, setCachedFinancials } from '../lib/api';
-import bundledFinancials from '../data/published_2026_ytd.json';
+
+/**
+ * Authenticated data shape from GET /api/financials (Bearer staff token required):
+ *   published YTD report fields — meta, headline_kpis, monthly_statements,
+ *   statement_of_position, bridge_composition, multiyear_comparison,
+ *   accounts_payable_schedule — plus bank_statement (August statement JSON),
+ *   monthly_drilldown ({ meta, months }) for 3-level GL explorer,
+ *   donors (array), donor_meta, donor_database ({ meta, donors }).
+ * PDFs: GET /api/statement?doc=bank|qbo with Authorization: Bearer only.
+ * Do not put the staff token on the query string — the API ignores ?token=.
+ */
+function applyDashboard(data: any, token: string | null): void {
+  if (!data) return;
+  hydrateExecutiveBanner(data.meta);
+  hydrateHeadlineKpis(data.headline_kpis);
+  hydrateOperatingBridge(data.headline_kpis, data.bridge_composition);
+  hydrateMonthlyStatements(data.monthly_statements);
+  hydratePositionAndCash(data.statement_of_position);
+  hydrateMultiYear(data.multiyear_comparison);
+  hydrateScenarioSimulator(data);
+  if (data.bank_statement && token) {
+    hydrateBankStatement(data.bank_statement, token);
+  }
+  hydrateExpenseExplorer(data);
+  hydrateFooter(data.meta);
+}
 
 function formatDollar(val: number, maxDigits = 0): string {
   const isNeg = val < 0;
@@ -38,40 +63,28 @@ function formatSigned(val: number): string {
 }
 
 export async function initBoardDashboard(): Promise<void> {
-  // 1. Instant cache hydration for zero-flicker rendering
-  let cached = getCachedFinancials();
-  if (!cached || !cached.headline_kpis) {
-    cached = bundledFinancials;
-    setCachedFinancials(cached);
-  }
-
-  try {
-    hydrateExecutiveBanner(cached.meta);
-    hydrateHeadlineKpis(cached.headline_kpis);
-    hydrateOperatingBridge(cached.headline_kpis, cached.bridge_composition);
-    hydrateMonthlyStatements(cached.monthly_statements);
-    hydratePositionAndCash(cached.statement_of_position);
-    hydrateMultiYear(cached.multiyear_comparison);
-    hydrateScenarioSimulator(cached);
-    hydrateBankStatement(cached.bank_statement, 'bundled');
-    hydrateFooter(cached.meta);
-  } catch (e) {
-    console.warn('[BoardDashboard] Error rendering initial financials:', e);
-  }
-
   if (!isStaffAuthenticated()) {
     const target = encodeURIComponent(window.location.pathname + window.location.search);
     window.location.replace(`/internal/?redirect=${target}`);
     return;
   }
 
-  let token = getStoredStaffToken();
+  const cached = getCachedFinancials();
+  const cachedToken = getStoredStaffToken();
+  if (cached && cached.headline_kpis) {
+    try {
+      applyDashboard(cached, cachedToken);
+    } catch (e) {
+      console.warn('[BoardDashboard] Error rendering cached financials:', e);
+    }
+  }
+
+  let token = cachedToken;
   if (!token) {
     token = await getStaffToken();
   }
 
   if (!token) {
-    console.debug('[BoardDashboard] Token not present; using bundled certified financials.');
     return;
   }
 
@@ -83,12 +96,12 @@ export async function initBoardDashboard(): Promise<void> {
     }, { ignoreAutoLogout: true });
 
     if (res.status === 401 || res.status === 403) {
-      console.warn('[BoardDashboard] Unauthorized on /api/financials. Retaining certified figures.');
+      console.warn('[BoardDashboard] Unauthorized on /api/financials.');
       return;
     }
 
     if (!res.ok) {
-      console.debug('[BoardDashboard] /api/financials status:', res.status, '- certified bundled figures active.');
+      console.debug('[BoardDashboard] /api/financials status:', res.status);
       return;
     }
 
@@ -98,18 +111,164 @@ export async function initBoardDashboard(): Promise<void> {
     }
 
     setCachedFinancials(data);
-
-    hydrateExecutiveBanner(data.meta);
-    hydrateHeadlineKpis(data.headline_kpis);
-    hydrateOperatingBridge(data.headline_kpis, data.bridge_composition);
-    hydrateMonthlyStatements(data.monthly_statements);
-    hydratePositionAndCash(data.statement_of_position);
-    hydrateBankStatement(data.bank_statement, token);
-    hydrateMultiYear(data.multiyear_comparison);
-    hydrateScenarioSimulator(data);
-    hydrateFooter(data.meta);
+    applyDashboard(data, token);
   } catch (err) {
-    console.debug('[BoardDashboard] Network error contacting /api/financials, certified figures active:', err);
+    console.debug('[BoardDashboard] Network error contacting /api/financials:', err);
+  }
+}
+
+function itemsToExplorerCats(items: any[], total: number, kind: 'expense' | 'revenue'): any[] {
+  return (items || []).map((it: any) => ({
+    name: it.name,
+    group: it.group || (kind === 'revenue' ? 'Contributed' : 'Operations'),
+    total: it.amount,
+    pctOfTotal: total > 0 ? ((it.amount / total) * 100).toFixed(1) : '0.0',
+    payeeCount: 1,
+    txCount: 1,
+    payees: [{
+      name: it.name,
+      total: it.amount,
+      txCount: 1,
+      transactions: [{ date: '', memo: it.name, type: 'Category', amount: it.amount }],
+    }],
+  }));
+}
+
+function groupBankRows(rows: any[], nameKey: string): any[] {
+  const byCat = new Map<string, any>();
+  for (const row of rows || []) {
+    const catName = row.category || 'Uncategorized';
+    if (!byCat.has(catName)) {
+      byCat.set(catName, {
+        name: catName,
+        group: row.group || catName,
+        total: 0,
+        payees: new Map<string, any>(),
+      });
+    }
+    const cat = byCat.get(catName);
+    const amount = Math.abs(Number(row.amount) || 0);
+    cat.total += amount;
+    const payeeName = row[nameKey] || row.payee || row.channel || row.description || 'Unknown';
+    if (!cat.payees.has(payeeName)) {
+      cat.payees.set(payeeName, { name: payeeName, total: 0, txCount: 0, transactions: [] });
+    }
+    const payee = cat.payees.get(payeeName);
+    payee.total += amount;
+    payee.txCount += 1;
+    payee.transactions.push({
+      date: row.date || '',
+      memo: row.description || row.relational_notes || payeeName,
+      type: row.type || row.channel || '',
+      num: row.check_number || '',
+      amount,
+    });
+  }
+
+  const cats = Array.from(byCat.values()).map((cat) => {
+    const payees = Array.from(cat.payees.values()).sort((a: any, b: any) => b.total - a.total);
+    return {
+      name: cat.name,
+      group: cat.group,
+      total: cat.total,
+      pctOfTotal: '0.0',
+      payeeCount: payees.length,
+      txCount: payees.reduce((n: number, p: any) => n + p.txCount, 0),
+      payees,
+    };
+  });
+  const grand = cats.reduce((n, c) => n + c.total, 0);
+  for (const cat of cats) {
+    cat.pctOfTotal = grand > 0 ? ((cat.total / grand) * 100).toFixed(1) : '0.0';
+  }
+  return cats.sort((a, b) => b.total - a.total);
+}
+
+function hydrateExpenseExplorer(data: any): void {
+  const drilldownMonths = data.monthly_drilldown?.months;
+  if (
+    drilldownMonths &&
+    typeof drilldownMonths === 'object' &&
+    !Array.isArray(drilldownMonths) &&
+    Object.values(drilldownMonths).some((m: any) => Array.isArray(m?.expenseCategories) || Array.isArray(m?.revenueCategories))
+  ) {
+    const months: Record<string, any> = { ...drilldownMonths };
+    const ytdExp: any[] = [];
+    const ytdRev: any[] = [];
+    let ytdNet = 0;
+    for (const month of Object.values(months) as any[]) {
+      if (!month || month.id === 'all_ytd') continue;
+      ytdExp.push(...(month.expenseCategories || []));
+      ytdRev.push(...(month.revenueCategories || []));
+      ytdNet += month.net_margin || 0;
+    }
+    if (!months.all_ytd) {
+      months.all_ytd = {
+        id: 'all_ytd',
+        monthName: 'All 2026 YTD',
+        monthKey: 'all_ytd',
+        net_margin: ytdNet,
+        status: 'YTD',
+        expenseCategories: ytdExp,
+        revenueCategories: ytdRev,
+      };
+    }
+    const hydrate = (window as any).__hydrateExpenseExplorer;
+    if (typeof hydrate === 'function') {
+      hydrate(months);
+    }
+    return;
+  }
+
+  const months: Record<string, any> = {};
+  for (const m of data.monthly_statements || []) {
+    months[m.id] = {
+      id: m.id,
+      monthName: m.month,
+      monthKey: m.id,
+      net_margin: m.net_margin,
+      status: m.status,
+      expenseCategories: itemsToExplorerCats(m.exp_items, m.total_exp, 'expense'),
+      revenueCategories: itemsToExplorerCats(m.rev_items, m.revenue, 'revenue'),
+    };
+  }
+
+  const ytdExp: any[] = [];
+  const ytdRev: any[] = [];
+  let ytdNet = 0;
+  for (const month of Object.values(months) as any[]) {
+    ytdExp.push(...(month.expenseCategories || []));
+    ytdRev.push(...(month.revenueCategories || []));
+    ytdNet += month.net_margin || 0;
+  }
+  months.all_ytd = {
+    id: 'all_ytd',
+    monthName: 'All 2026 YTD',
+    monthKey: 'all_ytd',
+    net_margin: ytdNet,
+    status: 'YTD',
+    expenseCategories: ytdExp,
+    revenueCategories: ytdRev,
+  };
+
+  const stmt = data.bank_statement;
+  if (stmt) {
+    const aug = (data.monthly_statements || []).find((s: any) => /aug/i.test(s.month || ''));
+    const augId = aug?.id || 'month_2026_7';
+    months[augId] = {
+      id: augId,
+      monthName: aug?.month || 'Aug 2026',
+      monthKey: augId,
+      net_margin: aug?.net_margin ?? 0,
+      status: aug?.status || 'Bank Rec',
+      expenseCategories: groupBankRows(stmt.withdrawals, 'payee'),
+      revenueCategories: groupBankRows(stmt.deposits, 'channel'),
+    };
+  }
+
+  const hydrate = (window as any).__hydrateExpenseExplorer;
+  if (typeof hydrate === 'function') {
+    hydrate(months);
   }
 }
 
@@ -172,7 +331,7 @@ function hydrateHeadlineKpis(kpis: any) {
   const progExact = document.getElementById('kpi-program-exact');
   if (progExact) progExact.textContent = formatCents(kpis.program_spend);
 
-  const bankChecking = kpis.bank_register_cash || kpis.operating_checking_first_merchants || 24526.34;
+  const bankChecking = kpis.bank_register_cash || kpis.operating_checking_first_merchants || 0;
   const realLiquidity = bankChecking + kpis.fidelity_reserve;
 
   const runwayBadge = document.getElementById('kpi-runway-badge');
@@ -693,7 +852,7 @@ function hydratePositionAndCash(position: any) {
 }
 
 function hydrateBankStatement(stmt: any, token: string) {
-  if (!stmt) return;
+  if (!stmt || !stmt.metadata) return;
 
   const setEl = (id: string, text: string) => {
     const el = document.getElementById(id);
@@ -703,35 +862,21 @@ function hydrateBankStatement(stmt: any, token: string) {
   // Quick metrics ribbon
   setEl('bank-stat-balance', formatCents(stmt.metadata.statement_ending_balance));
   setEl('bank-stat-cash', formatCents(stmt.metadata.qbo_register_balance));
-  setEl('bank-stat-meta-note', `Account ••••${stmt.metadata.account_number.slice(-4)} · Statement Period: August 1 – August 31, 2026 · Reconciled by ${stmt.metadata.reconciled_by} with $0.00 difference.`);
+  const acct = stmt.metadata.account_number ? `••••${String(stmt.metadata.account_number).slice(-4)}` : 'on file';
+  setEl('bank-stat-meta-note', `Account ${acct} · Statement Period: August 1 – August 31, 2026 · Reconciled by ${stmt.metadata.reconciled_by || 'staff'} with $0.00 difference.`);
 
   // Statement totals
   setEl('stmt-total-deposits', `+${formatCents(stmt.metadata.total_deposits_amount)}`);
   setEl('stmt-total-withdrawals', `-${formatCents(stmt.metadata.total_withdrawals_amount)}`);
   setEl('stmt-ending-balance', formatCents(stmt.metadata.statement_ending_balance));
   setEl('daily-august-low-val', formatCents(stmt.metadata.statement_ending_balance));
+  if (stmt.daily_balances && stmt.daily_balances.length) {
+    const peak = Math.max(...stmt.daily_balances.map((d: any) => d.balance));
+    setEl('daily-peak-val', formatCents(peak));
+  }
 
-  // Update PDF Buttons and Iframe
-  const bankPdfUrl = `/api/statement?doc=bank&token=${token}`;
-  const qboPdfUrl = `/api/statement?doc=qbo&token=${token}`;
-
-  const btnBank = document.getElementById('btn-pdf-bank');
-  if (btnBank) btnBank.setAttribute('data-pdf-url', bankPdfUrl);
-
-  const btnQbo = document.getElementById('btn-pdf-qbo');
-  if (btnQbo) btnQbo.setAttribute('data-pdf-url', qboPdfUrl);
-
-  const newTabBtn = document.getElementById('pdf-open-newtab') as HTMLAnchorElement | null;
-  if (newTabBtn) newTabBtn.href = bankPdfUrl;
-
-  const downloadBtn = document.getElementById('pdf-download-btn') as HTMLAnchorElement | null;
-  if (downloadBtn) downloadBtn.href = bankPdfUrl;
-
-  const iframe = document.getElementById('pdf-viewer-frame') as HTMLIFrameElement | null;
-  if (iframe) iframe.src = `${bankPdfUrl}#toolbar=1&navpanes=0&scrollbar=1`;
-
-  const recReportPdf = document.getElementById('qbo-rec-report-pdf-link') as HTMLAnchorElement | null;
-  if (recReportPdf) recReportPdf.href = qboPdfUrl;
+  // Bearer-only: fetch PDFs with Authorization and attach blob URLs (never ?token=).
+  void attachStatementPdfBlobs(token);
 
   // Hydrate Tab 1 Transactions
   const deposits = (stmt.deposits || []).map((d: any, i: number) => ({
@@ -873,6 +1018,54 @@ function hydrateBankStatement(stmt: any, token: string) {
       `;
       dailyTbody.appendChild(tr);
     });
+  }
+}
+
+const statementPdfBlobs: { bank?: string; qbo?: string } = {};
+
+async function fetchStatementPdfBlob(doc: 'bank' | 'qbo', token: string): Promise<string | null> {
+  const res = await fetch(`/api/statement?doc=${doc}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}
+
+async function attachStatementPdfBlobs(token: string): Promise<void> {
+  try {
+    const [bankUrl, qboUrl] = await Promise.all([
+      fetchStatementPdfBlob('bank', token),
+      fetchStatementPdfBlob('qbo', token),
+    ]);
+
+    if (statementPdfBlobs.bank) URL.revokeObjectURL(statementPdfBlobs.bank);
+    if (statementPdfBlobs.qbo) URL.revokeObjectURL(statementPdfBlobs.qbo);
+    statementPdfBlobs.bank = bankUrl || undefined;
+    statementPdfBlobs.qbo = qboUrl || undefined;
+
+    const btnBank = document.getElementById('btn-pdf-bank');
+    if (btnBank && bankUrl) btnBank.setAttribute('data-pdf-url', bankUrl);
+
+    const btnQbo = document.getElementById('btn-pdf-qbo');
+    if (btnQbo && qboUrl) btnQbo.setAttribute('data-pdf-url', qboUrl);
+
+    const newTabBtn = document.getElementById('pdf-open-newtab') as HTMLAnchorElement | null;
+    if (newTabBtn && bankUrl) newTabBtn.href = bankUrl;
+
+    const openStmtPdf = document.getElementById('btn-open-statement-pdf') as HTMLAnchorElement | null;
+    if (openStmtPdf && bankUrl) openStmtPdf.href = bankUrl;
+
+    const downloadBtn = document.getElementById('pdf-download-btn') as HTMLAnchorElement | null;
+    if (downloadBtn && bankUrl) downloadBtn.href = bankUrl;
+
+    const iframe = document.getElementById('pdf-viewer-frame') as HTMLIFrameElement | null;
+    if (iframe && bankUrl) iframe.src = `${bankUrl}#toolbar=1&navpanes=0&scrollbar=1`;
+
+    const recReportPdf = document.getElementById('qbo-rec-report-pdf-link') as HTMLAnchorElement | null;
+    if (recReportPdf && qboUrl) recReportPdf.href = qboUrl;
+  } catch (err) {
+    console.debug('[BoardDashboard] Statement PDF fetch failed:', err);
   }
 }
 

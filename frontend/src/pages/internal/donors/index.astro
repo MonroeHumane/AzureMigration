@@ -1,13 +1,8 @@
 ---
 import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
 import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro';
-import donorDatabase from '../../../data/donor_database.json';
-
-const { meta, donors } = donorDatabase;
-
-function formatCurrency(n: number) {
-  return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+// Donor JSON is not imported at build time. After auth, GET /api/financials
+// returns donors (array), donor_meta, and donor_database ({ meta, donors }).
 ---
 
 <StaffPortalLayout
@@ -52,19 +47,19 @@ function formatCurrency(n: number) {
         <!-- Quick Summary Metrics Bar -->
         <div class="pt-2 flex flex-wrap items-center gap-4 text-xs text-teal-200/90 border-t border-teal-800/60 font-medium">
           <div>
-            Total Giving: <strong class="text-white font-bold font-mono">{formatCurrency(meta.total_lifetime_volume)}</strong>
+            Total Giving: <strong id="donor-banner-volume" class="text-white font-bold font-mono">--</strong>
           </div>
           <span class="text-teal-700">&bull;</span>
           <div>
-            Donors: <strong class="text-white font-bold">{meta.total_donors.toLocaleString()}</strong>
+            Donors: <strong id="donor-banner-count" class="text-white font-bold">--</strong>
           </div>
           <span class="text-teal-700">&bull;</span>
           <div>
-            Mailing Addresses: <strong class="text-white font-bold">{meta.total_with_address.toLocaleString()}</strong>
+            Mailing Addresses: <strong id="donor-banner-addresses" class="text-white font-bold">--</strong>
           </div>
           <span class="text-teal-700">&bull;</span>
           <div>
-            Memorial Tributes: <strong class="text-white font-bold">{meta.total_tributes_count.toLocaleString()}</strong>
+            Memorial Tributes: <strong id="donor-banner-tributes" class="text-white font-bold">--</strong>
           </div>
         </div>
       </div>
@@ -74,152 +69,136 @@ function formatCurrency(n: number) {
     <main class="max-w-7xl mx-auto space-y-6">
       <!-- Headline KPI Cards Grid -->
       <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <!-- KPI 1: Total Volume -->
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
             <span>Lifetime Giving</span>
-            <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-              </svg>
-            </div>
           </div>
-          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-slate-900">
-            {formatCurrency(meta.total_lifetime_volume)}
-          </div>
-          <div class="mt-1 text-[10px] text-slate-500">
-            All channels
-          </div>
+          <div id="donor-kpi-volume" class="mt-2 font-black font-mono text-lg sm:text-xl text-slate-900">--</div>
+          <div class="mt-1 text-[10px] text-slate-500">All channels</div>
         </div>
-
-        <!-- KPI 2: Total Donors -->
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
             <span>Total Donors</span>
-            <div class="w-6 h-6 rounded-md bg-blue-50 text-blue-700 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </div>
           </div>
-          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-slate-900">
-            {meta.total_donors.toLocaleString()}
-          </div>
-          <div class="mt-1 text-[10px] text-slate-500">
-            All donor profiles
-          </div>
+          <div id="donor-kpi-count" class="mt-2 font-black font-mono text-lg sm:text-xl text-slate-900">--</div>
+          <div class="mt-1 text-[10px] text-slate-500">All donor profiles</div>
         </div>
-
-        <!-- KPI 3: Major Donors ($1,000+) -->
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
             <span>Major Donors ($1k+)</span>
-            <div class="w-6 h-6 rounded-md bg-purple-50 text-purple-700 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-              </svg>
-            </div>
           </div>
-          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-purple-900">
-            {meta.major_donors_count}
-          </div>
-          <div class="mt-1 text-[10px] text-purple-700 font-medium">
-            13 Visionary &bull; 15 Benefactor
-          </div>
+          <div id="donor-kpi-major" class="mt-2 font-black font-mono text-lg sm:text-xl text-purple-900">--</div>
+          <div class="mt-1 text-[10px] text-purple-700 font-medium">Visionary &amp; Benefactor</div>
         </div>
-
-        <!-- KPI 4: Mailing Addresses -->
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
             <span>Mailing Addresses</span>
-            <div class="w-6 h-6 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-              </svg>
-            </div>
           </div>
-          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-teal-900">
-            {meta.total_with_address.toLocaleString()}
-          </div>
-          <div class="mt-1 text-[10px] text-teal-700 font-medium">
-            Postal address on file
-          </div>
+          <div id="donor-kpi-addresses" class="mt-2 font-black font-mono text-lg sm:text-xl text-teal-900">--</div>
+          <div class="mt-1 text-[10px] text-teal-700 font-medium">Postal address on file</div>
         </div>
-
-        <!-- KPI 5: 2026 Active Donors -->
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between col-span-2 sm:col-span-1">
           <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
             <span>2026 Donors</span>
-            <div class="w-6 h-6 rounded-md bg-amber-50 text-amber-700 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
           </div>
-          <div class="mt-2 font-black font-mono text-lg sm:text-xl text-amber-900">
-            {meta.active_2026_count}
-          </div>
-          <div class="mt-1 text-[10px] text-amber-700 font-medium">
-            Gifts in 2026
-          </div>
+          <div id="donor-kpi-active" class="mt-2 font-black font-mono text-lg sm:text-xl text-amber-900">--</div>
+          <div class="mt-1 text-[10px] text-amber-700 font-medium">Gifts in 2026</div>
         </div>
       </section>
 
-      <!-- Giving Tiers Overview Ribbon -->
-      <section class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <span class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Donor Pyramid Breakdown:</span>
-          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-[11px]">
-            <span class="inline-flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-              <span class="text-slate-600">Visionary:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.visionary}</strong>
-            </span>
-            <span class="text-slate-300">&bull;</span>
-            <span class="inline-flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-slate-600">Benefactor:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.benefactor}</strong>
-            </span>
-            <span class="text-slate-300">&bull;</span>
-            <span class="inline-flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-              <span class="text-slate-600">Patron:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.patron}</strong>
-            </span>
-            <span class="text-slate-300">&bull;</span>
-            <span class="inline-flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-teal-500"></span>
-              <span class="text-slate-600">Sustainer:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.sustainer}</strong>
-            </span>
-            <span class="text-slate-300">&bull;</span>
-            <span class="inline-flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span class="text-slate-600">Friend:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.friend}</strong>
-            </span>
-            <span class="text-slate-300">&bull;</span>
-            <span class="inline-flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-              <span class="text-slate-600">Supporter:</span> <strong class="text-slate-900 font-bold">{meta.tiers_breakdown.supporter}</strong>
-            </span>
-          </div>
-        </div>
-      </section>
+      <div id="donor-api-status" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+        Loading donor registry…
+      </div>
 
-      <!-- Section: Interactive Donor Roster with Drilldowns -->
-      <section class="space-y-3">
+      <section id="donor-roster-section" class="space-y-3 hidden">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-base font-bold text-slate-900">Donor Roster</h2>
             <p class="text-xs text-slate-500">Select any donor to view profile details and gift history.</p>
           </div>
         </div>
-
-        <DonorRosterTable donors={donors} />
+        <DonorRosterTable donors={[]} />
       </section>
     </main>
   </div>
+
+  <script>
+    import { getStaffToken, isStaffAuthenticated } from '../../../lib/staff-auth';
+
+    function formatCurrency(n: number) {
+      return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function setText(id: string, text: string) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    function showUnavailable() {
+      const status = document.getElementById('donor-api-status');
+      if (status) {
+        status.className = 'rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700';
+        status.textContent = 'Donor registry is unavailable. Sign in again, or confirm GET /api/financials includes donors / donor_meta.';
+      }
+    }
+
+    function applyDonorPayload(data: any) {
+      const meta = data?.donor_meta || data?.donor_database?.meta || data?.donors?.meta || data?.meta;
+      const donors = Array.isArray(data?.donors)
+        ? data.donors
+        : (data?.donor_database?.donors || data?.donors?.donors);
+      if (meta) {
+        setText('donor-banner-volume', formatCurrency(meta.total_lifetime_volume));
+        setText('donor-banner-count', (meta.total_donors || 0).toLocaleString());
+        setText('donor-banner-addresses', (meta.total_with_address || 0).toLocaleString());
+        setText('donor-banner-tributes', (meta.total_tributes_count || 0).toLocaleString());
+        setText('donor-kpi-volume', formatCurrency(meta.total_lifetime_volume));
+        setText('donor-kpi-count', (meta.total_donors || 0).toLocaleString());
+        setText('donor-kpi-major', String(meta.major_donors_count ?? '--'));
+        setText('donor-kpi-addresses', (meta.total_with_address || 0).toLocaleString());
+        setText('donor-kpi-active', String(meta.active_2026_count ?? '--'));
+      }
+      if (Array.isArray(donors) && donors.length) {
+        (window as any).__HSMC_DONORS__ = donors;
+        const roster = document.getElementById('donor-roster-section');
+        if (roster) roster.classList.remove('hidden');
+        const status = document.getElementById('donor-api-status');
+        if (status) status.classList.add('hidden');
+        window.dispatchEvent(new CustomEvent('donors-hydrated', { detail: { donors } }));
+        return true;
+      }
+      return false;
+    }
+
+    async function loadDonors() {
+      if (!isStaffAuthenticated()) return;
+      const token = await getStaffToken();
+      if (!token) {
+        showUnavailable();
+        return;
+      }
+      try {
+        const res = await fetch('/api/financials', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          showUnavailable();
+          return;
+        }
+        const data = await res.json();
+        if (!applyDonorPayload(data || {})) {
+          showUnavailable();
+        }
+      } catch {
+        showUnavailable();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadDonors);
+    } else {
+      loadDonors();
+    }
+    document.addEventListener('astro:page-load', loadDonors);
+  </script>
 </StaffPortalLayout>

@@ -8,6 +8,41 @@ use Exception;
 
 class AdoptedexController
 {
+    /** Max packs granted for any single reward key (client values are ignored). */
+    private const MAX_PACKS_PER_REWARD = 1;
+
+    /** Max coins granted for any single reward key (client values are ignored). */
+    private const MAX_COINS_PER_REWARD = 25;
+
+    /** Max coins granted for a catalog award reason. */
+    private const MAX_COINS_PER_AWARD = 10;
+
+    /**
+     * Server-side reward table: game_id => reward_key => packs/coins.
+     * Client-supplied coins/count/tier are never trusted.
+     */
+    private const REWARD_TABLE = [
+        'match' => [
+            'level_3'  => ['packs' => 1, 'coins' => 0],
+            'level_5'  => ['packs' => 1, 'coins' => 0],
+            'level_10' => ['packs' => 1, 'coins' => 0],
+        ],
+        'shelter_run' => [
+            'distance_500'  => ['packs' => 1, 'coins' => 0],
+            'distance_1500' => ['packs' => 1, 'coins' => 0],
+            'distance_3000' => ['packs' => 1, 'coins' => 0],
+        ],
+    ];
+
+    /**
+     * Server-side coin award catalog: reason => fixed delta.
+     * Client-supplied amounts are ignored.
+     */
+    private const COIN_AWARD_REASONS = [
+        'game_award'  => 5,
+        'daily_bonus' => 10,
+    ];
+
     private PDO $db;
 
     public function __construct(PDO $db)
@@ -125,6 +160,14 @@ class AdoptedexController
 
     public function claimReward(string $userSlug, string $gameId, string $rewardKey, array $extra = []): array
     {
+        $reward = self::REWARD_TABLE[$gameId][$rewardKey] ?? null;
+        if ($reward === null) {
+            return ['ok' => false, 'message' => 'Unknown reward'];
+        }
+
+        $packsAwarded = min(self::MAX_PACKS_PER_REWARD, max(0, (int)$reward['packs']));
+        $coinsAwarded = min(self::MAX_COINS_PER_REWARD, max(0, (int)$reward['coins']));
+
         $profStmt = $this->db->prepare("SELECT id FROM dex_profiles WHERE username_slug = ?");
         $profStmt->execute([$userSlug]);
         $profileId = $profStmt->fetchColumn();
@@ -142,9 +185,6 @@ class AdoptedexController
                 $this->db->rollBack();
                 return ['ok' => true, 'claimed' => false, 'message' => 'Reward already claimed'];
             }
-
-            $packsAwarded = (int)($extra['count'] ?? ($extra['tier'] ? 1 : 0));
-            $coinsAwarded = (int)($extra['coins'] ?? 0);
 
             if ($packsAwarded > 0) {
                 $packUpd = $this->db->prepare("UPDATE dex_profiles SET unopened_packs = unopened_packs + ? WHERE id = ?");
@@ -236,7 +276,12 @@ class AdoptedexController
 
     public function awardCoins(string $userSlug, int $amount, string $reason = 'game_award'): array
     {
-        if ($amount <= 0 || $amount > 500) {
+        if (!isset(self::COIN_AWARD_REASONS[$reason])) {
+            return ['ok' => false, 'message' => 'Unknown award reason'];
+        }
+
+        $delta = min(self::MAX_COINS_PER_AWARD, max(0, (int)self::COIN_AWARD_REASONS[$reason]));
+        if ($delta <= 0) {
             return ['ok' => false, 'message' => 'Invalid amount'];
         }
 
@@ -251,13 +296,13 @@ class AdoptedexController
         $this->db->beginTransaction();
         try {
             $ins = $this->db->prepare("INSERT INTO dex_coin_transactions (profile_id, delta, reason, created_at) VALUES (?, ?, ?, NOW())");
-            $ins->execute([(int)$profileId, $amount, $reason]);
+            $ins->execute([(int)$profileId, $delta, $reason]);
 
             $upd = $this->db->prepare("UPDATE dex_profiles SET coin_balance = coin_balance + ? WHERE id = ?");
-            $upd->execute([$amount, (int)$profileId]);
+            $upd->execute([$delta, (int)$profileId]);
 
             $this->db->commit();
-            return ['ok' => true, 'awarded' => $amount];
+            return ['ok' => true, 'awarded' => $delta];
         } catch (Exception $e) {
             $this->db->rollBack();
             throw $e;
@@ -266,7 +311,7 @@ class AdoptedexController
 
     public function spendCoins(string $userSlug, int $amount, string $reason = 'game_spend'): array
     {
-        if ($amount <= 0) {
+        if ($amount <= 0 || $amount > 50) {
             return ['ok' => false, 'message' => 'Invalid amount'];
         }
 

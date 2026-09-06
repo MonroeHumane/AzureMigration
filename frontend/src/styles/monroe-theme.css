@@ -1502,3 +1502,43 @@ a, button, input, select, textarea {
   color: #ffffff;
 }
 
+/* --------------------------------------------------------------------------
+   Zeffy Donation Embed Container & Responsive Wrapper
+   -------------------------------------------------------------------------- */
+.zeffy-embed-card {
+  position: relative;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow: 0 4px 24px -4px rgba(19, 60, 57, 0.08), 0 20px 40px -12px rgba(19, 60, 57, 0.12);
+  border: 1px solid rgba(19, 60, 57, 0.1);
+  overflow: hidden;
+}
+
+.zeffy-embed-wrapper {
+  width: 100%;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.zeffy-embed-wrapper [data-zeffy-embed] {
+  width: 100%;
+  max-width: 100%;
+  min-height: 580px;
+}
+
+.zeffy-embed-wrapper iframe {
+  max-width: 100% !important;
+  border: none !important;
+}
+
+@media (max-width: 639px) {
+  .zeffy-embed-card {
+    border-radius: 22px;
+  }
+}
+

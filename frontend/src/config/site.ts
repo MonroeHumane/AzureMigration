@@ -36,10 +36,10 @@ export const SITE = {
 
   integrations: {
     betterUnite: {
-      generalDonation: 'https://www.paypal.com/US/fundraiser/charity/4JPVCLYXAW9BW',
+      generalDonation: 'https://www.zeffy.com/en-US/donation-form/donate-to-change-lives-22422',
       membership: 'https://www.zeffy.com/ticketing/humane-society-of-monroe-membership-shirt-contest',
-      memorialPlaque: '/memorials/give',
-      memorialGiving: '/memorials/give',
+      memorialPlaque: '/memorials/give#GiveOnline',
+      memorialGiving: 'https://www.zeffy.com/en-US/donation-form/gifts-in-memory',
     },
     payPal: {
       catRoomFund: 'https://www.paypal.com/US/fundraiser/charity/N9S3JQGK3HCTW',
@@ -56,6 +56,8 @@ export const SITE = {
       volunteerApp: 'https://docs.google.com/forms/d/e/1FAIpQLScyr0hSSoe1H1KpIk65OX8wALYx7bHmcrVAPAciiLG8aG_Buw/viewform?embedded=true',
     },
     zeffy: {
+      donationForm: 'https://www.zeffy.com/en-US/donation-form/donate-to-change-lives-22422',
+      memorialDonation: 'https://www.zeffy.com/en-US/donation-form/gifts-in-memory',
       shirtContest: 'https://www.zeffy.com/ticketing/humane-society-of-monroe-membership-shirt-contest',
     },
     directus: {

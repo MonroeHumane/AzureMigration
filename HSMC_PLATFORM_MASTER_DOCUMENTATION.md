@@ -230,7 +230,7 @@ node test-site-integrity.cjs
 ## 11. Disaster Recovery, Security & Maintenance
 
 * **SSL/TLS**: Automated managed certificates through Azure SWA and Container Apps.
-* **Cold Starts & Sessions**: Directus `KEY` and `SECRET` are hardened in Bicep so container reboots never invalidate staff JWTs.
-* **Database Backups**: Azure MySQL Flexible Server automated geo-redundant snapshots with 7-day point-in-time recovery.
+* **Cold Starts & Sessions**: Directus `KEY` and `SECRET` are stored as Container App secrets (not plaintext env). When applying Bicep to the live app, pass the KEY and SECRET already running on `mchs-directus` — do not generate new values. Rotating `KEY` can make existing encrypted fields unreadable. Those live values are not in git.
+* **Database Backups**: Azure MySQL Flexible Server automated locally redundant backups with 7-day point-in-time recovery. Geo-redundant backup is not enabled: the live SKU is Burstable `Standard_B1ms`, which does not support geo-redundant backup.
 * **Zero-Downtime Fallback**: If Directus is warming up during an Astro build, the build automatically uses bundled JSON fallback data, guaranteeing 100% CI/CD uptime.
 * **Content Security Policy (CSP)**: Hardened headers in `staticwebapp.config.json` protecting against XSS, clickjacking, and MIME sniffing while allowing verified frames (BetterUnite, PayPal, Google Forms).

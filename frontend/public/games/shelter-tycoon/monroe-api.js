@@ -32,6 +32,25 @@ function apiUrl(path) {
   return `${base}/${clean}`;
 }
 
+let arcadeSessionPromise = null;
+
+function ensureArcadeSession() {
+  if (arcadeSessionPromise) return arcadeSessionPromise;
+  arcadeSessionPromise = fetch(apiUrl('session/anonymous'), {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  }).then((res) => {
+    if (!res.ok) arcadeSessionPromise = null;
+    return res;
+  }).catch((err) => {
+    arcadeSessionPromise = null;
+    throw err;
+  });
+  return arcadeSessionPromise;
+}
+
 function readCookie(name) {
   const match = document.cookie.match(
     new RegExp(`(?:^|;\\s*)${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]*)`),
@@ -308,6 +327,7 @@ export async function onPetAdoptedOut(petId, slug) {
 
   if (!slug) return;
   try {
+    await ensureArcadeSession();
     await fetch(apiUrl(`adoptedex/${encodeURIComponent(slug)}/discover`), {
       method: 'POST',
       credentials: 'same-origin',

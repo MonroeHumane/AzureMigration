@@ -6,8 +6,10 @@ import HeadlineKpiGrid from '../../../components/board/HeadlineKpiGrid.astro';
 import MonthlyStatementTable from '../../../components/board/MonthlyStatementTable.astro';
 import BankStatementViewer from '../../../components/board/BankStatementViewer.astro';
 import ExpenseExplorer from '../../../components/board/ExpenseExplorer.astro';
-import financialData from '../../../data/published_2026_ytd.json';
-import statementData from '../../../data/statement_2026_08.json';
+// Financial JSON is loaded client-side after getStaffToken() via GET /api/financials
+// (YTD report + bank_statement + monthly_drilldown + donors). Do not import
+// published_2026_ytd.json, statement_2026_08.json, monthly_drilldown_2026.json,
+// or donor_database.json here — Astro SSG would bake them into public HTML.
 
 const subNavItems = [
   { id: 'all',      label: 'All Financials' },
@@ -26,7 +28,7 @@ const subNavItems = [
   <div>
 
     <!-- Executive Banner -->
-    <ExecutiveBanner meta={financialData.meta} />
+    <ExecutiveBanner />
 
     <!-- Modular Financial Sub-Navigation Bar (Sticky) -->
     <StaffSubNav items={subNavItems} activeId="all" ariaLabel="Financial modules subnavigation" />
@@ -34,21 +36,17 @@ const subNavItems = [
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8" id="financials-main-content">
       <!-- Section 1: Headline KPI Grid -->
       <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20">
-        <HeadlineKpiGrid kpis={financialData.headline_kpis} />
+        <HeadlineKpiGrid />
       </section>
 
       <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
       <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20">
-        <MonthlyStatementTable statements={financialData.monthly_statements} />
+        <MonthlyStatementTable />
       </section>
 
       <!-- Section 3: Cash Flow Explorer Drilldown (Inflows & Outflows) -->
       <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20">
-        <ExpenseExplorer
-          withdrawals={statementData.withdrawals}
-          deposits={statementData.deposits}
-          statementPeriod="August 2026"
-        />
+        <ExpenseExplorer statementPeriod="August 2026" />
       </section>
 
       <!-- Section 4: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->

@@ -2,7 +2,6 @@ import { defineCollection } from 'astro:content';
 import { file } from 'astro/loaders';
 import { z } from 'astro/zod';
 import memorialTributes from './data/memorial-tributes.json';
-import donorDb from './data/donor_database.json';
 
 const memorials = defineCollection({
   loader: async () => {
@@ -51,35 +50,6 @@ const memorials = defineCollection({
           memo: t.line || '',
         });
       }
-    });
-
-    // 2. Supplement with any un-indexed donor dedications
-    (donorDb.donors || []).forEach((d: any) => {
-      (d.gifts || []).forEach((g: any, idx: number) => {
-        const raw = g.dedication || (g.isTribute && g.memo ? g.memo.split('|')[0] : '');
-        if (raw && raw.trim()) {
-          const { name, isPet } = cleanTributeName(raw);
-          if (!name || name.length < 2) return;
-          const key = name.toLowerCase();
-
-          if (!seen.has(key)) {
-            seen.add(key);
-            const parts = name.split(/\s+/);
-            const firstName = parts.length > 1 ? parts.slice(0, -1).join(' ') : name;
-            const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
-
-            list.push({
-              id: `mem-${d.id}-${idx}`,
-              firstName,
-              lastName,
-              donorName: d.name || '',
-              tributeType: isPet ? 'pet' : 'person',
-              draft: false,
-              memo: g.memo && g.memo !== g.dedication ? g.memo : '',
-            });
-          }
-        }
-      });
     });
 
     return list;

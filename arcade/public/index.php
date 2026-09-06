@@ -50,6 +50,23 @@ $options = [
     PDO::ATTR_EMULATE_PREPARES   => false,
 ];
 
+$wantSsl = filter_var(getenv('DB_SSL') ?: '', FILTER_VALIDATE_BOOLEAN)
+    || str_contains($host, '.mysql.database.azure.com');
+if ($wantSsl) {
+    $caPath = getenv('DB_SSL_CA') ?: '';
+    if ($caPath !== '' && is_readable($caPath)) {
+        $options[PDO::MYSQL_ATTR_SSL_CA] = $caPath;
+    }
+
+    $verifyRaw = getenv('DB_SSL_VERIFY');
+    if ($verifyRaw === false || $verifyRaw === '') {
+        $verify = $caPath !== '' && is_readable($caPath);
+    } else {
+        $verify = filter_var($verifyRaw, FILTER_VALIDATE_BOOLEAN);
+    }
+    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $verify;
+}
+
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
@@ -106,20 +123,102 @@ function serverError(string $context, \Throwable $e): void
     Flight::json(['error' => ['code' => 'server_error', 'message' => 'An internal error occurred.']], 500);
 }
 
-// ─── Platform Routes ──────────────────────────────────────────────────────────
+/**
+ * Return a valid arcade_session profile id, or null if the cookie is missing/expired.
+ * Does not bind the session profile_id to Adoptédex username slugs.
+ */
+function currentArcadeSessionProfile(AuthMiddleware $authMiddleware): ?int
+{
+    $sessionToken = getSessionToken();
+    if (!$sessionToken) {
+        return null;
+    }
 
-Flight::route('POST /v1/session/anonymous', function () use ($authController, $rateLimiter) {
+    try {
+        return $authMiddleware->authenticate($sessionToken);
+    } catch (\Exception $e) {
+        if ($e->getCode() === 401) {
+            return null;
+        }
+        throw $e;
+    }
+}
+
+/**
+ * Mint an anonymous arcade_session when none is valid. Reuses a valid session,
+ * then tries device-cookie refresh, then anonymousLaunch (rate-limited).
+ * Returns false after sending a 429. Does not skip auth on mutating routes.
+ */
+function mintAnonymousArcadeSession(AuthController $authController, AuthMiddleware $authMiddleware, RateLimiter $rateLimiter): bool
+{
+    if (currentArcadeSessionProfile($authMiddleware) !== null) {
+        return true;
+    }
+
+    $deviceToken = getDeviceToken();
+    if ($deviceToken) {
+        try {
+            $refresh = $authController->refreshSession($deviceToken);
+            setAuthCookies($refresh['sessionToken'], $refresh['deviceToken']);
+            return true;
+        } catch (\Exception $e) {
+            if ($e->getCode() !== 401) {
+                throw $e;
+            }
+        }
+    }
+
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';
     if (!$rateLimiter->allow('anon_launch', $ip, 20)) {
         header('Retry-After: 3600');
         Flight::json(['error' => ['code' => 'rate_limited', 'message' => 'Too many new sessions from this address — try again later.']], 429);
-        return;
+        return false;
+    }
+
+    $result = $authController->anonymousLaunch();
+    setAuthCookies($result['sessionToken'], $result['deviceToken']);
+    return true;
+}
+
+/**
+ * Require a valid arcade_session cookie. Does not bind the session profile_id
+ * to Adoptédex username slugs — those identity systems are not linked.
+ */
+function requireArcadeSession(AuthMiddleware $authMiddleware): ?int
+{
+    $sessionToken = getSessionToken();
+    if (!$sessionToken) {
+        Flight::json(['error' => ['code' => 'unauthorized', 'message' => 'Missing session credential']], 401);
+        return null;
     }
 
     try {
-        $result = $authController->anonymousLaunch();
-        setAuthCookies($result['sessionToken'], $result['deviceToken']);
-        Flight::json(['status' => 'ok', 'profileId' => $result['profileId']]);
+        return $authMiddleware->authenticate($sessionToken);
+    } catch (\Exception $e) {
+        if ($e->getCode() === 401) {
+            Flight::json(['error' => ['code' => 'unauthorized', 'message' => 'Session expired']], 401);
+            return null;
+        }
+        throw $e;
+    }
+}
+
+// ─── Platform Routes ──────────────────────────────────────────────────────────
+
+Flight::route('POST /v1/session/anonymous', function () use ($authController, $authMiddleware, $rateLimiter) {
+    try {
+        $existing = currentArcadeSessionProfile($authMiddleware);
+        if ($existing !== null) {
+            Flight::json(['status' => 'ok', 'profileId' => $existing]);
+            return;
+        }
+
+        if (!mintAnonymousArcadeSession($authController, $authMiddleware, $rateLimiter)) {
+            return;
+        }
+
+        $profileId = currentArcadeSessionProfile($authMiddleware);
+        Flight::json(['status' => 'ok', 'profileId' => $profileId]);
     } catch (\Exception $e) {
         serverError('anonymousLaunch', $e);
     }
@@ -214,10 +313,14 @@ Flight::route('GET /v1/saves', function () use ($syncController, $authMiddleware
 
 // ─── Adoptédex & Game Economy Endpoints ────────────────────────────────────────
 
-Flight::route('POST /v1/adoptedex/auth', function () use ($adoptedexController) {
+Flight::route('POST /v1/adoptedex/auth', function () use ($adoptedexController, $authController, $authMiddleware, $rateLimiter) {
     try {
+        if (!mintAnonymousArcadeSession($authController, $authMiddleware, $rateLimiter)) {
+            return;
+        }
+
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
-        $username = $payload['username'] ?? $payload['display_name'] ?? 'Player';
+        $username = $payload['username'] ?? $payload['display_name'] ?? $payload['user'] ?? 'Player';
         $result = $adoptedexController->getOrCreateProfile((string)$username);
         Flight::json($result);
     } catch (\Exception $e) {
@@ -238,8 +341,12 @@ Flight::route('GET /v1/adoptedex/@user', function ($user) use ($adoptedexControl
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/discover', function ($user) use ($adoptedexController) {
+Flight::route('POST /v1/adoptedex/@user/discover', function ($user) use ($adoptedexController, $authMiddleware) {
     try {
+        if (requireArcadeSession($authMiddleware) === null) {
+            return;
+        }
+
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
         $petId   = (string)($payload['pet_id'] ?? '');
         $source  = (string)($payload['source'] ?? 'dex');
@@ -256,8 +363,12 @@ Flight::route('POST /v1/adoptedex/@user/discover', function ($user) use ($adopte
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/discover/bulk', function ($user) use ($adoptedexController) {
+Flight::route('POST /v1/adoptedex/@user/discover/bulk', function ($user) use ($adoptedexController, $authMiddleware) {
     try {
+        if (requireArcadeSession($authMiddleware) === null) {
+            return;
+        }
+
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
         $petIds  = (array)($payload['pet_ids'] ?? []);
         $source  = (string)($payload['source'] ?? 'match');
@@ -269,8 +380,12 @@ Flight::route('POST /v1/adoptedex/@user/discover/bulk', function ($user) use ($a
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/rewards/claim', function ($user) use ($adoptedexController) {
+Flight::route('POST /v1/adoptedex/@user/rewards/claim', function ($user) use ($adoptedexController, $authMiddleware) {
     try {
+        if (requireArcadeSession($authMiddleware) === null) {
+            return;
+        }
+
         $payload   = json_decode(Flight::request()->getBody(), true) ?: [];
         $gameId    = (string)($payload['game_id'] ?? '');
         $rewardKey = (string)($payload['reward_key'] ?? '');
@@ -280,15 +395,24 @@ Flight::route('POST /v1/adoptedex/@user/rewards/claim', function ($user) use ($a
             return;
         }
 
-        $result = $adoptedexController->claimReward((string)$user, $gameId, $rewardKey, $payload);
+        $result = $adoptedexController->claimReward((string)$user, $gameId, $rewardKey);
+        if (!$result['ok']) {
+            $status = ($result['message'] ?? '') === 'Profile not found' ? 404 : 400;
+            Flight::json($result, $status);
+            return;
+        }
         Flight::json($result);
     } catch (\Exception $e) {
         serverError('claimReward', $e);
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/packs/open', function ($user) use ($adoptedexController) {
+Flight::route('POST /v1/adoptedex/@user/packs/open', function ($user) use ($adoptedexController, $authMiddleware) {
     try {
+        if (requireArcadeSession($authMiddleware) === null) {
+            return;
+        }
+
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
         $tier    = (string)($payload['tier'] ?? 'standard');
 
@@ -303,21 +427,33 @@ Flight::route('POST /v1/adoptedex/@user/packs/open', function ($user) use ($adop
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/coins/award', function ($user) use ($adoptedexController) {
+Flight::route('POST /v1/adoptedex/@user/coins/award', function ($user) use ($adoptedexController, $authMiddleware) {
     try {
+        if (requireArcadeSession($authMiddleware) === null) {
+            return;
+        }
+
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
-        $amount  = (int)($payload['amount'] ?? 0);
         $reason  = (string)($payload['reason'] ?? 'game_award');
 
-        $result = $adoptedexController->awardCoins((string)$user, $amount, $reason);
+        $result = $adoptedexController->awardCoins((string)$user, 0, $reason);
+        if (!$result['ok']) {
+            $status = ($result['message'] ?? '') === 'Profile not found' ? 404 : 400;
+            Flight::json($result, $status);
+            return;
+        }
         Flight::json($result);
     } catch (\Exception $e) {
         serverError('awardCoins', $e);
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/coins/spend', function ($user) use ($adoptedexController) {
+Flight::route('POST /v1/adoptedex/@user/coins/spend', function ($user) use ($adoptedexController, $authMiddleware) {
     try {
+        if (requireArcadeSession($authMiddleware) === null) {
+            return;
+        }
+
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
         $amount  = (int)($payload['amount'] ?? 0);
         $reason  = (string)($payload['reason'] ?? 'game_spend');

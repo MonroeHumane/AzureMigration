@@ -17,6 +17,25 @@ var MonroeApi = (function () {
     return base + '/' + path.replace(/^\//, '');
   }
 
+  var arcadeSessionPromise = null;
+
+  function ensureArcadeSession() {
+    if (arcadeSessionPromise) return arcadeSessionPromise;
+    arcadeSessionPromise = fetch(apiUrl('session/anonymous'), {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    }).then(function (res) {
+      if (!res.ok) arcadeSessionPromise = null;
+      return res;
+    }).catch(function (err) {
+      arcadeSessionPromise = null;
+      throw err;
+    });
+    return arcadeSessionPromise;
+  }
+
   function getMonroeSlug() {
     var p = getEmbedParams();
     if (p.dexUser) return p.dexUser;
@@ -77,6 +96,7 @@ var MonroeApi = (function () {
   async function discoverPet(slug, petId, source) {
     if (!slug || !petId) return false;
     try {
+      await ensureArcadeSession();
       var response = await fetch(apiUrl('adoptedex/' + encodeURIComponent(slug) + '/discover'), {
         method: 'POST',
         credentials: 'same-origin',

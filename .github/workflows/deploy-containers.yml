@@ -82,19 +82,23 @@ jobs:
       # (crashes with MODULE_NOT_FOUND even with provenance disabled and a
       # minimal Dockerfile) — root cause not yet found. Deploying it here
       # would take production down again. Revisit once that's debugged.
+      #
+      # Image-only updates: do not pass --set-env-vars. `az containerapp update
+      # --image` should preserve existing env and secrets. --min-replicas 1 is
+      # passed in case the CLI resets scale (Directus/Arcade must stay warm).
       - name: Deploy Directus (only if backend/** changed)
         if: steps.filter.outputs.backend == 'true'
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image directus/directus:11.5.0 --revision-suffix gha${{ github.run_number }}
+            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image directus/directus:11.5.0 --revision-suffix gha${{ github.run_number }} --min-replicas 1 --max-replicas 2
 
       - name: Deploy Arcade (only if arcade/** changed)
         if: steps.filter.outputs.arcade == 'true'
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest --revision-suffix gha${{ github.run_number }}
+            az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest --revision-suffix gha${{ github.run_number }} --min-replicas 1
 
       - name: Deploy PetSync job (only if cron/** changed)
         if: steps.filter.outputs.cron == 'true'

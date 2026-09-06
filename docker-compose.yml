@@ -1,10 +1,16 @@
+# Local-only stack. Copy .env.example to .env, then `docker compose up`.
+# Defaults below are clearly local-only — never use them in Azure.
+
 services:
   mysql:
     image: mariadb:11
     container_name: monroe-mysql
     restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_PASS:-root}
     ports:
       - "3306:3306"
     volumes:
@@ -21,20 +27,23 @@ services:
       - "8055:8055"
     depends_on:
       - mysql
+    env_file:
+      - path: .env
+        required: false
     environment:
-      KEY: "monroe-directus-key-secret-12345"
-      SECRET: "monroe-directus-secret-abcdef"
-      ADMIN_EMAIL: "admin@monroe-humane.org"
-      ADMIN_PASSWORD: "AdminPassword123!"
+      KEY: ${DIRECTUS_KEY:-local-only-directus-key-not-for-prod}
+      SECRET: ${DIRECTUS_SECRET:-local-only-directus-secret-not-for-prod}
+      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL:-admin@monroe-humane.org}
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:-local-only-AdminPass123!}
       DB_CLIENT: "mysql"
       DB_HOST: "mysql"
-      DB_PORT: "3306"
-      DB_DATABASE: "directus_db"
-      DB_USER: "root"
-      DB_PASSWORD: "root"
-      PUBLIC_URL: "http://localhost:8055"
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DIRECTUS_NAME:-directus_db}
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASS:-root}
+      PUBLIC_URL: ${DIRECTUS_URL:-http://localhost:8055}
       CORS_ENABLED: "true"
-      CORS_ORIGIN: "true"
+      CORS_ORIGIN: ${DIRECTUS_CORS_ORIGIN:-http://localhost:4321,http://localhost:5173,http://localhost:8060,http://localhost:3000}
       STORAGE_LOCATIONS: "local"
       STORAGE_LOCAL_DRIVER: "local"
       STORAGE_LOCAL_ROOT: "/directus/uploads"
@@ -53,13 +62,16 @@ services:
       - "8081:80"
     depends_on:
       - mysql
+    env_file:
+      - path: .env
+        required: false
     environment:
       DB_HOST: "mysql"
-      DB_USER: "root"
-      DB_PASS: "root"
-      DB_NAME: "arcade_db"
-      CORS_ALLOWED_ORIGINS: "http://localhost:4321,http://localhost:5173,http://localhost:8060,http://localhost:3000"
-      CLEANUP_SECRET: "dev-cleanup-secret-123"
+      DB_USER: ${DB_USER:-root}
+      DB_PASS: ${DB_PASS:-root}
+      DB_NAME: ${DB_ARCADE_NAME:-arcade_db}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4321,http://localhost:5173,http://localhost:8060,http://localhost:3000}
+      CLEANUP_SECRET: ${CLEANUP_SECRET:-local-only-cleanup-secret-not-for-prod}
     volumes:
       - ./arcade:/var/www/html
     networks:
@@ -76,9 +88,12 @@ services:
     depends_on:
       - directus
       - arcade-api
+    env_file:
+      - path: .env
+        required: false
     environment:
       DIRECTUS_URL: "http://directus:8055"
-      ARCADE_API_BASE: "http://localhost:8081/v1"
+      ARCADE_API_BASE: ${ARCADE_API_BASE:-http://localhost:8081/v1}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -93,11 +108,14 @@ services:
     restart: "no"
     depends_on:
       - directus
+    env_file:
+      - path: .env
+        required: false
     environment:
       DIRECTUS_URL: "http://directus:8055"
-      DIRECTUS_STATIC_TOKEN: "admin-static-token"
-      GOOGLE_SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQeJ5vC9u2A_example/pub?output=csv"
-      PETANGO_AUTHKEY: ""
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN:-admin-static-token}
+      GOOGLE_SHEET_CSV_URL: ${GOOGLE_SHEET_CSV_URL:-}
+      PETANGO_AUTHKEY: ${PETANGO_AUTHKEY:-}
     networks:
       - monroe-network
 

@@ -564,7 +564,7 @@
 							type: p.type || 'companion',
 							file: file,
 							alt: `${name} (${breed})`,
-							url: p.url || `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${p.id}&authkey=40fm1dbi1t4267edhjlafr`
+							url: p.url || ('/adopt/' + encodeURIComponent(p.id))
 						};
 					}).filter(p => !!p.file);
 					if (mapped.length >= 4) {

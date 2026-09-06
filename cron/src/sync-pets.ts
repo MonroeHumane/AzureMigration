@@ -33,6 +33,7 @@ const PETANGO_DETAIL_BASE_URL =
   process.env.PETANGO_DETAIL_BASE_URL ||
   'https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx';
 const PETANGO_AUTHKEY = process.env.PETANGO_AUTHKEY || '';
+const PUBLIC_SITE_URL = (process.env.PUBLIC_SITE_URL || 'https://monroe-humane.org').replace(/\/+$/, '');
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://localhost:8055';
 const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || '';
 const STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING || '';
@@ -81,11 +82,26 @@ export function normalizeAge(ageRaw: string): string {
   return 'adult';
 }
 
+/** In-memory Petango list URL for the sync fetch only — never persist this. */
 function buildPetangoUrl(): string {
   return (
     `${PETANGO_BASE_URL}?species=All&gender=A&agegroup=All&location=&site=&onhold=A&orderby=Name` +
     `&colnum=4&css=&authkey=${encodeURIComponent(PETANGO_AUTHKEY)}&recAmount=&detailsInPopup=Yes&featuredPet=Include&stageID=`
   );
+}
+
+/** In-memory Petango detail URL for the sync fetch only — never persist this. */
+function buildPetangoDetailUrl(petId: string): string {
+  return `${PETANGO_DETAIL_BASE_URL}?id=${encodeURIComponent(petId)}&css=&authkey=${encodeURIComponent(PETANGO_AUTHKEY)}&PopUp=true`;
+}
+
+/** Public site profile matching frontend `/adopt/[id]`. Safe to store in Directus. */
+export function buildPublicPetUrl(petId: string): string {
+  return `${PUBLIC_SITE_URL}/adopt/${encodeURIComponent(petId)}`;
+}
+
+export function urlContainsAuthkey(url: string | null | undefined): boolean {
+  return typeof url === 'string' && /authkey=/i.test(url);
 }
 
 interface RawAnimal {
@@ -201,7 +217,7 @@ const EMPTY_DETAIL: AnimalDetail = { size: '', color: '', intakeDate: '', declaw
  * so the sync actually captures everything Petango offers for each animal.
  */
 async function fetchAnimalDetail(petId: string): Promise<AnimalDetail> {
-  const url = `${PETANGO_DETAIL_BASE_URL}?id=${encodeURIComponent(petId)}&css=&authkey=${encodeURIComponent(PETANGO_AUTHKEY)}&PopUp=true`;
+  const url = buildPetangoDetailUrl(petId);
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
     if (!res.ok) return EMPTY_DETAIL;
@@ -369,9 +385,9 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
       gender: normalizeGender(a.sexSN || ''),
       location: a.location || '',
       image_url: imageUrl,
-      url: a.detailId
-        ? `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${encodeURIComponent(a.petId)}&css=&authkey=${encodeURIComponent(PETANGO_AUTHKEY)}&PopUp=true`
-        : '',
+      // Site-local profile only. Petango detail URLs require authkey and must
+      // never be written to Directus (pets is public-read with fields *).
+      url: buildPublicPetUrl(a.petId),
       description: a.location || '',
       intake_date: detail.intakeDate,
       declawed: detail.declawed,
@@ -487,23 +503,90 @@ export async function runPetSync(): Promise<{ active: number; archived: number; 
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runPetSync()
-    .then((stats) => {
-      if (stats.ok) {
-        console.log('[PetSync] Execution finished successfully', stats);
-        process.exit(0);
-      } else {
-        // Non-zero exit so the job execution itself shows Failed in Azure —
-        // sync_runs already has the detail, but the platform-level status
-        // needs to reflect reality too so monitoring/alerting isn't blind
-        // to a sync that silently degraded.
-        console.error('[PetSync] Execution completed with errors', stats);
-        process.exit(1);
-      }
-    })
-    .catch((err) => {
-      console.error('[PetSync] Execution failed', err);
-      process.exit(1);
+/**
+ * One-shot: PATCH Directus pets whose stored url still contains "authkey=".
+ * Invoke with SANITIZE_PET_URLS=1. Do not log URL values (they may hold the key).
+ * Default: implemented, not run against production from this job.
+ */
+export async function sanitizeLeakedPetUrls(): Promise<{ scanned: number; patched: number; failed: number }> {
+  if (!DIRECTUS_TOKEN) {
+    console.error('[PetSync] DIRECTUS_STATIC_TOKEN not set; cannot sanitize pet URLs.');
+    return { scanned: 0, patched: 0, failed: 0 };
+  }
+
+  const leakedIds: string[] = [];
+  let scanned = 0;
+  const PAGE_SIZE = 500;
+  for (let page = 0; ; page++) {
+    const pageRes = await fetch(
+      `${DIRECTUS_URL}/items/pets?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}&fields=id,url&sort=id`,
+      { headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` } }
+    );
+    if (!pageRes.ok) {
+      throw new Error(`Directus fetch failed: HTTP ${pageRes.status} (page ${page})`);
+    }
+    const pageData = await pageRes.json();
+    const rows: Array<{ id: string; url?: string | null }> = pageData.data || [];
+    scanned += rows.length;
+    for (const row of rows) {
+      if (urlContainsAuthkey(row.url)) leakedIds.push(row.id);
+    }
+    if (rows.length < PAGE_SIZE) break;
+  }
+
+  let patched = 0;
+  let failed = 0;
+  for (const id of leakedIds) {
+    const res = await fetch(`${DIRECTUS_URL}/items/pets/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${DIRECTUS_TOKEN}` },
+      body: JSON.stringify({ url: buildPublicPetUrl(id) }),
     });
+    if (res.ok) {
+      patched++;
+    } else {
+      failed++;
+      console.error(`[PetSync] Sanitize PATCH failed for ${id} (HTTP ${res.status})`);
+    }
+  }
+
+  console.log(`[PetSync] URL sanitizer: scanned ${scanned}, patched ${patched}, failed ${failed}.`);
+  return { scanned, patched, failed };
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  if (process.env.SANITIZE_PET_URLS === '1') {
+    sanitizeLeakedPetUrls()
+      .then((stats) => {
+        if (stats.failed > 0) {
+          console.error('[PetSync] URL sanitizer completed with errors', stats);
+          process.exit(1);
+        }
+        console.log('[PetSync] URL sanitizer finished', stats);
+        process.exit(0);
+      })
+      .catch((err) => {
+        console.error('[PetSync] URL sanitizer failed', err?.message || err);
+        process.exit(1);
+      });
+  } else {
+    runPetSync()
+      .then((stats) => {
+        if (stats.ok) {
+          console.log('[PetSync] Execution finished successfully', stats);
+          process.exit(0);
+        } else {
+          // Non-zero exit so the job execution itself shows Failed in Azure —
+          // sync_runs already has the detail, but the platform-level status
+          // needs to reflect reality too so monitoring/alerting isn't blind
+          // to a sync that silently degraded.
+          console.error('[PetSync] Execution completed with errors', stats);
+          process.exit(1);
+        }
+      })
+      .catch((err) => {
+        console.error('[PetSync] Execution failed', err);
+        process.exit(1);
+      });
+  }
 }

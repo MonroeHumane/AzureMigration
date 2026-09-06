@@ -4,14 +4,8 @@ import StaffPortalNav from '../../components/internal/StaffPortalNav.astro';
 import MobileBottomNav from '../../components/internal/MobileBottomNav.astro';
 import MobileMoreSheet from '../../components/internal/MobileMoreSheet.astro';
 import { getStaffPetSyncData } from '../../lib/directus';
-import publishedFinancials from '../../data/published_2026_ytd.json';
-import donorDatabase from '../../data/donor_database.json';
 
 const petSyncData = await getStaffPetSyncData();
-const bankOperatingCash = publishedFinancials?.statement_of_position?.assets?.operating_checking_bank_register ?? 24526.34;
-const formattedBankCash = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(bankOperatingCash);
-const { meta: donorMeta } = donorDatabase;
-const formattedDonorVolume = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(donorMeta.total_lifetime_volume);
 const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/admin';
 ---
 
@@ -93,14 +87,14 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             <span class="text-[10px] text-teal-200/80 mt-0.5 block">Animals in shelter care</span>
           </div>
           <div class="p-3.5 rounded-2xl bg-teal-950/60 border border-teal-800/60 backdrop-blur-sm shadow-inner">
-            <span class="text-[10px] uppercase font-bold text-teal-300/70 block tracking-wider">Checking Cash</span>
-            <span class="text-xl font-bold font-mono text-teal-100 block mt-1">{formattedBankCash}</span>
-            <span class="text-[10px] text-teal-200/80 mt-0.5 block">Aug 31 Certified</span>
+            <span class="text-[10px] uppercase font-bold text-teal-300/70 block tracking-wider">Board Financials</span>
+            <span class="text-xl font-bold font-mono text-teal-100 block mt-1">Staff access</span>
+            <span class="text-[10px] text-teal-200/80 mt-0.5 block">Operating statements</span>
           </div>
           <div class="p-3.5 rounded-2xl bg-teal-950/60 border border-teal-800/60 backdrop-blur-sm shadow-inner">
-            <span class="text-[10px] uppercase font-bold text-teal-300/70 block tracking-wider">Lifetime Giving</span>
-            <span class="text-xl font-bold font-mono text-rose-300 block mt-1">{formattedDonorVolume}</span>
-            <span class="text-[10px] text-teal-200/80 mt-0.5 block">{donorMeta.total_donors.toLocaleString()} Donors</span>
+            <span class="text-[10px] uppercase font-bold text-teal-300/70 block tracking-wider">Donor Registry</span>
+            <span class="text-xl font-bold font-mono text-rose-300 block mt-1">Staff access</span>
+            <span class="text-[10px] text-teal-200/80 mt-0.5 block">Lifetime giving records</span>
           </div>
           <div class="p-3.5 rounded-2xl bg-teal-950/60 border border-teal-800/60 backdrop-blur-sm shadow-inner">
             <span class="text-[10px] uppercase font-bold text-teal-300/70 block tracking-wider">Annual Impact</span>
@@ -310,7 +304,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
                   <div>
                     <span class="text-[10px] font-bold uppercase tracking-wider text-teal-200 block">Checking Account Balance</span>
                     <div id="metric-bank-cash" class="text-2xl sm:text-3xl font-black font-mono mt-1 text-white">
-                      {formattedBankCash}
+                      --
                     </div>
                     <span class="text-[11px] text-teal-300 block mt-0.5">First Merchants Bank · Aug 31 Certified</span>
                   </div>
@@ -363,11 +357,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
                 <div class="flex items-start justify-between gap-2">
                   <div>
                     <span class="text-[10px] font-bold uppercase tracking-wider text-rose-900 block">Lifetime Giving</span>
-                    <div class="text-2xl sm:text-3xl font-black font-mono text-rose-950 mt-1">
-                      {formattedDonorVolume}
+                    <div id="metric-donor-volume" class="text-2xl sm:text-3xl font-black font-mono text-rose-950 mt-1">
+                      --
                     </div>
-                    <span class="text-[11px] text-rose-700 block mt-0.5">
-                      {donorMeta.total_donors.toLocaleString()} Donors · {donorMeta.total_with_address.toLocaleString()} With Address
+                    <span id="metric-donor-counts" class="text-[11px] text-rose-700 block mt-0.5">
+                      Donor records load after sign-in
                     </span>
                   </div>
                   <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center shrink-0">
@@ -378,7 +372,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
                 </div>
               </div>
               <div class="mt-3 pt-3 border-t border-rose-200/80 flex items-center justify-between text-xs text-rose-900">
-                <span>{donorMeta.active_2026_count} Active in 2026</span>
+                <span id="metric-donor-active">2026 giving year</span>
                 <a href="/internal/donors/" class="font-bold text-rose-950 hover:text-rose-800 transition">
                   Open Registry &rarr;
                 </a>
@@ -528,7 +522,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
               <h3 class="text-base font-bold text-teal-950">Board Financials</h3>
               <div class="mt-2">
                 <span class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">Checking Balance</span>
-                <div id="card-bank-cash" class="text-xl font-black font-mono text-teal-900 mt-0.5">{formattedBankCash}</div>
+                <div id="card-bank-cash" class="text-xl font-black font-mono text-teal-900 mt-0.5">--</div>
               </div>
               <div class="mt-3 pt-3 border-t border-teal-100 space-y-1 text-xs text-slate-600">
                 <div class="flex justify-between">
@@ -565,16 +559,16 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
               <h3 class="text-base font-bold text-rose-950">Donor Registry</h3>
               <div class="mt-2">
                 <span class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">Lifetime Volume</span>
-                <div class="text-xl font-black font-mono text-rose-950 mt-0.5">{formattedDonorVolume}</div>
+                <div id="card-donor-volume" class="text-xl font-black font-mono text-rose-950 mt-0.5">--</div>
               </div>
               <div class="mt-3 pt-3 border-t border-rose-100 space-y-1 text-xs text-slate-600">
                 <div class="flex justify-between">
                   <span>Total Donors:</span>
-                  <strong class="font-bold text-slate-800">{donorMeta.total_donors.toLocaleString()}</strong>
+                  <strong id="card-donor-count" class="font-bold text-slate-800">--</strong>
                 </div>
                 <div class="flex justify-between text-slate-500">
                   <span>Mailing Addresses:</span>
-                  <strong class="font-semibold text-emerald-700">{donorMeta.total_with_address.toLocaleString()}</strong>
+                  <strong id="card-donor-addresses" class="font-semibold text-emerald-700">--</strong>
                 </div>
               </div>
             </div>
@@ -650,7 +644,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             </div>
             <div class="min-w-0">
               <span class="font-bold text-slate-800 block">2026 Giving</span>
-              <span class="text-slate-400 text-[11px]">{donorMeta.active_2026_count} Active Donors</span>
+              <span class="text-slate-400 text-[11px]">Active giving year</span>
             </div>
             <span class="ml-auto text-slate-400 group-hover:text-rose-700 text-base">&rarr;</span>
           </a>
@@ -732,23 +726,67 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
   import { loginStaff, getStaffUserEmail, isStaffAuthenticated, getStaffToken } from '../../lib/staff-auth';
   import { getCachedFinancials, setCachedFinancials } from '../../lib/api';
 
+  function applyDonorUnavailable() {
+    const volumeEls = ['metric-donor-volume', 'card-donor-volume'];
+    for (const id of volumeEls) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'Unavailable';
+    }
+    const counts = document.getElementById('metric-donor-counts');
+    if (counts) counts.textContent = 'Donor registry unavailable';
+    const countEl = document.getElementById('card-donor-count');
+    if (countEl) countEl.textContent = '—';
+    const addrEl = document.getElementById('card-donor-addresses');
+    if (addrEl) addrEl.textContent = '—';
+  }
+
+  function applyDonorMeta(meta: any) {
+    if (!meta) {
+      applyDonorUnavailable();
+      return;
+    }
+    const volume = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(meta.total_lifetime_volume || 0);
+    const volEl = document.getElementById('metric-donor-volume');
+    if (volEl) volEl.textContent = volume;
+    const cardVol = document.getElementById('card-donor-volume');
+    if (cardVol) cardVol.textContent = volume;
+    const counts = document.getElementById('metric-donor-counts');
+    if (counts) {
+      counts.textContent = `${(meta.total_donors || 0).toLocaleString()} Donors · ${(meta.total_with_address || 0).toLocaleString()} With Address`;
+    }
+    const countEl = document.getElementById('card-donor-count');
+    if (countEl) countEl.textContent = (meta.total_donors || 0).toLocaleString();
+    const addrEl = document.getElementById('card-donor-addresses');
+    if (addrEl) addrEl.textContent = (meta.total_with_address || 0).toLocaleString();
+    const activeEl = document.getElementById('metric-donor-active');
+    if (activeEl && meta.active_2026_count != null) {
+      activeEl.textContent = `${meta.active_2026_count} Active in 2026`;
+    }
+  }
+
   function applyMetrics(data: any) {
-    if (!data || !data.statement_of_position) return;
-    const cash = data.statement_of_position.assets.operating_checking_bank_register;
-    const formattedCash = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(cash);
+    if (!data) return;
+    // GET /api/financials: YTD report + bank_statement + donors / donor_meta / donor_database.
+    if (data.statement_of_position) {
+      const cash = data.statement_of_position.assets.operating_checking_bank_register;
+      const formattedCash = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(cash);
 
-    const bankCashEl = document.getElementById('metric-bank-cash');
-    if (bankCashEl) bankCashEl.textContent = formattedCash;
+      const bankCashEl = document.getElementById('metric-bank-cash');
+      if (bankCashEl) bankCashEl.textContent = formattedCash;
 
-    const cardCashEl = document.getElementById('card-bank-cash');
-    if (cardCashEl) cardCashEl.textContent = formattedCash;
+      const cardCashEl = document.getElementById('card-bank-cash');
+      if (cardCashEl) cardCashEl.textContent = formattedCash;
+    }
 
     const runwayEl = document.getElementById('metric-cash-runway');
     if (runwayEl) runwayEl.textContent = '14+ months';
+
+    const donorMeta = data.donor_meta || data.donor_database?.meta || data.donors?.meta;
+    if (donorMeta) applyDonorMeta(donorMeta);
+    else applyDonorUnavailable();
   }
 
   async function loadFinancialMetrics() {
-    // 1. Instant cache hydration
     const cached = getCachedFinancials();
     if (cached) applyMetrics(cached);
 
@@ -763,7 +801,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       });
       if (!res.ok) return;
       const data = await res.json();
-      if (!data || !data.statement_of_position) return;
+      if (!data) return;
 
       setCachedFinancials(data);
       applyMetrics(data);

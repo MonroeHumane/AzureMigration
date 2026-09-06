@@ -32,6 +32,25 @@ function apiUrl(path) {
   return `${base}/${clean}`;
 }
 
+let arcadeSessionPromise = null;
+
+function ensureArcadeSession() {
+  if (arcadeSessionPromise) return arcadeSessionPromise;
+  arcadeSessionPromise = fetch(apiUrl('session/anonymous'), {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  }).then((res) => {
+    if (!res.ok) arcadeSessionPromise = null;
+    return res;
+  }).catch((err) => {
+    arcadeSessionPromise = null;
+    throw err;
+  });
+  return arcadeSessionPromise;
+}
+
 function readCookie(name) {
   const match = document.cookie.match(
     new RegExp(`(?:^|;\\s*)${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]*)`),
@@ -406,6 +425,7 @@ async function flushDiscoverQueue() {
   dexPendingPetIds.clear();
 
   try {
+    await ensureArcadeSession();
     const res = await fetch(apiUrl(`adoptedex/${encodeURIComponent(slug)}/discover/bulk`), {
       method: 'POST',
       credentials: 'same-origin',
@@ -436,6 +456,7 @@ async function flushDiscoverQueue() {
   for (const id of ids) {
     if (dexSyncedPetIds.has(id)) continue;
     try {
+      await ensureArcadeSession();
       const res = await fetch(apiUrl(`adoptedex/${encodeURIComponent(slug)}/discover`), {
         method: 'POST',
         credentials: 'same-origin',

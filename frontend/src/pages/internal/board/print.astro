@@ -1,86 +1,8 @@
 ---
-import publishedFinancials from '../../../data/published_2026_ytd.json';
-import statementData from '../../../data/statement_2026_08.json';
-
-const data = publishedFinancials;
-const meta = data.meta;
-const kpis = data.headline_kpis;
-const monthly = data.monthly_statements;
-const bridge = data.bridge_composition;
-const pos = data.statement_of_position;
-const ap = data.accounts_payable_schedule;
-const withdrawals = statementData.withdrawals || [];
-
-function formatDollar(val: number, maxDigits = 0): string {
-  const isNeg = val < 0;
-  const abs = Math.abs(Math.round(val));
-  const formatted = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: maxDigits,
-  }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-}
-
-function formatCents(val: number): string {
-  const isNeg = val < 0;
-  const abs = Math.abs(val);
-  const formatted = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(abs);
-  return isNeg ? `(${formatted})` : formatted;
-}
-
-const totalRev = monthly.reduce((a: number, b: any) => a + b.revenue, 0);
-const totalExp = monthly.reduce((a: number, b: any) => a + b.total_exp, 0);
-const totalNet = monthly.reduce((a: number, b: any) => a + b.net_margin, 0);
-const apTotal = ap.reduce((a: number, b: any) => a + b.amount, 0);
-
-// Real bank liquidity: First Merchants Bank Checking ($24,526.34) + Fidelity Reserve ($205,144.00)
-const bankCheckingCash = pos.assets.operating_checking_bank_register || 24526.34;
-const fidelityReserveCash = pos.assets.fidelity_board_designated_reserve || 205144.00;
-const totalBankLiquidity = bankCheckingCash + fidelityReserveCash;
-const monthlyOperatingBurn = Math.abs(kpis.qbo_operating_net / 8);
-const runwayMonths = (totalBankLiquidity / monthlyOperatingBurn).toFixed(1);
-
-// ── August 2026 Expense Explorer aggregation ────────────────────────────────
-const CATEGORY_DEFS = [
-  { key: 'wages',       name: 'Wages & Payroll',        group: 'Payroll',    sourceCategories: ['Staff Payroll', 'Staff Paycheck'] },
-  { key: 'taxes',       name: 'Payroll Taxes',           group: 'Payroll',    sourceCategories: ['Payroll Taxes'] },
-  { key: 'medical',     name: 'Veterinary & Medical',    group: 'Operations', sourceCategories: ['Veterinary & Medical Care', 'Veterinary Supply'] },
-  { key: 'facilities',  name: 'Facilities & Sanitation', group: 'Operations', sourceCategories: ['Facilities & Sanitation'] },
-  { key: 'insurance',   name: 'Insurance',               group: 'Operations', sourceCategories: ['Insurance & Risk'] },
-  { key: 'capital',     name: 'Capital Projects',        group: 'Capital',    sourceCategories: ['Capital Improvements'] },
-  { key: 'creditcard',  name: 'Credit Card Clearing',    group: 'Operations', sourceCategories: ['Credit Card Liability'] },
-  { key: 'software',    name: 'Software & Technology',   group: 'Operations', sourceCategories: ['Software & Technology', 'Software & Cloud'] },
-  { key: 'bankfees',    name: 'Bank & Merchant Fees',    group: 'Operations', sourceCategories: ['Bank & Processing Fees'] },
-];
-
-const expenseCategories = CATEGORY_DEFS.map((def) => {
-  const txs = withdrawals.filter((w: any) => def.sourceCategories.includes(w.category));
-  const vendorMap = new Map<string, number>();
-  for (const t of txs) {
-    const k = t.payee || 'Unknown';
-    vendorMap.set(k, (vendorMap.get(k) || 0) + t.amount);
-  }
-  const topVendors = Array.from(vendorMap.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([name, amt]) => `${name} (${formatDollar(amt)})`);
-
-  return {
-    ...def,
-    total: txs.reduce((s: number, t: any) => s + t.amount, 0),
-    txCount: txs.length,
-    payeeCount: vendorMap.size,
-    topVendorsStr: topVendors.slice(0, 3).join(', '),
-  };
-}).filter((c) => c.txCount > 0).sort((a, b) => b.total - a.total);
-
-const totalAugustSpend = expenseCategories.reduce((s, c) => s + c.total, 0);
-const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
+// Board packet figures are loaded client-side after getStaffToken() via GET /api/financials
+// (YTD report + bank_statement + monthly_drilldown + donors). Do not import
+// published_2026_ytd.json, statement_2026_08.json, monthly_drilldown_2026.json,
+// or donor_database.json — Astro SSG would bake them into public HTML.
 ---
 
 <!DOCTYPE html>
@@ -88,7 +10,7 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HSMC Board Financial Packet - 2026 YTD Print (Period Closed Aug 31, 2026)</title>
+  <title>HSMC Board Financial Packet - 2026 YTD Print</title>
   <script is:inline>
     (function() {
       try {
@@ -101,7 +23,12 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
           }
         }
         if (!hasAuth) {
-          hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
+          hasAuth = !!(
+            sessionStorage.getItem('mchs_staff_auth') ||
+            localStorage.getItem('mchs_staff_auth') ||
+            sessionStorage.getItem('mchs_staff_token') ||
+            localStorage.getItem('mchs_staff_token')
+          );
         }
         if (!hasAuth) {
           window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
@@ -275,9 +202,13 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
       <span>Humane Society of Monroe County — Official Board Packet (Print Preview)</span>
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
-      <span style="font-size:11px; opacity:0.8;">Slice: Closed Through Aug 31, 2026</span>
-      <button id="print-action-btn" onclick="window.print()" style="background:#1c746c;color:#fff;border:none;padding:5px 14px;border-radius:4px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>
+      <span style="font-size:11px; opacity:0.8;">Staff-authenticated packet</span>
+      <button id="print-action-btn" disabled onclick="window.print()" style="background:#1c746c;color:#fff;border:none;padding:5px 14px;border-radius:4px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>
     </div>
+  </div>
+
+  <div id="print-loading-banner" class="note-box">
+    Loading certified financials after sign-in…
   </div>
 
   <!-- ── Page 1: Executive Overview, Statements & Balance Sheet ─────────── -->
@@ -291,42 +222,40 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
       </div>
       <h1>Humane Society of Monroe County</h1>
       <div id="print-period-title" style="font-size:10.5px; font-weight:600; color:#334155;">
-        Official Board Financial Packet — Jan 1 through August 31, 2026
+        Official Board Financial Packet
       </div>
     </div>
     <div style="text-align:right;">
       <div style="font-size:9px; color:#64748b;">Closed Cutoff: <strong>August 31, 2026</strong></div>
-      <div id="print-publisher" style="font-size:9px; color:#64748b;">Prepared By: {meta.published_by}</div>
-      <div id="print-checksum" style="font-size:8px; font-family:monospace; color:#047857; margin-top:1px;">SHA-256: {meta.sha256_checksum.slice(0, 16)}...</div>
+      <div id="print-publisher" style="font-size:9px; color:#64748b;">Prepared By: --</div>
+      <div id="print-checksum" style="font-size:8px; font-family:monospace; color:#047857; margin-top:1px;">SHA-256: --</div>
     </div>
   </div>
 
-  <!-- Headline KPI Grid (Plain-English Sync) -->
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-title">Overall Net Result (YTD)</div>
-      <div id="print-allin-net" class="kpi-val text-rose">{formatDollar(kpis.all_in_net)}</div>
-      <div id="print-allin-margin" class="kpi-sub">8 Mo Closed · {kpis.all_in_margin_pct.toFixed(1)}% margin</div>
+      <div id="print-allin-net" class="kpi-val text-rose">--</div>
+      <div id="print-allin-margin" class="kpi-sub">8 Mo Closed</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-title">Day-to-Day Shelter Net</div>
-      <div id="print-qbo-net" class="kpi-val" style="color:#b45309;">{formatDollar(kpis.qbo_operating_net)}</div>
+      <div id="print-qbo-net" class="kpi-val" style="color:#b45309;">--</div>
       <div class="kpi-sub">Pre-endowment & rebate operations</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-title">Animal Care & Mission Ratio</div>
-      <div id="print-prog-ratio" class="kpi-val text-emerald">{kpis.program_ratio_pct.toFixed(1)}%</div>
-      <div class="kpi-sub">Benchmark ≥75% (85¢ of $1 to care)</div>
+      <div id="print-prog-ratio" class="kpi-val text-emerald">--</div>
+      <div class="kpi-sub">Benchmark ≥75%</div>
     </div>
     <div class="kpi-card kpi-card-hero">
       <div class="kpi-title" style="color:#0f766e;">Cash & Board Reserves</div>
-      <div id="print-total-liq" class="kpi-val" style="color:#0f766e;">{formatDollar(totalBankLiquidity)}</div>
-      <div class="kpi-sub" style="color:#115e59;">{runwayMonths} Mo Runway (Checking $24.5k + Fidelity $205.1k)</div>
+      <div id="print-total-liq" class="kpi-val" style="color:#0f766e;">--</div>
+      <div id="print-runway-sub" class="kpi-sub" style="color:#115e59;">Runway loads after sign-in</div>
     </div>
   </div>
 
-  <!-- 1. Month-by-Month Operating Statement -->
-  <h2>1. Month-by-Month Operating Statement (Jan 1 – Aug 31, 2026)</h2>
+  <h2>1. Month-by-Month Operating Statement</h2>
   <table>
     <thead>
       <tr>
@@ -342,36 +271,25 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
       </tr>
     </thead>
     <tbody id="print-monthly-tbody">
-      {monthly.map((m: any) => (
-        <tr>
-          <td style="font-weight:600;">{m.month}</td>
-          <td class="text-right font-mono">{formatDollar(m.revenue)}</td>
-          <td class="text-right font-mono">{formatDollar(m.cogs)}</td>
-          <td class="text-right font-mono">{formatDollar(m.operating_exp)}</td>
-          <td class="text-right font-mono">{formatDollar(m.other_exp)}</td>
-          <td class="text-right font-mono" style="font-weight:600;">{formatDollar(m.total_exp)}</td>
-          <td class={`text-right font-mono ${m.net_margin >= 0 ? 'text-emerald' : 'text-rose'}`} style="font-weight:700;">{formatDollar(m.net_margin)}</td>
-          <td class={`text-right ${m.net_margin >= 0 ? 'text-emerald' : 'text-rose'}`}>{m.margin_pct > 0 ? '+' : ''}{m.margin_pct.toFixed(1)}%</td>
-          <td style="font-size:8px; color:#475569;">{m.driver}</td>
-        </tr>
-      ))}
+      <tr>
+        <td colspan="9" class="text-center" style="color:#64748b; padding:12px;">Loading monthly statements…</td>
+      </tr>
     </tbody>
     <tfoot>
       <tr style="background:#173a39; color:#fff; font-weight:700;">
         <td>CERTIFIED TOTAL</td>
-        <td id="print-foot-rev" class="text-right font-mono" style="color:#6ee7b7;">{formatDollar(totalRev)}</td>
-        <td id="print-foot-cogs" class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(kpis.qbo_cogs)}</td>
-        <td id="print-foot-opexp" class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(kpis.qbo_operating_expenditures)}</td>
-        <td id="print-foot-other" class="text-right font-mono" style="color:#cbd5e1;">{formatDollar(Math.abs(bridge.fleet_transit_and_fuel))}</td>
-        <td id="print-foot-total-exp" class="text-right font-mono" style="color:#fde047;">{formatDollar(totalExp)}</td>
-        <td id="print-foot-net" class="text-right font-mono" style="color:#fda4af;">{formatDollar(totalNet)}</td>
-        <td id="print-foot-margin" class="text-right" style="color:#fda4af;">{((totalNet / totalRev) * 100).toFixed(1)}%</td>
+        <td id="print-foot-rev" class="text-right font-mono" style="color:#6ee7b7;">--</td>
+        <td id="print-foot-cogs" class="text-right font-mono" style="color:#cbd5e1;">--</td>
+        <td id="print-foot-opexp" class="text-right font-mono" style="color:#cbd5e1;">--</td>
+        <td id="print-foot-other" class="text-right font-mono" style="color:#cbd5e1;">--</td>
+        <td id="print-foot-total-exp" class="text-right font-mono" style="color:#fde047;">--</td>
+        <td id="print-foot-net" class="text-right font-mono" style="color:#fda4af;">--</td>
+        <td id="print-foot-margin" class="text-right" style="color:#fda4af;">--</td>
         <td style="color:#6ee7b7; font-size:8px;">Cent-for-cent footed</td>
       </tr>
     </tfoot>
   </table>
 
-  <!-- 2-Column: Operating Bridge & Statement of Position -->
   <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
     <div>
       <h2>2. How Shelter Operations Connect to Bottom Line</h2>
@@ -379,27 +297,27 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
         <tbody>
           <tr>
             <td><strong>Day-to-Day Shelter Operating Net</strong></td>
-            <td id="print-bridge-qbo-net" class="text-right font-mono" style="font-weight:700;">{formatCents(kpis.qbo_operating_net)}</td>
+            <td id="print-bridge-qbo-net" class="text-right font-mono" style="font-weight:700;">--</td>
           </tr>
           <tr>
             <td>(+) Foundation Endowment Grants (MCCF)</td>
-            <td id="print-bridge-endowment" class="text-right font-mono text-emerald">+{formatCents(bridge.endowment_distributions)}</td>
+            <td id="print-bridge-endowment" class="text-right font-mono text-emerald">--</td>
           </tr>
           <tr>
             <td>(+) Recycling, Rebates & Partner Restitution</td>
-            <td id="print-bridge-recycling" class="text-right font-mono text-emerald">+{formatCents(bridge.recycling_and_rebates)}</td>
+            <td id="print-bridge-recycling" class="text-right font-mono text-emerald">--</td>
           </tr>
           <tr>
             <td>(-) Vehicle Transport & Gasoline Spend</td>
-            <td id="print-bridge-fleet" class="text-right font-mono text-rose">-{formatCents(Math.abs(bridge.fleet_transit_and_fuel))}</td>
+            <td id="print-bridge-fleet" class="text-right font-mono text-rose">--</td>
           </tr>
           <tr style="background:#f1f5f9; font-weight:700;">
             <td>Net Outside Support & Adjustments</td>
-            <td id="print-bridge-net-adj" class="text-right font-mono">+{formatCents(bridge.net_bridge_total)}</td>
+            <td id="print-bridge-net-adj" class="text-right font-mono">--</td>
           </tr>
           <tr style="background:#ffe4e6; font-weight:800;">
             <td>Final Total Net Result (YTD)</td>
-            <td id="print-bridge-allin" class="text-right font-mono text-rose">{formatCents(kpis.all_in_net)}</td>
+            <td id="print-bridge-allin" class="text-right font-mono text-rose">--</td>
           </tr>
         </tbody>
       </table>
@@ -409,78 +327,76 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
     </div>
 
     <div>
-      <h2>3. Statement of Financial Position (Aug 31, 2026)</h2>
+      <h2>3. Statement of Financial Position</h2>
       <table>
         <tbody>
           <tr style="background:#f0fdf4; font-weight:700;">
             <td>Verified First Merchants Bank Checking</td>
-            <td id="print-pos-checking-bank" class="text-right font-mono" style="color:#166534;">{formatDollar(bankCheckingCash)}</td>
+            <td id="print-pos-checking-bank" class="text-right font-mono" style="color:#166534;">--</td>
           </tr>
           <tr>
             <td>Board-Designated Reserve (Fidelity)</td>
-            <td id="print-pos-fidelity" class="text-right font-mono" style="font-weight:600; color:#4338ca;">{formatDollar(fidelityReserveCash)}</td>
+            <td id="print-pos-fidelity" class="text-right font-mono" style="font-weight:600; color:#4338ca;">--</td>
           </tr>
           <tr style="background:#e0f2fe; font-weight:800;">
             <td>Total Bank Cash & Reserves (Available)</td>
-            <td id="print-pos-total-liquid-cash" class="text-right font-mono" style="color:#0369a1;">{formatDollar(totalBankLiquidity)}</td>
+            <td id="print-pos-total-liquid-cash" class="text-right font-mono" style="color:#0369a1;">--</td>
           </tr>
           <tr>
-            <td>GL Book Checking Cash (Float: +$1,057)</td>
-            <td id="print-pos-checking-book" class="text-right font-mono text-slate-500">{formatDollar(pos.assets.operating_checking_first_merchants)}</td>
+            <td>GL Book Checking Cash</td>
+            <td id="print-pos-checking-book" class="text-right font-mono">--</td>
           </tr>
           <tr>
             <td>Sales Tax Holding Escrow (Separate)</td>
-            <td id="print-pos-tax-escrow" class="text-right font-mono">{formatDollar(pos.assets.tax_holding_escrow)}</td>
+            <td id="print-pos-tax-escrow" class="text-right font-mono">--</td>
           </tr>
           <tr>
             <td>Shelter Property & Equipment (Net)</td>
-            <td id="print-pos-fixed" class="text-right font-mono">{formatDollar(pos.assets.fixed_assets_net)}</td>
+            <td id="print-pos-fixed" class="text-right font-mono">--</td>
           </tr>
           <tr style="background:#f1f5f9; font-weight:700;">
             <td>Total Balance Sheet Assets (QBO)</td>
-            <td id="print-pos-total-assets" class="text-right font-mono text-emerald" style="font-weight:800;">{formatDollar(pos.assets.total_assets)}</td>
+            <td id="print-pos-total-assets" class="text-right font-mono text-emerald" style="font-weight:800;">--</td>
           </tr>
           <tr style="background:#fef2f2; font-weight:700;">
             <td>Current Bills & Obligations (AP + CC + LOC)</td>
-            <td id="print-pos-obligations" class="text-right font-mono text-rose">{formatDollar(pos.liabilities.total_operating_obligations_current)}</td>
+            <td id="print-pos-obligations" class="text-right font-mono text-rose">--</td>
           </tr>
           <tr style="background:#ede9fe; font-weight:700;">
             <td>Net Worth & Reserves (Total Equity)</td>
-            <td id="print-pos-total-equity" class="text-right font-mono" style="color:#5b21b6; font-weight:800;">{formatDollar(pos.net_assets.total_equity_qbo)}</td>
+            <td id="print-pos-total-equity" class="text-right font-mono" style="color:#5b21b6; font-weight:800;">--</td>
           </tr>
         </tbody>
       </table>
       <div class="note-box">
-        <strong>✓ Balanced:</strong> Total Assets equal Liabilities + Equity ($0.00 variance). Undeposited funds excluded from cash metrics to reflect true verified bank cash.
+        <strong>✓ Balanced:</strong> Total Assets equal Liabilities + Equity when the certified packet loads.
       </div>
     </div>
   </div>
 
   <div class="footer">
-    <span>HSMC Executive Board Packet · Period Ending August 31, 2026 · Page 1 of 2</span>
-    <span class="font-mono">SHA-256: {meta.sha256_checksum.slice(0, 24)}...</span>
+    <span>HSMC Executive Board Packet · Page 1 of 2</span>
+    <span id="print-footer-checksum-p1" class="font-mono">SHA-256: --</span>
   </div>
 
-  <!-- ── Page 2: Expense Explorer & Accounts Payable Schedule ──────────── -->
   <div class="page-break"></div>
 
   <div class="header">
     <div>
       <span class="badge badge-confidential">BOARD CONFIDENTIAL</span>
-      <span class="badge badge-accent">AUGUST 2026 TRANSACTION SLICE</span>
+      <span class="badge badge-accent">AUGUST TRANSACTION SLICE</span>
       <h1>Humane Society of Monroe County</h1>
       <div style="font-size:10.5px; font-weight:600; color:#334155;">
-        Itemized Expense Explorer & Accounts Payable Schedule (As of August 31, 2026)
+        Itemized Expense Explorer & Accounts Payable Schedule
       </div>
     </div>
     <div style="text-align:right;">
-      <div style="font-size:9px; color:#64748b;">Month Disbursements: <strong>{formatDollar(totalAugustSpend)}</strong></div>
-      <div style="font-size:9px; color:#64748b;">Total August Transactions: <strong>{totalAugustTxs}</strong></div>
+      <div style="font-size:9px; color:#64748b;">Month Disbursements: <strong id="print-aug-spend">--</strong></div>
+      <div style="font-size:9px; color:#64748b;">Total August Transactions: <strong id="print-aug-txs">--</strong></div>
     </div>
   </div>
 
-  <!-- 4. Expense Explorer: August 2026 Categorized Disbursements -->
-  <h2>4. August 2026 Expense Explorer — Category & Payee Breakdown</h2>
+  <h2>4. August Expense Explorer — Category & Payee Breakdown</h2>
   <table>
     <thead>
       <tr>
@@ -493,42 +409,29 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
         <th style="width:26%;">Top Payees / Vendors</th>
       </tr>
     </thead>
-    <tbody>
-      {expenseCategories.map((c) => (
-        <tr>
-          <td>
-            <strong>{c.name}</strong>
-          </td>
-          <td>
-            <span class="badge" style="font-size:7.5px;">{c.group}</span>
-          </td>
-          <td class="text-center font-mono">{c.payeeCount}</td>
-          <td class="text-center font-mono">{c.txCount}</td>
-          <td class="text-right font-mono" style="font-weight:700;">{formatDollar(c.total)}</td>
-          <td class="text-right font-mono text-slate-500">{((c.total / totalAugustSpend) * 100).toFixed(1)}%</td>
-          <td style="font-size:8px; color:#475569;">{c.topVendorsStr || '—'}</td>
-        </tr>
-      ))}
+    <tbody id="print-expense-tbody">
+      <tr>
+        <td colspan="7" class="text-center" style="color:#64748b; padding:12px;">Loading August disbursements…</td>
+      </tr>
     </tbody>
     <tfoot>
       <tr style="background:#173a39; color:#fff; font-weight:700;">
         <td colspan="2">TOTAL AUGUST DISBURSEMENTS</td>
-        <td class="text-center font-mono" style="color:#cbd5e1;">46</td>
-        <td class="text-center font-mono" style="color:#cbd5e1;">{totalAugustTxs}</td>
-        <td class="text-right font-mono" style="color:#6ee7b7;">{formatDollar(totalAugustSpend)}</td>
+        <td id="print-aug-payees" class="text-center font-mono" style="color:#cbd5e1;">--</td>
+        <td id="print-aug-txs-foot" class="text-center font-mono" style="color:#cbd5e1;">--</td>
+        <td id="print-aug-spend-foot" class="text-right font-mono" style="color:#6ee7b7;">--</td>
         <td class="text-right font-mono" style="color:#6ee7b7;">100.0%</td>
-        <td style="color:#6ee7b7; font-size:8px;">All 62 bank withdrawals reconciled</td>
+        <td style="color:#6ee7b7; font-size:8px;">Bank withdrawals reconciled</td>
       </tr>
     </tfoot>
   </table>
 
   <div class="note-box">
-    <strong>Expense Highlights for August 2026:</strong>
-    Wages & Payroll ($32.8k) covers two bi-weekly staff payroll runs across caregivers and shelter staff. Credit Card Liability ($13.2k) represents the monthly clearing autopayment for operational and animal supply cards. Veterinary & Medical ($6.0k) includes clinical medication, vaccines, and surgical supplies.
+    <strong>Expense Highlights:</strong>
+    Category totals and top payees populate from the authenticated August bank statement.
   </div>
 
-  <!-- 5. Accounts Payable Schedule -->
-  <h2>5. Itemized Accounts Payable Schedule (As of August 31, 2026)</h2>
+  <h2>5. Itemized Accounts Payable Schedule</h2>
   <table>
     <thead>
       <tr>
@@ -539,25 +442,14 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
       </tr>
     </thead>
     <tbody id="print-ap-tbody">
-      {ap.map((item: any) => (
-        <tr>
-          <td>
-            <strong>{item.vendor}</strong>
-            {item.is_related_party ? <span class="badge badge-related" style="margin-left:3px;">990 Related</span> : null}
-            {item.is_contra_credit ? <span class="badge" style="margin-left:3px; background:#e2e8f0; font-size:7px;">Credit</span> : null}
-          </td>
-          <td>{item.category}</td>
-          <td class="text-right font-mono" style={item.amount < 0 ? 'color:#047857; font-weight:700;' : 'font-weight:700;'}>{formatCents(item.amount)}</td>
-          <td class="text-center">
-            <span class="badge" style={item.status === 'Active Current' ? 'background:#ecfdf5; color:#065f46; border-color:#a7f3d0;' : ''}>{item.status}</span>
-          </td>
-        </tr>
-      ))}
+      <tr>
+        <td colspan="4" class="text-center" style="color:#64748b; padding:12px;">Loading accounts payable…</td>
+      </tr>
     </tbody>
     <tfoot>
       <tr style="background:#173a39; color:#fff; font-weight:700;">
-        <td colspan="2">CERTIFIED ACCOUNTS PAYABLE TOTAL (19 ACCOUNTS)</td>
-        <td id="print-ap-foot-total" class="text-right font-mono" style="color:#6ee7b7;">{formatCents(apTotal)}</td>
+        <td colspan="2">CERTIFIED ACCOUNTS PAYABLE TOTAL</td>
+        <td id="print-ap-foot-total" class="text-right font-mono" style="color:#6ee7b7;">--</td>
         <td class="text-center" style="color:#6ee7b7; font-size:8px;">Accrual Footed Cent-for-Cent</td>
       </tr>
     </tfoot>
@@ -565,16 +457,14 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
 
   <div class="note-box">
     <strong>Form 990 & Operational Disclosures:</strong>
-    (1) Related parties Kelly Karlet and Jackie Monteer represent bona fide caregiver mileage/shelter expense reimbursements. Robert Monteer represents a staff clearing credit balance. Director's Assistant Jeffery Howard is compensated via regular board-approved W-2 payroll and holds no payables.
-    (2) All 19 vendor accounts are current and active. Net open AP ($3,533.11) is fully covered by available checking cash ($24,526.34) with 6.9x coverage.
+    Related-party and AP coverage notes populate with the authenticated packet. Director's Assistant compensation is regular board-approved W-2 payroll.
   </div>
 
   <div class="footer">
-    <span>HSMC Executive Board Packet · Period Ending August 31, 2026 · Page 2 of 2</span>
-    <span id="print-footer-checksum" class="font-mono">Canonical SHA-256: {meta.sha256_checksum}</span>
+    <span>HSMC Executive Board Packet · Page 2 of 2</span>
+    <span id="print-footer-checksum" class="font-mono">Canonical SHA-256: --</span>
   </div>
 
-  <!-- ── Client Hydration Script (Cache & API Sync) ────────────────────── -->
   <script>
     import { isStaffAuthenticated, getStaffToken } from '../../../lib/staff-auth';
     import { getCachedFinancials } from '../../../lib/api';
@@ -600,6 +490,68 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
         maximumFractionDigits: 2,
       }).format(abs);
       return isNeg ? `(${formatted})` : formatted;
+    }
+
+    const CATEGORY_DEFS = [
+      { key: 'wages', name: 'Wages & Payroll', group: 'Payroll', sourceCategories: ['Staff Payroll', 'Staff Paycheck'] },
+      { key: 'taxes', name: 'Payroll Taxes', group: 'Payroll', sourceCategories: ['Payroll Taxes'] },
+      { key: 'medical', name: 'Veterinary & Medical', group: 'Operations', sourceCategories: ['Veterinary & Medical Care', 'Veterinary Supply'] },
+      { key: 'facilities', name: 'Facilities & Sanitation', group: 'Operations', sourceCategories: ['Facilities & Sanitation'] },
+      { key: 'insurance', name: 'Insurance', group: 'Operations', sourceCategories: ['Insurance & Risk'] },
+      { key: 'capital', name: 'Capital Projects', group: 'Capital', sourceCategories: ['Capital Improvements'] },
+      { key: 'creditcard', name: 'Credit Card Clearing', group: 'Operations', sourceCategories: ['Credit Card Liability'] },
+      { key: 'software', name: 'Software & Technology', group: 'Operations', sourceCategories: ['Software & Technology', 'Software & Cloud'] },
+      { key: 'bankfees', name: 'Bank & Merchant Fees', group: 'Operations', sourceCategories: ['Bank & Processing Fees'] },
+    ];
+
+    function hydrateExpenseTable(withdrawals: any[]) {
+      const tbody = document.getElementById('print-expense-tbody');
+      if (!tbody) return;
+      const cats = CATEGORY_DEFS.map((def) => {
+        const txs = (withdrawals || []).filter((w: any) => def.sourceCategories.includes(w.category));
+        const vendorMap = new Map<string, number>();
+        for (const t of txs) {
+          const k = t.payee || 'Unknown';
+          vendorMap.set(k, (vendorMap.get(k) || 0) + t.amount);
+        }
+        const topVendors = Array.from(vendorMap.entries())
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, amt]) => `${name} (${formatDollar(amt)})`);
+        return {
+          ...def,
+          total: txs.reduce((s: number, t: any) => s + t.amount, 0),
+          txCount: txs.length,
+          payeeCount: vendorMap.size,
+          topVendorsStr: topVendors.slice(0, 3).join(', '),
+        };
+      }).filter((c) => c.txCount > 0).sort((a, b) => b.total - a.total);
+
+      const totalSpend = cats.reduce((s, c) => s + c.total, 0);
+      const totalTxs = cats.reduce((s, c) => s + c.txCount, 0);
+      tbody.innerHTML = '';
+      cats.forEach((c) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${c.name}</strong></td>
+          <td><span class="badge">${c.group}</span></td>
+          <td class="text-center font-mono">${c.payeeCount}</td>
+          <td class="text-center font-mono">${c.txCount}</td>
+          <td class="text-right font-mono" style="font-weight:700;">${formatDollar(c.total)}</td>
+          <td class="text-right font-mono">${totalSpend > 0 ? ((c.total / totalSpend) * 100).toFixed(1) : '0.0'}%</td>
+          <td style="font-size:8px; color:#475569;">${c.topVendorsStr || '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const setEl = (id: string, text: string) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+      };
+      setEl('print-aug-spend', formatDollar(totalSpend));
+      setEl('print-aug-txs', String(totalTxs));
+      setEl('print-aug-txs-foot', String(totalTxs));
+      setEl('print-aug-spend-foot', formatDollar(totalSpend));
+      setEl('print-aug-payees', String(cats.reduce((s, c) => s + c.payeeCount, 0)));
     }
 
     async function initPrintView(): Promise<void> {
@@ -628,20 +580,22 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
         }
         if (!data) return;
 
+        const loading = document.getElementById('print-loading-banner');
+        if (loading) loading.remove();
+
         const setEl = (id: string, text: string) => {
           const el = document.getElementById(id);
           if (el) el.textContent = text;
         };
 
-        // Header
         if (data.meta) {
           setEl('print-period-title', `Official Board Financial Packet — Jan 1 through August 31, 2026`);
           setEl('print-publisher', `Prepared By: ${data.meta.published_by}`);
           setEl('print-checksum', `SHA-256: ${data.meta.sha256_checksum.slice(0, 16)}...`);
           setEl('print-footer-checksum', `Canonical SHA-256: ${data.meta.sha256_checksum}`);
+          setEl('print-footer-checksum-p1', `SHA-256: ${data.meta.sha256_checksum.slice(0, 24)}...`);
         }
 
-        // KPIs (Consistent with plain-English portal)
         if (data.headline_kpis) {
           const k = data.headline_kpis;
           setEl('print-allin-net', formatDollar(k.all_in_net));
@@ -649,12 +603,13 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
           setEl('print-qbo-net', formatDollar(k.qbo_operating_net));
           setEl('print-prog-ratio', `${k.program_ratio_pct.toFixed(1)}%`);
 
-          const bankCash = k.bank_register_cash || k.operating_checking_bank_register || 24526.34;
-          const fidCash = k.fidelity_reserve || 205144.00;
+          const bankCash = k.bank_register_cash || k.operating_checking_bank_register || 0;
+          const fidCash = k.fidelity_reserve || 0;
           setEl('print-total-liq', formatDollar(bankCash + fidCash));
+          const burn = Math.abs((k.qbo_operating_net || 0) / 8) || 1;
+          setEl('print-runway-sub', `${((bankCash + fidCash) / burn).toFixed(1)} Mo Runway`);
         }
 
-        // Monthly Statements
         if (data.monthly_statements) {
           const tbody = document.getElementById('print-monthly-tbody');
           if (tbody) {
@@ -688,7 +643,6 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
           }
         }
 
-        // Bridge
         if (data.bridge_composition) {
           const b = data.bridge_composition;
           setEl('print-bridge-qbo-net', formatCents(data.headline_kpis.qbo_operating_net));
@@ -699,11 +653,10 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
           setEl('print-bridge-allin', formatCents(data.headline_kpis.all_in_net));
         }
 
-        // Position
         if (data.statement_of_position) {
           const pos = data.statement_of_position;
-          const bankCash = pos.assets.operating_checking_bank_register || 24526.34;
-          const fidCash = pos.assets.fidelity_board_designated_reserve || 205144.00;
+          const bankCash = pos.assets.operating_checking_bank_register || 0;
+          const fidCash = pos.assets.fidelity_board_designated_reserve || 0;
           setEl('print-pos-checking-bank', formatDollar(bankCash));
           setEl('print-pos-fidelity', formatDollar(fidCash));
           setEl('print-pos-total-liquid-cash', formatDollar(bankCash + fidCash));
@@ -715,7 +668,6 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
           setEl('print-pos-total-equity', formatDollar(pos.net_assets.total_equity_qbo));
         }
 
-        // Accounts Payable
         if (data.accounts_payable_schedule) {
           const ap = data.accounts_payable_schedule;
           const tbody = document.getElementById('print-ap-tbody');
@@ -740,6 +692,10 @@ const totalAugustTxs = expenseCategories.reduce((s, c) => s + c.txCount, 0);
             const apTotal = ap.reduce((a: number, b: any) => a + b.amount, 0);
             setEl('print-ap-foot-total', formatCents(apTotal));
           }
+        }
+
+        if (data.bank_statement?.withdrawals) {
+          hydrateExpenseTable(data.bank_statement.withdrawals);
         }
 
         const printBtn = document.getElementById('print-action-btn') as HTMLButtonElement | null;

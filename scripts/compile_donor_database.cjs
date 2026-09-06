@@ -454,15 +454,11 @@ console.log('Donors with Full Mailing Address:', totalWithAddress, `(${((totalWi
 console.log('Major Donors ($1,000+):', majorDonors);
 console.log('Active 2026 Donors:', active2026);
 
-// Write to frontend data and api data
-const targetFront = 'frontend/src/data/donor_database.json';
+// Server-side only. Do not write frontend/src/data — Astro SSG would bake PII into public HTML.
 const targetApi = 'api/data/donor_database.json';
 
-fs.writeFileSync(targetFront, JSON.stringify(databasePayload, null, 2), 'utf8');
-console.log('Wrote frontend dataset:', targetFront, `(${(fs.statSync(targetFront).size / (1024 * 1024)).toFixed(2)} MB)`);
-
 if (!fs.existsSync('api/data')) fs.mkdirSync('api/data', { recursive: true });
-fs.writeFileSync(targetApi, JSON.stringify(databasePayload, null, 2), 'utf8');
-console.log('Wrote api dataset:', targetApi);
+fs.writeFileSync(targetApi, JSON.stringify(databasePayload), 'utf8');
+console.log('Wrote api dataset:', targetApi, `(${(fs.statSync(targetApi).size / (1024 * 1024)).toFixed(2)} MB)`);
 
 console.log('Compilation Complete!');

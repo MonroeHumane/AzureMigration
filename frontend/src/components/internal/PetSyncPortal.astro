@@ -358,8 +358,8 @@ const getUrgencyBadge = (days: number | null) => {
         <tbody id="petsync-tbody" class="divide-y divide-slate-100">
           {activePets.map((pet) => {
             const daysAtShelter = calculateDaysAtShelter(pet.intake_date);
-            const petPointUrl = pet.url || `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${pet.id}&css=&authkey=40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp&PopUp=true`;
-            const publicUrl = `/adopt/${pet.id}`;
+            const publicUrl = `/adopt/${encodeURIComponent(pet.id)}`;
+            const petPointUrl = (pet.url && !/authkey=/i.test(pet.url)) ? pet.url : publicUrl;
             const photoUrl = pet.image || '/assets/recovered/images/placeholder.svg';
 
             return (
@@ -529,8 +529,8 @@ const getUrgencyBadge = (days: number | null) => {
       {activePets.map((pet) => {
         const daysAtShelter = calculateDaysAtShelter(pet.intake_date);
         const urgency = getUrgencyBadge(daysAtShelter);
-        const petPointUrl = pet.url || `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${pet.id}&css=&authkey=40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp&PopUp=true`;
-        const publicUrl = `/adopt/${pet.id}`;
+        const publicUrl = `/adopt/${encodeURIComponent(pet.id)}`;
+        const petPointUrl = (pet.url && !/authkey=/i.test(pet.url)) ? pet.url : publicUrl;
         const photoUrl = pet.image || '/assets/recovered/images/placeholder.svg';
         const petInfoJson = JSON.stringify({
           id: pet.id,
@@ -806,8 +806,7 @@ const getUrgencyBadge = (days: number | null) => {
             : null;
           const photoUrl = pet.image || '/assets/recovered/images/placeholder.svg';
           const petPointUrl =
-            pet.url ||
-            `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${pet.id}&css=&authkey=40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp&PopUp=true`;
+            (pet.url && !/authkey=/i.test(pet.url)) ? pet.url : `/adopt/${encodeURIComponent(pet.id)}`;
           const formattedIntake = pet.intake_date
             ? new Date(pet.intake_date).toLocaleDateString('en-US', {
                 month: 'short',

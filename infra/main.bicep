@@ -20,11 +20,11 @@ param mysqlAdminPassword string
 param directusAdminPassword string
 
 @secure()
-@description('Directus KEY (data encryption key)')
+@description('Directus KEY (data encryption key). If applying to the live app, pass the KEY already running on mchs-directus — do not generate a new one. Rotating KEY can make existing encrypted fields unreadable. The live value is not in git.')
 param directusKey string
 
 @secure()
-@description('Directus SECRET (session/JWT signing secret)')
+@description('Directus SECRET (session/JWT signing secret). If applying to the live app, pass the SECRET already running on mchs-directus — rotating it invalidates staff sessions.')
 param directusSecret string
 
 @secure()
@@ -39,11 +39,20 @@ param petangoAuthkey string
 @description('GitHub PAT (repo scope) the PetSync job uses to trigger a frontend rebuild via repository_dispatch. Optional — leave empty to skip auto-rebuild.')
 param githubDispatchToken string = ''
 
+@secure()
+@description('Shared secret for Arcade cleanup/cron endpoints')
+param arcadeCleanupSecret string
+
+@description('Optional extra MySQL firewall rules. Each object: name, startIpAddress, endIpAddress. Empty keeps only AllowAzureServices (required for ACA without a VNet).')
+param extraMysqlFirewallRules array = []
+
 var suffix = uniqueString(resourceGroup().id)
 var storageAccountName = 'mchsstorage${suffix}'
 var containerAppEnvName = 'mchs-aca-env-${environmentName}'
 var mysqlServerName = 'mchs-mysql-${suffix}'
 var swaName = 'mchs-frontend-${environmentName}'
+var logAnalyticsName = 'mchs-logs-${environmentName}-${suffix}'
+var directusCorsOrigin = 'https://monroe-humane.org,https://delightful-dune-0d730f70f.7.azurestaticapps.net'
 
 // 1. Azure Blob Storage (Directus uploads & media)
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
@@ -95,7 +104,7 @@ resource directusContainer 'Microsoft.Storage/storageAccounts/blobServices/conta
   parent: blobService
   name: 'directus-uploads'
   properties: {
-    publicAccess: 'Blob'
+    publicAccess: 'None'
   }
 }
 
@@ -108,6 +117,12 @@ resource petPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
 }
 
 // 2. Azure Database for MySQL Flexible Server
+// publicNetworkAccess stays Enabled: ACA in this template is not VNet-injected.
+// AllowAzureServices (0.0.0.0) is required for Container Apps to reach MySQL
+// until a private endpoint + VNet-injected ACA environment is designed.
+// TODO: add a delegated subnet, VNet for the ACA environment, and a MySQL
+// private endpoint, then set publicNetworkAccess to Disabled. Do not flip
+// that switch in this template — it would lock out the live apps.
 resource mysqlServer 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
   name: mysqlServerName
   location: location
@@ -124,6 +139,14 @@ resource mysqlServer 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
       iops: 360
       autoGrow: 'Enabled'
     }
+    // Burstable Standard_B1ms does not support geo-redundant backup.
+    backup: {
+      backupRetentionDays: 7
+      geoRedundantBackup: 'Disabled'
+    }
+    network: {
+      publicNetworkAccess: 'Enabled'
+    }
   }
 }
 
@@ -135,6 +158,15 @@ resource mysqlAllowAllAzureIPs 'Microsoft.DBforMySQL/flexibleServers/firewallRul
     endIpAddress: '0.0.0.0'
   }
 }
+
+resource extraMysqlFirewall 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2023-12-30' = [for rule in extraMysqlFirewallRules: {
+  parent: mysqlServer
+  name: rule.name
+  properties: {
+    startIpAddress: rule.startIpAddress
+    endIpAddress: rule.endIpAddress
+  }
+}]
 
 resource directusDb 'Microsoft.DBforMySQL/flexibleServers/databases@2023-12-30' = {
   parent: mysqlServer
@@ -154,12 +186,30 @@ resource arcadeDb 'Microsoft.DBforMySQL/flexibleServers/databases@2023-12-30' = 
   }
 }
 
-// 3. Azure Container Apps Environment (Serverless Managed)
+// 3. Log Analytics + Azure Container Apps Environment
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: logAnalyticsName
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 30
+  }
+}
+
 resource acaEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: containerAppEnvName
   location: location
   properties: {
     zoneRedundant: false
+    appLogsConfiguration: {
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: logAnalytics.properties.customerId
+        sharedKey: logAnalytics.listKeys().primarySharedKey
+      }
+    }
   }
 }
 
@@ -175,6 +225,15 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: 8055
         transport: 'auto'
       }
+      secrets: [
+        { name: 'db-password', value: mysqlAdminPassword }
+        { name: 'admin-password', value: directusAdminPassword }
+        // Apply the currently running KEY/SECRET if the live app has implicit
+        // keys. Rotating KEY can brick encrypted fields. Live KEY is not in git.
+        { name: 'directus-key', value: directusKey }
+        { name: 'directus-secret', value: directusSecret }
+        { name: 'storage-azure-account-key', value: storageAccount.listKeys().keys[0].value }
+      ]
     }
     template: {
       scale: {
@@ -199,21 +258,20 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'DB_PORT', value: '3306' }
             { name: 'DB_DATABASE', value: 'directus_db' }
             { name: 'DB_USER', value: mysqlAdminUser }
-            { name: 'DB_PASSWORD', value: mysqlAdminPassword }
+            { name: 'DB_PASSWORD', secretRef: 'db-password' }
             { name: 'DB_SSL', value: 'true' }
-            { name: 'DB_SSL__REJECT_UNAUTHORIZED', value: 'false' }
             { name: 'ADMIN_EMAIL', value: 'admin@monroe-humane.org' }
-            { name: 'ADMIN_PASSWORD', value: directusAdminPassword }
+            { name: 'ADMIN_PASSWORD', secretRef: 'admin-password' }
             { name: 'CORS_ENABLED', value: 'true' }
-            { name: 'CORS_ORIGIN', value: 'true' }
-            { name: 'KEY', value: directusKey }
-            { name: 'SECRET', value: directusSecret }
-            { name: 'PUBLIC_URL', value: 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io' }
+            { name: 'CORS_ORIGIN', value: directusCorsOrigin }
+            { name: 'KEY', secretRef: 'directus-key' }
+            { name: 'SECRET', secretRef: 'directus-secret' }
+            { name: 'PUBLIC_URL', value: 'https://mchs-directus.${acaEnvironment.properties.defaultDomain}' }
             { name: 'WEBSOCKETS_ENABLED', value: 'true' }
             { name: 'STORAGE_LOCATIONS', value: 'azure' }
             { name: 'STORAGE_AZURE_DRIVER', value: 'azure' }
             { name: 'STORAGE_AZURE_ACCOUNT_NAME', value: storageAccountName }
-            { name: 'STORAGE_AZURE_ACCOUNT_KEY', value: storageAccount.listKeys().keys[0].value }
+            { name: 'STORAGE_AZURE_ACCOUNT_KEY', secretRef: 'storage-azure-account-key' }
             { name: 'STORAGE_AZURE_CONTAINER_NAME', value: 'directus-uploads' }
             { name: 'STORAGE_AZURE_PUBLIC_URL', value: '${storageAccount.properties.primaryEndpoints.blob}directus-uploads' }
           ]
@@ -235,12 +293,22 @@ resource arcadeApp 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: 80
         transport: 'auto'
       }
+      secrets: [
+        { name: 'db-pass', value: mysqlAdminPassword }
+        { name: 'cleanup-secret', value: arcadeCleanupSecret }
+      ]
     }
     template: {
+      scale: {
+        minReplicas: 1
+        maxReplicas: 2
+      }
       containers: [
         {
           name: 'arcade-api'
-          image: 'nginx:latest'
+          // Align with the image CI already pushes. A live template apply
+          // must keep any existing ghcr.io registry credentials on this app.
+          image: 'ghcr.io/monroehumane/monroe-humane-arcade:latest'
           resources: {
             cpu: json('0.25')
             memory: '0.5Gi'
@@ -249,8 +317,10 @@ resource arcadeApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'DB_HOST', value: mysqlServer.properties.fullyQualifiedDomainName }
             { name: 'DB_NAME', value: 'arcade_db' }
             { name: 'DB_USER', value: mysqlAdminUser }
-            { name: 'DB_PASS', value: mysqlAdminPassword }
-            { name: 'CORS_ALLOWED_ORIGINS', value: 'https://monroe-humane.org,https://${swaName}.azurestaticapps.net' }
+            { name: 'DB_PASS', secretRef: 'db-pass' }
+            { name: 'DB_SSL', value: 'true' }
+            { name: 'CORS_ALLOWED_ORIGINS', value: directusCorsOrigin }
+            { name: 'CLEANUP_SECRET', secretRef: 'cleanup-secret' }
           ]
         }
       ]
@@ -297,6 +367,7 @@ resource petsyncJob 'Microsoft.App/jobs@2024-03-01' = {
             { name: 'PET_PHOTO_CONTAINER', value: 'pet-photos' }
             { name: 'GITHUB_DISPATCH_TOKEN', secretRef: 'github-dispatch-token' }
             { name: 'GITHUB_REPO', value: 'MonroeHumane/AzureMigration' }
+            { name: 'PUBLIC_SITE_URL', value: 'https://monroe-humane.org' }
           ]
         }
       ]

@@ -3,8 +3,6 @@
 // Two-Way Cash Flow Explorer: Symmetric 3-Level Inflows & Expenses Drilldown
 // Level 1: Category → Level 2: Vendor/Channel/Payee → Level 3: Transaction
 // Multi-Month Support: Jan 2026 – Aug 2026 + All 2026 YTD
-import monthlyDrilldownsData from '../../data/monthly_drilldown_2026.json';
-
 interface Withdrawal {
   date: string;
   description: string;
@@ -279,8 +277,6 @@ function cc(color: string): ColorSet {
   return map[color] ?? map['slate'];
 }
 
-// Available months from drilldown dataset
-const monthsMap = (monthlyDrilldownsData as any).months || {};
 const monthKeys = [
   { id: 'month_2026_7', label: 'Aug 2026' },
   { id: 'month_2026_6', label: 'Jul 2026' },
@@ -293,8 +289,6 @@ const monthKeys = [
   { id: 'all_ytd',      label: 'All 2026 YTD' },
 ];
 
-// Serialize for client JS
-const allMonths = monthsMap;
 ---
 
 <div id="expense-explorer-root" class="space-y-4">
@@ -351,7 +345,7 @@ const allMonths = monthsMap;
       <div class="flex items-center gap-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200 shrink-0" id="ee-variance-card">
         <div class="text-right">
           <div class="text-[10px] uppercase font-bold text-slate-400" id="ee-variance-label">August Net Margin</div>
-          <div class="font-mono font-black text-sm text-rose-700" id="ee-variance-value">{fmt(netMonthVariance)}</div>
+          <div class="font-mono font-black text-sm text-slate-500" id="ee-variance-value">{expenseCategories.length ? fmt(netMonthVariance) : '--'}</div>
           <div class="text-[9px] text-slate-500" id="ee-variance-caption">QuickBooks Online Verified</div>
         </div>
         <div class="w-8 h-8 rounded-lg bg-slate-200/70 text-slate-600 flex items-center justify-center shrink-0">
@@ -374,7 +368,7 @@ const allMonths = monthsMap;
         </svg>
         <span>Expenditures</span>
         <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-white/20 text-white" id="ee-badge-exp-count">
-          {expenseCategories.length} categories
+          {expenseCategories.length ? `${expenseCategories.length} categories` : 'Loading…'}
         </span>
       </button>
 
@@ -388,7 +382,7 @@ const allMonths = monthsMap;
         </svg>
         <span>Revenue Inflows</span>
         <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-slate-100 text-slate-600" id="ee-badge-inf-count">
-          {inflowCategories.length} categories
+          {inflowCategories.length ? `${inflowCategories.length} categories` : 'Loading…'}
         </span>
       </button>
 
@@ -444,6 +438,11 @@ const allMonths = monthsMap;
   <!-- ── 1. EXPENSES VIEW ─────────────────────────────────────────────────── -->
   <div id="ee-view-expenses" class="space-y-2">
     <div id="ee-expense-category-list" class="space-y-2">
+      {expenseCategories.length === 0 && (
+        <div class="rounded-xl border border-slate-200 bg-white px-5 py-8 text-center text-sm text-slate-500">
+          Loading cash-flow categories after sign-in…
+        </div>
+      )}
       {expenseCategories.map((cat, catIdx) => {
         const c = cc(cat.color);
         return (
@@ -591,6 +590,11 @@ const allMonths = monthsMap;
   <!-- ── 2. INFLOWS VIEW ─────────────────────────────────────────────────── -->
   <div id="ee-view-inflows" class="hidden space-y-2">
     <div id="ee-inflow-category-list" class="space-y-2">
+      {inflowCategories.length === 0 && (
+        <div class="rounded-xl border border-emerald-200 bg-white px-5 py-8 text-center text-sm text-slate-500">
+          Loading revenue categories after sign-in…
+        </div>
+      )}
       {inflowCategories.map((cat, catIdx) => {
         const c = cc(cat.color);
         return (
@@ -769,9 +773,18 @@ const allMonths = monthsMap;
   }
 </style>
 
-<script is:inline define:vars={{ allMonths, statementPeriod }}>
+<script is:inline>
+  let allMonths = {};
+  let statementPeriod = 'August 2026';
   let activeMonthId = 'month_2026_7'; // Default August 2026
   let currentMode = 'expenses';
+
+  window.__hydrateExpenseExplorer = function(months) {
+    allMonths = months || {};
+    if (typeof renderMonthData === 'function') {
+      renderMonthData(activeMonthId);
+    }
+  };
 
   function fmtCurrency(val) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(val);

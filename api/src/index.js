@@ -6,16 +6,80 @@ const crypto = require('crypto');
 const reportData = require('../data/published_2026_ytd.json');
 const statementData = require('../data/statement_2026_08.json');
 
+function loadJsonOptional(relPath) {
+  try {
+    return require(relPath);
+  } catch (err) {
+    if (err && err.code === 'MODULE_NOT_FOUND') {
+      return null;
+    }
+    throw err;
+  }
+}
+
+const donorDatabase = loadJsonOptional('../data/donor_database.json');
+const monthlyDrilldown = loadJsonOptional('../data/monthly_drilldown_2026.json');
+
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
-const STAFF_SECRET = process.env.STAFF_AUTH_SECRET || 'mchs-staff-session-portal-secret-key-2026';
+const STAFF_SECRET = (process.env.STAFF_AUTH_SECRET || '').trim();
+
+const ALLOWED_ORIGINS = new Set([
+  'https://monroe-humane.org',
+  'https://delightful-dune-0d730f70f.7.azurestaticapps.net',
+  'http://localhost:4321',
+  'http://localhost:5173',
+]);
 
 const STATEMENT_FILES = {
   bank: 'First_Merchant_Chkng_XXXXXX8478_08312026.pdf',
   qbo: 'QBO_Reconciliation_Report_08312026.pdf',
 };
 
+function isStaffSecretConfigured() {
+  return STAFF_SECRET.length > 0;
+}
+
+function corsHeaders(request, extra) {
+  const headers = Object.assign({}, extra || {});
+  const origin = (request.headers.get('origin') || '').trim();
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    headers['Access-Control-Allow-Origin'] = origin;
+    headers['Vary'] = 'Origin';
+  }
+  return headers;
+}
+
+function corsPreflight(request, methods, allowHeaders) {
+  return {
+    status: 204,
+    headers: corsHeaders(request, {
+      'Access-Control-Allow-Methods': methods,
+      'Access-Control-Allow-Headers': allowHeaders,
+    }),
+  };
+}
+
+function jsonResponse(request, status, body, extraHeaders) {
+  return {
+    status,
+    headers: corsHeaders(request, Object.assign({
+      'Content-Type': 'application/json',
+    }, extraHeaders || {})),
+    jsonBody: body,
+  };
+}
+
+function staffAuthUnavailable(request) {
+  return jsonResponse(request, 503, { error: 'Service temporarily unavailable.' }, {
+    'Cache-Control': 'no-store, private',
+  });
+}
+
 // Helper: Generate persistent HMAC-signed staff session token
 function createStaffToken(email) {
+  if (!isStaffSecretConfigured()) {
+    throw new Error('Staff session signing is not configured');
+  }
   const payload = Buffer.from(JSON.stringify({
     email: (email || 'staff@monroe-humane.org').toLowerCase().trim(),
     role: 'staff',
@@ -27,6 +91,9 @@ function createStaffToken(email) {
 
 // Helper: Verify persistent HMAC-signed staff session token
 function verifyStaffToken(token) {
+  if (!isStaffSecretConfigured()) {
+    return null;
+  }
   if (!token || typeof token !== 'string' || !token.startsWith('mchs_')) {
     return null;
   }
@@ -90,20 +157,25 @@ async function authenticateRequest(token) {
   return null;
 }
 
+function bearerToken(request) {
+  const authHeader = request.headers.get('authorization') || '';
+  if (authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7).trim();
+  }
+  return '';
+}
+
 // 1. POST /api/login
 app.http('login', {
   methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
   handler: async (request, context) => {
     if (request.method === 'OPTIONS') {
-      return {
-        status: 204,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-        },
-      };
+      return corsPreflight(request, 'POST, OPTIONS', 'Authorization, Content-Type');
+    }
+
+    if (!isStaffSecretConfigured()) {
+      return staffAuthUnavailable(request);
     }
 
     try {
@@ -111,11 +183,7 @@ app.http('login', {
       const { email, password } = body || {};
 
       if (!email || !password) {
-        return {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-          jsonBody: { error: 'Email and password are required.' },
-        };
+        return jsonResponse(request, 400, { error: 'Email and password are required.' });
       }
 
       // Authenticate against Directus CMS
@@ -126,36 +194,23 @@ app.http('login', {
       });
 
       if (!directusRes.ok) {
-        return {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-          jsonBody: { error: 'Invalid email or password.' },
-        };
+        return jsonResponse(request, 401, { error: 'Invalid email or password.' });
       }
 
       const directusData = await directusRes.json();
       const staffToken = createStaffToken(email);
 
-      return {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, private',
-        },
-        jsonBody: {
-          ok: true,
-          token: staffToken,
-          email: email,
-          directus: directusData && directusData.data ? directusData.data : null,
-        },
-      };
+      return jsonResponse(request, 200, {
+        ok: true,
+        token: staffToken,
+        email: email,
+        directus: directusData && directusData.data ? directusData.data : null,
+      }, {
+        'Cache-Control': 'no-store, private',
+      });
     } catch (err) {
       console.error('Error in /api/login:', err);
-      return {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-        jsonBody: { error: 'Internal authentication error.' },
-      };
+      return jsonResponse(request, 500, { error: 'Internal authentication error.' });
     }
   },
 });
@@ -166,22 +221,15 @@ app.http('session', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     if (request.method === 'OPTIONS') {
-      return {
-        status: 204,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-        },
-      };
+      return corsPreflight(request, 'POST, OPTIONS', 'Authorization, Content-Type');
+    }
+
+    if (!isStaffSecretConfigured()) {
+      return staffAuthUnavailable(request);
     }
 
     try {
-      let token = '';
-      const authHeader = request.headers.get('authorization') || '';
-      if (authHeader.startsWith('Bearer ')) {
-        token = authHeader.substring(7).trim();
-      }
+      let token = bearerToken(request);
 
       if (!token) {
         try {
@@ -191,46 +239,26 @@ app.http('session', {
       }
 
       if (!token) {
-        return {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-          jsonBody: { error: 'Directus Bearer token required.' },
-        };
+        return jsonResponse(request, 401, { error: 'Directus Bearer token required.' });
       }
 
       // Check if already an HMAC staff token
       const existing = verifyStaffToken(token);
       if (existing) {
-        return {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-          jsonBody: { ok: true, token, email: existing.email },
-        };
+        return jsonResponse(request, 200, { ok: true, token, email: existing.email });
       }
 
       // Verify with Directus
       const user = await verifyDirectusToken(token);
       if (!user) {
-        return {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-          jsonBody: { error: 'Invalid or expired Directus token.' },
-        };
+        return jsonResponse(request, 401, { error: 'Invalid or expired Directus token.' });
       }
 
       const staffToken = createStaffToken(user.email || 'staff@monroe-humane.org');
-      return {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-        jsonBody: { ok: true, token: staffToken, email: user.email },
-      };
+      return jsonResponse(request, 200, { ok: true, token: staffToken, email: user.email });
     } catch (err) {
       console.error('Error in /api/session:', err);
-      return {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-        jsonBody: { error: 'Internal session error.' },
-      };
+      return jsonResponse(request, 500, { error: 'Internal session error.' });
     }
   },
 });
@@ -241,52 +269,48 @@ app.http('financials', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     if (request.method === 'OPTIONS') {
-      return {
-        status: 204,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-        },
-      };
+      return corsPreflight(request, 'GET, OPTIONS', 'Authorization, Content-Type');
     }
 
-    const authHeader = request.headers.get('authorization') || '';
-    if (!authHeader.startsWith('Bearer ')) {
-      return {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, private',
-        },
-        jsonBody: { error: 'Unauthorized: Bearer token required.' },
-      };
+    if (!isStaffSecretConfigured()) {
+      return staffAuthUnavailable(request);
     }
 
-    const token = authHeader.substring(7).trim();
+    const token = bearerToken(request);
+    if (!token) {
+      return jsonResponse(request, 401, { error: 'Unauthorized: Bearer token required.' }, {
+        'Cache-Control': 'no-store, private',
+      });
+    }
+
     const staff = await authenticateRequest(token);
     if (!staff) {
-      return {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, private',
-        },
-        jsonBody: { error: 'Unauthorized: Invalid or expired token.' },
-      };
+      return jsonResponse(request, 401, { error: 'Unauthorized: Invalid or expired token.' }, {
+        'Cache-Control': 'no-store, private',
+      });
     }
 
-    return {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'private, no-cache, no-store, must-revalidate',
-      },
-      jsonBody: {
-        ...reportData,
-        bank_statement: statementData,
-      },
+    const payload = {
+      ...reportData,
+      bank_statement: statementData,
     };
+
+    // 3-level GL drilldown for the board explorer (not baked into Astro pages).
+    if (monthlyDrilldown) {
+      payload.monthly_drilldown = monthlyDrilldown;
+    }
+
+    // Donor registry — same Bearer auth as financials. Keys match staff hydrators:
+    //   data.donors (array), data.donor_meta, data.donor_database ({ meta, donors })
+    if (donorDatabase) {
+      payload.donors = Array.isArray(donorDatabase.donors) ? donorDatabase.donors : [];
+      payload.donor_meta = donorDatabase.meta || null;
+      payload.donor_database = donorDatabase;
+    }
+
+    return jsonResponse(request, 200, payload, {
+      'Cache-Control': 'private, no-store',
+    });
   },
 });
 
@@ -296,75 +320,46 @@ app.http('statement', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     if (request.method === 'OPTIONS') {
-      return {
-        status: 204,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-        },
-      };
+      return corsPreflight(request, 'GET, OPTIONS', 'Authorization, Content-Type');
     }
 
-    // Support token via header or query param
-    let token = '';
-    const authHeader = request.headers.get('authorization') || '';
-    if (authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7).trim();
-    } else {
-      token = request.query.get('token') || '';
+    if (!isStaffSecretConfigured()) {
+      return staffAuthUnavailable(request);
     }
 
+    const token = bearerToken(request);
     if (!token) {
-      return {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, private',
-        },
-        jsonBody: { error: 'Unauthorized: Staff Bearer token required.' },
-      };
+      return jsonResponse(request, 401, { error: 'Unauthorized: Staff Bearer token required.' }, {
+        'Cache-Control': 'no-store, private',
+      });
     }
 
     const staff = await authenticateRequest(token);
     if (!staff) {
-      return {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, private',
-        },
-        jsonBody: { error: 'Unauthorized: Invalid or expired token.' },
-      };
+      return jsonResponse(request, 401, { error: 'Unauthorized: Invalid or expired token.' }, {
+        'Cache-Control': 'no-store, private',
+      });
     }
 
     const docKey = request.query.get('doc') || 'bank';
     const fileName = STATEMENT_FILES[docKey];
     if (!fileName) {
-      return {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-        jsonBody: { error: 'Invalid document requested. Allowed: bank, qbo' },
-      };
+      return jsonResponse(request, 400, { error: 'Invalid document requested. Allowed: bank, qbo' });
     }
 
     const filePath = path.join(__dirname, '..', 'data', 'files', fileName);
     if (!fs.existsSync(filePath)) {
-      return {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-        jsonBody: { error: 'Requested statement file not found.' },
-      };
+      return jsonResponse(request, 404, { error: 'Requested statement file not found.' });
     }
 
     const fileBuffer = fs.readFileSync(filePath);
     return {
       status: 200,
-      headers: {
+      headers: corsHeaders(request, {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="${fileName}"`,
         'Cache-Control': 'private, no-cache, no-store, must-revalidate',
-      },
+      }),
       body: fileBuffer,
     };
   },
@@ -376,14 +371,7 @@ app.http('client-error', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     if (request.method === 'OPTIONS') {
-      return {
-        status: 204,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-      };
+      return corsPreflight(request, 'POST, OPTIONS', 'Content-Type');
     }
 
     try {
@@ -396,18 +384,9 @@ app.http('client-error', {
         userAgent: request.headers.get('user-agent') || '',
       });
 
-      return {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-        jsonBody: { ok: true },
-      };
+      return jsonResponse(request, 200, { ok: true });
     } catch (e) {
-      return {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-        jsonBody: { error: 'Invalid error payload' },
-      };
+      return jsonResponse(request, 400, { error: 'Invalid error payload' });
     }
   },
 });
-

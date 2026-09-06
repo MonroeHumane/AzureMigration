@@ -1,12 +1,10 @@
 ---
-import publishedFinancials from '../../data/published_2026_ytd.json';
-
 interface Props {
   comparison?: any;
 }
 
-const { comparison = publishedFinancials?.multiyear_comparison } = Astro.props;
-const comp = comparison || publishedFinancials?.multiyear_comparison || {};
+const { comparison } = Astro.props;
+const comp = comparison || {};
 const y2024 = comp['2024'] || {};
 const y2025 = comp['2025'] || {};
 const y2026 = comp['2026'] || {};

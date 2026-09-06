@@ -1,30 +1,41 @@
+# Production Arcade API image.
+# Local compose still works: docker-compose.yml mounts ./arcade:/var/www/html over this tree.
+FROM composer:2 AS builder
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+COPY src ./src
+
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --no-interaction \
+    --no-scripts \
+    --optimize-autoloader
+
 FROM php:8.2-apache
 
-# Install PDO MySQL and other necessary extensions
-RUN apt-get update && apt-get install -y \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    && docker-php-ext-install pdo_mysql zip
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libzip-dev \
+        zip \
+        unzip \
+    && docker-php-ext-install pdo_mysql zip \
+    && a2enmod rewrite \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Xdebug for built-in debugging
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Enable Apache mod_rewrite for FlightPHP
-RUN a2enmod rewrite
-
-# Setup PHP Config for Xdebug
-RUN echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
-# Set document root to public folder
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+    && sed -ri -e 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
+
+COPY --from=builder /app/vendor ./vendor
+COPY composer.json ./
+COPY public ./public
+COPY src ./src
+
+RUN chown -R www-data:www-data /var/www/html
+
+EXPOSE 80
