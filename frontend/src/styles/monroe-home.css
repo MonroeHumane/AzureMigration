@@ -3256,8 +3256,8 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   position: fixed;
   /* Sit just outside the left edge of the 1320px content area */
   left: calc(50% - 660px - 205px);
-  top: 50%;
-  transform: translateY(-50%);
+  top: 32%;
+  transform: translateY(-32%);
   z-index: 95;
   pointer-events: none;
   font-family: var(--monroe-font-sans, "Montserrat", "Segoe UI", sans-serif);
