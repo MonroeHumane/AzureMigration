@@ -59,7 +59,7 @@ staffClient.logout = async (...args: any[]) => {
   return _originalLogout(...args);
 };
 
-export function isStaffHmacToken(token: string | null | undefined): boolean {
+export function isStaffHmacToken(token: string | null | undefined): token is string {
   return typeof token === 'string' && token.startsWith('mchs_') && token.includes('.');
 }
 
