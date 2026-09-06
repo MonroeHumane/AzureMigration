@@ -9,7 +9,7 @@ const { activeTab = 'overview' } = Astro.props;
 <!-- Fixed Mobile Bottom Navigation Dock (Thumb-Zone Reachable) -->
 <nav
   id="mobile-bottom-nav-dock"
-  class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#173a39]/95 backdrop-blur-md border-t border-teal-800/80 shadow-[0_-4px_16px_rgba(0,0,0,0.15)] px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]"
+  class="fixed bottom-0 left-0 right-0 z-40 bg-[#061815]/95 backdrop-blur-md border-t border-teal-800/80 shadow-[0_-8px_24px_rgba(0,0,0,0.5)] px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]"
   aria-label="Staff Portal Mobile Navigation"
 >
   <div class="max-w-md mx-auto grid grid-cols-5 gap-1 items-center text-center">
@@ -19,8 +19,8 @@ const { activeTab = 'overview' } = Astro.props;
       data-astro-prefetch="hover"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'overview'
-          ? 'text-emerald-300 font-bold bg-white/10 shadow-inner'
-          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+          ? 'text-emerald-300 font-bold bg-emerald-500/20 border border-emerald-500/30 shadow-inner'
+          : 'text-teal-200/70 hover:text-white hover:bg-white/5'
       }`}
       aria-current={activeTab === 'overview' ? 'page' : undefined}
     >
@@ -39,8 +39,8 @@ const { activeTab = 'overview' } = Astro.props;
       data-astro-prefetch="hover"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'pets'
-          ? 'text-amber-300 font-bold bg-white/10 shadow-inner'
-          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+          ? 'text-amber-300 font-bold bg-amber-500/20 border border-amber-500/30 shadow-inner'
+          : 'text-teal-200/70 hover:text-white hover:bg-white/5'
       }`}
       aria-current={activeTab === 'pets' ? 'page' : undefined}
     >
@@ -57,8 +57,8 @@ const { activeTab = 'overview' } = Astro.props;
       data-astro-prefetch="hover"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'financials'
-          ? 'text-emerald-300 font-bold bg-white/10 shadow-inner'
-          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+          ? 'text-emerald-300 font-bold bg-emerald-500/20 border border-emerald-500/30 shadow-inner'
+          : 'text-teal-200/70 hover:text-white hover:bg-white/5'
       }`}
       aria-current={activeTab === 'financials' ? 'page' : undefined}
     >
@@ -75,8 +75,8 @@ const { activeTab = 'overview' } = Astro.props;
       data-astro-prefetch="hover"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'grants'
-          ? 'text-purple-300 font-bold bg-white/10 shadow-inner'
-          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+          ? 'text-purple-300 font-bold bg-purple-500/20 border border-purple-500/30 shadow-inner'
+          : 'text-teal-200/70 hover:text-white hover:bg-white/5'
       }`}
       aria-current={activeTab === 'grants' ? 'page' : undefined}
     >
@@ -92,9 +92,9 @@ const { activeTab = 'overview' } = Astro.props;
       type="button"
       id="bottom-dock-more-btn"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
-        activeTab === 'content'
-          ? 'text-amber-300 font-bold bg-white/10 shadow-inner'
-          : 'text-teal-200/80 hover:text-white hover:bg-white/5'
+        activeTab === 'content' || activeTab === 'donors'
+          ? 'text-amber-300 font-bold bg-amber-500/20 border border-amber-500/30 shadow-inner'
+          : 'text-teal-200/70 hover:text-white hover:bg-white/5'
       }`}
       aria-label="Open portal utilities menu"
     >
@@ -111,7 +111,8 @@ const { activeTab = 'overview' } = Astro.props;
 <script>
   function setupBottomDock() {
     const moreBtn = document.getElementById('bottom-dock-more-btn');
-    if (moreBtn) {
+    if (moreBtn && moreBtn.dataset.bound !== '1') {
+      moreBtn.dataset.bound = '1';
       moreBtn.addEventListener('click', () => {
         if (typeof (window as any).openMobileMoreSheet === 'function') {
           (window as any).openMobileMoreSheet();

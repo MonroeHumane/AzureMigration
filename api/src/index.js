@@ -23,12 +23,22 @@ const monthlyDrilldown = loadJsonOptional('../data/monthly_drilldown_2026.json')
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
 const STAFF_SECRET = (process.env.STAFF_AUTH_SECRET || '').trim();
 
-const ALLOWED_ORIGINS = new Set([
-  'https://monroe-humane.org',
-  'https://delightful-dune-0d730f70f.7.azurestaticapps.net',
-  'http://localhost:4321',
-  'http://localhost:5173',
-]);
+function isAllowedOrigin(origin) {
+  if (!origin) return false;
+  try {
+    const url = new URL(origin);
+    const host = url.hostname;
+    return (
+      host === 'monroe-humane.org' ||
+      host.endsWith('.monroe-humane.org') ||
+      host.endsWith('.azurestaticapps.net') ||
+      host === 'localhost' ||
+      host === '127.0.0.1'
+    );
+  } catch {
+    return false;
+  }
+}
 
 const STATEMENT_FILES = {
   bank: 'First_Merchant_Chkng_XXXXXX8478_08312026.pdf',
@@ -42,19 +52,22 @@ function isStaffSecretConfigured() {
 function corsHeaders(request, extra) {
   const headers = Object.assign({}, extra || {});
   const origin = (request.headers.get('origin') || '').trim();
-  if (origin && ALLOWED_ORIGINS.has(origin)) {
+  if (origin && isAllowedOrigin(origin)) {
     headers['Access-Control-Allow-Origin'] = origin;
     headers['Vary'] = 'Origin';
   }
   return headers;
 }
 
+const DEFAULT_ALLOWED_HEADERS = 'Authorization, Content-Type, X-Staff-Token, X-Authorization';
+
 function corsPreflight(request, methods, allowHeaders) {
   return {
     status: 204,
     headers: corsHeaders(request, {
       'Access-Control-Allow-Methods': methods,
-      'Access-Control-Allow-Headers': allowHeaders,
+      'Access-Control-Allow-Headers': allowHeaders || DEFAULT_ALLOWED_HEADERS,
+      'Access-Control-Max-Age': '86400',
     }),
   };
 }
@@ -108,9 +121,9 @@ function verifyStaffToken(token) {
     }
     const data = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
     if (data && data.email) {
-      // Enforce 30-day maximum session lifetime (2,592,000,000 ms)
+      // Enforce 30-day maximum session lifetime (2,592,000,000 ms) with clock-skew tolerance
       const MAX_SESSION_AGE = 30 * 24 * 60 * 60 * 1000;
-      if (data.iat && (Date.now() - data.iat > MAX_SESSION_AGE)) {
+      if (data.iat && Math.abs(Date.now() - data.iat) > MAX_SESSION_AGE) {
         console.warn(`[StaffAuth] HMAC session expired for ${data.email}`);
         return null;
       }
@@ -158,11 +171,23 @@ async function authenticateRequest(token) {
 }
 
 function bearerToken(request) {
+  // Azure Static Web Apps reserves/strips standard 'Authorization' header.
+  // We check X-Staff-Token, X-Authorization, query token, and Authorization.
+  const custom = request.headers.get('x-staff-token') || request.headers.get('x-authorization') || '';
+  if (custom) {
+    return custom.startsWith('Bearer ') ? custom.substring(7).trim() : custom.trim();
+  }
   const authHeader = request.headers.get('authorization') || '';
   if (authHeader.startsWith('Bearer ')) {
     return authHeader.substring(7).trim();
   }
-  return '';
+  try {
+    const url = new URL(request.url);
+    const qToken = url.searchParams.get('token');
+    if (qToken) return qToken.trim();
+  } catch {}
+
+  return authHeader.trim();
 }
 
 // 1. POST /api/login
@@ -221,7 +246,7 @@ app.http('session', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     if (request.method === 'OPTIONS') {
-      return corsPreflight(request, 'POST, OPTIONS', 'Authorization, Content-Type');
+      return corsPreflight(request, 'POST, OPTIONS');
     }
 
     if (!isStaffSecretConfigured()) {
@@ -269,7 +294,7 @@ app.http('financials', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     if (request.method === 'OPTIONS') {
-      return corsPreflight(request, 'GET, OPTIONS', 'Authorization, Content-Type');
+      return corsPreflight(request, 'GET, OPTIONS');
     }
 
     if (!isStaffSecretConfigured()) {
@@ -320,7 +345,7 @@ app.http('statement', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     if (request.method === 'OPTIONS') {
-      return corsPreflight(request, 'GET, OPTIONS', 'Authorization, Content-Type');
+      return corsPreflight(request, 'GET, OPTIONS');
     }
 
     if (!isStaffSecretConfigured()) {

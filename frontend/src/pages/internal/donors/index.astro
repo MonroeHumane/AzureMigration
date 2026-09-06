@@ -10,45 +10,45 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
   description="Donor profiles and lifetime giving records."
   activeTab="donors"
 >
-  <div class="space-y-4">
-    <div class="flex flex-wrap items-baseline justify-between gap-2">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+    <div class="flex flex-wrap items-baseline justify-between gap-3 pb-3 border-b border-teal-800/60">
       <div>
-        <a href="/internal/" class="text-xs text-slate-500 hover:text-teal-800">← Hub</a>
-        <h1 class="text-xl font-bold text-[#173a39] tracking-tight mt-1">Donors</h1>
+        <a href="/internal/" class="text-xs text-teal-400 hover:text-emerald-300 transition inline-flex items-center gap-1 font-medium">← Return to Hub</a>
+        <h1 class="text-2xl font-bold text-white tracking-tight mt-1">Donor Registry &amp; Giving</h1>
       </div>
-      <p class="text-xs text-slate-500">
-        <span id="donor-banner-volume">--</span>
+      <p class="text-xs text-teal-300/80">
+        <span id="donor-banner-volume" class="font-bold text-rose-300">--</span>
         · <span id="donor-banner-count">--</span>
         · <span id="donor-banner-addresses">--</span> addresses
         · <span id="donor-banner-tributes">--</span> tributes
       </p>
     </div>
 
-    <main class="space-y-4">
+    <main class="space-y-6">
       <section class="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-xs text-slate-500">Giving</div>
-          <div id="donor-kpi-volume" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+        <div class="bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-teal-800/80 p-4 shadow-md">
+          <div class="text-xs font-semibold text-rose-400 uppercase tracking-wider">Lifetime Volume</div>
+          <div id="donor-kpi-volume" class="mt-1.5 font-mono font-bold text-xl text-rose-300">--</div>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-xs text-slate-500">Donors</div>
-          <div id="donor-kpi-count" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+        <div class="bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-teal-800/80 p-4 shadow-md">
+          <div class="text-xs font-semibold text-teal-300 uppercase tracking-wider">Total Donors</div>
+          <div id="donor-kpi-count" class="mt-1.5 font-mono font-bold text-xl text-teal-200">--</div>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-xs text-slate-500">$1k+</div>
-          <div id="donor-kpi-major" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+        <div class="bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-teal-800/80 p-4 shadow-md">
+          <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">$1,000+ Major</div>
+          <div id="donor-kpi-major" class="mt-1.5 font-mono font-bold text-xl text-emerald-300">--</div>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-xs text-slate-500">Addresses</div>
-          <div id="donor-kpi-addresses" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+        <div class="bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-teal-800/80 p-4 shadow-md">
+          <div class="text-xs font-semibold text-teal-300 uppercase tracking-wider">Addresses</div>
+          <div id="donor-kpi-addresses" class="mt-1.5 font-mono font-bold text-xl text-teal-200">--</div>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-xs text-slate-500">2026</div>
-          <div id="donor-kpi-active" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+        <div class="bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-teal-800/80 p-4 shadow-md">
+          <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider">2026 Active</div>
+          <div id="donor-kpi-active" class="mt-1.5 font-mono font-bold text-xl text-amber-300">--</div>
         </div>
       </section>
 
-      <div id="donor-api-status" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+      <div id="donor-api-status" class="rounded-2xl border border-teal-700/80 bg-[#0b2420]/90 px-4 py-3 text-sm text-teal-200 shadow-md">
         Loading donor registry…
       </div>
 

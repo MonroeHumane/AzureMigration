@@ -15,7 +15,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
 <BaseLayout
   title="Staff Portal | Humane Society of Monroe County"
   description="Humane Society of Monroe County Staff Portal: Animal Census, Board Financials, and Grants Pipeline."
-  bodyClass="bg-[#f9f7f2] text-slate-800 antialiased"
+  bodyClass="bg-[#071a17] text-slate-100 antialiased min-h-screen relative overflow-x-hidden"
 >
   <!-- Zero-Flicker Synchronous Auth Hydration (Runs before paint) -->
   <script is:inline>
@@ -159,63 +159,179 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
   </div>
 
   <!-- SCREEN 2: UNIFIED STAFF PORTAL HUB (Shown when authenticated) -->
-  <div id="staff-portal-content" class="min-h-screen pb-16" transition:animate="fade">
+  <div id="staff-portal-content" class="min-h-screen pb-20 relative z-10" transition:animate="fade">
+    <!-- Ambient Atmospheric Glow (Matching the login screen) -->
+    <div class="fixed -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed -bottom-32 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
     <!-- Component 1: Unified Staff Header Navigation with Global Sign Out -->
     <StaffPortalNav activeTab="overview" />
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-4">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 class="text-xl font-bold text-[#173a39] tracking-tight">Hub</h1>
-        <p class="text-xs text-slate-500">
-          <span id="staff-user-email"></span>
-          <span class="text-slate-300 mx-1.5">·</span>
-          <span id="hub-status-financials">Financials</span>
-          <span class="text-slate-300 mx-1.5">·</span>
-          <span id="hub-status-petsync">Census · {petSyncData.activeCount} · {petSyncLabel}</span>
-        </p>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8 space-y-6">
+      <!-- Welcome Hero Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-teal-800/60">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Staff Operations Hub
+            </h1>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Live
+            </span>
+          </div>
+          <p class="text-xs text-teal-300/80 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span id="staff-user-email" class="font-medium text-emerald-300"></span>
+            <span class="text-teal-700">·</span>
+            <span id="hub-status-financials" class="text-teal-200">Financials</span>
+            <span class="text-teal-700">·</span>
+            <span id="hub-status-petsync" class="text-amber-300/90">Census · {petSyncData.activeCount} in care · {petSyncLabel}</span>
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs">
+          <a
+            href="/internal/board/print/"
+            target="_blank"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0c2824] hover:bg-teal-900/80 text-emerald-300 hover:text-white border border-teal-700/80 transition text-xs font-semibold shadow-xs"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
+            <span>Print Packet</span>
+          </a>
+          <a
+            href={directusAdminUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold transition text-xs shadow-md"
+          >
+            <span>CMS Admin ↗</span>
+          </a>
+        </div>
       </div>
 
-      <div id="hub-data-status" class="hidden" role="status"></div>
+      <div id="hub-data-status" class="hidden rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200" role="status"></div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <a href="/internal/board/" class="block rounded-xl border border-slate-200 bg-white p-4 hover:border-teal-600 hover:shadow-sm transition">
-          <div class="text-xs text-slate-500">Checking</div>
-          <div id="metric-bank-cash" class="mt-1 text-2xl font-mono font-bold text-slate-900">--</div>
-          <div id="metric-bank-period" class="mt-1 text-xs text-slate-500"></div>
-          <div id="metric-audit-diff" class="mt-1 text-xs text-slate-500"></div>
+      <!-- 4 Headline Command Metric Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1: Checking / Cash -->
+        <a href="/internal/board/" class="group block rounded-2xl border border-teal-800/80 bg-[#0b2420]/85 backdrop-blur-md p-5 hover:border-emerald-500/50 hover:bg-[#0e2c28] hover:shadow-xl hover:shadow-emerald-950/20 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Checking &amp; Treasury</span>
+            <div class="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+          </div>
+          <div id="metric-bank-cash" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-emerald-300 group-hover:text-emerald-200 transition">--</div>
+          <div id="metric-bank-period" class="mt-1 text-xs text-teal-300/70"></div>
+          <div id="metric-audit-diff" class="mt-1 text-xs text-teal-400/80 font-mono"></div>
           <div id="card-bank-cash" class="hidden"></div>
+          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-teal-400/80 group-hover:text-teal-200 transition">
+            <span>Operating balance &amp; audit</span>
+            <span class="text-emerald-400 group-hover:translate-x-0.5 transition">&rarr;</span>
+          </div>
         </a>
 
-        <a href="/internal/pets/" class="block rounded-xl border border-slate-200 bg-white p-4 hover:border-amber-500 hover:shadow-sm transition">
-          <div class="text-xs text-slate-500">Census</div>
-          <div id="hub-census-count" class="mt-1 text-2xl font-bold text-slate-900">{petSyncData.activeCount}</div>
-          <div id="hub-census-sync" class="mt-1 text-xs text-slate-500">{petSyncLabel}</div>
+        <!-- Card 2: Shelter Animal Census -->
+        <a href="/internal/pets/" class="group block rounded-2xl border border-teal-800/80 bg-[#0b2420]/85 backdrop-blur-md p-5 hover:border-amber-500/50 hover:bg-[#0e2c28] hover:shadow-xl hover:shadow-amber-950/20 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Animal Census</span>
+            <div class="p-1.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m10 15 5-3-5-3v6Z"></path></svg>
+            </div>
+          </div>
+          <div id="hub-census-count" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-amber-300 group-hover:text-amber-200 transition">{petSyncData.activeCount}</div>
+          <div id="hub-census-sync" class="mt-1 text-xs text-amber-300/70">{petSyncLabel}</div>
+          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-amber-400/80 group-hover:text-amber-200 transition">
+            <span>Kennel cards &amp; PetPoint sync</span>
+            <span class="text-amber-400 group-hover:translate-x-0.5 transition">&rarr;</span>
+          </div>
         </a>
 
-        <a href="/internal/donors/" class="block rounded-xl border border-slate-200 bg-white p-4 hover:border-rose-400 hover:shadow-sm transition">
-          <div class="text-xs text-slate-500">Giving</div>
-          <div id="metric-donor-volume" class="mt-1 text-2xl font-mono font-bold text-slate-900">--</div>
-          <div id="metric-donor-counts" class="mt-1 text-xs text-slate-500"></div>
-          <div id="metric-donor-active" class="mt-1 text-xs text-slate-500"></div>
+        <!-- Card 3: Donors & Giving -->
+        <a href="/internal/donors/" class="group block rounded-2xl border border-teal-800/80 bg-[#0b2420]/85 backdrop-blur-md p-5 hover:border-rose-500/50 hover:bg-[#0e2c28] hover:shadow-xl hover:shadow-rose-950/20 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">Lifetime Giving</span>
+            <div class="p-1.5 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+            </div>
+          </div>
+          <div id="metric-donor-volume" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-rose-300 group-hover:text-rose-200 transition">--</div>
+          <div id="metric-donor-counts" class="mt-1 text-xs text-rose-300/70"></div>
+          <div id="metric-donor-active" class="mt-1 text-xs text-rose-400/80 font-mono"></div>
           <div id="card-donor-volume" class="hidden"></div>
           <div id="card-donor-count" class="hidden"></div>
           <div id="card-donor-addresses" class="hidden"></div>
+          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-rose-400/80 group-hover:text-rose-200 transition">
+            <span>Unified donor profiles</span>
+            <span class="text-rose-400 group-hover:translate-x-0.5 transition">&rarr;</span>
+          </div>
         </a>
 
-        <a href="/internal/grants/" class="block rounded-xl border border-slate-200 bg-white p-4 hover:border-purple-400 hover:shadow-sm transition">
-          <div class="text-xs text-slate-500">Grants</div>
-          <div id="hub-grants-count" class="mt-1 text-2xl font-bold text-slate-900">--</div>
-          <div id="hub-grants-detail" class="mt-1 text-xs text-slate-500"></div>
+        <!-- Card 4: Grants Pipeline -->
+        <a href="/internal/grants/" class="group block rounded-2xl border border-teal-800/80 bg-[#0b2420]/85 backdrop-blur-md p-5 hover:border-purple-500/50 hover:bg-[#0e2c28] hover:shadow-xl hover:shadow-purple-950/20 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">Grants Pipeline</span>
+            <div class="p-1.5 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            </div>
+          </div>
+          <div id="hub-grants-count" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-purple-300 group-hover:text-purple-200 transition">--</div>
+          <div id="hub-grants-detail" class="mt-1 text-xs text-purple-300/70"></div>
+          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-purple-400/80 group-hover:text-purple-200 transition">
+            <span>Philanthropic opportunities</span>
+            <span class="text-purple-400 group-hover:translate-x-0.5 transition">&rarr;</span>
+          </div>
         </a>
       </div>
 
-      <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
-        <a href="/internal/content/" class="hover:text-teal-800">Content</a>
-        <a href="/internal/board/print/" target="_blank" class="hover:text-teal-800">Print packet</a>
-        <a href={directusAdminUrl} target="_blank" rel="noopener noreferrer" class="hover:text-teal-800">CMS</a>
+      <!-- Quick Command Utilities Grid -->
+      <div class="pt-2">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-teal-400/80 mb-3">
+          Quick Launch Tools
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <a
+            href="/internal/content/"
+            class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#0b2420]/85 backdrop-blur-md border border-teal-800/80 hover:border-emerald-500/50 hover:bg-[#0e2c28] transition group shadow-sm"
+          >
+            <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-white group-hover:text-amber-300 transition">Site Content Manager</div>
+              <div class="text-[11px] text-teal-300/70 truncate">Memorials, event flyers &amp; outcomes</div>
+            </div>
+          </a>
+
+          <a
+            href="/internal/board/print/"
+            target="_blank"
+            class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#0b2420]/85 backdrop-blur-md border border-teal-800/80 hover:border-emerald-500/50 hover:bg-[#0e2c28] transition group shadow-sm"
+          >
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-white group-hover:text-emerald-300 transition">Board Financials Packet</div>
+              <div class="text-[11px] text-teal-300/70 truncate">Printable 8-month statement &amp; bank audit</div>
+            </div>
+          </a>
+
+          <a
+            href={directusAdminUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#0b2420]/85 backdrop-blur-md border border-teal-800/80 hover:border-emerald-500/50 hover:bg-[#0e2c28] transition group shadow-sm"
+          >
+            <div class="w-10 h-10 rounded-xl bg-teal-900 text-teal-300 border border-teal-700 flex items-center justify-center font-bold text-xs shrink-0">
+              CMS
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-white group-hover:text-teal-200 transition">Directus Headless CMS</div>
+              <div class="text-[11px] text-teal-300/70 truncate">Backend animal catalog, users &amp; settings</div>
+            </div>
+          </a>
+        </div>
       </div>
-
-
     </main>
 
     <!-- Mobile Bottom Thumb-Navigation Dock -->
@@ -437,9 +553,17 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     const staffUserEmail = document.getElementById('staff-user-email');
 
 
+    const urlParams = new URLSearchParams(window.location.search);
+
     // Load financials if already authenticated
     if (isStaffAuthenticated()) {
       document.documentElement.classList.add('staff-authenticated');
+      if (urlParams.has('reauth')) {
+        urlParams.delete('reauth');
+        const cleanSearch = urlParams.toString();
+        const cleanUrl = window.location.pathname + (cleanSearch ? '?' + cleanSearch : '');
+        window.history.replaceState({}, '', cleanUrl);
+      }
       loadFinancialMetrics();
       void loadCensusSnapshot();
       void loadGrantsSnapshot();
@@ -460,8 +584,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     }
 
     // Check URL parameters for backward compatibility with ?tab=petsync
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('reauth') === '1' && errorAlert && errorText) {
+    if (urlParams.get('reauth') === '1' && !isStaffAuthenticated() && errorAlert && errorText) {
       errorText.textContent = 'Your staff session expired. Sign in again to load financials and the donor registry.';
       errorAlert.classList.remove('hidden');
     }
@@ -505,14 +628,21 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             staffUserEmail.textContent = email;
           }
 
+          // Clear reauth error alert and clean address bar
+          if (errorAlert) errorAlert.classList.add('hidden');
+          if (window.location.search.includes('reauth=')) {
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, '', cleanUrl);
+          }
+
           // Hydrate metrics immediately upon login
           loadFinancialMetrics();
           void loadCensusSnapshot();
           void loadGrantsSnapshot();
 
-          // Check if there was a redirect query parameter
+          // Check if there was a redirect query parameter (only redirect if pointing to another subpage)
           const redirect = urlParams.get('redirect');
-          if (redirect && redirect.startsWith('/internal')) {
+          if (redirect && redirect.startsWith('/internal') && redirect !== '/internal/' && redirect !== '/internal') {
             window.location.href = redirect;
           }
         } catch (err: any) {

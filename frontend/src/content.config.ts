@@ -8,7 +8,7 @@ const memorials = defineCollection({
     const list: any[] = [];
     const seen = new Set<string>();
 
-    function cleanTributeName(rawName: string): { name: string; isPet: boolean } {
+    function cleanTributeName(rawName: string): { name: string } {
       let name = (rawName || '')
         .trim()
         .replace(/^["'#=@*~_\s]+/, '')
@@ -19,33 +19,38 @@ const memorials = defineCollection({
         name = 'Betty White';
       }
 
-      const isPet =
-        /\b(dog|cat|pup|puppy|kitten|kitty|feline|canine|griffin|buddy|max|bella|luna|charlie|daisy|milo|bailey|pet|hound|retriever|terrier|shepherd|rabbit|bunny)\b/i.test(
-          name
-        );
-
-      return { name, isPet };
+      return { name };
     }
 
-    // 1. Ingest consolidated memorial tributes (curated WordPress plaques + mapped dedications)
+    // Ingest authentic memorial tributes
     (memorialTributes as any[]).forEach((t: any, idx: number) => {
-      const { name, isPet: petByName } = cleanTributeName(t.name);
+      const { name } = cleanTributeName(t.name);
       if (!name || name.length < 2) return;
       const key = name.toLowerCase();
 
       if (!seen.has(key)) {
         seen.add(key);
         const parts = name.split(/\s+/);
-        const isPet = t.variant === 'pet' || petByName;
+        const isPet = t.variant === 'pet' || t.tributeType === 'pet';
         const firstName = parts.length > 1 ? parts.slice(0, -1).join(' ') : name;
         const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
+
+        const category =
+          t.variant === 'honor' || t.line === 'In Honor Of'
+            ? 'honor'
+            : t.variant === 'birthday' || t.line === 'Happy Birthday'
+            ? 'birthday'
+            : isPet
+            ? 'pet'
+            : 'memory';
 
         list.push({
           id: `tribute-${idx}`,
           firstName,
           lastName,
-          donorName: t.donorName || '',
+          donorName: '',
           tributeType: isPet ? 'pet' : 'person',
+          category,
           draft: t.status === 'draft',
           memo: t.line || '',
         });
@@ -59,6 +64,7 @@ const memorials = defineCollection({
     lastName: z.string().optional(),
     donorName: z.string().optional(),
     tributeType: z.string().optional(),
+    category: z.string().optional(),
     draft: z.boolean().optional(),
     memo: z.string().optional(),
   }),

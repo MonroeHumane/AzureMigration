@@ -6,15 +6,21 @@ const eventData = await getEventFlyers();
 const petsData = await getPets();
 const activePets = petsData.slice(0, 10);
 
-const now = new Date('2026-08-27T12:00:00Z');
-const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-
+const now = new Date();
 const currentEvents = eventData
-  .filter(e => e.event_date && new Date(e.event_date) >= thirtyDaysAgo)
-  .sort((a,b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime());
-const historicEvents = eventData
-  .filter(e => e.event_date && new Date(e.event_date) < thirtyDaysAgo)
-  .sort((a,b) => new Date(b.event_date!).getTime() - new Date(a.event_date!).getTime());
+  .filter(e => e.event_date)
+  .sort((a,b) => {
+    const timeA = new Date(a.event_date!).getTime();
+    const timeB = new Date(b.event_date!).getTime();
+    const nowTime = now.getTime();
+    const isAFuture = timeA >= nowTime;
+    const isBFuture = timeB >= nowTime;
+    if (isAFuture && !isBFuture) return -1;
+    if (!isAFuture && isBFuture) return 1;
+    if (isAFuture && isBFuture) return timeA - timeB; // upcoming: soonest first
+    return timeB - timeA; // recent: most recent first
+  });
+const historicEvents: typeof eventData = [];
 
 function getEventCategory(title?: string, desc?: string): { key: string; label: string; badgeClass: string } {
   const text = `${title || ''} ${desc || ''}`.toLowerCase();
@@ -372,21 +378,12 @@ const filterCategories = [
                         loading="lazy"
                         decoding="async"
                       />
-                      <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none" aria-hidden="true"></div>
-                      
-                      <span class="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[11px] font-bold">
-                        {event.event_date && new Date(event.event_date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
                     </a>
                   ) : (
                     <div class="h-44 sm:h-48 relative overflow-hidden bg-gradient-to-br from-[#0c2423] via-[#123835] to-[#184844] p-3 flex flex-col justify-between group/pets border-b border-teal-800/40">
-                      <div class="flex items-center justify-between z-10">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/60 text-emerald-300 backdrop-blur-xs border border-emerald-400/30">
-                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          Shelter Pets Supported
-                        </span>
-                        <a href="/adopt" class="text-[10px] text-teal-200/80 hover:text-white uppercase font-bold tracking-wider transition">
-                          Meet Pets &rarr;
+                      <div class="flex items-center justify-end z-10">
+                        <a href="/adopt" class="text-[10px] text-teal-200/90 hover:text-white uppercase font-bold tracking-wider transition flex items-center gap-1">
+                          <span>Meet Adoptable Pets</span> &rarr;
                         </a>
                       </div>
 
@@ -635,7 +632,17 @@ const filterCategories = [
       if (!hasEventsThisMonth) {
         const sortedDates = Object.keys(eventsMapInitial).sort();
         if (sortedDates.length > 0) {
-          const [ey, em] = sortedDates[0].split('-');
+          const nowMs = Date.now();
+          let closestDate = sortedDates[0];
+          let minDiff = Infinity;
+          for (const d of sortedDates) {
+            const diff = Math.abs(new Date(d).getTime() - nowMs);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closestDate = d;
+            }
+          }
+          const [ey, em] = closestDate.split('-');
           currentCalDate = new Date(Number(ey), Number(em) - 1, 1);
         }
       }

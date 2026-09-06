@@ -20,7 +20,7 @@ const {
 <BaseLayout
   title={title}
   description={description}
-  bodyClass="bg-[#f9f7f2] text-slate-800 antialiased"
+  bodyClass="bg-[#071a17] text-slate-100 antialiased min-h-screen relative overflow-x-hidden"
 >
   <!-- Centralized Synchronous Auth Guard (Runs before first paint to eliminate flicker) -->
   <script is:inline>
@@ -37,11 +37,15 @@ const {
     })();
   </script>
 
+  <!-- Ambient Glow Effects (Matching the login screen) -->
+  <div class="fixed -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed -bottom-32 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
   <!-- Persistent App Header Shell -->
   <StaffPortalNav activeTab={activeTab} />
 
   <!-- Dynamic Content Workspace with Seamless 0ms View Transition -->
-  <div class="min-h-screen pb-24 md:pb-12" transition:animate="fade">
+  <div class="min-h-screen pb-24 md:pb-12 relative z-10" transition:animate="fade">
     <slot />
   </div>
 

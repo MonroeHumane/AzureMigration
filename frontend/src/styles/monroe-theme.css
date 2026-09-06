@@ -1542,3 +1542,137 @@ a, button, input, select, textarea {
   }
 }
 
+/* ==========================================================================
+   Mobile Navigation Layout Styles (Hamburger vs Bottom Bar)
+   ========================================================================== */
+
+/* By default, hide bottom bar */
+.monroe-bottom-tab-bar {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  /* In Bottom-Bar Mode: show bottom bar, hide top hamburger, add body padding */
+  :root[data-nav-style="bottom-bar"] .monroe-bottom-tab-bar {
+    display: block;
+  }
+  :root[data-nav-style="bottom-bar"] .monroe-global-nav__menu-toggle {
+    display: none !important;
+  }
+  :root[data-nav-style="bottom-bar"] .monroe-global-nav__bar {
+    grid-template-columns: auto 1fr;
+  }
+  :root[data-nav-style="bottom-bar"] body:not(.staff-portal-body) {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* In Hamburger Mode: hide bottom bar, ensure top hamburger is displayed */
+  :root[data-nav-style="hamburger"] .monroe-bottom-tab-bar {
+    display: none !important;
+  }
+  :root[data-nav-style="hamburger"] .monroe-global-nav__menu-toggle {
+    display: block;
+  }
+}
+
+/* ==========================================================================
+   Scroll-Aware Screen Maximizing (Hide on scroll down, Reveal on scroll up)
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .monroe-global-nav {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+  }
+  :root.monroe-nav-hidden .monroe-global-nav:not(.is-open) {
+    transform: translateY(-100%);
+  }
+
+  .monroe-bottom-tab-bar {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  :root.monroe-nav-hidden .monroe-bottom-tab-bar {
+    transform: translateY(100%);
+  }
+
+  .monroe-settings-cog {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, background 0.18s ease;
+  }
+  :root.monroe-nav-hidden .monroe-settings-cog {
+    transform: translateY(80px);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* Always hide bottom bar and mobile cogwheel on desktop */
+@media (min-width: 1201px) {
+  .monroe-bottom-tab-bar,
+  .monroe-settings-cog {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Staff Portal Mobile Navigation Controls & Sheet Dialog
+   ========================================================================== */
+#mobile-bottom-nav-dock {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  /* In Bottom-Bar Mode: show bottom dock, hide top hamburger button */
+  :root[data-nav-style="bottom-bar"] #mobile-bottom-nav-dock {
+    display: block !important;
+  }
+  :root[data-nav-style="bottom-bar"] #mobile-nav-toggle-btn {
+    display: none !important;
+  }
+  :root[data-nav-style="bottom-bar"] .staff-portal-body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* In Hamburger Mode: hide bottom dock, show top hamburger button */
+  :root[data-nav-style="hamburger"] #mobile-bottom-nav-dock {
+    display: none !important;
+  }
+  :root[data-nav-style="hamburger"] #mobile-nav-toggle-btn {
+    display: inline-flex !important;
+  }
+
+  /* Scroll-Aware Screen Maximizing for Staff Portal */
+  .staff-portal-header {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  :root.monroe-nav-hidden .staff-portal-header:not(.is-drawer-open) {
+    transform: translateY(-100%);
+  }
+
+  #mobile-bottom-nav-dock {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  :root.monroe-nav-hidden #mobile-bottom-nav-dock {
+    transform: translateY(100%);
+  }
+}
+
+.staff-more-sheet {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+.staff-more-sheet::backdrop {
+  background: rgba(4, 15, 13, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+
+

@@ -452,7 +452,7 @@
   </div>
 
   <script>
-    import { isStaffAuthenticated, getStaffToken, forceStaffRelogin } from '../../../lib/staff-auth';
+    import { isStaffAuthenticated, getStaffToken } from '../../../lib/staff-auth';
     import { getCachedFinancials } from '../../../lib/api';
 
     function formatDollar(val: number, maxDigits = 0): string {
@@ -554,15 +554,18 @@
 
       try {
         const res = await fetch('/api/financials', {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'X-Staff-Token': token,
+            'X-Authorization': `Bearer ${token}`,
+          }
         });
 
         let data = null;
         if (res.status === 401 || res.status === 403) {
-          forceStaffRelogin();
-          return;
-        }
-        if (res.ok) {
+          console.warn('[PrintView] /api/financials returned', res.status, '- using cached financials');
+          data = getCachedFinancials();
+        } else if (res.ok) {
           data = await res.json();
         } else {
           console.warn('[PrintView] /api/financials returned', res.status, '- attempting cache fallback');

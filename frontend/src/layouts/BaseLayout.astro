@@ -1,6 +1,8 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import UserSettings from '../components/UserSettings.astro';
+import BottomTabBar from '../components/BottomTabBar.astro';
 import { ClientRouter } from 'astro:transitions';
 import { SITE } from '../config/site';
 import '../styles/global.css';
@@ -164,6 +166,25 @@ const schemaOrg = {
         });
       })();
     </script>
+
+    <!-- Early zero-flicker mobile navigation layout preference check -->
+    <script is:inline>
+      (function() {
+        function syncNav() {
+          try {
+            var saved = localStorage.getItem('monroe-nav-pref') || 'hamburger';
+            document.documentElement.setAttribute('data-nav-style', saved);
+          } catch (e) {}
+        }
+        syncNav();
+        document.addEventListener('astro:before-swap', function(e) {
+          try {
+            var saved = localStorage.getItem('monroe-nav-pref') || 'hamburger';
+            e.newDocument.documentElement.setAttribute('data-nav-style', saved);
+          } catch (err) {}
+        });
+      })();
+    </script>
     <script>
       import { initErrorReporter } from '../lib/error-reporter';
       initErrorReporter();
@@ -182,13 +203,23 @@ const schemaOrg = {
   <body class:list={['monroe-rebuild-theme', bodyClass, hidePublicNav && 'staff-portal-body']}>
     <a class="monroe-skip-link" href="#monroe-main">Skip to content</a>
 
-    {!hidePublicNav && <Header currentPath={Astro.url.pathname} />}
+    {!hidePublicNav && (
+      <>
+        <Header currentPath={Astro.url.pathname} />
+        <BottomTabBar currentPath={Astro.url.pathname} />
+      </>
+    )}
 
     <main id="monroe-main" tabindex="-1">
       <slot />
     </main>
 
-    {!hidePublicNav && <Footer />}
+    {!hidePublicNav && (
+      <>
+        <Footer />
+        <UserSettings />
+      </>
+    )}
   </body>
 </html>
 

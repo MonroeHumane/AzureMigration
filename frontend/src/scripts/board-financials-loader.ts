@@ -1016,8 +1016,12 @@ function hydrateBankStatement(stmt: any, token: string) {
 const statementPdfBlobs: { bank?: string; qbo?: string } = {};
 
 async function fetchStatementPdfBlob(doc: 'bank' | 'qbo', token: string): Promise<string | null> {
-  const res = await fetch(`/api/statement?doc=${doc}`, {
-    headers: { Authorization: `Bearer ${token}` },
+  const res = await fetch(`/api/statement?doc=${doc}&token=${encodeURIComponent(token)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'X-Staff-Token': token,
+      'X-Authorization': `Bearer ${token}`,
+    },
   });
   if (!res.ok) return null;
   const blob = await res.blob();

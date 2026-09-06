@@ -1,4 +1,4 @@
-import { getStaffToken, forceStaffRelogin } from './staff-auth';
+import { getStaffToken } from './staff-auth';
 import { getCachedFinancials, setCachedFinancials } from './api';
 
 export type StaffFinancialsOk = { ok: true; data: any; fromCache: boolean };
@@ -91,13 +91,25 @@ export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}):
 
   try {
     const res = await fetch('/api/financials', {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'X-Staff-Token': token,
+        'X-Authorization': `Bearer ${token}`,
+      },
     });
     if (res.status === 401 || res.status === 403) {
-      forceStaffRelogin();
-      return { ok: false, status: res.status, error: 'Unauthorized' };
+      console.warn('[StaffFinancials] /api/financials returned', res.status);
+      const fallbackCache = getCachedFinancials();
+      if (fallbackCache?.headline_kpis) {
+        return { ok: true, data: fallbackCache, fromCache: true };
+      }
+      return { ok: false, status: res.status, error: 'Unauthorized to load live financials.' };
     }
     if (!res.ok) {
+      const fallbackCache = getCachedFinancials();
+      if (fallbackCache?.headline_kpis) {
+        return { ok: true, data: fallbackCache, fromCache: true };
+      }
       return { ok: false, status: res.status, error: `Financials unavailable (${res.status})` };
     }
     const data = await res.json();
@@ -107,6 +119,10 @@ export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}):
     setCachedFinancials(data);
     return { ok: true, data, fromCache: false };
   } catch {
+    const fallbackCache = getCachedFinancials();
+    if (fallbackCache?.headline_kpis) {
+      return { ok: true, data: fallbackCache, fromCache: true };
+    }
     return { ok: false, status: 0, error: 'Network error loading financials' };
   }
 }

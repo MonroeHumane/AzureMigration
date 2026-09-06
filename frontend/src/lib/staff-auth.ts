@@ -169,8 +169,10 @@ export async function loginStaff(opts: {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${dt}`,
+              'X-Staff-Token': dt,
+              'X-Authorization': `Bearer ${dt}`,
             },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email, directus_token: dt, token: dt }),
           });
           if (sRes.ok) {
             const sData = await sRes.json();

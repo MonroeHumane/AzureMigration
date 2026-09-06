@@ -178,12 +178,14 @@ const isCurrent = (item: NavItem) => {
 <button type="button" class="monroe-global-nav__backdrop" aria-label="Close menu" tabindex="-1" hidden></button>
 
 <script>
-  const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
+  function initHeader() {
+    const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
+    if (!header) return;
 
-  if (header) {
     const root = document.documentElement;
     const toggle = header.querySelector<HTMLButtonElement>('.monroe-global-nav__menu-toggle');
     const backdrop = document.querySelector<HTMLButtonElement>('.monroe-global-nav__backdrop');
+    const panel = header.querySelector<HTMLElement>('.monroe-global-nav__panel');
     const mql = window.matchMedia('(max-width: 1200px)');
 
     // Publish the closed-header height so body padding and anchors track it exactly.
@@ -235,6 +237,7 @@ const isCurrent = (item: NavItem) => {
     toggle?.addEventListener('click', () => {
       const open = header.classList.toggle('is-open');
       toggle.setAttribute('aria-expanded', String(open));
+      root.classList.remove('monroe-nav-hidden');
       if (open) {
         if (backdrop) backdrop.hidden = false;
         syncInert();
@@ -245,6 +248,33 @@ const isCurrent = (item: NavItem) => {
     });
 
     backdrop?.addEventListener('click', closeDrawer);
+
+    // Touch Physics: Swipe UP on drawer panel to dismiss
+    if (panel) {
+      let drawerTouchStartY = 0;
+      let drawerTouchStartX = 0;
+
+      panel.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 0) {
+          drawerTouchStartY = e.touches[0].clientY;
+          drawerTouchStartX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+
+      panel.addEventListener('touchend', (e) => {
+        if (e.changedTouches.length > 0) {
+          const drawerTouchEndY = e.changedTouches[0].clientY;
+          const drawerTouchEndX = e.changedTouches[0].clientX;
+          const deltaY = drawerTouchStartY - drawerTouchEndY; // upward swipe
+          const deltaX = Math.abs(drawerTouchEndX - drawerTouchStartX);
+
+          // If swiped UP by > 50px and panel is at top of scroll
+          if (header.classList.contains('is-open') && deltaY > 50 && deltaY > deltaX && panel.scrollTop <= 5) {
+            closeDrawer();
+          }
+        }
+      }, { passive: true });
+    }
 
     // Close on Escape or click outside
     document.addEventListener('keydown', (e) => {
@@ -307,7 +337,46 @@ const isCurrent = (item: NavItem) => {
       closeDrawer();
       measure();
       syncInert();
+      root.classList.remove('monroe-nav-hidden');
     });
+
+    // Scroll-Aware Screen Maximizing: Hide on scroll down, Reveal on scroll up
+    let lastScrollY = window.scrollY;
+    const SCROLL_DELTA_THRESHOLD = 10;
+
+    const handleScrollAwareNav = () => {
+      if (!mql.matches) {
+        root.classList.remove('monroe-nav-hidden');
+        return;
+      }
+
+      const currentY = window.scrollY;
+
+      // Always reveal within top 60px of the page
+      if (currentY <= 60) {
+        root.classList.remove('monroe-nav-hidden');
+        lastScrollY = currentY;
+        return;
+      }
+
+      // Do not hide if mobile drawer or any modal dialog is currently open
+      if (header.classList.contains('is-open') || document.querySelector('dialog[open]')) {
+        root.classList.remove('monroe-nav-hidden');
+        lastScrollY = currentY;
+        return;
+      }
+
+      const diff = currentY - lastScrollY;
+      if (diff > SCROLL_DELTA_THRESHOLD) {
+        // Scrolled down -> maximize screen by translating bars out of viewport
+        root.classList.add('monroe-nav-hidden');
+      } else if (diff < -SCROLL_DELTA_THRESHOLD) {
+        // Scrolled up -> reveal navigation bars immediately
+        root.classList.remove('monroe-nav-hidden');
+      }
+
+      lastScrollY = currentY;
+    };
 
     measure();
     setCondensed();
@@ -315,9 +384,18 @@ const isCurrent = (item: NavItem) => {
     window.addEventListener('resize', measure, { passive: true });
     window.addEventListener('scroll', setCondensed, { passive: true });
     window.addEventListener('scroll', closeDropdownsOnScroll, { passive: true });
+    window.addEventListener('scroll', handleScrollAwareNav, { passive: true });
+
+    document.addEventListener('astro:before-swap', () => {
+      root.classList.remove('monroe-nav-hidden');
+    });
+
     if ('ResizeObserver' in window) {
       new ResizeObserver(() => measure()).observe(header);
     }
   }
+
+  initHeader();
+  document.addEventListener('astro:page-load', initHeader);
 </script>
 
