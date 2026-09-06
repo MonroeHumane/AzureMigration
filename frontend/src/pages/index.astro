@@ -5,6 +5,7 @@ import { SITE } from '../config/site';
 import home from '../data/homepage.json';
 import sponsors from '../data/sponsors.json';
 import reviewsData from '../data/reviews.json';
+import MobileTOC from '../components/MobileTOC.astro';
 
 import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
@@ -117,6 +118,8 @@ const sideNavSections = [
       </ul>
     </div>
   </nav>
+
+  <MobileTOC sections={sideNavSections} />
 
   <div class="home-editable-shell is-layout-constrained">
     <!-- 1. Hero -->
