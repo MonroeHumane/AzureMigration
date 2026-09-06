@@ -77,101 +77,46 @@ const getUrgencyBadge = (days: number | null) => {
 ---
 
 <div class="space-y-6" id="petsync-portal-root">
-  <!-- Top Operational Status Banner -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2.5">
-          <span class="inline-flex p-2 rounded-lg bg-[#173a39] text-amber-300 shadow-xs">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2v4"></path>
-              <path d="m4.93 4.93 2.83 2.83"></path>
-              <path d="M2 12h4"></path>
-              <path d="m4.93 19.07 2.83-2.83"></path>
-              <path d="M12 18v4"></path>
-              <path d="m19.07 19.07-2.83-2.83"></path>
-              <path d="M18 12h4"></path>
-              <path d="m19.07 4.93-2.83 2.83"></path>
-            </svg>
-          </span>
-          <div>
-            <div class="flex items-center gap-2">
-              <h2 class="text-lg font-bold text-[#173a39] tracking-tight">
-                PetSync Operations & Animal Inventory
-              </h2>
-              <span id="petsync-live-badge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
-                Auto Sync: RUNNING
-              </span>
-            </div>
-            <p class="text-xs text-slate-500 mt-0.5">
-              Native Azure Container Job (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">mchs-petsync-job</code>) · Scrapes Petango every 30 minutes directly into Directus & Blob Storage.
-            </p>
-          </div>
-        </div>
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="bg-white rounded-xl border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">Active</div>
+      <div id="petsync-active-count-badge" class="mt-1 font-mono font-bold text-lg text-slate-900">{data.activeCount}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">Archived</div>
+      <div id="petsync-archived-count-badge" class="mt-1 font-mono font-bold text-lg text-slate-900">{data.archivedCount}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">Total</div>
+      <div id="petsync-total-count-badge" class="mt-1 font-mono font-bold text-lg text-slate-900">{data.totalCount}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">Last sync</div>
+      <div class="mt-1 text-sm text-slate-900 truncate" title={data.lastSyncTimestamp}>
+        {formatDateTime(data.lastSyncTimestamp)}
       </div>
-
-      <!-- Quick Status Cards -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-        <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
-          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Active In Shelter</span>
-          <span id="petsync-active-count-badge" class="font-mono font-bold text-emerald-700 text-sm">{data.activeCount} pets</span>
-        </div>
-        <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
-          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Archived / Past</span>
-          <span id="petsync-archived-count-badge" class="font-mono font-bold text-purple-700 text-sm">{data.archivedCount} pets</span>
-        </div>
-        <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
-          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Total In Database</span>
-          <span id="petsync-total-count-badge" class="font-mono font-bold text-slate-800 text-sm">{data.totalCount} pets</span>
-        </div>
-        <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
-          <span class="text-[10px] uppercase font-semibold text-slate-400 block">Last Full Sync</span>
-          <span class="font-mono font-bold text-slate-900 text-[11px] block truncate" title={data.lastSyncTimestamp}>
-            {formatDateTime(data.lastSyncTimestamp)}
-          </span>
-        </div>
-      </div>
+      <span id="petsync-live-badge" class="hidden">RUNNING</span>
     </div>
   </div>
 
-  <!-- Shelter Operational Pulse & Care Cost Card -->
-  <div class="bg-gradient-to-r from-teal-900 to-[#173a39] text-white rounded-xl shadow-xs p-5 border border-teal-800">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-800/80 text-teal-200 border border-teal-700">
-            Shelter Operational Pulse
-          </span>
-          <span class="text-xs text-teal-200/80">Money &amp; Mission Unified</span>
-        </div>
-        <h3 class="text-lg font-bold text-white tracking-tight">2026 Animal Care &amp; Life-Saving Impact</h3>
-        <p class="text-xs text-teal-100/80 mt-0.5 max-w-2xl">
-          Every operating dollar directly funds care, feeding, and medical treatment for Monroe County animals.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs shrink-0">
-        <div class="bg-white/10 backdrop-blur-xs rounded-lg p-2.5 border border-white/10">
-          <span class="text-[10px] uppercase font-bold text-teal-200 block">2026 Served YTD</span>
-          <span class="font-mono font-black text-base text-white">{totalServed2026} pets</span>
-          <span class="text-[10px] text-teal-200/70 block">{ytdAdoptions} adoptions YTD</span>
-        </div>
-        <div class="bg-white/10 backdrop-blur-xs rounded-lg p-2.5 border border-white/10">
-          <span class="text-[10px] uppercase font-bold text-teal-200 block">Avg Length of Stay</span>
-          <span class="font-mono font-black text-base text-white">{avgDaysInCare} days</span>
-          <span class="text-[10px] text-teal-200/70 block">Dogs {dogsAvgDays}d · Cats {catsAvgDays}d</span>
-        </div>
-        <div class="bg-white/10 backdrop-blur-xs rounded-lg p-2.5 border border-white/10">
-          <span class="text-[10px] uppercase font-bold text-teal-200 block">Daily Care Cost</span>
-          <span class="font-mono font-black text-base text-amber-300">${dailyCareCost}/day</span>
-          <span class="text-[10px] text-teal-200/70 block">Per animal in care</span>
-        </div>
-        <div class="bg-white/10 backdrop-blur-xs rounded-lg p-2.5 border border-white/10">
-          <span class="text-[10px] uppercase font-bold text-teal-200 block">Long Stay Alert</span>
-          <span class="font-mono font-black text-base text-amber-300">{longStayPets.length} pets</span>
-          <span class="text-[10px] text-teal-200/70 block">&gt;60 days in care</span>
-        </div>
-      </div>
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="bg-white rounded-xl border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">2026 served</div>
+      <div class="mt-1 font-mono font-bold text-lg text-slate-900">{totalServed2026}</div>
+      <div class="text-xs text-slate-500">{ytdAdoptions} adopted</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">Avg stay</div>
+      <div class="mt-1 font-mono font-bold text-lg text-slate-900">{avgDaysInCare}d</div>
+      <div class="text-xs text-slate-500">Dogs {dogsAvgDays}d · cats {catsAvgDays}d</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">Care / day</div>
+      <div class="mt-1 font-mono font-bold text-lg text-slate-900">${dailyCareCost}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">&gt;60 days</div>
+      <div class="mt-1 font-mono font-bold text-lg text-slate-900">{longStayPets.length}</div>
     </div>
   </div>
 
@@ -181,7 +126,7 @@ const getUrgencyBadge = (days: number | null) => {
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
       <!-- Status Filter Tabs -->
       <div class="flex flex-wrap items-center gap-1.5 text-xs">
-        <span class="text-[11px] font-semibold text-slate-500 mr-1">Roster:</span>
+        <span class="sr-only">Roster</span>
         <button
           type="button"
           data-status-filter="active"
@@ -1419,19 +1364,14 @@ const getUrgencyBadge = (days: number | null) => {
           if (liveActiveCount !== null && liveArchivedCount !== null) {
             const liveTotal = liveActiveCount + liveArchivedCount;
 
-            const liveBadge = document.getElementById('petsync-live-badge');
-            if (liveBadge) {
-              liveBadge.textContent = 'Live Directus Feed: Synced';
-              liveBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-900 border border-teal-300';
-            }
             const activeBadge = document.getElementById('petsync-active-count-badge');
-            if (activeBadge) activeBadge.textContent = `${liveActiveCount} pets`;
+            if (activeBadge) activeBadge.textContent = String(liveActiveCount);
 
             const archivedBadge = document.getElementById('petsync-archived-count-badge');
-            if (archivedBadge) archivedBadge.textContent = `${liveArchivedCount} pets`;
+            if (archivedBadge) archivedBadge.textContent = String(liveArchivedCount);
 
             const totalBadge = document.getElementById('petsync-total-count-badge');
-            if (totalBadge) totalBadge.textContent = `${liveTotal} pets`;
+            if (totalBadge) totalBadge.textContent = String(liveTotal);
 
             const pillActive = document.getElementById('petsync-pill-active-count');
             if (pillActive) pillActive.textContent = String(liveActiveCount);

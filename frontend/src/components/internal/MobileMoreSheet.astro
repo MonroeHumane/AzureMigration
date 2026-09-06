@@ -352,12 +352,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
+      if (!installContainer || isStandalone) return;
       e.preventDefault();
       deferredPrompt = e;
       (window as any).__pwaInstallPrompt = e;
-      if (installContainer && !isStandalone) {
-        installContainer.classList.remove('hidden');
-      }
+      installContainer.classList.remove('hidden');
     });
 
     if (installBtn && installBtn.dataset.bound !== '1') {

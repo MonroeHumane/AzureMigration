@@ -26,24 +26,8 @@ const {
   <script is:inline>
     (function() {
       try {
-        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
-        var hasAuth = false;
-        if (raw) {
-          try {
-            var parsed = JSON.parse(raw);
-            if (parsed && (parsed.access_token || parsed.refresh_token)) {
-              hasAuth = true;
-            }
-          } catch (e) {}
-        }
-        if (!hasAuth) {
-          hasAuth = !!(
-            localStorage.getItem('mchs_staff_auth') === 'true' ||
-            sessionStorage.getItem('mchs_staff_auth') === 'true' ||
-            localStorage.getItem('mchs_staff_token') ||
-            sessionStorage.getItem('mchs_staff_token')
-          );
-        }
+        var token = localStorage.getItem('mchs_staff_token') || sessionStorage.getItem('mchs_staff_token') || '';
+        var hasAuth = token.indexOf('mchs_') === 0 && token.indexOf('.') !== -1;
         if (!hasAuth) {
           window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
         } else {

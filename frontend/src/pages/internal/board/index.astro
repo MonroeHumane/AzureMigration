@@ -33,6 +33,12 @@ const subNavItems = [
     <!-- Modular Financial Sub-Navigation Bar (Sticky) -->
     <StaffSubNav items={subNavItems} activeId="all" ariaLabel="Financial modules subnavigation" />
 
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+      <div id="board-data-status" class="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-950" role="status">
+        Loading…
+      </div>
+    </div>
+
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8" id="financials-main-content">
       <!-- Section 1: Headline KPI Grid -->
       <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20">
@@ -54,14 +60,8 @@ const subNavItems = [
         <BankStatementViewer />
       </section>
 
-      <!-- Governance & Verification Footer -->
-      <footer class="mt-12 pt-6 border-t border-slate-200 text-center text-xs text-slate-500 space-y-2">
-        <p>
-          Humane Society of Monroe County (HSMC) · 501(c)(3) Non-Profit Organization · Monroe, Michigan
-        </p>
-        <p class="text-[11px] text-slate-400">
-          QuickBooks Online (Accrual) · Confidential Board Information
-        </p>
+      <footer class="mt-8 pt-4 border-t border-slate-200 text-xs text-slate-400">
+        Confidential
       </footer>
     </main>
   </div>

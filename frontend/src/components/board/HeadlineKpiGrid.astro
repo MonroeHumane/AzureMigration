@@ -29,7 +29,6 @@ interface Props {
 
 const { kpis } = Astro.props;
 
-// Round whole dollars for headline tiles
 const formatDollar = (val: number) => {
   const isNeg = val < 0;
   const abs = Math.abs(Math.round(val));
@@ -37,7 +36,6 @@ const formatDollar = (val: number) => {
   return isNeg ? `(${formatted})` : formatted;
 };
 
-// Exact cents for tooltips and footnotes
 const formatCents = (val: number) => {
   const isNeg = val < 0;
   const abs = Math.abs(val);
@@ -46,118 +44,81 @@ const formatCents = (val: number) => {
 };
 ---
 
-<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-  <!-- Card 1: All-In Net Margin (Headline) -->
-  <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition relative overflow-hidden group">
-    <div class="absolute top-0 left-0 right-0 h-1 bg-rose-500"></div>
-    <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-      <span class="font-semibold uppercase tracking-wider text-slate-700">Overall Net Result (YTD)</span>
-      <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-        8 Months Closed
-      </span>
-    </div>
-    <div class="mt-2 flex items-baseline gap-2">
-      <span id="kpi-all-in-net" class="text-3xl font-bold tracking-tight text-rose-600">
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+  <div class="bg-white rounded-xl p-4 border border-slate-200">
+    <div class="text-xs text-slate-500">YTD net</div>
+    <div class="mt-1 flex items-baseline gap-2">
+      <span id="kpi-all-in-net" class="text-2xl font-bold tracking-tight text-slate-900">
         {kpis ? formatDollar(kpis.all_in_net) : '--'}
       </span>
-      <span id="kpi-all-in-margin" class="text-sm font-semibold text-rose-500">
-        {kpis ? `${kpis.all_in_margin_pct.toFixed(1)}%` : '--%'}
+      <span id="kpi-all-in-margin" class="text-sm text-slate-500">
+        {kpis ? `${kpis.all_in_margin_pct.toFixed(1)}%` : ''}
       </span>
     </div>
-    <p class="text-xs text-slate-500 mt-2">
-      Inflows: <span id="kpi-all-in-rev" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.all_in_revenue) : '--'}</span> · 
-      Outflows: <span id="kpi-all-in-exp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.all_in_expenditures) : '--'}</span>
+    <p class="text-xs text-slate-500 mt-1">
+      <span id="kpi-all-in-rev">{kpis ? formatDollar(kpis.all_in_revenue) : '--'}</span>
+      in ·
+      <span id="kpi-all-in-exp">{kpis ? formatDollar(kpis.all_in_expenditures) : '--'}</span>
+      out
     </p>
-    <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
-      <span>Exact cent balance:</span>
-      <span id="kpi-all-in-exact" class="font-mono font-medium text-slate-800">{kpis ? formatCents(kpis.all_in_net) : '--'}</span>
-    </div>
-    <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
-      Total year-to-date operating deficit across all revenue and grants, funded from cash reserves.
-    </p>
+    <span id="kpi-all-in-exact" class="hidden">{kpis ? formatCents(kpis.all_in_net) : '--'}</span>
   </div>
 
-  <!-- Card 2: QBO Operating Net -->
-  <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition relative overflow-hidden">
-    <div class="absolute top-0 left-0 right-0 h-1 bg-amber-500"></div>
-    <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-      <span class="font-semibold uppercase tracking-wider text-slate-700">Day-to-Day Shelter Net</span>
-      <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-        Everyday Shelter
-      </span>
-    </div>
-    <div class="mt-2 flex items-baseline gap-2">
-      <span id="kpi-qbo-net" class="text-3xl font-bold tracking-tight text-amber-700">
+  <div class="bg-white rounded-xl p-4 border border-slate-200">
+    <div class="text-xs text-slate-500">Shelter net</div>
+    <div class="mt-1 flex items-baseline gap-2">
+      <span id="kpi-qbo-net" class="text-2xl font-bold tracking-tight text-slate-900">
         {kpis ? formatDollar(kpis.qbo_operating_net) : '--'}
       </span>
-      <span class="text-xs text-slate-500 font-medium">Pre-Endowment</span>
     </div>
-    <p class="text-xs text-slate-500 mt-2">
-      Shelter Rev: <span id="kpi-qbo-rev" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_operating_revenue) : '--'}</span> · 
-      Shelter Exp: <span id="kpi-qbo-exp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_cogs + kpis.qbo_operating_expenditures) : '--'}</span>
+    <p class="text-xs text-slate-500 mt-1">
+      <span id="kpi-qbo-rev">{kpis ? formatDollar(kpis.qbo_operating_revenue) : '--'}</span>
+      in ·
+      <span id="kpi-qbo-exp">{kpis ? formatDollar(kpis.qbo_cogs + kpis.qbo_operating_expenditures) : '--'}</span>
+      out
     </p>
-    <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
-      <span>Outside grants & support:</span>
-      <span id="kpi-qbo-bridge" class="font-mono font-medium text-emerald-700">{kpis ? `+${formatDollar(kpis.non_operating_bridge)}` : '--'}</span>
-    </div>
-    <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
-      Everyday shelter operations before community foundation endowment draws and recycling.
+    <p class="text-xs text-slate-500 mt-1">
+      Bridge <span id="kpi-qbo-bridge">{kpis ? `+${formatDollar(kpis.non_operating_bridge)}` : '--'}</span>
     </p>
   </div>
 
-  <!-- Card 3: Program Efficiency Ratio -->
-  <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition relative overflow-hidden">
-    <div class="absolute top-0 left-0 right-0 h-1 bg-[#1c746c]"></div>
-    <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-      <span class="font-semibold uppercase tracking-wider text-slate-700">Animal Care & Mission Ratio</span>
-      <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-[#1c746c] border border-emerald-200">
-        Benchmark ≥75%
+  <div class="bg-white rounded-xl p-4 border border-slate-200">
+    <div class="text-xs text-slate-500">Program ratio</div>
+    <div class="mt-1 flex items-baseline gap-2">
+      <span id="kpi-program-ratio" class="text-2xl font-bold tracking-tight text-slate-900">
+        {kpis ? `${kpis.program_ratio_pct.toFixed(1)}%` : '--'}
+      </span>
+      <span id="kpi-program-target" class="text-xs text-slate-500">
+        {kpis ? (kpis.program_ratio_pct >= 75 ? '≥75%' : '<75%') : ''}
       </span>
     </div>
-    <div class="mt-2 flex items-baseline gap-2">
-      <span id="kpi-program-ratio" class="text-3xl font-bold tracking-tight text-[#1c746c]">
-        {kpis ? `${kpis.program_ratio_pct.toFixed(1)}%` : '--%'}
-      </span>
-      <span class="text-xs font-semibold text-emerald-700">Exceeds Target</span>
-    </div>
-    <p class="text-xs text-slate-500 mt-2">
-      Animal Care: <span id="kpi-program-spend" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.program_spend) : '--'}</span> ÷ 
-      Total OpExp: <span id="kpi-program-opexp" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.qbo_operating_expenditures) : '--'}</span>
+    <p class="text-xs text-slate-500 mt-1">
+      <span id="kpi-program-spend">{kpis ? formatDollar(kpis.program_spend) : '--'}</span>
+      /
+      <span id="kpi-program-opexp">{kpis ? formatDollar(kpis.qbo_operating_expenditures) : '--'}</span>
     </p>
-    <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
-      <span>Animal care dollars:</span>
-      <span id="kpi-program-exact" class="font-mono font-medium text-slate-800">{kpis ? formatCents(kpis.program_spend) : '--'}</span>
-    </div>
-    <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
-      <strong>85¢ of every dollar</strong> spent goes directly to animal rescue, clinical veterinary care, and feeding.
-    </p>
+    <span id="kpi-program-exact" class="hidden">{kpis ? formatCents(kpis.program_spend) : '--'}</span>
+    <span id="kpi-program-cents" class="hidden"></span>
   </div>
 
-  <!-- Card 4: Total Liquidity & Runway -->
-  <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition relative overflow-hidden">
-    <div class="absolute top-0 left-0 right-0 h-1 bg-[#173a39]"></div>
-    <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-      <span class="font-semibold uppercase tracking-wider text-slate-700">Cash & Board Reserves</span>
-      <span id="kpi-runway-badge" class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-        {kpis ? `${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1)} Months of Cash` : '-- Months of Cash'}
-      </span>
-    </div>
-    <div class="mt-2 flex items-baseline gap-2">
-      <span id="kpi-total-liquidity" class="text-3xl font-bold tracking-tight text-[#173a39]">
+  <div class="bg-white rounded-xl p-4 border border-slate-200">
+    <div class="text-xs text-slate-500">Cash</div>
+    <div class="mt-1 flex items-baseline gap-2">
+      <span id="kpi-total-liquidity" class="text-2xl font-bold tracking-tight text-slate-900">
         {kpis ? formatDollar((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) : '--'}
       </span>
-      <span class="text-xs font-medium text-slate-500">Total Available</span>
+      <span id="kpi-runway-badge" class="text-xs text-slate-500">
+        {kpis ? `${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1)} mo` : ''}
+      </span>
     </div>
-    <p class="text-xs text-slate-500 mt-2">
-      Checking: <span id="kpi-operating-cash" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.bank_register_cash || kpis.operating_checking_first_merchants) : '--'}</span> · 
-      Board Reserve: <span id="kpi-fidelity-reserve" class="font-medium text-slate-700">{kpis ? formatDollar(kpis.fidelity_reserve) : '--'}</span>
+    <p class="text-xs text-slate-500 mt-1">
+      <span id="kpi-operating-cash">{kpis ? formatDollar(kpis.bank_register_cash || kpis.operating_checking_first_merchants) : '--'}</span>
+      checking ·
+      <span id="kpi-fidelity-reserve">{kpis ? formatDollar(kpis.fidelity_reserve) : '--'}</span>
+      reserve
     </p>
-    <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-600 flex justify-between items-center">
-      <span>Zero-revenue buffer:</span>
-      <span id="kpi-zero-inflow" class="font-mono font-medium text-slate-800">{kpis ? `${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / ((kpis.qbo_cogs + kpis.qbo_operating_expenditures) / 8)).toFixed(1)} Months (Zero Inflow)` : '-- Months'}</span>
-    </div>
-    <p class="mt-2 text-[10.5px] text-slate-500 leading-snug">
-      Runway at the current deficit pace (and the zero-inflow buffer) load after sign-in.
+    <p class="text-xs text-slate-500 mt-1">
+      Zero inflow <span id="kpi-zero-inflow">{kpis ? `${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / ((kpis.qbo_cogs + kpis.qbo_operating_expenditures) / 8)).toFixed(1)} mo` : '--'}</span>
     </p>
   </div>
 </section>

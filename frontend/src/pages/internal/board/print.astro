@@ -14,22 +14,8 @@
   <script is:inline>
     (function() {
       try {
-        var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
-        var hasAuth = false;
-        if (raw) {
-          var parsed = JSON.parse(raw);
-          if (parsed && (parsed.access_token || parsed.refresh_token)) {
-            hasAuth = true;
-          }
-        }
-        if (!hasAuth) {
-          hasAuth = !!(
-            sessionStorage.getItem('mchs_staff_auth') ||
-            localStorage.getItem('mchs_staff_auth') ||
-            sessionStorage.getItem('mchs_staff_token') ||
-            localStorage.getItem('mchs_staff_token')
-          );
-        }
+        var token = localStorage.getItem('mchs_staff_token') || sessionStorage.getItem('mchs_staff_token') || '';
+        var hasAuth = token.indexOf('mchs_') === 0 && token.indexOf('.') !== -1;
         if (!hasAuth) {
           window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
         }
@@ -466,7 +452,7 @@
   </div>
 
   <script>
-    import { isStaffAuthenticated, getStaffToken } from '../../../lib/staff-auth';
+    import { isStaffAuthenticated, getStaffToken, forceStaffRelogin } from '../../../lib/staff-auth';
     import { getCachedFinancials } from '../../../lib/api';
 
     function formatDollar(val: number, maxDigits = 0): string {
@@ -572,6 +558,10 @@
         });
 
         let data = null;
+        if (res.status === 401 || res.status === 403) {
+          forceStaffRelogin();
+          return;
+        }
         if (res.ok) {
           data = await res.json();
         } else {

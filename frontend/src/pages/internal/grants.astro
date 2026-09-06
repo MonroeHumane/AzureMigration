@@ -12,17 +12,8 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
     <div id="dashboard-view" class="portal-view">
       <header class="dashboard-header">
         <div class="header-titles">
-          <div class="flex items-center gap-2 mb-1.5">
-            <a href="/internal/" class="text-xs text-slate-500 hover:text-teal-800 transition font-medium flex items-center gap-1">
-              &larr; Executive Hub
-            </a>
-            <span class="text-slate-300">/</span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-900 border border-purple-200">
-              Philanthropic Pipeline
-            </span>
-          </div>
-          <h1>Grants Tracker</h1>
-          <p>Pipeline &amp; funding opportunities &bull; Cross-reference foundation contributions in <a href="/internal/donors/?search=Foundation" class="text-purple-700 font-bold hover:text-purple-900 underline">Donor Registry &rarr;</a></p>
+          <a href="/internal/" class="text-xs text-slate-500 hover:text-teal-800">← Hub</a>
+          <h1>Grants</h1>
         </div>
       </header>
 
@@ -30,24 +21,21 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
       <section class="dashboard-section">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
           <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-            <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Total Tracked</span>
+            <span class="text-xs text-slate-500 block">Total</span>
             <span id="grant-stat-total" class="font-mono font-bold text-slate-900 text-xl block mt-1">--</span>
-            <span class="text-[11px] text-slate-500 mt-0.5 block">Pipeline applications</span>
           </div>
           <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-            <span class="text-[10px] uppercase font-bold text-emerald-600 block tracking-wider">Awarded Grants</span>
-            <span id="grant-stat-awarded" class="font-mono font-bold text-emerald-700 text-xl block mt-1">--</span>
-            <span class="text-[11px] text-emerald-600 mt-0.5 block">Secured funding</span>
+            <span class="text-xs text-slate-500 block">Awarded</span>
+            <span id="grant-stat-awarded" class="font-mono font-bold text-slate-900 text-xl block mt-1">--</span>
           </div>
           <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-            <span class="text-[10px] uppercase font-bold text-amber-600 block tracking-wider">Open / Pending</span>
-            <span id="grant-stat-open" class="font-mono font-bold text-amber-700 text-xl block mt-1">--</span>
-            <span class="text-[11px] text-amber-600 mt-0.5 block">In review / prep</span>
+            <span class="text-xs text-slate-500 block">Open</span>
+            <span id="grant-stat-open" class="font-mono font-bold text-slate-900 text-xl block mt-1">--</span>
           </div>
           <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-            <span class="text-[10px] uppercase font-bold text-teal-700 block tracking-wider">Status</span>
-            <span id="grant-stat-sync" class="font-bold text-teal-900 text-base block mt-1">Active</span>
-            <span class="text-[11px] text-slate-500 mt-0.5 block">Live Synced</span>
+            <span class="text-xs text-slate-500 block">Status</span>
+            <span id="grant-stat-sync" class="font-bold text-slate-900 text-base block mt-1">Loading</span>
+            <span id="grant-stat-sync-note" class="text-xs text-slate-500 mt-0.5 block"></span>
           </div>
         </div>
       </section>
@@ -55,24 +43,20 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
       <!-- Discovery Tools Section -->
       <section class="dashboard-section discovery-section">
         <div class="section-header">
-          <h2>Discovery Tools</h2>
-          <p>Find new grants to apply for using these community databases.</p>
+          <h2>Find grants</h2>
         </div>
         <div class="tools-grid">
           <a href="https://www.zeffy.com/grant-finder" target="_blank" class="tool-card tool-zeffy">
             <h3>Zeffy</h3>
-            <p>100% free fundraising platform and grant directory for non-profits.</p>
-            <span class="tool-link">Visit Zeffy &rarr;</span>
+            <span class="tool-link">Zeffy ↗</span>
           </a>
           <a href="https://www.grantable.co" target="_blank" class="tool-card tool-grantable">
             <h3>Grantable</h3>
-            <p>AI-powered grant writing and discovery assistant.</p>
-            <span class="tool-link">Visit Grantable &rarr;</span>
+            <span class="tool-link">Grantable ↗</span>
           </a>
           <a href="https://theaawa.org" target="_blank" class="tool-card tool-aawa">
             <h3>AAWA</h3>
-            <p>Association for Animal Welfare Advancement resources and funding.</p>
-            <span class="tool-link">Visit AAWA &rarr;</span>
+            <span class="tool-link">AAWA ↗</span>
           </a>
         </div>
       </section>
@@ -81,8 +65,7 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
       <section class="dashboard-section table-section">
         <div class="section-header flex-between">
           <div>
-            <h2>Active Grants</h2>
-            <p>Your internal record of applications.</p>
+            <h2>Applications</h2>
           </div>
           <div style="display: flex; gap: 0.5rem; align-items: center;">
             <button id="export-grants-csv-btn" type="button" class="btn-outline">Export CSV</button>
@@ -596,6 +579,11 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         const statOpen = document.getElementById('grant-stat-open');
         if (statOpen) statOpen.textContent = openCount > 0 ? openCount.toString() : totalCount.toString();
 
+        const statSync = document.getElementById('grant-stat-sync');
+        if (statSync) statSync.textContent = 'Ready';
+        const statSyncNote = document.getElementById('grant-stat-sync-note');
+        if (statSyncNote) statSyncNote.textContent = '';
+
         if (!grantsContainer) return;
 
         if (!grants || (grants as any[]).length === 0) {
@@ -643,6 +631,13 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         html += '</tbody></table>';
         grantsContainer.innerHTML = html;
       } catch (error: any) {
+        const statSync = document.getElementById('grant-stat-sync');
+        if (statSync) {
+          statSync.className = 'font-bold text-amber-800 text-base block mt-1';
+          statSync.textContent = 'Unavailable';
+        }
+        const statSyncNote = document.getElementById('grant-stat-sync-note');
+        if (statSyncNote) statSyncNote.textContent = 'Could not reach Directus';
         if (!grantsContainer) return;
 
         const errorCode = error?.errors?.[0]?.extensions?.code;

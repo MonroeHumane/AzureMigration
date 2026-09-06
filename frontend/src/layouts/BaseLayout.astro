@@ -141,17 +141,8 @@ const schemaOrg = {
       (function() {
         function syncAuth() {
           try {
-            var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
-            var hasAuth = false;
-            if (raw) {
-              var parsed = JSON.parse(raw);
-              if (parsed && (parsed.access_token || parsed.refresh_token)) {
-                hasAuth = true;
-              }
-            }
-            if (!hasAuth) {
-              hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
-            }
+            var token = localStorage.getItem('mchs_staff_token') || sessionStorage.getItem('mchs_staff_token') || '';
+            var hasAuth = token.indexOf('mchs_') === 0 && token.indexOf('.') !== -1;
             if (hasAuth) {
               document.documentElement.classList.add('staff-authenticated');
             } else {
@@ -162,17 +153,8 @@ const schemaOrg = {
         syncAuth();
         document.addEventListener('astro:before-swap', function(e) {
           try {
-            var raw = sessionStorage.getItem('directus_auth') || localStorage.getItem('directus_auth');
-            var hasAuth = false;
-            if (raw) {
-              var parsed = JSON.parse(raw);
-              if (parsed && (parsed.access_token || parsed.refresh_token)) {
-                hasAuth = true;
-              }
-            }
-            if (!hasAuth) {
-              hasAuth = !!(sessionStorage.getItem('mchs_staff_auth') || localStorage.getItem('mchs_staff_auth'));
-            }
+            var token = localStorage.getItem('mchs_staff_token') || sessionStorage.getItem('mchs_staff_token') || '';
+            var hasAuth = token.indexOf('mchs_') === 0 && token.indexOf('.') !== -1;
             if (hasAuth) {
               e.newDocument.documentElement.classList.add('staff-authenticated');
             } else {

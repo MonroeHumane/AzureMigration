@@ -59,38 +59,52 @@ staffClient.logout = async (...args: any[]) => {
   return _originalLogout(...args);
 };
 
+export function isStaffHmacToken(token: string | null | undefined): boolean {
+  return typeof token === 'string' && token.startsWith('mchs_') && token.includes('.');
+}
+
+export function getStoredHmacStaffToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem(STAFF_TOKEN_KEY) || sessionStorage.getItem(STAFF_TOKEN_KEY);
+  return isStaffHmacToken(token) ? token : null;
+}
+
 /**
- * Synchronous client-side check whether staff is authenticated.
- * Session remains active until explicit logout on this browser.
+ * True only when this browser has an HMAC staff token from /api/login or /api/session.
+ * A leftover mchs_staff_auth flag or expired Directus JWT is not enough.
  */
 export function isStaffAuthenticated(): boolean {
-  if (typeof window === 'undefined') return false;
+  return getStoredHmacStaffToken() !== null;
+}
 
+export function clearStaffClientSession(): void {
+  if (typeof window === 'undefined') return;
   try {
-    if (
-      localStorage.getItem(STAFF_AUTH_FLAG) === 'true' ||
-      sessionStorage.getItem(STAFF_AUTH_FLAG) === 'true'
-    ) {
-      return true;
-    }
+    localStorage.removeItem(DIRECTUS_AUTH_KEY);
+    localStorage.removeItem(STAFF_AUTH_FLAG);
+    localStorage.removeItem(STAFF_USER_KEY);
+    localStorage.removeItem(STAFF_TOKEN_KEY);
+    localStorage.removeItem(STAFF_REMEMBER_KEY);
+    localStorage.removeItem('mchs_financials_cache_v1');
 
-    if (
-      localStorage.getItem(STAFF_TOKEN_KEY) ||
-      sessionStorage.getItem(STAFF_TOKEN_KEY)
-    ) {
-      return true;
-    }
+    sessionStorage.removeItem(DIRECTUS_AUTH_KEY);
+    sessionStorage.removeItem(STAFF_AUTH_FLAG);
+    sessionStorage.removeItem(STAFF_USER_KEY);
+    sessionStorage.removeItem(STAFF_TOKEN_KEY);
+    sessionStorage.removeItem(STAFF_REMEMBER_KEY);
+    sessionStorage.removeItem('mchs_financials_cache_v1');
 
-    const raw = localStorage.getItem(DIRECTUS_AUTH_KEY) || sessionStorage.getItem(DIRECTUS_AUTH_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return !!(parsed && (parsed.access_token || parsed.refresh_token));
-    }
-  } catch {
-    return false;
-  }
+    document.documentElement.classList.remove('staff-authenticated');
+  } catch {}
+}
 
-  return false;
+/** Clear a stale/invalid session and return to the login gate. */
+export function forceStaffRelogin(): void {
+  if (typeof window === 'undefined') return;
+  const next = window.location.pathname + window.location.search;
+  clearStaffClientSession();
+  const redirect = next.startsWith('/internal') ? encodeURIComponent(next) : '';
+  window.location.replace(redirect ? `/internal/?reauth=1&redirect=${redirect}` : '/internal/?reauth=1');
 }
 
 /**
@@ -173,17 +187,19 @@ export async function loginStaff(opts: {
     }
   }
 
-  // 3. Persist session data in localStorage for cross-tab persistence
+  if (!isStaffHmacToken(staffToken)) {
+    throw new Error('Could not create a staff session. Sign in again, or ask an admin to check /api/login.');
+  }
+
+  // 3. Persist only after a real HMAC staff token exists.
   localStorage.setItem(STAFF_AUTH_FLAG, 'true');
   localStorage.setItem(STAFF_USER_KEY, email);
   if (rememberMe) {
     localStorage.setItem(STAFF_REMEMBER_KEY, 'true');
   }
 
-  if (staffToken) {
-    localStorage.setItem(STAFF_TOKEN_KEY, staffToken);
-    sessionStorage.setItem(STAFF_TOKEN_KEY, staffToken);
-  }
+  localStorage.setItem(STAFF_TOKEN_KEY, staffToken);
+  sessionStorage.setItem(STAFF_TOKEN_KEY, staffToken);
 
   if (directusPayload) {
     const str = JSON.stringify(directusPayload);
@@ -212,23 +228,7 @@ export async function logoutStaff(redirectUrl: string = '/internal/'): Promise<v
     disableSdkLogout();
   }
 
-  try {
-    localStorage.removeItem(DIRECTUS_AUTH_KEY);
-    localStorage.removeItem(STAFF_AUTH_FLAG);
-    localStorage.removeItem(STAFF_USER_KEY);
-    localStorage.removeItem(STAFF_TOKEN_KEY);
-    localStorage.removeItem(STAFF_REMEMBER_KEY);
-
-    sessionStorage.removeItem(DIRECTUS_AUTH_KEY);
-    sessionStorage.removeItem(STAFF_AUTH_FLAG);
-    sessionStorage.removeItem(STAFF_USER_KEY);
-    sessionStorage.removeItem(STAFF_TOKEN_KEY);
-    sessionStorage.removeItem(STAFF_REMEMBER_KEY);
-
-    if (typeof document !== 'undefined') {
-      document.documentElement.classList.remove('staff-authenticated');
-    }
-  } catch {}
+  clearStaffClientSession();
 
   window.location.href = redirectUrl;
 }
@@ -241,7 +241,7 @@ export async function getStaffToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
 
   // 1. Persistent signed staff token (does not expire every 15m)
-  const staffToken = localStorage.getItem(STAFF_TOKEN_KEY) || sessionStorage.getItem(STAFF_TOKEN_KEY);
+  const staffToken = getStoredHmacStaffToken();
   if (staffToken) return staffToken;
 
   // 2. Directus access token

@@ -10,99 +10,41 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
   description="Donor profiles and lifetime giving records."
   activeTab="donors"
 >
-  <div class="space-y-6">
-    <!-- Executive Banner -->
-    <section class="bg-gradient-to-r from-[#173a39] via-teal-900 to-slate-900 text-white rounded-2xl p-6 sm:p-7 shadow-md border border-teal-800/80">
-      <div class="max-w-5xl space-y-3">
-        <div class="flex flex-wrap items-center gap-2 text-xs">
-          <a href="/internal/" class="text-xs text-teal-300 hover:text-white transition font-medium flex items-center gap-1">
-            &larr; Executive Hub
-          </a>
-          <span class="text-teal-700">/</span>
-          <span class="text-teal-200 font-medium">
-            Donor Registry
-          </span>
-          <div class="sm:ml-auto flex items-center gap-2 pt-1 sm:pt-0">
-            <a
-              href="/internal/board/"
-              class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-teal-800/90 hover:bg-teal-700 text-teal-100 border border-teal-600 transition"
-              title="View Operating Financials and Bank Statements"
-            >
-              Board Financials &rarr;
-            </a>
-            <a
-              href="/internal/grants/"
-              class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-700/60 transition"
-              title="View Grants Pipeline and Funding Opportunities"
-            >
-              Grants Tracker &rarr;
-            </a>
-          </div>
-        </div>
-
-        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
-          Donor Registry &amp; Lifetime Giving
-        </h1>
-
-        <!-- Quick Summary Metrics Bar -->
-        <div class="pt-2 flex flex-wrap items-center gap-4 text-xs text-teal-200/90 border-t border-teal-800/60 font-medium">
-          <div>
-            Total Giving: <strong id="donor-banner-volume" class="text-white font-bold font-mono">--</strong>
-          </div>
-          <span class="text-teal-700">&bull;</span>
-          <div>
-            Donors: <strong id="donor-banner-count" class="text-white font-bold">--</strong>
-          </div>
-          <span class="text-teal-700">&bull;</span>
-          <div>
-            Mailing Addresses: <strong id="donor-banner-addresses" class="text-white font-bold">--</strong>
-          </div>
-          <span class="text-teal-700">&bull;</span>
-          <div>
-            Memorial Tributes: <strong id="donor-banner-tributes" class="text-white font-bold">--</strong>
-          </div>
-        </div>
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-baseline justify-between gap-2">
+      <div>
+        <a href="/internal/" class="text-xs text-slate-500 hover:text-teal-800">← Hub</a>
+        <h1 class="text-xl font-bold text-[#173a39] tracking-tight mt-1">Donors</h1>
       </div>
-    </section>
+      <p class="text-xs text-slate-500">
+        <span id="donor-banner-volume">--</span>
+        · <span id="donor-banner-count">--</span>
+        · <span id="donor-banner-addresses">--</span> addresses
+        · <span id="donor-banner-tributes">--</span> tributes
+      </p>
+    </div>
 
-    <!-- Main Content Area -->
-    <main class="max-w-7xl mx-auto space-y-6">
-      <!-- Headline KPI Cards Grid -->
-      <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
-            <span>Lifetime Giving</span>
-          </div>
-          <div id="donor-kpi-volume" class="mt-2 font-black font-mono text-lg sm:text-xl text-slate-900">--</div>
-          <div class="mt-1 text-[10px] text-slate-500">All channels</div>
+    <main class="space-y-4">
+      <section class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <div class="text-xs text-slate-500">Giving</div>
+          <div id="donor-kpi-volume" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
-            <span>Total Donors</span>
-          </div>
-          <div id="donor-kpi-count" class="mt-2 font-black font-mono text-lg sm:text-xl text-slate-900">--</div>
-          <div class="mt-1 text-[10px] text-slate-500">All donor profiles</div>
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <div class="text-xs text-slate-500">Donors</div>
+          <div id="donor-kpi-count" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
-            <span>Major Donors ($1k+)</span>
-          </div>
-          <div id="donor-kpi-major" class="mt-2 font-black font-mono text-lg sm:text-xl text-purple-900">--</div>
-          <div class="mt-1 text-[10px] text-purple-700 font-medium">Visionary &amp; Benefactor</div>
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <div class="text-xs text-slate-500">$1k+</div>
+          <div id="donor-kpi-major" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
-          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
-            <span>Mailing Addresses</span>
-          </div>
-          <div id="donor-kpi-addresses" class="mt-2 font-black font-mono text-lg sm:text-xl text-teal-900">--</div>
-          <div class="mt-1 text-[10px] text-teal-700 font-medium">Postal address on file</div>
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <div class="text-xs text-slate-500">Addresses</div>
+          <div id="donor-kpi-addresses" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between col-span-2 sm:col-span-1">
-          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
-            <span>2026 Donors</span>
-          </div>
-          <div id="donor-kpi-active" class="mt-2 font-black font-mono text-lg sm:text-xl text-amber-900">--</div>
-          <div class="mt-1 text-[10px] text-amber-700 font-medium">Gifts in 2026</div>
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <div class="text-xs text-slate-500">2026</div>
+          <div id="donor-kpi-active" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
         </div>
       </section>
 
@@ -110,20 +52,15 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
         Loading donor registry…
       </div>
 
-      <section id="donor-roster-section" class="space-y-3 hidden">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-base font-bold text-slate-900">Donor Roster</h2>
-            <p class="text-xs text-slate-500">Select any donor to view profile details and gift history.</p>
-          </div>
-        </div>
+      <section id="donor-roster-section" class="hidden">
         <DonorRosterTable donors={[]} />
       </section>
     </main>
   </div>
 
   <script>
-    import { getStaffToken, isStaffAuthenticated } from '../../../lib/staff-auth';
+    import { isStaffAuthenticated } from '../../../lib/staff-auth';
+    import { fetchStaffFinancials, refreshStaffFinancials, setStaffDataStatus } from '../../../lib/staff-financials';
 
     function formatCurrency(n: number) {
       return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -132,14 +69,6 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
     function setText(id: string, text: string) {
       const el = document.getElementById(id);
       if (el) el.textContent = text;
-    }
-
-    function showUnavailable() {
-      const status = document.getElementById('donor-api-status');
-      if (status) {
-        status.className = 'rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700';
-        status.textContent = 'Donor registry is unavailable. Sign in again, or confirm GET /api/financials includes donors / donor_meta.';
-      }
     }
 
     function applyDonorPayload(data: any) {
@@ -162,8 +91,6 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
         (window as any).__HSMC_DONORS__ = donors;
         const roster = document.getElementById('donor-roster-section');
         if (roster) roster.classList.remove('hidden');
-        const status = document.getElementById('donor-api-status');
-        if (status) status.classList.add('hidden');
         window.dispatchEvent(new CustomEvent('donors-hydrated', { detail: { donors } }));
         return true;
       }
@@ -172,26 +99,38 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
 
     async function loadDonors() {
       if (!isStaffAuthenticated()) return;
-      const token = await getStaffToken();
-      if (!token) {
-        showUnavailable();
-        return;
+      setStaffDataStatus('donor-api-status', 'loading', 'Loading donor registry…');
+
+      const cached = await fetchStaffFinancials();
+      if (cached.ok && applyDonorPayload(cached.data)) {
+        setStaffDataStatus('donor-api-status', 'loading', 'Refreshing donor registry…');
       }
-      try {
-        const res = await fetch('/api/financials', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          showUnavailable();
+
+      const fresh = await refreshStaffFinancials();
+      if (!fresh.ok) {
+        if (fresh.status === 401 || fresh.status === 403) return;
+        if (cached.ok && applyDonorPayload(cached.data)) {
+          setStaffDataStatus('donor-api-status', 'error', `${fresh.error}. Showing the last loaded roster.`, () => {
+            void loadDonors();
+          });
           return;
         }
-        const data = await res.json();
-        if (!applyDonorPayload(data || {})) {
-          showUnavailable();
-        }
-      } catch {
-        showUnavailable();
+        setStaffDataStatus('donor-api-status', 'error', fresh.error, () => {
+          void loadDonors();
+        });
+        return;
       }
+
+      if (!applyDonorPayload(fresh.data)) {
+        setStaffDataStatus(
+          'donor-api-status',
+          'error',
+          'Donor registry is missing from the certified financials payload.',
+          () => { void loadDonors(); }
+        );
+        return;
+      }
+      setStaffDataStatus('donor-api-status', 'hidden');
     }
 
     if (document.readyState === 'loading') {

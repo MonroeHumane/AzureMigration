@@ -16,55 +16,26 @@ interface Props {
 const { meta } = Astro.props;
 ---
 
-<header class="bg-white border-b border-slate-200 shadow-xs sticky top-0 z-30">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-          <a href="/internal/" class="text-xs text-slate-500 hover:text-teal-800 transition font-medium flex items-center gap-1">
-            &larr; Executive Hub
-          </a>
-          <span class="text-slate-300">/</span>
-          <span id="banner-governance" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200">
-            {meta?.governance_level || 'Board Confidential'}
-          </span>
-          <span id="banner-basis" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f5efe3] text-[#173a39] border border-[#e5ded0]">
-            Accrual Basis · QBO Reconciled
-          </span>
-        </div>
-        <h1 id="banner-period-title" class="text-2xl sm:text-3xl font-bold text-[#173a39] tracking-tight">
-          {meta?.period_title || '2026 Year-to-Date Financial Statement'}
-        </h1>
-        <p class="text-sm text-slate-600 mt-1 flex flex-wrap items-center gap-x-2">
-          <span id="banner-cutoff"><strong>Period Closed:</strong> August 31, 2026 (8 Months)</span>
-          <span class="text-slate-300">•</span>
-          <span id="banner-publisher"><strong>Prepared By:</strong> {meta?.published_by || "Jeffery Howard, Director's Assistant"}</span>
-        </p>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2.5">
-        <a
-          href="/internal/donors/?recency=2026"
-          class="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs sm:text-sm font-semibold rounded-lg transition shadow-2xs"
-          title="Inspect reconciled donor ledger and lifetime contributions"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-          </svg>
-          <span>Donor Registry &rarr;</span>
-        </a>
-        <a
-          href="/internal/board/print/"
-          target="_blank"
-          class="inline-flex items-center gap-2 px-3.5 py-2 bg-[#173a39] hover:bg-[#0f766e] text-white text-xs sm:text-sm font-semibold rounded-lg transition shadow-xs"
-          title="Open printable executive packet"
-        >
-          <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 0 0 2-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-          </svg>
-          <span>Print Packet (PDF)</span>
-        </a>
-      </div>
+<header class="bg-white border-b border-slate-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-baseline justify-between gap-3">
+    <div>
+      <a href="/internal/" class="text-xs text-slate-500 hover:text-teal-800">← Hub</a>
+      <h1 id="banner-period-title" class="text-xl font-bold text-[#173a39] tracking-tight mt-1">
+        {meta?.period_title || '2026 YTD'}
+      </h1>
+      <p class="text-xs text-slate-500 mt-0.5">
+        <span id="banner-cutoff">{meta?.cutoff_date || 'Closed Aug 31, 2026'}</span>
+        <span id="banner-governance" class="hidden">{meta?.governance_level || ''}</span>
+        <span id="banner-publisher" class="hidden">{meta?.published_by || ''}</span>
+        <span id="banner-basis" class="hidden"></span>
+      </p>
     </div>
+    <a
+      href="/internal/board/print/"
+      target="_blank"
+      class="text-xs font-medium text-slate-600 hover:text-teal-800"
+    >
+      Print
+    </a>
   </div>
 </header>

@@ -1,5 +1,6 @@
 import { isStaffAuthenticated, getStaffToken } from '../lib/staff-auth';
-import { apiFetch, getStoredStaffToken, getCachedFinancials, setCachedFinancials } from '../lib/api';
+import { getStoredStaffToken, getCachedFinancials } from '../lib/api';
+import { publishedLabel, refreshStaffFinancials, setStaffDataStatus } from '../lib/staff-financials';
 
 /**
  * Authenticated data shape from GET /api/financials (Bearer staff token required):
@@ -74,47 +75,32 @@ export async function initBoardDashboard(): Promise<void> {
   if (cached && cached.headline_kpis) {
     try {
       applyDashboard(cached, cachedToken);
+      setStaffDataStatus('board-data-status', 'loading', `Showing cached packet. Refreshing ${publishedLabel(cached)}…`);
     } catch (e) {
       console.warn('[BoardDashboard] Error rendering cached financials:', e);
     }
+  } else {
+    setStaffDataStatus('board-data-status', 'loading');
   }
 
-  let token = cachedToken;
-  if (!token) {
-    token = await getStaffToken();
-  }
-
-  if (!token) {
+  const result = await refreshStaffFinancials();
+  if (!result.ok) {
+    if (result.status === 401 || result.status === 403) return;
+    if (cached?.headline_kpis) {
+      setStaffDataStatus('board-data-status', 'error', `${result.error}. Still showing the last loaded packet.`, () => {
+        void initBoardDashboard();
+      });
+      return;
+    }
+    setStaffDataStatus('board-data-status', 'error', result.error, () => {
+      void initBoardDashboard();
+    });
     return;
   }
 
-  try {
-    const res = await apiFetch('/api/financials', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }, { ignoreAutoLogout: true });
-
-    if (res.status === 401 || res.status === 403) {
-      console.warn('[BoardDashboard] Unauthorized on /api/financials.');
-      return;
-    }
-
-    if (!res.ok) {
-      console.debug('[BoardDashboard] /api/financials status:', res.status);
-      return;
-    }
-
-    const data = await res.json();
-    if (!data || !data.headline_kpis) {
-      return;
-    }
-
-    setCachedFinancials(data);
-    applyDashboard(data, token);
-  } catch (err) {
-    console.debug('[BoardDashboard] Network error contacting /api/financials:', err);
-  }
+  const token = cachedToken || (await getStaffToken());
+  applyDashboard(result.data, token);
+  setStaffDataStatus('board-data-status', 'hidden');
 }
 
 function itemsToExplorerCats(items: any[], total: number, kind: 'expense' | 'revenue'): any[] {
@@ -281,12 +267,10 @@ function hydrateExecutiveBanner(meta: any) {
   if (govEl) govEl.textContent = meta.governance_level;
 
   const cutoffEl = document.getElementById('banner-cutoff');
-  if (cutoffEl) {
-    cutoffEl.innerHTML = `<strong>Period Closed:</strong> ${meta.cutoff_date} (8 Months)`;
-  }
+  if (cutoffEl) cutoffEl.textContent = meta.cutoff_date || '';
 
   const pubEl = document.getElementById('banner-publisher');
-  if (pubEl) pubEl.innerHTML = `<strong>Prepared By:</strong> ${meta.published_by}`;
+  if (pubEl) pubEl.textContent = meta.published_by || '';
 }
 
 function hydrateHeadlineKpis(kpis: any) {
@@ -322,6 +306,16 @@ function hydrateHeadlineKpis(kpis: any) {
   const progRatio = document.getElementById('kpi-program-ratio');
   if (progRatio) progRatio.textContent = `${kpis.program_ratio_pct.toFixed(1)}%`;
 
+  const progTarget = document.getElementById('kpi-program-target');
+  if (progTarget) {
+    progTarget.textContent = kpis.program_ratio_pct >= 75 ? '≥75%' : '<75%';
+  }
+
+  const progCents = document.getElementById('kpi-program-cents');
+  if (progCents) {
+    progCents.textContent = `${Math.round(kpis.program_ratio_pct)}¢ of every dollar spent goes directly to animal rescue, clinical veterinary care, and feeding.`;
+  }
+
   const progSpend = document.getElementById('kpi-program-spend');
   if (progSpend) progSpend.textContent = formatDollar(kpis.program_spend);
 
@@ -337,7 +331,7 @@ function hydrateHeadlineKpis(kpis: any) {
   const runwayBadge = document.getElementById('kpi-runway-badge');
   if (runwayBadge) {
     const mo = (realLiquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1);
-    runwayBadge.textContent = `${mo} Months of Cash`;
+    runwayBadge.textContent = `${mo} mo`;
   }
 
   const totLiq = document.getElementById('kpi-total-liquidity');
@@ -352,7 +346,7 @@ function hydrateHeadlineKpis(kpis: any) {
   const zeroInf = document.getElementById('kpi-zero-inflow');
   if (zeroInf) {
     const moZero = (realLiquidity / ((kpis.qbo_cogs + kpis.qbo_operating_expenditures) / 8)).toFixed(1);
-    zeroInf.textContent = `${moZero} Months (Zero Inflow)`;
+    zeroInf.textContent = `${moZero} mo`;
   }
 }
 
@@ -396,9 +390,7 @@ function hydrateOperatingBridge(kpis: any, bridge: any) {
   if (allinOutflows) allinOutflows.textContent = `(${formatCents(kpis.all_in_expenditures)})`;
 
   const commEl = document.getElementById('bridge-c2-commentary');
-  if (commEl) {
-    commEl.textContent = `${bridge.c2_commentary} QuickBooks records day-to-day shelter costs separately from foundation endowment grants and recycling proceeds. Everyday shelter operations ran a deficit of (-$136.2k), but with (+$28.8k) in outside endowment and community recycling help, our actual YTD change across all accounts is (-$107.4k).`;
-  }
+  if (commEl) commEl.textContent = bridge.c2_commentary || '';
 }
 
 function hydrateStatementFootings(statements: any[]) {
