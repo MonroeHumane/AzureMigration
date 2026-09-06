@@ -24,7 +24,7 @@ $allowedOrigins = array_filter(array_map('trim', explode(',',
     getenv('CORS_ALLOWED_ORIGINS') ?: 'http://localhost:5173,http://localhost:8060,http://localhost:4321,http://localhost:3000'
 )));
 $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($requestOrigin !== '' && (in_array($requestOrigin, $allowedOrigins, true) || in_array('*', $allowedOrigins, true))) {
+if ($requestOrigin !== '' && in_array($requestOrigin, $allowedOrigins, true)) {
     header("Access-Control-Allow-Origin: $requestOrigin");
     header("Access-Control-Allow-Credentials: true");
 }

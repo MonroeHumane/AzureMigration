@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import 'dotenv/config';
-import { normalizeGender, normalizeAge, rehostPhoto } from './sync-pets.js';
+import { normalizeGender, normalizeAge, rehostPhoto, buildPublicPetUrl } from './sync-pets.js';
 
 /**
  * Migration & Ingestion Pipeline for Monroe County Humane Society PetSync
@@ -25,7 +25,6 @@ interface LegacyRow {
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://localhost:8055';
 const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || '';
-const PETANGO_AUTHKEY = process.env.PETANGO_AUTHKEY || '40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp';
 const EXPORT_PATH = process.env.LEGACY_EXPORT_PATH || path.resolve(process.cwd(), 'legacy-pets-export.json');
 
 function parseLastSeen(raw: string | null): string {
@@ -164,12 +163,6 @@ async function migrate() {
       console.log(`[Migrate] ...processed ${photoProgress}/${toMigrate.length} photos`);
     }
 
-    const detailUrl = row.id
-      ? `https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx?id=${encodeURIComponent(
-          row.id
-        )}&css=&authkey=${encodeURIComponent(PETANGO_AUTHKEY)}&PopUp=true`
-      : '';
-
     return {
       id: row.id,
       name: row.name || 'Friendly Pet',
@@ -183,7 +176,7 @@ async function migrate() {
       gender: normalizeGender(row.sexSN || ''),
       location: row.location || '',
       image_url: imageUrl,
-      url: detailUrl,
+      url: row.id ? buildPublicPetUrl(row.id) : '',
       description: row.location || '',
       intake_date: '',
       declawed: '',

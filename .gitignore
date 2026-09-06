@@ -13,3 +13,6 @@ frontend/.astro/
 .env
 .env.*
 !.env.example
+
+# Donor PII must stay server-side (api/data). Never bake into Astro src.
+frontend/src/data/donor_database.json
