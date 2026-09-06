@@ -1,0 +1,26 @@
+{
+  "name": "Monroe County Humane Society — Adopt",
+  "short_name": "MCHS Adopt",
+  "description": "Browse adoptable dogs and cats at the Humane Society of Monroe County.",
+  "start_url": "/adopt",
+  "scope": "/adopt",
+  "id": "/adopt",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fffaf2",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "/assets/brand-mark-paw-circle.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/brand-mark-paw-circle.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

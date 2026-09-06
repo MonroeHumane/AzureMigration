@@ -1,0 +1,310 @@
+---
+interface Props {
+  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'donors' | 'overview' | 'content';
+}
+
+const { activeTab = 'overview' } = Astro.props;
+
+const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/admin';
+---
+
+<aside class="hidden lg:flex flex-col w-64 fixed inset-y-0 left-0 z-50 bg-[#051311]/95 backdrop-blur-xl border-r border-teal-800/80 shadow-2xl">
+  <!-- Brand Header -->
+  <div class="h-16 flex items-center px-6 border-b border-teal-800/60 shrink-0">
+    <a href="/internal/" class="flex items-center gap-3 group">
+      <div class="p-1.5 rounded-lg bg-teal-900/60 text-emerald-300 border border-teal-700/80 shadow-md group-hover:border-emerald-500/50 group-hover:bg-teal-900 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-sm font-bold text-white tracking-tight group-hover:text-emerald-300 transition leading-none">
+          Monroe Humane
+        </span>
+        <span class="text-[9px] font-bold uppercase tracking-wider text-teal-400/80 mt-1">
+          Staff & Board Portal
+        </span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Command Palette Hint -->
+  <div class="px-4 py-3">
+    <button
+      id="sidebar-cmd-k-btn"
+      type="button"
+      class="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-teal-950/40 border border-teal-800/50 text-teal-300/80 hover:text-white hover:bg-teal-900/60 hover:border-emerald-500/40 transition cursor-pointer text-xs group shadow-inner"
+    >
+      <div class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span>Search / Jump...</span>
+      </div>
+      <kbd class="hidden xl:inline-block px-1.5 py-0.5 rounded-md bg-teal-950 border border-teal-800 text-[10px] font-mono text-teal-400 group-hover:border-emerald-500/50 transition">⌘K</kbd>
+    </button>
+  </div>
+
+  <!-- Navigation Links -->
+  <nav class="flex-1 overflow-y-auto px-3 py-2 space-y-1.5 custom-scrollbar">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-teal-600/80 px-3 pb-1 pt-2">Modules</div>
+    
+    <a
+      href="/internal/"
+      data-astro-prefetch="hover"
+      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'overview'
+          ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold shadow-sm'
+          : 'text-teal-200/80 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      }`}
+    >
+      <div class={`p-1.5 rounded-lg ${activeTab === 'overview' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-teal-950 text-teal-400 group-hover:bg-teal-900 group-hover:text-emerald-300'} transition`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+          <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+          <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+          <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+        </svg>
+      </div>
+      Overview Hub
+    </a>
+
+    <a
+      href="/internal/pets/"
+      data-astro-prefetch="hover"
+      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'petsync' || activeTab === 'pets'
+          ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold shadow-sm'
+          : 'text-teal-200/80 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      }`}
+    >
+      <div class={`p-1.5 rounded-lg ${activeTab === 'petsync' || activeTab === 'pets' ? 'bg-amber-500/20 text-amber-300' : 'bg-teal-950 text-teal-400 group-hover:bg-amber-900/50 group-hover:text-amber-300'} transition`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="m10 15 5-3-5-3v6Z"></path>
+        </svg>
+      </div>
+      Animals & Census
+    </a>
+
+    <a
+      href="/internal/board/"
+      data-astro-prefetch="hover"
+      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'financials'
+          ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold shadow-sm'
+          : 'text-teal-200/80 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      }`}
+    >
+      <div class={`p-1.5 rounded-lg ${activeTab === 'financials' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-teal-950 text-teal-400 group-hover:bg-emerald-900/50 group-hover:text-emerald-300'} transition`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+      </div>
+      Board Financials
+    </a>
+
+    <a
+      href="/internal/grants/"
+      data-astro-prefetch="hover"
+      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'grants'
+          ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30 font-bold shadow-sm'
+          : 'text-teal-200/80 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      }`}
+    >
+      <div class={`p-1.5 rounded-lg ${activeTab === 'grants' ? 'bg-purple-500/20 text-purple-300' : 'bg-teal-950 text-teal-400 group-hover:bg-purple-900/50 group-hover:text-purple-300'} transition`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+      </div>
+      Grants Pipeline
+    </a>
+
+    <a
+      href="/internal/donors/"
+      data-astro-prefetch="hover"
+      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'donors'
+          ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30 font-bold shadow-sm'
+          : 'text-teal-200/80 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      }`}
+    >
+      <div class={`p-1.5 rounded-lg ${activeTab === 'donors' ? 'bg-rose-500/20 text-rose-300' : 'bg-teal-950 text-teal-400 group-hover:bg-rose-900/50 group-hover:text-rose-300'} transition`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+        </svg>
+      </div>
+      Donors & Giving
+    </a>
+
+    <a
+      href="/internal/content/"
+      data-astro-prefetch="hover"
+      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'content'
+          ? 'bg-amber-500/15 text-amber-200 border border-amber-500/30 font-bold shadow-sm'
+          : 'text-teal-200/80 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      }`}
+    >
+      <div class={`p-1.5 rounded-lg ${activeTab === 'content' ? 'bg-amber-500/20 text-amber-200' : 'bg-teal-950 text-teal-400 group-hover:bg-amber-900/50 group-hover:text-amber-200'} transition`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+        </svg>
+      </div>
+      Site Content
+    </a>
+
+    <div class="text-[10px] font-bold uppercase tracking-wider text-teal-600/80 px-3 pb-1 pt-6">External Tools</div>
+    
+    <a
+      href={directusAdminUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold text-teal-200/80 hover:bg-teal-900/40 hover:text-white transition group"
+    >
+      <div class="flex items-center gap-3">
+        <div class="p-1.5 rounded-lg bg-teal-950 text-teal-400 group-hover:bg-teal-900 group-hover:text-teal-300 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+        </div>
+        Directus CMS
+      </div>
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-600 group-hover:text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+    </a>
+
+    <a
+      href="/"
+      data-astro-reload
+      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold text-teal-200/80 hover:bg-teal-900/40 hover:text-white transition group"
+    >
+      <div class="flex items-center gap-3">
+        <div class="p-1.5 rounded-lg bg-teal-950 text-teal-400 group-hover:bg-teal-900 group-hover:text-teal-300 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
+        Public Site
+      </div>
+    </a>
+  </nav>
+
+  <!-- User Profile & Sign Out Footer -->
+  <div class="p-4 border-t border-teal-800/60 bg-[#040e0c]/80 shrink-0">
+    <div class="flex items-center gap-3 min-w-0 mb-3">
+      <div id="sidebar-user-avatar" class="w-9 h-9 rounded-full bg-emerald-600 text-emerald-100 flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
+        SP
+      </div>
+      <div class="min-w-0">
+        <div class="text-[9px] font-bold uppercase tracking-wider text-teal-400/80">Signed In</div>
+        <div id="sidebar-user-email" class="text-xs font-semibold text-white truncate w-full">
+          staff@monroe-humane.org
+        </div>
+      </div>
+    </div>
+    
+    <button
+      id="sidebar-logout-btn"
+      type="button"
+      class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-rose-950/40 text-rose-300 border border-rose-900/50 hover:bg-rose-900 hover:text-white hover:border-rose-700 transition cursor-pointer shadow-sm"
+    >
+      <svg id="sidebar-logout-icon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      <svg id="sidebar-logout-spinner" class="hidden animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span id="sidebar-logout-text">Sign Out</span>
+    </button>
+  </div>
+</aside>
+
+<style>
+  /* Custom thin scrollbar for the sidebar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(15, 118, 110, 0.3);
+    border-radius: 10px;
+  }
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(15, 118, 110, 0.6);
+  }
+</style>
+
+<script>
+  import { logoutStaff, getStaffUserEmail } from '../../lib/staff-auth';
+
+  function initSidebar() {
+    const email = getStaffUserEmail();
+    const emailEl = document.getElementById('sidebar-user-email');
+    const avatarEl = document.getElementById('sidebar-user-avatar');
+    
+    if (emailEl && email) {
+      emailEl.textContent = email;
+    }
+    
+    if (avatarEl && email) {
+      const parts = email.split('@')[0].split(/[._-]/);
+      let initials = 'SP';
+      if (parts.length >= 2) {
+        initials = (parts[0][0] + parts[1][0]).toUpperCase();
+      } else if (parts.length === 1 && parts[0].length >= 2) {
+        initials = parts[0].slice(0, 2).toUpperCase();
+      }
+      avatarEl.textContent = initials;
+    }
+
+    const logoutBtn = document.getElementById('sidebar-logout-btn') as HTMLButtonElement | null;
+    const logoutText = document.getElementById('sidebar-logout-text');
+    const logoutIcon = document.getElementById('sidebar-logout-icon');
+    const logoutSpinner = document.getElementById('sidebar-logout-spinner');
+
+    if (logoutBtn && logoutBtn.dataset.bound !== '1') {
+      logoutBtn.dataset.bound = '1';
+      logoutBtn.addEventListener('click', async () => {
+        logoutBtn.disabled = true;
+        if (logoutText) logoutText.textContent = 'Signing out...';
+        logoutIcon?.classList.add('hidden');
+        logoutSpinner?.classList.remove('hidden');
+        await logoutStaff();
+      });
+    }
+
+    const cmdKBtn = document.getElementById('sidebar-cmd-k-btn');
+    if (cmdKBtn && cmdKBtn.dataset.bound !== '1') {
+      cmdKBtn.dataset.bound = '1';
+      cmdKBtn.addEventListener('click', () => {
+        const event = new KeyboardEvent('keydown', {
+          key: 'k',
+          metaKey: true, // macOS
+          ctrlKey: true, // Windows/Linux
+          bubbles: true
+        });
+        document.dispatchEvent(event);
+      });
+    }
+  }
+
+  document.addEventListener('astro:page-load', initSidebar);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidebar);
+  } else {
+    initSidebar();
+  }
+</script>

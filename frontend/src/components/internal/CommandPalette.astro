@@ -1,0 +1,231 @@
+---
+const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/admin';
+
+const commands = [
+  { id: 'go-overview', title: 'Go to Overview Hub', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z', href: '/internal/' },
+  { id: 'go-pets', title: 'Go to Shelter Animals & Census', icon: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z', href: '/internal/pets/' },
+  { id: 'go-financials', title: 'Go to Board Financials', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z', href: '/internal/board/' },
+  { id: 'go-grants', title: 'Go to Grants Pipeline', icon: 'M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z', href: '/internal/grants/' },
+  { id: 'go-donors', title: 'Go to Donors & Giving', icon: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z', href: '/internal/donors/' },
+  { id: 'go-content', title: 'Go to Site Content', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z', href: '/internal/content/' },
+  { id: 'cms', title: 'Open Directus CMS Admin', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9h-2V7h-2v5H6v2h2v5h2v-5h2v-2z', href: directusAdminUrl, external: true },
+  { id: 'print-board', title: 'Print Board Packet', icon: 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z', href: '/internal/board/print/', external: true },
+  { id: 'public-site', title: 'Return to Public Website', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z', href: '/' },
+  { id: 'logout', title: 'Sign Out', icon: 'M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z', action: 'logout' },
+];
+---
+
+<dialog id="cmd-k-dialog" class="backdrop:bg-[#020807]/70 backdrop:backdrop-blur-sm border-none p-0 bg-transparent w-[92%] max-w-2xl m-auto shadow-2xl rounded-2xl overflow-hidden fixed inset-0 z-[6000]">
+  <div class="bg-[#0b2420] text-white flex flex-col max-h-[70vh] border border-teal-700/80 shadow-2xl rounded-2xl w-full" id="cmd-k-container">
+    
+    <!-- Search Input Area -->
+    <div class="px-4 py-4 border-b border-teal-800 flex items-center gap-3 relative bg-[#071a17]">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-teal-400 absolute left-4 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input 
+        type="text" 
+        id="cmd-k-input" 
+        placeholder="Type a command or search..." 
+        class="w-full bg-transparent text-white placeholder-teal-600/70 outline-none text-lg pl-8 pr-12 py-1 font-sans"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="button" id="cmd-k-close-btn" class="absolute right-4 text-[10px] px-2 py-1 rounded-md bg-teal-900 text-teal-300 font-mono hidden sm:block border border-teal-700/50 hover:bg-teal-800 transition cursor-pointer">ESC</button>
+    </div>
+    
+    <!-- Results List -->
+    <div class="overflow-y-auto p-2 space-y-0.5 custom-scrollbar" id="cmd-k-list" role="listbox">
+      {commands.map((cmd, index) => (
+        <a 
+          href={cmd.href || '#'}
+          data-cmd-id={cmd.id}
+          data-action={cmd.action}
+          target={cmd.external ? "_blank" : undefined}
+          class="cmd-k-item flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-teal-900/60 aria-selected:bg-emerald-600 aria-selected:text-slate-950 transition text-teal-100 outline-none group"
+          role="option"
+          aria-selected={index === 0 ? "true" : "false"}
+        >
+          <div class="w-7 h-7 rounded-lg bg-teal-950 flex items-center justify-center shrink-0 group-aria-selected:bg-emerald-700 group-aria-selected:text-emerald-100 text-teal-400 transition">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d={cmd.icon} />
+            </svg>
+          </div>
+          <span class="text-sm font-semibold tracking-tight">{cmd.title}</span>
+          
+          {cmd.external && (
+            <svg class="w-3.5 h-3.5 ml-auto opacity-50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          )}
+        </a>
+      ))}
+      <div id="cmd-k-empty" class="hidden text-center py-8 text-sm text-teal-500 font-medium">
+        No commands found.
+      </div>
+    </div>
+    
+    <!-- Footer Hint -->
+    <div class="px-4 py-2 border-t border-teal-800/80 bg-[#061412] text-[10px] text-teal-500/80 flex items-center justify-between font-mono">
+      <span>Use <kbd class="text-teal-400">↑</kbd> <kbd class="text-teal-400">↓</kbd> to navigate</span>
+      <span>Press <kbd class="text-teal-400">Enter</kbd> to select</span>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { logoutStaff } from '../../lib/staff-auth';
+
+  function initCommandPalette() {
+    const dialog = document.getElementById('cmd-k-dialog') as HTMLDialogElement | null;
+    const input = document.getElementById('cmd-k-input') as HTMLInputElement | null;
+    const items = Array.from(document.querySelectorAll('.cmd-k-item')) as HTMLElement[];
+    const emptyMsg = document.getElementById('cmd-k-empty');
+    const closeBtn = document.getElementById('cmd-k-close-btn');
+
+    if (!dialog || !input) return;
+
+    let selectedIndex = 0;
+    let visibleItems = items;
+
+    function openPalette() {
+      if (!dialog?.open) {
+        dialog?.showModal();
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+        
+        // Reset state
+        input!.value = '';
+        filterItems();
+        
+        // Small delay for animation/focus
+        setTimeout(() => input!.focus(), 50);
+      }
+    }
+
+    function closePalette() {
+      if (dialog?.open) {
+        dialog?.close();
+        document.body.style.overflow = '';
+      }
+    }
+
+    function updateSelection() {
+      visibleItems.forEach((item, index) => {
+        if (index === selectedIndex) {
+          item.setAttribute('aria-selected', 'true');
+          item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } else {
+          item.setAttribute('aria-selected', 'false');
+        }
+      });
+    }
+
+    function filterItems() {
+      const query = (input?.value || '').toLowerCase().trim();
+      let hasResults = false;
+
+      visibleItems = [];
+      items.forEach((item) => {
+        const text = item.textContent?.toLowerCase() || '';
+        if (!query || text.includes(query)) {
+          item.classList.remove('hidden');
+          visibleItems.push(item);
+          hasResults = true;
+        } else {
+          item.classList.add('hidden');
+          item.setAttribute('aria-selected', 'false');
+        }
+      });
+
+      if (!hasResults && emptyMsg) {
+        emptyMsg.classList.remove('hidden');
+      } else if (emptyMsg) {
+        emptyMsg.classList.add('hidden');
+      }
+
+      selectedIndex = 0;
+      updateSelection();
+    }
+
+    // Keyboard shortcut (Cmd+K or Ctrl+K)
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault(); // Prevent browser search box
+        if (dialog.open) closePalette();
+        else openPalette();
+      }
+    });
+
+    // Handle inputs inside dialog
+    input.addEventListener('input', filterItems);
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % visibleItems.length;
+        updateSelection();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + visibleItems.length) % visibleItems.length;
+        updateSelection();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (visibleItems[selectedIndex]) {
+          visibleItems[selectedIndex].click();
+        }
+      }
+    });
+
+    // Mouse interactions
+    items.forEach((item, index) => {
+      item.addEventListener('mouseenter', () => {
+        const newIndex = visibleItems.indexOf(item);
+        if (newIndex !== -1) {
+          selectedIndex = newIndex;
+          updateSelection();
+        }
+      });
+      
+      item.addEventListener('click', async (e) => {
+        const action = item.getAttribute('data-action');
+        if (action === 'logout') {
+          e.preventDefault();
+          closePalette();
+          await logoutStaff();
+          return;
+        }
+        
+        // Let natural links work, but close palette
+        if (!item.getAttribute('target')) {
+           // Normal internal navigation
+           setTimeout(closePalette, 100);
+        } else {
+          // External tab - keep state or close
+          closePalette();
+        }
+      });
+    });
+
+    // Close buttons and click outside
+    closeBtn?.addEventListener('click', closePalette);
+    dialog.addEventListener('click', (e) => {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+      if (!isInDialog) {
+        closePalette();
+      }
+    });
+    
+    // Listen for custom trigger from sidebar
+    // Already handled globally by the Cmd+K keyboard listener above, since sidebar dispatches keydown event.
+  }
+
+  // Astro page-load hydration
+  document.addEventListener('astro:page-load', initCommandPalette);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCommandPalette);
+  } else {
+    initCommandPalette();
+  }
+</script>

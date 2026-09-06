@@ -1419,6 +1419,34 @@ a, button, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
+   Favorite (Save Pet) Toggle Buttons
+   -------------------------------------------------------------------------- */
+.pet-favorite-btn svg,
+.pet-drawer__favorite-btn svg,
+.pet-detail-favorite-btn svg {
+  transition: fill 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.pet-favorite-btn.is-favorited,
+.pet-drawer__favorite-btn.is-favorited,
+.pet-detail-favorite-btn.is-favorited {
+  color: #e11d48;
+}
+
+.pet-favorite-btn.is-favorited svg,
+.pet-drawer__favorite-btn.is-favorited svg,
+.pet-detail-favorite-btn.is-favorited svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.pet-favorite-btn.is-favorited:active svg,
+.pet-drawer__favorite-btn.is-favorited:active svg,
+.pet-detail-favorite-btn.is-favorited:active svg {
+  transform: scale(1.15);
+}
+
+/* --------------------------------------------------------------------------
    Floating Back to Top Button
    -------------------------------------------------------------------------- */
 .masw-back-to-top {

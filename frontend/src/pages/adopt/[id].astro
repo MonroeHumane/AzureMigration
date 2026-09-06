@@ -84,6 +84,16 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
         <div class="flex flex-wrap gap-4 pt-8 border-t border-gray-200">
           <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-teal-700 text-white transition-all shadow-md hover:-translate-y-1 hover:bg-teal-900 min-h-[48px]" href="/adoptions#Application">Apply to Adopt {pet.name} &rarr;</a>
           <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-transparent border-2 border-teal-700 text-teal-700 transition-all hover:-translate-y-1 hover:bg-teal-50 min-h-[48px]" href="tel:734-243-3669">(734) 243-3669</a>
+          <button
+            type="button"
+            class="pet-detail-favorite-btn inline-flex items-center justify-center gap-2 w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-transparent border-2 border-gray-300 text-gray-600 transition-all hover:-translate-y-1 hover:border-teal-700 hover:text-teal-700 min-h-[48px] cursor-pointer"
+            data-pet-detail-favorite-btn
+            data-pet-id={pet.id}
+            aria-pressed="false"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span data-pet-detail-favorite-label>Save to Favorites</span>
+          </button>
         </div>
       </div>
     </div>
@@ -147,4 +157,43 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
     if (last) link.setAttribute('href', last);
   }
   document.addEventListener('astro:page-load', initSmartBack);
+</script>
+
+<script>
+  import { favoritePetIds, toggleFavorite } from '../../stores/favorites';
+
+  let unsubscribeFavorites: (() => void) | null = null;
+
+  function initDetailFavorite() {
+    unsubscribeFavorites?.();
+
+    const btn = document.querySelector<HTMLButtonElement>('[data-pet-detail-favorite-btn]');
+    if (!btn) return;
+    const label = btn.querySelector<HTMLElement>('[data-pet-detail-favorite-label]');
+    const petId = btn.dataset.petId || '';
+
+    const syncUI = () => {
+      const active = !!petId && favoritePetIds.get().includes(petId);
+      btn.classList.toggle('is-favorited', active);
+      btn.setAttribute('aria-pressed', String(active));
+      if (label) label.textContent = active ? 'Saved to Favorites' : 'Save to Favorites';
+    };
+
+    syncUI();
+    unsubscribeFavorites = favoritePetIds.subscribe(syncUI);
+
+    // astro:page-load can fire more than once for a single client-side
+    // transition, which would otherwise attach duplicate click listeners to
+    // this persisted button and make toggleFavorite() cancel itself out.
+    if (btn.dataset.favoritesWired) return;
+    btn.dataset.favoritesWired = 'true';
+
+    btn.addEventListener('click', () => {
+      if (!petId) return;
+      toggleFavorite(petId);
+    });
+  }
+
+  initDetailFavorite();
+  document.addEventListener('astro:page-load', initDetailFavorite);
 </script>

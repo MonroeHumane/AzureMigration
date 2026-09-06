@@ -63,7 +63,16 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       </div>
     </div>
 
-    <div class="w-full lg:w-auto text-center mt-2 lg:mt-0 lg:ml-2">
+    <div class="w-full lg:w-auto flex items-center justify-center gap-4 mt-2 lg:mt-0 lg:ml-2">
+      <button
+        type="button"
+        class="pet-favorite-btn inline-flex items-center gap-1.5 text-teal-700 font-bold uppercase tracking-wider text-sm hover:text-teal-900 transition-colors cursor-pointer"
+        data-adopt-favorites-toggle
+        aria-pressed="false"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Favorites only
+      </button>
       <button type="button" class="text-teal-700 font-bold uppercase tracking-wider text-sm underline underline-offset-4 hover:text-teal-900 transition-colors" data-adopt-reset>Reset filters</button>
     </div>
   </div>
@@ -100,10 +109,22 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
           <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none" aria-hidden="true"></div>
         </a>
         <span class="absolute top-3 left-3 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-teal-950 shadow-xs z-10 uppercase tracking-wider border border-white/60 pointer-events-none" data-pet-icon>Pet</span>
-        <span class="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full shadow-xs z-10 text-emerald-950 bg-emerald-300/90 backdrop-blur-md border border-emerald-200/80 hidden pointer-events-none" data-pet-badge>
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" aria-hidden="true"></span>
-          New arrival
-        </span>
+        <div class="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full shadow-xs text-emerald-950 bg-emerald-300/90 backdrop-blur-md border border-emerald-200/80 hidden pointer-events-none" data-pet-badge>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" aria-hidden="true"></span>
+            New arrival
+          </span>
+          <button
+            type="button"
+            class="pet-favorite-btn w-8 h-8 inline-flex items-center justify-center rounded-full bg-white/85 hover:bg-white text-teal-950 backdrop-blur-md border border-white/60 shadow-xs transition-all hover:scale-110 cursor-pointer"
+            data-pet-favorite-btn
+            aria-pressed="false"
+            aria-label="Save to favorites"
+            title="Save to favorites"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
         <button
           type="button"
           class="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/90 hover:bg-white text-teal-950 backdrop-blur-md border border-white/70 shadow-sm transition-all hover:scale-105 cursor-pointer opacity-95 group-hover:opacity-100"
@@ -148,9 +169,21 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     <div class="pet-drawer__panel" role="document">
       <header class="pet-drawer__header">
         <span class="pet-drawer__badge" data-drawer-species>Pet</span>
-        <button type="button" class="pet-drawer__close" data-drawer-close aria-label="Close preview">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="pet-drawer__favorite-btn w-9 h-9 inline-flex items-center justify-center rounded-full text-teal-950 hover:bg-black/5 transition-all cursor-pointer"
+            data-drawer-favorite-btn
+            aria-pressed="false"
+            aria-label="Save to favorites"
+            title="Save to favorites"
+          >
+            <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <button type="button" class="pet-drawer__close" data-drawer-close aria-label="Close preview">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
       </header>
       <div class="pet-drawer__body">
         <div class="pet-drawer__media">
@@ -200,11 +233,16 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
 </div>
 
 <script>
+  import { favoritePetIds, toggleFavorite } from '../stores/favorites';
+
   const DIRECTUS_URL =
     (import.meta.env.PUBLIC_DIRECTUS_URL as string | undefined) ||
     'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
 
+  let unsubscribeFavorites: (() => void) | null = null;
+
   function initAdoptGrid() {
+    unsubscribeFavorites?.();
     const root = document.querySelector<HTMLElement>('[data-adopt-grid-root]');
     if (!root) return;
 
@@ -216,9 +254,11 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     const filters = Array.from(root.querySelectorAll<HTMLSelectElement>('[data-adopt-filter]'));
     const template = document.getElementById('masw-card-template') as HTMLTemplateElement | null;
     const activeChipsContainer = document.getElementById('masw-active-chips');
+    const favoritesToggleBtn = root.querySelector<HTMLButtonElement>('[data-adopt-favorites-toggle]');
 
     // Drawer Elements
     const drawer = document.getElementById('pet-quickview-drawer') as HTMLDialogElement | null;
+    const drawerFavoriteBtn = drawer?.querySelector<HTMLButtonElement>('[data-drawer-favorite-btn]');
     const drawerSpecies = drawer?.querySelector<HTMLElement>('[data-drawer-species]');
     const drawerImg = drawer?.querySelector<HTMLImageElement>('[data-drawer-img]');
     const drawerStatus = drawer?.querySelector<HTMLElement>('[data-drawer-status]');
@@ -235,6 +275,24 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
 
     const getCards = () => Array.from(grid?.querySelectorAll<HTMLElement>('[data-pet-card]') ?? []);
 
+    let drawerPetId = '';
+
+    const syncFavoriteButtonsUI = () => {
+      const ids = favoritePetIds.get();
+      getCards().forEach((card) => {
+        const btn = card.querySelector<HTMLButtonElement>('[data-pet-favorite-btn]');
+        if (!btn) return;
+        const active = !!card.dataset.petId && ids.includes(card.dataset.petId);
+        btn.classList.toggle('is-favorited', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+      if (drawerFavoriteBtn) {
+        const drawerActive = !!drawerPetId && ids.includes(drawerPetId);
+        drawerFavoriteBtn.classList.toggle('is-favorited', drawerActive);
+        drawerFavoriteBtn.setAttribute('aria-pressed', String(drawerActive));
+      }
+    };
+
     // Deep-link filters via query string so a filtered view is shareable.
     const params = new URLSearchParams(window.location.search);
     if (search && params.has('q')) search.value = params.get('q') || '';
@@ -243,11 +301,20 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       if (params.has(key)) sel.value = params.get(key) || '';
     });
 
+    let favoritesOnly = params.get('favorites') === '1';
+    if (favoritesToggleBtn) {
+      favoritesToggleBtn.setAttribute('aria-pressed', String(favoritesOnly));
+      favoritesToggleBtn.classList.toggle('is-favorited', favoritesOnly);
+    }
+
     const updateActiveChips = (query: string, values: Record<string, string>) => {
       if (!activeChipsContainer) return;
       activeChipsContainer.innerHTML = '';
       const activeFilters: Array<{ label: string; key: string }> = [];
 
+      if (favoritesOnly) {
+        activeFilters.push({ label: 'Favorites only', key: 'favorites' });
+      }
       if (query) {
         activeFilters.push({ label: `"${query}"`, key: 'search' });
       }
@@ -287,6 +354,9 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
         clearAllBtn.addEventListener('click', () => {
           if (search) search.value = '';
           filters.forEach((sel) => (sel.value = ''));
+          favoritesOnly = false;
+          favoritesToggleBtn?.setAttribute('aria-pressed', 'false');
+          favoritesToggleBtn?.classList.remove('is-favorited');
           apply(true);
         });
         activeChipsContainer.appendChild(clearAllBtn);
@@ -306,9 +376,12 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
           if (val) url.searchParams.set(key, val);
           else url.searchParams.delete(key);
         });
+        if (favoritesOnly) url.searchParams.set('favorites', '1');
+        else url.searchParams.delete('favorites');
         window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
       }
 
+      const favoriteIds = favoritePetIds.get();
       const visible = getCards().filter((card) => {
         if (lockType && card.dataset.petType !== lockType) return false;
         if (values.type && card.dataset.petType !== values.type) return false;
@@ -316,6 +389,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
         if (values.size && card.dataset.petSize !== values.size) return false;
         if (values.age && card.dataset.petAge !== values.age) return false;
         if (query && !(card.dataset.petSearch ?? '').includes(query)) return false;
+        if (favoritesOnly && !(card.dataset.petId && favoriteIds.includes(card.dataset.petId))) return false;
         return true;
       });
 
@@ -329,6 +403,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       }
 
       updateActiveChips(query, values);
+      syncFavoriteButtonsUI();
     };
 
     activeChipsContainer?.addEventListener('click', (e) => {
@@ -337,6 +412,10 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       const key = target.dataset.clearKey;
       if (key === 'search') {
         if (search) search.value = '';
+      } else if (key === 'favorites') {
+        favoritesOnly = false;
+        favoritesToggleBtn?.setAttribute('aria-pressed', 'false');
+        favoritesToggleBtn?.classList.remove('is-favorited');
       } else if (key) {
         const sel = filters.find((s) => s.dataset.adoptFilter === key);
         if (sel) sel.value = '';
@@ -350,6 +429,9 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       btn.addEventListener('click', () => {
         if (search) search.value = '';
         filters.forEach((sel) => (sel.value = ''));
+        favoritesOnly = false;
+        favoritesToggleBtn?.setAttribute('aria-pressed', 'false');
+        favoritesToggleBtn?.classList.remove('is-favorited');
         apply(true);
       })
     );
@@ -368,6 +450,13 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       const intake = card.dataset.petIntake || 'Recently';
       const desc = card.dataset.petDesc || 'No bio text is provided yet, but our shelter coordinators would be thrilled to introduce you to this wonderful companion in person.';
       const status = card.dataset.petStatusBadge || '';
+
+      drawerPetId = id;
+      if (drawerFavoriteBtn) {
+        const active = !!id && favoritePetIds.get().includes(id);
+        drawerFavoriteBtn.classList.toggle('is-favorited', active);
+        drawerFavoriteBtn.setAttribute('aria-pressed', String(active));
+      }
 
       if (drawerSpecies) drawerSpecies.textContent = species;
       if (drawerName) drawerName.textContent = name;
@@ -457,6 +546,48 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       if (card) openDrawer(card);
     });
 
+    // astro:page-load can fire more than once for a single client-side
+    // transition (observed when navigating to a pet detail page and back via
+    // the smart-back link), which would otherwise attach duplicate listeners
+    // to the same persisted root/drawer nodes and make toggleFavorite()
+    // cancel itself out on a single click. Guard with a one-time marker so
+    // repeat initAdoptGrid() calls for the same DOM nodes are no-ops here.
+    if (!root.dataset.favoritesWired) {
+      root.dataset.favoritesWired = 'true';
+      root.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pet-favorite-btn]');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const card = btn.closest<HTMLElement>('[data-pet-card]');
+        const id = card?.dataset.petId;
+        if (!id) return;
+        const active = toggleFavorite(id);
+        btn.classList.toggle('is-favorited', active);
+        btn.setAttribute('aria-pressed', String(active));
+        if (favoritesOnly) apply(false);
+      });
+
+      favoritesToggleBtn?.addEventListener('click', () => {
+        favoritesOnly = !favoritesOnly;
+        favoritesToggleBtn.setAttribute('aria-pressed', String(favoritesOnly));
+        favoritesToggleBtn.classList.toggle('is-favorited', favoritesOnly);
+        apply(true);
+      });
+    }
+
+    if (drawerFavoriteBtn && !drawerFavoriteBtn.dataset.favoritesWired) {
+      drawerFavoriteBtn.dataset.favoritesWired = 'true';
+      drawerFavoriteBtn.addEventListener('click', () => {
+        if (!drawerPetId) return;
+        const active = toggleFavorite(drawerPetId);
+        drawerFavoriteBtn.classList.toggle('is-favorited', active);
+        drawerFavoriteBtn.setAttribute('aria-pressed', String(active));
+        syncFavoriteButtonsUI();
+        if (favoritesOnly) apply(false);
+      });
+    }
+
     drawer?.querySelectorAll('[data-drawer-close]').forEach((el) => {
       el.addEventListener('click', closeDrawer);
     });
@@ -496,6 +627,10 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     }
 
     apply(false);
+    unsubscribeFavorites = favoritePetIds.subscribe(() => {
+      syncFavoriteButtonsUI();
+      if (favoritesOnly) apply(false);
+    });
 
     try {
       sessionStorage.setItem('mchs:lastAdoptListing', window.location.pathname + window.location.search);

@@ -30,6 +30,14 @@ const {
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE.url);
 
+// The site ships two separate installable PWA identities: the internal staff
+// ops portal (manifest.webmanifest) and the public adopt experience
+// (manifest-adopt.webmanifest). Branch here so every page keeps calling
+// <BaseLayout> unchanged.
+const isAdoptRoute = Astro.url.pathname.startsWith('/adopt');
+const manifestHref = isAdoptRoute ? '/manifest-adopt.webmanifest' : '/manifest.webmanifest';
+const appleWebAppTitle = isAdoptRoute ? 'MCHS Adopt' : 'HSMC Ops';
+
 const schemaOrg = {
   '@context': 'https://schema.org',
   '@type': 'AnimalShelter',
@@ -89,8 +97,8 @@ const schemaOrg = {
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="HSMC Ops" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-title" content={appleWebAppTitle} />
+    <link rel="manifest" href={manifestHref} />
     <link rel="apple-touch-icon" href="/assets/brand-mark-paw-circle.png" />
 
     <!-- SEO Meta -->

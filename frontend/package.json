@@ -14,8 +14,10 @@
     "@astrojs/partytown": "^2.1.7",
     "@astrojs/sitemap": "^3.7.3",
     "@directus/sdk": "^25.0.1",
+    "@nanostores/persistent": "^0.10.2",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.9",
+    "nanostores": "^0.11.4",
     "qr-code-styling": "^1.9.2",
     "tailwindcss": "^4.3.3"
   },
