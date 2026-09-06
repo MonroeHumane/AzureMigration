@@ -1,199 +1,287 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE } from '../../config/site';
 
-const JOIN_URL = "/donate";
+const DONATE_URL = '/donate';
+const RESOURCES_URL = '/resources';
+const NEWSLETTER_URL = '/newsletter';
+const CONTACT_URL = '/contact';
+
 const HERO_IMAGE =
   '/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt/455279975_897310779096528_8326220811243597552_n-1920w.jpg';
 ---
 
 <BaseLayout
-  title="Membership Plans | 734-243-3669"
-  description="Pick a tier that fits your support level. Each membership includes perks that help animals and thank you for standing with Monroe Humane."
+  title="Membership Program (Work in Progress) | Humane Society of Monroe County"
+  description="The Monroe Humane membership program is currently a work in progress. Details, pricing, and perks have not yet been decided by our board and staff."
 >
-  <div class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
-    <!-- Hero Section -->
-    <header class="relative rounded-3xl overflow-hidden mb-8 shadow-lg bg-teal-900 text-cream">
-      <div class="absolute inset-0 opacity-40 mix-blend-overlay">
-        <img src={HERO_IMAGE} alt="" class="w-full h-full object-cover" decoding="async" fetchpriority="high" />
+  <div class="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
+
+    <!-- ============================================================ -->
+    <!-- 1. HERO SECTION (Work In Progress Notice)                    -->
+    <!-- ============================================================ -->
+    <header class="relative rounded-3xl overflow-hidden mb-10 sm:mb-12 shadow-xl bg-gradient-to-br from-[#0e2c2a] via-[#143e3b] to-[#1c5550] text-cream border border-teal-700/40">
+      <!-- Ambient radiant background lights -->
+      <div class="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" aria-hidden="true"></div>
+      <div class="absolute -left-20 -bottom-20 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+      <!-- Photographic overlay with smooth atmospheric wash -->
+      <div class="absolute inset-0 opacity-25 mix-blend-luminosity">
+        <img
+          src={HERO_IMAGE}
+          alt="Dogs and cats cared for by Monroe Humane Society"
+          class="w-full h-full object-cover object-center"
+          decoding="async"
+          fetchpriority="high"
+        />
       </div>
-      <div class="absolute inset-0 bg-gradient-to-t from-teal-900 via-teal-900/80 to-teal-900/40"></div>
-      
+      <div class="absolute inset-0 bg-gradient-to-t from-[#0e2c2a] via-[#0e2c2a]/80 to-transparent"></div>
+
+      <!-- Hero copy -->
       <div class="relative z-10 p-6 sm:p-10 lg:p-12 max-w-3xl">
-        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-3">Support &amp; Community</p>
-        <h1 id="monroe-membership-title" class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-4 leading-tight">Membership Plans</h1>
-        <p class="text-base sm:text-lg text-cream-100 opacity-90 leading-relaxed mb-6">
-          Pick a tier that fits your support level. Each membership includes perks that help animals and thank you for standing with Monroe Humane.
+        <!-- Work in Progress Status Pill -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/35 mb-4 backdrop-blur-xs">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" aria-hidden="true"></span>
+          Work in Progress &bull; Details Not Decided
+        </div>
+
+        <h1 id="monroe-membership-title" class="text-3xl sm:text-5xl font-serif text-white mb-4 leading-[1.15] tracking-tight">
+          Monroe Humane Membership
+        </h1>
+
+        <p class="text-base sm:text-lg text-cream-100/90 leading-relaxed font-light mb-6 max-w-2xl">
+          Our official annual membership program is currently a <strong>work in progress</strong>. Specific membership tiers, pricing, and perks have <strong>not yet been decided</strong> by our board and staff.
         </p>
-        <div class="flex flex-wrap gap-3">
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-emerald-400 text-teal-900 transition-all hover:bg-emerald-300 shadow-md hover:-translate-y-0.5 text-xs" href={JOIN_URL}>Join Today</a>
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-transparent border-2 border-cream text-cream transition-all hover:bg-cream hover:text-teal-900 text-xs" href="/donate">More Ways to Give</a>
+
+        <p class="text-xs sm:text-sm text-cream-100/75 leading-relaxed mb-8 max-w-2xl">
+          While we finalize the details of our future membership program, our shelter continues saving lives 365 days a year through the direct support of our community.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3.5 mb-6">
+          <a
+            id="cta-hero-donate"
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-7 py-4 rounded-full bg-emerald-400 text-teal-950 transition-all duration-200 hover:bg-emerald-300 hover:shadow-lg hover:-translate-y-0.5 text-xs min-h-[48px] shadow-md"
+            href={DONATE_URL}
+          >
+            Support Animals Today &rarr;
+          </a>
+          <a
+            id="cta-hero-newsletter"
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white transition-all duration-200 text-xs min-h-[48px] backdrop-blur-xs hover:-translate-y-0.5"
+            href={NEWSLETTER_URL}
+          >
+            Get Updates via Newsletter
+          </a>
         </div>
       </div>
     </header>
 
-    <!-- Benefits Grid -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-10" aria-label="Why become a member">
-      <article class="bg-white p-6 rounded-2xl shadow-xs border border-teal-900/5 hover:shadow-md transition-shadow">
-        <div class="w-10 h-10 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-4">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+    <!-- ============================================================ -->
+    <!-- 2. TRANSPARENT NOTICE BANNER (Details Not Decided)           -->
+    <!-- ============================================================ -->
+    <section class="bg-amber-50/80 border-2 border-amber-300/80 rounded-3xl p-6 sm:p-8 mb-10 sm:mb-12 shadow-sm" aria-label="Status Notice">
+      <div class="flex flex-col sm:flex-row items-start gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
         </div>
-        <h2 class="text-lg font-bold text-teal-900 mb-2">Lifesaving care</h2>
-        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">Membership dollars fund food, medicine, enrichment, and everyday shelter needs for dogs and cats waiting for homes.</p>
-      </article>
-      
-      <article class="bg-white p-6 rounded-2xl shadow-xs border border-teal-900/5 hover:shadow-md transition-shadow">
-        <div class="w-10 h-10 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-4">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
-        </div>
-        <h2 class="text-lg font-bold text-teal-900 mb-2">Member perks</h2>
-        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">Enjoy shirts, cards, stickers, event discounts, and swag savings — our thank-you for championing Monroe County animals.</p>
-      </article>
-      
-      <article class="bg-white p-6 rounded-2xl shadow-xs border border-teal-900/5 hover:shadow-md transition-shadow">
-        <div class="w-10 h-10 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-4">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
-        </div>
-        <h2 class="text-lg font-bold text-teal-900 mb-2">Stay connected</h2>
-        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">Members hear about fundraisers, adoption highlights, and volunteer opportunities throughout the year.</p>
-      </article>
-    </section>
-
-    <!-- Membership Plans -->
-    <section id="Plans" class="mb-10 sm:mb-12">
-      <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-        <p class="uppercase tracking-widest font-bold text-sm text-teal-700 mb-3">Become a member</p>
-        <h2 id="monroe-membership-plans-heading" class="text-3xl md:text-4xl font-serif text-teal-900 mb-4">Membership plans</h2>
-        <p class="text-gray-600 leading-relaxed">
-          Select an annual membership level below. Every dollar directly funds emergency veterinary surgeries, vaccinations, nourishing food, and warm shelter for Monroe County animals.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Senior / Student Tier -->
-        <div class="bg-white p-6 rounded-2xl border border-teal-900/10 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <span class="inline-block px-3 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full uppercase tracking-wider mb-4">Senior / Student</span>
-            <div class="text-3xl font-serif font-bold text-teal-900 mb-2">$15 <span class="text-sm font-sans font-normal text-gray-500">/ year</span></div>
-            <p class="text-xs text-gray-600 mb-6">Special discounted membership for seniors (62+) and students.</p>
-            <ul class="text-xs text-gray-700 space-y-2 mb-6">
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Annual Member Card</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Shelter vehicle decal</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>10% off shelter merchandise</span>
-              </li>
-            </ul>
-          </div>
-          <a href="/donate" class="inline-flex items-center justify-center w-full py-3 px-4 min-h-[44px] rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $15</a>
-        </div>
-
-        <!-- Individual Tier (Featured) -->
-        <div class="bg-white p-6 rounded-2xl border-2 border-teal-700 shadow-md flex flex-col justify-between relative hover:shadow-lg transition-shadow">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-teal-700 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Most Popular</div>
-          <div>
-            <span class="inline-block px-3 py-1 bg-teal-50 text-teal-800 text-xs font-bold rounded-full uppercase tracking-wider mb-4">Individual</span>
-            <div class="text-3xl font-serif font-bold text-teal-900 mb-2">$25 <span class="text-sm font-sans font-normal text-gray-500">/ year</span></div>
-            <p class="text-xs text-gray-600 mb-6">Our standard individual membership with official shelter shirt.</p>
-            <ul class="text-xs text-gray-700 space-y-2 mb-6">
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Official Annual Member Shirt</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Member Card & Vehicle Decal</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Discount tickets to shelter benefits</span>
-              </li>
-            </ul>
-          </div>
-          <a href="https://www.zeffy.com/ticketing/humane-society-of-monroe-membership-shirt-contest" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center w-full py-3 px-4 min-h-[44px] rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-teal-700 text-white hover:bg-teal-800 transition-colors shadow-xs">Join at $25</a>
-        </div>
-
-        <!-- Family Tier -->
-        <div class="bg-white p-6 rounded-2xl border border-teal-900/10 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full uppercase tracking-wider mb-4">Family</span>
-            <div class="text-3xl font-serif font-bold text-teal-900 mb-2">$40 <span class="text-sm font-sans font-normal text-gray-500">/ year</span></div>
-            <p class="text-xs text-gray-600 mb-6">Support shelter pets together as a household.</p>
-            <ul class="text-xs text-gray-700 space-y-2 mb-6">
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>2 Official Member Shirts</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Family Member Welcome Packet</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>15% off shelter merchandise</span>
-              </li>
-            </ul>
-          </div>
-          <a href="/donate" class="inline-flex items-center justify-center w-full py-3 px-4 min-h-[44px] rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $40</a>
-        </div>
-
-        <!-- Lifetime Guardian Tier -->
-        <div class="bg-white p-6 rounded-2xl border border-amber-300 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <span class="inline-block px-3 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-full uppercase tracking-wider mb-4">Lifetime Guardian</span>
-            <div class="text-3xl font-serif font-bold text-teal-900 mb-2">$500 <span class="text-sm font-sans font-normal text-gray-500">one-time</span></div>
-            <p class="text-xs text-gray-600 mb-6">Enduring, permanent protection for Monroe animals.</p>
-            <ul class="text-xs text-gray-700 space-y-2 mb-6">
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Permanent Guardian Plaque</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Annual Member Shirt for Life</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>VIP Invitations to Shelter Events</span>
-              </li>
-            </ul>
-          </div>
-          <a href="/donate" class="inline-flex items-center justify-center w-full py-3 px-4 min-h-[44px] rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $500</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- How It Works & CTA -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <section class="bg-white border border-teal-900/10 p-8 sm:p-10 rounded-3xl shadow-sm">
-        <h2 class="text-2xl font-bold text-teal-900 mb-6" id="monroe-membership-how-heading">How membership works</h2>
-        <ol class="space-y-4 mb-8 text-gray-700 list-decimal list-inside marker:text-teal-700 marker:font-bold">
-          <li class="pl-2">Pick a tier and complete checkout online.</li>
-          <li class="pl-2">Receive your welcome packet with shirt, card, and stickers by mail or pickup.</li>
-          <li class="pl-2">Enjoy event discounts and swag savings all year while supporting shelter animals.</li>
-        </ol>
-        <p class="pt-6 border-t border-teal-900/10 text-sm text-teal-700 font-medium flex gap-4 justify-center sm:justify-start">
-          <a href="/resources" class="hover:text-teal-900 underline underline-offset-4">Shelter services &amp; contact</a>
-          <span class="text-teal-900/30">|</span>
-          <a href="/donate" class="hover:text-teal-900 underline underline-offset-4">Other ways to give</a>
-        </p>
-      </section>
-
-      <section class="bg-teal-700 text-cream p-8 sm:p-10 rounded-3xl text-center flex flex-col justify-center shadow-lg relative overflow-hidden">
-        <div class="absolute inset-0 bg-[url('/assets/monroe-paw-print-tile.png')] bg-[length:300px] bg-center bg-no-repeat opacity-10 pointer-events-none mix-blend-overlay"></div>
-        <div class="relative z-10">
-          <h2 class="text-3xl font-serif text-white mb-4">Ready to stand with Monroe animals?</h2>
-          <p class="text-cream-100 text-lg mb-8 max-w-md mx-auto opacity-90">
-            Your annual membership keeps pets healthy, safe, and loved while they wait for adoption.
+        <div class="flex-1">
+          <h2 class="text-xl font-bold text-amber-950 mb-2">Program Details Are Under Development</h2>
+          <p class="text-sm text-amber-900 leading-relaxed mb-3">
+            Please note that memberships are currently a work in progress across our entire website. <strong>Specific membership levels, pricing, and perks have not been finalized or decided.</strong>
           </p>
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-white text-teal-900 transition-all hover:bg-teal-50 shadow-md hover:-translate-y-1" href={JOIN_URL}>Become a member</a>
+          <p class="text-xs text-amber-800 leading-relaxed">
+            Our shelter leadership and board are working on a sustainable membership experience to best honor our supporters and shelter animals. Check back soon for official announcements, or make a tax-deductible direct gift today.
+          </p>
         </div>
-      </section>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 3. THREE CORE PILLARS (Mission & Future Program Vision)      -->
+    <!-- ============================================================ -->
+    <section class="mb-10 sm:mb-14" aria-label="Why membership matters">
+      <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+        <span class="inline-block uppercase tracking-widest font-bold text-xs sm:text-sm text-teal-700 bg-teal-50 px-3.5 py-1 rounded-full border border-teal-200/60 mb-2">
+          Future Program Vision
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-serif text-teal-900 mb-3">
+          What the Membership Program Will Support
+        </h2>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          Here is what we are building toward to empower animal lovers across Monroe County.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Pillar 1: Lifesaving Care -->
+        <article class="bg-white p-6 sm:p-8 rounded-3xl border border-teal-900/10 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-700 border border-rose-200/60 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-teal-900 mb-2">Lifesaving care</h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              Membership dollars fund food, medicine, enrichment, and everyday shelter needs for dogs and cats waiting for homes.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-gray-100 text-xs text-rose-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Direct animal rescue &amp; surgery
+          </div>
+        </article>
+
+        <!-- Pillar 2: Member Perks -->
+        <article class="bg-white p-6 sm:p-8 rounded-3xl border border-teal-900/10 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-teal-900 mb-2">Member perks</h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              Enjoy shirts, cards, stickers, event discounts, and swag savings — our thank-you for championing Monroe County animals.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-gray-100 text-xs text-amber-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Planned swag &amp; benefit perks
+          </div>
+        </article>
+
+        <!-- Pillar 3: Stay Connected -->
+        <article class="bg-white p-6 sm:p-8 rounded-3xl border border-teal-900/10 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-800 border border-teal-200/60 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-teal-900 mb-2">Stay connected</h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              Members hear about fundraisers, adoption highlights, and volunteer opportunities throughout the year.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-gray-100 text-xs text-teal-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span> Community &amp; rescue updates
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 4. HOW MEMBERSHIP WORKS (High-Level Process Preview)         -->
+    <!-- ============================================================ -->
+    <section class="bg-white border border-teal-900/10 p-6 sm:p-10 rounded-3xl shadow-sm mb-10 sm:mb-12" aria-labelledby="monroe-membership-how-heading">
+      <div class="max-w-2xl mx-auto text-center mb-8">
+        <span class="inline-block uppercase tracking-widest font-bold text-xs text-teal-700 bg-teal-50 px-3 py-1 rounded-full mb-2">
+          Preview
+        </span>
+        <h2 id="monroe-membership-how-heading" class="text-2xl sm:text-3xl font-serif text-teal-900 mb-2">
+          How membership works
+        </h2>
+        <p class="text-gray-600 text-xs sm:text-sm">
+          Once the official program details and enrollment launch, joining will follow three simple steps:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <div class="text-2xl font-serif font-bold text-emerald-700 mb-2">01</div>
+          <h3 class="font-bold text-teal-900 text-base mb-1">Pick a Tier</h3>
+          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            Pick a tier and complete checkout online.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <div class="text-2xl font-serif font-bold text-teal-700 mb-2">02</div>
+          <h3 class="font-bold text-teal-900 text-base mb-1">Welcome Packet</h3>
+          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            Receive your welcome packet with shirt, card, and stickers by mail or pickup.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <div class="text-2xl font-serif font-bold text-amber-700 mb-2">03</div>
+          <h3 class="font-bold text-teal-900 text-base mb-1">Enjoy Year-Round</h3>
+          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            Enjoy event discounts and swag savings all year while supporting shelter animals.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 5. HOW YOU CAN HELP TODAY (While Details Are Decided)        -->
+    <!-- ============================================================ -->
+    <section class="bg-gradient-to-br from-teal-900 to-[#0e2c2a] text-cream p-8 sm:p-10 rounded-3xl shadow-lg mb-10 sm:mb-12 relative overflow-hidden border border-teal-700/50">
+      <div class="absolute inset-0 bg-[url('/assets/monroe-paw-print-tile.png')] bg-[length:260px] opacity-10 pointer-events-none mix-blend-overlay"></div>
+      
+      <div class="relative z-10 max-w-2xl mx-auto text-center">
+        <div class="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto mb-4 border border-white/20">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-serif text-white mb-3">
+          Support Monroe Animals Today
+        </h2>
+        <p class="text-cream-100 text-sm sm:text-base leading-relaxed mb-8 opacity-90 font-light">
+          Even while membership specifics are in progress, shelter pets need medical care, warm beds, and wholesome meals right now. 100% of your tax-deductible gift stays right here in Monroe County.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            id="btn-donate-direct"
+            href={DONATE_URL}
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-emerald-400 text-teal-950 transition-all hover:bg-emerald-300 shadow-md hover:-translate-y-0.5 text-xs min-h-[48px]"
+          >
+            Make a Direct Gift &rarr;
+          </a>
+          <a
+            id="btn-newsletter-subscribe"
+            href={NEWSLETTER_URL}
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white transition-all hover:-translate-y-0.5 text-xs min-h-[48px]"
+          >
+            Join Newsletter for Updates
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 6. WAYFINDING & CONTACT LINKS                                -->
+    <!-- ============================================================ -->
+    <div class="bg-white border border-teal-900/10 p-6 sm:p-8 rounded-3xl shadow-sm">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6">
+        <div>
+          <h3 class="font-bold text-teal-900 text-base mb-1">Have Questions for Our Shelter Team?</h3>
+          <p class="text-xs sm:text-sm text-gray-600">
+            Call us directly at <a href={SITE.contact.phoneTel} class="text-emerald-700 font-bold hover:underline">{SITE.contact.phoneFormatted}</a> or visit us during open hours at {SITE.contact.address.full}.
+          </p>
+        </div>
+        <a
+          href={CONTACT_URL}
+          class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-5 py-3 rounded-full bg-teal-50 text-teal-900 border border-teal-200/60 hover:bg-teal-100 text-xs shrink-0"
+        >
+          Contact Shelter
+        </a>
+      </div>
+
+      <!-- Specific required wayfinding links -->
+      <p class="pt-5 border-t border-teal-900/10 text-xs sm:text-sm text-teal-700 font-medium flex flex-wrap gap-4 justify-center sm:justify-start items-center">
+        <a id="link-shelter-resources" href={RESOURCES_URL} class="hover:text-teal-900 underline underline-offset-4">
+          Shelter services &amp; contact
+        </a>
+        <span class="text-teal-900/30">|</span>
+        <a id="link-other-ways-give" href={DONATE_URL} class="hover:text-teal-900 underline underline-offset-4">
+          Other ways to give
+        </a>
+      </p>
     </div>
+
   </div>
 </BaseLayout>

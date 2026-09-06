@@ -27,7 +27,6 @@ const { currentPath = '/' } = Astro.props;
 
 const LOGO_SRC = SITE.assets.logo;
 const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
-const MEMBERSHIP_URL = SITE.integrations.betterUnite.membership;
 
 const NAV: NavItem[] = [
   { label: 'Home', href: '/' },
@@ -56,8 +55,7 @@ const NAV: NavItem[] = [
     overviewHref: '/resources',
     children: [
       { label: 'Shop', href: '/shop' },
-      { label: 'Membership plans', href: '/membership' },
-      { label: 'Join online', href: MEMBERSHIP_URL, external: true },
+      { label: 'Membership', href: '/membership' },
       { label: 'FAQ', href: '/faq' },
       { label: 'Newsletter archive', href: '/newsletter' },
       { label: '2025 in Review', href: '/newsletter/issue/2025-in-review' },
