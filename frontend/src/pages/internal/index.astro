@@ -179,12 +179,12 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
               Live
             </span>
           </div>
-          <p class="text-xs text-teal-300/80 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <p class="text-xs text-slate-300 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
             <span id="staff-user-email" class="font-medium text-emerald-300"></span>
-            <span class="text-teal-700">·</span>
+            <span class="text-slate-500">·</span>
             <span id="hub-status-financials" class="text-teal-200">Financials</span>
-            <span class="text-teal-700">·</span>
-            <span id="hub-status-petsync" class="text-amber-300/90">Census · {petSyncData.activeCount} in care · {petSyncLabel}</span>
+            <span class="text-slate-500">·</span>
+            <span id="hub-status-petsync" class="text-amber-300">Census · {petSyncData.activeCount} in care · {petSyncLabel}</span>
           </p>
         </div>
 
@@ -221,10 +221,10 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             </div>
           </div>
           <div id="metric-bank-cash" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-emerald-300 group-hover:text-emerald-200 transition">--</div>
-          <div id="metric-bank-period" class="mt-1 text-xs text-teal-300/70"></div>
-          <div id="metric-audit-diff" class="mt-1 text-xs text-teal-400/80 font-mono"></div>
+          <div id="metric-bank-period" class="mt-1 text-xs text-teal-200"></div>
+          <div id="metric-audit-diff" class="mt-1 text-xs text-slate-300 font-mono"></div>
           <div id="card-bank-cash" class="hidden"></div>
-          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-teal-400/80 group-hover:text-teal-200 transition">
+          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-slate-300 group-hover:text-white transition">
             <span>Operating balance &amp; audit</span>
             <span class="text-emerald-400 group-hover:translate-x-0.5 transition">&rarr;</span>
           </div>
@@ -239,8 +239,8 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             </div>
           </div>
           <div id="hub-census-count" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-amber-300 group-hover:text-amber-200 transition">{petSyncData.activeCount}</div>
-          <div id="hub-census-sync" class="mt-1 text-xs text-amber-300/70">{petSyncLabel}</div>
-          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-amber-400/80 group-hover:text-amber-200 transition">
+          <div id="hub-census-sync" class="mt-1 text-xs text-amber-200">{petSyncLabel}</div>
+          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-slate-300 group-hover:text-white transition">
             <span>Kennel cards &amp; PetPoint sync</span>
             <span class="text-amber-400 group-hover:translate-x-0.5 transition">&rarr;</span>
           </div>
@@ -255,12 +255,12 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             </div>
           </div>
           <div id="metric-donor-volume" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-rose-300 group-hover:text-rose-200 transition">--</div>
-          <div id="metric-donor-counts" class="mt-1 text-xs text-rose-300/70"></div>
-          <div id="metric-donor-active" class="mt-1 text-xs text-rose-400/80 font-mono"></div>
+          <div id="metric-donor-counts" class="mt-1 text-xs text-rose-200"></div>
+          <div id="metric-donor-active" class="mt-1 text-xs text-slate-300 font-mono"></div>
           <div id="card-donor-volume" class="hidden"></div>
           <div id="card-donor-count" class="hidden"></div>
           <div id="card-donor-addresses" class="hidden"></div>
-          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-rose-400/80 group-hover:text-rose-200 transition">
+          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-slate-300 group-hover:text-white transition">
             <span>Unified donor profiles</span>
             <span class="text-rose-400 group-hover:translate-x-0.5 transition">&rarr;</span>
           </div>
@@ -275,8 +275,8 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             </div>
           </div>
           <div id="hub-grants-count" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-purple-300 group-hover:text-purple-200 transition">--</div>
-          <div id="hub-grants-detail" class="mt-1 text-xs text-purple-300/70"></div>
-          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-purple-400/80 group-hover:text-purple-200 transition">
+          <div id="hub-grants-detail" class="mt-1 text-xs text-purple-200"></div>
+          <div class="mt-3 pt-2.5 border-t border-teal-900/80 flex items-center justify-between text-[11px] text-slate-300 group-hover:text-white transition">
             <span>Philanthropic opportunities</span>
             <span class="text-purple-400 group-hover:translate-x-0.5 transition">&rarr;</span>
           </div>
@@ -285,7 +285,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
 
       <!-- Quick Command Utilities Grid -->
       <div class="pt-2">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-teal-400/80 mb-3">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">
           Quick Launch Tools
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -298,7 +298,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             </div>
             <div class="min-w-0">
               <div class="text-xs font-bold text-white group-hover:text-amber-300 transition">Site Content Manager</div>
-              <div class="text-[11px] text-teal-300/70 truncate">Memorials, event flyers &amp; outcomes</div>
+              <div class="text-[11px] text-slate-300 truncate">Memorials, event flyers &amp; outcomes</div>
             </div>
           </a>
 
@@ -312,7 +312,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             </div>
             <div class="min-w-0">
               <div class="text-xs font-bold text-white group-hover:text-emerald-300 transition">Board Financials Packet</div>
-              <div class="text-[11px] text-teal-300/70 truncate">Printable 8-month statement &amp; bank audit</div>
+              <div class="text-[11px] text-slate-300 truncate">Printable 8-month statement &amp; bank audit</div>
             </div>
           </a>
 
@@ -327,7 +327,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             </div>
             <div class="min-w-0">
               <div class="text-xs font-bold text-white group-hover:text-teal-200 transition">Directus Headless CMS</div>
-              <div class="text-[11px] text-teal-300/70 truncate">Backend animal catalog, users &amp; settings</div>
+              <div class="text-[11px] text-slate-300 truncate">Backend animal catalog, users &amp; settings</div>
             </div>
           </a>
         </div>
