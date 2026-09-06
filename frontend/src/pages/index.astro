@@ -668,43 +668,137 @@ const sideNavSections = [
          real Facebook link stays visible even if the iframe is blocked by tracking
          protection/ad-blockers (the reason a live embed was reverted once before) or
          if JS never runs at all. -->
+    <!-- 13. Social: live Facebook Page Plugin & Shelter Community Hub -->
     <div class="wp-block-group alignwide home-editable-section is-layout-constrained" id="Social">
-      <div class="wp-block-group home-editable-social-follow-card is-layout-constrained">
-        <div class="home-editable-social-follow-card__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg>
-        </div>
-        <p class="home-editable-section-label">Follow along</p>
-        <h2 class="wp-block-heading">Find us on Facebook</h2>
-        <p class="wp-block-paragraph">Photos, adoption updates, and shelter news, posted as they happen. Give us a follow to stay in the loop between visits.</p>
+      <div class="home-editable-social-split-wrap">
+        <div class="home-editable-social-split-grid">
+          
+          <!-- Left Column: Shelter Social Community Hub -->
+          <div class="home-editable-social-info-col">
+            <div class="home-editable-social-badge-row">
+              <span class="home-editable-social-badge">
+                <svg class="home-editable-social-badge__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94Z"/>
+                </svg>
+                <span>Follow Along &bull; @adopthsmc</span>
+              </span>
+              <span class="home-editable-social-pill">Live Community Feed</span>
+            </div>
 
-        <div class="home-editable-social-embed__frame">
-          <div class="home-editable-social-embed" data-facebook-embed>
-            <div class="home-editable-social-embed__chrome">
-              <div class="home-editable-social-embed__viewport">
-                <iframe
-                  class="home-editable-social-embed__iframe border-0"
-                  data-facebook-iframe
-                  src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(SITE.integrations.social.facebook)}&tabs=timeline&width=500&height=650&small_header=false&adapt_container_width=true&hide_cover=true&show_facepile=false`}
-                  allowfullscreen={true}
-                  allow="encrypted-media"
-                  loading="lazy"
-                  title="Humane Society of Monroe County on Facebook"
-                ></iframe>
-                <div class="home-editable-social-embed__loader">
-                  <div class="home-editable-social-embed__loader-icon" aria-hidden="true">
-                    <svg class="w-8 h-8 text-[#1877f2]" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                  </div>
-                  <strong style="font-size: 1.05rem; font-weight: 700; color: #163433; margin-bottom: 0.25rem;">Humane Society of Monroe County</strong>
-                  <p class="home-editable-social-embed__loader-text">Daily shelter news, intakes & adoption stories</p>
-                  <div class="home-editable-social-embed__cta">
-                    <a class="home-editable-social-embed__open" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Visit @adopthsmc on Facebook</a>
+            <h2 class="home-editable-social-title">
+              Find Us on Facebook
+            </h2>
+
+            <p class="home-editable-social-desc">
+              Photos, emergency intakes, urgent lost &amp; found alerts, and heartwarming adoption celebrations posted in real time. Follow our official page to stay connected between shelter visits and help Monroe County rescues find loving forever homes.
+            </p>
+
+            <!-- Community Highlights Grid -->
+            <div class="home-editable-social-features">
+              <div class="home-editable-social-feature-item">
+                <div class="home-editable-social-feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="home-editable-social-feature-heading">Daily Rescue Intakes</h3>
+                  <p class="home-editable-social-feature-text">Be the first to see newly arrived shelter cats and dogs ready for foster or adoption.</p>
+                </div>
+              </div>
+
+              <div class="home-editable-social-feature-item">
+                <div class="home-editable-social-feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="home-editable-social-feature-heading">Lost &amp; Found Pet Network</h3>
+                  <p class="home-editable-social-feature-text">Fast community-powered alerts helping reunite missing pets with local families.</p>
+                </div>
+              </div>
+
+              <div class="home-editable-social-feature-item">
+                <div class="home-editable-social-feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="home-editable-social-feature-heading">Events &amp; Clinic Dates</h3>
+                  <p class="home-editable-social-feature-text">Schedules for affordable community vaccine clinics, microchip events, and fundraisers.</p>
+                </div>
+              </div>
+
+              <div class="home-editable-social-feature-item">
+                <div class="home-editable-social-feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="home-editable-social-feature-heading">&ldquo;Happy Tails&rdquo; Updates</h3>
+                  <p class="home-editable-social-feature-text">Celebrating shelter alumni thriving in their new homes with loving families.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="home-editable-social-actions">
+              <a
+                class="home-editable-social-btn home-editable-social-btn--primary"
+                href={SITE.integrations.social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                <span>Visit @adopthsmc on Facebook &rarr;</span>
+              </a>
+              <a
+                class="home-editable-social-btn home-editable-social-btn--secondary"
+                href="/adopt"
+              >
+                <span>Meet Adoptable Pets &rarr;</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Right Column: Live Facebook Feed Embed -->
+          <div class="home-editable-social-feed-col">
+            <div class="home-editable-social-embed__frame">
+              <div class="home-editable-social-embed" data-facebook-embed>
+                <div class="home-editable-social-embed__chrome">
+                  <div class="home-editable-social-embed__viewport">
+                    <iframe
+                      class="home-editable-social-embed__iframe border-0"
+                      data-facebook-iframe
+                      src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(SITE.integrations.social.facebook)}&tabs=timeline&width=500&height=650&small_header=false&adapt_container_width=true&hide_cover=true&show_facepile=false`}
+                      allowfullscreen={true}
+                      allow="encrypted-media"
+                      loading="lazy"
+                      title="Humane Society of Monroe County on Facebook"
+                    ></iframe>
+                    <div class="home-editable-social-embed__loader">
+                      <div class="home-editable-social-embed__loader-icon" aria-hidden="true">
+                        <svg class="w-8 h-8 text-[#1877f2]" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                      </div>
+                      <strong style="font-size: 1.05rem; font-weight: 700; color: #163433; margin-bottom: 0.25rem;">Humane Society of Monroe County</strong>
+                      <p class="home-editable-social-embed__loader-text">Daily shelter news, intakes &amp; adoption stories</p>
+                      <div class="home-editable-social-embed__cta">
+                        <a class="home-editable-social-embed__open" href={SITE.integrations.social.facebook} target="_blank" rel="noopener noreferrer">Visit @adopthsmc on Facebook</a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

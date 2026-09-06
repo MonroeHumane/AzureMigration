@@ -66,37 +66,37 @@ const faqs = [
   title={`Frequently Asked Questions | ${SITE.name}`}
   description="Find answers to common questions about animal adoptions, volunteer programs, pet surrenders, donations, and visiting Monroe Humane."
 >
-  <div class="pb-24 px-4 max-w-4xl mx-auto">
-    <header class="mb-16 text-center">
-      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Help &amp; Answers</p>
-      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Frequently Asked Questions</h1>
-      <p class="text-xl text-gray-600 leading-relaxed">
+  <div class="pb-16 px-4 max-w-4xl mx-auto">
+    <header class="mb-8 text-center">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-2">Help &amp; Answers</p>
+      <h1 class="text-4xl sm:text-5xl font-serif text-teal-900 mb-3">Frequently Asked Questions</h1>
+      <p class="text-base sm:text-lg text-gray-600 leading-relaxed">
         Find quick answers to common questions regarding pet adoptions, donations, shelter programs, and visiting hours.
       </p>
     </header>
 
-    <div class="mb-10">
+    <div class="mb-6">
       <label for="faqSearch" class="sr-only">Search questions</label>
       <input
         type="search"
         id="faqSearch"
         placeholder="Search questions (e.g. fees, surrender, volunteer, hours)..."
-        class="w-full max-w-2xl mx-auto block px-6 py-4 text-lg border-2 border-teal-700/25 rounded-full outline-none transition-colors focus:border-teal-700 bg-gray-50 focus:bg-white"
+        class="w-full max-w-2xl mx-auto block px-5 py-3 text-base border-2 border-teal-700/25 rounded-full outline-none transition-colors focus:border-teal-700 bg-gray-50 focus:bg-white"
       />
     </div>
 
-    <div id="faqList" class="flex flex-col gap-5 mb-16">
+    <div id="faqList" class="flex flex-col gap-3.5 mb-10">
       {faqs.map((faq) => (
-        <details class="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow faq-item" data-faq-q={faq.q.toLowerCase()} data-faq-a={faq.a.toLowerCase()}>
-          <summary class="flex justify-between items-center px-6 py-5 cursor-pointer list-none outline-none font-serif text-2xl text-teal-900 marker:hidden">
+        <details class="group bg-white border border-gray-200 rounded-2xl shadow-xs hover:shadow-md transition-shadow faq-item" data-faq-q={faq.q.toLowerCase()} data-faq-a={faq.a.toLowerCase()}>
+          <summary class="flex justify-between items-center px-6 py-4 cursor-pointer list-none outline-none font-serif text-xl sm:text-2xl text-teal-900 marker:hidden">
             <span>{faq.q}</span>
-            <span class="text-teal-700 text-3xl transition-transform duration-200 group-open:rotate-45 leading-none shrink-0">+</span>
+            <span class="text-teal-700 text-2xl transition-transform duration-200 group-open:rotate-45 leading-none shrink-0">+</span>
           </summary>
-          <div class="px-6 pb-6 pt-2 text-gray-700 text-lg leading-relaxed border-t border-teal-900/10 border-dashed mt-2">
+          <div class="px-6 pb-5 pt-2 text-gray-700 text-base leading-relaxed border-t border-teal-900/10 border-dashed mt-1">
             <p>{faq.a}</p>
             {faq.link && (
-              <p class="mt-4">
-                <a href={faq.link} class="inline-flex items-center justify-center px-5 py-2.5 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider text-sm transition-all hover:bg-teal-50">
+              <p class="mt-3">
+                <a href={faq.link} class="inline-flex items-center justify-center px-4 py-2 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider text-xs transition-all hover:bg-teal-50">
                   {faq.linkText} &rarr;
                 </a>
               </p>
@@ -106,14 +106,14 @@ const faqs = [
       ))}
     </div>
 
-    <section class="bg-teal-50 rounded-3xl p-10 text-center">
-      <h2 class="text-3xl font-serif text-teal-900 mb-4">Still have questions?</h2>
-      <p class="max-w-2xl mx-auto text-gray-700 mb-8 leading-relaxed">
+    <section class="bg-teal-50 rounded-2xl p-6 sm:p-8 text-center">
+      <h2 class="text-2xl sm:text-3xl font-serif text-teal-900 mb-3">Still have questions?</h2>
+      <p class="max-w-2xl mx-auto text-gray-700 mb-6 leading-relaxed text-sm sm:text-base">
         Our adoption center team is happy to assist you by phone, email, or in person during shelter hours.
       </p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-1" href="/contact">Contact Our Team</a>
-        <a class="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-white hover:-translate-y-1" href={SITE.contact.phoneTel}>Call {SITE.contact.phoneFormatted}</a>
+      <div class="flex flex-wrap justify-center gap-3">
+        <a class="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-0.5 text-xs" href="/contact">Contact Our Team</a>
+        <a class="inline-flex items-center justify-center px-5 py-2.5 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-white hover:-translate-y-0.5 text-xs" href={SITE.contact.phoneTel}>Call {SITE.contact.phoneFormatted}</a>
       </div>
     </section>
   </div>

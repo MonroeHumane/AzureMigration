@@ -269,4 +269,38 @@ const dayCards = [
 
     </div>
   </div>
+
+  <script>
+    // In-page navigation pills: active section tracking
+    const pillLinks = document.querySelectorAll<HTMLAnchorElement>('.monroe-shelter-pills .monroe-inner-page-pills__link');
+    if (pillLinks.length && 'IntersectionObserver' in window) {
+      const sectionIds = Array.from(pillLinks)
+        .map((a) => a.getAttribute('href')?.replace('#', ''))
+        .filter(Boolean) as string[];
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              pillLinks.forEach((link) => {
+                const active = link.getAttribute('href') === `#${entry.target.id}`;
+                link.classList.toggle('is-active', active);
+                if (active) {
+                  link.setAttribute('aria-current', 'true');
+                } else {
+                  link.removeAttribute('aria-current');
+                }
+              });
+            }
+          });
+        },
+        { rootMargin: '-15% 0px -65% 0px' }
+      );
+
+      sectionIds.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+    }
+  </script>
 </BaseLayout>

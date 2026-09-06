@@ -32,24 +32,24 @@ const volunteerRoles = [
   title="Volunteer Application | Humane Society of Monroe County"
   description="Lend your hands and heart to Monroe County animals. Complete our volunteer application for dog walking, cat socialization, event staffing, and shelter support."
 >
-  <div class="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+  <div class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
     <!-- Header Hero -->
-    <header class="bg-teal-900 text-cream p-8 sm:p-12 lg:p-16 rounded-3xl mb-12 shadow-lg relative overflow-hidden">
+    <header class="bg-teal-900 text-cream p-6 sm:p-10 rounded-3xl mb-8 shadow-lg relative overflow-hidden">
       <div class="relative z-10 max-w-3xl">
-        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-3">Make a Difference</p>
-        <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif text-white mb-6 leading-tight">Volunteer Application</h1>
-        <p class="text-lg md:text-xl text-cream-100 opacity-90 leading-relaxed">
+        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-2">Make a Difference</p>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-4 leading-tight">Volunteer Application</h1>
+        <p class="text-base sm:text-lg text-cream-100 opacity-90 leading-relaxed">
           Volunteers are the heartbeat of our shelter. Whether walking dogs, socializing rescue cats, assisting at community fundraisers, or keeping shelter facilities clean, your time directly saves lives.
         </p>
       </div>
     </header>
 
     <!-- Volunteer Roles Overview -->
-    <section class="mb-16" aria-labelledby="volunteer-roles-heading">
-      <div class="border-b border-gray-200 pb-4 mb-8">
+    <section class="mb-10 sm:mb-12" aria-labelledby="volunteer-roles-heading">
+      <div class="border-b border-gray-200 pb-3 mb-6">
         <span class="text-xs font-bold uppercase tracking-widest text-teal-700">Where You Can Help</span>
-        <h2 id="volunteer-roles-heading" class="text-3xl font-serif text-teal-900 mt-1">Shelter Volunteer Opportunities</h2>
-        <p class="text-gray-600 text-sm mt-1">Find the role that matches your passions and availability.</p>
+        <h2 id="volunteer-roles-heading" class="text-2xl sm:text-3xl font-serif text-teal-900 mt-1">Shelter Volunteer Opportunities</h2>
+        <p class="text-gray-600 text-xs sm:text-sm mt-1">Find the role that matches your passions and availability.</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -93,9 +93,9 @@ const volunteerRoles = [
           <h2 id="monroe-volunteer-form-heading" class="text-2xl sm:text-3xl font-serif text-teal-900">Online Application</h2>
           <p class="text-xs text-gray-500 mt-1">Please fill out each section completely. Our volunteer coordinator will follow up via email.</p>
         </div>
-        <div class="flex flex-wrap gap-3">
+        <div class="flex flex-wrap gap-3 w-full sm:w-auto">
           <a
-            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-5 py-2.5 rounded-full text-xs transition-all shadow-xs bg-teal-700 text-white hover:bg-teal-900"
+            class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-6 py-3 min-h-[44px] rounded-full text-xs transition-all shadow-xs bg-teal-700 text-white hover:bg-teal-900"
             href={VOLUNTEER_FORM_URL}
             target="_blank"
             rel="noopener noreferrer"
@@ -120,15 +120,15 @@ const volunteerRoles = [
     </section>
     
     <!-- Contact / Questions -->
-    <section class="text-center bg-cream-200 rounded-3xl p-8 border border-teal-900/10" aria-labelledby="monroe-volunteer-questions-heading">
+    <section class="text-center bg-cream-200 rounded-3xl p-6 sm:p-8 border border-teal-900/10" aria-labelledby="monroe-volunteer-questions-heading">
       <h2 id="monroe-volunteer-questions-heading" class="text-2xl font-serif text-teal-900 mb-2">Have Questions About Volunteering?</h2>
       <p class="text-sm text-gray-600 mb-6 max-w-xl mx-auto">
         Contact our volunteer coordinator for group volunteer projects, court-ordered community service verification, or corporate service days.
       </p>
-      <div class="flex justify-center gap-6 text-sm font-bold">
-        <a class="text-teal-800 hover:text-teal-950 underline underline-offset-4" href="tel:734-243-3669">(734) 243-3669</a>
-        <span class="text-teal-900/30">|</span>
-        <a class="text-teal-800 hover:text-teal-950 underline underline-offset-4" href="mailto:info@monroe-humane.org">info@monroe-humane.org</a>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm font-bold">
+        <a class="text-teal-800 hover:text-teal-950 underline underline-offset-4 inline-flex items-center min-h-[44px]" href="tel:734-243-3669">(734) 243-3669</a>
+        <span class="hidden sm:inline text-teal-900/30">|</span>
+        <a class="text-teal-800 hover:text-teal-950 underline underline-offset-4 inline-flex items-center min-h-[44px]" href="mailto:info@monroe-humane.org">info@monroe-humane.org</a>
       </div>
     </section>
   </div>

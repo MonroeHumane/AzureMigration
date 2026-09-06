@@ -50,11 +50,11 @@ html {
 
   /* Sectional & Card Geometry Variables */
   --monroe-home-content-max: 1320px;
-  --monroe-home-stack-gap: clamp(2.5rem, 5vw, 4rem);
-  --monroe-home-section-gutter: clamp(1rem, 3.5vw, 2.5rem);
-  --monroe-home-hero-pad-x: clamp(1rem, 4vw, 3rem);
-  --monroe-home-card-pad: clamp(1.75rem, 4vw, 3rem);
-  --monroe-home-band-pad-y: clamp(2.5rem, 6vw, 4.5rem);
+  --monroe-home-stack-gap: clamp(1.25rem, 2.5vw, 2.25rem);
+  --monroe-home-section-gutter: clamp(1rem, 3vw, 2rem);
+  --monroe-home-hero-pad-x: clamp(1rem, 3.5vw, 2.5rem);
+  --monroe-home-card-pad: clamp(1.25rem, 3vw, 2.25rem);
+  --monroe-home-band-pad-y: clamp(1.75rem, 4vw, 2.75rem);
   --monroe-font-display: 'Abril Fatface', Georgia, serif;
   --monroe-font-subtitle: 'Jost', 'Segoe UI', sans-serif;
 }

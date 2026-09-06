@@ -16,7 +16,7 @@ body.home-editable-has-flyers-rail {
   --monroe-font-display: "Bebas Neue", "Arial Narrow", sans-serif;
   --monroe-font-subtitle: "Montserrat", "Segoe UI", sans-serif;
   --monroe-color-impact-green: rgb(6, 129, 16);
-  --monroe-home-stack-gap: clamp(1.5rem, 3vw, 2.5rem);
+  --monroe-home-stack-gap: clamp(1.25rem, 2.5vw, 2.25rem);
 }
 
 /* The real theme keeps .home-editable-shell itself a plain block box (its flex+gap
@@ -201,6 +201,30 @@ body.home-editable-has-flyers-rail .home-editable-hero-title {
 .home-editable-hero .home-editable-hero-btn--orange .wp-block-button__link:focus {
   box-shadow: 0 22px 36px rgba(234, 88, 12, 0.32);
   filter: brightness(1.05);
+}
+
+@media (max-width: 639px) {
+  .home-editable-hero .wp-block-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.65rem;
+  }
+  .home-editable-hero .wp-block-buttons .wp-block-button {
+    width: 100%;
+    margin: 0;
+  }
+  .home-editable-hero .wp-block-buttons .wp-block-button__link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 48px;
+    padding: 0.85rem 1rem;
+    box-sizing: border-box;
+  }
 }
 
 .home-editable-section,
@@ -1535,15 +1559,8 @@ body.home .sponsor-widget-shell .sponsor-card {
 
 .home-editable-social-embed__frame,
 .home-editable-social-embed__frame {
-  /* This class had no width of its own — inside .home-editable-social-follow-card's
-     `align-items: center` flex layout, an unconstrained child sizes to its content
-     instead of the available width, so the 500px iframe below was overflowing off
-     the edge of the viewport on mobile instead of shrinking with everything else.
-     The `.home-editable-social-follow-card` qualifier below is needed, not cosmetic:
-     monroe-wp-compat.css's `.is-layout-constrained > :where(...)` rule also sets
-     max-width (to the sitewide 1320px content size) at the same (0,1,0) specificity
-     as a bare `.home-editable-social-embed__frame` selector, and was winning the tie. */
   width: 100%;
+  max-width: 500px;
   box-sizing: border-box;
   background: linear-gradient(135deg, #0f766e, #14b8a6);
   padding: 2px;
@@ -1552,6 +1569,224 @@ body.home .sponsor-widget-shell .sponsor-card {
 }
 .home-editable-social-follow-card .home-editable-social-embed__frame {
   max-width: 500px;
+}
+
+/* Split Community Hub & Social Layout */
+.home-editable-social-split-wrap {
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(1.75rem, 4vw, 3.25rem) clamp(1.25rem, 3.5vw, 2.75rem);
+  border-radius: 28px;
+  background: linear-gradient(145deg, #f0f7f5 0%, #ffffff 50%, #f6fbf9 100%);
+  border: 1px solid rgba(15, 118, 110, 0.16);
+  box-shadow: 0 24px 56px rgba(17, 41, 41, 0.08);
+}
+
+.home-editable-social-split-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.25rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .home-editable-social-split-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: 3.5rem;
+    align-items: center;
+  }
+}
+
+.home-editable-social-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  text-align: left;
+}
+
+.home-editable-social-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.home-editable-social-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: #1877f2;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px rgba(24, 119, 242, 0.25);
+}
+
+.home-editable-social-badge__icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+}
+
+.home-editable-social-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f766e;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.home-editable-social-title {
+  font-family: var(--monroe-font-serif, "Cinzel", "Playfair Display", Georgia, serif);
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  color: #133c39;
+  line-height: 1.18;
+  margin: 0;
+  font-weight: 700;
+}
+
+.home-editable-social-desc {
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+  line-height: 1.6;
+  color: #375351;
+  margin: 0;
+}
+
+.home-editable-social-features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .home-editable-social-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+  }
+}
+
+.home-editable-social-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(15, 30, 29, 0.03);
+}
+
+.home-editable-social-feature-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.home-editable-social-feature-heading {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #133c39;
+  margin: 0 0 0.15rem;
+  line-height: 1.25;
+}
+
+.home-editable-social-feature-text {
+  font-size: 0.74rem;
+  color: #556e6d;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.home-editable-social-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.home-editable-social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.home-editable-social-btn--primary {
+  background: #1877f2;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(24, 119, 242, 0.28);
+}
+
+.home-editable-social-btn--primary:hover {
+  background: #166fe5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(24, 119, 242, 0.36);
+  color: #ffffff;
+}
+
+.home-editable-social-btn--secondary {
+  background: #ffffff;
+  color: #133c39;
+  border: 1.5px solid rgba(19, 60, 57, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.home-editable-social-btn--secondary:hover {
+  background: rgba(15, 118, 110, 0.08);
+  border-color: #0f766e;
+  color: #0f766e;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 639px) {
+  .home-editable-social-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.65rem;
+  }
+  .home-editable-social-btn {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+}
+
+.home-editable-social-feed-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.home-editable-social-feed-col .home-editable-social-embed__frame {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .home-editable-social-follow-card {
@@ -1604,6 +1839,7 @@ body.home .sponsor-widget-shell .sponsor-card {
   border-radius: 16px;
   overflow: hidden;
   background: #ffffff;
+  max-width: 100%;
 }
 
 .home-editable-social-embed__viewport,
@@ -1613,7 +1849,8 @@ body.home .sponsor-widget-shell .sponsor-card {
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  overflow: visible;
+  max-width: 100%;
+  overflow: hidden;
   background: #ffffff;
   min-height: 630px;
 }
@@ -1624,8 +1861,8 @@ body.home .sponsor-widget-shell .sponsor-card {
   z-index: 2;
   display: block;
   flex-shrink: 0;
-  width: 500px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 500px;
   /* JS sets exact px width + height to match the FB plugin URL params. */
   height: 690px;
   border: 0;
@@ -3256,15 +3493,15 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   position: fixed;
   /* Sit just outside the left edge of the 1320px content area */
   left: calc(50% - 660px - 205px);
-  top: 32%;
-  transform: translateY(-32%);
+  top: clamp(84px, 10vh, 105px);
+  transform: none;
   z-index: 95;
   pointer-events: none;
   font-family: var(--monroe-font-sans, "Montserrat", "Segoe UI", sans-serif);
   transition: opacity 0.25s ease;
 }
 
-/* Only show when there's genuine gutter space (>= 1600px) */
+/* Only show when there's genuine gutter space (>= 1600px). Desktop only. */
 @media (max-width: 1599px) {
   .home-side-dock {
     display: none !important;
@@ -3283,7 +3520,7 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   border-radius: 18px;
   padding: 0.55rem 0.5rem;
   width: 190px;
-  max-height: 80vh;
+  max-height: calc(100vh - 120px);
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: none;

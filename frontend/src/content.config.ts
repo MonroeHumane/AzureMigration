@@ -9,17 +9,37 @@ const memorials = defineCollection({
     const list: any[] = [];
     const seen = new Set<string>();
 
+    function cleanTributeName(rawName: string): { name: string; isPet: boolean } {
+      let name = (rawName || '')
+        .trim()
+        .replace(/^["'#=@*~_\s]+/, '')
+        .replace(/^in (memory|honor) of\s+/i, '')
+        .trim();
+
+      if (/^bettywhitechallenge/i.test(name)) {
+        name = 'Betty White';
+      }
+
+      const isPet =
+        /\b(dog|cat|pup|puppy|kitten|kitty|feline|canine|griffin|buddy|max|bella|luna|charlie|daisy|milo|bailey|pet|hound|retriever|terrier|shepherd|rabbit|bunny)\b/i.test(
+          name
+        );
+
+      return { name, isPet };
+    }
+
     // 1. Ingest consolidated memorial tributes (curated WordPress plaques + mapped dedications)
     (memorialTributes as any[]).forEach((t: any, idx: number) => {
-      const name = (t.name || '').trim();
-      if (!name) return;
+      const { name, isPet: petByName } = cleanTributeName(t.name);
+      if (!name || name.length < 2) return;
       const key = name.toLowerCase();
+
       if (!seen.has(key)) {
         seen.add(key);
-        const parts = name.split(' ');
-        const firstName = parts[0] || name;
-        const lastName = parts.slice(1).join(' ') || '';
-        const isPet = t.variant === 'pet' || /dog|cat|pup|kitten|griffin|buddy|max|bella|luna|charlie|daisy|milo|bailey|pet/i.test(name);
+        const parts = name.split(/\s+/);
+        const isPet = t.variant === 'pet' || petByName;
+        const firstName = parts.length > 1 ? parts.slice(0, -1).join(' ') : name;
+        const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
 
         list.push({
           id: `tribute-${idx}`,
@@ -28,6 +48,7 @@ const memorials = defineCollection({
           donorName: t.donorName || '',
           tributeType: isPet ? 'pet' : 'person',
           draft: t.status === 'draft',
+          memo: t.line || '',
         });
       }
     });
@@ -35,22 +56,26 @@ const memorials = defineCollection({
     // 2. Supplement with any un-indexed donor dedications
     (donorDb.donors || []).forEach((d: any) => {
       (d.gifts || []).forEach((g: any, idx: number) => {
-        if (g.dedication && g.dedication.trim()) {
-          const rawDed = g.dedication.replace(/^in (memory|honor) of\s+/i, '').trim();
-          const parts = rawDed.split(' ');
-          const firstName = parts[0] || rawDed;
-          const lastName = parts.slice(1).join(' ') || '';
-          const key = rawDed.toLowerCase();
+        const raw = g.dedication || (g.isTribute && g.memo ? g.memo.split('|')[0] : '');
+        if (raw && raw.trim()) {
+          const { name, isPet } = cleanTributeName(raw);
+          if (!name || name.length < 2) return;
+          const key = name.toLowerCase();
 
           if (!seen.has(key)) {
             seen.add(key);
+            const parts = name.split(/\s+/);
+            const firstName = parts.length > 1 ? parts.slice(0, -1).join(' ') : name;
+            const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
+
             list.push({
               id: `mem-${d.id}-${idx}`,
               firstName,
               lastName,
-              donorName: d.name,
-              tributeType: /dog|cat|pup|kitten|griffin|buddy|max|bella|luna|charlie|daisy|milo|bailey|pet/i.test(rawDed) ? 'pet' : 'person',
+              donorName: d.name || '',
+              tributeType: isPet ? 'pet' : 'person',
               draft: false,
+              memo: g.memo && g.memo !== g.dedication ? g.memo : '',
             });
           }
         }
@@ -65,6 +90,7 @@ const memorials = defineCollection({
     donorName: z.string().optional(),
     tributeType: z.string().optional(),
     draft: z.boolean().optional(),
+    memo: z.string().optional(),
   }),
 });
 

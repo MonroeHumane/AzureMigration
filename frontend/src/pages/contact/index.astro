@@ -9,17 +9,17 @@ const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1
   title={`Contact Us | ${SITE.name}`}
   description="Get in touch with the Humane Society of Monroe County. View shelter location, hours of operation, phone numbers, and send a message."
 >
-  <div class="pb-24 px-4 max-w-6xl mx-auto">
-    <header class="text-center mb-16 max-w-3xl mx-auto">
-      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Get in touch</p>
-      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Contact Monroe Humane</h1>
-      <p class="text-xl text-gray-600 leading-relaxed">
+  <div class="pb-16 px-4 max-w-6xl mx-auto">
+    <header class="text-center mb-8 sm:mb-10 max-w-3xl mx-auto">
+      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-2">Get in touch</p>
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif text-teal-900 mb-4">Contact Monroe Humane</h1>
+      <p class="text-lg sm:text-xl text-gray-600 leading-relaxed">
         We are here to help with adoptions, volunteer opportunities, donations, and general pet care inquiries in Monroe County.
       </p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
-      <section class="bg-teal-50 border border-teal-100 rounded-3xl p-6 sm:p-12 shadow-sm flex flex-col h-full">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-10">
+      <section class="bg-teal-50 border border-teal-100 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col h-full">
         <h2 class="text-3xl font-serif text-teal-900 mb-6">Shelter Location &amp; Hours</h2>
         
         <ul class="flex flex-col gap-4 text-gray-700 text-lg mb-8 flex-1">
@@ -91,7 +91,7 @@ const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1
 
     <section class="bg-gray-100 rounded-3xl p-4 md:p-8">
       <h2 class="sr-only">Find Us on the Map</h2>
-      <div class="w-full h-[450px] rounded-2xl overflow-hidden shadow-inner">
+      <div class="w-full h-[300px] sm:h-[450px] rounded-2xl overflow-hidden shadow-inner">
         <iframe
           title="Monroe Humane Shelter Location Map"
           src={GOOGLE_MAPS_EMBED}

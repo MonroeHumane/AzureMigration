@@ -4,359 +4,612 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const allMemorials = await getCollection('memorials');
-const DONATE_URL = '/donate';
+
+function getSortKey(t: any) {
+  const last = (t.data.lastName || '').trim().toLowerCase();
+  const first = (t.data.firstName || '').trim().toLowerCase();
+  if (last) return `${last}, ${first}`;
+  return first;
+}
+
+function getInitial(t: any) {
+  const last = (t.data.lastName || '').trim();
+  if (last.length > 0 && /^[a-zA-Z]/.test(last)) return last[0].toUpperCase();
+  const first = (t.data.firstName || '').trim();
+  if (first.length > 0 && /^[a-zA-Z]/.test(first)) return first[0].toUpperCase();
+  return 'A';
+}
 
 const tributes = allMemorials
   .filter((m) => m.data.draft !== true)
-  .sort((a, b) => {
-    const lastNameA = (a.data.lastName || '').toLowerCase();
-    const lastNameB = (b.data.lastName || '').toLowerCase();
-    if (lastNameA !== lastNameB) return lastNameA.localeCompare(lastNameB);
-    const firstNameA = (a.data.firstName || '').toLowerCase();
-    const firstNameB = (b.data.firstName || '').toLowerCase();
-    return firstNameA.localeCompare(firstNameB);
-  });
-
-function getTributeGroup(tribute) {
-  const t = tribute.data.tributeType?.trim().toLowerCase();
-  if (!t) return 'person';
-  if (t === 'person') return 'person';
-  if (t === 'pet') return 'pet';
-  return 'person';
-}
-
-function getInitial(tribute) {
-  const lastName = (tribute.data.lastName || '').trim();
-  if (lastName.length > 0) return lastName[0].toUpperCase();
-  const firstName = (tribute.data.firstName || '').trim();
-  if (firstName.length > 0) return firstName[0].toUpperCase();
-  return '#';
-}
-
-function processTributes(list) {
-  let currentLetter = '';
-  return list.map((t) => {
+  .map((t) => {
+    const rawName = [t.data.firstName, t.data.lastName].filter(Boolean).join(' ');
+    const isPet = t.data.tributeType === 'pet';
     const letter = getInitial(t);
-    const showLetter = letter !== currentLetter;
-    if (showLetter) currentLetter = letter;
-    
-    const name = [t.data.firstName, t.data.lastName].filter(Boolean).join(' ');
-    let line = 'In memory of ' + name;
-    if (t.data.donorName) {
-      line += ' – Gift by ' + t.data.donorName;
-    }
-    
+    const sortKey = getSortKey(t);
     return {
-      tribute: t,
+      id: t.id,
+      name: rawName,
+      firstName: t.data.firstName || '',
+      lastName: t.data.lastName || '',
+      donorName: t.data.donorName || '',
+      isPet,
       letter,
-      showLetter,
-      name,
-      line,
+      sortKey,
+      memo: t.data.memo || '',
     };
-  });
-}
+  })
+  .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 
-const peopleTributes = processTributes(tributes.filter(t => getTributeGroup(t) === 'person'));
-const petTributes = processTributes(tributes.filter(t => getTributeGroup(t) === 'pet'));
+const petCount = tributes.filter((t) => t.isPet).length;
+const peopleCount = tributes.filter((t) => !t.isPet).length;
 
-const sections = [
-  {
-    id: 'people',
-    title: 'People',
-    sub: 'Honoring friends, family, and community members.',
-    color: 'emerald',
-    iconClass: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    markIcon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2|M8 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z|M20 8v6|M23 11h-6',
-    items: peopleTributes,
-  },
-  {
-    id: 'pets',
-    title: 'Pets',
-    sub: 'Remembering our beloved animal companions.',
-    color: 'amber',
-    iconClass: 'bg-amber-50 text-amber-700 border-amber-100',
-    markIcon: 'M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7A8.96 8.96 0 0 1 21 16a9 9 0 0 1-9 9 9 9 0 0 1-9-9c0-2.82 1.3-5.35 3.33-7-.27-1.5-.7-5.06.42-6.26C8.27 1.54 10.74 3.75 12 5z',
-    items: petTributes,
-  }
-];
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const letterGroups = alphabet
+  .map((letter) => ({
+    letter,
+    items: tributes.filter((t) => t.letter === letter),
+  }))
+  .filter((g) => g.items.length > 0);
 
-const totalTributes = peopleTributes.length + petTributes.length;
+const availableLetters = letterGroups.map((g) => g.letter);
 ---
 
 <BaseLayout
-  title="Memorials | 734-243-3669"
-  description="Honor a person or pet by making a memorial or tribute donation to Monroe Humane."
+  title="Memorial Wall & Tribute Registry | Humane Society of Monroe County"
+  description="Honor a beloved person or pet through our permanent Memorial Honor Roll. Every tribute gift helps provide medical care, shelter, and second chances for Monroe County animals."
 >
-  <div class="pb-24 px-4 max-w-7xl mx-auto" data-tribute-root>
-    <header class="mb-20 text-center max-w-3xl mx-auto" aria-labelledby="monroe-tribute-title">
-      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Honors &amp; Memorials</p>
-      <h1 id="monroe-tribute-title" class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Tribute Board</h1>
-      <p class="text-xl text-gray-600 mb-10 leading-relaxed">
-        We gratefully acknowledge the following gifts made to the Humane Society of Monroe County in honor or memory of a special person or pet.
-      </p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400 hover:-translate-y-1" href={DONATE_URL}>
-          Make a tribute gift
-        </a>
-      </div>
-    </header>
+  <div class="min-h-screen bg-gradient-to-b from-[#faf7f2] via-[#f5efe3]/50 to-[#faf7f2] pb-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10" data-tribute-root>
+      
+      <!-- Dignified Memorial Wall Hero Section -->
+      <header class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#133c39] via-[#1a4f4b] to-[#0f2e2c] text-white p-7 sm:p-12 lg:p-14 mb-8 shadow-xl border border-teal-700/60">
+        <!-- Ambient radiant glow -->
+        <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
+        <div class="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
 
-    <div class="bg-gray-50 border border-gray-200 rounded-3xl p-6 md:p-8 mb-16 shadow-sm sticky top-24 z-30 backdrop-blur-md bg-opacity-90">
-      <div class="flex flex-col md:flex-row gap-6 items-center justify-between mb-8">
-        <div class="w-full md:w-96">
-          <label for="monroe-tribute-search" class="sr-only">Search tributes</label>
-          <div class="relative">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </span>
-            <input 
-              type="search" 
-              id="monroe-tribute-search" 
-              class="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-700 focus:border-teal-700 outline-none transition-shadow" 
-              placeholder="Search names..." 
-              data-tribute-search
-            >
-          </div>
-        </div>
-        
-        <div class="flex gap-2">
-          {sections.filter((s) => s.items.length > 0).map((section) => (
-            <a 
-              href={`#${section.id}`}
-              class="px-5 py-2.5 rounded-full bg-white border border-gray-200 text-teal-800 font-bold text-sm tracking-wide uppercase hover:bg-teal-50 hover:border-teal-200 transition-colors"
-            >
-              {section.title}
-            </a>
-          ))}
-        </div>
-      </div>
-
-      <div class="flex flex-wrap gap-2 justify-center" aria-label="Alphabet navigation">
-        {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => (
-          <button 
-            type="button"
-            class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold text-gray-500 hover:bg-teal-100 hover:text-teal-900 transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500 disabled:cursor-not-allowed"
-            data-tribute-letter-btn={letter}
-            aria-label={`Jump to ${letter}`}
-          >
-            {letter}
-          </button>
-        ))}
-      </div>
-    </div>
-
-    {sections.filter((s) => s.items.length > 0).map((section) => (
-      <section class="mb-20 scroll-mt-48" data-tribute-section aria-labelledby={section.id}>
-        <div class="flex items-center gap-4 mb-12">
-          <span class={`w-14 h-14 rounded-2xl flex items-center justify-center ${section.iconClass} border`} aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              {section.markIcon.split('|').map((d) => <path d={d}></path>)}
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-400/20 text-amber-200 border border-amber-400/30 mb-4">
+            <svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
             </svg>
-          </span>
-          <div>
-            <h2 class="text-3xl font-serif text-teal-900 mb-1" id={section.id}>{section.title}</h2>
-            <p class="text-gray-600">{section.sub}</p>
+            <span>Monroe County Memorial Wall &amp; Tribute Registry</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-serif text-white mb-4 leading-tight tracking-tight font-normal">
+            Honoring Lives That Touched Ours
+          </h1>
+
+          <p class="text-sm sm:text-base lg:text-lg text-teal-100/90 leading-relaxed mb-6 max-w-2xl font-light">
+            We gratefully acknowledge every tribute gift made to the Humane Society of Monroe County. Each commemoration honors a beloved companion, family member, or friend while directly funding medical care, warm shelter, and loving second chances for Monroe County animals.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3 pt-1">
+            <a
+              href="/memorials/give"
+              class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-teal-950 font-bold uppercase tracking-wider text-xs transition-all shadow-md hover:-translate-y-0.5"
+            >
+              <span>Dedicate a Tribute Gift &rarr;</span>
+            </a>
+            <a
+              href="/memorials/give#PlannedGiving"
+              class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold uppercase tracking-wider text-xs transition-all border border-white/20 backdrop-blur-xs"
+            >
+              <span>Planned Giving &amp; Bequests</span>
+            </a>
           </div>
         </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10" role="list">
-          {section.items.map((item) => (
-            <div class="contents">
-              {item.showLetter && (
-                <div class="col-span-full flex items-center gap-4 mt-8 mb-4 scroll-mt-52" id={`monroe-tribute-letter-${item.letter}`} data-tribute-letter={item.letter} aria-hidden="true">
-                  <span class="text-4xl font-serif text-teal-900/20">{item.letter}</span>
-                  <span class="flex-1 h-px bg-gray-200"></span>
-                </div>
-              )}
-              <article
-                class="relative overflow-hidden bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col group"
-                role="listitem"
-                data-tribute-plaque
-                data-tribute-name={item.name.toLowerCase()}
-                aria-label={item.line}
-              >
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <h3 class="text-xl font-serif text-teal-900 mb-1">{item.name}</h3>
-                
-                {item.tribute.data.donorName && (
-                  <p class="text-sm text-gray-500 mb-4 font-medium uppercase tracking-wider">
-                    Gift by {item.tribute.data.donorName}
-                  </p>
-                )}
-                
-                {item.tribute.body && (
-                  <div class="mt-auto pt-4 border-t border-gray-100">
-                    <p class="text-gray-600 italic text-sm leading-relaxed relative">
-                      <span class="absolute -top-2 -left-2 text-3xl text-teal-100 font-serif leading-none" aria-hidden="true">"</span>
-                      <span class="relative z-10">{item.tribute.body}</span>
-                    </p>
-                  </div>
-                )}
-              </article>
-            </div>
-          ))}
+
+        <!-- Metric badges banner -->
+        <div class="mt-8 pt-6 border-t border-teal-700/60 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+          <div>
+            <span class="text-teal-300/80 block uppercase tracking-wider text-[10px] font-semibold">Commemorations</span>
+            <strong class="text-lg sm:text-xl font-mono font-bold text-white mt-0.5 block">{tributes.length} Tributes</strong>
+          </div>
+          <div>
+            <span class="text-teal-300/80 block uppercase tracking-wider text-[10px] font-semibold">Animal Companions</span>
+            <strong class="text-lg sm:text-xl font-mono font-bold text-amber-300 mt-0.5 block">{petCount} Pets</strong>
+          </div>
+          <div>
+            <span class="text-teal-300/80 block uppercase tracking-wider text-[10px] font-semibold">Friends &amp; Family</span>
+            <strong class="text-lg sm:text-xl font-mono font-bold text-emerald-300 mt-0.5 block">{peopleCount} People</strong>
+          </div>
+          <div>
+            <span class="text-teal-300/80 block uppercase tracking-wider text-[10px] font-semibold">Shelter Support</span>
+            <strong class="text-lg sm:text-xl font-mono font-bold text-white mt-0.5 block">100% Dedicated</strong>
+          </div>
         </div>
-        
-        <div class="hidden text-center py-12 text-gray-500" data-tribute-empty>
-          No names found in this section matching your search.
+      </header>
+
+      <!-- Sticky Filter & Discovery Bar -->
+      <nav 
+        class="sticky top-16 sm:top-20 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/90 shadow-md p-3 sm:p-4 mb-6 sm:mb-8 space-y-2.5 sm:space-y-3"
+        aria-label="Filter and search tribute registry"
+      >
+        <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+          <!-- Live Search Input -->
+          <div class="relative flex-1 max-w-md">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" aria-hidden="true">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input
+              type="search"
+              id="tribute-search-input"
+              class="w-full pl-10 pr-9 py-2 text-xs sm:text-sm bg-stone-50 hover:bg-stone-100/70 focus:bg-white border border-stone-300/80 rounded-xl focus:ring-2 focus:ring-teal-700/20 focus:border-teal-700 outline-none transition"
+              placeholder="Search by name, donor, or memo..."
+              data-tribute-search
+              aria-label="Search tribute registry by name or donor"
+            />
+            <button
+              type="button"
+              id="tribute-search-clear"
+              class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-sm font-bold"
+              title="Clear search"
+              aria-label="Clear search"
+            >
+              &times;
+            </button>
+          </div>
+
+          <!-- Category Segmented Buttons -->
+          <div class="flex items-center gap-1 p-1 bg-stone-100 rounded-xl border border-stone-200/80 text-xs font-bold shrink-0 self-stretch sm:self-auto justify-between sm:justify-start" role="tablist" aria-label="Tribute category">
+            <button
+              type="button"
+              class="flex-1 sm:flex-initial text-center px-3 sm:px-3.5 py-1.5 rounded-lg transition-all text-teal-950 bg-white shadow-xs font-semibold cursor-pointer"
+              data-filter-tab="all"
+              role="tab"
+              aria-selected="true"
+            >
+              All ({tributes.length})
+            </button>
+            <button
+              type="button"
+              class="flex-1 sm:flex-initial text-center px-3 sm:px-3.5 py-1.5 rounded-lg transition-all text-stone-600 hover:text-stone-900 font-medium flex items-center justify-center gap-1 cursor-pointer"
+              data-filter-tab="pets"
+              role="tab"
+              aria-selected="false"
+            >
+              <span class="text-amber-700 font-bold">Pets</span> ({petCount})
+            </button>
+            <button
+              type="button"
+              class="flex-1 sm:flex-initial text-center px-3 sm:px-3.5 py-1.5 rounded-lg transition-all text-stone-600 hover:text-stone-900 font-medium flex items-center justify-center gap-1 cursor-pointer"
+              data-filter-tab="people"
+              role="tab"
+              aria-selected="false"
+            >
+              <span class="text-teal-700 font-bold">People</span> ({peopleCount})
+            </button>
+          </div>
+        </div>
+
+        <!-- Alphabet Ribbon Navigation: Swipeable single line on mobile, wrapped row on desktop -->
+        <div class="flex items-center sm:justify-center overflow-x-auto sm:flex-wrap gap-1 pt-2 border-t border-stone-200/70 text-xs no-scrollbar py-1 -mx-2 px-2 sm:mx-0 sm:px-0" aria-label="Alphabetical jump menu">
+          <button
+            type="button"
+            class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-teal-800 text-white cursor-pointer transition-colors shadow-2xs shrink-0"
+            data-letter-filter="ALL"
+          >
+            All
+          </button>
+          {alphabet.map((letter) => {
+            const hasTributes = availableLetters.includes(letter);
+            return (
+              <button
+                type="button"
+                class={`w-7 sm:w-7 h-7 sm:h-7 shrink-0 flex items-center justify-center rounded-md text-[11px] font-bold transition-colors ${
+                  hasTributes
+                    ? 'text-stone-700 hover:bg-teal-100 hover:text-teal-900 cursor-pointer'
+                    : 'text-stone-300 pointer-events-none'
+                }`}
+                data-letter-filter={letter}
+                disabled={!hasTributes}
+                aria-label={`Jump to letter ${letter}`}
+              >
+                {letter}
+              </button>
+            );
+          })}
+        </div>
+
+        <!-- Live Status Counter -->
+        <div class="flex items-center justify-between text-[11px] text-stone-500 pt-1">
+          <span id="tribute-results-counter">Showing {tributes.length} tributes</span>
+          <button
+            type="button"
+            id="tribute-reset-filters-btn"
+            class="hidden text-teal-700 font-bold hover:underline cursor-pointer"
+          >
+            Reset filters
+          </button>
+        </div>
+      </nav>
+
+      <!-- Tribute Letter Sections & Plaques Grid -->
+      <main class="space-y-12" id="tributes-display-area" aria-label="Memorial plaques registry">
+        {letterGroups.map((group) => (
+          <section
+            class="space-y-4 scroll-mt-36"
+            id={`letter-${group.letter}`}
+            data-letter-section={group.letter}
+          >
+            <!-- Letter Header Banner -->
+            <div class="flex items-center gap-3 border-b border-stone-200 pb-2">
+              <div class="w-9 h-9 rounded-xl bg-teal-900 text-white font-serif font-bold text-xl flex items-center justify-center shadow-xs">
+                {group.letter}
+              </div>
+              <h2 class="text-lg font-serif font-bold text-teal-950">
+                {group.letter}
+              </h2>
+              <span class="text-xs text-stone-400 font-medium ml-auto">
+                {group.items.length} {group.items.length === 1 ? 'tribute' : 'tributes'}
+              </span>
+            </div>
+
+            <!-- Plaques Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" role="list">
+              {group.items.map((item) => (
+                <article
+                  class="relative flex flex-col justify-between bg-white border border-stone-200/90 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-amber-400/60 transition-all duration-200 group"
+                  role="listitem"
+                  data-tribute-card
+                  data-name={item.name.toLowerCase()}
+                  data-donor={item.donorName.toLowerCase()}
+                  data-memo={(item.memo || '').toLowerCase()}
+                  data-type={item.isPet ? 'pet' : 'person'}
+                  data-letter={item.letter}
+                >
+                  <!-- Top gold / teal gradient accent strip -->
+                  <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400 via-teal-600 to-emerald-500 rounded-t-2xl opacity-60 group-hover:opacity-100 transition-opacity"></div>
+
+                  <div>
+                    <!-- Badge & Category -->
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                      <span class={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                        item.isPet
+                          ? 'bg-amber-50 text-amber-900 border-amber-200/80'
+                          : 'bg-teal-50 text-teal-900 border-teal-200/80'
+                      }`}>
+                        {item.isPet ? (
+                          <>
+                            <svg class="w-2.5 h-2.5 text-amber-700" viewBox="0 0 24 24" fill="currentColor">
+                              <circle cx="12" cy="12" r="3"/>
+                              <circle cx="6" cy="9" r="2.5"/>
+                              <circle cx="18" cy="9" r="2.5"/>
+                              <circle cx="8" cy="16" r="2.5"/>
+                              <circle cx="16" cy="16" r="2.5"/>
+                            </svg>
+                            <span>Pet Companion</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg class="w-2.5 h-2.5 text-teal-700" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                            <span>In Memory</span>
+                          </>
+                        )}
+                      </span>
+                      <span class="text-[10px] font-mono text-stone-400 uppercase tracking-wider">HSMC</span>
+                    </div>
+
+                    <!-- Honored Name -->
+                    <h3 class="text-lg font-serif font-bold text-teal-950 group-hover:text-teal-800 transition-colors leading-snug">
+                      {item.name}
+                    </h3>
+
+                    <!-- Dedication / Donor info -->
+                    {item.donorName ? (
+                      <p class="mt-1.5 text-xs text-stone-500 font-medium">
+                        Dedicated by <strong class="text-stone-800 font-semibold">{item.donorName}</strong>
+                      </p>
+                    ) : (
+                      <p class="mt-1.5 text-xs text-stone-400 italic">
+                        In loving commemoration
+                      </p>
+                    )}
+                  </div>
+
+                  <!-- Optional Memorial Memo / Tribute Message -->
+                  {item.memo && (
+                    <div class="mt-3.5 pt-2.5 border-t border-stone-100 text-xs text-stone-600 italic leading-relaxed">
+                      &ldquo;{item.memo}&rdquo;
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
+        ))}
+      </main>
+
+      <!-- Global Empty State -->
+      <div 
+        class="hidden text-center py-16 px-6 bg-white rounded-3xl border border-stone-200/90 shadow-sm mt-8 max-w-lg mx-auto"
+        id="tribute-global-empty"
+        aria-live="polite"
+      >
+        <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-teal-50 text-teal-800 border border-teal-200 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <h3 class="text-xl font-serif text-teal-950 mb-1 font-bold">No tributes found</h3>
+        <p class="text-xs text-stone-600 mb-4" id="tribute-empty-detail">
+          Try adjusting your search terms or clearing your letter and category filters.
+        </p>
+        <button 
+          type="button" 
+          class="px-5 py-2 rounded-full bg-teal-800 text-white font-bold text-xs uppercase tracking-wider hover:bg-teal-900 transition cursor-pointer"
+          data-tribute-reset-all
+        >
+          Reset All Filters
+        </button>
+      </div>
+
+      <!-- Bottom Memorial Giving Callout Banner -->
+      <section class="mt-16 rounded-3xl bg-gradient-to-r from-teal-900 to-slate-900 text-white p-8 sm:p-10 shadow-lg border border-teal-800 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 max-w-xl text-center md:text-left">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-300">Memorial Giving &amp; Honor Tributes</span>
+          <h2 class="text-2xl sm:text-3xl font-serif text-white font-normal">Celebrate a life that touched yours.</h2>
+          <p class="text-xs sm:text-sm text-teal-100/90 leading-relaxed">
+            Commemorate a beloved pet, family member, or friend with a meaningful tribute gift. When requested, we send an acknowledgment card notifying the family of your thoughtful donation.
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 shrink-0">
+          <a
+            href="/memorials/give"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-teal-950 font-bold uppercase tracking-wider text-xs transition shadow-md"
+          >
+            Dedicate a Tribute Gift &rarr;
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold uppercase tracking-wider text-xs border border-white/20 transition"
+          >
+            Contact Shelter Team
+          </a>
         </div>
       </section>
-    ))}
 
-    <div class="hidden text-center py-20 bg-gray-50 rounded-3xl border border-gray-200" data-tribute-global-empty>
-      <div class="w-12 h-12 mx-auto mb-4 rounded-2xl bg-teal-50 text-teal-800 border border-teal-200 flex items-center justify-center" aria-hidden="true">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-        </svg>
-      </div>
-      <h3 class="text-2xl font-serif text-teal-900 mb-2">No tributes found</h3>
-      <p class="text-gray-600">Try adjusting your search term.</p>
-      <button type="button" class="mt-6 text-emerald-600 font-bold uppercase tracking-wider text-sm hover:text-emerald-800 underline underline-offset-4" data-tribute-clear-search>Clear search</button>
     </div>
-
   </div>
-</BaseLayout>
 
-<script>
-// @ts-nocheck
-  function initTributes() {
-    const root = document.querySelector('[data-tribute-root]');
-    if (!root) return;
+  <!-- Client-side Interactive Filter Script -->
+  <script>
+    // @ts-nocheck
+    function initMemorialWall() {
+      const root = document.querySelector('[data-tribute-root]');
+      if (!root) return;
 
-    // Check for staff portal local storage overrides
-    try {
-      const rawStored = localStorage.getItem('mchs_site_content_v2');
-      if (rawStored) {
-        const stored = JSON.parse(rawStored);
-        if (stored && Array.isArray(stored.memorials) && stored.memorials.length > 0) {
-          const peopleGrid = root.querySelector('#people')?.closest('section')?.querySelector('.grid');
-          if (peopleGrid) {
-            const existingPlaques = Array.from(root.querySelectorAll('[data-tribute-plaque]'));
-            const existingNames = new Set(existingPlaques.map(p => p.getAttribute('data-tribute-name')));
-            stored.memorials.forEach(t => {
-              if (t.name && !existingNames.has(t.name.toLowerCase().trim())) {
-                const article = document.createElement('article');
-                article.className = 'relative overflow-hidden bg-white border-2 border-emerald-500/60 rounded-2xl p-6 shadow-sm flex flex-col group';
-                article.setAttribute('role', 'listitem');
-                article.setAttribute('data-tribute-plaque', '');
-                article.setAttribute('data-tribute-name', t.name.toLowerCase().trim());
-                article.innerHTML = `
-                  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-                  <div class="inline-flex items-center gap-1.5 mb-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 w-fit">
-                    <span>Staff Live Preview</span>
-                  </div>
-                  <h3 class="text-xl font-serif text-teal-900 mb-1">${t.name}</h3>
-                  <p class="text-xs text-slate-500 font-mono">${t.line || 'In Memory Of'} ${t.year ? '• ' + t.year : ''}</p>
-                `;
-                peopleGrid.prepend(article);
-              }
-            });
-          }
-        }
-      }
-    } catch (e) {}
+      // Ingest any staff portal local storage preview tributes
+      try {
+        const rawStored = localStorage.getItem('mchs_site_content_v2');
+        if (rawStored) {
+          const stored = JSON.parse(rawStored);
+          if (stored && Array.isArray(stored.memorials) && stored.memorials.length > 0) {
+            const firstSectionGrid = root.querySelector('[data-letter-section] .grid');
+            if (firstSectionGrid) {
+              const existingCards = Array.from(root.querySelectorAll('[data-tribute-card]'));
+              const existingNames = new Set(existingCards.map(p => p.getAttribute('data-name')));
 
-    const searchInput = root.querySelector('[data-tribute-search]');
-    const clearBtn = root.querySelector('[data-tribute-clear-search]');
-    const sections = Array.from(root.querySelectorAll('[data-tribute-section]'));
-    const allPlaques = Array.from(root.querySelectorAll('[data-tribute-plaque]'));
-    const allLetters = Array.from(root.querySelectorAll('[data-tribute-letter]'));
-    const globalEmpty = root.querySelector('[data-tribute-global-empty]');
-    const letterBtns = Array.from(root.querySelectorAll('[data-tribute-letter-btn]'));
-
-    // Init letter buttons state
-    const availableLetters = new Set(allLetters.map(el => el.getAttribute('data-tribute-letter')));
-    letterBtns.forEach(btn => {
-      const l = btn.getAttribute('data-tribute-letter-btn');
-      if (!availableLetters.has(l)) {
-        btn.setAttribute('disabled', 'true');
-      } else {
-        btn.addEventListener('click', () => {
-          const target = document.getElementById(`monroe-tribute-letter-${l}`);
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-      }
-    });
-
-    function filterTributes(term) {
-      const query = term.toLowerCase().trim();
-      let totalVisible = 0;
-
-      sections.forEach(section => {
-        const plaques = Array.from(section.querySelectorAll('[data-tribute-plaque]'));
-        const letters = Array.from(section.querySelectorAll('[data-tribute-letter]'));
-        const emptyMsg = section.querySelector('[data-tribute-empty]');
-        let sectionVisible = 0;
-        
-        // Reset letters visibility first
-        const letterVisibility = new Map();
-
-        plaques.forEach(plaque => {
-          const name = plaque.getAttribute('data-tribute-name') || '';
-          const match = !query || name.includes(query);
-          
-          if (match) {
-            plaque.style.display = '';
-            sectionVisible++;
-            
-            // Find preceding letter for this plaque to mark it visible
-            let prev = plaque.parentElement.previousElementSibling;
-            while(prev) {
-               const letterEl = prev.querySelector('[data-tribute-letter]') || prev.closest('[data-tribute-letter]');
-               if (letterEl) {
-                  letterVisibility.set(letterEl, true);
-                  break;
-               }
-               prev = prev.previousElementSibling;
+              stored.memorials.forEach(t => {
+                if (t.name && !existingNames.has(t.name.toLowerCase().trim())) {
+                  const card = document.createElement('article');
+                  card.className = 'relative flex flex-col justify-between bg-white border-2 border-emerald-500/80 rounded-2xl p-5 shadow-xs';
+                  card.setAttribute('role', 'listitem');
+                  card.setAttribute('data-tribute-card', '');
+                  card.setAttribute('data-name', t.name.toLowerCase().trim());
+                  card.setAttribute('data-donor', (t.donorName || '').toLowerCase().trim());
+                  card.setAttribute('data-type', t.variant === 'pet' ? 'pet' : 'person');
+                  card.setAttribute('data-letter', t.name[0].toUpperCase());
+                  card.innerHTML = `
+                    <div class="absolute top-0 inset-x-0 h-1 bg-emerald-500 rounded-t-2xl"></div>
+                    <div>
+                      <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-900 border border-emerald-300">
+                          Staff Live Preview
+                        </span>
+                        <span class="text-[10px] font-mono text-stone-400 uppercase tracking-wider">HSMC</span>
+                      </div>
+                      <h3 class="text-lg font-serif font-bold text-teal-950">${t.name}</h3>
+                      <p class="mt-1 text-xs text-stone-500 font-medium">In memory of</p>
+                    </div>
+                  `;
+                  firstSectionGrid.prepend(card);
+                }
+              });
             }
+          }
+        }
+      } catch (e) {}
+
+      const searchInput = root.querySelector('[data-tribute-search]');
+      const searchClearBtn = root.querySelector('#tribute-search-clear');
+      const categoryTabs = Array.from(root.querySelectorAll('[data-filter-tab]'));
+      const letterBtns = Array.from(root.querySelectorAll('[data-letter-filter]'));
+      const cards = Array.from(root.querySelectorAll('[data-tribute-card]'));
+      const letterSections = Array.from(root.querySelectorAll('[data-letter-section]'));
+      const resultsCounter = root.querySelector('#tribute-results-counter');
+      const resetFiltersBtn = root.querySelector('#tribute-reset-filters-btn');
+      const globalEmpty = root.querySelector('#tribute-global-empty');
+      const resetAllBtn = root.querySelector('[data-tribute-reset-all]');
+
+      let currentQuery = '';
+      let currentCategory = 'all'; // 'all' | 'pets' | 'people'
+      let currentLetter = 'ALL';
+
+      function updateFiltering() {
+        const query = currentQuery.toLowerCase().trim();
+        let visibleTotal = 0;
+
+        // Map visible cards per letter section
+        const sectionVisibleCounts = new Map();
+        letterSections.forEach(sec => sectionVisibleCounts.set(sec.getAttribute('data-letter-section'), 0));
+
+        cards.forEach(card => {
+          const name = card.getAttribute('data-name') || '';
+          const donor = card.getAttribute('data-donor') || '';
+          const memo = card.getAttribute('data-memo') || '';
+          const type = card.getAttribute('data-type') || 'person';
+          const cardLetter = card.getAttribute('data-letter') || '';
+
+          // 1. Check Search Query
+          const matchesQuery = !query || name.includes(query) || donor.includes(query) || memo.includes(query);
+
+          // 2. Check Category Filter
+          const matchesCategory =
+            currentCategory === 'all' ||
+            (currentCategory === 'pets' && type === 'pet') ||
+            (currentCategory === 'people' && type === 'person');
+
+          // 3. Check Letter Filter
+          const matchesLetter = currentLetter === 'ALL' || cardLetter === currentLetter;
+
+          if (matchesQuery && matchesCategory && matchesLetter) {
+            card.style.display = '';
+            visibleTotal++;
+            sectionVisibleCounts.set(cardLetter, (sectionVisibleCounts.get(cardLetter) || 0) + 1);
           } else {
-            plaque.style.display = 'none';
+            card.style.display = 'none';
           }
         });
 
-        // Hide/show letters based on children
-        letters.forEach(letter => {
-           if (letterVisibility.get(letter) || !query) {
-               letter.parentElement.style.display = '';
-           } else {
-               letter.parentElement.style.display = 'none';
-           }
+        // Toggle letter sections visibility
+        letterSections.forEach(sec => {
+          const secLetter = sec.getAttribute('data-letter-section');
+          const count = sectionVisibleCounts.get(secLetter) || 0;
+          if (count > 0) {
+            sec.style.display = '';
+          } else {
+            sec.style.display = 'none';
+          }
         });
 
-        if (sectionVisible === 0 && plaques.length > 0) {
-          emptyMsg.classList.remove('hidden');
-        } else {
-          emptyMsg.classList.add('hidden');
+        // Update counter & empty state
+        if (resultsCounter) {
+          resultsCounter.textContent = `Showing ${visibleTotal} ${visibleTotal === 1 ? 'tribute' : 'tributes'}`;
         }
 
-        totalVisible += sectionVisible;
-      });
+        const isFiltered = query.length > 0 || currentCategory !== 'all' || currentLetter !== 'ALL';
+        if (resetFiltersBtn) {
+          resetFiltersBtn.classList.toggle('hidden', !isFiltered);
+        }
 
-      if (totalVisible === 0) {
-        sections.forEach(s => s.classList.add('hidden'));
-        globalEmpty.classList.remove('hidden');
-      } else {
-        sections.forEach(s => s.classList.remove('hidden'));
-        globalEmpty.classList.add('hidden');
+        if (globalEmpty) {
+          globalEmpty.classList.toggle('hidden', visibleTotal > 0);
+        }
+
+        // Show/hide search clear button
+        if (searchClearBtn) {
+          searchClearBtn.classList.toggle('hidden', query.length === 0);
+        }
       }
-    }
 
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => filterTributes(e.target.value));
-    }
+      // Search input event
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          currentQuery = e.target.value;
+          updateFiltering();
+        });
+      }
 
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        if (searchInput) {
-          searchInput.value = '';
-          filterTributes('');
-        }
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', () => {
+          if (searchInput) {
+            searchInput.value = '';
+            currentQuery = '';
+            updateFiltering();
+            searchInput.focus();
+          }
+        });
+      }
+
+      // Category tab click events
+      categoryTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.getAttribute('data-filter-tab');
+          currentCategory = target;
+          categoryTabs.forEach(t => {
+            const active = t === tab;
+            t.setAttribute('aria-selected', active ? 'true' : 'false');
+            if (active) {
+              t.className = 'px-3.5 py-1.5 rounded-lg transition-all text-teal-950 bg-white shadow-xs font-semibold cursor-pointer';
+            } else {
+              t.className = 'px-3.5 py-1.5 rounded-lg transition-all text-stone-600 hover:text-stone-900 font-medium cursor-pointer';
+            }
+          });
+          updateFiltering();
+        });
       });
-    }
-  }
 
-  document.addEventListener('astro:page-load', initTributes);
-  if (!document.startViewTransition) initTributes();
-</script>
+      // Letter filter buttons
+      letterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const letter = btn.getAttribute('data-letter-filter');
+          currentLetter = letter;
+          letterBtns.forEach(b => {
+            const active = b === btn;
+            if (active) {
+              b.classList.add('bg-teal-800', 'text-white');
+              b.classList.remove('text-stone-700', 'hover:bg-teal-100');
+            } else {
+              b.classList.remove('bg-teal-800', 'text-white');
+              if (!b.disabled) {
+                b.classList.add('text-stone-700', 'hover:bg-teal-100');
+              }
+            }
+          });
+
+          // Smooth scroll to target letter if specific letter chosen
+          if (letter !== 'ALL') {
+            const targetSec = document.getElementById(`letter-${letter}`);
+            if (targetSec) {
+              targetSec.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+          updateFiltering();
+        });
+      });
+
+      // Reset handlers
+      function resetAll() {
+        currentQuery = '';
+        currentCategory = 'all';
+        currentLetter = 'ALL';
+        if (searchInput) searchInput.value = '';
+
+        categoryTabs.forEach((t, i) => {
+          t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+          t.className = i === 0
+            ? 'px-3.5 py-1.5 rounded-lg transition-all text-teal-950 bg-white shadow-xs font-semibold cursor-pointer'
+            : 'px-3.5 py-1.5 rounded-lg transition-all text-stone-600 hover:text-stone-900 font-medium cursor-pointer';
+        });
+
+        letterBtns.forEach((b, i) => {
+          if (i === 0) {
+            b.classList.add('bg-teal-800', 'text-white');
+            b.classList.remove('text-stone-700');
+          } else {
+            b.classList.remove('bg-teal-800', 'text-white');
+            if (!b.disabled) b.classList.add('text-stone-700');
+          }
+        });
+
+        updateFiltering();
+      }
+
+      if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetAll);
+      if (resetAllBtn) resetAllBtn.addEventListener('click', resetAll);
+
+      updateFiltering();
+    }
+
+    document.addEventListener('astro:page-load', initMemorialWall);
+    if (!document.startViewTransition) initMemorialWall();
+  </script>
+</BaseLayout>

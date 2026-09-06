@@ -1,85 +1,27 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { SITE } from '../../config/site';
-import ImpactTrustBadge from '../../components/common/ImpactTrustBadge.astro';
-
 const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
-
-const impactTiers = [
-  {
-    amount: '$25',
-    label: 'Vaccine Series',
-    desc: 'Provides core canine (DHPP) or feline (FVRCP) vaccines, rabies shot, and deworming medicine for an incoming rescue.',
-  },
-  {
-    amount: '$50',
-    label: 'Monthly Food & Care',
-    desc: 'Supplies high-protein nourishing food, daily flea/tick preventative, and comfort bedding for an animal in care.',
-  },
-  {
-    amount: '$150',
-    label: 'Spay / Neuter Surgery',
-    desc: 'Subsidizes a full surgical spay or neuter, anesthesia, pain management, and medical recovery monitoring.',
-  },
-  {
-    amount: '$450',
-    label: 'Full Shelter Sponsorship',
-    desc: 'Covers the average comprehensive cost to rescue, vet, rehabilitate, house, and adopt out one shelter animal.',
-  },
-];
 ---
 
 <BaseLayout
   title="Donate to Monroe Humane | 734-243-3669"
   description="Your tax-deductible gift directly funds veterinary medicine, nourishing food, and safe shelter for Monroe County animals."
 >
-  <div class="max-w-5xl mx-auto px-4 py-8 sm:py-12">
+  <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8">
     <!-- Header Hero -->
-    <header class="bg-teal-900 text-cream p-8 sm:p-12 rounded-3xl mb-8 shadow-lg relative overflow-hidden">
+    <header class="bg-teal-900 text-cream p-6 sm:p-10 rounded-3xl mb-6 shadow-lg relative overflow-hidden">
       <div class="relative z-10 max-w-3xl">
-        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-3">Support Our Mission</p>
-        <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-4 leading-tight">Donate to Monroe Humane</h1>
-        <p class="text-lg md:text-xl text-cream-100 opacity-90 leading-relaxed">
+        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-2">Support Our Mission</p>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-3 leading-tight">Donate to Monroe Humane</h1>
+        <p class="text-base sm:text-lg text-cream-100 opacity-90 leading-relaxed">
           The Humane Society of Monroe County is an independent 501(c)(3) nonprofit receiving zero tax funding. Every dollar stays right here in Monroe County, providing medical surgery, wholesome food, and safe refuge until every pet finds a loving home.
         </p>
       </div>
     </header>
 
-    <!-- Fiduciary Trust & Impact Badge -->
-    <div class="mb-10">
-      <ImpactTrustBadge />
-    </div>
-
-    <!-- Giving Impact Ladder -->
-    <section class="mb-12" aria-labelledby="giving-impact-heading">
-      <div class="border-b border-gray-200 pb-4 mb-6 text-center sm:text-left">
-        <span class="text-xs font-bold uppercase tracking-widest text-teal-700">Every Dollar Counts</span>
-        <h2 id="giving-impact-heading" class="text-2xl sm:text-3xl font-serif text-teal-900 mt-1">How Your Donation Saves Lives</h2>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {impactTiers.map((tier) => (
-          <div class="bg-white p-5 rounded-2xl border border-teal-900/10 shadow-xs flex flex-col justify-between">
-            <div>
-              <div class="text-3xl font-serif font-bold text-teal-900 mb-1">{tier.amount}</div>
-              <span class="inline-block text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2">{tier.label}</span>
-              <p class="text-xs text-gray-600 leading-relaxed">{tier.desc}</p>
-            </div>
-            <a
-              href={DONATE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mt-4 w-full py-2 rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-50 text-teal-900 hover:bg-teal-50 border border-slate-200 transition-colors"
-            >
-              Give {tier.amount}
-            </a>
-          </div>
-        ))}
-      </div>
-    </section>
-
     <!-- Ways to Give Online -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 mb-8">
       <!-- Direct Card Giving -->
       <section class="bg-white border border-teal-700/10 p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col h-full hover:shadow-md transition-shadow">
         <div class="flex-1">
@@ -136,7 +78,7 @@ const impactTiers = [
     </div>
 
     <!-- Tax Deductibility & Check Mailing -->
-    <section class="bg-slate-50 border border-slate-200 rounded-2xl p-6 sm:p-8 mb-12">
+    <section class="bg-slate-50 border border-slate-200 rounded-2xl p-5 sm:p-6 mb-8">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-gray-700">
         <div>
           <h3 class="font-bold text-slate-900 text-sm mb-2">Tax Deductibility Information</h3>
@@ -162,7 +104,7 @@ const impactTiers = [
     </section>
 
     <!-- More Ways to Support -->
-    <section class="bg-cream-200 border border-teal-700/5 p-8 sm:p-10 rounded-2xl text-center">
+    <section class="bg-cream-200 border border-teal-700/5 p-6 sm:p-8 rounded-2xl text-center">
       <h2 class="text-2xl font-bold text-teal-900 mb-3" id="monroe-donations-ways-heading">Other Meaningful Ways to Support</h2>
       <p class="text-gray-700 text-sm mb-6 max-w-2xl mx-auto">
         Join our membership community, memorialize a loved one, attend a fundraiser, or browse official shelter merchandise:

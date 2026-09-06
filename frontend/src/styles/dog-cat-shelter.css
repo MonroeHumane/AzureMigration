@@ -14,6 +14,9 @@
 }
 
 .monroe-native-inner--dog-and-cat-shelter .monroe-inner-page-shell__content {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-inline: clamp(1rem, 3vw, 1.75rem);
   padding-bottom: clamp(2.5rem, 6vw, 5rem);
 }
 
@@ -24,18 +27,19 @@
 
 .monroe-shelter-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
   align-items: center;
-  gap: clamp(2rem, 5vw, 5rem);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  margin-top: 1rem;
   margin-bottom: 0;
-  padding: clamp(2rem, 5vw, 4.75rem);
-  border: 1px solid rgba(23, 107, 91, 0.12);
-  border-radius: 0 0 34px 34px;
+  padding: clamp(1.5rem, 3vw, 2.75rem);
+  border: 1px solid rgba(23, 107, 91, 0.14);
+  border-radius: 32px;
   background:
-    radial-gradient(circle at 8% 8%, rgba(242, 189, 97, 0.3), transparent 22rem),
+    radial-gradient(circle at 8% 8%, rgba(242, 189, 97, 0.28), transparent 22rem),
     radial-gradient(circle at 92% 15%, rgba(223, 243, 233, 0.95), transparent 24rem),
     linear-gradient(135deg, #fff9ee 0%, #fffdf8 55%, #eef8f3 100%);
-  box-shadow: inset 0 -1px 0 rgba(34, 33, 31, 0.06);
+  box-shadow: 0 16px 36px rgba(69, 50, 40, 0.06);
 }
 
 .monroe-native-inner--dog-and-cat-shelter .monroe-shelter-hero::after {
@@ -54,19 +58,20 @@
 }
 
 .monroe-native-inner--dog-and-cat-shelter .monroe-shelter-hero h1 {
-  max-width: 720px;
+  max-width: 680px;
   margin: 0;
   color: var(--shelter-ink);
-  font-size: clamp(3.25rem, 6.9vw, 6.4rem);
-  line-height: 0.93;
-  letter-spacing: -0.055em;
+  font-family: var(--monroe-font-display, 'Abril Fatface', Georgia, serif);
+  font-size: clamp(2.5rem, 4.2vw, 4.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
 }
 
 .monroe-native-inner--dog-and-cat-shelter .monroe-shelter-hero .monroe-native-lead {
-  max-width: 650px;
-  margin: 1.25rem 0 0;
+  max-width: 540px;
+  margin: 1.15rem 0 0;
   color: var(--shelter-muted);
-  font: 400 clamp(1.02rem, 1.8vw, 1.25rem)/1.58 "Jost", "Segoe UI", sans-serif;
+  font: 400 clamp(1rem, 1.3vw, 1.15rem)/1.6 "Jost", "Segoe UI", sans-serif;
 }
 
 .monroe-shelter-hero__actions {
@@ -142,7 +147,10 @@
 
 .monroe-shelter-hero__visual {
   position: relative;
-  min-height: clamp(370px, 44vw, 540px);
+  width: 100%;
+  max-width: 460px;
+  aspect-ratio: 1.08 / 1;
+  margin-inline: auto;
 }
 
 .monroe-shelter-hero__visual figure {
@@ -214,25 +222,38 @@
 }
 
 .monroe-shelter-pills {
-  max-width: 1120px;
-  margin: 1.1rem auto clamp(3rem, 6vw, 5rem);
-  padding: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.25rem auto clamp(1.25rem, 2.5vw, 2rem);
+  padding: 0.35rem 0.5rem;
   border: 1px solid var(--shelter-line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 8px 26px rgba(55, 43, 36, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 24px rgba(55, 43, 36, 0.08);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .monroe-shelter-pills .monroe-inner-page-pills__link {
-  flex: 1 0 auto;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  min-height: 42px;
+  min-height: 40px;
+  padding: 0.5rem 1.15rem;
   border: 0;
+  border-radius: 999px;
   background: transparent;
   box-shadow: none;
   color: var(--shelter-muted);
-  font-weight: 800;
+  font: 700 0.88rem/1 "Jost", "Segoe UI", sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .monroe-shelter-pills .monroe-inner-page-pills__link:hover,
@@ -248,22 +269,29 @@
 .monroe-shelter-trust,
 .monroe-day-in-life,
 .monroe-shelter-involved {
-  max-width: 1120px;
+  max-width: 100%;
   margin-right: auto;
   margin-left: auto;
 }
 
+#HowWeCare,
+#OurStory,
+#DayInLife,
+#GetInvolved {
+  scroll-margin-top: calc(var(--monroe-nav-height, 96px) + 24px);
+}
+
 .monroe-shelter-care,
 .monroe-day-in-life {
-  padding: clamp(1rem, 3vw, 2rem) 0 clamp(3.5rem, 8vw, 6.5rem);
+  padding: clamp(0.75rem, 2vw, 1.25rem) 0 clamp(2rem, 4vw, 3rem);
 }
 
 .monroe-shelter-section-heading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
   align-items: end;
-  gap: 1.25rem 3rem;
-  margin-bottom: 1.6rem;
+  gap: 1.25rem clamp(1.5rem, 3vw, 2.5rem);
+  margin-bottom: 2rem;
 }
 
 .monroe-native-inner--dog-and-cat-shelter .monroe-shelter-section-heading h2,
@@ -565,20 +593,25 @@
 }
 
 @media (max-width: 760px) {
+  .monroe-native-inner--dog-and-cat-shelter .monroe-inner-page-shell__content {
+    padding-inline: 0.85rem;
+  }
+
   .monroe-shelter-hero {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 2.2rem 1rem 1.35rem;
-    border-radius: 0 0 24px 24px;
+    gap: 1.75rem;
+    margin-top: 0.5rem;
+    padding: 2rem 1.25rem 1.75rem;
+    border-radius: 24px;
   }
 
   .monroe-native-inner--dog-and-cat-shelter .monroe-shelter-hero h1 {
-    font-size: clamp(3.25rem, 15vw, 4.8rem);
+    font-size: clamp(2.35rem, 11vw, 3.5rem);
   }
 
   .monroe-shelter-hero__visual {
-    min-height: 340px;
-    margin: 0 0.25rem;
+    max-width: 360px;
+    margin: 0 auto;
   }
 
   .monroe-shelter-hero__main-photo {
@@ -592,19 +625,18 @@
     left: -1%;
   }
 
-  .monroe-shelter-pills,
-  .monroe-shelter-care,
-  .monroe-shelter-story,
-  .monroe-shelter-trust,
-  .monroe-day-in-life,
-  .monroe-shelter-involved {
-    margin-right: 1rem;
-    margin-left: 1rem;
-  }
-
   .monroe-shelter-pills {
     justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
     border-radius: 18px;
+    padding: 0.35rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .monroe-shelter-pills::-webkit-scrollbar {
+    display: none;
   }
 
   .monroe-shelter-section-heading {
@@ -626,7 +658,7 @@
   }
 
   .monroe-shelter-story__photo {
-    min-height: 300px;
+    min-height: 280px;
   }
 
   .monroe-shelter-trust .monroe-trust-row__list {

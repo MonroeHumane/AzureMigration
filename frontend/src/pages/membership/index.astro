@@ -10,57 +10,57 @@ const HERO_IMAGE =
   title="Membership Plans | 734-243-3669"
   description="Pick a tier that fits your support level. Each membership includes perks that help animals and thank you for standing with Monroe Humane."
 >
-  <div class="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+  <div class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
     <!-- Hero Section -->
-    <header class="relative rounded-3xl overflow-hidden mb-12 shadow-lg bg-teal-900 text-cream">
+    <header class="relative rounded-3xl overflow-hidden mb-8 shadow-lg bg-teal-900 text-cream">
       <div class="absolute inset-0 opacity-40 mix-blend-overlay">
         <img src={HERO_IMAGE} alt="" class="w-full h-full object-cover" decoding="async" fetchpriority="high" />
       </div>
       <div class="absolute inset-0 bg-gradient-to-t from-teal-900 via-teal-900/80 to-teal-900/40"></div>
       
-      <div class="relative z-10 p-8 sm:p-12 lg:p-16 max-w-3xl">
-        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-4">Support &amp; community</p>
-        <h1 id="monroe-membership-title" class="text-4xl sm:text-5xl md:text-6xl font-serif text-white mb-6 leading-tight">Membership Plans</h1>
-        <p class="text-lg sm:text-xl text-cream-100 opacity-90 leading-relaxed mb-8">
+      <div class="relative z-10 p-6 sm:p-10 lg:p-12 max-w-3xl">
+        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-3">Support &amp; Community</p>
+        <h1 id="monroe-membership-title" class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-4 leading-tight">Membership Plans</h1>
+        <p class="text-base sm:text-lg text-cream-100 opacity-90 leading-relaxed mb-6">
           Pick a tier that fits your support level. Each membership includes perks that help animals and thank you for standing with Monroe Humane.
         </p>
-        <div class="flex flex-wrap gap-4">
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-emerald-400 text-teal-900 transition-all hover:bg-emerald-300 shadow-md hover:-translate-y-1" href={JOIN_URL}>Join today</a>
-          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-transparent border-2 border-cream text-cream transition-all hover:bg-cream hover:text-teal-900" href="/donate">More ways to give</a>
+        <div class="flex flex-wrap gap-3">
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-emerald-400 text-teal-900 transition-all hover:bg-emerald-300 shadow-md hover:-translate-y-0.5 text-xs" href={JOIN_URL}>Join Today</a>
+          <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3.5 rounded-full bg-transparent border-2 border-cream text-cream transition-all hover:bg-cream hover:text-teal-900 text-xs" href="/donate">More Ways to Give</a>
         </div>
       </div>
     </header>
 
     <!-- Benefits Grid -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16" aria-label="Why become a member">
-      <article class="bg-white p-8 rounded-2xl shadow-sm border border-teal-900/5 hover:shadow-md transition-shadow">
-        <div class="w-12 h-12 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-6">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-10" aria-label="Why become a member">
+      <article class="bg-white p-6 rounded-2xl shadow-xs border border-teal-900/5 hover:shadow-md transition-shadow">
+        <div class="w-10 h-10 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-4">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
         </div>
-        <h2 class="text-xl font-bold text-teal-900 mb-3">Lifesaving care</h2>
-        <p class="text-gray-600 leading-relaxed">Membership dollars fund food, medicine, enrichment, and everyday shelter needs for dogs and cats waiting for homes.</p>
+        <h2 class="text-lg font-bold text-teal-900 mb-2">Lifesaving care</h2>
+        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">Membership dollars fund food, medicine, enrichment, and everyday shelter needs for dogs and cats waiting for homes.</p>
       </article>
       
-      <article class="bg-white p-8 rounded-2xl shadow-sm border border-teal-900/5 hover:shadow-md transition-shadow">
-        <div class="w-12 h-12 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-6">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
+      <article class="bg-white p-6 rounded-2xl shadow-xs border border-teal-900/5 hover:shadow-md transition-shadow">
+        <div class="w-10 h-10 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-4">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
         </div>
-        <h2 class="text-xl font-bold text-teal-900 mb-3">Member perks</h2>
-        <p class="text-gray-600 leading-relaxed">Enjoy shirts, cards, stickers, event discounts, and swag savings — our thank-you for championing Monroe County animals.</p>
+        <h2 class="text-lg font-bold text-teal-900 mb-2">Member perks</h2>
+        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">Enjoy shirts, cards, stickers, event discounts, and swag savings — our thank-you for championing Monroe County animals.</p>
       </article>
       
-      <article class="bg-white p-8 rounded-2xl shadow-sm border border-teal-900/5 hover:shadow-md transition-shadow">
-        <div class="w-12 h-12 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-6">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+      <article class="bg-white p-6 rounded-2xl shadow-xs border border-teal-900/5 hover:shadow-md transition-shadow">
+        <div class="w-10 h-10 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mb-4">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
         </div>
-        <h2 class="text-xl font-bold text-teal-900 mb-3">Stay connected</h2>
-        <p class="text-gray-600 leading-relaxed">Members hear about fundraisers, adoption highlights, and volunteer opportunities throughout the year.</p>
+        <h2 class="text-lg font-bold text-teal-900 mb-2">Stay connected</h2>
+        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">Members hear about fundraisers, adoption highlights, and volunteer opportunities throughout the year.</p>
       </article>
     </section>
 
     <!-- Membership Plans -->
-    <section id="Plans" class="mb-16">
-      <div class="text-center max-w-2xl mx-auto mb-10">
+    <section id="Plans" class="mb-10 sm:mb-12">
+      <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
         <p class="uppercase tracking-widest font-bold text-sm text-teal-700 mb-3">Become a member</p>
         <h2 id="monroe-membership-plans-heading" class="text-3xl md:text-4xl font-serif text-teal-900 mb-4">Membership plans</h2>
         <p class="text-gray-600 leading-relaxed">
@@ -90,7 +90,7 @@ const HERO_IMAGE =
               </li>
             </ul>
           </div>
-          <a href="/donate" class="w-full py-2.5 px-4 rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $15</a>
+          <a href="/donate" class="inline-flex items-center justify-center w-full py-3 px-4 min-h-[44px] rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $15</a>
         </div>
 
         <!-- Individual Tier (Featured) -->
@@ -115,7 +115,7 @@ const HERO_IMAGE =
               </li>
             </ul>
           </div>
-          <a href="https://www.zeffy.com/ticketing/humane-society-of-monroe-membership-shirt-contest" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-teal-700 text-white hover:bg-teal-800 transition-colors shadow-xs">Join at $25</a>
+          <a href="https://www.zeffy.com/ticketing/humane-society-of-monroe-membership-shirt-contest" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center w-full py-3 px-4 min-h-[44px] rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-teal-700 text-white hover:bg-teal-800 transition-colors shadow-xs">Join at $25</a>
         </div>
 
         <!-- Family Tier -->
@@ -139,7 +139,7 @@ const HERO_IMAGE =
               </li>
             </ul>
           </div>
-          <a href="/donate" class="w-full py-2.5 px-4 rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $40</a>
+          <a href="/donate" class="inline-flex items-center justify-center w-full py-3 px-4 min-h-[44px] rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $40</a>
         </div>
 
         <!-- Lifetime Guardian Tier -->
@@ -163,7 +163,7 @@ const HERO_IMAGE =
               </li>
             </ul>
           </div>
-          <a href="/donate" class="w-full py-2.5 px-4 rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $500</a>
+          <a href="/donate" class="inline-flex items-center justify-center w-full py-3 px-4 min-h-[44px] rounded-xl text-center text-xs font-bold uppercase tracking-wider bg-slate-100 text-teal-900 hover:bg-slate-200 transition-colors">Join at $500</a>
         </div>
       </div>
     </section>

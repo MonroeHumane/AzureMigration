@@ -32,32 +32,32 @@ const products = [
 ---
 
 <BaseLayout title="Shop | 734-243-3669" description="Every purchase helps tails wag and whiskers purr. Browse featured styles, then complete checkout on our secure Square store.">
-  <div class="pb-24 min-h-screen bg-gray-50/50">
+  <div class="pb-16 min-h-screen bg-gray-50/50 pt-4 sm:pt-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
-      <section class="bg-teal-900 rounded-3xl overflow-hidden shadow-lg flex flex-col lg:flex-row mb-16" aria-labelledby="monroe-shop-title">
-        <div class="p-8 sm:p-12 lg:p-16 flex-1 flex flex-col justify-center">
-          <p class="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">Official Shelter Swag</p>
-          <h1 id="monroe-shop-title" class="text-4xl sm:text-5xl font-serif text-white mb-6 leading-tight">Monroe Humane Society Shop</h1>
-          <p class="text-teal-100 text-lg mb-8 leading-relaxed">Every purchase helps tails wag and whiskers purr. Browse featured styles below, then complete checkout on our secure Square store.</p>
-          <div class="flex flex-wrap gap-4">
-            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400" href="#monroe-shop-catalog">Browse featured items</a>
-            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-white text-white hover:bg-white hover:text-teal-900" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Open Square store</a>
+      <section class="bg-teal-900 rounded-3xl overflow-hidden shadow-lg flex flex-col lg:flex-row mb-8 sm:mb-10" aria-labelledby="monroe-shop-title">
+        <div class="p-6 sm:p-10 lg:p-12 flex-1 flex flex-col justify-center">
+          <p class="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-3">Official Shelter Swag</p>
+          <h1 id="monroe-shop-title" class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-4 leading-tight">Monroe Humane Society Shop</h1>
+          <p class="text-teal-100 text-base sm:text-lg mb-6 leading-relaxed">Every purchase helps tails wag and whiskers purr. Browse featured styles below, then complete checkout on our secure Square store.</p>
+          <div class="flex flex-wrap gap-3">
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400 text-xs" href="#monroe-shop-catalog">Browse Featured Items</a>
+            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all border-2 border-white text-white hover:bg-white hover:text-teal-900 text-xs" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Open Square Store &rarr;</a>
           </div>
         </div>
-        <figure class="w-full lg:w-1/2 relative min-h-[300px] lg:min-h-[500px]">
+        <figure class="w-full lg:w-1/2 relative min-h-[260px] lg:min-h-[420px]">
           <img src={`${SHOP_ASSETS}/merch-store-banner.png`} alt="Illustration of hats, mugs, and folded shirts in a merchandise collage." class="absolute inset-0 w-full h-full object-cover" loading="eager" decoding="async" />
         </figure>
       </section>
 
-      <section id="monroe-shop-catalog" class="mb-24">
-        <div class="text-center max-w-3xl mx-auto mb-12">
-          <span class="inline-block bg-teal-100 text-teal-800 font-bold uppercase tracking-widest text-xs px-3 py-1 rounded-full mb-4">Featured</span>
-          <h2 class="text-4xl font-serif text-teal-900 mb-4">Popular picks</h2>
-          <p class="text-gray-600 text-lg">Inventory, pricing, and shipping are managed on Square. Select an item to open the live store in a new tab.</p>
+      <section id="monroe-shop-catalog" class="mb-12 sm:mb-16">
+        <div class="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+          <span class="inline-block bg-teal-100 text-teal-800 font-bold uppercase tracking-widest text-xs px-3 py-1 rounded-full mb-3">Featured</span>
+          <h2 class="text-3xl sm:text-4xl font-serif text-teal-900 mb-2">Popular Picks</h2>
+          <p class="text-gray-600 text-base">Inventory, pricing, and shipping are managed on Square. Select an item to open the live store in a new tab.</p>
         </div>
 
-        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((p) => (
             <li class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
               <div class="aspect-square bg-gray-100 relative p-8 flex items-center justify-center">
