@@ -24,11 +24,11 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       </span>
     </div>
 
-    <div class="flex flex-wrap flex-1 gap-4 items-center justify-center lg:justify-start w-full">
+    <div class="flex flex-wrap flex-1 gap-3 sm:gap-4 items-center justify-center lg:justify-start w-full">
       {!lockType && (
-        <div class="flex flex-col w-full sm:w-auto flex-1 min-w-[120px]">
+        <div class="flex flex-col w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 min-w-[120px]">
           <label for="masw-type" class="text-xs font-bold text-teal-900 uppercase tracking-wider mb-1 ml-1">Type</label>
-          <select id="masw-type" data-adopt-filter="type" class="w-full py-3 px-4 rounded-xl border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-teal-700">
+          <select id="masw-type" data-adopt-filter="type" class="w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-teal-700 text-sm">
             <option value="">All types</option>
             <option value="dog">Dogs</option>
             <option value="cat">Cats</option>
@@ -36,24 +36,24 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
           </select>
         </div>
       )}
-      <div class="flex flex-col w-full sm:w-auto flex-1 min-w-[120px]">
+      <div class="flex flex-col w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 min-w-[120px]">
         <label for="masw-gender" class="text-xs font-bold text-teal-900 uppercase tracking-wider mb-1 ml-1">Gender</label>
-        <select id="masw-gender" data-adopt-filter="gender" class="w-full py-3 px-4 rounded-xl border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-teal-700">
+        <select id="masw-gender" data-adopt-filter="gender" class="w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-teal-700 text-sm">
           <option value="">Any gender</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
         </select>
       </div>
-      <div class="flex flex-col w-full sm:w-auto flex-1 min-w-[120px]">
+      <div class="flex flex-col w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 min-w-[120px]">
         <label for="masw-size" class="text-xs font-bold text-teal-900 uppercase tracking-wider mb-1 ml-1">Size</label>
-        <select id="masw-size" data-adopt-filter="size" class="w-full py-3 px-4 rounded-xl border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-teal-700">
+        <select id="masw-size" data-adopt-filter="size" class="w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-teal-700 text-sm">
           <option value="">Any size</option>
           {sizeOptions.map((s) => <option value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
         </select>
       </div>
-      <div class="flex flex-col w-full sm:w-auto flex-1 min-w-[120px]">
+      <div class="flex flex-col w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 min-w-[120px]">
         <label for="masw-age" class="text-xs font-bold text-teal-900 uppercase tracking-wider mb-1 ml-1">Age</label>
-        <select id="masw-age" data-adopt-filter="age" class="w-full py-3 px-4 rounded-xl border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-teal-700">
+        <select id="masw-age" data-adopt-filter="age" class="w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-teal-700 text-sm">
           <option value="">Any age</option>
           <option value="baby">Baby</option>
           <option value="young">Young</option>
@@ -68,7 +68,10 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     </div>
   </div>
 
-  <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-8 px-2">
+  <!-- Active Filter Chips Row -->
+  <div id="masw-active-chips" class="flex flex-wrap items-center gap-2 mb-6 px-1 empty:hidden" aria-label="Active filters"></div>
+
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-4 mb-8 px-2">
     <p class="text-gray-600 font-medium" data-adopt-summary aria-live="polite"></p>
     <span class="inline-flex items-center text-sm font-bold text-teal-700 uppercase tracking-widest">
       <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2 shadow-[0_0_0_3px_rgba(16,185,129,0.2)] animate-pulse" aria-hidden="true"></span>
@@ -87,28 +90,113 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
 
   <!-- Client-side card template for dynamically mounting new intakes between static builds -->
   <template id="masw-card-template">
-    <a
-      class="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-teal-700 outline-none"
+    <div
+      class="group relative flex flex-col bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(19,60,57,0.07)] border border-teal-950/10 transition-all duration-300 hover:shadow-[0_20px_35px_-10px_rgba(19,60,57,0.16)] hover:-translate-y-1.5 hover:border-teal-700/30 active:scale-[0.99] focus-within:ring-2 focus-within:ring-teal-700"
       data-pet-card
-      href=""
     >
       <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
-        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="" alt="" loading="lazy" decoding="async" />
-        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2.5 py-1 rounded-full text-[11px] font-bold text-teal-900 shadow-xs z-10 uppercase tracking-wider" data-pet-icon>Pet</span>
-        <span class="absolute top-3 right-3 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm z-10 text-white bg-emerald-500 hidden" data-pet-badge>New arrival</span>
+        <a href="" class="absolute inset-0 z-0" data-pet-link>
+          <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src="" alt="" loading="lazy" decoding="async" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none" aria-hidden="true"></div>
+        </a>
+        <span class="absolute top-3 left-3 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-teal-950 shadow-xs z-10 uppercase tracking-wider border border-white/60 pointer-events-none" data-pet-icon>Pet</span>
+        <span class="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full shadow-xs z-10 text-emerald-950 bg-emerald-300/90 backdrop-blur-md border border-emerald-200/80 hidden pointer-events-none" data-pet-badge>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" aria-hidden="true"></span>
+          New arrival
+        </span>
+        <button
+          type="button"
+          class="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/90 hover:bg-white text-teal-950 backdrop-blur-md border border-white/70 shadow-sm transition-all hover:scale-105 cursor-pointer opacity-95 group-hover:opacity-100"
+          data-pet-quickview-btn
+          aria-label="Quick view"
+          title="Quick preview"
+        >
+          <svg class="w-3.5 h-3.5 text-teal-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Quick View</span>
+        </button>
       </div>
-      <div class="p-5 flex flex-col flex-1">
-        <h3 class="font-serif text-2xl text-teal-900 mb-1 leading-tight group-hover:text-teal-700 transition-colors" data-pet-name></h3>
+      <div class="p-5 sm:p-6 flex flex-col flex-1 relative z-10">
+        <h3 class="font-serif text-2xl text-teal-900 mb-1 leading-tight group-hover:text-teal-700 transition-colors">
+          <a href="" class="hover:underline" data-pet-name-link></a>
+        </h3>
         <p class="text-sm text-gray-500 mb-4 line-clamp-1" data-pet-breed></p>
         <div class="flex flex-wrap gap-1.5 mb-6" data-pet-chips></div>
-        <span class="mt-auto text-sm font-bold text-teal-700 uppercase tracking-widest group-hover:text-teal-900 transition-colors" data-pet-cta>Meet Pet &rarr;</span>
+        <div class="mt-auto flex items-center justify-between pt-2 border-t border-teal-950/5">
+          <a href="" class="text-xs font-bold text-teal-700 uppercase tracking-widest hover:text-teal-900 transition-colors inline-flex items-center gap-1" data-pet-cta>
+            <span data-pet-cta-text>Meet Pet</span>
+            <svg class="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <button
+            type="button"
+            class="text-xs font-semibold text-teal-800 hover:text-teal-950 hover:underline cursor-pointer sm:hidden"
+            data-pet-quickview-btn
+          >
+            Quick View
+          </button>
+        </div>
       </div>
-    </a>
+    </div>
   </template>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-adopt-grid>
     {scoped.map((pet) => <PetCard pet={pet} />)}
   </div>
+
+  <!-- Adopter Quick-View Slide-Out Drawer / Mobile Bottom-Sheet -->
+  <dialog id="pet-quickview-drawer" class="pet-drawer" aria-labelledby="pet-drawer-name" aria-modal="true">
+    <div class="pet-drawer__backdrop" data-drawer-close tabindex="-1"></div>
+    <div class="pet-drawer__panel" role="document">
+      <header class="pet-drawer__header">
+        <span class="pet-drawer__badge" data-drawer-species>Pet</span>
+        <button type="button" class="pet-drawer__close" data-drawer-close aria-label="Close preview">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+      <div class="pet-drawer__body">
+        <div class="pet-drawer__media">
+          <img class="pet-drawer__img" src="/assets/recovered/images/placeholder.svg" alt="" data-drawer-img />
+          <div class="pet-drawer__media-gradient" aria-hidden="true"></div>
+          <span class="pet-drawer__status-badge hidden" data-drawer-status></span>
+        </div>
+        <div class="pet-drawer__content">
+          <h2 id="pet-drawer-name" class="pet-drawer__title" data-drawer-name>Pet Name</h2>
+          <p class="pet-drawer__breed" data-drawer-breed></p>
+          <div class="pet-drawer__chips" data-drawer-chips></div>
+          <div class="pet-drawer__specs">
+            <div class="pet-drawer__spec"><span class="pet-drawer__spec-label">Gender</span><span class="pet-drawer__spec-value" data-drawer-gender>-</span></div>
+            <div class="pet-drawer__spec"><span class="pet-drawer__spec-label">Age</span><span class="pet-drawer__spec-value" data-drawer-age>-</span></div>
+            <div class="pet-drawer__spec"><span class="pet-drawer__spec-label">Size</span><span class="pet-drawer__spec-value" data-drawer-size>-</span></div>
+            <div class="pet-drawer__spec"><span class="pet-drawer__spec-label">Intake Date</span><span class="pet-drawer__spec-value" data-drawer-intake>-</span></div>
+          </div>
+          <h3 class="pet-drawer__bio-heading">About</h3>
+          <p class="pet-drawer__bio-text" data-drawer-bio></p>
+        </div>
+      </div>
+      <footer class="pet-drawer__footer">
+        <a href="#" class="pet-drawer__cta pet-drawer__cta--primary" data-drawer-profile-link>
+          <span>View Full Profile</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="/adopt/apply" class="pet-drawer__cta pet-drawer__cta--secondary" data-drawer-apply-link>
+          <span>Start Adoption Application</span>
+        </a>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Floating Back to Top Button -->
+  <button
+    type="button"
+    id="masw-back-to-top"
+    class="masw-back-to-top"
+    aria-label="Back to top of pet catalog"
+    title="Back to top"
+  >
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+    <span class="text-xs font-bold tracking-wider uppercase">Top</span>
+  </button>
 </div>
 
 <script>
@@ -127,6 +215,23 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     const search = root.querySelector<HTMLInputElement>('[data-adopt-search]');
     const filters = Array.from(root.querySelectorAll<HTMLSelectElement>('[data-adopt-filter]'));
     const template = document.getElementById('masw-card-template') as HTMLTemplateElement | null;
+    const activeChipsContainer = document.getElementById('masw-active-chips');
+
+    // Drawer Elements
+    const drawer = document.getElementById('pet-quickview-drawer') as HTMLDialogElement | null;
+    const drawerSpecies = drawer?.querySelector<HTMLElement>('[data-drawer-species]');
+    const drawerImg = drawer?.querySelector<HTMLImageElement>('[data-drawer-img]');
+    const drawerStatus = drawer?.querySelector<HTMLElement>('[data-drawer-status]');
+    const drawerName = drawer?.querySelector<HTMLElement>('[data-drawer-name]');
+    const drawerBreed = drawer?.querySelector<HTMLElement>('[data-drawer-breed]');
+    const drawerChips = drawer?.querySelector<HTMLElement>('[data-drawer-chips]');
+    const drawerGender = drawer?.querySelector<HTMLElement>('[data-drawer-gender]');
+    const drawerAge = drawer?.querySelector<HTMLElement>('[data-drawer-age]');
+    const drawerSize = drawer?.querySelector<HTMLElement>('[data-drawer-size]');
+    const drawerIntake = drawer?.querySelector<HTMLElement>('[data-drawer-intake]');
+    const drawerBio = drawer?.querySelector<HTMLElement>('[data-drawer-bio]');
+    const drawerProfileLink = drawer?.querySelector<HTMLAnchorElement>('[data-drawer-profile-link]');
+    const drawerApplyLink = drawer?.querySelector<HTMLAnchorElement>('[data-drawer-apply-link]');
 
     const getCards = () => Array.from(grid?.querySelectorAll<HTMLElement>('[data-pet-card]') ?? []);
 
@@ -137,6 +242,56 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       const key = sel.dataset.adoptFilter!;
       if (params.has(key)) sel.value = params.get(key) || '';
     });
+
+    const updateActiveChips = (query: string, values: Record<string, string>) => {
+      if (!activeChipsContainer) return;
+      activeChipsContainer.innerHTML = '';
+      const activeFilters: Array<{ label: string; key: string }> = [];
+
+      if (query) {
+        activeFilters.push({ label: `"${query}"`, key: 'search' });
+      }
+      if (values.type) {
+        const typeLabel = values.type === 'dog' ? 'Dogs' : values.type === 'cat' ? 'Cats' : values.type.charAt(0).toUpperCase() + values.type.slice(1);
+        activeFilters.push({ label: `Type: ${typeLabel}`, key: 'type' });
+      }
+      if (values.gender) {
+        const genderLabel = values.gender.charAt(0).toUpperCase() + values.gender.slice(1);
+        activeFilters.push({ label: `Gender: ${genderLabel}`, key: 'gender' });
+      }
+      if (values.size) {
+        const sizeLabel = values.size.charAt(0).toUpperCase() + values.size.slice(1);
+        activeFilters.push({ label: `Size: ${sizeLabel}`, key: 'size' });
+      }
+      if (values.age) {
+        const ageLabel = values.age.charAt(0).toUpperCase() + values.age.slice(1);
+        activeFilters.push({ label: `Age: ${ageLabel}`, key: 'age' });
+      }
+
+      if (activeFilters.length > 0) {
+        activeFilters.forEach((af) => {
+          const chip = document.createElement('span');
+          chip.className = 'masw-chip-pill';
+          chip.innerHTML = `
+            <span>${af.label}</span>
+            <button type="button" class="masw-chip-pill-remove" data-clear-key="${af.key}" aria-label="Remove ${af.label} filter">&times;</button>
+          `;
+          activeChipsContainer.appendChild(chip);
+        });
+
+        const clearAllBtn = document.createElement('button');
+        clearAllBtn.type = 'button';
+        clearAllBtn.setAttribute('data-adopt-reset', '');
+        clearAllBtn.className = 'text-xs font-bold text-teal-800 hover:text-teal-950 underline underline-offset-2 ml-1 cursor-pointer transition-colors';
+        clearAllBtn.textContent = 'Clear all';
+        clearAllBtn.addEventListener('click', () => {
+          if (search) search.value = '';
+          filters.forEach((sel) => (sel.value = ''));
+          apply(true);
+        });
+        activeChipsContainer.appendChild(clearAllBtn);
+      }
+    };
 
     const apply = (updateUrl = true) => {
       const query = (search?.value ?? '').trim().toLowerCase();
@@ -172,7 +327,22 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       if (summary) {
         summary.textContent = `${visible.length} ${visible.length === 1 ? 'pet' : 'pets'} available for adoption`;
       }
+
+      updateActiveChips(query, values);
     };
+
+    activeChipsContainer?.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-clear-key]');
+      if (!target) return;
+      const key = target.dataset.clearKey;
+      if (key === 'search') {
+        if (search) search.value = '';
+      } else if (key) {
+        const sel = filters.find((s) => s.dataset.adoptFilter === key);
+        if (sel) sel.value = '';
+      }
+      apply(true);
+    });
 
     search?.addEventListener('input', () => apply(true));
     filters.forEach((sel) => sel.addEventListener('change', () => apply(true)));
@@ -183,6 +353,147 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
         apply(true);
       })
     );
+
+    // Drawer Open/Close Logic
+    const openDrawer = (card: HTMLElement) => {
+      if (!drawer) return;
+      const id = card.dataset.petId || '';
+      const name = card.dataset.petName || 'Pet';
+      const breed = card.dataset.petBreed || '';
+      const image = card.dataset.petImage || '/assets/recovered/images/placeholder.svg';
+      const species = card.dataset.petSpeciesTag || 'Pet';
+      const gender = card.dataset.petGenderLabel || card.dataset.petGender || 'Unknown';
+      const age = card.dataset.petAgeDisplay || card.dataset.petAge || 'Adult';
+      const size = card.dataset.petSize ? (card.dataset.petSize.charAt(0).toUpperCase() + card.dataset.petSize.slice(1)) : 'Medium';
+      const intake = card.dataset.petIntake || 'Recently';
+      const desc = card.dataset.petDesc || 'No bio text is provided yet, but our shelter coordinators would be thrilled to introduce you to this wonderful companion in person.';
+      const status = card.dataset.petStatusBadge || '';
+
+      if (drawerSpecies) drawerSpecies.textContent = species;
+      if (drawerName) drawerName.textContent = name;
+      if (drawerBreed) drawerBreed.textContent = breed || 'Shelter Companion';
+      if (drawerImg) {
+        drawerImg.src = image;
+        drawerImg.alt = name;
+      }
+      if (drawerGender) drawerGender.textContent = gender;
+      if (drawerAge) drawerAge.textContent = age;
+      if (drawerSize) drawerSize.textContent = size;
+      if (drawerIntake) drawerIntake.textContent = intake;
+      if (drawerBio) drawerBio.textContent = desc;
+
+      if (drawerStatus) {
+        if (status === 'new') {
+          drawerStatus.className = 'pet-drawer__status-badge bg-emerald-400/90 text-emerald-950 border border-emerald-200/90';
+          drawerStatus.textContent = 'New arrival';
+          drawerStatus.classList.remove('hidden');
+        } else if (status === 'waiting') {
+          drawerStatus.className = 'pet-drawer__status-badge bg-purple-200/95 text-purple-950 border border-purple-300/90';
+          drawerStatus.textContent = 'Needs a home';
+          drawerStatus.classList.remove('hidden');
+        } else {
+          drawerStatus.classList.add('hidden');
+        }
+      }
+
+      if (drawerChips) {
+        drawerChips.innerHTML = '';
+        const chipItems = [
+          { label: species, style: 'bg-teal-50/80 text-teal-900 border-teal-200/60' },
+          gender && gender !== 'Unknown' ? { label: gender, style: gender.toLowerCase().includes('female') ? 'bg-rose-50/80 text-rose-900 border-rose-200/60' : 'bg-sky-50/80 text-sky-900 border-sky-200/60' } : null,
+          age ? { label: age, style: 'bg-amber-50/80 text-amber-900 border-amber-200/60' } : null,
+          size ? { label: size, style: 'bg-stone-50 text-stone-700 border-stone-200/70' } : null,
+        ].filter(Boolean);
+
+        chipItems.forEach((c) => {
+          if (!c) return;
+          const sp = document.createElement('span');
+          sp.className = `px-2.5 py-1 text-xs font-semibold rounded-lg border uppercase tracking-wider ${c.style}`;
+          sp.textContent = c.label;
+          drawerChips.appendChild(sp);
+        });
+      }
+
+      if (drawerProfileLink) {
+        drawerProfileLink.href = `/adopt/${id}`;
+        drawerProfileLink.setAttribute('aria-label', `View full profile for ${name}`);
+      }
+      if (drawerApplyLink) {
+        drawerApplyLink.href = `/adopt/apply?pet=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}`;
+      }
+
+      try {
+        if (typeof drawer.showModal === 'function') {
+          drawer.showModal();
+        } else {
+          drawer.setAttribute('open', '');
+        }
+      } catch {
+        drawer.setAttribute('open', '');
+      }
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeDrawer = () => {
+      if (!drawer) return;
+      try {
+        if (typeof drawer.close === 'function') {
+          drawer.close();
+        } else {
+          drawer.removeAttribute('open');
+        }
+      } catch {
+        drawer.removeAttribute('open');
+      }
+      document.body.style.overflow = '';
+    };
+
+    root.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pet-quickview-btn]');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const card = btn.closest<HTMLElement>('[data-pet-card]');
+      if (card) openDrawer(card);
+    });
+
+    drawer?.querySelectorAll('[data-drawer-close]').forEach((el) => {
+      el.addEventListener('click', closeDrawer);
+    });
+    drawer?.addEventListener('click', (e) => {
+      if (e.target === drawer) {
+        closeDrawer();
+      }
+    });
+    drawer?.addEventListener('cancel', () => {
+      document.body.style.overflow = '';
+    });
+    drawer?.addEventListener('close', () => {
+      document.body.style.overflow = '';
+    });
+
+    // Floating Back to Top Button
+    const backToTopBtn = document.getElementById('masw-back-to-top');
+    if (backToTopBtn) {
+      const onScroll = () => {
+        if (window.scrollY > 400) {
+          backToTopBtn.classList.add('is-visible');
+        } else {
+          backToTopBtn.classList.remove('is-visible');
+        }
+      };
+
+      if ((window as any)._maswScrollHandler) {
+        window.removeEventListener('scroll', (window as any)._maswScrollHandler);
+      }
+      (window as any)._maswScrollHandler = onScroll;
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
 
     apply(false);
 
@@ -225,19 +536,47 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
             if (lockType && pet.type !== lockType) return;
 
             const clone = template.content.cloneNode(true) as DocumentFragment;
-            const a = clone.querySelector<HTMLAnchorElement>('[data-pet-card]');
-            if (!a) return;
+            const card = clone.querySelector<HTMLElement>('[data-pet-card]');
+            if (!card) return;
 
-            a.href = `/adopt/${petId}`;
-            a.dataset.petId = petId;
-            a.dataset.petType = pet.type || 'other';
-            a.dataset.petGender = pet.gender || 'unknown';
-            a.dataset.petSize = (pet.size || '').toLowerCase();
-            a.dataset.petAge = pet.age || 'adult';
-            a.dataset.petName = (pet.name || '').toLowerCase();
-            a.dataset.petBreed = (pet.breed || '').toLowerCase();
-            a.dataset.petSearch = `${pet.name || ''} ${pet.breed || ''} ${pet.description || ''}`.toLowerCase();
-            a.setAttribute('aria-label', `Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`);
+            const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
+            const speciesLabel = pet.species_label || (pet.type === 'dog' ? 'Dog' : pet.type === 'cat' ? 'Cat' : 'Pet');
+
+            let daysAtShelter: number | null = null;
+            if (pet.intake_date) {
+              const d = new Date(pet.intake_date);
+              if (!isNaN(d.getTime())) daysAtShelter = Math.floor((Date.now() - d.getTime()) / 86400000);
+            }
+            let intakeDisplay = '';
+            if (pet.intake_date) {
+              const d = new Date(pet.intake_date);
+              if (!isNaN(d.getTime())) {
+                intakeDisplay = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+              }
+            }
+
+            card.dataset.petId = petId;
+            card.dataset.petType = pet.type || 'other';
+            card.dataset.petGender = pet.gender || 'unknown';
+            card.dataset.petGenderLabel = genderLabel;
+            card.dataset.petSize = (pet.size || '').toLowerCase();
+            card.dataset.petAge = pet.age || 'adult';
+            card.dataset.petAgeDisplay = pet.age_display || '';
+            card.dataset.petName = pet.name || '';
+            card.dataset.petBreed = pet.breed || '';
+            card.dataset.petSpeciesTag = speciesLabel;
+            card.dataset.petImage = pet.image_url || pet.image || '/assets/recovered/images/placeholder.svg';
+            card.dataset.petLocation = pet.location || 'Shelter';
+            card.dataset.petIntake = intakeDisplay;
+            card.dataset.petDesc = pet.description || '';
+            card.dataset.petStatusBadge = (daysAtShelter !== null && daysAtShelter <= 14) ? 'new' : (daysAtShelter !== null && daysAtShelter >= 180) ? 'waiting' : '';
+            card.dataset.petSearch = `${pet.name || ''} ${pet.breed || ''} ${pet.description || ''}`.toLowerCase();
+
+            const link = clone.querySelector<HTMLAnchorElement>('[data-pet-link]');
+            if (link) {
+              link.href = `/adopt/${petId}`;
+              link.setAttribute('aria-label', `Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`);
+            }
 
             const img = clone.querySelector<HTMLImageElement>('img');
             if (img) {
@@ -246,40 +585,43 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
             }
 
             const icon = clone.querySelector<HTMLElement>('[data-pet-icon]');
-            if (icon) {
-              icon.textContent = pet.type === 'dog' ? 'Dog' : pet.type === 'cat' ? 'Cat' : 'Pet';
+            if (icon) icon.textContent = speciesLabel;
+
+            const badge = clone.querySelector<HTMLElement>('[data-pet-badge]');
+            if (badge && daysAtShelter !== null && daysAtShelter <= 14) {
+              badge.classList.remove('hidden');
             }
 
-            const nameEl = clone.querySelector<HTMLElement>('[data-pet-name]');
-            if (nameEl) nameEl.textContent = pet.name;
+            const nameLink = clone.querySelector<HTMLAnchorElement>('[data-pet-name-link]');
+            if (nameLink) {
+              nameLink.href = `/adopt/${petId}`;
+              nameLink.textContent = pet.name || 'Shelter pet';
+            }
 
             const breedEl = clone.querySelector<HTMLElement>('[data-pet-breed]');
             if (breedEl) breedEl.textContent = pet.breed || '';
 
-            const ctaEl = clone.querySelector<HTMLElement>('[data-pet-cta]');
-            if (ctaEl) ctaEl.innerHTML = `Meet ${pet.name} &rarr;`;
+            const ctaEl = clone.querySelector<HTMLAnchorElement>('[data-pet-cta]');
+            if (ctaEl) ctaEl.href = `/adopt/${petId}`;
+
+            const ctaText = clone.querySelector<HTMLElement>('[data-pet-cta-text]');
+            if (ctaText) ctaText.textContent = `Meet ${pet.name}`;
 
             const chipsEl = clone.querySelector<HTMLElement>('[data-pet-chips]');
             if (chipsEl) {
-              const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
-              const chipList = [pet.species_label || pet.type, pet.size, genderLabel, pet.age_display, pet.color].filter(Boolean);
-              chipList.forEach((chip) => {
+              const chipItems = [
+                { label: speciesLabel, style: 'bg-teal-50/80 text-teal-900 border-teal-200/60' },
+                pet.gender ? { label: genderLabel, style: pet.gender === 'female' ? 'bg-rose-50/80 text-rose-900 border-rose-200/60' : 'bg-sky-50/80 text-sky-900 border-sky-200/60' } : null,
+                pet.age_display ? { label: pet.age_display, style: 'bg-amber-50/80 text-amber-900 border-amber-200/60' } : null,
+                pet.size ? { label: pet.size, style: 'bg-stone-50 text-stone-700 border-stone-200/70' } : null,
+              ].filter(Boolean);
+              chipItems.forEach((c) => {
+                if (!c) return;
                 const sp = document.createElement('span');
-                sp.className = 'px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md uppercase tracking-widest';
-                sp.textContent = String(chip);
+                sp.className = `px-2.5 py-1 text-xs font-semibold rounded-lg border uppercase tracking-wider ${c.style}`;
+                sp.textContent = c.label;
                 chipsEl.appendChild(sp);
               });
-            }
-
-            // Check if new arrival
-            let daysAtShelter: number | null = null;
-            if (pet.intake_date) {
-              const d = new Date(pet.intake_date);
-              if (!isNaN(d.getTime())) daysAtShelter = Math.floor((Date.now() - d.getTime()) / 86400000);
-            }
-            const badge = clone.querySelector<HTMLElement>('[data-pet-badge]');
-            if (badge && daysAtShelter !== null && daysAtShelter <= 14) {
-              badge.classList.remove('hidden');
             }
 
             grid.appendChild(clone);

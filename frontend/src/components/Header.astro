@@ -191,7 +191,10 @@ const isCurrent = (item: NavItem) => {
     // Publish the closed-header height so body padding and anchors track it exactly.
     const measure = () => {
       if (header.classList.contains('is-open')) return;
-      root.style.setProperty('--monroe-nav-height', `${Math.round(header.getBoundingClientRect().height)}px`);
+      const h = Math.round(header.getBoundingClientRect().height);
+      if (h > 0) {
+        root.style.setProperty('--monroe-nav-height', `${h}px`);
+      }
     };
 
     const setCondensed = () => header.classList.toggle('is-condensed', window.scrollY > 12);
@@ -314,6 +317,9 @@ const isCurrent = (item: NavItem) => {
     window.addEventListener('resize', measure, { passive: true });
     window.addEventListener('scroll', setCondensed, { passive: true });
     window.addEventListener('scroll', closeDropdownsOnScroll, { passive: true });
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(() => measure()).observe(header);
+    }
   }
 </script>
 

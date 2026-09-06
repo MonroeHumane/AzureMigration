@@ -11,11 +11,18 @@ const { vet_partners, auction_sponsors, community_partners } = sponsorsData;
 >
   <div class="max-w-6xl mx-auto px-4 py-8 sm:py-12">
     <!-- Header Hero -->
-    <header class="bg-teal-900 text-cream p-8 sm:p-12 lg:p-16 rounded-3xl mb-12 shadow-lg relative overflow-hidden">
+    <header class="relative overflow-hidden bg-gradient-to-br from-[#133c39] via-[#1a4f4b] to-[#0f2e2c] text-cream p-7 sm:p-12 lg:p-14 rounded-3xl mb-12 shadow-xl border border-teal-700/60">
+      <!-- Ambient radiant glow orbs -->
+      <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
+      <div class="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-amber-400/12 blur-3xl pointer-events-none" aria-hidden="true"></div>
+
       <div class="relative z-10 max-w-3xl">
-        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-3">Community Champions</p>
-        <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif text-white mb-6 leading-tight">Special Sponsors &amp; Partners</h1>
-        <p class="text-lg md:text-xl text-cream-100 opacity-90 leading-relaxed">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-400/15 text-emerald-300 border border-emerald-400/25 mb-3">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+          Community Champions
+        </span>
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-serif text-white mb-4 leading-tight tracking-tight">Special Sponsors &amp; Partners</h1>
+        <p class="text-base sm:text-lg md:text-xl text-cream-100/90 leading-relaxed font-light">
           The Humane Society of Monroe County receives no county or tax funding for daily operations. Our lifesaving rescue, medical, and adoption programs are sustained through the dedication of generous veterinary partners, event sponsors, and local business advocates.
         </p>
       </div>
@@ -35,7 +42,7 @@ const { vet_partners, auction_sponsors, community_partners } = sponsorsData;
             href={partner.link}
             target="_blank"
             rel="noopener noreferrer"
-            class="bg-white rounded-2xl border border-teal-900/10 p-6 shadow-xs flex flex-col justify-between items-center text-center hover:shadow-md hover:border-teal-700/30 transition-all group"
+            class="bg-white rounded-3xl border border-teal-950/10 p-6 shadow-[0_4px_20px_-4px_rgba(19,60,57,0.07)] flex flex-col justify-between items-center text-center hover:shadow-[0_20px_35px_-10px_rgba(19,60,57,0.15)] hover:border-teal-700/30 hover:-translate-y-1 transition-all duration-300 group"
           >
             <div class="h-24 flex items-center justify-center w-full mb-4 px-2">
               {partner.image ? (
@@ -79,7 +86,7 @@ const { vet_partners, auction_sponsors, community_partners } = sponsorsData;
             href={sponsor.link}
             target="_blank"
             rel="noopener noreferrer"
-            class="bg-white rounded-2xl border border-teal-900/10 p-6 shadow-xs flex items-center gap-4 hover:shadow-md hover:border-teal-700/30 transition-all group"
+            class="bg-white rounded-2xl border border-teal-900/10 p-4 sm:p-6 shadow-xs flex items-center gap-4 hover:shadow-md hover:border-teal-700/30 transition-all group"
           >
             <div class="w-20 h-20 shrink-0 bg-slate-50 rounded-xl p-2 flex items-center justify-center border border-slate-100">
               {sponsor.image ? (
@@ -118,9 +125,9 @@ const { vet_partners, auction_sponsors, community_partners } = sponsorsData;
         <p class="text-gray-600 text-sm mt-1">Monroe County retailers, venues, and hospitality leaders hosting fundraisers and supply drives.</p>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         {community_partners.map((partner) => (
-          <div class="bg-white rounded-xl border border-slate-200 p-4 flex flex-col items-center justify-center text-center shadow-2xs hover:shadow-xs transition-shadow">
+          <div class="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-2xs hover:shadow-xs transition-shadow">
             <div class="h-16 flex items-center justify-center w-full mb-3 px-1">
               {partner.image ? (
                 <img
@@ -145,23 +152,23 @@ const { vet_partners, auction_sponsors, community_partners } = sponsorsData;
     </section>
 
     <!-- 4. Become a 2026 Sponsor CTA -->
-    <section class="bg-cream-200 border border-teal-900/10 rounded-3xl p-8 sm:p-12">
+    <section class="bg-cream-200 border border-teal-900/10 rounded-3xl p-6 sm:p-10 lg:p-12">
       <div class="max-w-3xl mx-auto text-center">
         <span class="text-xs font-bold uppercase tracking-widest text-teal-700">Corporate Giving</span>
         <h2 class="text-3xl sm:text-4xl font-serif text-teal-900 mt-2 mb-4">Partner With Monroe Humane in 2026</h2>
         <p class="text-gray-700 leading-relaxed mb-8">
           Position your organization as a leader in local animal welfare. We offer tailored sponsorship opportunities including event title recognition, kennel sponsorships, employee volunteer service days, and digital partnership packages.
         </p>
-        <div class="flex flex-wrap justify-center gap-4">
+        <div class="flex flex-wrap justify-center gap-3 sm:gap-4">
           <a
             href="/contact"
-            class="inline-flex items-center justify-center px-8 py-4 rounded-full bg-teal-700 text-white font-bold uppercase tracking-wider transition-all hover:bg-teal-900 shadow-md hover:-translate-y-0.5 text-sm"
+            class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 rounded-full bg-teal-700 text-white font-bold uppercase tracking-wider transition-all hover:bg-teal-900 shadow-md hover:-translate-y-0.5 text-sm min-h-[48px]"
           >
             Inquire About Sponsorship
           </a>
           <a
             href="/events"
-            class="inline-flex items-center justify-center px-8 py-4 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-0.5 text-sm"
+            class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-0.5 text-sm min-h-[48px]"
           >
             View Upcoming Events
           </a>

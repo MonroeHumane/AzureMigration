@@ -10,13 +10,42 @@ const { pet } = Astro.props;
 
 const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
 const genderIcon = pet.gender === 'female' ? '♀' : pet.gender === 'male' ? '♂' : '';
-const chips = [
-  pet.species_label || pet.type,
-  pet.size,
-  genderIcon ? `${genderIcon} ${genderLabel}` : genderLabel,
-  pet.age_display,
-  pet.color,
-].filter(Boolean);
+const speciesLabel = pet.species_label || (pet.type === 'dog' ? 'Dog' : pet.type === 'cat' ? 'Cat' : 'Pet');
+
+interface ChipItem {
+  label: string;
+  style: string;
+}
+
+const chips: ChipItem[] = [];
+chips.push({
+  label: speciesLabel,
+  style: 'bg-teal-50/80 text-teal-900 border-teal-200/60',
+});
+if (pet.gender) {
+  chips.push({
+    label: genderIcon ? `${genderIcon} ${genderLabel}` : genderLabel,
+    style: pet.gender === 'female' ? 'bg-rose-50/80 text-rose-900 border-rose-200/60' : 'bg-sky-50/80 text-sky-900 border-sky-200/60',
+  });
+}
+if (pet.age_display) {
+  chips.push({
+    label: pet.age_display,
+    style: 'bg-amber-50/80 text-amber-900 border-amber-200/60',
+  });
+}
+if (pet.size) {
+  chips.push({
+    label: pet.size,
+    style: 'bg-stone-50 text-stone-700 border-stone-200/70',
+  });
+}
+if (pet.color && chips.length < 4) {
+  chips.push({
+    label: pet.color,
+    style: 'bg-stone-50 text-stone-700 border-stone-200/70',
+  });
+}
 
 // Real intake_date from the Petango sync — surface it as a badge instead of
 // leaving it unused. New arrivals get a spotlight; long-time residents get
@@ -29,34 +58,88 @@ if (pet.intake_date) {
 }
 const isNewArrival = daysAtShelter !== null && daysAtShelter >= 0 && daysAtShelter <= 14;
 const isLongTimer = daysAtShelter !== null && daysAtShelter >= 180;
+
+let intakeDisplay = '';
+if (pet.intake_date) {
+  const d = new Date(pet.intake_date);
+  if (!isNaN(d.getTime())) {
+    intakeDisplay = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+}
 ---
 
-<a
-  class="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-teal-700 outline-none"
-  href={`/adopt/${pet.id}`}
+<div
+  class="group relative flex flex-col bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(19,60,57,0.07)] border border-teal-950/10 transition-all duration-300 hover:shadow-[0_20px_35px_-10px_rgba(19,60,57,0.16)] hover:-translate-y-1.5 hover:border-teal-700/30 active:scale-[0.99] focus-within:ring-2 focus-within:ring-teal-700"
   data-pet-card
   data-pet-id={pet.id}
   data-pet-type={pet.type}
   data-pet-gender={pet.gender}
+  data-pet-gender-label={genderLabel}
   data-pet-size={(pet.size || '').toLowerCase()}
   data-pet-age={pet.age}
-  data-pet-name={pet.name.toLowerCase()}
-  data-pet-breed={(pet.breed || '').toLowerCase()}
+  data-pet-age-display={pet.age_display || ''}
+  data-pet-name={pet.name}
+  data-pet-breed={pet.breed || ''}
+  data-pet-species-tag={speciesLabel}
+  data-pet-image={pet.image_url || pet.image || '/assets/recovered/images/placeholder.svg'}
+  data-pet-location={pet.location || 'Shelter'}
+  data-pet-intake={intakeDisplay}
+  data-pet-desc={pet.description || ''}
+  data-pet-status-badge={isNewArrival ? 'new' : isLongTimer ? 'waiting' : ''}
   data-pet-search={`${pet.name} ${pet.breed} ${pet.description || ''}`.toLowerCase()}
-  aria-label={`Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`}
 >
   <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
-    <Image class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={pet.image_url || pet.image || ''} alt={pet.name} loading="lazy" decoding="async" width={480} height={360} />
-    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2.5 py-1 rounded-full text-[11px] font-bold text-teal-900 shadow-xs z-10 uppercase tracking-wider">{pet.type === 'dog' ? 'Dog' : pet.type === 'cat' ? 'Cat' : 'Pet'}</span>
-    {isNewArrival && <span class="absolute top-3 right-3 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm z-10 text-white bg-emerald-500">New arrival</span>}
-    {!isNewArrival && isLongTimer && <span class="absolute top-3 right-3 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm z-10 text-white bg-purple-500">Been waiting a while</span>}
+    <a href={`/adopt/${pet.id}`} class="absolute inset-0 z-0" aria-label={`Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`}>
+      <Image class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src={pet.image_url || pet.image || ''} alt={pet.name} loading="lazy" decoding="async" width={480} height={360} />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none" aria-hidden="true"></div>
+    </a>
+    <span class="absolute top-3 left-3 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-teal-950 shadow-xs z-10 uppercase tracking-wider border border-white/60 pointer-events-none">{speciesLabel}</span>
+    {isNewArrival && (
+      <span class="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full shadow-xs z-10 text-emerald-950 bg-emerald-300/90 backdrop-blur-md border border-emerald-200/80 pointer-events-none">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" aria-hidden="true"></span>
+        New arrival
+      </span>
+    )}
+    {!isNewArrival && isLongTimer && (
+      <span class="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full shadow-xs z-10 text-purple-950 bg-purple-200/90 backdrop-blur-md border border-purple-300/80 pointer-events-none">
+        Needs a home
+      </span>
+    )}
+    <button
+      type="button"
+      class="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/90 hover:bg-white text-teal-950 backdrop-blur-md border border-white/70 shadow-sm transition-all hover:scale-105 cursor-pointer opacity-95 group-hover:opacity-100"
+      data-pet-quickview-btn
+      aria-label={`Quick view ${pet.name}`}
+      title={`Quick preview ${pet.name}`}
+    >
+      <svg class="w-3.5 h-3.5 text-teal-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>Quick View</span>
+    </button>
   </div>
-  <div class="p-5 flex flex-col flex-1">
-    <h3 class="font-serif text-2xl text-teal-900 mb-1 leading-tight group-hover:text-teal-700 transition-colors">{pet.name}</h3>
+  <div class="p-5 sm:p-6 flex flex-col flex-1 relative z-10">
+    <h3 class="font-serif text-2xl text-teal-900 mb-1 leading-tight group-hover:text-teal-700 transition-colors">
+      <a href={`/adopt/${pet.id}`} class="hover:underline">{pet.name}</a>
+    </h3>
     <p class="text-sm text-gray-500 mb-4 line-clamp-1">{pet.breed}</p>
     <div class="flex flex-wrap gap-1.5 mb-6">
-      {chips.map((chip) => <span class="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md uppercase tracking-widest">{chip}</span>)}
+      {chips.map((chip) => (
+        <span class={`px-2.5 py-1 text-xs font-semibold rounded-lg border uppercase tracking-wider ${chip.style}`}>
+          {chip.label}
+        </span>
+      ))}
     </div>
-    <span class="mt-auto text-sm font-bold text-teal-700 uppercase tracking-widest group-hover:text-teal-900 transition-colors">Meet {pet.name} &rarr;</span>
+    <div class="mt-auto flex items-center justify-between pt-2 border-t border-teal-950/5">
+      <a href={`/adopt/${pet.id}`} class="text-xs font-bold text-teal-700 uppercase tracking-widest hover:text-teal-900 transition-colors inline-flex items-center gap-1">
+        <span>Meet {pet.name}</span>
+        <svg class="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <button
+        type="button"
+        class="text-xs font-semibold text-teal-800 hover:text-teal-950 hover:underline cursor-pointer sm:hidden"
+        data-pet-quickview-btn
+      >
+        Quick View
+      </button>
+    </div>
   </div>
-</a>
+</div>

@@ -123,7 +123,8 @@ const availableLetters = letterGroups.map((g) => g.letter);
 
       <!-- Sticky Filter & Discovery Bar -->
       <nav 
-        class="sticky top-16 sm:top-20 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/90 shadow-md p-3 sm:p-4 mb-6 sm:mb-8 space-y-2.5 sm:space-y-3"
+        class="sticky z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/90 shadow-md p-3 sm:p-4 mb-6 sm:mb-8 space-y-2.5 sm:space-y-3"
+        style="top: calc(var(--monroe-nav-height, 96px) + 0.5rem);"
         aria-label="Filter and search tribute registry"
       >
         <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">

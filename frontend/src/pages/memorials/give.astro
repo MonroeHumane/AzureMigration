@@ -24,24 +24,24 @@ const MEMORIAL_EMAIL = 'jackie@monroe-humane.org';
   title="Memorials & Planned Giving | 734-243-3669"
   description="Leave a lasting legacy for the animals of Monroe County through memorials, tributes, and planned giving."
 >
-  <div class="pb-24 px-4 max-w-5xl mx-auto space-y-24">
+  <div class="pb-16 px-4 max-w-5xl mx-auto space-y-12 sm:space-y-16 lg:space-y-20">
     <!-- Hero Section -->
-    <section class="flex flex-col lg:flex-row gap-12 lg:items-center bg-teal-900 rounded-[2.5rem] p-10 lg:p-16 text-cream relative overflow-hidden" aria-labelledby="monroe-memorials-title">
+    <section class="flex flex-col lg:flex-row gap-8 lg:gap-12 lg:items-center bg-teal-900 rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 lg:p-14 text-cream relative overflow-hidden" aria-labelledby="monroe-memorials-title">
       <div class="flex-1 relative z-10">
         <p class="text-emerald-300 font-bold uppercase tracking-widest text-sm mb-4">A gift that carries love forward</p>
-        <h1 id="monroe-memorials-title" class="text-4xl lg:text-5xl font-serif text-white mb-6">Memorials &amp; planned giving</h1>
-        <p class="text-xl text-teal-50 mb-10 leading-relaxed max-w-xl">
+        <h1 id="monroe-memorials-title" class="text-3xl sm:text-4xl lg:text-5xl font-serif text-white mb-4 sm:mb-6">Memorials &amp; planned giving</h1>
+        <p class="text-base sm:text-xl text-teal-50 mb-8 sm:mb-10 leading-relaxed max-w-xl">
           Celebrate someone who loved animals with a gift that provides food, medical care, and a safe place for pets waiting for home.
         </p>
 
-        <div class="flex flex-wrap gap-4 mb-8">
-          <a class="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-1 shadow-lg" href={MEMORIAL_GIVING_URL} target="_blank" rel="noopener noreferrer">
+        <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-8">
+          <a class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-7 py-4 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-1 shadow-lg min-h-[48px]" href={MEMORIAL_GIVING_URL} target="_blank" rel="noopener noreferrer">
             <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"></path></svg>
             Make a memorial gift
           </a>
-          <a class="inline-flex items-center gap-2 px-7 py-4 rounded-full border-2 border-teal-600 text-white font-bold uppercase tracking-wider transition-all hover:bg-teal-800 hover:-translate-y-1" href="/memorials">
+          <a class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-7 py-4 rounded-full border-2 border-teal-600 text-white font-bold uppercase tracking-wider transition-all hover:bg-teal-800 hover:-translate-y-1 min-h-[48px]" href="/memorials">
             Visit the honor roll
-            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
           </a>
         </div>
 
@@ -157,7 +157,7 @@ const MEMORIAL_EMAIL = 'jackie@monroe-humane.org';
     </section>
 
     <!-- Planned Giving -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12" aria-labelledby="monroe-memorials-planned-heading">
+    <section id="PlannedGiving" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 scroll-mt-28" aria-labelledby="monroe-memorials-planned-heading">
       <div class="lg:col-span-8">
         <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-3">A legacy of compassion</p>
         <h2 id="monroe-memorials-planned-heading" class="text-3xl lg:text-4xl font-serif text-teal-900 mb-8">Let your love for animals live on</h2>

@@ -122,6 +122,15 @@ const sideNavSections = [
     <!-- 1. Hero -->
     <div class="wp-block-cover has-custom-content-position is-position-center-center home-editable-hero" id="Top">
       <span aria-hidden="true" class="wp-block-cover__background has-contrast-background-color has-background-dim-40 has-background-dim"></span>
+      <div class="home-hero-poster-backdrop" aria-hidden="true">
+        <img
+          src={home.hero.video_poster}
+          alt=""
+          loading="eager"
+          decoding="async"
+          class="home-hero-poster-img"
+        />
+      </div>
       <video
         class="wp-block-cover__video-background intrinsic-ignore"
         muted
@@ -129,7 +138,24 @@ const sideNavSections = [
         playsinline
         autoplay
         poster={home.hero.video_poster}
-        src={home.hero.video_src}></video>
+        src={home.hero.video_src}
+        data-hero-video></video>
+      <button
+        type="button"
+        class="home-hero-video-toggle"
+        data-hero-video-toggle
+        aria-label="Pause background video"
+        title="Pause background motion"
+      >
+        <svg class="home-hero-toggle-icon home-hero-toggle-icon--pause" viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
+          <rect x="5" y="4" width="4" height="16" rx="1.5"></rect>
+          <rect x="15" y="4" width="4" height="16" rx="1.5"></rect>
+        </svg>
+        <svg class="home-hero-toggle-icon home-hero-toggle-icon--play" viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
+          <polygon points="6 4 20 12 6 20 6 4"></polygon>
+        </svg>
+        <span class="home-hero-toggle-label" data-hero-video-toggle-label>Pause</span>
+      </button>
       <div class="wp-block-cover__inner-container is-layout-flow">
         <div class="wp-block-group home-editable-hero-panel is-layout-constrained">
           <p class="home-editable-hero-display wp-block-paragraph">{home.hero.display}</p>
@@ -1294,7 +1320,82 @@ const sideNavSections = [
       }
       if (hoursDot) hoursDot.classList.toggle('is-open', isOpen);
     }
+
+    // Hero video background & low-power / data-saver poster fallback
+    const hero = document.getElementById('Top');
+    if (hero) {
+      const video = hero.querySelector<HTMLVideoElement>('[data-hero-video]');
+      const toggleBtn = hero.querySelector<HTMLButtonElement>('[data-hero-video-toggle]');
+      const toggleLabel = hero.querySelector<HTMLElement>('[data-hero-video-toggle-label]');
+
+      if (video && toggleBtn) {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const prefersReducedData = window.matchMedia('(prefers-reduced-data: reduce)').matches;
+        const saveData = !!(navigator as any).connection?.saveData;
+
+        let isPaused = prefersReducedMotion || prefersReducedData || saveData;
+
+        const updateToggleUI = (paused: boolean) => {
+          if (paused) {
+            hero.classList.add('is-motion-paused');
+            toggleBtn.setAttribute('aria-label', 'Play background video');
+            toggleBtn.setAttribute('title', 'Play background video');
+            if (toggleLabel) toggleLabel.textContent = 'Play';
+          } else {
+            hero.classList.remove('is-motion-paused');
+            toggleBtn.setAttribute('aria-label', 'Pause background video');
+            toggleBtn.setAttribute('title', 'Pause background motion');
+            if (toggleLabel) toggleLabel.textContent = 'Pause';
+          }
+        };
+
+        const handleVideoPlaying = () => {
+          if (!isPaused) {
+            hero.classList.add('is-video-playing');
+          }
+        };
+
+        video.addEventListener('playing', handleVideoPlaying);
+        video.addEventListener('canplay', handleVideoPlaying);
+
+        if (!video.paused) {
+          handleVideoPlaying();
+        }
+
+        if (isPaused) {
+          video.pause();
+          updateToggleUI(true);
+        } else {
+          // Attempt playback; gracefully catch Low Power Mode / battery-saver rejections
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                handleVideoPlaying();
+                updateToggleUI(false);
+              })
+              .catch(() => {
+                // Autoplay blocked by browser policy / battery saver
+                isPaused = true;
+                updateToggleUI(true);
+              });
+          }
+        }
+
+        toggleBtn.addEventListener('click', () => {
+          if (isPaused) {
+            isPaused = false;
+            updateToggleUI(false);
+            video.play().then(handleVideoPlaying).catch(() => {});
+          } else {
+            isPaused = true;
+            updateToggleUI(true);
+            video.pause();
+          }
+        });
+      }
     }
+  }
 
   document.addEventListener('astro:page-load', initHomePage);
 </script>

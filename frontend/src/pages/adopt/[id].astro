@@ -51,15 +51,15 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
   <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12 pb-28 sm:pb-12">
     <a class="inline-block text-teal-700 font-bold mb-8 hover:text-teal-900 transition-colors uppercase tracking-wider text-sm" href="/adopt" data-smart-back>&larr; Back to all pets</a>
 
-    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200 lg:flex gap-10 p-6 sm:p-10 mb-16">
-      <div class="w-full lg:w-5/12 flex-shrink-0 relative rounded-2xl overflow-hidden bg-gray-100 aspect-square lg:aspect-[4/5] self-start mb-8 lg:mb-0">
+    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200 md:flex md:gap-8 lg:gap-10 p-5 sm:p-8 lg:p-10 mb-16">
+      <div class="w-full md:w-5/12 lg:w-5/12 flex-shrink-0 relative rounded-2xl overflow-hidden bg-gray-100 aspect-square md:aspect-[4/5] self-start mb-6 md:mb-0">
         <Image src={photo} alt={pet.name} width={480} height={600} decoding="async" class="w-full h-full object-cover absolute inset-0" />
         <span class="absolute top-4 left-4 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full font-bold text-teal-900 tracking-wider text-sm shadow-sm">{speciesTag}</span>
       </div>
 
       <div class="flex-1">
-        <h1 class="font-serif text-4xl sm:text-5xl text-teal-900 mb-2">{pet.name}</h1>
-        <p class="text-lg text-gray-500 mb-6 font-medium">{pet.breed}</p>
+        <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-teal-900 mb-2">{pet.name}</h1>
+        <p class="text-base sm:text-lg text-gray-500 mb-6 font-medium">{pet.breed}</p>
 
         <div class="flex flex-wrap gap-2 mb-8">
           <span class={`px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide ${chipClasses[pet.type] || chipClasses.other}`}>{speciesTag}</span>
@@ -69,7 +69,7 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
           {pet.color && <span class="px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide bg-slate-100 text-slate-800">{pet.color}</span>}
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-8 bg-gray-50 rounded-2xl p-6 border border-gray-100">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-8 bg-gray-50 rounded-2xl p-4 sm:p-6 border border-gray-100">
           <div class="flex flex-col"><strong class="text-xs uppercase tracking-widest text-gray-400 mb-1">Location</strong><span class="font-medium text-gray-800">{pet.location || 'Shelter'}</span></div>
           {intakeDisplay && <div class="flex flex-col"><strong class="text-xs uppercase tracking-widest text-gray-400 mb-1">At the shelter since</strong><span class="font-medium text-gray-800">{intakeDisplay}</span></div>}
           {pet.declawed && <div class="flex flex-col"><strong class="text-xs uppercase tracking-widest text-gray-400 mb-1">Declawed</strong><span class="font-medium text-gray-800">{pet.declawed}</span></div>}
@@ -82,8 +82,8 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
         </div>
 
         <div class="flex flex-wrap gap-4 pt-8 border-t border-gray-200">
-          <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-teal-700 text-white transition-all shadow-md hover:-translate-y-1 hover:bg-teal-900" href="/adoptions#Application">Apply to Adopt {pet.name} &rarr;</a>
-          <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-transparent border-2 border-teal-700 text-teal-700 transition-all hover:-translate-y-1 hover:bg-teal-50" href="tel:734-243-3669">(734) 243-3669</a>
+          <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-teal-700 text-white transition-all shadow-md hover:-translate-y-1 hover:bg-teal-900 min-h-[48px]" href="/adoptions#Application">Apply to Adopt {pet.name} &rarr;</a>
+          <a class="inline-flex items-center justify-center w-full sm:w-auto font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-transparent border-2 border-teal-700 text-teal-700 transition-all hover:-translate-y-1 hover:bg-teal-50 min-h-[48px]" href="tel:734-243-3669">(734) 243-3669</a>
         </div>
       </div>
     </div>

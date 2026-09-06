@@ -99,18 +99,22 @@ body.home-editable-has-flyers-rail {
   /* Explicit width so the cross-axis sizing in the shell's column flex resolves
      to "fill, then clamp at max-width" instead of shrink-to-fit content. */
   width: 100%;
-  /* Wins over block editor inline min-height on the cover block */
-  min-height: clamp(260px, 34vh, 420px) !important;
+  /* Accommodate full content gracefully without vertical flex overflow */
+  min-height: clamp(380px, 46vh, 560px) !important;
+  /* Anchor content at top of hero so it never centers into negative space behind fixed nav */
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
   /* Core `wp-block-cover` uses overflow:hidden; that clips CTA edges, hover lift, and shadows. */
   overflow: visible !important;
-  /* Small top safety margin so hero text never sits flush against the fixed
-     nav, even if --monroe-nav-height is briefly a pixel or two stale. */
-  padding: 1rem var(--monroe-home-hero-pad-x) clamp(2.25rem, 4vw, 3rem);
+  /* Generous top clearance so hero text is always comfortably distanced from the fixed nav */
+  padding: clamp(1.5rem, 3vw, 2.5rem) var(--monroe-home-hero-pad-x) clamp(2.25rem, 4vw, 3rem);
   box-sizing: border-box;
 }
 
 .home-editable-hero-panel {
-  max-width: 720px;
+  max-width: min(860px, 100%);
   margin-inline: auto;
   padding: 0.35rem 0 0.65rem;
   text-align: center;
@@ -144,6 +148,131 @@ body.home-editable-has-flyers-rail {
   background:
     linear-gradient(120deg, rgba(11, 23, 24, 0.74) 12%, rgba(11, 23, 24, 0.38) 56%, rgba(11, 23, 24, 0.72) 100%),
     linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.4));
+}
+
+/* --------------------------------------------------------------------------
+   Hero Video & Low-Bandwidth Animated Poster Backdrop
+   Instant-rendering poster prevents black flash on mobile / low-power mode
+   -------------------------------------------------------------------------- */
+.home-hero-poster-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-hero-poster-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.02);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: hero-poster-breathe 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes hero-poster-breathe {
+  0% {
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+  50% {
+    transform: translate(-50%, -48%) scale(1.05);
+  }
+  100% {
+    transform: translate(-49%, -51%) scale(1.03);
+  }
+}
+
+.home-editable-hero .wp-block-cover__video-background {
+  opacity: 0;
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.home-editable-hero.is-video-playing .wp-block-cover__video-background {
+  opacity: 1;
+}
+
+.home-editable-hero.is-motion-paused .wp-block-cover__video-background {
+  opacity: 0 !important;
+}
+
+.home-editable-hero.is-motion-paused .home-hero-poster-img {
+  animation: none !important;
+  transform: translate(-50%, -50%) scale(1.02) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-poster-img {
+    animation: none !important;
+    transform: translate(-50%, -50%) scale(1.02) !important;
+  }
+}
+
+/* Motion / Video Pause & Play Frosted Glass Pill (WCAG 2.2.2 Pause, Stop, Hide) */
+.home-hero-video-toggle {
+  position: absolute;
+  bottom: clamp(0.75rem, 1.8vw, 1.25rem);
+  right: clamp(0.75rem, 1.8vw, 1.5rem);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.32rem 0.65rem 0.32rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(11, 23, 24, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--monroe-font-sans, "Montserrat", "Segoe UI", sans-serif);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: background 200ms ease, border-color 200ms ease, transform 200ms ease, color 200ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.home-hero-video-toggle:hover {
+  background: rgba(11, 23, 24, 0.82);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.home-hero-video-toggle:focus-visible {
+  outline: 2px solid #5eead4;
+  outline-offset: 2px;
+}
+
+.home-hero-video-toggle .home-hero-toggle-icon--play {
+  display: none;
+}
+
+.home-hero-video-toggle .home-hero-toggle-icon--pause {
+  display: block;
+}
+
+.home-editable-hero.is-motion-paused .home-hero-video-toggle .home-hero-toggle-icon--play {
+  display: block;
+}
+
+.home-editable-hero.is-motion-paused .home-hero-video-toggle .home-hero-toggle-icon--pause {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .home-editable-hero.wp-block-cover,
+  .wp-block-cover.home-editable-hero {
+    padding-bottom: 3.25rem !important;
+  }
 }
 
 .home-editable-logo {
@@ -2042,8 +2171,8 @@ body.home .sponsor-widget-shell .sponsor-card {
   .wp-block-cover.home-editable-hero,
   .home-editable-hero.wp-block-cover,
   .wp-block-cover.home-editable-hero {
-    min-height: clamp(220px, 42vh, 380px) !important;
-    padding: 0 var(--monroe-home-hero-pad-x) 2.75rem;
+    min-height: clamp(340px, 45vh, 480px) !important;
+    padding: 1.25rem var(--monroe-home-hero-pad-x) 2.25rem;
   }
 .home-editable-hero-display,
   .home-editable-hero-display {
@@ -2604,16 +2733,23 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
 
 .home-editable-stat-grid--hero .home-editable-stat,
 .home-editable-stat-grid--hero .home-editable-stat {
-  padding: 0.85rem 0.95rem;
-  border-radius: 14px;
-  background: rgba(11, 23, 24, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(8px);
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: rgba(11, 23, 24, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: transform 240ms ease, border-color 240ms ease, background 240ms ease, box-shadow 240ms ease;
 }
 
-.home-editable-stat-grid--hero .home-editable-stat strong,
-.home-editable-stat-grid--hero .home-editable-stat h3,
-.home-editable-stat-grid--hero .home-editable-stat p,
+.home-editable-stat-grid--hero .home-editable-stat:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(11, 23, 24, 0.75);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
 .home-editable-stat-grid--hero .home-editable-stat strong,
 .home-editable-stat-grid--hero .home-editable-stat h3,
 .home-editable-stat-grid--hero .home-editable-stat p {
@@ -2622,7 +2758,41 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
 
 .home-editable-stat-grid--hero .home-editable-stat.is-accent,
 .home-editable-stat-grid--hero .home-editable-stat.is-accent {
-  background: rgba(15, 118, 110, 0.72);
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.85) 0%, rgba(13, 148, 136, 0.75) 100%);
+  border-color: rgba(94, 234, 212, 0.4);
+  box-shadow: 0 8px 24px -4px rgba(13, 148, 136, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Modernized Hero Action Buttons */
+.home-editable-hero .wp-block-button__link {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, background 200ms ease !important;
+}
+
+.home-editable-hero .wp-block-button__link:hover {
+  transform: translateY(-2px);
+}
+
+.home-editable-hero .wp-block-button:first-child .wp-block-button__link {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 8px 20px -4px rgba(5, 150, 105, 0.4) !important;
+}
+
+.home-editable-hero .home-editable-hero-btn--orange .wp-block-button__link {
+  background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 8px 20px -4px rgba(234, 88, 12, 0.4) !important;
+}
+
+.home-editable-hero .wp-block-button.is-style-outline .wp-block-button__link {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.home-editable-hero .wp-block-button.is-style-outline .wp-block-button__link:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .monroe-native-inner--membership .home-editable-membership-grid {

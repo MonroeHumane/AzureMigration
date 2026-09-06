@@ -40,20 +40,25 @@ const filterCategories = [
   <div class="pb-16 px-4 max-w-7xl mx-auto">
     <header class="text-center mb-8 sm:mb-10 max-w-3xl mx-auto">
       <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-2">Events</p>
-      <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif text-teal-900 mb-3">Events | Monroe County</h1>
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-serif text-teal-900 mb-3">Events | Monroe County</h1>
       <p class="text-base sm:text-lg text-gray-600 leading-relaxed">
           Join us for fundraisers, adoption promotions, and community nights. Thank you to the businesses and families who sponsor our work.
       </p>
     </header>
 
     <section id="Calendar" class="mb-8 sm:mb-10 text-center max-w-4xl mx-auto">
-      <div class="bg-gradient-to-r from-[#173a39] via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-md border border-teal-800/80">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-5 text-left">
-          <div class="space-y-1.5 max-w-xl">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+      <div class="relative overflow-hidden bg-gradient-to-r from-[#133c39] via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-teal-700/60">
+        <!-- Ambient radiant glow orbs -->
+        <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
+        <div class="absolute -left-12 -bottom-12 w-64 h-64 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+        <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-5 text-left">
+          <div class="space-y-2 max-w-xl">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-400/15 text-emerald-300 border border-emerald-400/25">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
               Live Calendar Sync
             </span>
-            <h2 class="text-xl sm:text-2xl font-serif font-bold text-white">Never Miss a Shelter Event</h2>
+            <h2 class="text-xl sm:text-2xl font-serif font-bold text-white tracking-tight">Never Miss a Shelter Event</h2>
             <p class="text-xs sm:text-sm text-teal-100/90 leading-relaxed">
               Add our fundraisers, adoption promotions, and clinic dates to your personal phone calendar. Syncs automatically with Apple Calendar, Google Calendar, and Outlook.
             </p>
@@ -62,7 +67,7 @@ const filterCategories = [
             <a
               href="/events.ics"
               download="monroe-humane-events.ics"
-              class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-teal-950 transition shadow-sm cursor-pointer"
+              class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-teal-950 transition shadow-md hover:-translate-y-0.5 cursor-pointer"
               title="Download iCalendar Subscription Feed"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -76,7 +81,7 @@ const filterCategories = [
             <button
               type="button"
               id="btn-open-sync-modal"
-              class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-teal-100 transition border border-white/10 cursor-pointer"
+              class="inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-teal-100 transition border border-white/20 backdrop-blur-xs cursor-pointer hover:-translate-y-0.5"
             >
               <span>Setup Guide</span>
             </button>
@@ -145,7 +150,7 @@ const filterCategories = [
 
     <section aria-labelledby="upcoming-events-heading" class="mb-24">
       <div class="text-center mb-10">
-        <h2 id="upcoming-events-heading" class="text-3xl font-serif text-teal-900 mb-4">Current &amp; Upcoming Events</h2>
+        <h2 id="upcoming-events-heading" class="text-2xl sm:text-3xl md:text-4xl font-serif text-teal-900 mb-4">Current &amp; Upcoming Events</h2>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">
           Fundraisers, adoption promotions, and community nights - explore below or search by host and category.
         </p>
@@ -176,13 +181,13 @@ const filterCategories = [
           </div>
         </div>
 
-        <!-- Filter Pills -->
-        <div class="flex flex-wrap gap-2 items-center" id="event-filter-pills" role="tablist" aria-label="Event Categories">
+        <!-- Filter Pills: Swipeable single line on mobile, wrapped row on desktop -->
+        <div class="w-full max-w-full min-w-0 flex items-center overflow-x-auto sm:flex-wrap gap-2 no-scrollbar py-1" id="event-filter-pills" role="tablist" aria-label="Event Categories">
           {filterCategories.map((cat, idx) => (
             <button
               type="button"
               data-cat-filter={cat.key}
-              class={`px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition border ${idx === 0 ? 'bg-teal-800 text-white border-teal-800 shadow-xs active-filter-pill' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+              class={`px-3.5 py-1.5 shrink-0 min-h-[36px] flex items-center rounded-xl text-xs font-semibold cursor-pointer transition border ${idx === 0 ? 'bg-teal-800 text-white border-teal-800 shadow-xs active-filter-pill' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
               role="tab"
               aria-selected={idx === 0 ? "true" : "false"}
             >
@@ -203,22 +208,23 @@ const filterCategories = [
             const searchIndex = `${event.title} ${event.description} ${cat.label}`.toLowerCase();
             return (
               <li class="flex event-card-item" data-event-item data-category={cat.key} data-search={searchIndex}>
-                <div class="group w-full flex flex-col bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div class="group w-full flex flex-col bg-white border border-teal-950/10 rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(19,60,57,0.07)] hover:shadow-[0_20px_35px_-10px_rgba(19,60,57,0.16)] hover:-translate-y-1.5 hover:border-teal-700/30 transition-all duration-300">
                   <a href={event.link_url} class="aspect-[4/5] bg-gray-100 relative overflow-hidden flex-shrink-0 block" target="_blank" rel="noopener noreferrer">
                     {event.image ? (
-                      <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={event.image} alt={event.title} loading="lazy" decoding="async" />
+                      <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src={event.image} alt={event.title} loading="lazy" decoding="async" />
                     ) : (
                       <div class="absolute inset-0 flex items-center justify-center bg-teal-900/5 text-teal-800/30" aria-hidden="true">
                         <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                       </div>
                     )}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-50 group-hover:opacity-75 transition-opacity duration-300 pointer-events-none" aria-hidden="true"></div>
                   </a>
                   <div class="p-6 flex flex-col flex-1">
                     <div class="flex items-center justify-between gap-2 mb-2">
-                      <span class="text-emerald-600 font-bold text-xs uppercase tracking-wider">
+                      <span class="text-emerald-700 font-bold text-xs uppercase tracking-wider">
                         {event.event_date && new Date(event.event_date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                       </span>
-                      <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${cat.badgeClass}`}>
+                      <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border backdrop-blur-xs ${cat.badgeClass}`}>
                         {cat.label}
                       </span>
                     </div>

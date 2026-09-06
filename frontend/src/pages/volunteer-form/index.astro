@@ -34,11 +34,18 @@ const volunteerRoles = [
 >
   <div class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
     <!-- Header Hero -->
-    <header class="bg-teal-900 text-cream p-6 sm:p-10 rounded-3xl mb-8 shadow-lg relative overflow-hidden">
+    <header class="relative overflow-hidden bg-gradient-to-br from-[#133c39] via-[#1a4f4b] to-[#0f2e2c] text-cream p-7 sm:p-12 rounded-3xl mb-8 shadow-xl border border-teal-700/60">
+      <!-- Ambient radiant glow orbs -->
+      <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
+      <div class="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-amber-400/12 blur-3xl pointer-events-none" aria-hidden="true"></div>
+
       <div class="relative z-10 max-w-3xl">
-        <p class="uppercase tracking-widest font-bold text-sm text-emerald-300 mb-2">Make a Difference</p>
-        <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-4 leading-tight">Volunteer Application</h1>
-        <p class="text-base sm:text-lg text-cream-100 opacity-90 leading-relaxed">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-400/15 text-emerald-300 border border-emerald-400/25 mb-3">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+          Make a Difference
+        </span>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-3 leading-tight tracking-tight">Volunteer Application</h1>
+        <p class="text-base sm:text-lg text-cream-100/90 leading-relaxed font-light">
           Volunteers are the heartbeat of our shelter. Whether walking dogs, socializing rescue cats, assisting at community fundraisers, or keeping shelter facilities clean, your time directly saves lives.
         </p>
       </div>
@@ -54,7 +61,7 @@ const volunteerRoles = [
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {volunteerRoles.map((role) => (
-          <div class="bg-white rounded-2xl border border-teal-900/10 p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div class="bg-white rounded-3xl border border-teal-950/10 p-6 shadow-[0_4px_20px_-4px_rgba(19,60,57,0.07)] flex flex-col justify-between hover:shadow-[0_20px_35px_-10px_rgba(19,60,57,0.15)] hover:border-teal-700/30 hover:-translate-y-1 transition-all duration-300">
             <div>
               <span class="inline-block px-2.5 py-1 bg-teal-50 text-teal-800 text-[11px] font-bold rounded-full mb-3">
                 {role.time}
@@ -87,8 +94,8 @@ const volunteerRoles = [
     </section>
 
     <!-- Embedded Application Form -->
-    <section class="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 sm:p-10 mb-16" aria-labelledby="monroe-volunteer-form-heading">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-100">
+    <section class="bg-white rounded-3xl shadow-sm border border-gray-200 p-4 sm:p-8 md:p-10 mb-12 sm:mb-16" aria-labelledby="monroe-volunteer-form-heading">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-gray-100">
         <div>
           <h2 id="monroe-volunteer-form-heading" class="text-2xl sm:text-3xl font-serif text-teal-900">Online Application</h2>
           <p class="text-xs text-gray-500 mt-1">Please fill out each section completely. Our volunteer coordinator will follow up via email.</p>
@@ -105,7 +112,7 @@ const volunteerRoles = [
         </div>
       </div>
       
-      <div class="w-full relative min-h-[960px] md:min-h-[820px] bg-gray-50 rounded-2xl overflow-hidden shadow-inner border border-gray-200">
+      <div class="w-full relative min-h-[760px] sm:min-h-[860px] md:min-h-[960px] bg-gray-50 rounded-2xl overflow-hidden shadow-inner border border-gray-200">
         <iframe
           title="Volunteer application form"
           src={`${VOLUNTEER_FORM_URL}?embedded=true`}

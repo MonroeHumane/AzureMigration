@@ -7,6 +7,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
   /* Keep hash / in-page targets from landing under the fixed global nav */
   scroll-padding-top: calc(
     var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + var(--monroe-scroll-anchor-gap, 12px)
@@ -102,6 +103,8 @@ body.monroe-rebuild-theme h3 {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
   scroll-margin-top: calc(
     var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + var(--monroe-scroll-anchor-gap, 12px)
   );
@@ -109,10 +112,13 @@ body.monroe-rebuild-theme h3 {
 
 /* In-page fragment targets inside main clear the fixed nav */
 #monroe-main section[id],
+#monroe-main div[id],
+#monroe-main article[id],
+#monroe-main h1[id],
 #monroe-main h2[id],
 #monroe-main h3[id] {
   scroll-margin-top: calc(
-    var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + 0.75rem
+    var(--monroe-nav-height, 96px) + var(--monroe-sticky-wayfinding-offset, 0px) + 1rem
   );
 }
 
@@ -1128,5 +1134,371 @@ a, button, input, select, textarea {
   textarea {
     font-size: 16px !important;
   }
+}
+
+/* ==========================================================================
+   Pet Quick-View Slide-Out Drawer & Mobile Bottom Sheet
+   ========================================================================== */
+.pet-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
+.pet-drawer[open] {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.pet-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 23, 24, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1;
+}
+
+.pet-drawer__panel {
+  position: relative;
+  z-index: 2;
+  background: #ffffff;
+  width: min(500px, 100vw);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.2);
+  transform: translateX(100%);
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.pet-drawer[open] .pet-drawer__panel {
+  transform: translateX(0);
+}
+
+/* Mobile Bottom-Sheet Presentation (< 640px) */
+@media (max-width: 639px) {
+  .pet-drawer {
+    align-items: flex-end;
+  }
+
+  .pet-drawer__panel {
+    width: 100vw;
+    height: min(88dvh, 720px);
+    border-radius: 28px 28px 0 0;
+    transform: translateY(100%);
+    box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.25);
+  }
+
+  .pet-drawer[open] .pet-drawer__panel {
+    transform: translateY(0);
+  }
+}
+
+.pet-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(15, 118, 110, 0.1);
+  background: #ffffff;
+  position: relative;
+  z-index: 5;
+}
+
+.pet-drawer__badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(15, 118, 110, 0.08);
+  color: #0f766e;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(15, 118, 110, 0.15);
+}
+
+.pet-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.pet-drawer__close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: scale(1.05);
+}
+
+.pet-drawer__close:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+.pet-drawer__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pet-drawer__media {
+  position: relative;
+  aspect-ratio: 16 / 11;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.pet-drawer__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-drawer__media-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.pet-drawer__status-badge {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pet-drawer__content {
+  padding: 1.25rem 1.5rem 1.75rem;
+}
+
+.pet-drawer__title {
+  font-family: var(--monroe-font-display, 'Abril Fatface', Georgia, serif);
+  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+  color: #133c39;
+  margin: 0 0 0.25rem;
+  line-height: 1.1;
+}
+
+.pet-drawer__breed {
+  font-size: 0.92rem;
+  color: #64748b;
+  margin: 0 0 1rem;
+}
+
+.pet-drawer__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.pet-drawer__specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.pet-drawer__spec {
+  display: flex;
+  flex-direction: column;
+}
+
+.pet-drawer__spec-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 0.15rem;
+}
+
+.pet-drawer__spec-value {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.pet-drawer__bio-heading {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #0f766e;
+  margin: 0 0 0.5rem;
+}
+
+.pet-drawer__bio-text {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: #334155;
+}
+
+.pet-drawer__footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(15, 118, 110, 0.1);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  position: relative;
+  z-index: 5;
+}
+
+.pet-drawer__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.pet-drawer__cta--primary {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+}
+
+.pet-drawer__cta--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.45);
+}
+
+.pet-drawer__cta--secondary {
+  background: #f1f5f9;
+  color: #0f766e !important;
+  border: 1px solid rgba(15, 118, 110, 0.15);
+}
+
+.pet-drawer__cta--secondary:hover {
+  background: #e2e8f0;
+  color: #133c39 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Floating Back to Top Button
+   -------------------------------------------------------------------------- */
+.masw-back-to-top {
+  position: fixed;
+  bottom: clamp(1rem, 2.5vw, 1.75rem);
+  right: clamp(1rem, 2.5vw, 1.75rem);
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.95rem 0.55rem 0.8rem;
+  border-radius: 9999px;
+  background: rgba(19, 60, 57, 0.88);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 240ms ease, transform 240ms ease, background 200ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.masw-back-to-top.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.masw-back-to-top:hover {
+  background: rgba(19, 60, 57, 0.98);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+.masw-back-to-top:focus-visible {
+  outline: 2px solid #5eead4;
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Active Filter Chip Pills
+   -------------------------------------------------------------------------- */
+.masw-chip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f766e;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.masw-chip-pill-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(15, 118, 110, 0.18);
+  color: #0f766e;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 11px;
+  line-height: 1;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.masw-chip-pill-remove:hover {
+  background: #0f766e;
+  color: #ffffff;
 }
 
