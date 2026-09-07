@@ -360,40 +360,6 @@
 </section>
 
 <script>
-  // Tab Switching Logic
-  const tabButtons = document.querySelectorAll<HTMLButtonElement>('.statement-tab-btn');
-  const panels = document.querySelectorAll<HTMLElement>('.statement-panel');
-
-  tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tabKey = btn.getAttribute('data-statement-tab');
-      if (!tabKey) return;
-
-      // Update button styles
-      tabButtons.forEach(b => {
-        b.classList.remove('active', 'bg-[#173a39]', 'text-white');
-        b.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
-      });
-      btn.classList.add('active', 'bg-[#173a39]', 'text-white');
-      btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
-
-      // Show targeted panel
-      panels.forEach(p => p.classList.add('hidden'));
-      const targetPanel = document.getElementById(`tab-panel-${tabKey}`);
-      if (targetPanel) {
-        targetPanel.classList.remove('hidden');
-      }
-    });
-  });
-
-  // Tabular Filtering & Search Logic
-  const filterPills = document.querySelectorAll<HTMLButtonElement>('.filter-pill');
-  const searchInput = document.getElementById('statement-search-input') as HTMLInputElement | null;
-  const filteredCountEl = document.getElementById('filtered-count');
-  const filteredCreditsEl = document.getElementById('filtered-credits');
-  const filteredDebitsEl = document.getElementById('filtered-debits');
-  const emptyStateEl = document.getElementById('statement-empty-state');
-
   let activeFilter = 'all';
   let activeQuery = '';
 
@@ -401,8 +367,13 @@
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(num);
   };
 
-  const applyTableFilters = () => {
+  function applyTableFilters() {
     const currentRows = document.querySelectorAll<HTMLTableRowElement>('.statement-row');
+    const filteredCountEl = document.getElementById('filtered-count');
+    const filteredCreditsEl = document.getElementById('filtered-credits');
+    const filteredDebitsEl = document.getElementById('filtered-debits');
+    const emptyStateEl = document.getElementById('statement-empty-state');
+
     let visibleCount = 0;
     let sumCredits = 0;
     let sumDebits = 0;
@@ -453,66 +424,119 @@
         emptyStateEl.classList.add('hidden');
       }
     }
-  };
+  }
 
-  filterPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      const filter = pill.getAttribute('data-filter') || 'all';
-      activeFilter = filter;
+  function initBankStatementViewer() {
+    // Tab Switching Logic
+    const tabButtons = document.querySelectorAll<HTMLButtonElement>('.statement-tab-btn');
+    const panels = document.querySelectorAll<HTMLElement>('.statement-panel');
 
-      filterPills.forEach(p => {
-        p.classList.remove('active', 'bg-[#173a39]', 'text-white');
-        p.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+    tabButtons.forEach(btn => {
+      if (btn.dataset.bound !== '1') {
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', () => {
+          const tabKey = btn.getAttribute('data-statement-tab');
+          if (!tabKey) return;
+
+          // Update button styles with dark ops support
+          tabButtons.forEach(b => {
+            b.classList.remove('active', 'bg-[#173a39]', 'text-white');
+            b.classList.add('bg-white', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200', 'border', 'border-slate-200', 'dark:border-teal-800/80');
+          });
+          btn.classList.add('active', 'bg-[#173a39]', 'text-white');
+          btn.classList.remove('bg-white', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200', 'border', 'border-slate-200', 'dark:border-teal-800/80');
+
+          // Show targeted panel
+          panels.forEach(p => p.classList.add('hidden'));
+          const targetPanel = document.getElementById(`tab-panel-${tabKey}`);
+          if (targetPanel) {
+            targetPanel.classList.remove('hidden');
+          }
+        });
+      }
+    });
+
+    // Tabular Filtering & Search Logic
+    const filterPills = document.querySelectorAll<HTMLButtonElement>('.filter-pill');
+    const searchInput = document.getElementById('statement-search-input') as HTMLInputElement | null;
+
+    filterPills.forEach(pill => {
+      if (pill.dataset.bound !== '1') {
+        pill.dataset.bound = '1';
+        pill.addEventListener('click', () => {
+          const filter = pill.getAttribute('data-filter') || 'all';
+          activeFilter = filter;
+
+          filterPills.forEach(p => {
+            p.classList.remove('active', 'bg-[#173a39]', 'text-white');
+            p.classList.add('bg-white', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200', 'border', 'border-slate-200', 'dark:border-teal-800/80');
+          });
+          pill.classList.add('active', 'bg-[#173a39]', 'text-white');
+          pill.classList.remove('bg-white', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200', 'border', 'border-slate-200', 'dark:border-teal-800/80');
+
+          applyTableFilters();
+        });
+      }
+    });
+
+    if (searchInput && searchInput.dataset.bound !== '1') {
+      searchInput.dataset.bound = '1';
+      searchInput.addEventListener('input', (e) => {
+        activeQuery = (e.target as HTMLInputElement).value;
+        applyTableFilters();
       });
-      pill.classList.add('active', 'bg-[#173a39]', 'text-white');
-      pill.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+    }
 
-      applyTableFilters();
-    });
-  });
+    // Dual PDF Switcher
+    const btnPdfBank = document.getElementById('btn-pdf-bank') as HTMLButtonElement | null;
+    const btnPdfQbo = document.getElementById('btn-pdf-qbo') as HTMLButtonElement | null;
+    const pdfFrame = document.getElementById('pdf-viewer-frame') as HTMLIFrameElement | null;
+    const pdfOpenNewTab = document.getElementById('pdf-open-newtab') as HTMLAnchorElement | null;
+    const pdfDownloadBtn = document.getElementById('pdf-download-btn') as HTMLAnchorElement | null;
+    const pdfTitleEl = document.getElementById('current-pdf-title');
 
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      activeQuery = (e.target as HTMLInputElement).value;
-      applyTableFilters();
-    });
-  }
+    const setPdfDocument = (btn: HTMLButtonElement) => {
+      const url = btn.getAttribute('data-pdf-url');
+      const title = btn.getAttribute('data-pdf-title');
+      if (!url || !pdfFrame) return;
 
-  // Dual PDF Switcher
-  const btnPdfBank = document.getElementById('btn-pdf-bank') as HTMLButtonElement | null;
-  const btnPdfQbo = document.getElementById('btn-pdf-qbo') as HTMLButtonElement | null;
-  const pdfFrame = document.getElementById('pdf-viewer-frame') as HTMLIFrameElement | null;
-  const pdfOpenNewTab = document.getElementById('pdf-open-newtab') as HTMLAnchorElement | null;
-  const pdfDownloadBtn = document.getElementById('pdf-download-btn') as HTMLAnchorElement | null;
-  const pdfTitleEl = document.getElementById('current-pdf-title');
+      pdfFrame.src = `${url}#toolbar=1&navpanes=0&scrollbar=1`;
+      if (pdfOpenNewTab) pdfOpenNewTab.href = url;
+      if (pdfDownloadBtn) pdfDownloadBtn.href = url;
+      if (pdfTitleEl && title) pdfTitleEl.textContent = title;
 
-  const setPdfDocument = (btn: HTMLButtonElement) => {
-    const url = btn.getAttribute('data-pdf-url');
-    const title = btn.getAttribute('data-pdf-title');
-    if (!url || !pdfFrame) return;
+      [btnPdfBank, btnPdfQbo].forEach(b => {
+        if (!b) return;
+        b.classList.remove('active', 'bg-[#173a39]', 'text-white');
+        b.classList.add('bg-white', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200', 'border', 'border-slate-200', 'dark:border-teal-800/80');
+      });
+      btn.classList.add('active', 'bg-[#173a39]', 'text-white');
+      btn.classList.remove('bg-white', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200', 'border', 'border-slate-200', 'dark:border-teal-800/80');
+    };
 
-    pdfFrame.src = `${url}#toolbar=1&navpanes=0&scrollbar=1`;
-    if (pdfOpenNewTab) pdfOpenNewTab.href = url;
-    if (pdfDownloadBtn) pdfDownloadBtn.href = url;
-    if (pdfTitleEl && title) pdfTitleEl.textContent = title;
+    if (btnPdfBank && btnPdfBank.dataset.bound !== '1') {
+      btnPdfBank.dataset.bound = '1';
+      btnPdfBank.addEventListener('click', () => setPdfDocument(btnPdfBank));
+    }
+    if (btnPdfQbo && btnPdfQbo.dataset.bound !== '1') {
+      btnPdfQbo.dataset.bound = '1';
+      btnPdfQbo.addEventListener('click', () => setPdfDocument(btnPdfQbo));
+    }
 
-    [btnPdfBank, btnPdfQbo].forEach(b => {
-      if (!b) return;
-      b.classList.remove('active', 'bg-[#173a39]', 'text-white');
-      b.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
-    });
-    btn.classList.add('active', 'bg-[#173a39]', 'text-white');
-    btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
-  };
-
-  if (btnPdfBank) {
-    btnPdfBank.addEventListener('click', () => setPdfDocument(btnPdfBank));
-  }
-  if (btnPdfQbo) {
-    btnPdfQbo.addEventListener('click', () => setPdfDocument(btnPdfQbo));
-  }
-
-  window.addEventListener('bank-statement-rendered', () => {
     applyTableFilters();
-  });
+  }
+
+  if (!window.__HSMC_BANK_RENDER_BOUND__) {
+    window.__HSMC_BANK_RENDER_BOUND__ = true;
+    window.addEventListener('bank-statement-rendered', () => {
+      applyTableFilters();
+    });
+  }
+
+  document.addEventListener('astro:page-load', initBankStatementViewer);
+  if (document.readyState !== 'loading') {
+    initBankStatementViewer();
+  } else {
+    document.addEventListener('DOMContentLoaded', initBankStatementViewer);
+  }
 </script>

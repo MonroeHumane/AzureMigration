@@ -178,7 +178,14 @@ const isCurrent = (item: NavItem) => {
 <button type="button" class="monroe-global-nav__backdrop" aria-label="Close menu" tabindex="-1" hidden></button>
 
 <script>
+  let cleanupHeaderListeners: (() => void) | null = null;
+
   function initHeader() {
+    if (cleanupHeaderListeners) {
+      cleanupHeaderListeners();
+      cleanupHeaderListeners = null;
+    }
+
     const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
     if (!header) return;
 
@@ -381,19 +388,42 @@ const isCurrent = (item: NavItem) => {
     measure();
     setCondensed();
     syncInert();
-    window.addEventListener('resize', measure, { passive: true });
-    window.addEventListener('scroll', setCondensed, { passive: true });
-    window.addEventListener('scroll', closeDropdownsOnScroll, { passive: true });
-    window.addEventListener('scroll', handleScrollAwareNav, { passive: true });
 
-    document.addEventListener('astro:before-swap', () => {
-      root.classList.remove('monroe-nav-hidden');
-    });
+    const onResize = () => measure();
+    const onScrollCondensed = () => setCondensed();
+    const onScrollClose = () => closeDropdownsOnScroll();
+    const onScrollAware = () => handleScrollAwareNav();
 
+    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener('scroll', onScrollCondensed, { passive: true });
+    window.addEventListener('scroll', onScrollClose, { passive: true });
+    window.addEventListener('scroll', onScrollAware, { passive: true });
+
+    let ro: ResizeObserver | null = null;
     if ('ResizeObserver' in window) {
-      new ResizeObserver(() => measure()).observe(header);
+      ro = new ResizeObserver(() => measure());
+      ro.observe(header);
     }
+
+    cleanupHeaderListeners = () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScrollCondensed);
+      window.removeEventListener('scroll', onScrollClose);
+      window.removeEventListener('scroll', onScrollAware);
+      if (ro) {
+        ro.disconnect();
+        ro = null;
+      }
+    };
   }
+
+  document.addEventListener('astro:before-swap', () => {
+    document.documentElement.classList.remove('monroe-nav-hidden');
+    if (cleanupHeaderListeners) {
+      cleanupHeaderListeners();
+      cleanupHeaderListeners = null;
+    }
+  });
 
   initHeader();
   document.addEventListener('astro:page-load', initHeader);

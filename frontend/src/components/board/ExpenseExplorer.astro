@@ -780,6 +780,7 @@ const monthKeys = [
 
   window.__hydrateExpenseExplorer = function(months) {
     allMonths = months || {};
+    window.__HSMC_EXPLORER_MONTHS__ = allMonths;
     if (typeof renderMonthData === 'function') {
       renderMonthData(activeMonthId);
     }
@@ -1202,6 +1203,12 @@ const monthKeys = [
     });
 
     rebindAccordionListeners();
+    if ((!allMonths || Object.keys(allMonths).length === 0) && (window as any).__HSMC_EXPLORER_MONTHS__) {
+      allMonths = (window as any).__HSMC_EXPLORER_MONTHS__;
+      if (typeof renderMonthData === 'function') {
+        renderMonthData(activeMonthId);
+      }
+    }
   }
 
   document.addEventListener('astro:page-load', initExpenseExplorer);

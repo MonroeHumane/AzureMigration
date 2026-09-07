@@ -293,14 +293,14 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       </div>
 
       <!-- User Info & Sign Out Footer -->
-      <div class="p-4 bg-[#051311] border-t border-teal-900/80 flex items-center justify-between">
+      <div class="sheet-user-footer p-4 bg-slate-50 dark:bg-[#051311] border-t border-slate-200 dark:border-teal-900/80 flex items-center justify-between">
         <div class="flex items-center gap-2.5 min-w-0">
-          <div id="sheet-user-avatar" class="w-8 h-8 rounded-full bg-emerald-600 text-emerald-100 flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
+          <div id="sheet-user-avatar" class="sheet-user-avatar w-8 h-8 rounded-full bg-teal-800 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
             SP
           </div>
           <div class="min-w-0">
-            <div class="text-[10px] text-teal-400/80 font-medium uppercase tracking-wider">Signed In</div>
-            <div id="sheet-user-email" class="text-xs font-bold text-white truncate">
+            <div class="sheet-user-label text-[10px] text-slate-500 dark:text-teal-400/80 font-bold uppercase tracking-wider">Signed In</div>
+            <div id="sheet-user-email" class="sheet-user-email text-xs font-bold text-slate-900 dark:text-white truncate">
               staff@monroe-humane.org
             </div>
           </div>
@@ -309,7 +309,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <button
           type="button"
           id="sheet-logout-btn"
-          class="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-950/70 text-rose-300 hover:bg-rose-900 hover:text-white border border-rose-800/80 transition cursor-pointer shrink-0"
+          class="sheet-logout-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-rose-950/70 text-rose-600 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-900 hover:text-rose-800 dark:hover:text-white border border-rose-200 dark:border-rose-800/80 transition cursor-pointer shrink-0 shadow-xs"
         >
           Sign Out
         </button>

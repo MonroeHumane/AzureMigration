@@ -55,74 +55,106 @@ const { sections } = Astro.props;
 </dialog>
 
 <script>
-  // 1. Bottom Sheet Logic
-  const fab = document.getElementById('toc-fab');
-  const sheet = document.getElementById('toc-bottom-sheet') as HTMLDialogElement;
-  const closeBtn = document.getElementById('close-toc');
-  const links = document.querySelectorAll('.toc-link');
+  let tocObserver: IntersectionObserver | null = null;
 
-  fab?.addEventListener('click', () => sheet?.showModal());
-  closeBtn?.addEventListener('click', () => sheet?.close());
-  
-  // Close sheet when a link is clicked
-  links.forEach(link => {
-    link.addEventListener('click', () => sheet?.close());
-  });
+  function initMobileTOC() {
+    if (tocObserver) {
+      tocObserver.disconnect();
+      tocObserver = null;
+    }
 
-  // Close sheet when clicking backdrop
-  sheet?.addEventListener('click', (e) => {
-    const dialogDimensions = sheet.getBoundingClientRect();
-    if (
-      e.clientX < dialogDimensions.left ||
-      e.clientX > dialogDimensions.right ||
-      e.clientY < dialogDimensions.top ||
-      e.clientY > dialogDimensions.bottom
-    ) {
-      sheet.close();
+    const fab = document.getElementById('toc-fab');
+    const sheet = document.getElementById('toc-bottom-sheet') as HTMLDialogElement | null;
+    const closeBtn = document.getElementById('close-toc');
+    const links = document.querySelectorAll('.toc-link');
+
+    if (!fab || !sheet) return;
+
+    if (fab.dataset.bound !== '1') {
+      fab.dataset.bound = '1';
+      fab.addEventListener('click', () => sheet.showModal());
+    }
+
+    if (closeBtn && (closeBtn as HTMLElement).dataset.bound !== '1') {
+      (closeBtn as HTMLElement).dataset.bound = '1';
+      closeBtn.addEventListener('click', () => sheet.close());
+    }
+
+    links.forEach(link => {
+      if ((link as HTMLElement).dataset.bound !== '1') {
+        (link as HTMLElement).dataset.bound = '1';
+        link.addEventListener('click', () => sheet.close());
+      }
+    });
+
+    if (sheet.dataset.bound !== '1') {
+      sheet.dataset.bound = '1';
+      sheet.addEventListener('click', (e) => {
+        const dialogDimensions = sheet.getBoundingClientRect();
+        if (
+          e.clientX < dialogDimensions.left ||
+          e.clientX > dialogDimensions.right ||
+          e.clientY < dialogDimensions.top ||
+          e.clientY > dialogDimensions.bottom
+        ) {
+          sheet.close();
+        }
+      });
+    }
+
+    // 2. Precision Intersection Observer (ScrollSpy)
+    const currentSectionLabel = document.getElementById('toc-current-section');
+    const knownIds: string[] = JSON.parse(fab.dataset.sectionIds || '[]');
+    const sectionTitles: Record<string, string> = JSON.parse(fab.dataset.sectionTitles || '{}');
+
+    const sectionsElements = knownIds
+      .map(id => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    if (!sectionsElements.length || !('IntersectionObserver' in window)) return;
+
+    const observerOptions = { root: null, rootMargin: '-15% 0px -75% 0px', threshold: 0 };
+
+    tocObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+
+          if (currentSectionLabel && sectionTitles[id]) {
+            currentSectionLabel.textContent = sectionTitles[id];
+          }
+
+          const activeLink = document.querySelector(`.toc-link[data-target="${id}"]`);
+          const currentLinks = document.querySelectorAll('.toc-link');
+          currentLinks.forEach(l => {
+            l.classList.remove('text-teal-700', 'font-bold');
+            l.classList.add('text-slate-600', 'font-medium');
+          });
+
+          if (activeLink) {
+            activeLink.classList.remove('text-slate-600', 'font-medium');
+            activeLink.classList.add('text-teal-700', 'font-bold');
+          }
+        }
+      });
+    }, observerOptions);
+
+    sectionsElements.forEach(sec => tocObserver?.observe(sec));
+  }
+
+  document.addEventListener('astro:before-swap', () => {
+    if (tocObserver) {
+      tocObserver.disconnect();
+      tocObserver = null;
     }
   });
 
-  // 2. Precision Intersection Observer (ScrollSpy)
-  // Only observe elements whose IDs are explicitly listed in sideNavSections.
-  // This prevents the FAB label from flickering with random widget/card IDs.
-  const currentSectionLabel = document.getElementById('toc-current-section');
-
-  const knownIds: string[] = JSON.parse(fab?.dataset.sectionIds || '[]');
-  const sectionTitles: Record<string, string> = JSON.parse(fab?.dataset.sectionTitles || '{}');
-
-  const sectionsElements = knownIds
-    .map(id => document.getElementById(id))
-    .filter((el): el is HTMLElement => el !== null);
-
-  // Trigger when a section enters the top-center band of the viewport
-  const observerOptions = { root: null, rootMargin: '-15% 0px -75% 0px', threshold: 0 };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id;
-        
-        // Update the FAB text to the human-readable title
-        if (currentSectionLabel && sectionTitles[id]) {
-          currentSectionLabel.textContent = sectionTitles[id];
-        }
-
-        // Highlight active link in the bottom sheet list
-        const activeLink = document.querySelector(`.toc-link[data-target="${id}"]`);
-        links.forEach(l => {
-          l.classList.remove('text-teal-700', 'font-bold');
-          l.classList.add('text-slate-600', 'font-medium');
-        });
-        
-        if (activeLink) {
-          activeLink.classList.remove('text-slate-600', 'font-medium');
-          activeLink.classList.add('text-teal-700', 'font-bold');
-        }
-      }
-    });
-  }, observerOptions);
-
-  sectionsElements.forEach(sec => observer.observe(sec));
+  document.addEventListener('astro:page-load', initMobileTOC);
+  if (document.readyState !== 'loading') {
+    initMobileTOC();
+  } else {
+    document.addEventListener('DOMContentLoaded', initMobileTOC);
+  }
 </script>
 
 <style>

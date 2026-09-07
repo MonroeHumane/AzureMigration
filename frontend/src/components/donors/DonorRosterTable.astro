@@ -75,7 +75,7 @@ const { donors = [] } = Astro.props;
           id="print-roster-btn"
           type="button"
           onclick="window.print()"
-          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition shadow-xs cursor-pointer print:hidden"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition shadow-xs cursor-pointer print:hidden dark:bg-[#071a17] dark:hover:bg-[#0b2420] dark:text-slate-200 dark:border-teal-800/80"
           title="Print official donor registry roster"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -88,15 +88,15 @@ const { donors = [] } = Astro.props;
         <button
           id="export-donors-csv-btn"
           type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white transition shadow-xs cursor-pointer print:hidden"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold bg-[#173a39] hover:bg-teal-900 text-white transition shadow-sm cursor-pointer print:hidden border border-teal-800"
           title="Export filtered donor list with mailing addresses"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          Export CSV (<span id="export-count-label">{donors.length}</span>)
+          <span>Export CSV (<span id="export-count-label">{donors.length}</span>)</span>
         </button>
       </div>
     </div>
@@ -282,7 +282,6 @@ const { donors = [] } = Astro.props;
     th, td {
       border: 1px solid #cbd5e1 !important;
       padding: 4px 6px !important;
-      color: #0f172a !important;
     }
   }
 </style>
@@ -294,8 +293,35 @@ const { donors = [] } = Astro.props;
 
 <script is:inline>
   // Client-side Reactive State
-  const allDonors = window.__HSMC_DONORS__ || [];
-  
+  let allDonors = Array.isArray(window.__HSMC_DONORS__) ? window.__HSMC_DONORS__ : [];
+  let filteredDonors = [...allDonors];
+  let currentPage = 1;
+  let pageSize = 50;
+  const openDrawers = new Set();
+
+  function getElements() {
+    return {
+      searchInput: document.getElementById('donor-search-input'),
+      clearSearchBtn: document.getElementById('donor-search-clear-btn'),
+      filterTier: document.getElementById('filter-tier'),
+      filterPlatform: document.getElementById('filter-platform'),
+      filterAddress: document.getElementById('filter-address'),
+      filterRecency: document.getElementById('filter-recency'),
+      filterSort: document.getElementById('filter-sort'),
+      pageSizeSelect: document.getElementById('page-size'),
+      prevBtn: document.getElementById('pagination-prev-btn'),
+      nextBtn: document.getElementById('pagination-next-btn'),
+      tableBody: document.getElementById('donor-table-body'),
+      emptyState: document.getElementById('donor-empty-state'),
+      exportBtn: document.getElementById('export-donors-csv-btn'),
+      exportCountLabel: document.getElementById('export-count-label'),
+      totalFilteredCountEl: document.getElementById('total-filtered-count'),
+      pageStartEl: document.getElementById('page-start'),
+      pageEndEl: document.getElementById('page-end'),
+      pageIndicatorEl: document.getElementById('page-indicator')
+    };
+  }
+
   // Security: HTML entity escaper to prevent XSS
   function escapeHtml(str) {
     if (!str) return '';
@@ -308,52 +334,24 @@ const { donors = [] } = Astro.props;
   }
 
   // Precompute lowercase search index on each donor for sub-millisecond filtering
-  allDonors.forEach(d => {
-    d._searchStr = [
-      d.name,
-      d.email,
-      d.phone,
-      d.address,
-      d.givingTier,
-      (d.platformsList || []).join(' '),
-      (d.gifts || []).map(g => `${g.campaign || ''} ${g.memo || ''} ${g.dedication || ''} ${g.reference || ''}`).join(' ')
-    ].join(' ').toLowerCase();
-  });
+  function indexDonors(list) {
+    if (!Array.isArray(list)) return;
+    list.forEach(d => {
+      if (!d._searchStr) {
+        d._searchStr = [
+          d.name,
+          d.email,
+          d.phone,
+          d.address,
+          d.givingTier,
+          (d.platformsList || []).join(' '),
+          (d.gifts || []).map(g => `${g.campaign || ''} ${g.memo || ''} ${g.dedication || ''} ${g.reference || ''}`).join(' ')
+        ].join(' ').toLowerCase();
+      }
+    });
+  }
 
-  let filteredDonors = [...allDonors];
-  let currentPage = 1;
-  let pageSize = 50;
-  const openDrawers = new Set();
-
-  const searchInput = document.getElementById('donor-search-input');
-  const clearSearchBtn = document.getElementById('donor-search-clear-btn');
-  const filterTier = document.getElementById('filter-tier');
-  const filterPlatform = document.getElementById('filter-platform');
-  const filterAddress = document.getElementById('filter-address');
-  const filterRecency = document.getElementById('filter-recency');
-  const filterSort = document.getElementById('filter-sort');
-  const pageSizeSelect = document.getElementById('page-size');
-  const prevBtn = document.getElementById('pagination-prev-btn');
-  const nextBtn = document.getElementById('pagination-next-btn');
-  const tableBody = document.getElementById('donor-table-body');
-  const emptyState = document.getElementById('donor-empty-state');
-  const exportBtn = document.getElementById('export-donors-csv-btn');
-  const exportCountLabel = document.getElementById('export-count-label');
-  const totalFilteredCountEl = document.getElementById('total-filtered-count');
-  const pageStartEl = document.getElementById('page-start');
-  const pageEndEl = document.getElementById('page-end');
-  const pageIndicatorEl = document.getElementById('page-indicator');
-
-  // Parse URL search parameters for seamless inter-portal deep linking
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('search') && searchInput) searchInput.value = urlParams.get('search') || '';
-    if (urlParams.has('tier') && filterTier) filterTier.value = urlParams.get('tier') || 'all';
-    if (urlParams.has('platform') && filterPlatform) filterPlatform.value = urlParams.get('platform') || 'all';
-    if (urlParams.has('address') && filterAddress) filterAddress.value = urlParams.get('address') || 'all';
-    if (urlParams.has('recency') && filterRecency) filterRecency.value = urlParams.get('recency') || 'all';
-    if (urlParams.has('sort') && filterSort) filterSort.value = urlParams.get('sort') || 'lifetime_desc';
-  } catch (e) {}
+  indexDonors(allDonors);
 
   function formatMoney(n) {
     return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -408,15 +406,16 @@ const { donors = [] } = Astro.props;
   }
 
   function applyFilters() {
-    const q = (searchInput?.value || '').trim().toLowerCase();
-    const tier = filterTier?.value || 'all';
-    const plat = filterPlatform?.value || 'all';
-    const addr = filterAddress?.value || 'all';
-    const rec = filterRecency?.value || 'all';
-    const sort = filterSort?.value || 'lifetime_desc';
+    const els = getElements();
+    const q = (els.searchInput?.value || '').trim().toLowerCase();
+    const tier = els.filterTier?.value || 'all';
+    const plat = els.filterPlatform?.value || 'all';
+    const addr = els.filterAddress?.value || 'all';
+    const rec = els.filterRecency?.value || 'all';
+    const sort = els.filterSort?.value || 'lifetime_desc';
 
-    if (clearSearchBtn) {
-      clearSearchBtn.classList.toggle('hidden', !q);
+    if (els.clearSearchBtn) {
+      els.clearSearchBtn.classList.toggle('hidden', !q);
     }
 
     filteredDonors = allDonors.filter(d => {
@@ -465,24 +464,26 @@ const { donors = [] } = Astro.props;
   }
 
   function renderTable() {
+    const els = getElements();
+    const tableBody = els.tableBody;
     if (!tableBody) return;
 
     const total = filteredDonors.length;
-    if (exportCountLabel) exportCountLabel.textContent = total.toLocaleString();
-    if (totalFilteredCountEl) totalFilteredCountEl.textContent = total.toLocaleString();
+    if (els.exportCountLabel) els.exportCountLabel.textContent = total.toLocaleString();
+    if (els.totalFilteredCountEl) els.totalFilteredCountEl.textContent = total.toLocaleString();
 
     if (total === 0) {
       tableBody.innerHTML = '';
-      if (emptyState) emptyState.classList.remove('hidden');
-      if (pageStartEl) pageStartEl.textContent = '0';
-      if (pageEndEl) pageEndEl.textContent = '0';
-      if (pageIndicatorEl) pageIndicatorEl.textContent = 'Page 0 of 0';
-      if (prevBtn) prevBtn.disabled = true;
-      if (nextBtn) nextBtn.disabled = true;
+      if (els.emptyState) els.emptyState.classList.remove('hidden');
+      if (els.pageStartEl) els.pageStartEl.textContent = '0';
+      if (els.pageEndEl) els.pageEndEl.textContent = '0';
+      if (els.pageIndicatorEl) els.pageIndicatorEl.textContent = 'Page 0 of 0';
+      if (els.prevBtn) els.prevBtn.disabled = true;
+      if (els.nextBtn) els.nextBtn.disabled = true;
       return;
     }
 
-    if (emptyState) emptyState.classList.add('hidden');
+    if (els.emptyState) els.emptyState.classList.add('hidden');
 
     const totalPages = Math.ceil(total / pageSize);
     if (currentPage > totalPages) currentPage = totalPages;
@@ -491,12 +492,12 @@ const { donors = [] } = Astro.props;
     const startIdx = (currentPage - 1) * pageSize;
     const endIdx = Math.min(startIdx + pageSize, total);
 
-    if (pageStartEl) pageStartEl.textContent = (startIdx + 1).toLocaleString();
-    if (pageEndEl) pageEndEl.textContent = endIdx.toLocaleString();
-    if (pageIndicatorEl) pageIndicatorEl.textContent = `Page ${currentPage} of ${totalPages}`;
+    if (els.pageStartEl) els.pageStartEl.textContent = (startIdx + 1).toLocaleString();
+    if (els.pageEndEl) els.pageEndEl.textContent = endIdx.toLocaleString();
+    if (els.pageIndicatorEl) els.pageIndicatorEl.textContent = `Page ${currentPage} of ${totalPages}`;
 
-    if (prevBtn) prevBtn.disabled = currentPage <= 1;
-    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+    if (els.prevBtn) els.prevBtn.disabled = currentPage <= 1;
+    if (els.nextBtn) els.nextBtn.disabled = currentPage >= totalPages;
 
     const pageSlice = filteredDonors.slice(startIdx, endIdx);
 
@@ -506,8 +507,8 @@ const { donors = [] } = Astro.props;
 
       // Badges
       const tributeBadge = donor.tributesCount > 0
-        ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200" title="${donor.tributesCount} tribute/memorial gifts">
-             <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+        ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200" title="${donor.tributesCount} tribute/memorial gifts">
+             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
              ${donor.tributesCount} Tribute${donor.tributesCount > 1 ? 's' : ''}
            </span>`
         : '';
@@ -531,7 +532,6 @@ const { donors = [] } = Astro.props;
               type="button"
               class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition cursor-pointer"
               aria-expanded="${isOpen}"
-              aria-controls="drawer-${donor.id}"
               title="${isOpen ? 'Collapse Details' : 'Expand Details'}"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-90 text-emerald-600' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -572,7 +572,6 @@ const { donors = [] } = Astro.props;
             <button
               type="button"
               class="inspect-donor-btn px-2.5 py-1 rounded text-[11px] font-semibold transition border ${isOpen ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'}"
-              data-donor-id="${donor.id}"
             >
               ${isOpen ? 'Close' : 'Inspect'}
             </button>
@@ -593,91 +592,98 @@ const { donors = [] } = Astro.props;
               <td class="py-2 px-3 text-[11px] text-slate-500">${escapeHtml(g.type || 'Direct Gift')}</td>
               <td class="py-2 px-3 font-mono font-bold text-slate-900 text-right">${formatMoney(g.amount)}</td>
               <td class="py-2 px-3 text-[11px] text-slate-600 max-w-[280px] truncate" title="${escapeHtml(g.dedication || g.memo || '')}">
-                ${g.dedication ? `<span class="font-semibold text-rose-700">Tribute:</span> ${escapeHtml(g.dedication)}` : escapeHtml(g.memo || '—')}
+                ${g.dedication ? `<span class="font-semibold text-amber-800">Tribute:</span> ${escapeHtml(g.dedication)}` : escapeHtml(g.memo || '—')}
               </td>
               <td class="py-2 px-3 font-mono text-[10px] text-slate-400 text-right">${escapeHtml(g.reference || '—')}</td>
             </tr>
           `).join('')
         : `
-            <tr>
-              <td colspan="7" class="py-6 text-center text-slate-400 text-xs italic">
-                Lifetime contributions derived from consolidated ledger balances. Individual sub-transactions are logged in annual master archives.
-              </td>
-            </tr>
-          `;
+          <tr>
+            <td colspan="7" class="py-4 text-center text-xs text-slate-400 italic">
+              No itemized gifts recorded in historical register.
+            </td>
+          </tr>
+        `;
 
       const drawerRow = `
         ${mainRow}
-        <tr id="drawer-${donor.id}" class="bg-slate-50/80 border-b-2 border-emerald-600/30">
-          <td colspan="8" class="p-0">
-            <div class="p-4 space-y-4">
-              <!-- High-level Donor 360 Card -->
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-1">
-                  <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Verified Contact Details</div>
-                  <div class="font-medium text-slate-900 text-xs truncate">${escapeHtml(donor.name)}</div>
-                  <div class="text-[11px] text-slate-600 truncate">${donor.email ? escapeHtml(donor.email) : 'No email on file'}</div>
-                  <div class="text-[11px] text-slate-600">${donor.phone ? escapeHtml(donor.phone) : 'No phone on file'}</div>
-                </div>
-
-                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-1">
-                  <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Mailing Address (Tax Letter)</div>
-                  ${donor.hasMailingAddress
-                    ? `<div class="text-xs text-slate-800 leading-snug">${escapeHtml(donor.address)}</div>
-                       <div class="text-[10px] font-semibold text-emerald-700 flex items-center gap-1 mt-1">
-                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Validated Postal Address
-                       </div>`
-                    : `<div class="text-xs text-slate-400 italic">No physical mailing address on file.</div>
-                       <div class="text-[10px] text-amber-700 font-medium mt-1">Direct online giving profile</div>`}
-                </div>
-
-                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-1">
-                  <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Giving Span & Recency</div>
-                  <div class="text-xs text-slate-800">First Gift: <strong>${formatDate(donor.firstGiftDate)}</strong></div>
-                  <div class="text-xs text-slate-800">Latest Gift: <strong>${formatDate(donor.latestGiftDate)}</strong></div>
-                  <div class="text-[10px] text-slate-500 mt-1">Total Recorded Transactions: <strong>${donor.transactionsCount}</strong></div>
-                </div>
-
-                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs flex flex-col justify-between">
-                  <div>
-                    <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Lifetime Giving Level</div>
-                    <div class="text-base font-bold font-mono text-slate-900 mt-0.5">${formatMoney(donor.lifetimeTotal)}</div>
-                    <div class="mt-1">${getTierBadge(donor.tierId, donor.givingTier)}</div>
+        <tr id="drawer-${donor.id}" class="bg-slate-100/70 border-b-2 border-emerald-600/30">
+          <td colspan="8" class="p-4 sm:p-5">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+              <!-- Drawer Header / Quick Actions -->
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+                    ${escapeHtml(donor.name.substring(0, 2).toUpperCase())}
                   </div>
+                  <div>
+                    <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                      <span>${escapeHtml(donor.name)}</span>
+                      <span class="text-xs font-mono font-normal text-slate-400">(ID: ${donor.id})</span>
+                    </div>
+                    <div class="text-xs text-slate-500">
+                      ${donor.givingTier} &bull; ${donor.transactionsCount} Lifetime Gifts &bull; ${formatMoney(donor.lifetimeTotal)} Total
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
                   <button
                     type="button"
-                    class="export-single-donor-btn mt-2 inline-flex items-center justify-center gap-1.5 py-1 px-2.5 rounded text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition border border-slate-200 cursor-pointer"
+                    class="export-single-donor-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition border border-slate-200 cursor-pointer"
                     data-donor-id="${donor.id}"
+                    title="Export giving history for this donor to CSV"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                       <polyline points="7 10 12 15 17 10"></polyline>
                       <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
-                    Export Giving Statement
+                    <span>Export Statement CSV</span>
                   </button>
                 </div>
               </div>
 
-              <!-- Itemized Gift Ledger -->
-              <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-2xs">
-                <div class="px-3.5 py-2.5 bg-slate-100/70 border-b border-slate-200 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="12" y1="1" x2="12" y2="23"></line>
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                    <span class="text-xs font-bold text-slate-800">Historical Gift Ledger</span>
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-200 text-slate-700">${giftsList.length} Entries</span>
-                  </div>
-                  <div class="text-[11px] text-slate-500">
-                    Penny-accurate records reconciled against BetterUnite, PayPal, and First Merchants
+              <!-- Profile Details Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-slate-50/60 p-3 rounded-lg border border-slate-100">
+                <div>
+                  <span class="font-semibold text-slate-400 uppercase tracking-wider text-[10px] block">Contact Coordinates</span>
+                  <div class="mt-1 space-y-0.5 text-slate-700">
+                    <div>Email: ${donor.email ? `<a href="mailto:${escapeHtml(donor.email)}" class="text-emerald-700 hover:underline font-mono text-[11px]">${escapeHtml(donor.email)}</a>` : '<span class="text-slate-400 italic">None</span>'}</div>
+                    <div>Phone: ${donor.phone ? `<span class="font-mono text-[11px]">${escapeHtml(donor.phone)}</span>` : '<span class="text-slate-400 italic">None</span>'}</div>
                   </div>
                 </div>
 
-                <div class="overflow-x-auto max-h-72 overflow-y-auto">
-                  <table class="w-full text-left border-collapse text-xs">
-                    <thead class="sticky top-0 bg-slate-50 border-b border-slate-200 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                <div>
+                  <span class="font-semibold text-slate-400 uppercase tracking-wider text-[10px] block">Mailing Address</span>
+                  <div class="mt-1 text-slate-700">
+                    ${donor.address ? `<div class="leading-snug">${escapeHtml(donor.address)}</div>` : '<div class="text-slate-400 italic">No address on file</div>'}
+                  </div>
+                </div>
+
+                <div>
+                  <span class="font-semibold text-slate-400 uppercase tracking-wider text-[10px] block">Giving Summary</span>
+                  <div class="mt-1 space-y-0.5 text-slate-700">
+                    <div>First Gift: <span class="font-medium">${formatDate(donor.firstGiftDate)}</span></div>
+                    <div>Latest Gift: <span class="font-medium">${formatDate(donor.latestGiftDate)}</span></div>
+                    <div>Average Gift: <span class="font-mono font-bold">${formatMoney(donor.averageGift || (donor.lifetimeTotal / (donor.transactionsCount || 1)))}</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Itemized Gift Timeline -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Transaction History</span>
+                    <span class="px-1.5 py-0.2 rounded text-[10px] bg-slate-100 text-slate-600 font-mono">${giftsList.length}</span>
+                  </h4>
+                  <span class="text-[11px] text-slate-400">Chronological transaction register</span>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-lg max-h-64 overflow-y-auto">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50/90 text-slate-600 font-semibold text-[11px] border-b border-slate-200 sticky top-0">
                       <tr>
                         <th class="py-2 px-3">Date</th>
                         <th class="py-2 px-3">Platform</th>
@@ -703,6 +709,7 @@ const { donors = [] } = Astro.props;
     }).join('');
 
     tableBody.innerHTML = rowsHtml;
+    attachTableBodyListener(tableBody);
   }
 
   // Blob CSV Downloader helper for guaranteed reliability with large datasets
@@ -718,72 +725,34 @@ const { donors = [] } = Astro.props;
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  // Event Delegation for Table Clicks
-  tableBody?.addEventListener('click', (e) => {
-    const target = e.target;
+  // Table click event delegation
+  function attachTableBodyListener(tableBody) {
+    if (!tableBody || tableBody.dataset.bound === '1') return;
+    tableBody.dataset.bound = '1';
 
-    // Prevent toggling drawer if the user is selecting/highlighting text to copy
-    const selection = window.getSelection();
-    if (selection && selection.toString().trim().length > 0) return;
+    tableBody.addEventListener('click', (e) => {
+      const target = e.target;
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim().length > 0) return;
+      if (target.closest('tr[id^="drawer-"]')) return;
 
-    // Prevent toggling when clicking inside an expanded drawer
-    if (target.closest('tr[id^="drawer-"]')) return;
+      const row = target.closest('tr[data-donor-id]');
+      if (!row) return;
 
-    const row = target.closest('tr[data-donor-id]');
-    if (!row) return;
+      const donorId = row.dataset.donorId;
+      if (!donorId) return;
 
-    const donorId = row.dataset.donorId;
-    if (!donorId) return;
-
-    // Toggle drawer
-    if (openDrawers.has(donorId)) {
-      openDrawers.delete(donorId);
-    } else {
-      openDrawers.add(donorId);
-    }
-    renderTable();
-  });
-
-  // Export Single Donor Statement via Blob
-  document.addEventListener('click', (e) => {
-    const target = e.target;
-    const btn = target.closest('.export-single-donor-btn');
-    if (!btn) return;
-    const donorId = btn.dataset.donorId;
-    const donor = allDonors.find(d => d.id === donorId);
-    if (!donor) return;
-
-    const csvRows = [
-      ['Humane Society of Monroe County - Donor Giving Statement'],
-      ['Donor Name', donor.name],
-      ['Email', donor.email],
-      ['Phone', donor.phone],
-      ['Mailing Address', `"${(donor.address || '').replace(/"/g, '""')}"`],
-      ['Lifetime Total', donor.lifetimeTotal.toFixed(2)],
-      ['Giving Tier', donor.givingTier],
-      ['Total Gifts', donor.transactionsCount],
-      [],
-      ['Date', 'Platform', 'Campaign', 'Type', 'Amount', 'Dedication', 'Reference ID']
-    ];
-
-    (donor.gifts || []).forEach(g => {
-      csvRows.push([
-        g.date,
-        g.platform,
-        `"${(g.campaign || '').replace(/"/g, '""')}"`,
-        g.type,
-        g.amount.toFixed(2),
-        `"${(g.dedication || g.memo || '').replace(/"/g, '""')}"`,
-        `"${(g.reference || '').replace(/"/g, '""')}"`
-      ]);
+      if (openDrawers.has(donorId)) {
+        openDrawers.delete(donorId);
+      } else {
+        openDrawers.add(donorId);
+      }
+      renderTable();
     });
-
-    const csvContent = csvRows.map(r => r.join(',')).join('\n');
-    triggerCsvDownload(`HSMC_Statement_${donor.name.replace(/[^a-zA-Z0-9]/g, '_')}.csv`, csvContent);
-  });
+  }
 
   // Export Full Filtered Roster CSV via Blob
-  exportBtn?.addEventListener('click', () => {
+  function handleExportCsv() {
     const headers = [
       'Donor ID',
       'Primary Name',
@@ -816,51 +785,163 @@ const { donors = [] } = Astro.props;
 
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     triggerCsvDownload(`HSMC_Master_Donors_Export_${new Date().toISOString().slice(0, 10)}.csv`, csvContent);
-  });
+  }
 
-  // Search input with debounce
-  let debounceTimeout;
-  searchInput?.addEventListener('input', () => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(applyFilters, 150);
-  });
+  // Export Single Donor Statement via Blob
+  if (!window.__HSMC_SINGLE_DONOR_CLICK_BOUND__) {
+    window.__HSMC_SINGLE_DONOR_CLICK_BOUND__ = true;
+    document.addEventListener('click', (e) => {
+      const target = e.target;
+      const btn = target.closest('.export-single-donor-btn');
+      if (!btn) return;
+      const donorId = btn.dataset.donorId;
+      const donor = allDonors.find(d => d.id === donorId);
+      if (!donor) return;
 
-  clearSearchBtn?.addEventListener('click', () => {
-    if (searchInput) searchInput.value = '';
+      const csvRows = [
+        ['Humane Society of Monroe County - Donor Giving Statement'],
+        ['Donor Name', donor.name],
+        ['Email', donor.email],
+        ['Phone', donor.phone],
+        ['Mailing Address', `"${(donor.address || '').replace(/"/g, '""')}"`],
+        ['Lifetime Total', donor.lifetimeTotal.toFixed(2)],
+        ['Giving Tier', donor.givingTier],
+        ['Total Gifts', donor.transactionsCount],
+        [],
+        ['Date', 'Platform', 'Campaign', 'Type', 'Amount', 'Dedication', 'Reference ID']
+      ];
+
+      (donor.gifts || []).forEach(g => {
+        csvRows.push([
+          g.date,
+          g.platform,
+          `"${(g.campaign || '').replace(/"/g, '""')}"`,
+          g.type,
+          g.amount.toFixed(2),
+          `"${(g.dedication || g.memo || '').replace(/"/g, '""')}"`,
+          `"${(g.reference || '').replace(/"/g, '""')}"`
+        ]);
+      });
+
+      const csvContent = csvRows.map(r => r.join(',')).join('\n');
+      triggerCsvDownload(`HSMC_Statement_${donor.name.replace(/[^a-zA-Z0-9]/g, '_')}.csv`, csvContent);
+    });
+  }
+
+  // Main Idempotent Initialization for Initial Load & View Transitions
+  function initDonorRosterTable() {
+    const els = getElements();
+    if (!els.tableBody) return;
+
+    if (Array.isArray(window.__HSMC_DONORS__) && window.__HSMC_DONORS__.length) {
+      allDonors = window.__HSMC_DONORS__;
+      indexDonors(allDonors);
+    }
+
+    // Parse URL search parameters for seamless inter-portal deep linking
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('search') && els.searchInput) els.searchInput.value = urlParams.get('search') || '';
+      if (urlParams.has('tier') && els.filterTier) els.filterTier.value = urlParams.get('tier') || 'all';
+      if (urlParams.has('platform') && els.filterPlatform) els.filterPlatform.value = urlParams.get('platform') || 'all';
+      if (urlParams.has('address') && els.filterAddress) els.filterAddress.value = urlParams.get('address') || 'all';
+      if (urlParams.has('recency') && els.filterRecency) els.filterRecency.value = urlParams.get('recency') || 'all';
+      if (urlParams.has('sort') && els.filterSort) els.filterSort.value = urlParams.get('sort') || 'lifetime_desc';
+    } catch (e) {}
+
+    // Search input with debounce
+    if (els.searchInput && els.searchInput.dataset.bound !== '1') {
+      els.searchInput.dataset.bound = '1';
+      let debounceTimeout;
+      els.searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(applyFilters, 150);
+      });
+    }
+
+    if (els.clearSearchBtn && els.clearSearchBtn.dataset.bound !== '1') {
+      els.clearSearchBtn.dataset.bound = '1';
+      els.clearSearchBtn.addEventListener('click', () => {
+        const s = document.getElementById('donor-search-input');
+        if (s) s.value = '';
+        applyFilters();
+      });
+    }
+
+    // Filter change handlers
+    [els.filterTier, els.filterPlatform, els.filterAddress, els.filterRecency, els.filterSort].forEach(flt => {
+      if (flt && flt.dataset.bound !== '1') {
+        flt.dataset.bound = '1';
+        flt.addEventListener('change', applyFilters);
+      }
+    });
+
+    // Pagination change handlers
+    if (els.pageSizeSelect && els.pageSizeSelect.dataset.bound !== '1') {
+      els.pageSizeSelect.dataset.bound = '1';
+      els.pageSizeSelect.addEventListener('change', () => {
+        const ps = document.getElementById('page-size');
+        pageSize = parseInt(ps ? ps.value : '50') || 50;
+        currentPage = 1;
+        renderTable();
+      });
+    }
+
+    if (els.prevBtn && els.prevBtn.dataset.bound !== '1') {
+      els.prevBtn.dataset.bound = '1';
+      els.prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+          document.getElementById('donor-roster-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+
+    if (els.nextBtn && els.nextBtn.dataset.bound !== '1') {
+      els.nextBtn.dataset.bound = '1';
+      els.nextBtn.addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredDonors.length / pageSize);
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderTable();
+          document.getElementById('donor-roster-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+
+    if (els.exportBtn && els.exportBtn.dataset.bound !== '1') {
+      els.exportBtn.dataset.bound = '1';
+      els.exportBtn.addEventListener('click', handleExportCsv);
+    }
+
     applyFilters();
-  });
+  }
 
-  // Filter change handlers
-  filterTier?.addEventListener('change', applyFilters);
-  filterPlatform?.addEventListener('change', applyFilters);
-  filterAddress?.addEventListener('change', applyFilters);
-  filterRecency?.addEventListener('change', applyFilters);
-  filterSort?.addEventListener('change', applyFilters);
+  // Function to ingest live or cached donor payload
+  function setDonors(newDonors) {
+    if (!Array.isArray(newDonors) || !newDonors.length) return;
+    allDonors = newDonors;
+    indexDonors(allDonors);
+    window.__HSMC_DONORS__ = newDonors;
+    const roster = document.getElementById('donor-roster-section');
+    if (roster) roster.classList.remove('hidden');
+    initDonorRosterTable();
+  }
 
-  // Pagination change handlers
-  pageSizeSelect?.addEventListener('change', () => {
-    pageSize = parseInt(pageSizeSelect.value) || 50;
-    currentPage = 1;
-    renderTable();
-  });
+  window.setHSMCDonors = setDonors;
+  window.initMCHSDonorTable = initDonorRosterTable;
 
-  prevBtn?.addEventListener('click', () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderTable();
-      document.getElementById('donor-roster-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.addEventListener('donors-hydrated', (e) => {
+    if (e?.detail?.donors) {
+      setDonors(e.detail.donors);
     }
   });
 
-  nextBtn?.addEventListener('click', () => {
-    const totalPages = Math.ceil(filteredDonors.length / pageSize);
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderTable();
-      document.getElementById('donor-roster-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  });
-
-  // Initial table render
-  applyFilters();
+  document.addEventListener('astro:page-load', initDonorRosterTable);
+  if (document.readyState !== 'loading') {
+    initDonorRosterTable();
+  } else {
+    document.addEventListener('DOMContentLoaded', initDonorRosterTable);
+  }
 </script>

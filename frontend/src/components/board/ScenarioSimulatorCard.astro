@@ -358,7 +358,7 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
 </div>
 
 <script is:inline>
-(function() {
+function initScenarioSimulator() {
   const root = document.getElementById('scenario-simulator-root');
   if (!root) return;
 
@@ -434,161 +434,189 @@ const initTargetMonth = initDays > 0 ? `${monthNames[targetCutoff.getMonth()]} $
   }
 
   function calculate() {
-    const revPct = parseFloat(sliderRev.value) || 0;
-    const expPct = parseFloat(sliderExp.value) || 0;
-    const eventAmount = parseFloat(sliderEvent.value) || 0;
-    const includeReserve = toggleReserve.checked;
+    if (!sliderRev || !sliderExp) return;
 
-    const projectedRev = BASE_REV * (1 + revPct / 100);
+    const revPct = parseFloat(sliderRev.value || '0');
+    const expPct = parseFloat(sliderExp.value || '0');
+    const eventShift = parseFloat(sliderEvent?.value || '0');
+    const includeReserve = toggleReserve?.checked ?? true;
+
+    if (readoutRevPct) readoutRevPct.textContent = (revPct >= 0 ? '+' : '') + revPct + '%';
+    if (readoutExpPct) readoutExpPct.textContent = (expPct >= 0 ? '+' : '') + expPct + '%';
+    if (readoutEvent) readoutEvent.textContent = (eventShift >= 0 ? '+' : '') + formatCurrency(eventShift);
+
+    const projectedRev = (BASE_REV * (1 + revPct / 100)) + eventShift;
     const projectedExp = BASE_EXP * (1 + expPct / 100);
-    const projectedNet = projectedRev - projectedExp;
+    const netOperating = projectedRev - projectedExp;
 
-    let liquidPool = (includeReserve ? (BASE_CHECKING + BASE_FIDELITY) : BASE_CHECKING) + eventAmount;
-    if (liquidPool < 0) liquidPool = 0;
+    const liquidPool = includeReserve ? (BASE_CHECKING + BASE_FIDELITY) : BASE_CHECKING;
 
-    // Readouts
-    const revSign = revPct > 0 ? '+' : '';
-    readoutRevPct.textContent = `${revSign}${revPct}% (${formatCurrency(projectedRev)}/mo)`;
+    if (metricNet) metricNet.textContent = formatCurrency(netOperating);
+    if (metricLiquidity) metricLiquidity.textContent = formatCurrency(liquidPool);
+    if (metricLiquidityLabel) metricLiquidityLabel.textContent = includeReserve ? 'Operating + Fidelity Reserve' : 'Operating Checking Only';
 
-    const expSign = expPct > 0 ? '+' : '';
-    readoutExpPct.textContent = `${expSign}${expPct}% (${formatCurrency(projectedExp)}/mo)`;
+    if (netOperating >= 0) {
+      if (metricNet) metricNet.className = 'text-xl font-bold font-mono mt-1 text-emerald-600';
+      if (metricNetLabel) metricNetLabel.textContent = 'Monthly Surplus';
+      if (metricNetLabel) metricNetLabel.className = 'text-[10px] text-emerald-700 font-medium';
 
-    const eventSign = eventAmount > 0 ? '+' : '';
-    readoutEvent.textContent = `${eventSign}${formatCurrency(eventAmount)}`;
+      if (metricRunwayMonths) metricRunwayMonths.textContent = 'Indefinite';
+      if (metricRunwayMonths) metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-emerald-600';
+      if (metricRunwayDays) metricRunwayDays.textContent = 'Sustainable Operating Cash Flow';
+      if (metricExhaustion) metricExhaustion.textContent = 'Self-Funding';
+      if (metricExhaustion) metricExhaustion.className = 'text-lg font-bold mt-1 text-emerald-800';
 
-    // Metric 1: Net
-    metricNet.textContent = formatCurrency(projectedNet);
-    if (projectedNet >= 0) {
-      metricNet.className = 'text-xl font-bold font-mono mt-1 text-emerald-600';
-      metricNetLabel.textContent = 'Monthly Surplus';
-      metricNetLabel.className = 'text-[10px] text-emerald-700 font-medium';
+      if (healthBadge) healthBadge.textContent = 'Solvent & Sustainable';
+      if (healthBadge) healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800';
+      if (healthBar) healthBar.style.width = '100%';
+      if (healthBar) healthBar.className = 'h-3 rounded-full bg-emerald-500 transition-all duration-300';
+
+      if (assessmentText) assessmentText.innerHTML = `HSMC generates an estimated monthly net cash surplus of <strong>${formatCurrency(netOperating)}</strong> under this scenario. Operating checking balance will grow by approximately <strong>${formatCurrency(netOperating * 12)} per year</strong> without requiring transfers from reserves.`;
     } else {
-      metricNet.className = 'text-xl font-bold font-mono mt-1 text-rose-600';
-      metricNetLabel.textContent = 'Monthly Deficit';
-      metricNetLabel.className = 'text-[10px] text-rose-700 font-medium';
-    }
+      if (metricNet) metricNet.className = 'text-xl font-bold font-mono mt-1 text-rose-600';
+      if (metricNetLabel) metricNetLabel.textContent = 'Monthly Deficit';
+      if (metricNetLabel) metricNetLabel.className = 'text-[10px] text-rose-700 font-medium';
 
-    // Metric 2: Liquidity
-    metricLiquidity.textContent = formatCurrency(liquidPool);
-    metricLiquidityLabel.textContent = includeReserve ? 'Checking + Savings' : 'Checking Cash Only';
-
-    // Metric 3 & 4: Runway & Horizon
-    if (projectedNet >= 0) {
-      metricRunwayMonths.textContent = '∞';
-      metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-emerald-600';
-      metricRunwayDays.textContent = 'Self-Funding (Surplus)';
-      metricExhaustion.textContent = 'Indefinite';
-      metricExhaustion.className = 'text-lg font-bold mt-1 text-emerald-700';
-
-      healthBadge.textContent = 'Self-Funding Surplus';
-      healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800';
-      healthBar.style.width = '100%';
-      healthBar.className = 'h-3 rounded-full bg-emerald-600 transition-all duration-300';
-
-      assessmentText.innerHTML = `At this operating level, the shelter generates an estimated monthly surplus of <strong>${formatCurrency(projectedNet)}</strong>. Operations are fully self-funding and building our reserves without touching savings.`;
-    } else {
-      const burn = Math.abs(projectedNet);
+      const burn = Math.abs(netOperating);
       const months = liquidPool / burn;
       const days = Math.round(months * 30.4);
 
-      metricRunwayMonths.textContent = months.toFixed(1) + ' mo';
-      metricRunwayDays.textContent = `~${days} days remaining`;
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + days);
+      const exhaustionStr = targetDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
-      // Exhaustion date from August 31, 2026
-      const baseDate = new Date(2026, 7, 31);
-      const targetDate = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000);
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      metricExhaustion.textContent = `${monthNames[targetDate.getMonth()]} ${targetDate.getFullYear()}`;
+      if (metricRunwayMonths) metricRunwayMonths.textContent = `${months.toFixed(1)} Months`;
+      if (metricRunwayDays) metricRunwayDays.textContent = `Approx. ${days.toLocaleString()} calendar days`;
+      if (metricExhaustion) metricExhaustion.textContent = exhaustionStr;
 
-      if (months >= 12) {
-        metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-[#173a39]';
-        metricExhaustion.className = 'text-lg font-bold mt-1 text-indigo-900';
-        healthBadge.textContent = `Healthy (${months.toFixed(1)} Months)`;
-        healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800';
+      if (months >= 18) {
+        if (metricRunwayMonths) metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-emerald-600';
+        if (metricExhaustion) metricExhaustion.className = 'text-lg font-bold mt-1 text-emerald-800';
+        if (healthBadge) healthBadge.textContent = `Low Stress (${months.toFixed(1)} Months)`;
+        if (healthBadge) healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800';
         const barPct = Math.min(100, Math.round((months / 24) * 100));
-        healthBar.style.width = `${barPct}%`;
-        healthBar.className = 'h-3 rounded-full bg-emerald-600 transition-all duration-300';
-      } else if (months >= 6) {
-        metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-amber-700';
-        metricExhaustion.className = 'text-lg font-bold mt-1 text-amber-900';
-        healthBadge.textContent = `Caution (${months.toFixed(1)} Months)`;
-        healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800';
-        const barPct = Math.round((months / 24) * 100);
-        healthBar.style.width = `${barPct}%`;
-        healthBar.className = 'h-3 rounded-full bg-amber-500 transition-all duration-300';
+        if (healthBar) healthBar.style.width = `${barPct}%`;
+        if (healthBar) healthBar.className = 'h-3 rounded-full bg-emerald-500 transition-all duration-300';
+      } else if (months >= 10) {
+        if (metricRunwayMonths) metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-amber-600';
+        if (metricExhaustion) metricExhaustion.className = 'text-lg font-bold mt-1 text-amber-800';
+        if (healthBadge) healthBadge.textContent = `Moderate Runway (${months.toFixed(1)} Months)`;
+        if (healthBadge) healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800';
+        const barPct = Math.min(100, Math.round((months / 24) * 100));
+        if (healthBar) healthBar.style.width = `${barPct}%`;
+        if (healthBar) healthBar.className = 'h-3 rounded-full bg-amber-500 transition-all duration-300';
+      } else if (months >= 5) {
+        if (metricRunwayMonths) metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-orange-600';
+        if (metricExhaustion) metricExhaustion.className = 'text-lg font-bold mt-1 text-orange-800';
+        if (healthBadge) healthBadge.textContent = `Constrained (${months.toFixed(1)} Months)`;
+        if (healthBadge) healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-orange-100 text-orange-800';
+        const barPct = Math.max(10, Math.round((months / 24) * 100));
+        if (healthBar) healthBar.style.width = `${barPct}%`;
+        if (healthBar) healthBar.className = 'h-3 rounded-full bg-orange-500 transition-all duration-300';
       } else {
-        metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-rose-600';
-        metricExhaustion.className = 'text-lg font-bold mt-1 text-rose-800';
-        healthBadge.textContent = `Critical (${months.toFixed(1)} Months)`;
-        healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-800';
+        if (metricRunwayMonths) metricRunwayMonths.className = 'text-xl font-bold font-mono mt-1 text-rose-600';
+        if (metricExhaustion) metricExhaustion.className = 'text-lg font-bold mt-1 text-rose-800';
+        if (healthBadge) healthBadge.textContent = `Critical (${months.toFixed(1)} Months)`;
+        if (healthBadge) healthBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-800';
         const barPct = Math.max(5, Math.round((months / 24) * 100));
-        healthBar.style.width = `${barPct}%`;
-        healthBar.className = 'h-3 rounded-full bg-rose-500 transition-all duration-300';
+        if (healthBar) healthBar.style.width = `${barPct}%`;
+        if (healthBar) healthBar.className = 'h-3 rounded-full bg-rose-500 transition-all duration-300';
       }
 
       const neededRev = formatCurrency(burn);
       const neededRevPct = ((burn / projectedRev) * 100).toFixed(1);
       const neededExpPct = ((burn / projectedExp) * 100).toFixed(1);
-      assessmentText.innerHTML = `Under this scenario, the shelter has an estimated monthly gap of <strong>${formatCurrency(burn)}</strong> against available funds of <strong>${formatCurrency(liquidPool)}</strong> (${includeReserve ? 'including' : 'excluding'} our Fidelity emergency reserve). This gives HSMC approximately <strong>${months.toFixed(1)} months of cash runway</strong>.<br/><br/>To break even each month without drawing down reserves, the shelter would need <strong>+${neededRev}/month in new donations (+${neededRevPct}%)</strong>, or to reduce operating expenses by <strong>${neededRev}/month (-${neededExpPct}%)</strong>.`;
+      if (assessmentText) assessmentText.innerHTML = `Under this scenario, the shelter has an estimated monthly gap of <strong>${formatCurrency(burn)}</strong> against available funds of <strong>${formatCurrency(liquidPool)}</strong> (${includeReserve ? 'including' : 'excluding'} our Fidelity emergency reserve). This gives HSMC approximately <strong>${months.toFixed(1)} months of cash runway</strong>.<br/><br/>To break even each month without drawing down reserves, the shelter would need <strong>+${neededRev}/month in new donations (+${neededRevPct}%)</strong>, or to reduce operating expenses by <strong>${neededRev}/month (-${neededExpPct}%)</strong>.`;
     }
   }
 
-  // Listeners
-  sliderRev?.addEventListener('input', calculate);
-  sliderExp?.addEventListener('input', calculate);
-  sliderEvent?.addEventListener('input', calculate);
-  toggleReserve?.addEventListener('change', calculate);
+  // Listeners with idempotent dataset.bound flag
+  if (sliderRev && sliderRev.dataset.bound !== '1') {
+    sliderRev.dataset.bound = '1';
+    sliderRev.addEventListener('input', calculate);
+  }
+  if (sliderExp && sliderExp.dataset.bound !== '1') {
+    sliderExp.dataset.bound = '1';
+    sliderExp.addEventListener('input', calculate);
+  }
+  if (sliderEvent && sliderEvent.dataset.bound !== '1') {
+    sliderEvent.dataset.bound = '1';
+    sliderEvent.addEventListener('input', calculate);
+  }
+  if (toggleReserve && toggleReserve.dataset.bound !== '1') {
+    toggleReserve.dataset.bound = '1';
+    toggleReserve.addEventListener('change', calculate);
+  }
 
   presetBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      sliderRev.value = this.dataset.rev;
-      sliderExp.value = this.dataset.exp;
-      sliderEvent.value = this.dataset.event;
-      toggleReserve.checked = this.dataset.reserve === 'true';
-      calculate();
-    });
+    if (btn.dataset.bound !== '1') {
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function() {
+        if (sliderRev) sliderRev.value = this.dataset.rev || '0';
+        if (sliderExp) sliderExp.value = this.dataset.exp || '0';
+        if (sliderEvent) sliderEvent.value = this.dataset.event || '0';
+        if (toggleReserve) toggleReserve.checked = this.dataset.reserve === 'true';
+        calculate();
+      });
+    }
   });
 
   modeBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      const mode = this.dataset.mode;
-      if (mode === currentMode) return;
-      currentMode = mode;
+    if (btn.dataset.bound !== '1') {
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function() {
+        const mode = this.dataset.mode;
+        if (mode === currentMode) return;
+        currentMode = mode;
 
-      modeBtns.forEach(b => {
-        b.className = 'mode-btn px-2.5 py-1 text-[11px] font-medium rounded-md text-slate-600 hover:text-slate-900 transition';
+        modeBtns.forEach(b => {
+          b.className = 'mode-btn px-2.5 py-1 text-[11px] font-medium rounded-md text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
+        });
+        this.className = 'mode-btn active px-2.5 py-1 text-[11px] font-bold rounded-md bg-[#173a39] text-white transition shadow-xs';
+
+        if (currentMode === 'core') {
+          BASE_REV = parseFloat(root.dataset.coreRev || '0');
+          BASE_EXP = parseFloat(root.dataset.coreExp || '0');
+        } else {
+          BASE_REV = parseFloat(root.dataset.allinRev || '0');
+          BASE_EXP = parseFloat(root.dataset.allinExp || '0');
+        }
+
+        updateMarkers();
+        calculate();
       });
-      this.className = 'mode-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-[#173a39] text-white transition shadow-xs';
+    }
+  });
 
+  if (!window.__HSMC_SCENARIO_UPDATE_BOUND__) {
+    window.__HSMC_SCENARIO_UPDATE_BOUND__ = true;
+    window.addEventListener('update-scenario-simulator', () => {
+      const activeRoot = document.getElementById('scenario-simulator-root');
+      if (!activeRoot) return;
       if (currentMode === 'core') {
-        BASE_REV = parseFloat(root.dataset.coreRev || '0');
-        BASE_EXP = parseFloat(root.dataset.coreExp || '0');
+        BASE_REV = parseFloat(activeRoot.dataset.coreRev || '0');
+        BASE_EXP = parseFloat(activeRoot.dataset.coreExp || '0');
       } else {
-        BASE_REV = parseFloat(root.dataset.allinRev || '0');
-        BASE_EXP = parseFloat(root.dataset.allinExp || '0');
+        BASE_REV = parseFloat(activeRoot.dataset.allinRev || '0');
+        BASE_EXP = parseFloat(activeRoot.dataset.allinExp || '0');
       }
-
+      BASE_CHECKING = parseFloat(activeRoot.dataset.baseChecking || '0');
+      BASE_FIDELITY = parseFloat(activeRoot.dataset.baseFidelity || '0');
       updateMarkers();
       calculate();
     });
-  });
-
-  window.addEventListener('update-scenario-simulator', () => {
-    if (currentMode === 'core') {
-      BASE_REV = parseFloat(root.dataset.coreRev || '0');
-      BASE_EXP = parseFloat(root.dataset.coreExp || '0');
-    } else {
-      BASE_REV = parseFloat(root.dataset.allinRev || '0');
-      BASE_EXP = parseFloat(root.dataset.allinExp || '0');
-    }
-    BASE_CHECKING = parseFloat(root.dataset.baseChecking || '0');
-    BASE_FIDELITY = parseFloat(root.dataset.baseFidelity || '0');
-    updateMarkers();
-    calculate();
-  });
+  }
 
   // Run on load
   updateMarkers();
   calculate();
-})();
+}
+
+window.initScenarioSimulator = initScenarioSimulator;
+document.addEventListener('astro:page-load', initScenarioSimulator);
+if (document.readyState !== 'loading') {
+  initScenarioSimulator();
+} else {
+  document.addEventListener('DOMContentLoaded', initScenarioSimulator);
+}
 </script>

@@ -24,10 +24,10 @@ const { items, activeId = items[0]?.id, ariaLabel = 'Section navigation' } = Ast
           <button
             type="button"
             data-subnav-target={it.id}
-            class={`subnav-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 ${
+            class={`subnav-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 border ${
               isActive
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs font-bold'
-                : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 hover:text-white border border-teal-800/70'
+                ? 'active bg-[#173a39] dark:bg-emerald-500/20 text-white dark:text-emerald-300 border-[#173a39] dark:border-emerald-500/40 shadow-xs font-bold'
+                : 'bg-slate-100/90 dark:bg-teal-950/60 text-slate-700 dark:text-teal-200/90 hover:bg-slate-200 dark:hover:bg-teal-900 border-slate-200/80 dark:border-teal-800/70'
             }`}
           >
             {it.icon && <span class="text-sm leading-none">{it.icon}</span>}

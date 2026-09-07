@@ -142,7 +142,7 @@ const bundleData = {
           data-tab-target="memorials"
           class="cms-tab-btn active inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer bg-white text-teal-950"
         >
-          <div class="w-5 h-5 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+          <div class="w-5 h-5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 flex items-center justify-center shrink-0">
             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           </div>
           <span>Memorial Tributes</span>
@@ -219,7 +219,7 @@ const bundleData = {
           <button
             type="button"
             id="btn-add-tribute"
-            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[#c2410c] hover:bg-[#9a3412] transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[#173a39] hover:bg-[#112c2b] transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span>Add tribute</span>
@@ -309,7 +309,7 @@ const bundleData = {
               <button
                 type="button"
                 id="btn-publish-tribute"
-                class="px-5 py-2.5 rounded-xl font-bold text-white bg-[#c2410c] hover:bg-[#9a3412] transition shadow-xs cursor-pointer"
+                class="px-5 py-2.5 rounded-xl font-bold text-white bg-[#173a39] hover:bg-[#112c2b] transition shadow-xs cursor-pointer"
               >
                 Publish
               </button>
@@ -363,7 +363,7 @@ const bundleData = {
           <button
             type="button"
             id="btn-add-flyer"
-            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[#c2410c] hover:bg-[#9a3412] transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[#173a39] hover:bg-[#112c2b] transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span>Add flyer</span>
@@ -497,7 +497,7 @@ const bundleData = {
                 <button
                   type="button"
                   id="btn-publish-flyer"
-                  class="px-4 py-2 rounded-lg font-bold text-white bg-[#c2410c] hover:bg-[#9a3412] transition shadow-xs cursor-pointer"
+                  class="px-4 py-2 rounded-lg font-bold text-white bg-[#173a39] hover:bg-[#112c2b] transition shadow-xs cursor-pointer"
                 >
                   Publish
                 </button>
@@ -551,7 +551,7 @@ const bundleData = {
           <button
             type="button"
             id="btn-add-issue"
-            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[#c2410c] hover:bg-[#9a3412] transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[#173a39] hover:bg-[#112c2b] transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span>Add issue</span>
@@ -701,7 +701,7 @@ const bundleData = {
                 <button
                   type="button"
                   id="btn-publish-issue"
-                  class="px-4 py-2 rounded-lg font-bold text-white bg-[#c2410c] hover:bg-[#9a3412] transition shadow-xs cursor-pointer"
+                  class="px-4 py-2 rounded-lg font-bold text-white bg-[#173a39] hover:bg-[#112c2b] transition shadow-xs cursor-pointer"
                 >
                   Publish
                 </button>
@@ -792,7 +792,7 @@ const bundleData = {
           <button
             type="button"
             id="btn-save-outcomes"
-            class="px-5 py-2 rounded-lg font-bold text-white bg-[#c2410c] hover:bg-[#9a3412] transition shadow-xs cursor-pointer"
+            class="px-5 py-2 rounded-lg font-bold text-white bg-[#173a39] hover:bg-[#112c2b] transition shadow-xs cursor-pointer"
           >
             Save
           </button>
@@ -812,9 +812,16 @@ const bundleData = {
 
 <script is:inline define:vars={{ bundleData }}>
   // Direct Content Management Engine
-  (function () {
-    const STORAGE_KEY = 'mchs_site_content_v2';
-    let appState = bundleData;
+  const STORAGE_KEY = 'mchs_site_content_v2';
+  let appState = bundleData;
+  let selectedTributeIdx = 0;
+  let selectedFlyerIdx = 0;
+  let selectedIssueIdx = 0;
+  let currentTributeFilter = 'all';
+
+  function initContentManager() {
+    const root = document.getElementById('content-hub-root');
+    if (!root) return;
 
     // Load persisted state if exists
     try {
@@ -831,11 +838,6 @@ const bundleData = {
     } catch (e) {
       console.warn('[ContentHub] Failed loading localStorage:', e);
     }
-
-    let selectedTributeIdx = 0;
-    let selectedFlyerIdx = 0;
-    let selectedIssueIdx = 0;
-    let currentTributeFilter = 'all';
 
     // Toast notification
     const toast = document.getElementById('cms-toast');
@@ -1593,7 +1595,7 @@ const bundleData = {
               <h4 class="text-xl font-serif font-black text-slate-900">${year}</h4>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 font-mono">${rate}% Rate</span>
             </div>
-            <button type="button" data-remove-year="${year}" class="btn-remove-year text-xs font-semibold text-[#c2410c] hover:text-[#9a3412] cursor-pointer transition">
+            <button type="button" data-remove-year="${year}" class="btn-remove-year text-xs font-semibold text-rose-600 hover:text-rose-800 cursor-pointer transition">
               Remove year
             </button>
           </div>
@@ -1780,12 +1782,21 @@ const bundleData = {
 
     // Initial render
     renderTributesList();
-    loadTributeForm(0);
+    loadTributeForm(selectedTributeIdx);
     renderFlyersList();
-    loadFlyerForm(0);
+    loadFlyerForm(selectedFlyerIdx);
     renderCalendarPreview();
     renderIssuesList();
-    loadIssueForm(0);
+    loadIssueForm(selectedIssueIdx);
     renderOutcomesCards();
-  })();
+  }
+
+  window.initMCHSContentManager = initContentManager;
+
+  if (document.readyState !== 'loading') {
+    initContentManager();
+  } else {
+    document.addEventListener('DOMContentLoaded', initContentManager);
+  }
+  document.addEventListener('astro:page-load', initContentManager);
 </script>

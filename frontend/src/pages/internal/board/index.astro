@@ -77,11 +77,11 @@ const subNavItems = [
         pills.forEach((p) => {
           const isTarget = p.getAttribute('data-subnav-target') === targetId;
           if (isTarget) {
-            p.classList.add('bg-[#173a39]', 'text-white', 'shadow-xs', 'font-bold');
-            p.classList.remove('bg-slate-100/90', 'text-slate-700', 'border', 'border-slate-200/80');
+            p.classList.add('active', 'bg-[#173a39]', 'dark:bg-emerald-500/20', 'text-white', 'dark:text-emerald-300', 'border-[#173a39]', 'dark:border-emerald-500/40', 'shadow-xs', 'font-bold');
+            p.classList.remove('bg-slate-100/90', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200/90', 'border-slate-200/80', 'dark:border-teal-800/70');
           } else {
-            p.classList.remove('bg-[#173a39]', 'text-white', 'shadow-xs', 'font-bold');
-            p.classList.add('bg-slate-100/90', 'text-slate-700', 'border', 'border-slate-200/80');
+            p.classList.remove('active', 'bg-[#173a39]', 'dark:bg-emerald-500/20', 'text-white', 'dark:text-emerald-300', 'border-[#173a39]', 'dark:border-emerald-500/40', 'shadow-xs', 'font-bold');
+            p.classList.add('bg-slate-100/90', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200/90', 'border-slate-200/80', 'dark:border-teal-800/70');
           }
         });
 
@@ -105,6 +105,8 @@ const subNavItems = [
       }
 
       pills.forEach((pill) => {
+        if ((pill as HTMLElement).dataset.bound === '1') return;
+        (pill as HTMLElement).dataset.bound = '1';
         pill.addEventListener('click', () => {
           const target = pill.getAttribute('data-subnav-target');
           if (target) {
