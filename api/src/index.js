@@ -415,3 +415,120 @@ app.http('client-error', {
     }
   },
 });
+
+// 6. POST /api/pet-sync-webhook (Directus → GitHub repository_dispatch rebuild trigger)
+//
+// Setup in Azure SWA application settings:
+//   DIRECTUS_WEBHOOK_SECRET  — shared secret; set the same value in Directus webhook headers
+//   GITHUB_DISPATCH_PAT      — GitHub fine-grained PAT with "actions:write" on this repo
+//   GITHUB_REPO_OWNER        — e.g. "MonroeHumane"
+//   GITHUB_REPO_NAME         — e.g. "AzureMigration"
+//
+// Setup in Directus: Admin → Settings → Webhooks → New Webhook
+//   URL: https://<your-swa>.azurestaticapps.net/api/pet-sync-webhook
+//   Method: POST
+//   Headers: X-Webhook-Secret: <same value as DIRECTUS_WEBHOOK_SECRET>
+//   Collections: pets (on items.create, items.update, items.delete)
+//
+app.http('pet-sync-webhook', {
+  methods: ['POST', 'OPTIONS'],
+  authLevel: 'anonymous',
+  handler: async (request, context) => {
+    if (request.method === 'OPTIONS') {
+      return corsPreflight(request, 'POST, OPTIONS', 'Content-Type, X-Webhook-Secret');
+    }
+
+    const WEBHOOK_SECRET = (process.env.DIRECTUS_WEBHOOK_SECRET || '').trim();
+    const GITHUB_PAT     = (process.env.GITHUB_DISPATCH_PAT || '').trim();
+    const REPO_OWNER     = (process.env.GITHUB_REPO_OWNER || '').trim();
+    const REPO_NAME      = (process.env.GITHUB_REPO_NAME || '').trim();
+
+    // --- 1. Validate configuration ---
+    if (!WEBHOOK_SECRET || !GITHUB_PAT || !REPO_OWNER || !REPO_NAME) {
+      context.warn('[PetSyncWebhook] Missing required environment variables.');
+      return { status: 503, headers: corsHeaders(request, { 'Content-Type': 'application/json' }), body: JSON.stringify({ error: 'Webhook not configured' }) };
+    }
+
+    // --- 2. Validate secret ---
+    const incomingSecret = (request.headers.get('x-webhook-secret') || '').trim();
+    const expectedBuf = Buffer.from(WEBHOOK_SECRET);
+    const incomingBuf = Buffer.from(incomingSecret);
+    let secretValid = false;
+    try {
+      secretValid =
+        expectedBuf.length === incomingBuf.length &&
+        crypto.timingSafeEqual(expectedBuf, incomingBuf);
+    } catch {
+      secretValid = false;
+    }
+
+    if (!secretValid) {
+      context.warn('[PetSyncWebhook] Rejected: invalid secret.');
+      return { status: 401, headers: corsHeaders(request, { 'Content-Type': 'application/json' }), body: JSON.stringify({ error: 'Unauthorized' }) };
+    }
+
+    // --- 3. Parse Directus event payload (for logging, non-blocking) ---
+    let eventInfo = {};
+    try {
+      const body = await request.json();
+      eventInfo = {
+        collection: body?.collection || 'unknown',
+        event: body?.event || 'unknown',
+        keys: body?.keys || body?.key || [],
+      };
+    } catch {
+      // Non-JSON bodies (e.g. plain pings) are fine — we still rebuild
+      eventInfo = { collection: 'pets', event: 'ping' };
+    }
+
+    context.log('[PetSyncWebhook] Received event:', eventInfo);
+
+    // --- 4. Fire GitHub repository_dispatch (async, we don't await GitHub's processing) ---
+    const dispatchUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/dispatches`;
+    try {
+      const ghRes = await fetch(dispatchUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${GITHUB_PAT}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        body: JSON.stringify({
+          event_type: 'cms_rebuild',
+          client_payload: {
+            triggered_by: 'pet-sync-webhook',
+            collection: eventInfo.collection,
+            event: eventInfo.event,
+            timestamp: new Date().toISOString(),
+          },
+        }),
+      });
+
+      if (!ghRes.ok) {
+        const ghBody = await ghRes.text().catch(() => '');
+        context.warn(`[PetSyncWebhook] GitHub dispatch failed: ${ghRes.status} — ${ghBody}`);
+        return {
+          status: 502,
+          headers: corsHeaders(request, { 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ error: 'Failed to dispatch rebuild', github_status: ghRes.status }),
+        };
+      }
+
+      context.log('[PetSyncWebhook] Rebuild dispatched to GitHub Actions successfully.');
+      return {
+        status: 202,
+        headers: corsHeaders(request, { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ ok: true, message: 'Rebuild queued', event: eventInfo }),
+      };
+    } catch (err) {
+      context.error('[PetSyncWebhook] Network error dispatching to GitHub:', err);
+      return {
+        status: 502,
+        headers: corsHeaders(request, { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ error: 'Network error reaching GitHub' }),
+      };
+    }
+  },
+});
+

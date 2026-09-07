@@ -8,9 +8,14 @@ on:
       - 'frontend/**'
       - 'api/**'
       - '.github/workflows/deploy-frontend.yml'
+  # Fires when Directus posts to /api/pet-sync-webhook, which dispatches this event
   repository_dispatch:
     types: [cms_rebuild]
+  # Safety-net: rebuild every night at 3 AM UTC so pet data never drifts more than 24h
+  schedule:
+    - cron: '0 3 * * *'
   workflow_dispatch:
+
 
 jobs:
   build_and_deploy:

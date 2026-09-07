@@ -17,6 +17,8 @@ const { sections } = Astro.props;
   id="toc-fab" 
   class="hidden max-[1200px]:flex items-center gap-2 fixed left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-slate-200 rounded-full px-5 py-2.5 shadow-lg shadow-black/5 z-40 font-semibold text-sm text-teal-700 whitespace-nowrap active:scale-95 transition-transform" 
   style="bottom: calc(80px + env(safe-area-inset-bottom));" 
+  data-section-ids={JSON.stringify(sections.map(s => s.id))}
+  data-section-titles={JSON.stringify(Object.fromEntries(sections.map(s => [s.id, s.title])))}
   aria-label="Table of Contents"
 >
   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -80,25 +82,33 @@ const { sections } = Astro.props;
     }
   });
 
-  // 2. Intersection Observer (ScrollSpy)
+  // 2. Precision Intersection Observer (ScrollSpy)
+  // Only observe elements whose IDs are explicitly listed in sideNavSections.
+  // This prevents the FAB label from flickering with random widget/card IDs.
   const currentSectionLabel = document.getElementById('toc-current-section');
-  const sectionsElements = document.querySelectorAll('div[id], section[id]');
 
-  // Options: trigger when section hits the top 20% of the viewport
-  const observerOptions = { root: null, rootMargin: '-20% 0px -80% 0px', threshold: 0 };
+  const knownIds: string[] = JSON.parse(fab?.dataset.sectionIds || '[]');
+  const sectionTitles: Record<string, string> = JSON.parse(fab?.dataset.sectionTitles || '{}');
+
+  const sectionsElements = knownIds
+    .map(id => document.getElementById(id))
+    .filter((el): el is HTMLElement => el !== null);
+
+  // Trigger when a section enters the top-center band of the viewport
+  const observerOptions = { root: null, rootMargin: '-15% 0px -75% 0px', threshold: 0 };
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const id = entry.target.id;
         
-        // Update the FAB text to show where the user is
-        const activeLink = document.querySelector(`.toc-link[data-target="${id}"]`);
-        if (activeLink && currentSectionLabel) {
-          currentSectionLabel.textContent = activeLink.textContent || '';
+        // Update the FAB text to the human-readable title
+        if (currentSectionLabel && sectionTitles[id]) {
+          currentSectionLabel.textContent = sectionTitles[id];
         }
 
         // Highlight active link in the bottom sheet list
+        const activeLink = document.querySelector(`.toc-link[data-target="${id}"]`);
         links.forEach(l => {
           l.classList.remove('text-teal-700', 'font-bold');
           l.classList.add('text-slate-600', 'font-medium');

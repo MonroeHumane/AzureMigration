@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'hsmc-shell-cache-v4';
+const SHELL_CACHE = 'hsmc-shell-cache-v5';
 const PET_DATA_CACHE = 'hsmc-pet-data-cache-v4';
 const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v4';
 const KNOWN_CACHES = [SHELL_CACHE, PET_DATA_CACHE, PET_PHOTO_CACHE];
@@ -20,7 +20,9 @@ const ASSETS_TO_CACHE = [
   '/manifest-adopt.webmanifest',
   '/assets/brand-mark-paw-circle.png',
   '/placeholder.svg',
-  '/tv/'
+  '/tv/',
+  '/games/',
+  '/games/catwalk/'
 ];
 
 self.addEventListener('install', (event) => {
@@ -167,6 +169,7 @@ self.addEventListener('fetch', (event) => {
             if (cachedResponse) return cachedResponse;
             if (url.pathname.startsWith('/internal')) return caches.match('/internal/');
             if (url.pathname.startsWith('/adopt')) return caches.match('/adopt/');
+            if (url.pathname.startsWith('/games')) return caches.match('/games/');
             return caches.match('/');
           });
         })
