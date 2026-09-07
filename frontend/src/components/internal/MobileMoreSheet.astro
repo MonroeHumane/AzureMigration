@@ -71,6 +71,32 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           </div>
         </div>
 
+        <!-- Portal Theme Switcher (Light Monroe / Dark Ops) -->
+        <div class="p-3 bg-[#0b2420] rounded-2xl border border-teal-800/80 shadow-md">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-teal-200">Portal Theme</span>
+            <span id="sheet-theme-indicator" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Light Monroe
+            </span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              id="sheet-set-light-theme-btn"
+              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-emerald-600 text-slate-950 shadow-xs"
+            >
+              <span>☀️ Light Monroe</span>
+            </button>
+            <button
+              type="button"
+              id="sheet-set-dark-theme-btn"
+              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-teal-950 text-teal-200 hover:bg-teal-900 hover:text-white border border-teal-800"
+            >
+              <span>🌙 Dark Ops</span>
+            </button>
+          </div>
+        </div>
+
         <!-- PWA Install Action Card -->
         <div
           id="pwa-install-container"
@@ -293,6 +319,8 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 </dialog>
 
 <script>
+  import { getStaffTheme, setStaffTheme } from '../../lib/staff-theme';
+
   function setupMobileMoreSheet() {
     const sheetDialog = document.getElementById('mobile-more-sheet') as HTMLDialogElement | null;
     const panel = document.getElementById('mobile-more-sheet-panel');
@@ -324,6 +352,45 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       }
     }
 
+    // Theme switch controls inside sheet
+    const lightThemeBtn = document.getElementById('sheet-set-light-theme-btn');
+    const darkThemeBtn = document.getElementById('sheet-set-dark-theme-btn');
+    const themeIndicator = document.getElementById('sheet-theme-indicator');
+
+    function syncThemeModeUI() {
+      const current = getStaffTheme();
+      if (themeIndicator) {
+        themeIndicator.textContent = current === 'light' ? 'Light Monroe' : 'Dark Ops';
+      }
+      if (current === 'light') {
+        lightThemeBtn?.classList.remove('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        lightThemeBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
+        darkThemeBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
+        darkThemeBtn?.classList.add('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+      } else {
+        darkThemeBtn?.classList.remove('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        darkThemeBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
+        lightThemeBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
+        lightThemeBtn?.classList.add('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+      }
+    }
+
+    if (lightThemeBtn && lightThemeBtn.dataset.bound !== '1') {
+      lightThemeBtn.dataset.bound = '1';
+      lightThemeBtn.addEventListener('click', () => {
+        setStaffTheme('light');
+        syncThemeModeUI();
+      });
+    }
+
+    if (darkThemeBtn && darkThemeBtn.dataset.bound !== '1') {
+      darkThemeBtn.dataset.bound = '1';
+      darkThemeBtn.addEventListener('click', () => {
+        setStaffTheme('dark');
+        syncThemeModeUI();
+      });
+    }
+
     if (bottomBarBtn && bottomBarBtn.dataset.bound !== '1') {
       bottomBarBtn.dataset.bound = '1';
       bottomBarBtn.addEventListener('click', () => {
@@ -345,6 +412,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     function openSheet() {
       if (!sheetDialog || !panel) return;
       syncNavModeUI();
+      syncThemeModeUI();
       sheetDialog.showModal();
       requestAnimationFrame(() => {
         panel.classList.remove('translate-y-full');

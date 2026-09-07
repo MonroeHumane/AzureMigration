@@ -15,7 +15,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
 <BaseLayout
   title="Staff Portal | Humane Society of Monroe County"
   description="Humane Society of Monroe County Staff Portal: Animal Census, Board Financials, and Grants Pipeline."
-  bodyClass="bg-[#071a17] text-slate-100 antialiased min-h-screen relative overflow-x-hidden"
+  bodyClass="antialiased min-h-screen relative overflow-x-hidden"
 >
   <!-- Zero-Flicker Synchronous Auth Hydration (Runs before paint) -->
   <script is:inline>
@@ -31,7 +31,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
   </script>
 
   <!-- SCREEN 1: UNIFIED STAFF LOGIN GATE (Shown when unauthenticated) -->
-  <div id="staff-portal-auth-gate" class="min-h-dvh flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-[#071a17] relative overflow-hidden">
+  <div id="staff-portal-auth-gate" class="min-h-dvh flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
     <!-- Subtle Ambient Glow -->
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -159,7 +159,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
   </div>
 
   <!-- SCREEN 2: UNIFIED STAFF PORTAL HUB (Shown when authenticated) -->
-  <div id="staff-portal-content" class="min-h-screen pb-20 relative z-10 bg-[#071a17]" transition:animate="fade">
+  <div id="staff-portal-content" class="min-h-screen pb-20 relative z-10" transition:animate="fade">
     <!-- Ambient Atmospheric Glow (Matching the login screen) -->
     <div class="fixed -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
     <div class="fixed -bottom-32 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>

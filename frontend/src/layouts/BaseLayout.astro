@@ -9,6 +9,7 @@ import '../styles/global.css';
 import '../styles/global-styles.css';
 import '../styles/monroe-wp-compat.css';
 import '../styles/monroe-theme.css';
+import '../styles/staff-theme.css';
 
 interface Props {
   title?: string;
@@ -193,6 +194,25 @@ const schemaOrg = {
         });
       })();
     </script>
+
+    <!-- Early zero-flicker staff portal theme check (Default: Light Monroe Mode) -->
+    <script is:inline>
+      (function() {
+        function syncStaffTheme() {
+          try {
+            var savedTheme = localStorage.getItem('mchs_staff_theme') || 'light';
+            document.documentElement.setAttribute('data-staff-theme', savedTheme);
+          } catch (e) {}
+        }
+        syncStaffTheme();
+        document.addEventListener('astro:before-swap', function(e) {
+          try {
+            var savedTheme = localStorage.getItem('mchs_staff_theme') || 'light';
+            e.newDocument.documentElement.setAttribute('data-staff-theme', savedTheme);
+          } catch (err) {}
+        });
+      })();
+    </script>
     <script>
       import { initErrorReporter } from '../lib/error-reporter';
       initErrorReporter();
@@ -237,7 +257,7 @@ const schemaOrg = {
   body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
     padding-top: 0 !important;
     margin-top: 0 !important;
-    background-color: #071a17 !important;
+    background-color: var(--sp-bg, #f8faf9) !important;
     background-image: none !important;
   }
 </style>

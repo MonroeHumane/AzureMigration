@@ -11,24 +11,50 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 <header class="staff-portal-header bg-[#061815]/95 backdrop-blur-md text-white border-b border-teal-800/80 sticky top-0 z-40 shadow-lg shadow-teal-950/20 transition-all duration-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
     <div class="flex items-center justify-between gap-3">
-      <!-- Brand & Title -->
-      <a href="/internal/" class="flex items-center gap-2.5 group">
-        <div class="p-2 rounded-xl bg-teal-900/60 text-emerald-300 border border-teal-700/80 shadow-md group-hover:border-emerald-500/50 group-hover:bg-teal-900 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          </svg>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-emerald-300 transition">
-              Monroe Humane
-            </span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              Staff Portal
-            </span>
+      <!-- Brand & Title + Top Left Theme Switcher -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a href="/internal/" class="flex items-center gap-2.5 group">
+          <div class="staff-brand-icon p-2 rounded-xl bg-teal-900/60 text-emerald-300 border border-teal-700/80 shadow-md group-hover:border-emerald-500/50 group-hover:bg-teal-900 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
           </div>
-        </div>
-      </a>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="staff-brand-text text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-emerald-300 transition">
+                Monroe Humane
+              </span>
+              <span class="staff-portal-pill px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Staff Portal
+              </span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Top Left Theme Switcher Button -->
+        <button
+          type="button"
+          class="staff-theme-toggle-btn border cursor-pointer"
+          title="Toggle Staff Portal Theme (Light / Dark Ops)"
+          aria-label="Toggle Staff Portal Theme"
+        >
+          <svg class="theme-icon-sun w-3.5 h-3.5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="theme-icon-moon w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <span class="theme-toggle-label hidden sm:inline text-xs">Light</span>
+        </button>
+      </div>
 
       <!-- Right Controls: Status, Nav Preference, User Menu & Mobile Hamburger -->
       <div class="flex items-center gap-2 sm:gap-2.5 text-xs">
@@ -439,8 +465,12 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
 <script>
   import { logoutStaff, getStaffUserEmail } from '../../lib/staff-auth';
+  import { initStaffThemeToggle } from '../../lib/staff-theme';
 
   function initStaffNav() {
+    // 0. Initialize Top-Left Theme Switcher
+    initStaffThemeToggle();
+
     // 1. Hydrate User Info
     const email = getStaffUserEmail();
     const emailEl = document.getElementById('nav-user-email');
