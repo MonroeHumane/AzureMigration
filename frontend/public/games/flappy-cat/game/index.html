@@ -2,21 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Flappy Cat</title>
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
       background-color: #71c5cf;
       overflow: hidden;
-      touch-action: none; /* Prevent scroll on touch */
+      touch-action: none;
       user-select: none;
+      -webkit-user-select: none;
+      overscroll-behavior: none;
     }
     #game-canvas {
       display: block;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
+      touch-action: none;
     }
     /* Loading screen */
     #loading {
@@ -25,15 +32,17 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: #000;
-      color: #fff;
+      background: #071a17;
+      color: #5eead4;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: sans-serif;
-      font-size: 24px;
+      font-family: system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 0.05em;
       z-index: 10;
-      transition: opacity 0.5s ease-in-out;
+      transition: opacity 0.4s ease-in-out;
     }
   </style>
   <script type="module" crossorigin src="./assets/index-D_etShWE.js"></script>
@@ -41,5 +50,101 @@
 <body>
   <div id="loading">Connecting to Humane Arcade...</div>
   <canvas id="game-canvas"></canvas>
+
+  <script>
+    // Arcade Integration Bridge: Sound Mute & Global High Score Submission
+    (function () {
+      // 1. Listen for global arcade mute state from cabinet
+      window.addEventListener('message', function (e) {
+        if (!e.data || typeof e.data !== 'object') return;
+        if (e.data.type === 'arcade:set_mute') {
+          if (window.gameInstance && window.gameInstance.audio) {
+            window.gameInstance.soundEnabled = !e.data.muted;
+            window.gameInstance.audio.setMuted(e.data.muted);
+          }
+        }
+      });
+
+      // 2. Hook score reporting on game over
+      function hookScoreReporting() {
+        if (!window.gameInstance || !window.gameInstance.model) {
+          setTimeout(hookScoreReporting, 200);
+          return;
+        }
+
+        var origDeath = window.gameInstance.model.onDeathCallback;
+        window.gameInstance.model.onDeathCallback = function () {
+          if (typeof origDeath === 'function') {
+            try { origDeath.apply(this, arguments); } catch (err) {}
+          }
+
+          var finalScore = (window.gameInstance.model && window.gameInstance.model.score) || 0;
+          if (finalScore > 0) {
+            var player = (window.gameInstance.userSlug || localStorage.getItem('monroeDexUser') || 'Player').trim();
+
+            // Notify parent window (Cabinet shell)
+            try {
+              if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                  type: 'arcade:score_recorded',
+                  game: 'flappy_cat',
+                  gameId: 'flappy_cat',
+                  score: finalScore,
+                  player: player
+                }, '*');
+              }
+            } catch (err) {}
+
+            // Submit directly to arcade scores API
+            try {
+              fetch('/arcade-api/v1/scores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  gameId: 'flappy_cat',
+                  score: finalScore,
+                  playerName: player
+                })
+              }).catch(function () {});
+            } catch (err) {}
+          }
+        };
+      }
+
+      hookScoreReporting();
+
+      // 3. Hook reward claims to award booster packs and notify cabinet
+      function hookMilestones() {
+        if (!window.gameInstance) {
+          setTimeout(hookMilestones, 200);
+          return;
+        }
+        var origClaim = window.gameInstance.claimReward;
+        window.gameInstance.claimReward = function (tier, key, toast) {
+          if (typeof origClaim === 'function') {
+            try { origClaim.apply(this, arguments); } catch (err) {}
+          }
+          try {
+            var currentPacks = Math.max(0, parseInt(localStorage.getItem('monroeDexPacks') || '1', 10));
+            localStorage.setItem('monroeDexPacks', String(currentPacks + 1));
+          } catch (e) {}
+
+          if (window.parent && window.parent !== window) {
+            try {
+              window.parent.postMessage({
+                type: 'adoptedex:pack_awarded',
+                action: 'pack_awarded',
+                game: 'flappy_cat',
+                milestone: key,
+                tier: tier
+              }, '*');
+            } catch (err) {}
+          }
+        };
+      }
+
+      hookMilestones();
+    })();
+  </script>
 </body>
 </html>

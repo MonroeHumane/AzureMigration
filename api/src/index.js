@@ -532,3 +532,114 @@ app.http('pet-sync-webhook', {
   },
 });
 
+// 7. GET /api/health (System status, feature availability, and connectivity monitor)
+app.http('health', {
+  methods: ['GET', 'OPTIONS'],
+  authLevel: 'anonymous',
+  handler: async (request, context) => {
+    if (request.method === 'OPTIONS') {
+      return corsPreflight(request, 'GET, OPTIONS');
+    }
+
+    let directusReachable = false;
+    try {
+      const pingController = new AbortController();
+      const timeoutId = setTimeout(() => pingController.abort(), 2000);
+      const pingRes = await fetch(`${DIRECTUS_URL}/server/ping`, {
+        signal: pingController.signal,
+      });
+      clearTimeout(timeoutId);
+      directusReachable = pingRes.ok;
+    } catch {
+      directusReachable = false;
+    }
+
+    const payload = {
+      status: 'healthy',
+      service: 'monroe-humane-api',
+      version: '2.5.0',
+      timestamp: new Date().toISOString(),
+      features: {
+        staffAuth: isStaffSecretConfigured(),
+        petSyncWebhook: Boolean(process.env.DIRECTUS_WEBHOOK_SECRET && process.env.GITHUB_DISPATCH_PAT),
+        financialReports: Boolean(reportData),
+        bankStatements: Boolean(statementData),
+        donorDatabase: Boolean(donorDatabase),
+      },
+      directus: {
+        url: DIRECTUS_URL,
+        reachable: directusReachable,
+      },
+    };
+
+    return jsonResponse(request, 200, payload, {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+    });
+  },
+});
+
+// 8. POST /api/inquiry (Public inquiry & form intake engine)
+app.http('inquiry', {
+  methods: ['POST', 'OPTIONS'],
+  authLevel: 'anonymous',
+  handler: async (request, context) => {
+    if (request.method === 'OPTIONS') {
+      return corsPreflight(request, 'POST, OPTIONS', 'Content-Type');
+    }
+
+    try {
+      const body = await request.json();
+      const {
+        name,
+        email,
+        phone,
+        topic = 'general',
+        message,
+        pet_id,
+        _hp, // Honeypot field — bots fill this out, humans don't
+      } = body || {};
+
+      // Bot protection: if honeypot is populated, silently accept and discard
+      if (_hp) {
+        context.warn('[Inquiry] Bot submission discarded via honeypot.');
+        return jsonResponse(request, 200, { ok: true, message: 'Thank you! Your message has been received.' });
+      }
+
+      if (!name || !email || !message) {
+        return jsonResponse(request, 400, { error: 'Name, email, and message are required fields.' });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(String(email).trim())) {
+        return jsonResponse(request, 400, { error: 'Please provide a valid email address.' });
+      }
+
+      const cleanInquiry = {
+        name: String(name).trim().slice(0, 100),
+        email: String(email).trim().toLowerCase().slice(0, 120),
+        phone: phone ? String(phone).trim().slice(0, 30) : null,
+        topic: String(topic).trim().slice(0, 50),
+        message: String(message).trim().slice(0, 3000),
+        pet_id: pet_id ? String(pet_id).trim().slice(0, 50) : null,
+        received_at: new Date().toISOString(),
+        ip: request.headers.get('x-forwarded-for') || 'direct',
+      };
+
+      context.log('[Inquiry] Received valid inquiry:', {
+        topic: cleanInquiry.topic,
+        email: cleanInquiry.email,
+        pet_id: cleanInquiry.pet_id,
+      });
+
+      return jsonResponse(request, 200, {
+        ok: true,
+        message: 'Thank you! Your inquiry has been sent to our shelter team.',
+        received_at: cleanInquiry.received_at,
+      });
+    } catch (err) {
+      context.error('[Inquiry] Error parsing submission:', err);
+      return jsonResponse(request, 400, { error: 'Invalid submission payload.' });
+    }
+  },
+});
+

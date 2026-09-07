@@ -21,7 +21,17 @@
 			} catch (e) {}
 		}
 
-		var api = params.get('dex_api') || params.get('api') || (window.location.origin + '/arcade-api/v1/');
+		if (!user) {
+			user = 'guest';
+		}
+		if (!display) {
+			display = 'Guest Rescuer';
+		}
+
+		var defaultApi = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+			? 'https://mchs-arcade-api.livelyfield-d0a70609.eastus.azurecontainerapps.io/arcade-api/v1/'
+			: (window.location.origin + '/arcade-api/v1/');
+		var api = params.get('dex_api') || params.get('api') || defaultApi;
 
 		return {
 			dexUser: String(user || '').trim().toLowerCase(),
@@ -83,6 +93,13 @@
 				throw new Error('Could not save discovery.');
 			}
 			return res.json();
+		}).then(function (data) {
+			if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+				try {
+					window.parent.postMessage({ type: 'adoptedex:pet_discovered', pet_id: petId }, '*');
+				} catch (e) {}
+			}
+			return data;
 		});
 	}
 
@@ -99,6 +116,13 @@
 				throw new Error('Could not save discoveries.');
 			}
 			return res.json();
+		}).then(function (data) {
+			if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+				try {
+					window.parent.postMessage({ type: 'adoptedex:pet_discovered', pet_ids: petIds }, '*');
+				} catch (e) {}
+			}
+			return data;
 		});
 	}
 
@@ -125,6 +149,24 @@
 				throw new Error('Could not claim reward.');
 			}
 			return res.json();
+		}).then(function (data) {
+			if (data && data.claimed && typeof window !== 'undefined' && window.parent && window.parent !== window) {
+				try {
+					window.parent.postMessage({ type: 'adoptedex:pack_awarded', extra: extra }, '*');
+				} catch (e) {}
+			}
+			return data;
+		}).catch(function (err) {
+			console.warn('[Adoptedex] claimReward network offline fallback:', err);
+			try {
+				var count = (extra && extra.count) ? extra.count : 1;
+				var cur = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
+				localStorage.setItem('monroeDexPacks', String(cur + count));
+				if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+					window.parent.postMessage({ type: 'adoptedex:pack_awarded', extra: extra, offline: true }, '*');
+				}
+			} catch (e) {}
+			return { ok: true, claimed: true, offline: true };
 		});
 	}
 

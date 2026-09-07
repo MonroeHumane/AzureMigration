@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'hsmc-shell-cache-v5';
+const SHELL_CACHE = 'hsmc-shell-cache-v6';
 const PET_DATA_CACHE = 'hsmc-pet-data-cache-v4';
 const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v4';
 const KNOWN_CACHES = [SHELL_CACHE, PET_DATA_CACHE, PET_PHOTO_CACHE];
@@ -22,7 +22,10 @@ const ASSETS_TO_CACHE = [
   '/placeholder.svg',
   '/tv/',
   '/games/',
-  '/games/catwalk/'
+  '/games/booster/index.html',
+  '/games/match/match.html',
+  '/games/flappy-cat/index.html',
+  '/games/dex/album.html'
 ];
 
 self.addEventListener('install', (event) => {

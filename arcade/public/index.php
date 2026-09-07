@@ -13,6 +13,8 @@ use HumaneArcade\AuthMiddleware;
 use HumaneArcade\CleanupController;
 use HumaneArcade\RateLimiter;
 use HumaneArcade\AdoptedexController;
+use HumaneArcade\ScoresController;
+use HumaneArcade\GameCatalog;
 
 // ─── URL normalization ─────────────────────────────────────────────────────────
 if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/arcade-api') === 0) {
@@ -23,10 +25,28 @@ if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/arcade-a
 $allowedOrigins = array_filter(array_map('trim', explode(',',
     getenv('CORS_ALLOWED_ORIGINS') ?: 'http://localhost:5173,http://localhost:8060,http://localhost:4321,http://localhost:3000'
 )));
+
+function isAllowedArcadeOrigin(string $origin, array $configuredOrigins): bool
+{
+    if ($origin === '') return false;
+    if (in_array($origin, $configuredOrigins, true)) return true;
+    $parsed = parse_url($origin);
+    if (!$parsed || !isset($parsed['host'])) return false;
+    $host = strtolower($parsed['host']);
+    return (
+        $host === 'monroe-humane.org' ||
+        str_ends_with($host, '.monroe-humane.org') ||
+        str_ends_with($host, '.azurestaticapps.net') ||
+        $host === 'localhost' ||
+        $host === '127.0.0.1'
+    );
+}
+
 $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($requestOrigin !== '' && in_array($requestOrigin, $allowedOrigins, true)) {
+if ($requestOrigin !== '' && isAllowedArcadeOrigin($requestOrigin, $allowedOrigins)) {
     header("Access-Control-Allow-Origin: $requestOrigin");
     header("Access-Control-Allow-Credentials: true");
+    header("Vary: Origin");
 }
 header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Cleanup-Secret, X-Requested-With");
@@ -76,12 +96,16 @@ try {
     exit();
 }
 
-$syncController     = new SyncController($pdo);
-$authController     = new AuthController($pdo);
-$authMiddleware     = new AuthMiddleware($pdo);
-$cleanupController  = new CleanupController($pdo);
-$rateLimiter        = new RateLimiter($pdo);
+$syncController      = new SyncController($pdo);
+$authController      = new AuthController($pdo);
+$authMiddleware      = new AuthMiddleware($pdo);
+$cleanupController   = new CleanupController($pdo);
+$rateLimiter         = new RateLimiter($pdo);
 $adoptedexController = new AdoptedexController($pdo);
+$scoresController    = new ScoresController($pdo);
+
+// Initialize DB game catalog if table exists
+GameCatalog::initFromPdo($pdo);
 
 // ─── Cookie Helpers ───────────────────────────────────────────────────────────
 function setAuthCookies(string $sessionToken, string $deviceToken): void
@@ -477,6 +501,80 @@ Flight::route('GET /v1/pack-tiers', function () {
     ]);
 });
 
+Flight::route('GET /v1/adoptedex/@user/match-stats', function ($user) use ($adoptedexController) {
+    try {
+        $result = $adoptedexController->getMatchStats((string)$user);
+        if (!$result['ok']) {
+            Flight::json($result, 404);
+            return;
+        }
+        Flight::json($result);
+    } catch (\Exception $e) {
+        serverError('getMatchStats', $e);
+    }
+});
+
+Flight::route('POST /v1/adoptedex/@user/match-stats', function ($user) use ($adoptedexController) {
+    try {
+        $payload = json_decode(Flight::request()->getBody(), true) ?: [];
+        $result = $adoptedexController->saveMatchStats((string)$user, $payload);
+        if (!$result['ok']) {
+            Flight::json($result, 404);
+            return;
+        }
+        Flight::json($result);
+    } catch (\Exception $e) {
+        serverError('saveMatchStats', $e);
+    }
+});
+
+// ─── Arcade Leaderboards & Scores ─────────────────────────────────────────────
+
+Flight::route('GET /v1/scores', function () use ($scoresController) {
+    try {
+        $gameId    = Flight::request()->query['gameId'] ?? Flight::request()->query['game_id'] ?? 'flappy_cat';
+        $limit     = (int)(Flight::request()->query['limit'] ?? 10);
+        $timeframe = Flight::request()->query['timeframe'] ?? 'all';
+
+        $result = $scoresController->getScores((string)$gameId, $limit, (string)$timeframe);
+        Flight::json($result);
+    } catch (\Exception $e) {
+        serverError('getScores', $e);
+    }
+});
+
+Flight::route('POST /v1/scores', function () use ($scoresController, $authMiddleware) {
+    try {
+        $profileId = currentArcadeSessionProfile($authMiddleware);
+        $payload   = json_decode(Flight::request()->getBody(), true) ?: [];
+
+        $gameId     = (string)($payload['gameId'] ?? $payload['game_id'] ?? '');
+        $score      = (int)($payload['score'] ?? 0);
+        $playerName = (string)($payload['playerName'] ?? $payload['player_name'] ?? $payload['user'] ?? 'Player');
+        $metadata   = (array)($payload['metadata'] ?? []);
+
+        if ($gameId === '' || $score <= 0) {
+            Flight::json(['ok' => false, 'message' => 'gameId and positive score are required'], 400);
+            return;
+        }
+
+        $result = $scoresController->submitScore($gameId, $score, $playerName, $profileId, $metadata);
+        $status = $result['ok'] ? 200 : 400;
+        Flight::json($result, $status);
+    } catch (\Exception $e) {
+        serverError('submitScore', $e);
+    }
+});
+
+// ─── Game Catalog Discovery ───────────────────────────────────────────────────
+
+Flight::route('GET /v1/games', function () {
+    Flight::json([
+        'ok'    => true,
+        'games' => GameCatalog::getAll(),
+    ]);
+});
+
 // ─── Maintenance & Health ─────────────────────────────────────────────────────
 
 Flight::route('POST /v1/internal/cleanup', function () use ($cleanupController) {
@@ -502,9 +600,11 @@ Flight::route('POST /v1/internal/cleanup', function () use ($cleanupController) 
 
 Flight::route('/', function () {
     Flight::json([
-        'service' => 'Humane Arcade API',
-        'version' => '1.2.0',
-        'status'  => 'healthy',
+        'service'    => 'Humane Arcade API',
+        'version'    => '1.3.0',
+        'status'     => 'healthy',
+        'game_count' => count(GameCatalog::allGameIds()),
+        'timestamp'  => date('c'),
     ]);
 });
 

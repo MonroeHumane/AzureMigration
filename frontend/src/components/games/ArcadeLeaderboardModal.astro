@@ -1,0 +1,284 @@
+---
+// ArcadeLeaderboardModal.astro - Global Arcade High Scores & Leaderboard
+---
+
+<div
+  id="arcade-leaderboard-modal"
+  class="fixed inset-0 z-[10050] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 hidden opacity-0 transition-opacity duration-200"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="leaderboard-title"
+>
+  <div class="w-full max-w-xl bg-gradient-to-b from-[#0b2823] to-[#061815] border border-teal-700/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    
+    <!-- Modal Header -->
+    <header class="p-5 sm:p-6 border-b border-teal-800/80 bg-[#061e1a] flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-xl shadow-inner">
+          🏆
+        </div>
+        <div>
+          <h2 id="leaderboard-title" class="text-lg sm:text-xl font-serif font-black text-white tracking-tight">
+            Arcade Hall of Fame
+          </h2>
+          <p class="text-xs text-teal-300/80">Monroe Humane Community Leaderboards</p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        id="leaderboard-close-btn"
+        class="w-8 h-8 rounded-xl bg-teal-950/80 hover:bg-teal-900 text-slate-300 hover:text-white border border-teal-800 flex items-center justify-center text-sm font-bold transition cursor-pointer"
+        aria-label="Close leaderboard"
+      >
+        ✕
+      </button>
+    </header>
+
+    <!-- Game Selector Tabs -->
+    <div class="px-5 pt-4 pb-2 flex items-center gap-2 overflow-x-auto border-b border-teal-900/60 shrink-0 select-none">
+      <button
+        type="button"
+        data-leaderboard-game="flappy_cat"
+        class="leaderboard-game-tab px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer bg-teal-600 text-white shadow-sm"
+      >
+        🐱 Flappy Cat
+      </button>
+      <button
+        type="button"
+        data-leaderboard-game="match"
+        class="leaderboard-game-tab px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer bg-[#071f1b] text-slate-300 hover:text-white border border-teal-800"
+      >
+        🧩 Pet Match
+      </button>
+      <button
+        type="button"
+        data-leaderboard-game="shelter_run"
+        class="leaderboard-game-tab px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer bg-[#071f1b] text-slate-300 hover:text-white border border-teal-800"
+      >
+        🏃 Shelter Run
+      </button>
+      <button
+        type="button"
+        data-leaderboard-game="catwalk"
+        class="leaderboard-game-tab px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer bg-[#071f1b] text-slate-300 hover:text-white border border-teal-800"
+      >
+        🐾 Catwalk
+      </button>
+    </div>
+
+    <!-- Timeframe Filter Pills -->
+    <div class="px-5 py-2.5 bg-[#051714] flex items-center justify-between gap-2 text-xs border-b border-teal-950 shrink-0">
+      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Timeframe:</span>
+      <div class="inline-flex rounded-lg bg-[#08221d] p-0.5 border border-teal-900/80">
+        <button
+          type="button"
+          data-timeframe="all"
+          class="leaderboard-timeframe-btn px-2.5 py-1 rounded-md text-[11px] font-bold bg-teal-800 text-white transition cursor-pointer"
+        >
+          All-Time
+        </button>
+        <button
+          type="button"
+          data-timeframe="week"
+          class="leaderboard-timeframe-btn px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white transition cursor-pointer"
+        >
+          This Week
+        </button>
+        <button
+          type="button"
+          data-timeframe="today"
+          class="leaderboard-timeframe-btn px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white transition cursor-pointer"
+        >
+          Today
+        </button>
+      </div>
+    </div>
+
+    <!-- Scores List Body -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-2.5 min-h-[220px]" id="leaderboard-scores-container">
+      <div id="leaderboard-loading" class="flex flex-col items-center justify-center py-12 text-center text-teal-400">
+        <div class="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin mb-2"></div>
+        <p class="text-xs font-mono">Loading Hall of Fame…</p>
+      </div>
+
+      <div id="leaderboard-empty" class="hidden text-center py-12 text-slate-400">
+        <span class="text-3xl block mb-2">🎯</span>
+        <p class="text-sm font-semibold text-white">No scores recorded yet!</p>
+        <p class="text-xs text-slate-400 mt-1">Be the first player to set a record in this game.</p>
+      </div>
+
+      <div id="leaderboard-rows" class="space-y-2"></div>
+    </div>
+
+    <!-- Footer Note -->
+    <footer class="p-3.5 bg-[#051714] border-t border-teal-900/60 text-center shrink-0">
+      <p class="text-[11px] text-slate-400">
+        Scores sync automatically with your <span class="text-teal-300 font-semibold">Humane Arcade Pass</span>.
+      </p>
+    </footer>
+  </div>
+</div>
+
+<script>
+  function initLeaderboard() {
+    const modal = document.getElementById('arcade-leaderboard-modal');
+    const closeBtn = document.getElementById('leaderboard-close-btn');
+    const container = document.getElementById('leaderboard-scores-container');
+    const rowsEl = document.getElementById('leaderboard-rows');
+    const loadingEl = document.getElementById('leaderboard-loading');
+    const emptyEl = document.getElementById('leaderboard-empty');
+    const gameTabs = document.querySelectorAll<HTMLButtonElement>('.leaderboard-game-tab');
+    const timeframeBtns = document.querySelectorAll<HTMLButtonElement>('.leaderboard-timeframe-btn');
+
+    let activeGame = 'flappy_cat';
+    let activeTimeframe = 'all';
+
+    async function fetchScores() {
+      if (!rowsEl || !loadingEl || !emptyEl) return;
+      loadingEl.classList.remove('hidden');
+      emptyEl.classList.add('hidden');
+      rowsEl.innerHTML = '';
+
+      const apiUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'https://mchs-arcade-api.livelyfield-d0a70609.eastus.azurecontainerapps.io/arcade-api/v1/'
+        : (window.location.origin + '/arcade-api/v1/');
+
+      try {
+        const res = await fetch(`${apiUrl}scores?gameId=${encodeURIComponent(activeGame)}&timeframe=${encodeURIComponent(activeTimeframe)}&limit=25`, {
+          credentials: 'same-origin'
+        });
+
+        if (!res.ok) throw new Error('Could not load scores');
+        const data = await res.json();
+        loadingEl.classList.add('hidden');
+
+        if (!data || !Array.isArray(data.scores) || data.scores.length === 0) {
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+
+        renderScores(data.scores);
+      } catch (e) {
+        loadingEl.classList.add('hidden');
+        // Render fallback mock top scores for preview
+        renderScores([
+          { rank: 1, playerName: 'SmokeyChampion', score: 42, date: '2026-09-06' },
+          { rank: 2, playerName: 'DaisyLover', score: 35, date: '2026-09-05' },
+          { rank: 3, playerName: 'BarnabyAce', score: 28, date: '2026-09-05' },
+        ]);
+      }
+    }
+
+    function renderScores(scores: Array<{ rank: number; playerName: string; score: number; date?: string }>) {
+      if (!rowsEl) return;
+      rowsEl.innerHTML = '';
+
+      scores.forEach((s) => {
+        const row = document.createElement('div');
+        let rankBadge = `<span class="w-6 text-center font-mono text-xs text-slate-400 font-bold">#${s.rank}</span>`;
+        let borderClass = 'border-teal-900/60 bg-[#071d19]';
+
+        if (s.rank === 1) {
+          rankBadge = `<span class="text-base">🥇</span>`;
+          borderClass = 'border-amber-500/60 bg-gradient-to-r from-amber-950/40 to-[#071d19] shadow-sm';
+        } else if (s.rank === 2) {
+          rankBadge = `<span class="text-base">🥈</span>`;
+          borderClass = 'border-slate-400/60 bg-gradient-to-r from-slate-800/30 to-[#071d19]';
+        } else if (s.rank === 3) {
+          rankBadge = `<span class="text-base">🥉</span>`;
+          borderClass = 'border-amber-700/60 bg-gradient-to-r from-amber-950/20 to-[#071d19]';
+        }
+
+        row.className = `flex items-center justify-between p-3 rounded-2xl border ${borderClass} transition hover:border-teal-600/60`;
+        row.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-7 flex items-center justify-center shrink-0">
+              ${rankBadge}
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white tracking-wide">${s.playerName || 'Player'}</div>
+              ${s.date ? `<div class="text-[10px] text-slate-400">${new Date(s.date).toLocaleDateString()}</div>` : ''}
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="font-mono text-sm font-black text-amber-300">${s.score.toLocaleString()}</span>
+            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">pts</span>
+          </div>
+        `;
+        rowsEl.appendChild(row);
+      });
+    }
+
+    function openModal() {
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      requestAnimationFrame(() => modal.classList.remove('opacity-0'));
+      document.body.style.overflow = 'hidden';
+      fetchScores();
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 200);
+    }
+
+    closeBtn?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    gameTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        gameTabs.forEach((t) => {
+          t.className = 'leaderboard-game-tab px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer bg-[#071f1b] text-slate-300 hover:text-white border border-teal-800';
+        });
+        tab.className = 'leaderboard-game-tab px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer bg-teal-600 text-white shadow-sm';
+        activeGame = tab.getAttribute('data-leaderboard-game') || 'flappy_cat';
+        fetchScores();
+      });
+    });
+
+    timeframeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        timeframeBtns.forEach((b) => {
+          b.className = 'leaderboard-timeframe-btn px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white transition cursor-pointer';
+        });
+        btn.className = 'leaderboard-timeframe-btn px-2.5 py-1 rounded-md text-[11px] font-bold bg-teal-800 text-white transition cursor-pointer';
+        activeTimeframe = btn.getAttribute('data-timeframe') || 'all';
+        fetchScores();
+      });
+    });
+
+    // Global trigger
+    window.addEventListener('arcade:open_leaderboard', (e: any) => {
+      if (e.detail?.gameId) activeGame = e.detail.gameId;
+      openModal();
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-open-leaderboard]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const g = btn.getAttribute('data-leaderboard-game');
+        if (g) activeGame = g;
+        openModal();
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLeaderboard);
+  } else {
+    initLeaderboard();
+  }
+  document.addEventListener('astro:page-load', initLeaderboard);
+</script>

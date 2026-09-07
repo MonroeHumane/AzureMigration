@@ -1,34 +1,105 @@
+/* Embed mode (?embed=1): Arcade Collector's Album
+ * Matches Monroe Humane's dark teal brand arcade aesthetic. */
+
 html.humane-embed {
 	height: 100%;
+	--fur: #061815;
+	--card-w: clamp(9.5rem, 28vw, 12rem);
 }
 
 html.humane-embed body {
 	height: 100%;
 	min-height: 100%;
-	overflow: auto;
+	overflow-y: auto;
+	background: #061815 !important;
+	color: #f1f5f9;
+	user-select: none;
+	-webkit-user-select: none;
 }
 
 html.humane-embed .adoptedex-app {
 	height: auto;
 	min-height: 100%;
-	padding-bottom: 1.25rem;
+	padding: 0.65rem 0.85rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+	background: radial-gradient(circle at 50% 15%, #0c332a 0%, #061815 100%);
 }
 
-html.humane-embed .adoptedex-main {
-	overflow: visible;
+html.humane-embed .adoptedex-header {
+	background: rgba(5, 24, 20, 0.85);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(45, 212, 191, 0.25);
+	border-radius: 18px;
+	padding: 0.75rem 1rem;
+	margin-bottom: 0.85rem;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
-html.humane-embed .adoptedex-grid {
-	padding-bottom: 0.5rem;
+html.humane-embed .adoptedex-header h1 {
+	color: #ffffff;
+	font-size: clamp(1.2rem, 3vw, 1.6rem);
+	margin: 0 0 0.2rem;
+}
+
+html.humane-embed .adoptedex-stats {
+	color: #5eead4;
+	font-weight: 600;
+	font-size: 0.88rem;
+}
+
+html.humane-embed .adoptedex-live {
+	color: #5eead4;
+	font-size: 0.85rem;
+}
+
+/* Collector Cards in Dark Arcade */
+html.humane-embed .adoptedex-card {
+	background: #082620;
+	border: 1.5px solid #134e4a;
+	color: #f1f5f9;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+	border-radius: 16px;
+	transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+html.humane-embed .adoptedex-card:hover {
+	transform: translateY(-3px) scale(1.02);
+	border-color: #2dd4bf;
+	box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(45, 212, 191, 0.35);
+}
+
+html.humane-embed .adoptedex-card__name {
+	color: #ffffff;
+}
+
+html.humane-embed .adoptedex-card__breed {
+	color: #94a3b8;
+}
+
+/* Undiscovered Mystery Slot */
+html.humane-embed .adoptedex-card.is-locked,
+html.humane-embed .adoptedex-card.is-unseen {
+	background: rgba(5, 20, 17, 0.6);
+	border: 1.5px dashed rgba(45, 212, 191, 0.2);
+	opacity: 0.6;
+}
+
+html.humane-embed .adoptedex-footer {
+	color: #94a3b8;
+	font-size: 0.78rem;
+	text-align: center;
+	padding: 1rem 0;
+	border-top: 1px solid rgba(45, 212, 191, 0.15);
+	margin-top: 1.5rem;
 }
 
 @media (max-width: 480px) {
 	html.humane-embed .adoptedex-app {
-		padding-left: 0.65rem;
-		padding-right: 0.65rem;
+		padding-left: 0.5rem;
+		padding-right: 0.5rem;
 	}
 
 	html.humane-embed :root {
-		--card-w: 9.5rem;
+		--card-w: calc((100vw - 2.5rem) / 2);
 	}
 }

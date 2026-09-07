@@ -36,6 +36,32 @@ class RoundOverScene extends Phaser.Scene {
     ShelterRunDex.reportDiscoveries(this.collectedPetIds);
     ShelterRunDex.claimMilestones(this.distanceMeters, (milestone) => this._onMilestoneClaimed(milestone));
 
+    // Submit distance score to Arcade Leaderboard and notify Cabinet shell
+    if (this.distanceMeters > 0) {
+      try {
+        var p = typeof ShelterRunDex !== 'undefined' ? ShelterRunDex.getParams() : { dexUser: '' };
+        var runnerName = (p && p.dexUser) || localStorage.getItem('monroeDexUser') || 'Runner';
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'arcade:score_recorded',
+            game: 'shelter_run',
+            gameId: 'shelter_run',
+            score: this.distanceMeters,
+            player: runnerName
+          }, '*');
+        }
+        fetch('/arcade-api/v1/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gameId: 'shelter_run',
+            score: this.distanceMeters,
+            playerName: runnerName
+          })
+        }).catch(function () {});
+      } catch (err) {}
+    }
+
     const retryBtn = this.add.rectangle(W / 2, vy(560), 260, 64, 0x4a7c40).setInteractive({ useHandCursor: true });
     srUiText(this, W / 2, vy(560), 'Run Again', { fontSize: '26px', color: '#ffffff' });
     retryBtn.on('pointerdown', () => {

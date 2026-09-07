@@ -2,14 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Humane Booster Packs | Monroe Humane Society</title>
   <meta name="description" content="Open adoptable pet booster packs, discover shelter companions, and build your Adoptédex album." />
   <link rel="icon" href="/assets/monroe-paw-print-tile.png" />
-  <script type="module" crossorigin src="./assets/index-znk9ZYV9.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BLWOQFaX.css">
+  <link rel="stylesheet" href="./embed.css">
+  <script type="module" crossorigin src="./assets/index-znk9ZYV9.js"></script>
 </head>
 <body>
   <div id="app"></div>
+
+  <script>
+    // Two-way Bridge between Booster Packs and Arcade Cabinet Shell
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('embed') === '1' || (window.parent && window.parent !== window)) {
+        document.documentElement.classList.add('is-embedded');
+      }
+
+      // Forward pet discovery & pack opened events to parent Arcade Pass
+      window.addEventListener('monroe-adoptedex-updated', function (e) {
+        if (window.parent && window.parent !== window) {
+          try {
+            if (e.detail && e.detail.packOpened) {
+              window.parent.postMessage({
+                type: 'adoptedex:pack_opened',
+                action: 'pack_opened',
+                tier: e.detail.tier || 'standard',
+                remainingPacks: e.detail.remainingPacks
+              }, '*');
+            }
+            window.parent.postMessage({
+              type: 'adoptedex:pet_discovered',
+              action: 'pet_discovered',
+              petIds: e.detail ? e.detail.petIds : []
+            }, '*');
+          } catch (err) {}
+        }
+      });
+
+      // Handle arcade sound mute state
+      window.addEventListener('message', function (e) {
+        if (!e.data || typeof e.data !== 'object') return;
+        if (e.data.type === 'arcade:set_mute') {
+          try {
+            localStorage.setItem('monroe_booster_muted', e.data.muted ? '1' : '0');
+            localStorage.setItem('monroeArcadeMuted', String(e.data.muted));
+          } catch (err) {}
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

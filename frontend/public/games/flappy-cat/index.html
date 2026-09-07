@@ -2,22 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Humane Arcade Host</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Flappy Cat Host | Humane Arcade</title>
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      background-color: #111;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      background-color: #071a17;
       color: #fff;
       font-family: system-ui, -apple-system, sans-serif;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      overscroll-behavior: none;
+      touch-action: manipulation;
     }
     #game-container {
       flex: 1;
+      width: 100%;
+      height: 100%;
       position: relative;
     }
     iframe {
@@ -25,19 +31,18 @@
       width: 100%;
       height: 100%;
       opacity: 0;
-      transition: opacity 0.5s ease-in-out;
+      transition: opacity 0.4s ease-in-out;
+      display: block;
     }
-    /* Dev/support tool, not player-facing UI - hidden unless ?debug=1 is on
-       the URL (see main.ts). Was previously unconditionally visible, which
-       meant every real player saw a raw profile-ID/sync-state readout
-       floating over the game. */
+    /* Dev/support tool, not player-facing UI - hidden unless ?debug=1 */
     #diagnostics {
       display: none;
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(0, 0, 0, 0.8);
-      border: 1px solid #444;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #134e4a;
+      border-radius: 8px;
       padding: 10px;
       font-family: monospace;
       font-size: 12px;
@@ -47,13 +52,14 @@
       gap: 5px;
     }
     button {
-      background: #333;
+      background: #0f3d32;
       color: #fff;
-      border: 1px solid #555;
+      border: 1px solid #2dd4bf;
       padding: 4px 8px;
       cursor: pointer;
+      border-radius: 4px;
     }
-    button:hover { background: #444; }
+    button:hover { background: #134e4a; }
   </style>
   <script type="module" crossorigin src="./assets/index-DkBTAN_t.js"></script>
 </head>
@@ -74,6 +80,30 @@
     <button id="btn-sync">Request Sync</button>
     <button id="btn-pause">Toggle Pause</button>
   </div>
+
+  <script>
+    // Two-Way Message Relay between Cabinet Parent & Inner Game
+    (function () {
+      window.addEventListener('message', function (e) {
+        if (!e.data || typeof e.data !== 'object') return;
+        var gameIframe = document.getElementById('game-iframe');
+
+        // From Parent -> Forward to Child
+        if (e.source === window.parent && gameIframe && gameIframe.contentWindow) {
+          try {
+            gameIframe.contentWindow.postMessage(e.data, '*');
+          } catch (err) {}
+        }
+
+        // From Child -> Forward to Parent
+        if (e.source === (gameIframe && gameIframe.contentWindow) && window.parent && window.parent !== window) {
+          try {
+            window.parent.postMessage(e.data, '*');
+          } catch (err) {}
+        }
+      });
+    })();
+  </script>
 
 </body>
 </html>

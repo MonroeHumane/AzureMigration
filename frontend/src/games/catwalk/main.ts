@@ -112,6 +112,12 @@ if (root && canvas && context) {
     }
   });
 
+  window.addEventListener('message', async (e) => {
+    if (e.data && e.data.type === 'arcade:set_mute') {
+      audioEnabled = await audio.setEnabled(!e.data.muted);
+    }
+  });
+
   let previousTime = performance.now();
   const frame = (timestamp: number) => {
     const delta = Math.min((timestamp - previousTime) / 1000, 0.04);
@@ -135,6 +141,77 @@ if (root && canvas && context) {
       if (event === 'defeat') {
         const stage = getStageConfig(engine.state.level);
         showOverlay('Out of lives', `The dogs ended this patrol in ${stage.name} at ${engine.state.score} points. Try again for a cleaner sweep.`, 'Try again');
+
+        const finalScore = engine.state.score || 0;
+        if (finalScore > 0) {
+          const player = (localStorage.getItem('monroeDexUser') || 'PatrolCat').trim();
+          if (window.parent && window.parent !== window) {
+            try {
+              window.parent.postMessage({
+                type: 'arcade:score_recorded',
+                game: 'catwalk',
+                gameId: 'catwalk',
+                score: finalScore,
+                player
+              }, '*');
+            } catch (err) {}
+          }
+          fetch('/arcade-api/v1/scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              gameId: 'catwalk',
+              score: finalScore,
+              playerName: player
+            })
+          }).catch(() => {});
+
+          // Catwalk Milestone Rewards -> Pet Booster Packs
+          const milestones = [
+            { score: 500, key: 'score_500', tier: 'standard' },
+            { score: 1500, key: 'score_1500', tier: 'duo' },
+            { score: 3000, key: 'score_3000', tier: 'deluxe' }
+          ];
+          let claimedList: string[] = [];
+          try {
+            claimedList = JSON.parse(localStorage.getItem('monroe_catwalk_claimed_milestones') || '[]');
+          } catch (e) {}
+
+          milestones.forEach((m) => {
+            if (finalScore >= m.score && !claimedList.includes(m.key)) {
+              claimedList.push(m.key);
+              try {
+                localStorage.setItem('monroe_catwalk_claimed_milestones', JSON.stringify(claimedList));
+                const currentPacks = Math.max(0, parseInt(localStorage.getItem('monroeDexPacks') || '1', 10));
+                localStorage.setItem('monroeDexPacks', String(currentPacks + 1));
+              } catch (e) {}
+
+              // Notify parent Arcade Pass to show celebration toast
+              if (window.parent && window.parent !== window) {
+                try {
+                  window.parent.postMessage({
+                    type: 'adoptedex:pack_awarded',
+                    action: 'pack_awarded',
+                    game: 'catwalk',
+                    milestone: m.key,
+                    tier: m.tier
+                  }, '*');
+                } catch (e) {}
+              }
+
+              // Server-side deduplication claim
+              const user = (localStorage.getItem('monroeDexUser') || player).trim().toLowerCase();
+              fetch(`/arcade-api/v1/adoptedex/${encodeURIComponent(user)}/rewards/claim`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  game_id: 'catwalk',
+                  reward_key: m.key
+                })
+              }).catch(() => {});
+            }
+          });
+        }
       }
       if (event === 'level') {
         const stage = getStageConfig(engine.state.level);

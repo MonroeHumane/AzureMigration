@@ -92,7 +92,130 @@
 	let previewGeneration = 0;
 	let previewTimers = [];
 	let gameGeneration = 0;
-	let gameplayTimers = [];
+	class PetMatchSound {
+		constructor() {
+			this.ctx = null;
+			this.muted = false;
+			try {
+				this.muted = localStorage.getItem('monroeArcadeMuted') === '1';
+			} catch {}
+		}
+
+		init() {
+			if (!this.ctx) {
+				const AudioCtx = window.AudioContext || window.webkitAudioContext;
+				if (AudioCtx) this.ctx = new AudioCtx();
+			}
+			if (this.ctx && this.ctx.state === 'suspended') {
+				this.ctx.resume().catch(() => {});
+			}
+		}
+
+		setMuted(val) {
+			this.muted = Boolean(val);
+		}
+
+		playFlip() {
+			if (this.muted) return;
+			try {
+				this.init();
+				if (!this.ctx) return;
+				const osc = this.ctx.createOscillator();
+				const gain = this.ctx.createGain();
+				osc.type = 'sine';
+				osc.frequency.setValueAtTime(340, this.ctx.currentTime);
+				osc.frequency.exponentialRampToValueAtTime(580, this.ctx.currentTime + 0.07);
+				gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+				gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.07);
+				osc.connect(gain);
+				gain.connect(this.ctx.destination);
+				osc.start();
+				osc.stop(this.ctx.currentTime + 0.07);
+			} catch {}
+		}
+
+		playMatch() {
+			if (this.muted) return;
+			try {
+				this.init();
+				if (!this.ctx) return;
+				const now = this.ctx.currentTime;
+				[523.25, 659.25, 783.99].forEach((freq, i) => {
+					const osc = this.ctx.createOscillator();
+					const gain = this.ctx.createGain();
+					const t = now + i * 0.06;
+					osc.type = 'triangle';
+					osc.frequency.setValueAtTime(freq, t);
+					gain.gain.setValueAtTime(0.2, t);
+					gain.gain.exponentialRampToValueAtTime(0.01, t + 0.18);
+					osc.connect(gain);
+					gain.connect(this.ctx.destination);
+					osc.start(t);
+					osc.stop(t + 0.18);
+				});
+			} catch {}
+		}
+
+		playMismatch() {
+			if (this.muted) return;
+			try {
+				this.init();
+				if (!this.ctx) return;
+				const osc = this.ctx.createOscillator();
+				const gain = this.ctx.createGain();
+				osc.type = 'sawtooth';
+				osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+				osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.12);
+				gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+				gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+				osc.connect(gain);
+				gain.connect(this.ctx.destination);
+				osc.start();
+				osc.stop(this.ctx.currentTime + 0.12);
+			} catch {}
+		}
+
+		playWin() {
+			if (this.muted) return;
+			try {
+				this.init();
+				if (!this.ctx) return;
+				const now = this.ctx.currentTime;
+				const notes = [523.25, 659.25, 783.99, 1046.5];
+				notes.forEach((freq, idx) => {
+					const osc = this.ctx.createOscillator();
+					const gain = this.ctx.createGain();
+					const t = now + idx * 0.08;
+					osc.type = 'triangle';
+					osc.frequency.setValueAtTime(freq, t);
+					gain.gain.setValueAtTime(0.25, t);
+					gain.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
+					osc.connect(gain);
+					gain.connect(this.ctx.destination);
+					osc.start(t);
+					osc.stop(t + 0.25);
+				});
+			} catch {}
+		}
+	}
+
+	const sounds = new PetMatchSound();
+
+	function triggerHaptic(pattern = 15) {
+		try {
+			if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+				navigator.vibrate(pattern);
+			}
+		} catch {}
+	}
+
+	window.addEventListener('message', (event) => {
+		if (event.data && typeof event.data === 'object') {
+			if (event.data.type === 'arcade:set_mute') {
+				sounds.setMuted(event.data.muted);
+			}
+		}
+	});
 
 	function freshProgress() {
 		return { bestLevel: 1, lastLevel: 1 };
@@ -1258,6 +1381,8 @@
 
 		card.faceUp = true;
 		refreshCardUi(index);
+		sounds.playFlip();
+		triggerHaptic(12);
 
 		if (state === 'idle') {
 			state = 'oneFlipped';
@@ -1280,6 +1405,8 @@
 				matchedPairs += 1;
 				refreshCardUi(firstIndex);
 				refreshCardUi(index);
+				sounds.playMatch();
+				triggerHaptic(25);
 				pulseCard(firstIndex, 'is-match-pop', TIMING.matchPopMs);
 				pulseCard(index, 'is-match-pop', TIMING.matchPopMs);
 				setLiveMessage('Match!');
@@ -1299,6 +1426,7 @@
 				return;
 			}
 
+			sounds.playMismatch();
 			pulseCard(firstIndex, 'is-shake', TIMING.mismatchShakeMs);
 			pulseCard(index, 'is-shake', TIMING.mismatchShakeMs);
 			setLiveMessage('Not a match.');
@@ -1316,6 +1444,27 @@
 	}
 
 	function showWinModal() {
+		sounds.playWin();
+		triggerHaptic([30, 50, 60]);
+
+		// Auto-report score to leaderboards if backend is reachable
+		try {
+			const user = getDexUser() || 'Player';
+			const restBase = getDexRestBase();
+			const calculatedScore = Math.max(10, (1000 * currentLevel) - (moves * 25));
+			fetch(`${restBase}scores`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'same-origin',
+				body: JSON.stringify({
+					gameId: 'match',
+					score: calculatedScore,
+					playerName: user,
+					metadata: { level: currentLevel, moves: moves }
+				})
+			}).catch(() => {});
+		} catch {}
+
 		const config = levelConfig(currentLevel);
 		const stars = starRatingForMoves(currentLevel, moves);
 		renderStars(stars);
@@ -1336,23 +1485,39 @@
 		// client thinks it should.
 		const milestone = LEVEL_MILESTONES[currentLevel];
 		const user = getDexUser();
-		if (user && milestone) {
+		if (milestone) {
 			readLocalStats();
 			if (!localStats.claimedLevelWins.includes(currentLevel)) {
 				const restBase = getDexRestBase();
-				MonroeAdoptedex.claimReward(restBase, user, 'match', 'level_' + currentLevel, {
-					tier: milestone.tier,
-					count: 1,
-				}).then((result) => {
-					if (result && result.claimed) {
+				const awardMilestonePack = () => {
+					if (!localStats.claimedLevelWins.includes(currentLevel)) {
 						localStats.claimedLevelWins.push(currentLevel);
-						writeLocalStats();
-						currentRewardTier = milestone.tier;
-						pendingLevelMilestone = milestone;
 					}
-				}).catch((e) => {
-					console.warn('[Pet Match] Reward claim failed:', e);
-				});
+					writeLocalStats();
+					currentRewardTier = milestone.tier;
+					pendingLevelMilestone = milestone;
+					try {
+						if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+							window.parent.postMessage({ type: 'adoptedex:pack_awarded', tier: milestone.tier, level: currentLevel }, '*');
+						}
+					} catch (err) {}
+				};
+
+				if (user) {
+					MonroeAdoptedex.claimReward(restBase, user, 'match', 'level_' + currentLevel, {
+						tier: milestone.tier,
+						count: 1,
+					}).then((result) => {
+						if (result && result.claimed) {
+							awardMilestonePack();
+						}
+					}).catch((e) => {
+						console.warn('[Pet Match] Reward claim failed, falling back to local award:', e);
+						awardMilestonePack();
+					});
+				} else {
+					awardMilestonePack();
+				}
 			}
 		}
 

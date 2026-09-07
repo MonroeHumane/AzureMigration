@@ -1,0 +1,533 @@
+/* 🎴 Pet Booster Packs - Dark Arcade & Holographic TCG Styling
+ * Monroe County Humane Society brand palette: Deep Emerald Teal, Warm Gold, Holographic Foils.
+ * High-performance, hardware-accelerated CSS animations for Desktop & Mobile. */
+
+html,
+body {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  background-color: #071a17 !important;
+  color: #f1f5f9 !important;
+  overscroll-behavior: none !important;
+  touch-action: manipulation !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+#app {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(20, 184, 166, 0.22) 0%, transparent 60%),
+    radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.14) 0%, transparent 50%),
+    radial-gradient(circle at 15% 75%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, #0b2823 0%, #061815 50%, #041210 100%) !important;
+}
+
+/* Header: Dark glassmorphism when standalone, hidden when inside cabinet */
+.is-embedded .booster-header,
+iframe-parent .booster-header {
+  display: none !important;
+}
+
+.booster-header {
+  position: absolute !important;
+  top: 1rem !important;
+  left: 0 !important;
+  right: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.6rem 1.75rem !important;
+  z-index: 50 !important;
+  background: rgba(6, 24, 21, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(45, 212, 191, 0.2) !important;
+}
+
+.booster-brand-title {
+  color: #ffffff !important;
+}
+
+.booster-brand-subtitle {
+  color: #2dd4bf !important;
+}
+
+.booster-player-badge {
+  background: rgba(8, 36, 31, 0.9) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.5) !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+.booster-player-badge .player-name {
+  color: #5eead4 !important;
+}
+
+.booster-player-badge .pack-count-pill {
+  background: linear-gradient(135deg, #0d9488, #134e4a) !important;
+  color: #fef08a !important;
+  border: 1px solid rgba(254, 240, 138, 0.4) !important;
+}
+
+.btn-icon {
+  background: rgba(8, 36, 31, 0.9) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.4) !important;
+  color: #5eead4 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.btn-icon:hover {
+  background: #0f3d36 !important;
+  border-color: #2dd4bf !important;
+  transform: scale(1.08) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Ergonomic Viewport Dimensions for 3D Pack & Cards
+ * ────────────────────────────────────────────────────────────────────────── */
+:root {
+  --pack-w: clamp(230px, 66vw, 290px) !important;
+  --pack-h: clamp(350px, 58vh, 435px) !important;
+  --card-w: clamp(270px, 78vw, 325px) !important;
+  --card-h: clamp(430px, 66vh, 495px) !important;
+}
+
+.booster-stage {
+  perspective: 1600px !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * 3D Foil Booster Pack Elevation
+ * ────────────────────────────────────────────────────────────────────────── */
+.pack-wrapper-3d {
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 25px var(--pack-glow, rgba(45, 212, 191, 0.35))) !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease !important;
+}
+
+.pack-wrapper-3d:hover {
+  transform: translateY(-8px) scale(1.03) !important;
+  filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 35px var(--pack-glow, rgba(45, 212, 191, 0.6))) brightness(1.08) !important;
+}
+
+/* Metallic Crimped Ridges */
+.crimped-ridge {
+  height: 16px !important;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.65) 0px 3px,
+    rgba(255, 255, 255, 0.85) 3px 6px,
+    rgba(251, 191, 36, 0.6) 6px 8px
+  ) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Foil Pack Bodies with Layered Metallic Depth */
+.foil-pack-top,
+.foil-pack-body {
+  border-radius: 18px !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.45),
+    inset 0 4px 24px rgba(255, 255, 255, 0.35),
+    inset 0 -6px 24px rgba(0, 0, 0, 0.75),
+    0 20px 45px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Dynamic Holographic Foil Sheen Sweep */
+.foil-sheen {
+  background: linear-gradient(
+    115deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.15) 30%,
+    rgba(45, 212, 191, 0.5) 42%,
+    rgba(254, 240, 138, 0.65) 50%,
+    rgba(244, 114, 182, 0.5) 58%,
+    rgba(255, 255, 255, 0.25) 70%,
+    transparent 85%
+  ) !important;
+  background-size: 250% 250% !important;
+  animation: foilShimmerSweep 4.5s ease-in-out infinite !important;
+  mix-blend-mode: overlay !important;
+}
+
+@keyframes foilShimmerSweep {
+  0% { background-position: -120% -120%; opacity: 0.4; }
+  50% { background-position: 120% 120%; opacity: 0.85; }
+  100% { background-position: -120% -120%; opacity: 0.4; }
+}
+
+/* Glowing Tear Perforation */
+.tear-perforation {
+  top: 76px !important;
+}
+
+.tear-line-dash {
+  height: 2.5px !important;
+  background: repeating-linear-gradient(
+    90deg,
+    #fef08a 0px,
+    #fef08a 6px,
+    transparent 6px,
+    transparent 12px
+  ) !important;
+  box-shadow: 0 0 8px rgba(254, 240, 138, 0.8) !important;
+}
+
+/* Interactive Golden Tear Prompt Badge */
+.tear-prompt-badge {
+  top: 58px !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef08a 40%, #f59e0b 100%) !important;
+  border: 2px solid #ffffff !important;
+  color: #451a03 !important;
+  font-weight: 900 !important;
+  font-size: 0.88rem !important;
+  padding: 0.45rem 1.1rem !important;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(245, 158, 11, 0.65) !important;
+  letter-spacing: 0.04em !important;
+}
+
+.tear-prompt-badge:hover {
+  transform: translate(-50%) scale(1.1) !important;
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(245, 158, 11, 0.9) !important;
+}
+
+/* Pack Artwork Content & Crest */
+.pack-art-content {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8) !important;
+}
+
+.pack-shelter-logo {
+  height: 42px !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8)) !important;
+}
+
+.pack-tier-badge {
+  background: rgba(3, 15, 13, 0.85) !important;
+  backdrop-filter: blur(6px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+.pack-hero-title {
+  font-size: 1.35rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.01em !important;
+  color: #ffffff !important;
+}
+
+.pack-card-count {
+  background: rgba(3, 15, 13, 0.85) !important;
+  border: 1px solid rgba(45, 212, 191, 0.4) !important;
+  color: #5eead4 !important;
+  font-weight: 800 !important;
+}
+
+/* Tier Selector Pills */
+.pack-selector-bar {
+  bottom: 1.5rem !important;
+}
+
+.tier-pill-group {
+  background: rgba(6, 26, 22, 0.9) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.4) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(20, 184, 166, 0.2) !important;
+}
+
+.tier-pill-btn {
+  color: #94a3b8 !important;
+  padding: 0.45rem 1.1rem !important;
+}
+
+.tier-pill-btn:hover:not(.active) {
+  color: #ffffff !important;
+  background: rgba(45, 212, 191, 0.1) !important;
+}
+
+.tier-pill-btn.active {
+  background: linear-gradient(135deg, #0d9488, #134e4a) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(45, 212, 191, 0.6) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * 3D Collectible Cards Elevation (Front & Back)
+ * ────────────────────────────────────────────────────────────────────────── */
+.card-3d-wrapper {
+  border-radius: 22px !important;
+}
+
+/* Aura Glows by Card Rarity */
+.aura-common {
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.8), 0 0 25px rgba(45, 212, 191, 0.3) !important;
+}
+
+.aura-aurora {
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.85),
+    0 0 35px rgba(45, 212, 191, 0.6),
+    0 0 20px rgba(244, 114, 182, 0.5) !important;
+}
+
+.aura-cosmos {
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.85),
+    0 0 40px rgba(99, 102, 241, 0.7),
+    0 0 25px rgba(236, 72, 153, 0.5) !important;
+}
+
+.aura-gold {
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.9),
+    0 0 45px rgba(245, 158, 11, 0.8),
+    0 0 25px rgba(254, 240, 138, 0.7) !important;
+}
+
+.aura-alumni {
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.95),
+    0 0 50px rgba(16, 185, 129, 0.8),
+    0 0 30px rgba(251, 146, 60, 0.7) !important;
+}
+
+/* Ornate Card Back */
+.card-face.card-back {
+  border: 3.5px solid #fbbf24 !important;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.8), 0 20px 45px rgba(0, 0, 0, 0.85) !important;
+}
+
+.card-back-tap-pill {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%) !important;
+  border: 2px solid #ffffff !important;
+  color: #451a03 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), 0 0 24px rgba(251, 191, 36, 0.85) !important;
+}
+
+/* Card Front: Clean, Pristine TCG Frame */
+.humane-card {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  padding: 10px 12px !important;
+}
+
+/* Holographic Foil Shaders for Card Front */
+.card-foil-layer {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  z-index: 5 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+/* Aurora: Pastel iridescent waves */
+.foil-aurora .card-foil-layer {
+  opacity: 0.75 !important;
+  background: linear-gradient(
+    var(--pointer-deg, 135deg),
+    rgba(255, 183, 178, 0.5) 0%,
+    rgba(255, 218, 193, 0.5) 20%,
+    rgba(226, 240, 203, 0.5) 40%,
+    rgba(181, 234, 215, 0.6) 60%,
+    rgba(199, 206, 234, 0.5) 80%,
+    rgba(255, 183, 178, 0.5) 100%
+  ) !important;
+  mix-blend-mode: color-dodge !important;
+}
+
+/* Cosmos: Swirling starlight nebula */
+.foil-cosmos {
+  --card-border-color: #6366f1 !important;
+  --card-glow: rgba(99, 102, 241, 0.5) !important;
+}
+
+.foil-cosmos .card-foil-layer {
+  opacity: 0.8 !important;
+  background:
+    radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(251, 146, 60, 0.7) 0%, transparent 60%),
+    linear-gradient(var(--pointer-deg, 135deg), rgba(99, 102, 241, 0.4) 0%, rgba(236, 72, 153, 0.4) 100%) !important;
+  mix-blend-mode: color-dodge !important;
+}
+
+/* Gold: Polished 24k mirror gold */
+.foil-gold {
+  --card-border-color: #f59e0b !important;
+  --card-glow: rgba(245, 158, 11, 0.55) !important;
+}
+
+.foil-gold .card-foil-layer {
+  opacity: 0.8 !important;
+  background: linear-gradient(
+    var(--pointer-deg, 135deg),
+    rgba(217, 119, 6, 0.4) 0%,
+    rgba(254, 240, 138, 0.75) 45%,
+    rgba(251, 191, 36, 0.8) 55%,
+    rgba(217, 119, 6, 0.4) 100%
+  ) !important;
+  mix-blend-mode: color-dodge !important;
+}
+
+/* Prism: Multi-spectrum rainbow diffraction grating */
+.foil-prism {
+  --card-border-color: #10b981 !important;
+  --card-glow: rgba(16, 185, 129, 0.6) !important;
+}
+
+.foil-prism .card-foil-layer {
+  opacity: 0.85 !important;
+  background:
+    repeating-linear-gradient(
+      var(--pointer-deg, 45deg),
+      rgba(239, 68, 68, 0.35) 0px,
+      rgba(249, 115, 22, 0.35) 12px,
+      rgba(234, 179, 8, 0.35) 24px,
+      rgba(34, 197, 94, 0.35) 36px,
+      rgba(6, 182, 212, 0.35) 48px,
+      rgba(99, 102, 241, 0.35) 60px,
+      rgba(168, 85, 247, 0.35) 72px
+    ) !important;
+  mix-blend-mode: color-dodge !important;
+}
+
+/* Glare layer reacting to cursor/gyro */
+.card-glare {
+  background: radial-gradient(
+    farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 35%,
+    transparent 70%
+  ) !important;
+  mix-blend-mode: soft-light !important;
+  opacity: 0.4 !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Card Stack Viewport & Navigation
+ * ────────────────────────────────────────────────────────────────────────── */
+.card-counter-badge {
+  background: rgba(6, 24, 20, 0.85) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+.btn-nav {
+  background: rgba(8, 36, 31, 0.9) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.4) !important;
+  color: #5eead4 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.btn-nav:hover:not(:disabled) {
+  background: #0f3d36 !important;
+  border-color: #2dd4bf !important;
+  color: #ffffff !important;
+}
+
+.page-dot {
+  background: rgba(45, 212, 191, 0.3) !important;
+}
+
+.page-dot.active {
+  background: #2dd4bf !important;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.8) !important;
+}
+
+.btn-action-main {
+  background: linear-gradient(135deg, #0d9488 0%, #134e4a 100%) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(13, 148, 136, 0.35) !important;
+}
+
+.btn-action-main:hover {
+  background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7), 0 0 28px rgba(20, 184, 166, 0.5) !important;
+}
+
+.btn-action-main.btn-ready-next {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.5) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Summary Modal (Pack Complete Screen)
+ * ────────────────────────────────────────────────────────────────────────── */
+.summary-modal-overlay {
+  background: rgba(3, 14, 12, 0.88) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+.summary-modal-card {
+  background: linear-gradient(180deg, #0b2823 0%, #061815 100%) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(20, 184, 166, 0.25) !important;
+  border-radius: 24px !important;
+}
+
+.summary-modal-header h2 {
+  color: #ffffff !important;
+}
+
+.summary-modal-header p,
+.summary-coins-balance {
+  color: #94a3b8 !important;
+}
+
+.summary-coins-awarded {
+  color: #fbbf24 !important;
+}
+
+.summary-card-thumb {
+  background: #08241f !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+}
+
+.summary-thumb-name {
+  color: #ffffff !important;
+}
+
+.summary-thumb-rarity {
+  color: #f59e0b !important;
+}
+
+.btn-secondary-link {
+  background: #082823 !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.35) !important;
+  color: #5eead4 !important;
+}
+
+.btn-secondary-link:hover {
+  background: #0f3d36 !important;
+  border-color: #2dd4bf !important;
+  color: #ffffff !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Particle Confetti & Celebration Burst
+ * ────────────────────────────────────────────────────────────────────────── */
+.confetti-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10001;
+  border-radius: 2px;
+}

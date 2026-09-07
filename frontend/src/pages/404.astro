@@ -2,23 +2,153 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Page Not Found | 734-243-3669" description="The page you were looking for could not be found.">
-  <div class="pb-24 px-4 max-w-4xl mx-auto">
-    <header class="mb-16 text-center">
-      <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Lost pup</p>
-      <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Page Not Found</h1>
-      <p class="text-xl text-gray-600 leading-relaxed">
-        Looks like this pup wandered off the trail! The page you were looking for is not here.
+<BaseLayout
+  title="Page Not Found | Humane Society of Monroe County"
+  description="The page you were looking for could not be found. Find adoptable pets, donate, or contact the Humane Society of Monroe County."
+>
+  <div class="pb-24 px-4 max-w-5xl mx-auto">
+    <!-- Hero Lost Pup Header -->
+    <header class="mb-12 text-center max-w-2xl mx-auto pt-6 sm:pt-10">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold uppercase tracking-widest mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M16 16s-1.5-2-4-2-4 2-4 2"></path>
+          <line x1="9" y1="9" x2="9.01" y2="9"></line>
+          <line x1="15" y1="9" x2="15.01" y2="9"></line>
+        </svg>
+        <span>Lost Pup · Error 404</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif text-teal-900 mb-4 tracking-tight">
+        Page Not Found
+      </h1>
+      <p class="text-lg sm:text-xl text-gray-600 leading-relaxed">
+        Looks like this pup wandered off the trail! The page you were looking for has moved or no longer exists.
       </p>
-    </header>
-    <section class="text-center">
-      <h2 class="text-3xl font-serif text-teal-900 mb-8">Where to next?</h2>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 rounded-full bg-emerald-500 text-teal-900 font-bold uppercase tracking-wider transition-all hover:bg-emerald-400 hover:-translate-y-1 min-h-[48px]" href="/">
-            Back to the homepage
+
+      <div class="flex flex-wrap justify-center gap-3 mt-8">
+        <a
+          class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-full bg-emerald-500 text-teal-950 font-bold uppercase tracking-wider text-xs transition-all hover:bg-emerald-400 hover:-translate-y-0.5 shadow-sm min-h-[44px]"
+          href="/"
+        >
+          Back to Homepage
         </a>
-        <a class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 rounded-full border-2 border-teal-700 text-teal-700 font-bold uppercase tracking-wider transition-all hover:bg-teal-50 hover:-translate-y-1 min-h-[48px]" href="/adopt/">
-            Browse adoptable pets
+        <a
+          class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-full border-2 border-teal-700 text-teal-800 font-bold uppercase tracking-wider text-xs transition-all hover:bg-teal-50 hover:-translate-y-0.5 min-h-[44px]"
+          href="/adopt/"
+        >
+          Browse All Pets
+        </a>
+      </div>
+    </header>
+
+    <!-- Quick Jump Cards -->
+    <section class="mt-12 pt-8 border-t border-gray-200">
+      <h2 class="text-xl sm:text-2xl font-serif text-teal-900 text-center mb-6">
+        Looking for one of these popular pages?
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a
+          href="/adopt/dogs/"
+          class="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-gray-200 hover:border-teal-600 hover:shadow-md transition-all group"
+        >
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:bg-teal-700 group-hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2.823.47-4.113 6.006-4 7 .08.703 1.725 1.722 3.5 1 1.695-.69 4-4.243 4-5.828z"></path>
+              <path d="M14 5.172C14 3.782 15.577 2.679 17.5 3c2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.5 1-1.695-.69-4-4.243-4-5.828z"></path>
+              <path d="M8 14v.5"></path>
+              <path d="M16 14v.5"></path>
+              <path d="M11.25 16.25h1.5L12 17l-.75-.75z"></path>
+              <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444c0-1.061-.162-2.2-.42-3.309"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-teal-950 text-sm group-hover:text-teal-700 transition">Adoptable Dogs</div>
+            <div class="text-xs text-gray-500">Meet our dogs awaiting loving homes</div>
+          </div>
+        </a>
+
+        <a
+          href="/adopt/cats/"
+          class="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-gray-200 hover:border-teal-600 hover:shadow-md transition-all group"
+        >
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:bg-teal-700 group-hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3.1-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z"></path>
+              <path d="M8 14v.5"></path>
+              <path d="M16 14v.5"></path>
+              <path d="M11.25 16.25h1.5L12 17l-.75-.75z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-teal-950 text-sm group-hover:text-teal-700 transition">Adoptable Cats</div>
+            <div class="text-xs text-gray-500">Playful kittens and gentle adult felines</div>
+          </div>
+        </a>
+
+        <a
+          href="/donate/"
+          class="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-gray-200 hover:border-teal-600 hover:shadow-md transition-all group"
+        >
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:bg-teal-700 group-hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-teal-950 text-sm group-hover:text-teal-700 transition">Make a Donation</div>
+            <div class="text-xs text-gray-500">Support medical care, food, and shelter</div>
+          </div>
+        </a>
+
+        <a
+          href="/volunteer-form/"
+          class="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-gray-200 hover:border-teal-600 hover:shadow-md transition-all group"
+        >
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:bg-teal-700 group-hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-teal-950 text-sm group-hover:text-teal-700 transition">Volunteer With Us</div>
+            <div class="text-xs text-gray-500">Dog walking, cat socializing & events</div>
+          </div>
+        </a>
+
+        <a
+          href="/contact/"
+          class="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-gray-200 hover:border-teal-600 hover:shadow-md transition-all group"
+        >
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:bg-teal-700 group-hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-teal-950 text-sm group-hover:text-teal-700 transition">Location &amp; Hours</div>
+            <div class="text-xs text-gray-500">833 N Telegraph Rd, Monroe, MI</div>
+          </div>
+        </a>
+
+        <a
+          href="/faq/"
+          class="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-gray-200 hover:border-teal-600 hover:shadow-md transition-all group"
+        >
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:bg-teal-700 group-hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-teal-950 text-sm group-hover:text-teal-700 transition">Frequently Asked Questions</div>
+            <div class="text-xs text-gray-500">Adoption fees, intake policies & care</div>
+          </div>
         </a>
       </div>
     </section>

@@ -108,7 +108,8 @@ const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1
 <script>
   function initContactForm() {
     const contactForm = document.querySelector<HTMLFormElement>('[data-monroe-contact-mailto]');
-    if (contactForm) {
+    if (contactForm && contactForm.dataset.bound !== 'true') {
+      contactForm.dataset.bound = 'true';
       contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const data = new FormData(contactForm);
@@ -125,6 +126,11 @@ const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1
       });
     }
   }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initContactForm);
+  } else {
+    initContactForm();
+  }
   document.addEventListener('astro:page-load', initContactForm);
-  if (!document.startViewTransition) initContactForm();
 </script>

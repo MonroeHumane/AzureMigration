@@ -15,6 +15,12 @@ export class CatwalkAudio {
     return this.enabled;
   }
 
+  async setEnabled(val: boolean): Promise<boolean> {
+    this.enabled = val;
+    if (this.enabled) await this.ensureReady();
+    return this.enabled;
+  }
+
   play(event: GameEventType): void {
     if (!this.enabled || !this.context || !this.master) return;
     const patterns: Partial<Record<GameEventType, Array<[number, number, number]>>> = {
