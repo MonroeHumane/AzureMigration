@@ -25,7 +25,13 @@ const ASSETS_TO_CACHE = [
   '/games/booster/index.html',
   '/games/match/match.html',
   '/games/flappy-cat/index.html',
-  '/games/dex/album.html'
+  '/games/dex/album.html',
+  '/games/dex/index.html',
+  '/games/dex/dex.css',
+  '/games/dex/album.js',
+  '/games/dex/dex-shared.js',
+  '/shelter-pets.json',
+  '/archived-pets.json'
 ];
 
 self.addEventListener('install', (event) => {

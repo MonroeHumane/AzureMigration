@@ -3,25 +3,221 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-	<title>Pet Album - Monroe Humane Games</title>
+	<title>Pet Discovery Binder & Gallery - Monroe Humane Games</title>
 	<script src="../embed.js"></script>
-	<link rel="stylesheet" href="dex.css?v=4">
-	<link rel="stylesheet" href="embed.css?v=4">
+	<link rel="stylesheet" href="dex.css?v=5">
+	<link rel="stylesheet" href="embed.css?v=5">
 </head>
 <body>
-	<div class="adoptedex-app adoptedex-app--album" id="adoptedexAlbum">
-		<header class="adoptedex-header">
-			<h1 id="albumTitle">Pet Discovery Album</h1>
-			<p class="adoptedex-stats" id="albumStats"></p>
+	<div class="binder-app" id="binderApp">
+		<!-- Top Gallery Header & Player Pass Ribbon -->
+		<header class="binder-header" id="binderHeader">
+			<div class="binder-header__top">
+				<div class="binder-header__player">
+					<div class="binder-header__avatar" id="playerMascot" title="Arcade Mascot">🐾</div>
+					<div class="binder-header__identity">
+						<h1 class="binder-header__title" id="albumTitle">Pet Discovery Binder</h1>
+						<div class="binder-header__meta">
+							<span class="binder-header__rank" id="playerRank">Shelter Scout ⭐</span>
+							<span class="binder-header__sep">·</span>
+							<span class="binder-header__count" id="playerTotalStats">Loading collection…</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="binder-header__actions">
+					<!-- Unopened Packs Notification Pill -->
+					<div class="binder-pack-pill" id="binderPackPill" hidden>
+						<span class="binder-pack-pill__icon">🎁</span>
+						<span class="binder-pack-pill__text" id="binderPackCount">1 Pack Ready</span>
+						<a class="binder-pack-pill__btn" id="binderOpenPacksBtn" href="../booster/index.html">Open ›</a>
+					</div>
+
+					<!-- View Mode Toggle: 3-Ring Binder vs Grid Showcase -->
+					<div class="binder-view-toggle" role="tablist" aria-label="Viewing Mode">
+						<button type="button" class="view-btn is-active" id="btnViewBinder" role="tab" aria-selected="true" title="3-Ring Binder View (9-Pocket Pages)">
+							<span class="view-btn__icon">📖</span>
+							<span class="view-btn__label">Binder</span>
+						</button>
+						<button type="button" class="view-btn" id="btnViewGrid" role="tab" aria-selected="false" title="Showcase Grid View">
+							<span class="view-btn__icon">🗂️</span>
+							<span class="view-btn__label">Grid</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Collection Progress Bar -->
+			<div class="binder-progress-wrap" title="Discovery Progress">
+				<div class="binder-progress-bar">
+					<div class="binder-progress-fill" id="progressFill" style="width: 0%"></div>
+				</div>
+				<div class="binder-progress-labels">
+					<span id="progressPercent">0% Discovered</span>
+					<span id="progressCounts">0 / 87 Companions Found</span>
+				</div>
+			</div>
+
+			<!-- Search & Filter Controls Toolbar -->
+			<div class="binder-toolbar">
+				<div class="binder-search-box">
+					<span class="binder-search-icon">🔍</span>
+					<input type="search" class="binder-search-input" id="binderSearch" placeholder="Search by pet name, breed, personality, move…" aria-label="Search pet collection">
+					<button type="button" class="binder-search-clear" id="binderSearchClear" hidden aria-label="Clear search">&times;</button>
+				</div>
+
+				<div class="binder-filters-row">
+					<!-- Species Filter Chips -->
+					<div class="binder-chips-group" role="group" aria-label="Filter by Species">
+						<button type="button" class="chip is-active" data-filter-species="all">All Species</button>
+						<button type="button" class="chip" data-filter-species="dog">🐕 Dogs</button>
+						<button type="button" class="chip" data-filter-species="cat">🐱 Cats</button>
+						<button type="button" class="chip" data-filter-species="other">🐰 Small Pets</button>
+					</div>
+
+					<!-- Rarity Filter Chips -->
+					<div class="binder-chips-group" role="group" aria-label="Filter by Rarity">
+						<button type="button" class="chip is-active" data-filter-rarity="all">All Rarities</button>
+						<button type="button" class="chip chip--aurora" data-filter-rarity="tiny_wonder">🍼 Aurora</button>
+						<button type="button" class="chip chip--cosmos" data-filter-rarity="longtimer">⭐ Cosmos</button>
+						<button type="button" class="chip chip--gold" data-filter-rarity="golden_senior">👑 Gold</button>
+						<button type="button" class="chip chip--prism" data-filter-rarity="alumni">💖 Prism Alumni</button>
+					</div>
+
+					<!-- Sort Dropdown -->
+					<div class="binder-sort-wrap">
+						<label for="binderSortSelect" class="sr-only">Sort collection</label>
+						<select class="binder-sort-select" id="binderSortSelect" aria-label="Sort collection">
+							<option value="dex_asc"># Pokédex (001 → 087)</option>
+							<option value="name_asc">Name (A → Z)</option>
+							<option value="rarity_desc">Rarity (Highest First)</option>
+							<option value="type_asc">Species (Dogs, Cats)</option>
+						</select>
+					</div>
+				</div>
+			</div>
 		</header>
-		<p class="adoptedex-live" id="albumLive" aria-live="polite"></p>
-		<main class="adoptedex-main" id="albumGrid" aria-label="Pet album"></main>
-		<footer class="adoptedex-footer">
-			Pets you collect from Booster Packs are saved to your album forever and link directly to real shelter adoption profiles.
+
+		<!-- Live Accessibility Announcer -->
+		<p class="binder-live-announcer sr-only" id="binderLive" aria-live="polite"></p>
+
+		<!-- MAIN CONTAINER: Binder Mode vs Grid Mode -->
+		<main class="binder-main" id="binderMain">
+			<!-- 📖 AUTHENTIC 3-RING TRADING CARD BINDER VIEW -->
+			<div class="binder-book-stage" id="binderBookStage">
+				<div class="binder-leather-cover">
+					<!-- Spine with 3 Metallic Chrome Rings -->
+					<div class="binder-spine-margin">
+						<div class="binder-chrome-ring binder-ring--top">
+							<div class="ring-arc"></div>
+							<div class="ring-hole"></div>
+						</div>
+						<div class="binder-chrome-ring binder-ring--mid">
+							<div class="ring-arc"></div>
+							<div class="ring-hole"></div>
+						</div>
+						<div class="binder-chrome-ring binder-ring--bottom">
+							<div class="ring-arc"></div>
+							<div class="ring-hole"></div>
+						</div>
+					</div>
+
+					<!-- Poly Sleeve 9-Pocket Trading Card Sheet -->
+					<div class="binder-sheet-surface" id="binderSheetSurface">
+						<div class="binder-sheet-header">
+							<span class="sheet-title">🐾 Monroe County Humane Society · Official Collector Album</span>
+							<span class="sheet-page-indicator" id="sheetPageIndicator">Sheet 1 of 1</span>
+						</div>
+
+						<!-- 9-Pocket Grid (3x3 on desktop, 2x2 on mobile) -->
+						<div class="binder-pockets-grid" id="binderPocketsGrid" role="region" aria-label="Card binder pockets">
+							<!-- Populated dynamically via album.js -->
+						</div>
+
+						<!-- Page Navigation Footer -->
+						<div class="binder-sheet-footer">
+							<button type="button" class="btn-sheet-nav btn-sheet-prev" id="btnSheetPrev" disabled title="Turn to Previous Sheet (Left Arrow)">
+								<span>‹</span>
+								<span>Previous Sheet</span>
+							</button>
+
+							<div class="sheet-dots" id="sheetDots">
+								<!-- Sheet dots populated dynamically -->
+							</div>
+
+							<button type="button" class="btn-sheet-nav btn-sheet-next" id="btnSheetNext" title="Turn to Next Sheet (Right Arrow)">
+								<span>Next Sheet</span>
+								<span>›</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 🗂️ GRID SHOWCASE VIEW (Alternative fluid grid) -->
+			<div class="binder-grid-stage" id="binderGridStage" hidden>
+				<div class="binder-showcase-grid" id="binderShowcaseGrid">
+					<!-- Populated dynamically via album.js -->
+				</div>
+			</div>
+
+			<!-- Empty State Message -->
+			<div class="binder-empty-state" id="binderEmptyState" hidden>
+				<div class="empty-icon">🐾</div>
+				<h2 class="empty-title">No Cards Found</h2>
+				<p class="empty-desc" id="emptyDesc">No cards match your active filter. Try resetting your search or tear open booster packs to find new shelter companions!</p>
+				<div class="empty-actions">
+					<button type="button" class="btn-empty-reset" id="btnResetFilters">Reset Filters</button>
+					<a href="../booster/index.html" class="btn-empty-packs">🎁 Open Booster Packs</a>
+				</div>
+			</div>
+		</main>
+
+		<!-- Footer -->
+		<footer class="binder-footer">
+			<p>🐾 Every card in this binder represents an actual animal at the Monroe County Humane Society. Click any card to inspect their stats and visit their live adoption bio.</p>
 		</footer>
-		<div class="adoptedex-error" id="albumError" hidden></div>
+
+		<!-- FULLSCREEN 3D CARD INSPECTOR MODAL -->
+		<div class="card-inspector-modal" id="cardInspectorModal" role="dialog" aria-modal="true" aria-labelledby="inspectorPetName" hidden>
+			<div class="inspector-backdrop" id="inspectorBackdrop"></div>
+			
+			<div class="inspector-container">
+				<!-- Close Button -->
+				<button type="button" class="inspector-close-btn" id="inspectorCloseBtn" aria-label="Close Inspector (Escape)">&times;</button>
+
+				<!-- Inspector Navigation Arrows -->
+				<button type="button" class="inspector-nav-btn inspector-nav-prev" id="inspectorNavPrev" title="Previous Card (←)">‹</button>
+				<button type="button" class="inspector-nav-btn inspector-nav-next" id="inspectorNavNext" title="Next Card (→)">›</button>
+
+				<!-- 3D Card Host Area -->
+				<div class="inspector-card-host" id="inspectorCardHost">
+					<!-- Interactive 3D Card rendered dynamically -->
+				</div>
+
+				<!-- Inspector Footer Toolbar -->
+				<div class="inspector-toolbar">
+					<button type="button" class="inspector-action-btn btn-flip" id="btnInspectorFlip">
+						<span>🔄</span>
+						<span>Flip Card</span>
+					</button>
+					<a class="inspector-action-btn btn-adopt" id="inspectorAdoptBtn" href="#" target="_blank" rel="noopener noreferrer">
+						<span>🐾</span>
+						<span>Meet & Adopt</span>
+					</a>
+					<button type="button" class="inspector-action-btn btn-share" id="btnInspectorShare">
+						<span>📱</span>
+						<span>Share / QR</span>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Error Toast -->
+		<div class="binder-error-toast" id="binderErrorToast" hidden role="alert"></div>
 	</div>
-	<script src="dex-shared.js?v=4"></script>
-	<script src="album.js?v=3" defer></script>
+
+	<script src="dex-shared.js?v=5"></script>
+	<script src="album.js?v=5" defer></script>
 </body>
 </html>

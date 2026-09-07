@@ -228,10 +228,15 @@ const MASCOTS = [
                 <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Packs Ready</span>
                 <span id="stat-packs-count" class="font-mono font-bold text-amber-300 text-sm">1</span>
               </div>
-              <div class="px-3 py-2 rounded-xl bg-[#061e1b] border border-teal-800/70 text-slate-200">
-                <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Cards in Album</span>
+              <button
+                type="button"
+                id="stat-cards-box"
+                class="px-3 py-2 rounded-xl bg-[#061e1b] hover:bg-[#082a25] border border-teal-800/70 hover:border-teal-500/80 text-slate-200 transition cursor-pointer text-left"
+                title="View Pet Discovery Binder"
+              >
+                <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Cards in Binder</span>
                 <span id="stat-cards-count" class="font-mono font-bold text-emerald-300 text-sm">0</span>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -524,12 +529,12 @@ const MASCOTS = [
         type="button"
         data-dock-game="dex"
         data-dock-url="/games/dex/album.html?embed=1"
-        data-dock-title="Pet Discovery Album"
+        data-dock-title="Pet Discovery Binder"
         data-dock-icon="📖"
         class="cabinet-dock-btn flex-1 sm:flex-initial shrink-0 min-w-[70px] sm:min-w-[80px] px-2 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer text-center"
       >
         <span class="text-base sm:text-sm">📖</span>
-        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Album</span>
+        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Binder</span>
       </button>
 
       <button
@@ -1051,10 +1056,11 @@ const MASCOTS = [
     });
 
     const openAlbum = () => {
-      openCabinet('/games/dex/album.html?embed=1', 'Pet Discovery Album', '📖', 'dex');
+      openCabinet('/games/dex/album.html?embed=1', 'Pet Discovery Binder', '📖', 'dex');
     };
 
     document.getElementById('btn-view-album')?.addEventListener('click', openAlbum);
+    document.getElementById('stat-cards-box')?.addEventListener('click', openAlbum);
     document.getElementById('btn-booster-album-link')?.addEventListener('click', openAlbum);
 
     // ─────────────────────────────────────────────────────────────────────────
