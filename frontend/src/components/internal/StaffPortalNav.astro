@@ -33,11 +33,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       <!-- Right Controls: Status, Nav Preference, User Menu & Mobile Hamburger -->
       <div class="flex items-center gap-2 sm:gap-2.5 text-xs">
         <!-- Live status (hidden on small mobile) -->
-        <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-950/80 border border-teal-800 text-teal-200">
+        <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-950/80 border border-teal-800/80 text-slate-300">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>CMS: <strong class="text-white font-medium">Online</strong></span>
         </div>
-        <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-950/80 border border-teal-800 text-teal-200">
+        <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-950/80 border border-teal-800/80 text-slate-300">
           <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
           <span>PetSync: <strong class="text-white font-medium">Every 30m</strong></span>
         </div>
@@ -46,7 +46,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <a
           href="/"
           data-astro-reload
-          class="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-950/60 hover:bg-teal-900 text-teal-200 hover:text-white transition border border-teal-800/80"
+          class="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-950/60 hover:bg-teal-900 text-slate-300 hover:text-white transition border border-teal-800/80"
           title="Return to Public Website"
         >
           &larr; Public Site
@@ -56,11 +56,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <button
           id="staff-nav-pref-toggle-btn"
           type="button"
-          class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-teal-200 hover:text-white bg-teal-950/60 hover:bg-teal-900 border border-teal-800/80 transition cursor-pointer"
+          class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-slate-300 hover:text-white bg-teal-950/60 hover:bg-teal-900 border border-teal-800/80 transition cursor-pointer"
           title="Change Mobile Navigation Style (Bottom Bar vs Hamburger)"
           aria-label="Change Mobile Navigation Style"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
@@ -70,14 +70,14 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <div class="flex items-center gap-2 pl-2 border-l border-teal-800/80">
           <div
             id="nav-user-avatar"
-            class="w-7 h-7 rounded-full bg-emerald-600 text-emerald-100 flex items-center justify-center font-bold text-xs shadow-inner flex-shrink-0"
+            class="w-7 h-7 rounded-full bg-teal-800 text-teal-100 flex items-center justify-center font-bold text-xs shadow-inner flex-shrink-0"
             title="Authenticated Staff Member"
           >
             SP
           </div>
           <span
             id="nav-user-email"
-            class="hidden lg:inline text-xs text-teal-200 max-w-[140px] truncate"
+            class="hidden lg:inline text-xs text-slate-300 max-w-[140px] truncate"
             title="Signed in user"
           >
             staff@monroe-humane.org
@@ -85,7 +85,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <button
             id="global-staff-logout-btn"
             type="button"
-            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-950/60 hover:bg-rose-900 text-rose-300 hover:text-white transition border border-rose-800/70 shadow-xs cursor-pointer"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700/80 shadow-xs cursor-pointer"
             title="Sign out of Staff Portal"
           >
             <span id="logout-btn-text" class="hidden sm:inline">Sign Out</span>
@@ -127,11 +127,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-nav-tab="overview"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'overview'
-            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 hover:text-white border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 hover:text-white border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect width="7" height="9" x="3" y="3" rx="1"></rect>
           <rect width="7" height="5" x="14" y="3" rx="1"></rect>
           <rect width="7" height="9" x="14" y="12" rx="1"></rect>
@@ -146,11 +146,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-nav-tab="petsync"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'petsync' || activeTab === 'pets'
-            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-xs font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 hover:text-white border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 hover:text-white border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="m10 15 5-3-5-3v6Z"></path>
         </svg>
@@ -163,11 +163,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-nav-tab="financials"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'financials'
-            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 hover:text-white border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 hover:text-white border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="1" x2="12" y2="23"></line>
           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
         </svg>
@@ -180,11 +180,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-nav-tab="grants"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'grants'
-            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-xs font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 hover:text-white border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 hover:text-white border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
         </svg>
@@ -197,11 +197,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-nav-tab="donors"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'donors'
-            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-xs font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 hover:text-white border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 hover:text-white border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-rose-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
         </svg>
         Donors & Giving
@@ -213,11 +213,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-nav-tab="content"
         class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
           activeTab === 'content'
-            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/40 shadow-xs font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 hover:text-white border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 hover:text-white border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 20h9"></path>
           <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
         </svg>
@@ -228,14 +228,14 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         href={directusAdminUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 hover:text-white border border-teal-800/70 transition ml-auto"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-950/60 text-slate-300 hover:bg-teal-900 hover:text-white border border-teal-800/70 transition ml-auto"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
         <span>Directus Console</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
       </a>
     </nav>
 
@@ -250,11 +250,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
           activeTab === 'overview'
-            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect width="7" height="9" x="3" y="3" rx="1"></rect>
           <rect width="7" height="5" x="14" y="3" rx="1"></rect>
           <rect width="7" height="9" x="14" y="12" rx="1"></rect>
@@ -268,11 +268,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
           activeTab === 'petsync' || activeTab === 'pets'
-            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="m10 15 5-3-5-3v6Z"></path>
         </svg>
@@ -284,11 +284,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
           activeTab === 'financials'
-            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="1" x2="12" y2="23"></line>
           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
         </svg>
@@ -300,11 +300,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
           activeTab === 'grants'
-            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
         </svg>
@@ -316,11 +316,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
           activeTab === 'donors'
-            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
         </svg>
         Donors & Giving
@@ -331,11 +331,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         data-astro-prefetch="hover"
         class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
           activeTab === 'content'
-            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/30 font-bold'
-            : 'bg-teal-950/60 text-teal-200/90 hover:bg-teal-900 border border-teal-800/70'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
+            : 'bg-teal-950/60 text-slate-300 hover:bg-teal-900 border border-teal-800/70'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 20h9"></path>
           <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
         </svg>
