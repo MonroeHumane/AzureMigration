@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-05T12:20:58.477Z",
+    "generatedAt": "2026-09-07T22:33:41.663Z",
     "source": "QuickBooks Online General Ledger",
     "closedMonthsCount": 8,
     "cutoffDate": "2026-08-31",
@@ -18,8 +18,8 @@
       "revenue": 67516.87,
       "total_exp": 78342.09,
       "net_margin": -10825.22,
-      "totalRevenueTxs": 84,
-      "totalExpenseTxs": 208,
+      "totalRevenueTxs": 81,
+      "totalExpenseTxs": 211,
       "revenueCategories": [
         {
           "name": "Individual Donor Contributions",
@@ -307,7 +307,7 @@
               ]
             },
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "INTUIT *",
               "total": 282,
               "txCount": 1,
               "transactions": [
@@ -756,61 +756,6 @@
                   "memo": "JEAN EARLY",
                   "split": "First Merchants Bank",
                   "amount": 50
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
-          "total": 659.02,
-          "pctOfTotal": 1,
-          "payeeCount": 3,
-          "txCount": 3,
-          "payees": [
-            {
-              "name": "WILLIAM BOWERS",
-              "total": 300,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-01-02",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "BUBBA   SEVERE BITES MULTIPLE PEOPLE",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 300
-                }
-              ]
-            },
-            {
-              "name": "DEBRA MIKOLAJCZYK",
-              "total": 300,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-01-07",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "MAPLE RETURNED",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 300
-                }
-              ]
-            },
-            {
-              "name": "Paypal",
-              "total": 59.02,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-01-14",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Paypal *johnson Pla XXXXXX7800 Oh",
-                  "split": "First Merchants Creditcard",
-                  "amount": 59.02
                 }
               ]
             }
@@ -2963,6 +2908,46 @@
           ]
         },
         {
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
+          "total": 912,
+          "pctOfTotal": 1.2,
+          "payeeCount": 2,
+          "txCount": 2,
+          "payees": [
+            {
+              "name": "CINCINNATI INSURANCE",
+              "total": 597,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-01-16",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                }
+              ]
+            },
+            {
+              "name": "WELLNOW URGENT CARE",
+              "total": 315,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-01-18",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "WORKMANS COMP CASH PAY INSTEAD        COLE PUTNAM",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 315
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Facility & Cleaning Supplies",
           "group": "Shelter Operations",
           "total": 664.43,
@@ -2988,25 +2973,55 @@
           ]
         },
         {
-          "name": "",
-          "group": "Insurance",
-          "total": 597,
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations",
+          "total": 659.02,
           "pctOfTotal": 0.8,
-          "payeeCount": 1,
-          "txCount": 1,
+          "payeeCount": 3,
+          "txCount": 3,
           "payees": [
             {
-              "name": "CINCINNATI INSURANCE",
-              "total": 597,
+              "name": "WILLIAM BOWERS",
+              "total": 300,
               "txCount": 1,
               "transactions": [
                 {
-                  "date": "2026-01-16",
+                  "date": "2026-01-02",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "BUBBA   SEVERE BITES MULTIPLE PEOPLE",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 300
+                }
+              ]
+            },
+            {
+              "name": "DEBRA MIKOLAJCZYK",
+              "total": 300,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-01-07",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "MAPLE RETURNED",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 300
+                }
+              ]
+            },
+            {
+              "name": "Paypal",
+              "total": 59.02,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-01-14",
                   "type": "Expenditure",
                   "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
+                  "memo": "Paypal *johnson Pla XXXXXX7800 Oh",
+                  "split": "First Merchants Creditcard",
+                  "amount": 59.02
                 }
               ]
             }
@@ -3032,31 +3047,6 @@
                   "memo": "UNV Laundry DB/CASH CONC Humane UNV Laundry DB/CASH CONC Humane Society of Monr",
                   "split": "First Merchants Bank",
                   "amount": 482
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
-          "total": 315,
-          "pctOfTotal": 0.4,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "WELLNOW URGENT CARE",
-              "total": 315,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-01-18",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "WORKMANS COMP CASH PAY INSTEAD        COLE PUTNAM",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 315
                 }
               ]
             }
@@ -3306,7 +3296,7 @@
           "txCount": 2,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 35,
               "txCount": 1,
               "transactions": [
@@ -3371,7 +3361,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 30,
               "txCount": 1,
               "transactions": [
@@ -3726,13 +3716,13 @@
           "group": "Earned Revenue",
           "total": 11822.65,
           "pctOfTotal": 24.1,
-          "payeeCount": 1,
+          "payeeCount": 2,
           "txCount": 23,
           "payees": [
             {
               "name": "SQUARE",
-              "total": 11822.65,
-              "txCount": 23,
+              "total": 11812.65,
+              "txCount": 22,
               "transactions": [
                 {
                   "date": "2026-02-27",
@@ -3773,14 +3763,6 @@
                   "memo": "Square Inc/0202 SQUAR",
                   "split": "First Merchants Bank",
                   "amount": 207.16
-                },
-                {
-                  "date": "2026-02-23",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Square Inc/SQ260223",
-                  "split": "First Merchants Bank",
-                  "amount": 10
                 },
                 {
                   "date": "2026-02-20",
@@ -3917,6 +3899,21 @@
                   "memo": "Square Inc/0202 SQUAR",
                   "split": "First Merchants Bank",
                   "amount": 946.5
+                }
+              ]
+            },
+            {
+              "name": "Square Inc",
+              "total": 10,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-02-23",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Square Inc/SQ260223",
+                  "split": "First Merchants Bank",
+                  "amount": 10
                 }
               ]
             }
@@ -5613,8 +5610,8 @@
           ]
         },
         {
-          "name": "",
-          "group": "Insurance",
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
           "total": 597,
           "pctOfTotal": 1.2,
           "payeeCount": 1,
@@ -5871,7 +5868,7 @@
           "txCount": 3,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 49,
               "txCount": 2,
               "transactions": [
@@ -5919,7 +5916,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 30,
               "txCount": 1,
               "transactions": [
@@ -5947,8 +5944,8 @@
       "revenue": 33675.91,
       "total_exp": 54065.44,
       "net_margin": -20389.53,
-      "totalRevenueTxs": 72,
-      "totalExpenseTxs": 128,
+      "totalRevenueTxs": 71,
+      "totalExpenseTxs": 129,
       "revenueCategories": [
         {
           "name": "Animal Adoption Fees",
@@ -6670,31 +6667,6 @@
                   "memo": "Local business sponsorship / corporate partnership",
                   "split": "First Merchants Bank",
                   "amount": 901.99
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
-          "total": 100,
-          "pctOfTotal": 0.3,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "JOHN TURNER",
-              "total": 100,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-03-31",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "MINA THE CAT",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 100
                 }
               ]
             }
@@ -8010,12 +7982,12 @@
           ]
         },
         {
-          "name": "",
+          "name": "Advertising & marketing",
           "group": "Advertising & marketing",
-          "total": 1367.87,
-          "pctOfTotal": 2.5,
-          "payeeCount": 3,
-          "txCount": 3,
+          "total": 687.5,
+          "pctOfTotal": 1.3,
+          "payeeCount": 1,
+          "txCount": 1,
           "payees": [
             {
               "name": "TOWN MONEY SAVER",
@@ -8029,36 +8001,6 @@
                   "memo": "Town Money Saver",
                   "split": "First Merchants Bank",
                   "amount": 687.5
-                }
-              ]
-            },
-            {
-              "name": "CINCINNATI INSURANCE",
-              "total": 597,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-03-16",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                }
-              ]
-            },
-            {
-              "name": "OBM",
-              "total": 83.37,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-03-13",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "COPY MACHINE",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 83.37
                 }
               ]
             }
@@ -8179,6 +8121,31 @@
                   "memo": "Arco 219055 Toledo Oh",
                   "split": "First Merchants Creditcard",
                   "amount": 40
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
+          "total": 597,
+          "pctOfTotal": 1.1,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "CINCINNATI INSURANCE",
+              "total": 597,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-03-16",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
                 }
               ]
             }
@@ -8331,6 +8298,56 @@
           ]
         },
         {
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations",
+          "total": 100,
+          "pctOfTotal": 0.2,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "JOHN TURNER",
+              "total": 100,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-03-31",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "MINA THE CAT",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "General Administrative & Office",
+          "group": "Office & Admin",
+          "total": 83.37,
+          "pctOfTotal": 0.2,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "OBM",
+              "total": 83.37,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-03-13",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "COPY MACHINE",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 83.37
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Building Repairs & Maintenance",
           "group": "Shelter Operations",
           "total": 71.5,
@@ -8389,7 +8406,7 @@
           "txCount": 2,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 49,
               "txCount": 1,
               "transactions": [
@@ -8429,7 +8446,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 30,
               "txCount": 1,
               "transactions": [
@@ -8457,8 +8474,8 @@
       "revenue": 89862.92,
       "total_exp": 63022.61,
       "net_margin": 26840.31,
-      "totalRevenueTxs": 139,
-      "totalExpenseTxs": 122,
+      "totalRevenueTxs": 138,
+      "totalExpenseTxs": 123,
       "revenueCategories": [
         {
           "name": "Animal Adoption Fees",
@@ -9252,15 +9269,15 @@
           ]
         },
         {
-          "name": "Municipal Contracts & Grants",
+          "name": "Foundation Grants",
           "group": "Contributed Income",
-          "total": 3245,
-          "pctOfTotal": 3.6,
-          "payeeCount": 1,
-          "txCount": 1,
+          "total": 3334.86,
+          "pctOfTotal": 3.7,
+          "payeeCount": 2,
+          "txCount": 4,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Thrivent Financial",
               "total": 3245,
               "txCount": 1,
               "transactions": [
@@ -9271,6 +9288,37 @@
                   "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
                   "split": "First Merchants Bank",
                   "amount": 3245
+                }
+              ]
+            },
+            {
+              "name": "Branch Deposit Batch",
+              "total": 89.86,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2026-04-09",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 69.86
+                },
+                {
+                  "date": "2026-04-09",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
+                },
+                {
+                  "date": "2026-04-09",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
                 }
               ]
             }
@@ -9755,31 +9803,6 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
-          "total": 225,
-          "pctOfTotal": 0.3,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "BARBARA ROSE",
-              "total": 225,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-04-30",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "COOKIE CAT AGGRESSION WILL NOT STOP ATTACKING CATS",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 225
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "Canister & Community Coin Banks",
           "group": "Contributed Income",
           "total": 200,
@@ -9832,47 +9855,6 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 82
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
-          "total": 89.86,
-          "pctOfTotal": 0.1,
-          "payeeCount": 1,
-          "txCount": 3,
-          "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 89.86,
-              "txCount": 3,
-              "transactions": [
-                {
-                  "date": "2026-04-09",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 69.86
-                },
-                {
-                  "date": "2026-04-09",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
-                  "date": "2026-04-09",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
                 }
               ]
             }
@@ -11008,12 +10990,12 @@
           ]
         },
         {
-          "name": "",
-          "group": "Insurance",
-          "total": 727.38,
-          "pctOfTotal": 1.2,
-          "payeeCount": 2,
-          "txCount": 2,
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
+          "total": 597,
+          "pctOfTotal": 0.9,
+          "payeeCount": 1,
+          "txCount": 1,
           "payees": [
             {
               "name": "CINCINNATI INSURANCE",
@@ -11027,21 +11009,6 @@
                   "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
                   "split": "First Merchants Bank",
                   "amount": 597
-                }
-              ]
-            },
-            {
-              "name": "AMY CUNNINGHAM SHINAULT",
-              "total": 130.38,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-04-01",
-                  "type": "Check",
-                  "num": "",
-                  "memo": "Amy Cunningham Shinault",
-                  "split": "First Merchants Bank",
-                  "amount": 130.38
                 }
               ]
             }
@@ -11342,7 +11309,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "IRS",
+              "name": "UNV Laundry",
               "total": 482,
               "txCount": 1,
               "transactions": [
@@ -11353,6 +11320,31 @@
                   "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
                   "split": "First Merchants Bank",
                   "amount": 482
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations",
+          "total": 225,
+          "pctOfTotal": 0.4,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "BARBARA ROSE",
+              "total": 225,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-04-30",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "COOKIE CAT AGGRESSION WILL NOT STOP ATTACKING CATS",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 225
                 }
               ]
             }
@@ -11382,7 +11374,7 @@
               ]
             },
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 49,
               "txCount": 1,
               "transactions": [
@@ -11408,6 +11400,31 @@
                   "memo": "BANKCARD/MTHLY FEES HUMANE SOCIE BANKCARD/MTHLY FEES HUMANE SOCIETY OF MONR",
                   "split": "First Merchants Bank",
                   "amount": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "General Administrative & Office",
+          "group": "Office & Admin",
+          "total": 130.38,
+          "pctOfTotal": 0.2,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "AMY CUNNINGHAM SHINAULT",
+              "total": 130.38,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-04-01",
+                  "type": "Check",
+                  "num": "",
+                  "memo": "Amy Cunningham Shinault",
+                  "split": "First Merchants Bank",
+                  "amount": 130.38
                 }
               ]
             }
@@ -11472,7 +11489,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 30,
               "txCount": 1,
               "transactions": [
@@ -11500,8 +11517,8 @@
       "revenue": 26305.83,
       "total_exp": 50003.67,
       "net_margin": -23697.84,
-      "totalRevenueTxs": 60,
-      "totalExpenseTxs": 123,
+      "totalRevenueTxs": 59,
+      "totalExpenseTxs": 124,
       "revenueCategories": [
         {
           "name": "Animal Adoption Fees",
@@ -12088,15 +12105,15 @@
           ]
         },
         {
-          "name": "Municipal Contracts & Grants",
+          "name": "Foundation Grants",
           "group": "Contributed Income",
-          "total": 122,
-          "pctOfTotal": 0.5,
-          "payeeCount": 1,
-          "txCount": 1,
+          "total": 185.06,
+          "pctOfTotal": 0.7,
+          "payeeCount": 2,
+          "txCount": 4,
           "payees": [
             {
-              "name": "THRIVENT",
+              "name": "Thrivent Financial",
               "total": 122,
               "txCount": 1,
               "transactions": [
@@ -12109,17 +12126,7 @@
                   "amount": 122
                 }
               ]
-            }
-          ]
-        },
-        {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
-          "total": 63.06,
-          "pctOfTotal": 0.2,
-          "payeeCount": 1,
-          "txCount": 3,
-          "payees": [
+            },
             {
               "name": "Branch Deposit Batch",
               "total": 63.06,
@@ -12148,31 +12155,6 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 10
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
-          "total": 50,
-          "pctOfTotal": 0.2,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "BARBARA OLUND",
-              "total": 50,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-05-21",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "PEARL CAT",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 50
                 }
               ]
             }
@@ -13480,8 +13462,8 @@
           ]
         },
         {
-          "name": "",
-          "group": "Insurance",
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
           "total": 597,
           "pctOfTotal": 1.2,
           "payeeCount": 1,
@@ -13763,7 +13745,7 @@
           "txCount": 2,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 49,
               "txCount": 1,
               "transactions": [
@@ -13795,6 +13777,31 @@
           ]
         },
         {
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations",
+          "total": 50,
+          "pctOfTotal": 0.1,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "BARBARA OLUND",
+              "total": 50,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-05-21",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "PEARL CAT",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 50
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Merchant Gateway & Card Fees",
           "group": "Financial Operations",
           "total": 30,
@@ -13803,7 +13810,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 30,
               "txCount": 1,
               "transactions": [
@@ -13856,8 +13863,8 @@
       "revenue": 59409.31,
       "total_exp": 51675.71,
       "net_margin": 7733.6,
-      "totalRevenueTxs": 80,
-      "totalExpenseTxs": 135,
+      "totalRevenueTxs": 77,
+      "totalExpenseTxs": 138,
       "revenueCategories": [
         {
           "name": "Individual Donor Contributions",
@@ -14584,8 +14591,8 @@
           ]
         },
         {
-          "name": "",
-          "group": "Donation Canisters (Dog Banks)",
+          "name": "Canister & Community Coin Banks",
+          "group": "Contributed Income",
           "total": 300,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -14617,48 +14624,15 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
-          "total": 300,
-          "pctOfTotal": 0.5,
-          "payeeCount": 1,
+          "name": "Foundation Grants",
+          "group": "Contributed Income",
+          "total": 187,
+          "pctOfTotal": 0.3,
+          "payeeCount": 2,
           "txCount": 2,
           "payees": [
             {
-              "name": "NICOLE BILLAU",
-              "total": 300,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2026-06-12",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "LOLLIRETURN",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 150
-                },
-                {
-                  "date": "2026-06-07",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "LOLLIRETURN",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 150
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Municipal Contracts & Grants",
-          "group": "Contributed Income",
-          "total": 177,
-          "pctOfTotal": 0.3,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "THRIVENT",
+              "name": "Thrivent Financial",
               "total": 177,
               "txCount": 1,
               "transactions": [
@@ -14669,6 +14643,21 @@
                   "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
                   "split": "First Merchants Bank",
                   "amount": 177
+                }
+              ]
+            },
+            {
+              "name": "Branch Deposit Batch",
+              "total": 10,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-06-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
                 }
               ]
             }
@@ -14744,56 +14733,6 @@
                   "memo": "Donor: Kitti Koren | Campaign: Donate to Humane Society of Monroe County | Dedication: Frank Simeowtra",
                   "split": "First Merchants Bank",
                   "amount": 100
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Medical Vendor Rebates",
-          "group": "Veterinary & Medical Care",
-          "total": 93.85,
-          "pctOfTotal": 0.2,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 93.85,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-06-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 93.85
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
-          "total": 10,
-          "pctOfTotal": 0,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 10,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-06-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
                 }
               ]
             }
@@ -16117,8 +16056,8 @@
           ]
         },
         {
-          "name": "",
-          "group": "Insurance",
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
           "total": 597,
           "pctOfTotal": 1.2,
           "payeeCount": 1,
@@ -16150,7 +16089,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "IRS",
+              "name": "UNV Laundry",
               "total": 476.44,
               "txCount": 1,
               "transactions": [
@@ -16390,6 +16329,39 @@
           ]
         },
         {
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations",
+          "total": 300,
+          "pctOfTotal": 0.6,
+          "payeeCount": 1,
+          "txCount": 2,
+          "payees": [
+            {
+              "name": "NICOLE BILLAU",
+              "total": 300,
+              "txCount": 2,
+              "transactions": [
+                {
+                  "date": "2026-06-12",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "LOLLIRETURN",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 150
+                },
+                {
+                  "date": "2026-06-07",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "LOLLIRETURN",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 150
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Staff & Volunteer Meals",
           "group": "Personnel & Staffing",
           "total": 272.18,
@@ -16456,6 +16428,31 @@
           ]
         },
         {
+          "name": "Medical Vendor Rebates",
+          "group": "Veterinary & Medical Care",
+          "total": 93.85,
+          "pctOfTotal": 0.2,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "Branch Deposit Batch",
+              "total": 93.85,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-06-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 93.85
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Merchant Gateway & Card Fees",
           "group": "Financial Operations",
           "total": 83.46,
@@ -16479,7 +16476,7 @@
               ]
             },
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 30,
               "txCount": 1,
               "transactions": [
@@ -16504,7 +16501,7 @@
           "txCount": 2,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 49,
               "txCount": 1,
               "transactions": [
@@ -16597,8 +16594,8 @@
       "revenue": 15472.26,
       "total_exp": 85851.39,
       "net_margin": -70379.13,
-      "totalRevenueTxs": 81,
-      "totalExpenseTxs": 196,
+      "totalRevenueTxs": 78,
+      "totalExpenseTxs": 199,
       "revenueCategories": [
         {
           "name": "Animal Adoption Fees",
@@ -16812,15 +16809,15 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed Income",
-          "total": 4067.46,
-          "pctOfTotal": 26.3,
+          "total": 4017.46,
+          "pctOfTotal": 26,
           "payeeCount": 3,
-          "txCount": 19,
+          "txCount": 18,
           "payees": [
             {
               "name": "Branch Deposit Batch",
-              "total": 3267,
-              "txCount": 12,
+              "total": 3217,
+              "txCount": 11,
               "transactions": [
                 {
                   "date": "2026-07-22",
@@ -16861,14 +16858,6 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 1992
-                },
-                {
-                  "date": "2026-07-15",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 50
                 },
                 {
                   "date": "2026-07-12",
@@ -17321,10 +17310,10 @@
         {
           "name": "Foundation Grants",
           "group": "Contributed Income",
-          "total": 1225,
-          "pctOfTotal": 7.9,
-          "payeeCount": 1,
-          "txCount": 1,
+          "total": 1275,
+          "pctOfTotal": 8.2,
+          "payeeCount": 2,
+          "txCount": 2,
           "payees": [
             {
               "name": "Branch Deposit Batch",
@@ -17338,6 +17327,21 @@
                   "memo": "ADOPTION EVENT AT ALLEN CHEV.",
                   "split": "First Merchants Bank",
                   "amount": 1225
+                }
+              ]
+            },
+            {
+              "name": "Thrivent Financial",
+              "total": 50,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-15",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 50
                 }
               ]
             }
@@ -17379,61 +17383,6 @@
                   "memo": "2026 AUCTION   BID",
                   "split": "First Merchants Bank",
                   "amount": 100
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
-          "total": 384,
-          "pctOfTotal": 2.5,
-          "payeeCount": 3,
-          "txCount": 3,
-          "payees": [
-            {
-              "name": "ALYSSAH RENKIEWICZ",
-              "total": 162,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-16",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "KASH",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 162
-                }
-              ]
-            },
-            {
-              "name": "MELISSA SZYMANSKI",
-              "total": 112,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-16",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "PHINEAS",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 112
-                }
-              ]
-            },
-            {
-              "name": "JOSHUA WILKINS",
-              "total": 110,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-04",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "REMI RETURN",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 110
                 }
               ]
             }
@@ -19198,12 +19147,12 @@
           ]
         },
         {
-          "name": "",
-          "group": "Insurance",
-          "total": 1559.78,
-          "pctOfTotal": 1.8,
-          "payeeCount": 4,
-          "txCount": 4,
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
+          "total": 1491.5,
+          "pctOfTotal": 1.7,
+          "payeeCount": 2,
+          "txCount": 2,
           "payees": [
             {
               "name": "Accident Fund",
@@ -19232,36 +19181,6 @@
                   "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
                   "split": "First Merchants Bank",
                   "amount": 597
-                }
-              ]
-            },
-            {
-              "name": "OBM",
-              "total": 60.05,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-04",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "PRINTING & PHOTOCOPIER",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 60.05
-                }
-              ]
-            },
-            {
-              "name": "Robert Monteer",
-              "total": 8.23,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-22",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "baby shower",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 8.23
                 }
               ]
             }
@@ -19579,6 +19498,61 @@
           ]
         },
         {
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations",
+          "total": 384,
+          "pctOfTotal": 0.4,
+          "payeeCount": 3,
+          "txCount": 3,
+          "payees": [
+            {
+              "name": "ALYSSAH RENKIEWICZ",
+              "total": 162,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-16",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "KASH",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 162
+                }
+              ]
+            },
+            {
+              "name": "MELISSA SZYMANSKI",
+              "total": 112,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-16",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "PHINEAS",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 112
+                }
+              ]
+            },
+            {
+              "name": "JOSHUA WILKINS",
+              "total": 110,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-04",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "REMI RETURN",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 110
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Software & Cloud Apps",
           "group": "Office & Admin",
           "total": 343.41,
@@ -19725,7 +19699,7 @@
               ]
             },
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 49,
               "txCount": 1,
               "transactions": [
@@ -19813,6 +19787,46 @@
           ]
         },
         {
+          "name": "General Administrative & Office",
+          "group": "Office & Admin",
+          "total": 68.28,
+          "pctOfTotal": 0.1,
+          "payeeCount": 2,
+          "txCount": 2,
+          "payees": [
+            {
+              "name": "OBM",
+              "total": 60.05,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-04",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "PRINTING & PHOTOCOPIER",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 60.05
+                }
+              ]
+            },
+            {
+              "name": "Robert Monteer",
+              "total": 8.23,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-22",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "baby shower",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 8.23
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Merchant Gateway & Card Fees",
           "group": "Financial Operations",
           "total": 30,
@@ -19821,7 +19835,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 30,
               "txCount": 1,
               "transactions": [
@@ -19899,207 +19913,9 @@
       "revenue": 41014.25,
       "total_exp": 58133.65,
       "net_margin": -17119.4,
-      "totalRevenueTxs": 82,
-      "totalExpenseTxs": 119,
+      "totalRevenueTxs": 81,
+      "totalExpenseTxs": 120,
       "revenueCategories": [
-        {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
-          "total": 10967.73,
-          "pctOfTotal": 26.7,
-          "payeeCount": 4,
-          "txCount": 20,
-          "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 7952.81,
-              "txCount": 11,
-              "transactions": [
-                {
-                  "date": "2026-08-26",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "DEPOSIT",
-                  "split": "First Merchants Bank",
-                  "amount": 1233
-                },
-                {
-                  "date": "2026-08-24",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Individual : Mark Baker",
-                  "split": "First Merchants Bank",
-                  "amount": 42
-                },
-                {
-                  "date": "2026-08-24",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Individual Robert Pritchett",
-                  "split": "First Merchants Bank",
-                  "amount": 120
-                },
-                {
-                  "date": "2026-08-24",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Individual: Linda Gagne",
-                  "split": "First Merchants Bank",
-                  "amount": 50
-                },
-                {
-                  "date": "2026-08-13",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 285.21
-                },
-                {
-                  "date": "2026-08-13",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 61.83
-                },
-                {
-                  "date": "2026-08-13",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 216.77
-                },
-                {
-                  "date": "2026-08-12",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 2929
-                },
-                {
-                  "date": "2026-08-03",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 1765
-                },
-                {
-                  "date": "2026-08-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 1000
-                },
-                {
-                  "date": "2026-08-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 250
-                }
-              ]
-            },
-            {
-              "name": "BETTER UNITE",
-              "total": 2535.89,
-              "txCount": 6,
-              "transactions": [
-                {
-                  "date": "2026-08-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 672.3
-                },
-                {
-                  "date": "2026-08-28",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 72.48
-                },
-                {
-                  "date": "2026-08-27",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 230
-                },
-                {
-                  "date": "2026-08-25",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 200
-                },
-                {
-                  "date": "2026-08-24",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 141.11
-                },
-                {
-                  "date": "2026-08-17",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1220
-                }
-              ]
-            },
-            {
-              "name": "Zeffy",
-              "total": 304,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2026-08-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Membership Shirt contest: Jessica, Kevin, Pamela, Alexandra, McKenna",
-                  "split": "First Merchants Bank",
-                  "amount": 172
-                },
-                {
-                  "date": "2026-08-24",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Membership Shirt contest: Lori Mruzik, Linda Kozlowski, Amy, Arica, Emily, Annette, Kelly, Jen, Niesa",
-                  "split": "First Merchants Bank",
-                  "amount": 132
-                }
-              ]
-            },
-            {
-              "name": "Paypal",
-              "total": 175.03,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-08-03",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "PAYPAL/TRANSFER",
-                  "split": "First Merchants Bank",
-                  "amount": 175.03
-                }
-              ]
-            }
-          ]
-        },
         {
           "name": "Animal Adoption Fees",
           "group": "Earned Revenue",
@@ -20320,6 +20136,196 @@
                   "memo": "COUNTY PAYMENT",
                   "split": "First Merchants Bank",
                   "amount": 8479.38
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Individual Donor Contributions",
+          "group": "Contributed Income",
+          "total": 8038.73,
+          "pctOfTotal": 19.6,
+          "payeeCount": 4,
+          "txCount": 19,
+          "payees": [
+            {
+              "name": "Branch Deposit Batch",
+              "total": 5023.81,
+              "txCount": 10,
+              "transactions": [
+                {
+                  "date": "2026-08-26",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 1233
+                },
+                {
+                  "date": "2026-08-24",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Individual : Mark Baker",
+                  "split": "First Merchants Bank",
+                  "amount": 42
+                },
+                {
+                  "date": "2026-08-24",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Individual Robert Pritchett",
+                  "split": "First Merchants Bank",
+                  "amount": 120
+                },
+                {
+                  "date": "2026-08-24",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Individual: Linda Gagne",
+                  "split": "First Merchants Bank",
+                  "amount": 50
+                },
+                {
+                  "date": "2026-08-13",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 285.21
+                },
+                {
+                  "date": "2026-08-13",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 61.83
+                },
+                {
+                  "date": "2026-08-13",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 216.77
+                },
+                {
+                  "date": "2026-08-03",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 1765
+                },
+                {
+                  "date": "2026-08-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 1000
+                },
+                {
+                  "date": "2026-08-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 250
+                }
+              ]
+            },
+            {
+              "name": "BETTER UNITE",
+              "total": 2535.89,
+              "txCount": 6,
+              "transactions": [
+                {
+                  "date": "2026-08-31",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 672.3
+                },
+                {
+                  "date": "2026-08-28",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 72.48
+                },
+                {
+                  "date": "2026-08-27",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 230
+                },
+                {
+                  "date": "2026-08-25",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 200
+                },
+                {
+                  "date": "2026-08-24",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 141.11
+                },
+                {
+                  "date": "2026-08-17",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BetterUnite Payo/BetterUnit HUMA BetterUnite Payo/BetterUnit HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1220
+                }
+              ]
+            },
+            {
+              "name": "Zeffy",
+              "total": 304,
+              "txCount": 2,
+              "transactions": [
+                {
+                  "date": "2026-08-31",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Membership Shirt contest: Jessica, Kevin, Pamela, Alexandra, McKenna",
+                  "split": "First Merchants Bank",
+                  "amount": 172
+                },
+                {
+                  "date": "2026-08-24",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Membership Shirt contest: Lori Mruzik, Linda Kozlowski, Amy, Arica, Emily, Annette, Kelly, Jen, Niesa",
+                  "split": "First Merchants Bank",
+                  "amount": 132
+                }
+              ]
+            },
+            {
+              "name": "Paypal",
+              "total": 175.03,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-08-03",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "PAYPAL/TRANSFER",
+                  "split": "First Merchants Bank",
+                  "amount": 175.03
                 }
               ]
             }
@@ -20624,6 +20630,31 @@
           ]
         },
         {
+          "name": "Foundation Grants",
+          "group": "Contributed Income",
+          "total": 2929,
+          "pctOfTotal": 7.1,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "Thrivent Financial",
+              "total": 2929,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-08-12",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 2929
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Event Proceeds & Ticket Donations",
           "group": "Earned Revenue",
           "total": 2099,
@@ -20795,8 +20826,8 @@
           ]
         },
         {
-          "name": "",
-          "group": "Donation Canisters (Dog Banks)",
+          "name": "Canister & Community Coin Banks",
+          "group": "Contributed Income",
           "total": 200,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -20814,31 +20845,6 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 200
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
-          "total": 150,
-          "pctOfTotal": 0.4,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "CHRISTOPHER PRICE",
-              "total": 150,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-08-17",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "\"MISTER\"",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 150
                 }
               ]
             }
@@ -21926,31 +21932,24 @@
           "group": "Shelter Operations",
           "total": 964,
           "pctOfTotal": 1.7,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 2,
           "payees": [
             {
               "name": "UNV Laundry",
-              "total": 482,
-              "txCount": 1,
+              "total": 964,
+              "txCount": 2,
               "transactions": [
                 {
-                  "date": "2026-08-04",
+                  "date": "2026-08-19",
                   "type": "Expenditure",
                   "num": "",
                   "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
                   "split": "First Merchants Bank",
                   "amount": 482
-                }
-              ]
-            },
-            {
-              "name": "IRS",
-              "total": 482,
-              "txCount": 1,
-              "transactions": [
+                },
                 {
-                  "date": "2026-08-19",
+                  "date": "2026-08-04",
                   "type": "Expenditure",
                   "num": "",
                   "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
@@ -21995,12 +21994,12 @@
           ]
         },
         {
-          "name": "",
-          "group": "Insurance",
-          "total": 644.67,
-          "pctOfTotal": 1.1,
-          "payeeCount": 2,
-          "txCount": 2,
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
+          "total": 597,
+          "pctOfTotal": 1,
+          "payeeCount": 1,
+          "txCount": 1,
           "payees": [
             {
               "name": "CINCINNATI INSURANCE",
@@ -22014,21 +22013,6 @@
                   "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
                   "split": "First Merchants Bank",
                   "amount": 597
-                }
-              ]
-            },
-            {
-              "name": "Ebay",
-              "total": 47.67,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-08-25",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Ebay O*08-15078-70342 San Jose Ca",
-                  "split": "First Merchants Creditcard",
-                  "amount": 47.67
                 }
               ]
             }
@@ -22074,7 +22058,7 @@
               ]
             },
             {
-              "name": "Mi Corporations Div Lansing Mi Mi Corporations Div Lansing Mi",
+              "name": "Family Dollar",
               "total": 26.17,
               "txCount": 1,
               "transactions": [
@@ -22386,6 +22370,31 @@
           ]
         },
         {
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations",
+          "total": 150,
+          "pctOfTotal": 0.3,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "CHRISTOPHER PRICE",
+              "total": 150,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-08-17",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "\"MISTER\"",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 150
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Printing & Photocopying",
           "group": "Office & Admin",
           "total": 142.35,
@@ -22452,7 +22461,7 @@
           "txCount": 3,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 49,
               "txCount": 1,
               "transactions": [
@@ -22492,6 +22501,31 @@
           ]
         },
         {
+          "name": "General Administrative & Office",
+          "group": "Office & Admin",
+          "total": 47.67,
+          "pctOfTotal": 0.1,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "Ebay",
+              "total": 47.67,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-08-25",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Ebay O*08-15078-70342 San Jose Ca",
+                  "split": "First Merchants Creditcard",
+                  "amount": 47.67
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Merchant Gateway & Card Fees",
           "group": "Financial Operations",
           "total": 30,
@@ -22500,7 +22534,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 30,
               "txCount": 1,
               "transactions": [
@@ -22528,21 +22562,21 @@
       "revenue": 382325.58,
       "total_exp": 489718.91,
       "net_margin": -107393.33,
-      "totalRevenueTxs": 683,
-      "totalExpenseTxs": 1153,
+      "totalRevenueTxs": 670,
+      "totalExpenseTxs": 1166,
       "revenueCategories": [
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed Income",
-          "total": 134462.3,
-          "pctOfTotal": 35.2,
+          "total": 131483.3,
+          "pctOfTotal": 34.4,
           "payeeCount": 11,
-          "txCount": 170,
+          "txCount": 168,
           "payees": [
             {
               "name": "Branch Deposit Batch",
-              "total": 101877.73,
-              "txCount": 102,
+              "total": 98898.73,
+              "txCount": 100,
               "transactions": [
                 {
                   "date": "2026-08-26",
@@ -22599,14 +22633,6 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 216.77
-                },
-                {
-                  "date": "2026-08-12",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 2929
                 },
                 {
                   "date": "2026-08-03",
@@ -22671,14 +22697,6 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 1992
-                },
-                {
-                  "date": "2026-07-15",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 50
                 },
                 {
                   "date": "2026-07-12",
@@ -23863,7 +23881,7 @@
               ]
             },
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "INTUIT *",
               "total": 282,
               "txCount": 1,
               "transactions": [
@@ -23983,13 +24001,13 @@
           "group": "Earned Revenue",
           "total": 102848.4,
           "pctOfTotal": 26.9,
-          "payeeCount": 2,
+          "payeeCount": 3,
           "txCount": 181,
           "payees": [
             {
               "name": "SQUARE",
-              "total": 101713.4,
-              "txCount": 180,
+              "total": 101703.4,
+              "txCount": 179,
               "transactions": [
                 {
                   "date": "2026-08-31",
@@ -25144,14 +25162,6 @@
                   "amount": 207.16
                 },
                 {
-                  "date": "2026-02-23",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Square Inc/SQ260223",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
                   "date": "2026-02-20",
                   "type": "Deposit",
                   "num": "",
@@ -25445,6 +25455,21 @@
                   "memo": "Square Register Cash Drawer Deposit - 08/17/2026",
                   "split": "First Merchants Bank",
                   "amount": 1135
+                }
+              ]
+            },
+            {
+              "name": "Square Inc",
+              "total": 10,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-02-23",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Square Inc/SQ260223",
+                  "split": "First Merchants Bank",
+                  "amount": 10
                 }
               ]
             }
@@ -27815,6 +27840,166 @@
           ]
         },
         {
+          "name": "Foundation Grants",
+          "group": "Contributed Income",
+          "total": 9694.03,
+          "pctOfTotal": 2.5,
+          "payeeCount": 2,
+          "txCount": 17,
+          "payees": [
+            {
+              "name": "Thrivent Financial",
+              "total": 6523,
+              "txCount": 5,
+              "transactions": [
+                {
+                  "date": "2026-08-12",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 2929
+                },
+                {
+                  "date": "2026-07-15",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 50
+                },
+                {
+                  "date": "2026-06-12",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 177
+                },
+                {
+                  "date": "2026-05-07",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 122
+                },
+                {
+                  "date": "2026-04-08",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 3245
+                }
+              ]
+            },
+            {
+              "name": "Branch Deposit Batch",
+              "total": 3171.03,
+              "txCount": 12,
+              "transactions": [
+                {
+                  "date": "2026-07-01",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "ADOPTION EVENT AT ALLEN CHEV.",
+                  "split": "First Merchants Bank",
+                  "amount": 1225
+                },
+                {
+                  "date": "2026-06-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
+                },
+                {
+                  "date": "2026-05-14",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 43.06
+                },
+                {
+                  "date": "2026-05-06",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
+                },
+                {
+                  "date": "2026-05-06",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
+                },
+                {
+                  "date": "2026-04-09",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 69.86
+                },
+                {
+                  "date": "2026-04-09",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
+                },
+                {
+                  "date": "2026-04-09",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
+                },
+                {
+                  "date": "2026-03-23",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
+                },
+                {
+                  "date": "2026-03-23",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 10
+                },
+                {
+                  "date": "2026-02-15",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 1666.73
+                },
+                {
+                  "date": "2026-02-15",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 96.38
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Bottle & Can Recycling Proceeds",
           "group": "Community Support",
           "total": 9042,
@@ -28240,167 +28425,6 @@
           ]
         },
         {
-          "name": "Municipal Contracts & Grants",
-          "group": "Contributed Income",
-          "total": 3544,
-          "pctOfTotal": 0.9,
-          "payeeCount": 2,
-          "txCount": 3,
-          "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 3245,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-04-08",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 3245
-                }
-              ]
-            },
-            {
-              "name": "THRIVENT",
-              "total": 299,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2026-06-12",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 177
-                },
-                {
-                  "date": "2026-05-07",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "THRIVENTGRANT GR/BATCHPAY HUMANE THRIVENTGRANT GR/BATCHPAY HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 122
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
-          "total": 3171.03,
-          "pctOfTotal": 0.8,
-          "payeeCount": 1,
-          "txCount": 12,
-          "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 3171.03,
-              "txCount": 12,
-              "transactions": [
-                {
-                  "date": "2026-07-01",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "ADOPTION EVENT AT ALLEN CHEV.",
-                  "split": "First Merchants Bank",
-                  "amount": 1225
-                },
-                {
-                  "date": "2026-06-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
-                  "date": "2026-05-14",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 43.06
-                },
-                {
-                  "date": "2026-05-06",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
-                  "date": "2026-05-06",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
-                  "date": "2026-04-09",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 69.86
-                },
-                {
-                  "date": "2026-04-09",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
-                  "date": "2026-04-09",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
-                  "date": "2026-03-23",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
-                  "date": "2026-03-23",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 10
-                },
-                {
-                  "date": "2026-02-15",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 1666.73
-                },
-                {
-                  "date": "2026-02-15",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 96.38
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "Cat Room Expansion Fund",
           "group": "Contributed Income",
           "total": 2220,
@@ -28442,241 +28466,17 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
-          "total": 1868.02,
-          "pctOfTotal": 0.5,
-          "payeeCount": 11,
-          "txCount": 12,
-          "payees": [
-            {
-              "name": "WILLIAM BOWERS",
-              "total": 300,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-01-02",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "BUBBA   SEVERE BITES MULTIPLE PEOPLE",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 300
-                }
-              ]
-            },
-            {
-              "name": "DEBRA MIKOLAJCZYK",
-              "total": 300,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-01-07",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "MAPLE RETURNED",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 300
-                }
-              ]
-            },
-            {
-              "name": "NICOLE BILLAU",
-              "total": 300,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2026-06-12",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "LOLLIRETURN",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 150
-                },
-                {
-                  "date": "2026-06-07",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "LOLLIRETURN",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 150
-                }
-              ]
-            },
-            {
-              "name": "BARBARA ROSE",
-              "total": 225,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-04-30",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "COOKIE CAT AGGRESSION WILL NOT STOP ATTACKING CATS",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 225
-                }
-              ]
-            },
-            {
-              "name": "ALYSSAH RENKIEWICZ",
-              "total": 162,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-16",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "KASH",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 162
-                }
-              ]
-            },
-            {
-              "name": "CHRISTOPHER PRICE",
-              "total": 150,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-08-17",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "\"MISTER\"",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 150
-                }
-              ]
-            },
-            {
-              "name": "MELISSA SZYMANSKI",
-              "total": 112,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-16",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "PHINEAS",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 112
-                }
-              ]
-            },
-            {
-              "name": "JOSHUA WILKINS",
-              "total": 110,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-04",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "REMI RETURN",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 110
-                }
-              ]
-            },
-            {
-              "name": "JOHN TURNER",
-              "total": 100,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-03-31",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "MINA THE CAT",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 100
-                }
-              ]
-            },
-            {
-              "name": "Paypal",
-              "total": 59.02,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-01-14",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Paypal *johnson Pla XXXXXX7800 Oh",
-                  "split": "First Merchants Creditcard",
-                  "amount": 59.02
-                }
-              ]
-            },
-            {
-              "name": "BARBARA OLUND",
-              "total": 50,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-05-21",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "PEARL CAT",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 50
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "Canister & Community Coin Banks",
           "group": "Contributed Income",
-          "total": 500,
-          "pctOfTotal": 0.1,
+          "total": 1000,
+          "pctOfTotal": 0.3,
           "payeeCount": 1,
-          "txCount": 3,
+          "txCount": 6,
           "payees": [
             {
               "name": "Branch Deposit Batch",
-              "total": 500,
-              "txCount": 3,
-              "transactions": [
-                {
-                  "date": "2026-04-09",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 200
-                },
-                {
-                  "date": "2026-02-15",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 100
-                },
-                {
-                  "date": "2026-01-14",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 200
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "",
-          "group": "Donation Canisters (Dog Banks)",
-          "total": 500,
-          "pctOfTotal": 0.1,
-          "payeeCount": 1,
-          "txCount": 3,
-          "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 500,
-              "txCount": 3,
+              "total": 1000,
+              "txCount": 6,
               "transactions": [
                 {
                   "date": "2026-08-13",
@@ -28701,6 +28501,30 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 100
+                },
+                {
+                  "date": "2026-04-09",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 200
+                },
+                {
+                  "date": "2026-02-15",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 100
+                },
+                {
+                  "date": "2026-01-14",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 200
                 }
               ]
             }
@@ -28872,31 +28696,6 @@
                   "memo": "SWEAT SHIRT",
                   "split": "First Merchants Bank",
                   "amount": 30
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Medical Vendor Rebates",
-          "group": "Veterinary & Medical Care",
-          "total": 93.85,
-          "pctOfTotal": 0,
-          "payeeCount": 1,
-          "txCount": 1,
-          "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 93.85,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-06-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "First Merchants Bank",
-                  "amount": 93.85
                 }
               ]
             }
@@ -37400,7 +37199,7 @@
               ]
             },
             {
-              "name": "Mi Corporations Div Lansing Mi Mi Corporations Div Lansing Mi",
+              "name": "Family Dollar",
               "total": 26.17,
               "txCount": 1,
               "transactions": [
@@ -37548,185 +37347,6 @@
           ]
         },
         {
-          "name": "",
-          "group": "Insurance",
-          "total": 6687.7,
-          "pctOfTotal": 1.4,
-          "payeeCount": 7,
-          "txCount": 15,
-          "payees": [
-            {
-              "name": "CINCINNATI INSURANCE",
-              "total": 4776,
-              "txCount": 8,
-              "transactions": [
-                {
-                  "date": "2026-08-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                },
-                {
-                  "date": "2026-07-16",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                },
-                {
-                  "date": "2026-06-15",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                },
-                {
-                  "date": "2026-05-18",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                },
-                {
-                  "date": "2026-04-16",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                },
-                {
-                  "date": "2026-03-16",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                },
-                {
-                  "date": "2026-02-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                },
-                {
-                  "date": "2026-01-16",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 597
-                }
-              ]
-            },
-            {
-              "name": "Accident Fund",
-              "total": 894.5,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-04",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 894.5
-                }
-              ]
-            },
-            {
-              "name": "TOWN MONEY SAVER",
-              "total": 687.5,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-03-24",
-                  "type": "Check",
-                  "num": "",
-                  "memo": "Town Money Saver",
-                  "split": "First Merchants Bank",
-                  "amount": 687.5
-                }
-              ]
-            },
-            {
-              "name": "OBM",
-              "total": 143.42,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2026-07-04",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "PRINTING & PHOTOCOPIER",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 60.05
-                },
-                {
-                  "date": "2026-03-13",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "COPY MACHINE",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 83.37
-                }
-              ]
-            },
-            {
-              "name": "AMY CUNNINGHAM SHINAULT",
-              "total": 130.38,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-04-01",
-                  "type": "Check",
-                  "num": "",
-                  "memo": "Amy Cunningham Shinault",
-                  "split": "First Merchants Bank",
-                  "amount": 130.38
-                }
-              ]
-            },
-            {
-              "name": "Ebay",
-              "total": 47.67,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-08-25",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Ebay O*08-15078-70342 San Jose Ca",
-                  "split": "First Merchants Creditcard",
-                  "amount": 47.67
-                }
-              ]
-            },
-            {
-              "name": "Robert Monteer",
-              "total": 8.23,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2026-07-22",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "baby shower",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 8.23
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "Workplace Injury Care",
           "group": "Personnel & Staffing",
           "total": 6212,
@@ -37849,6 +37469,117 @@
                   "memo": "MSU VET CLINIC",
                   "split": "Accounts Payable (A/P)",
                   "amount": 129.48
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Shelter Property & Liability Insurance",
+          "group": "Insurance & Risk",
+          "total": 5985.5,
+          "pctOfTotal": 1.2,
+          "payeeCount": 3,
+          "txCount": 10,
+          "payees": [
+            {
+              "name": "CINCINNATI INSURANCE",
+              "total": 4776,
+              "txCount": 8,
+              "transactions": [
+                {
+                  "date": "2026-08-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                },
+                {
+                  "date": "2026-07-16",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                },
+                {
+                  "date": "2026-06-15",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                },
+                {
+                  "date": "2026-05-18",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                },
+                {
+                  "date": "2026-04-16",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                },
+                {
+                  "date": "2026-03-16",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                },
+                {
+                  "date": "2026-02-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                },
+                {
+                  "date": "2026-01-16",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Cincinnati Insur/INS.PREM Humane Cincinnati Insur/INS.PREM Humane Society of Monr",
+                  "split": "First Merchants Bank",
+                  "amount": 597
+                }
+              ]
+            },
+            {
+              "name": "Accident Fund",
+              "total": 894.5,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-04",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 894.5
+                }
+              ]
+            },
+            {
+              "name": "WELLNOW URGENT CARE",
+              "total": 315,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-01-18",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "WORKMANS COMP CASH PAY INSTEAD        COLE PUTNAM",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 315
                 }
               ]
             }
@@ -38197,14 +37928,22 @@
           "group": "Shelter Operations",
           "total": 4332.44,
           "pctOfTotal": 0.9,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 9,
           "payees": [
             {
               "name": "UNV Laundry",
-              "total": 2892,
-              "txCount": 6,
+              "total": 4332.44,
+              "txCount": 9,
               "transactions": [
+                {
+                  "date": "2026-08-19",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 482
+                },
                 {
                   "date": "2026-08-04",
                   "type": "Expenditure",
@@ -38222,7 +37961,23 @@
                   "amount": 482
                 },
                 {
+                  "date": "2026-06-02",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 476.44
+                },
+                {
                   "date": "2026-05-22",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 482
+                },
+                {
+                  "date": "2026-04-30",
                   "type": "Expenditure",
                   "num": "",
                   "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
@@ -38250,37 +38005,6 @@
                   "type": "Expenditure",
                   "num": "",
                   "memo": "UNV Laundry DB/CASH CONC Humane UNV Laundry DB/CASH CONC Humane Society of Monr",
-                  "split": "First Merchants Bank",
-                  "amount": 482
-                }
-              ]
-            },
-            {
-              "name": "IRS",
-              "total": 1440.44,
-              "txCount": 3,
-              "transactions": [
-                {
-                  "date": "2026-08-19",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 482
-                },
-                {
-                  "date": "2026-06-02",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 476.44
-                },
-                {
-                  "date": "2026-04-30",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "UNV Laundry Hold/VSP*UNV L HUMAN UNV Laundry Hold/VSP*UNV L HUMANE SOCIETY OF MONR",
                   "split": "First Merchants Bank",
                   "amount": 482
                 }
@@ -38512,6 +38236,189 @@
                   "memo": "Jacks Lawn Service, In Monroe Mi",
                   "split": "First Merchants Creditcard",
                   "amount": 17.28
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations",
+          "total": 1868.02,
+          "pctOfTotal": 0.4,
+          "payeeCount": 11,
+          "txCount": 12,
+          "payees": [
+            {
+              "name": "WILLIAM BOWERS",
+              "total": 300,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-01-02",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "BUBBA   SEVERE BITES MULTIPLE PEOPLE",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 300
+                }
+              ]
+            },
+            {
+              "name": "DEBRA MIKOLAJCZYK",
+              "total": 300,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-01-07",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "MAPLE RETURNED",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 300
+                }
+              ]
+            },
+            {
+              "name": "NICOLE BILLAU",
+              "total": 300,
+              "txCount": 2,
+              "transactions": [
+                {
+                  "date": "2026-06-12",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "LOLLIRETURN",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 150
+                },
+                {
+                  "date": "2026-06-07",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "LOLLIRETURN",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 150
+                }
+              ]
+            },
+            {
+              "name": "BARBARA ROSE",
+              "total": 225,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-04-30",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "COOKIE CAT AGGRESSION WILL NOT STOP ATTACKING CATS",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 225
+                }
+              ]
+            },
+            {
+              "name": "ALYSSAH RENKIEWICZ",
+              "total": 162,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-16",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "KASH",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 162
+                }
+              ]
+            },
+            {
+              "name": "CHRISTOPHER PRICE",
+              "total": 150,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-08-17",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "\"MISTER\"",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 150
+                }
+              ]
+            },
+            {
+              "name": "MELISSA SZYMANSKI",
+              "total": 112,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-16",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "PHINEAS",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 112
+                }
+              ]
+            },
+            {
+              "name": "JOSHUA WILKINS",
+              "total": 110,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-04",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "REMI RETURN",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 110
+                }
+              ]
+            },
+            {
+              "name": "JOHN TURNER",
+              "total": 100,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-03-31",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "MINA THE CAT",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 100
+                }
+              ]
+            },
+            {
+              "name": "Paypal",
+              "total": 59.02,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-01-14",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Paypal *johnson Pla XXXXXX7800 Oh",
+                  "split": "First Merchants Creditcard",
+                  "amount": 59.02
+                }
+              ]
+            },
+            {
+              "name": "BARBARA OLUND",
+              "total": 50,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-05-21",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "PEARL CAT",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 50
                 }
               ]
             }
@@ -39080,6 +38987,31 @@
           ]
         },
         {
+          "name": "Advertising & marketing",
+          "group": "Advertising & marketing",
+          "total": 687.5,
+          "pctOfTotal": 0.1,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "TOWN MONEY SAVER",
+              "total": 687.5,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-03-24",
+                  "type": "Check",
+                  "num": "",
+                  "memo": "Town Money Saver",
+                  "split": "First Merchants Bank",
+                  "amount": 687.5
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Printing & Photocopying",
           "group": "Office & Admin",
           "total": 636.32,
@@ -39168,7 +39100,7 @@
           "txCount": 20,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Square Inc",
               "total": 378,
               "txCount": 9,
               "transactions": [
@@ -39406,25 +39338,78 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
-          "total": 315,
+          "name": "General Administrative & Office",
+          "group": "Office & Admin",
+          "total": 329.7,
           "pctOfTotal": 0.1,
-          "payeeCount": 1,
-          "txCount": 1,
+          "payeeCount": 4,
+          "txCount": 5,
           "payees": [
             {
-              "name": "WELLNOW URGENT CARE",
-              "total": 315,
+              "name": "OBM",
+              "total": 143.42,
+              "txCount": 2,
+              "transactions": [
+                {
+                  "date": "2026-07-04",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "PRINTING & PHOTOCOPIER",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 60.05
+                },
+                {
+                  "date": "2026-03-13",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "COPY MACHINE",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 83.37
+                }
+              ]
+            },
+            {
+              "name": "AMY CUNNINGHAM SHINAULT",
+              "total": 130.38,
               "txCount": 1,
               "transactions": [
                 {
-                  "date": "2026-01-18",
+                  "date": "2026-04-01",
+                  "type": "Check",
+                  "num": "",
+                  "memo": "Amy Cunningham Shinault",
+                  "split": "First Merchants Bank",
+                  "amount": 130.38
+                }
+              ]
+            },
+            {
+              "name": "Ebay",
+              "total": 47.67,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-08-25",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Ebay O*08-15078-70342 San Jose Ca",
+                  "split": "First Merchants Creditcard",
+                  "amount": 47.67
+                }
+              ]
+            },
+            {
+              "name": "Robert Monteer",
+              "total": 8.23,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-22",
                   "type": "Bill",
                   "num": "",
-                  "memo": "WORKMANS COMP CASH PAY INSTEAD        COLE PUTNAM",
+                  "memo": "baby shower",
                   "split": "Accounts Payable (A/P)",
-                  "amount": 315
+                  "amount": 8.23
                 }
               ]
             }
@@ -39439,7 +39424,7 @@
           "txCount": 9,
           "payees": [
             {
-              "name": "HUMANE SOCIETY OF MONROE COUNTY",
+              "name": "Authorize.Net",
               "total": 240,
               "txCount": 8,
               "transactions": [
@@ -39569,6 +39554,31 @@
                   "memo": "Autozone #2129 Monroe Mi",
                   "split": "First Merchants Creditcard",
                   "amount": 12.7
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Medical Vendor Rebates",
+          "group": "Veterinary & Medical Care",
+          "total": 93.85,
+          "pctOfTotal": 0,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "Branch Deposit Batch",
+              "total": 93.85,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-06-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "First Merchants Bank",
+                  "amount": 93.85
                 }
               ]
             }

@@ -349,28 +349,34 @@ const faqs: FaqItem[] = [
     let activeCategory = 'all';
     let allExpanded = false;
 
-    // Accordion click handlers
+    // Accordion click handlers with idempotent guards
     cards.forEach((card) => {
       const trigger = card.querySelector<HTMLButtonElement>('.faq-trigger');
-      trigger?.addEventListener('click', () => {
-        const isOpen = card.classList.contains('is-open');
-        card.classList.toggle('is-open', !isOpen);
-        trigger.setAttribute('aria-expanded', String(!isOpen));
-      });
+      if (trigger && trigger.dataset.bound !== '1') {
+        trigger.dataset.bound = '1';
+        trigger.addEventListener('click', () => {
+          const isOpen = card.classList.contains('is-open');
+          card.classList.toggle('is-open', !isOpen);
+          trigger.setAttribute('aria-expanded', String(!isOpen));
+        });
+      }
     });
 
-    // Expand / Collapse all
-    toggleAllBtn?.addEventListener('click', () => {
-      allExpanded = !allExpanded;
-      toggleAllBtn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
-      cards.forEach((card) => {
-        if (card.style.display !== 'none') {
-          card.classList.toggle('is-open', allExpanded);
-          const trigger = card.querySelector<HTMLButtonElement>('.faq-trigger');
-          trigger?.setAttribute('aria-expanded', String(allExpanded));
-        }
+    // Expand / Collapse all with idempotent guard
+    if (toggleAllBtn && toggleAllBtn.dataset.bound !== '1') {
+      toggleAllBtn.dataset.bound = '1';
+      toggleAllBtn.addEventListener('click', () => {
+        allExpanded = !allExpanded;
+        toggleAllBtn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+        cards.forEach((card) => {
+          if (card.style.display !== 'none') {
+            card.classList.toggle('is-open', allExpanded);
+            const trigger = card.querySelector<HTMLButtonElement>('.faq-trigger');
+            trigger?.setAttribute('aria-expanded', String(allExpanded));
+          }
+        });
       });
-    });
+    }
 
     function filterFaqs() {
       const query = searchInput?.value.trim().toLowerCase() || '';
@@ -426,51 +432,68 @@ const faqs: FaqItem[] = [
       }
     }
 
-    // Category button clicks
+    // Category button clicks with idempotent guards
     filterBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        activeCategory = btn.dataset.catId || 'all';
+      if (btn.dataset.bound !== '1') {
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', () => {
+          activeCategory = btn.dataset.catId || 'all';
 
-        filterBtns.forEach((b) => {
-          const isActive = b === btn;
-          b.classList.toggle('bg-teal-900', isActive);
-          b.classList.toggle('text-white', isActive);
-          b.classList.toggle('shadow-xs', isActive);
-          b.classList.toggle('bg-slate-100', !isActive);
-          b.classList.toggle('text-slate-600', !isActive);
+          filterBtns.forEach((b) => {
+            const isActive = b === btn;
+            b.classList.toggle('bg-teal-900', isActive);
+            b.classList.toggle('text-white', isActive);
+            b.classList.toggle('shadow-xs', isActive);
+            b.classList.toggle('bg-slate-100', !isActive);
+            b.classList.toggle('text-slate-600', !isActive);
+          });
+
+          filterFaqs();
         });
+      }
+    });
 
+    // Search input with idempotent guard
+    if (searchInput && searchInput.dataset.bound !== '1') {
+      searchInput.dataset.bound = '1';
+      searchInput.addEventListener('input', filterFaqs);
+    }
+
+    // Clear search with idempotent guard
+    if (clearBtn && clearBtn.dataset.bound !== '1') {
+      clearBtn.dataset.bound = '1';
+      clearBtn.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          searchInput.focus();
+        }
         filterFaqs();
       });
-    });
+    }
 
-    // Search input
-    searchInput?.addEventListener('input', filterFaqs);
-
-    // Clear search
-    clearBtn?.addEventListener('click', () => {
-      if (searchInput) {
-        searchInput.value = '';
-        searchInput.focus();
-      }
-      filterFaqs();
-    });
-
-    // Reset button in empty state
-    resetBtn?.addEventListener('click', () => {
-      if (searchInput) searchInput.value = '';
-      activeCategory = 'all';
-      filterBtns.forEach((b) => {
-        const isAll = b.dataset.catId === 'all';
-        b.classList.toggle('bg-teal-900', isAll);
-        b.classList.toggle('text-white', isAll);
-        b.classList.toggle('shadow-xs', isAll);
-        b.classList.toggle('bg-slate-100', !isAll);
-        b.classList.toggle('text-slate-600', !isAll);
+    // Reset button in empty state with idempotent guard
+    if (resetBtn && resetBtn.dataset.bound !== '1') {
+      resetBtn.dataset.bound = '1';
+      resetBtn.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        activeCategory = 'all';
+        filterBtns.forEach((b) => {
+          const isAll = b.dataset.catId === 'all';
+          b.classList.toggle('bg-teal-900', isAll);
+          b.classList.toggle('text-white', isAll);
+          b.classList.toggle('shadow-xs', isAll);
+          b.classList.toggle('bg-slate-100', !isAll);
+          b.classList.toggle('text-slate-600', !isAll);
+        });
+        filterFaqs();
       });
-      filterFaqs();
-    });
+    }
   }
 
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFaq);
+  } else {
+    initFaq();
+  }
   document.addEventListener('astro:page-load', initFaq);
 </script>

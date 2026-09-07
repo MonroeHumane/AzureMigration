@@ -526,8 +526,8 @@
     applyTableFilters();
   }
 
-  if (!window.__HSMC_BANK_RENDER_BOUND__) {
-    window.__HSMC_BANK_RENDER_BOUND__ = true;
+  if (!(window as any).__HSMC_BANK_RENDER_BOUND__) {
+    (window as any).__HSMC_BANK_RENDER_BOUND__ = true;
     window.addEventListener('bank-statement-rendered', () => {
       applyTableFilters();
     });

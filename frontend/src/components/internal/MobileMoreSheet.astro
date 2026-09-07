@@ -320,6 +320,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
 <script>
   import { getStaffTheme, setStaffTheme } from '../../lib/staff-theme';
+  import { logoutStaff } from '../../lib/staff-auth';
 
   function setupMobileMoreSheet() {
     const sheetDialog = document.getElementById('mobile-more-sheet') as HTMLDialogElement | null;
@@ -484,12 +485,9 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     // Connect logout
     if (sheetLogoutBtn && sheetLogoutBtn.dataset.bound !== '1') {
       sheetLogoutBtn.dataset.bound = '1';
-      sheetLogoutBtn.addEventListener('click', () => {
+      sheetLogoutBtn.addEventListener('click', async () => {
         closeSheet();
-        const globalLogout = document.getElementById('global-staff-logout-btn');
-        if (globalLogout) {
-          globalLogout.click();
-        }
+        await logoutStaff();
       });
     }
 

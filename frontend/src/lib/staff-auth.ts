@@ -60,13 +60,43 @@ staffClient.logout = async (...args: any[]) => {
 };
 
 export function isStaffHmacToken(token: string | null | undefined): token is string {
-  return typeof token === 'string' && token.startsWith('mchs_') && token.includes('.');
+  if (typeof token !== 'string' || !token.startsWith('mchs_') || !token.includes('.')) {
+    return false;
+  }
+  try {
+    const clean = token.substring(5);
+    const [payloadB64] = clean.split('.');
+    if (!payloadB64) return false;
+    let jsonStr = '';
+    if (typeof atob === 'function') {
+      const b64 = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
+      jsonStr = atob(b64);
+    } else if (typeof Buffer !== 'undefined') {
+      jsonStr = Buffer.from(payloadB64, 'base64url').toString('utf8');
+    }
+    if (jsonStr) {
+      const payload = JSON.parse(jsonStr);
+      if (payload && typeof payload.iat === 'number') {
+        const MAX_SESSION_AGE = 30 * 24 * 60 * 60 * 1000;
+        if (Math.abs(Date.now() - payload.iat) > MAX_SESSION_AGE) {
+          return false;
+        }
+      }
+    }
+  } catch {}
+  return true;
 }
 
 export function getStoredHmacStaffToken(): string | null {
   if (typeof window === 'undefined') return null;
   const token = localStorage.getItem(STAFF_TOKEN_KEY) || sessionStorage.getItem(STAFF_TOKEN_KEY);
-  return isStaffHmacToken(token) ? token : null;
+  if (!token) return null;
+  if (isStaffHmacToken(token)) {
+    return token;
+  }
+  // Stale or expired token found in storage - purge to prevent false auth states
+  clearStaffClientSession(true);
+  return null;
 }
 
 /**
@@ -77,15 +107,35 @@ export function isStaffAuthenticated(): boolean {
   return getStoredHmacStaffToken() !== null;
 }
 
-export function clearStaffClientSession(): void {
+export function getRememberedStaffEmail(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const isRemembered = localStorage.getItem(STAFF_REMEMBER_KEY) === 'true';
+    if (isRemembered) {
+      return localStorage.getItem(STAFF_USER_KEY) || null;
+    }
+  } catch {}
+  return null;
+}
+
+export function clearStaffClientSession(preserveRememberedUser = false): void {
   if (typeof window === 'undefined') return;
   try {
+    const isRemembered = localStorage.getItem(STAFF_REMEMBER_KEY) === 'true';
+    const rememberedEmail = localStorage.getItem(STAFF_USER_KEY);
+
     localStorage.removeItem(DIRECTUS_AUTH_KEY);
     localStorage.removeItem(STAFF_AUTH_FLAG);
-    localStorage.removeItem(STAFF_USER_KEY);
     localStorage.removeItem(STAFF_TOKEN_KEY);
-    localStorage.removeItem(STAFF_REMEMBER_KEY);
     localStorage.removeItem('mchs_financials_cache_v1');
+
+    if (!preserveRememberedUser || !isRemembered) {
+      localStorage.removeItem(STAFF_USER_KEY);
+      localStorage.removeItem(STAFF_REMEMBER_KEY);
+    } else if (rememberedEmail) {
+      localStorage.setItem(STAFF_USER_KEY, rememberedEmail);
+      localStorage.setItem(STAFF_REMEMBER_KEY, 'true');
+    }
 
     sessionStorage.removeItem(DIRECTUS_AUTH_KEY);
     sessionStorage.removeItem(STAFF_AUTH_FLAG);
@@ -102,7 +152,7 @@ export function clearStaffClientSession(): void {
 export function forceStaffRelogin(): void {
   if (typeof window === 'undefined') return;
   const next = window.location.pathname + window.location.search;
-  clearStaffClientSession();
+  clearStaffClientSession(true);
   const redirect = next.startsWith('/internal') ? encodeURIComponent(next) : '';
   window.location.replace(redirect ? `/internal/?reauth=1&redirect=${redirect}` : '/internal/?reauth=1');
 }
@@ -120,6 +170,20 @@ export function getStaffUserEmail(): string {
 }
 
 /**
+ * Helper to fetch with an AbortController timeout.
+ */
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 12000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
  * Executes login via /api/login and Directus SDK, saves persistent tokens and user flags.
  */
 export async function loginStaff(opts: {
@@ -127,18 +191,19 @@ export async function loginStaff(opts: {
   password: string;
   rememberMe?: boolean;
 }): Promise<void> {
-  const { email, password, rememberMe = true } = opts;
+  const { password, rememberMe = true } = opts;
+  const email = (opts.email || '').trim().toLowerCase();
 
   let staffToken: string | null = null;
   let directusPayload: any = null;
 
   // 1. Primary: Authenticate through Azure Functions /api/login
   try {
-    const res = await fetch('/api/login', {
+    const res = await fetchWithTimeout('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
-    });
+    }, 12000);
 
     if (res.ok) {
       const data = await res.json();
@@ -150,6 +215,9 @@ export async function loginStaff(opts: {
       throw new Error('Invalid email or password. Please verify your credentials.');
     }
   } catch (err: any) {
+    if (err.name === 'AbortError') {
+      throw new Error('Authentication request timed out. Please check your network connection and try again.');
+    }
     if (err.message && err.message.includes('Invalid email or password')) {
       throw err;
     }
@@ -164,7 +232,7 @@ export async function loginStaff(opts: {
       if (dt) {
         // Exchange Directus token for HMAC staff session token
         try {
-          const sRes = await fetch('/api/session', {
+          const sRes = await fetchWithTimeout('/api/session', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -173,7 +241,7 @@ export async function loginStaff(opts: {
               'X-Authorization': `Bearer ${dt}`,
             },
             body: JSON.stringify({ email, directus_token: dt, token: dt }),
-          });
+          }, 8000);
           if (sRes.ok) {
             const sData = await sRes.json();
             if (sData && sData.token) {
@@ -193,20 +261,39 @@ export async function loginStaff(opts: {
     throw new Error('Could not create a staff session. Sign in again, or ask an admin to check /api/login.');
   }
 
-  // 3. Persist only after a real HMAC staff token exists.
-  localStorage.setItem(STAFF_AUTH_FLAG, 'true');
-  localStorage.setItem(STAFF_USER_KEY, email);
+  // 3. Persist tokens respecting Remember Me security preferences:
+  // If rememberMe is true: persist to localStorage (persistent across browser restarts) & sessionStorage.
+  // If rememberMe is false (shared workstation): persist ONLY to sessionStorage and purge localStorage.
   if (rememberMe) {
-    localStorage.setItem(STAFF_REMEMBER_KEY, 'true');
+    try {
+      localStorage.setItem(STAFF_AUTH_FLAG, 'true');
+      localStorage.setItem(STAFF_USER_KEY, email);
+      localStorage.setItem(STAFF_REMEMBER_KEY, 'true');
+      localStorage.setItem(STAFF_TOKEN_KEY, staffToken);
+      if (directusPayload) {
+        localStorage.setItem(DIRECTUS_AUTH_KEY, JSON.stringify(directusPayload));
+      }
+    } catch (e) {
+      console.warn('[StaffAuth] Failed to write to localStorage:', e);
+    }
+  } else {
+    try {
+      localStorage.removeItem(STAFF_AUTH_FLAG);
+      localStorage.removeItem(STAFF_TOKEN_KEY);
+      localStorage.removeItem(STAFF_REMEMBER_KEY);
+      localStorage.removeItem(DIRECTUS_AUTH_KEY);
+    } catch {}
   }
 
-  localStorage.setItem(STAFF_TOKEN_KEY, staffToken);
-  sessionStorage.setItem(STAFF_TOKEN_KEY, staffToken);
-
-  if (directusPayload) {
-    const str = JSON.stringify(directusPayload);
-    localStorage.setItem(DIRECTUS_AUTH_KEY, str);
-    sessionStorage.setItem(DIRECTUS_AUTH_KEY, str);
+  try {
+    sessionStorage.setItem(STAFF_AUTH_FLAG, 'true');
+    sessionStorage.setItem(STAFF_USER_KEY, email);
+    sessionStorage.setItem(STAFF_TOKEN_KEY, staffToken);
+    if (directusPayload) {
+      sessionStorage.setItem(DIRECTUS_AUTH_KEY, JSON.stringify(directusPayload));
+    }
+  } catch (e) {
+    console.warn('[StaffAuth] Failed to write to sessionStorage:', e);
   }
 
   // Update HTML class immediately for zero-flicker UI

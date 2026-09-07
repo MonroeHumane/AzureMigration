@@ -44,7 +44,13 @@ const ACCOUNT_NORMALIZATION = {
   'Gas': { name: 'Rescue Van Fuel & Transit', group: 'Vehicle Expenses' },
   'Vehicle Repairs & Maintenance': { name: 'Vehicle Repairs & Maintenance', group: 'Vehicle Expenses' },
   'Liability insurance': { name: 'Shelter Property & Liability Insurance', group: 'Insurance & Risk' },
+  'Insurance': { name: 'Shelter Property & Liability Insurance', group: 'Insurance & Risk' },
+  'Directors & Officers Insurance': { name: 'Directors & Officers Insurance', group: 'Insurance & Risk' },
   'Software & Apps': { name: 'Software & Cloud Apps', group: 'Office & Admin' },
+  'Office expenses': { name: 'General Administrative & Office', group: 'Office & Admin' },
+  'General Administrative & Office': { name: 'General Administrative & Office', group: 'Office & Admin' },
+  'PET RETURN': { name: 'Adoption Fee Refunds & Returns', group: 'Shelter Operations' },
+  'DOG BANKS': { name: 'Canister & Community Coin Banks', group: 'Contributed Income' },
   'Equipment Lease & Maintenance': { name: 'Equipment Lease & Maintenance', group: 'Office & Admin' },
   'Office Supplies': { name: 'Office Supplies', group: 'Office & Admin' },
   'Printing & Photocopying': { name: 'Printing & Photocopying', group: 'Office & Admin' },
@@ -84,11 +90,68 @@ const REVENUE_ACCOUNTS = new Set([
   'Bottle & Can Recycling Proceeds', 'Retail Partner Rebates (Kroger/Meijer)', 'Memorial Donations'
 ]);
 
+const FORCE_EXPENSE_ACCOUNTS = new Set([
+  'Adoption Fee Refunds & Returns',
+  'PET RETURN',
+  'Vendor Rebates & Credits',
+  'Laundry & Sanitation Services',
+  'Directors & Officers Insurance',
+  'Insurance',
+  'Liability insurance',
+  'Office expenses',
+]);
+
+const EXPENSE_PARENT_RE = /operations|expense|personnel|staffing|veterinary|vehicle|insurance|office|financial|fundraising & events|marketing/i;
+
 function isRevenueAccount(accName, parentName) {
-  if (REVENUE_ACCOUNTS.has(accName) || REVENUE_ACCOUNTS.has(parentName)) return true;
-  const l = (accName + ' ' + parentName).toLowerCase();
+  const acc = (accName || '').trim();
+  const parent = (parentName || '').trim();
+  if (FORCE_EXPENSE_ACCOUNTS.has(acc) || FORCE_EXPENSE_ACCOUNTS.has(parent)) return false;
+  if (EXPENSE_PARENT_RE.test(parent) && !REVENUE_ACCOUNTS.has(acc)) return false;
+  if (REVENUE_ACCOUNTS.has(acc) || REVENUE_ACCOUNTS.has(parent)) return true;
+  const l = `${acc} ${parent}`.toLowerCase();
   return l.includes('donation') || l.includes('endowment') || l.includes('recycling') ||
-         l.includes('adoption') || l.includes('rebate') || l.includes('grant') || l.includes('swag');
+         (l.includes('rebate') && !l.includes('vendor rebate')) ||
+         (l.includes('grant') && !l.includes('expense')) ||
+         l.includes('swag');
+}
+
+function accountKey(leafName, parentName) {
+  return (leafName || '').trim() || (parentName || '').trim();
+}
+
+function payeeFromMemo(payee, memo, txnType) {
+  const m = memo || '';
+  if (/UNV\s*LAUNDRY/i.test(m)) return 'UNV Laundry';
+  if (/AUTHNET GATEWAY/i.test(m)) return 'Authorize.Net';
+  if (/SQUARE INC\/SQ/i.test(m) || /SQUARE INC\/SQUAR/i.test(m)) return 'Square Inc';
+  if (/Family Dollar/i.test(m)) return 'Family Dollar';
+  if (/THRIVENTGRANT/i.test(m)) return 'Thrivent Financial';
+  let clean = (payee || '').trim();
+  const orgSelf = /^HUMANE SOCIETY OF MONROE COUNTY$/i.test(clean);
+  const junkVendor = /Mi Corporations Div Lansing Mi Mi Corporations/i.test(clean);
+  if ((orgSelf || clean === 'IRS' || junkVendor) && m.trim()) {
+    const first = m.split(/HUMANE SOCIETY/i)[0].replace(/\/.*/, '').trim();
+    if (first) return first.replace(/\s+/g, ' ');
+  }
+  if (!clean) {
+    if (txnType === 'Journal Entry') return 'QuickBooks Journal Adjustment';
+    if (txnType === 'Sales Receipt') return 'Public / Shelter Adopters';
+    if (txnType === 'Deposit') return 'Branch Deposit Batch';
+    return 'Shelter Operational Incurred';
+  }
+  return clean;
+}
+
+function applyMemoOverrides(meta, isRev, memo, payee) {
+  const blob = `${memo || ''} ${payee || ''}`;
+  if (/THRIVENTGRANT/i.test(blob)) {
+    return { meta: { name: 'Foundation Grants', group: 'Contributed Income' }, isRev: true };
+  }
+  if (/UNV\s*LAUNDRY/i.test(blob)) {
+    return { meta: ACCOUNT_NORMALIZATION['Laundry & Sanitation Services'], isRev: false };
+  }
+  return { meta, isRev };
 }
 
 function parseSection(sec, parentName = '') {
@@ -108,17 +171,19 @@ function parseSection(sec, parentName = '') {
         const amtStr = child.ColData[6]?.value;
 
         if (date && amtStr && date !== 'Beginning Balance') {
-          let cleanPayee = payee.trim();
-          if (!cleanPayee) {
-            if (txnType === 'Journal Entry') cleanPayee = 'QuickBooks Journal Adjustment';
-            else if (txnType === 'Sales Receipt') cleanPayee = 'Public / Shelter Adopters';
-            else if (txnType === 'Deposit') cleanPayee = 'Branch Deposit Batch';
-            else cleanPayee = 'Shelter Operational Incurred';
-          }
+          let cleanPayee = payeeFromMemo(payee, memo, txnType);
 
           const rawAmt = parseFloat(amtStr) || 0;
-          const isRev = isRevenueAccount(name, parentName);
-          let meta = ACCOUNT_NORMALIZATION[name] || { name, group: parentName || (isRev ? 'Revenue' : 'Expenses') };
+          const accKey = accountKey(name, parentName);
+          let isRev = isRevenueAccount(accKey, parentName);
+          let meta = ACCOUNT_NORMALIZATION[accKey] || {
+            name: accKey,
+            group: parentName || (isRev ? 'Revenue' : 'Expenses')
+          };
+          if (!meta.name) {
+            meta = { name: parentName || (isRev ? 'Revenue' : 'Uncategorized'), group: parentName || meta.group };
+          }
+          ({ meta, isRev } = applyMemoOverrides(meta, isRev, memo, payee));
 
           // Reclassify donations with explicit memorial/tribute dedications as Memorial Donations
           const fullMemo = (memo + ' ' + payee).toLowerCase();
@@ -260,6 +325,19 @@ for (const m of stepsMap) {
 
   const revCats = groupHierarchy(revTxs, certifiedRev);
   const expCats = groupHierarchy(expTxs, certifiedExp);
+
+  const catRev = Math.round(revCats.reduce((s, c) => s + c.total, 0) * 100) / 100;
+  const catExp = Math.round(expCats.reduce((s, c) => s + c.total, 0) * 100) / 100;
+  const revDelta = Math.round((catRev - certifiedRev) * 100) / 100;
+  const expDelta = Math.round((catExp - certifiedExp) * 100) / 100;
+  if (Math.abs(revDelta) > 0.02 || Math.abs(expDelta) > 0.02) {
+    console.warn(
+      `[footing] ${m.name}: explorer rev ${catRev} vs certified ${certifiedRev} (Δ ${revDelta}); ` +
+      `exp ${catExp} vs certified ${certifiedExp} (Δ ${expDelta})`
+    );
+  } else {
+    console.log(`[footing] ${m.name}: categories match certified P&L`);
+  }
 
   monthlyDrilldowns[m.id] = {
     id: m.id,

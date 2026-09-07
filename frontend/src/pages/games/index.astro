@@ -701,8 +701,6 @@ const MASCOTS = [
 
     const nameInput = document.getElementById('monroeDexUsername') as HTMLInputElement | null;
     const saveIndicator = document.getElementById('pass-saved-indicator');
-    const toast = document.getElementById('arcade-pass-toast');
-    const toastMsg = document.getElementById('arcade-pass-toast-msg');
     const packsCountEl = document.getElementById('stat-packs-count');
     const cardsCountEl = document.getElementById('stat-cards-count');
     const rankBadge = document.getElementById('pass-rank-badge');
@@ -728,8 +726,6 @@ const MASCOTS = [
     const crtBtn = document.getElementById('cabinet-crt-btn');
     const crtOverlay = document.getElementById('cabinet-crt-overlay');
     const dockButtons = document.querySelectorAll<HTMLElement>('.cabinet-dock-btn');
-
-    let currentGameId: string = 'booster';
 
     // ─────────────────────────────────────────────────────────────────────────
     // Player Pass State & Mascot Persistence
@@ -944,7 +940,6 @@ const MASCOTS = [
     // Launching & Managing Cabinet Player 2.0
     // ─────────────────────────────────────────────────────────────────────────
     function updateDockActive(gameId: string) {
-      currentGameId = gameId;
       dockButtons.forEach((btn) => {
         const id = btn.getAttribute('data-dock-game');
         if (id === gameId) {
@@ -1134,7 +1129,7 @@ const MASCOTS = [
         if (awardToast && awardText && awardTitle && awardIcon) {
           awardIcon.textContent = '🏆';
           awardTitle.textContent = 'Score Recorded!';
-          awardText.textContent = `${score.toLocaleString()} pts recorded to the Community Leaderboard!`;
+          awardText.textContent = `${score.toLocaleString()} pts on ${game} recorded to the Community Leaderboard!`;
           awardToast.classList.remove('hidden');
           setTimeout(() => awardToast.classList.add('hidden'), 4000);
         }

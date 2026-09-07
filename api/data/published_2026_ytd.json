@@ -6,7 +6,7 @@
     "has_partial_cutoff": false,
     "published_by": "Jeffery Howard, Director's Assistant",
     "published_at": "2026-09-04T21:15:00Z",
-    "sha256_checksum": "e3e33d570dcd2994575e640858295580cda96a1945e5f9a752290e824aa43198",
+    "sha256_checksum": "9e2c2620216571312e2216f25049d57bf4dc1f74b12b025ae0961b8cd64c6d76",
     "basis": "Accrual",
     "governance_level": "Board-Confidential",
     "organization_name": "Humane Society of Monroe County",
@@ -1268,7 +1268,12 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 10747.55
+          "amount": 7818.55
+        },
+        {
+          "name": "Foundation Grants",
+          "group": "Contributed income",
+          "amount": 2929
         },
         {
           "name": "Animal Adoptions",

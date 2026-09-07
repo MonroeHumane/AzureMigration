@@ -814,8 +814,19 @@ const monthKeys = [
     const varVal = document.getElementById('ee-variance-value');
     const varCap = document.getElementById('ee-variance-caption');
 
+    const catLabel = (cat) => {
+      const n = (cat?.name || '').trim();
+      return n || (cat?.group || 'Uncategorized');
+    };
+
     if (titleEl) titleEl.textContent = `${monthObj.monthName} Cash Flow Drilldown`;
     if (subEl) subEl.textContent = `${monthObj.monthName} · QuickBooks Online General Ledger`;
+
+    const catRevSum = (monthObj.revenueCategories || []).reduce((s, c) => s + (c.total || 0), 0);
+    const catExpSum = (monthObj.expenseCategories || []).reduce((s, c) => s + (c.total || 0), 0);
+    const impliedNet = Math.round((catRevSum - catExpSum) * 100) / 100;
+    const certifiedNet = Math.round((monthObj.net_margin || 0) * 100) / 100;
+    const netGap = Math.round((impliedNet - certifiedNet) * 100) / 100;
 
     const netVal = monthObj.net_margin;
     if (varLabel) varLabel.textContent = `${monthObj.monthName.split(' ')[0]} Net Margin`;
@@ -823,7 +834,11 @@ const monthKeys = [
       varVal.textContent = fmtCurrency(netVal);
       varVal.className = `font-mono font-black text-sm ${netVal >= 0 ? 'text-emerald-700' : 'text-rose-700'}`;
     }
-    if (varCap) varCap.textContent = monthObj.status || 'Verified Ledger';
+    if (varCap) {
+      varCap.textContent = Math.abs(netGap) > 0.02
+        ? `Certified P&L · category stack ${netGap > 0 ? '+' : ''}${fmtCurrency(netGap)} vs headline`
+        : (monthObj.status || 'Verified Ledger');
+    }
 
     // Update period button active states
     document.querySelectorAll('.ee-period-btn').forEach(btn => {
@@ -847,17 +862,17 @@ const monthKeys = [
       monthObj.expenseCategories.forEach((cat, cIdx) => {
         const catDiv = document.createElement('div');
         catDiv.className = 'ee-category-block rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden';
-        catDiv.dataset.catKey = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        catDiv.dataset.catKey = catLabel(cat).toLowerCase().replace(/[^a-z0-9]/g, '-');
         catDiv.dataset.catGroup = (cat.group || 'Operations').toLowerCase();
         catDiv.dataset.catTotal = cat.total.toString();
-        catDiv.dataset.catName = cat.name;
+        catDiv.dataset.catName = catLabel(cat);
 
         catDiv.innerHTML = `
           <button class="ee-cat-toggle w-full flex items-center gap-3 px-5 py-4 text-left transition hover:bg-slate-50 group cursor-pointer" aria-expanded="false" data-cat-idx="${cIdx}">
             <span class="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0"></span>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-slate-800 text-sm">${cat.name}</span>
+                <span class="font-bold text-slate-800 text-sm">${catLabel(cat)}</span>
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${cat.group}</span>
               </div>
               <p class="text-[11px] text-slate-500 mt-0.5 truncate">${cat.pctOfTotal}% of monthly spend</p>
@@ -947,17 +962,17 @@ const monthKeys = [
       monthObj.revenueCategories.forEach((cat, cIdx) => {
         const catDiv = document.createElement('div');
         catDiv.className = 'ee-inflow-block rounded-xl border border-emerald-200 bg-white shadow-xs overflow-hidden';
-        catDiv.dataset.catKey = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        catDiv.dataset.catKey = catLabel(cat).toLowerCase().replace(/[^a-z0-9]/g, '-');
         catDiv.dataset.catGroup = (cat.group || 'Contributed').toLowerCase();
         catDiv.dataset.catTotal = cat.total.toString();
-        catDiv.dataset.catName = cat.name;
+        catDiv.dataset.catName = catLabel(cat);
 
         catDiv.innerHTML = `
           <button class="ee-inflow-toggle w-full flex items-center gap-3 px-5 py-4 text-left transition hover:bg-emerald-50/50 group cursor-pointer" aria-expanded="false" data-cat-idx="${cIdx}">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-slate-800 text-sm">${cat.name}</span>
+                <span class="font-bold text-slate-800 text-sm">${catLabel(cat)}</span>
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${cat.group}</span>
               </div>
               <p class="text-[11px] text-slate-500 mt-0.5 truncate">${cat.pctOfTotal}% of monthly revenue</p>
@@ -1186,7 +1201,7 @@ const monthKeys = [
           payee.transactions.forEach(tx => {
             rows.push(csvRow([
               monthObj.monthName,
-              cat.name,
+              catLabel(cat),
               cat.group,
               payee.name,
               tx.date,
@@ -1203,8 +1218,8 @@ const monthKeys = [
     });
 
     rebindAccordionListeners();
-    if ((!allMonths || Object.keys(allMonths).length === 0) && (window as any).__HSMC_EXPLORER_MONTHS__) {
-      allMonths = (window as any).__HSMC_EXPLORER_MONTHS__;
+    if ((!allMonths || Object.keys(allMonths).length === 0) && window.__HSMC_EXPLORER_MONTHS__) {
+      allMonths = window.__HSMC_EXPLORER_MONTHS__;
       if (typeof renderMonthData === 'function') {
         renderMonthData(activeMonthId);
       }

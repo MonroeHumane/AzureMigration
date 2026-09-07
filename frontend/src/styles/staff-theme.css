@@ -1004,21 +1004,73 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   color: #ffffff !important;
 }
 
+/* CMS Content Manager Tabs in Light Mode */
+:root:not([data-staff-theme="dark"]) .cms-tab-btn:not(.active) {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+:root:not([data-staff-theme="dark"]) .cms-tab-btn:not(.active):hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+:root:not([data-staff-theme="dark"]) .cms-tab-btn.active {
+  background-color: #173a39 !important;
+  color: #ffffff !important;
+  border: 1px solid #173a39 !important;
+  box-shadow: 0 2px 6px rgba(23, 58, 57, 0.2) !important;
+}
+
 /* CMS Content Manager Tabs in Dark Mode */
 :root[data-staff-theme="dark"] .cms-tab-btn:not(.active) {
-  background-color: rgba(6, 24, 21, 0.6) !important;
+  background-color: rgba(6, 24, 21, 0.7) !important;
   color: #94a3b8 !important;
   border: 1px solid rgba(19, 78, 74, 0.7) !important;
 }
 :root[data-staff-theme="dark"] .cms-tab-btn:not(.active):hover {
-  background-color: rgba(13, 42, 37, 0.8) !important;
+  background-color: rgba(13, 42, 37, 0.9) !important;
   color: #ffffff !important;
   border-color: rgba(20, 184, 166, 0.5) !important;
 }
 :root[data-staff-theme="dark"] .cms-tab-btn.active {
-  background-color: rgba(17, 94, 89, 0.8) !important;
+  background-color: #0d9488 !important;
   color: #ffffff !important;
-  border-color: rgba(13, 148, 136, 0.6) !important;
+  border: 1px solid #14b8a6 !important;
+  box-shadow: 0 0 12px rgba(13, 148, 136, 0.4) !important;
+}
+
+/* CMS Dynamic List Items (Tributes, Flyers, Newsletters) */
+:root:not([data-staff-theme="dark"]) .cms-item-btn.selected {
+  background-color: #f0fdfa !important;
+  border-color: #0f766e !important;
+  color: #134e4a !important;
+}
+:root:not([data-staff-theme="dark"]) .cms-item-btn:not(.selected) {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+:root:not([data-staff-theme="dark"]) .cms-item-btn:not(.selected):hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+:root[data-staff-theme="dark"] .cms-item-btn.selected {
+  background-color: rgba(13, 148, 136, 0.25) !important;
+  border-color: #14b8a6 !important;
+  color: #ffffff !important;
+}
+:root[data-staff-theme="dark"] .cms-item-btn:not(.selected) {
+  background-color: #061815 !important;
+  border-color: rgba(19, 78, 74, 0.7) !important;
+  color: #cbd5e1 !important;
+}
+:root[data-staff-theme="dark"] .cms-item-btn:not(.selected):hover {
+  background-color: #08201c !important;
+  border-color: rgba(20, 184, 166, 0.5) !important;
+  color: #ffffff !important;
 }
 
 /* Card Sub-Headers (Sand/Cream in Light, Dark Evergreen in Dark Ops) */

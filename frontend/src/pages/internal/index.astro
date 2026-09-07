@@ -32,33 +32,83 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
 
   <!-- SCREEN 1: UNIFIED STAFF LOGIN GATE (Shown when unauthenticated) -->
   <div id="staff-portal-auth-gate" class="min-h-dvh flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+    <!-- Theme Switcher Pill in Top Right -->
+    <div class="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+      <button
+        type="button"
+        class="staff-theme-toggle-btn"
+        title="Toggle Staff Portal Theme (Light / Dark Ops)"
+        aria-label="Toggle Staff Portal Theme"
+      >
+        <svg class="theme-icon-sun w-3.5 h-3.5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="theme-icon-moon w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <span class="theme-toggle-label text-xs">Light</span>
+      </button>
+    </div>
+
     <!-- Subtle Ambient Glow -->
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- Centered Auth Card -->
-    <div class="w-full max-w-md bg-white rounded-3xl border border-slate-200/90 shadow-2xl p-6 sm:p-10 animate-fade-in relative z-10 my-auto">
+    <div class="auth-card w-full max-w-md bg-white rounded-3xl border border-slate-200/90 shadow-2xl p-6 sm:p-10 animate-fade-in relative z-10 my-auto transition-colors duration-200">
       
       <!-- Brand Header -->
       <div class="text-center mb-7">
-        <div class="inline-flex p-3 rounded-2xl bg-[#173a39] text-emerald-300 mb-3.5 shadow-md border border-teal-800">
+        <div class="auth-brand-icon inline-flex p-3 rounded-2xl bg-[#173a39] text-emerald-300 mb-3.5 shadow-md border border-teal-800 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
         </div>
-        <h1 class="text-xl font-bold text-[#173a39] tracking-tight">
+        <h1 class="auth-title text-xl font-bold text-[#173a39] tracking-tight">
           Humane Society of Monroe County
         </h1>
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-50 text-teal-800 border border-teal-200/80 mt-2">
+        <div class="auth-pill inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-50 text-teal-800 border border-teal-200/80 mt-2">
           Staff &amp; Board Portal
         </div>
-        <p class="text-xs text-slate-500 mt-2">
+        <p class="auth-subtitle text-xs text-slate-500 mt-2">
           Sign in with your staff account to continue
         </p>
+        <!-- Dynamic Redirect Destination Indicator -->
+        <div id="login-redirect-notice" class="hidden mt-3 px-3 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800/80 text-[11px] text-teal-800 dark:text-teal-300 items-center justify-center gap-1.5 animate-fade-in">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0 text-teal-600 dark:text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Sign in to access: <strong id="login-redirect-dest" class="font-semibold"></strong></span>
+        </div>
+      </div>
+
+      <!-- Offline Connectivity Banner -->
+      <div id="login-offline-alert" class="hidden p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/80 text-xs text-amber-800 dark:text-amber-300 leading-relaxed mb-4 animate-fade-in" role="status">
+        <div class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+            <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+            <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+            <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+          </svg>
+          <span>You are currently offline. Please verify your connection.</span>
+        </div>
       </div>
 
       <!-- Error Alert Container -->
-      <div id="login-error-alert" class="hidden p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 leading-relaxed mb-5 animate-shake">
+      <div id="login-error-alert" role="alert" aria-live="polite" aria-atomic="true" class="hidden p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 leading-relaxed mb-5 animate-shake">
         <div class="flex items-start gap-2.5">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
@@ -72,25 +122,43 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
       <!-- Interactive Form -->
       <form id="unified-login-form" class="space-y-4">
         <div>
-          <label for="unified-email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+          <label for="unified-email" class="auth-label block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
             Email Address
           </label>
           <div class="relative">
             <input
               type="email"
               id="unified-email"
+              name="email"
               required
               autocomplete="username"
               autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              inputmode="email"
               placeholder="name@monroe-humane.org"
-              class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition bg-slate-50/50 focus:bg-white"
+              aria-required="true"
+              aria-invalid="false"
+              class="auth-input w-full pl-4 pr-10 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition bg-slate-50/50 focus:bg-white text-slate-900"
             />
+            <button
+              type="button"
+              id="email-clear-btn"
+              class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 focus:outline-none cursor-pointer rounded-lg hover:bg-slate-100 transition"
+              title="Clear email"
+              aria-label="Clear email"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <label for="unified-password" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <label for="unified-password" class="auth-label block text-xs font-bold text-slate-700 uppercase tracking-wider">
               Password
             </label>
           </div>
@@ -98,17 +166,25 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             <input
               type="password"
               id="unified-password"
+              name="password"
               required
               autocomplete="current-password"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
               placeholder="••••••••••••"
-              class="w-full pl-4 pr-11 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition bg-slate-50/50 focus:bg-white"
+              aria-required="true"
+              aria-invalid="false"
+              class="auth-input w-full pl-4 pr-11 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700 focus:border-teal-700 transition bg-slate-50/50 focus:bg-white text-slate-900"
             />
             <button
               type="button"
               id="password-reveal-btn"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 focus:outline-none cursor-pointer rounded-lg hover:bg-slate-100 transition"
-              title="Toggle password visibility"
-              aria-label="Toggle password visibility"
+              class="auth-reveal-btn absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 focus:outline-none cursor-pointer rounded-lg hover:bg-slate-100 transition"
+              title="Show password"
+              aria-label="Show password"
+              aria-controls="unified-password"
+              aria-pressed="false"
             >
               <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
@@ -122,10 +198,19 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
               </svg>
             </button>
           </div>
+          <!-- Caps Lock Detection Indicator -->
+          <div id="caps-lock-warning" class="hidden mt-1.5 text-[11px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5" role="status">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+              <path d="M12 8v8"></path>
+              <path d="m8 12 4-4 4 4"></path>
+            </svg>
+            <span>Caps Lock is ON</span>
+          </div>
         </div>
 
         <div class="flex items-center justify-between text-xs pt-1">
-          <label class="flex items-center gap-2.5 text-slate-600 cursor-pointer select-none">
+          <label class="auth-remember-label flex items-center gap-2.5 text-slate-600 cursor-pointer select-none">
             <input
               type="checkbox"
               id="unified-remember-me"
@@ -134,26 +219,59 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             />
             <span class="font-medium">Remember this device (30 days)</span>
           </label>
+          <span class="text-[11px] text-slate-400 dark:text-slate-500 hidden sm:inline" title="Uncheck on shared clinical or reception workstations to terminate session on exit">Shared PC?</span>
         </div>
 
         <button
           type="submit"
           id="unified-submit-btn"
-          class="w-full py-3.5 px-6 rounded-xl bg-[#173a39] hover:bg-teal-900 active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-teal-950/20 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+          class="auth-submit-btn w-full py-3.5 px-6 rounded-xl bg-[#173a39] hover:bg-teal-900 active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-teal-950/20 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
         >
           <span id="btn-text">Sign In &rarr;</span>
-          <svg id="btn-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg id="btn-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         </button>
+
+        <!-- Need Help / Password Assistance Collapsible Drawer -->
+        <div class="pt-1 text-center">
+          <button
+            type="button"
+            id="login-help-toggle"
+            class="text-xs text-slate-500 hover:text-teal-800 dark:text-slate-400 dark:hover:text-teal-300 font-medium cursor-pointer transition inline-flex items-center gap-1.5 focus:outline-none py-1"
+            aria-expanded="false"
+            aria-controls="login-help-drawer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>Need sign-in help?</span>
+          </button>
+          <div id="login-help-drawer" class="hidden mt-2 p-3.5 rounded-xl bg-slate-50 dark:bg-[#061815] border border-slate-200 dark:border-teal-900/80 text-left text-xs text-slate-600 dark:text-slate-300 leading-relaxed animate-fade-in shadow-xs">
+            <div class="font-semibold text-slate-800 dark:text-slate-100 mb-1 flex items-center justify-between text-[11px]">
+              <span>Staff &amp; Board Access</span>
+              <a href="https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/admin/login" target="_blank" rel="noopener noreferrer" class="text-teal-700 dark:text-teal-400 hover:underline font-mono text-[10px]">CMS Admin ↗</a>
+            </div>
+            <p class="text-[11px] mb-2 text-slate-500 dark:text-slate-400">
+              Accounts are provisioned by Monroe County Humane Society administration.
+            </p>
+            <ul class="text-[11px] space-y-1 list-disc list-inside text-slate-600 dark:text-slate-300">
+              <li>To reset your password, email <a href="mailto:info@monroe-humane.org" class="text-teal-700 dark:text-teal-300 underline font-medium">info@monroe-humane.org</a>.</li>
+              <li>For urgent shelter terminal issues, call <strong class="text-slate-800 dark:text-slate-200">(734) 243-3669</strong>.</li>
+              <li>Always uncheck <em>Remember this device</em> on shared reception and clinic computers.</li>
+            </ul>
+          </div>
+        </div>
       </form>
 
-      <div class="pt-5 mt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+      <div class="auth-footer pt-5 mt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 transition-colors">
         <a href="/" class="hover:text-teal-800 transition flex items-center gap-1.5 font-medium">
           &larr; Return to Public Website
         </a>
-        <span class="text-slate-400 text-[11px] font-mono">Press ↵ to enter</span>
+        <span class="auth-footer-hint text-slate-400 text-[11px] font-mono">Press ↵ to enter</span>
       </div>
     </div>
   </div>
@@ -372,11 +490,100 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
   .animate-shake {
     animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
   }
+
+  /* Dark Ops Theme Overrides for Auth Gate */
+  :root[data-staff-theme="dark"] #staff-portal-auth-gate {
+    background-color: var(--sp-bg) !important;
+  }
+  :root[data-staff-theme="dark"] .auth-card {
+    background-color: rgba(11, 36, 32, 0.95) !important;
+    border-color: rgba(19, 78, 74, 0.8) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+  }
+  :root[data-staff-theme="dark"] .auth-brand-icon {
+    background-color: #061815 !important;
+    border-color: rgba(19, 78, 74, 0.9) !important;
+    color: #5eead4 !important;
+  }
+  :root[data-staff-theme="dark"] .auth-title {
+    color: #ffffff !important;
+  }
+  :root[data-staff-theme="dark"] .auth-pill {
+    background-color: rgba(17, 94, 89, 0.5) !important;
+    border-color: rgba(13, 148, 136, 0.6) !important;
+    color: #5eead4 !important;
+  }
+  :root[data-staff-theme="dark"] .auth-subtitle {
+    color: #94a3b8 !important;
+  }
+  :root[data-staff-theme="dark"] .auth-label {
+    color: #cbd5e1 !important;
+  }
+  :root[data-staff-theme="dark"] .auth-input {
+    background-color: #061815 !important;
+    border-color: rgba(19, 78, 74, 0.8) !important;
+    color: #ffffff !important;
+  }
+  :root[data-staff-theme="dark"] .auth-input::placeholder {
+    color: #64748b !important;
+  }
+  :root[data-staff-theme="dark"] .auth-input:focus {
+    background-color: #08201c !important;
+    border-color: #14b8a6 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.4) !important;
+  }
+  :root[data-staff-theme="dark"] .auth-reveal-btn {
+    color: #5eead4 !important;
+  }
+  :root[data-staff-theme="dark"] .auth-reveal-btn:hover {
+    background-color: rgba(19, 78, 74, 0.5) !important;
+    color: #ffffff !important;
+  }
+  :root[data-staff-theme="dark"] .auth-remember-label {
+    color: #cbd5e1 !important;
+  }
+  :root[data-staff-theme="dark"] .auth-submit-btn {
+    background-color: #0d9488 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.4) !important;
+  }
+  :root[data-staff-theme="dark"] .auth-submit-btn:hover {
+    background-color: #0f766e !important;
+  }
+  :root[data-staff-theme="dark"] .auth-footer {
+    border-color: rgba(19, 78, 74, 0.6) !important;
+    color: #64748b !important;
+  }
+  :root[data-staff-theme="dark"] .auth-footer a {
+    color: #94a3b8 !important;
+  }
+  :root[data-staff-theme="dark"] .auth-footer a:hover {
+    color: #5eead4 !important;
+  }
+  :root[data-staff-theme="dark"] .auth-footer-hint {
+    color: #475569 !important;
+  }
+  :root[data-staff-theme="dark"] #login-error-alert {
+    background-color: rgba(69, 10, 10, 0.6) !important;
+    border-color: rgba(153, 27, 27, 0.8) !important;
+    color: #fca5a5 !important;
+  }
+  :root[data-staff-theme="dark"] #login-help-drawer {
+    background-color: #061815 !important;
+    border-color: rgba(19, 78, 74, 0.8) !important;
+    color: #cbd5e1 !important;
+  }
+  :root[data-staff-theme="dark"] #email-clear-btn:hover {
+    background-color: rgba(19, 78, 74, 0.5) !important;
+    color: #ffffff !important;
+  }
 </style>
 
 <script>
-  import { loginStaff, getStaffUserEmail, isStaffAuthenticated, staffClient, DIRECTUS_URL } from '../../lib/staff-auth';
+  import { loginStaff, getStaffUserEmail, getRememberedStaffEmail, isStaffAuthenticated, staffClient, DIRECTUS_URL } from '../../lib/staff-auth';
   import { cashRunwayMonths, fetchStaffFinancials, publishedLabel, refreshStaffFinancials, setStaffDataStatus } from '../../lib/staff-financials';
+  import { initStaffThemeToggle } from '../../lib/staff-theme';
   import { readItems } from '@directus/sdk';
 
   function applyDonorUnavailable() {
@@ -542,6 +749,8 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
   }
 
   function initStaffPortal() {
+    initStaffThemeToggle();
+
     const loginForm = document.getElementById('unified-login-form') as HTMLFormElement | null;
     const emailInput = document.getElementById('unified-email') as HTMLInputElement | null;
     const passwordInput = document.getElementById('unified-password') as HTMLInputElement | null;
@@ -555,10 +764,98 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     const btnSpinner = document.getElementById('btn-spinner');
     const errorAlert = document.getElementById('login-error-alert');
     const errorText = document.getElementById('login-error-text');
+    const offlineAlert = document.getElementById('login-offline-alert');
     const staffUserEmail = document.getElementById('staff-user-email');
 
-
     const urlParams = new URLSearchParams(window.location.search);
+
+    // Dynamic destination badge if redirected from a protected route
+    const redirect = urlParams.get('redirect');
+    if (redirect && redirect.startsWith('/internal') && redirect !== '/internal/' && redirect !== '/internal') {
+      const destEl = document.getElementById('login-redirect-dest');
+      const noticeEl = document.getElementById('login-redirect-notice');
+      if (destEl && noticeEl) {
+        let name = 'Protected Operations Console';
+        if (redirect.includes('/board/print')) name = 'Board Financials Print Packet';
+        else if (redirect.includes('/board')) name = 'Board Financials & Treasury';
+        else if (redirect.includes('/pets')) name = 'Shelter Animal Census';
+        else if (redirect.includes('/donors')) name = 'Donor Registry & Giving';
+        else if (redirect.includes('/grants')) name = 'Grants Pipeline';
+        else if (redirect.includes('/content')) name = 'Site Content Manager';
+        destEl.textContent = name;
+        noticeEl.classList.remove('hidden');
+        noticeEl.classList.add('flex');
+      }
+    }
+
+    // Network connectivity detection
+    const updateOnlineStatus = () => {
+      if (offlineAlert) {
+        offlineAlert.classList.toggle('hidden', navigator.onLine);
+      }
+    };
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    // Caps Lock state detection
+    const handleCapsLock = (e: KeyboardEvent) => {
+      const capsWarning = document.getElementById('caps-lock-warning');
+      if (capsWarning && typeof e.getModifierState === 'function') {
+        const isCaps = e.getModifierState('CapsLock');
+        capsWarning.classList.toggle('hidden', !isCaps);
+      }
+    };
+    passwordInput?.addEventListener('keyup', handleCapsLock);
+    passwordInput?.addEventListener('keydown', handleCapsLock);
+
+    // Pre-fill email if previously remembered on this device
+    try {
+      const rememberedEmail = getRememberedStaffEmail();
+      if (emailInput && !emailInput.value && rememberedEmail) {
+        emailInput.value = rememberedEmail;
+        if (rememberMeInput) rememberMeInput.checked = true;
+        // Desktop auto-focus: if email is already remembered, focus password input directly
+        if (!isStaffAuthenticated() && passwordInput && window.matchMedia('(min-width: 768px)').matches) {
+          passwordInput.focus();
+        }
+      } else if (!isStaffAuthenticated() && emailInput && !emailInput.value && window.matchMedia('(min-width: 768px)').matches) {
+        emailInput.focus();
+      }
+    } catch (e) {}
+
+    // Email quick-clear button behavior
+    const emailClearBtn = document.getElementById('email-clear-btn');
+    const syncEmailClear = () => {
+      if (emailClearBtn && emailInput) {
+        emailClearBtn.classList.toggle('hidden', !emailInput.value);
+      }
+    };
+    emailInput?.addEventListener('input', syncEmailClear);
+    syncEmailClear();
+    if (emailClearBtn && emailClearBtn.dataset.bound !== '1') {
+      emailClearBtn.dataset.bound = '1';
+      emailClearBtn.addEventListener('click', () => {
+        if (emailInput) {
+          emailInput.value = '';
+          emailInput.focus();
+          syncEmailClear();
+          clearError();
+        }
+      });
+    }
+
+    // Need sign-in help drawer toggle
+    const helpToggle = document.getElementById('login-help-toggle');
+    const helpDrawer = document.getElementById('login-help-drawer');
+    if (helpToggle && helpDrawer && helpToggle.dataset.bound !== '1') {
+      helpToggle.dataset.bound = '1';
+      helpToggle.addEventListener('click', () => {
+        const isHidden = helpDrawer.classList.contains('hidden');
+        helpDrawer.classList.toggle('hidden', !isHidden);
+        helpToggle.setAttribute('aria-expanded', String(isHidden));
+      });
+    }
 
     // Load financials if already authenticated
     if (isStaffAuthenticated()) {
@@ -574,7 +871,8 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
       void loadGrantsSnapshot();
     }
 
-    // Password visibility toggle
+    // Password visibility toggle with 15-second privacy auto-hide
+    let revealTimer: any = null;
     if (passwordRevealBtn && passwordInput && passwordRevealBtn.dataset.bound !== '1') {
       passwordRevealBtn.dataset.bound = '1';
       passwordRevealBtn.addEventListener('click', () => {
@@ -584,7 +882,27 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
           eyeIcon.classList.toggle('hidden', isPassword);
           eyeOffIcon.classList.toggle('hidden', !isPassword);
         }
+        passwordRevealBtn.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+        passwordRevealBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        passwordRevealBtn.setAttribute('title', isPassword ? 'Hide password' : 'Show password');
+
+        const len = passwordInput.value.length;
         passwordInput.focus();
+        passwordInput.setSelectionRange(len, len);
+
+        if (revealTimer) clearTimeout(revealTimer);
+        if (isPassword) {
+          revealTimer = setTimeout(() => {
+            if (passwordInput && passwordInput.type === 'text') {
+              passwordInput.type = 'password';
+              eyeIcon?.classList.remove('hidden');
+              eyeOffIcon?.classList.add('hidden');
+              passwordRevealBtn.setAttribute('aria-pressed', 'false');
+              passwordRevealBtn.setAttribute('aria-label', 'Show password');
+              passwordRevealBtn.setAttribute('title', 'Show password');
+            }
+          }, 15000);
+        }
       });
     }
 
@@ -603,28 +921,79 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
       staffUserEmail.textContent = getStaffUserEmail();
     }
 
-    // Clear error message when user starts typing
-    emailInput?.addEventListener('input', () => errorAlert?.classList.add('hidden'));
-    passwordInput?.addEventListener('input', () => errorAlert?.classList.add('hidden'));
+    // Clear error message and invalid attributes when user starts typing
+    const clearError = () => {
+      if (errorAlert && !errorAlert.classList.contains('hidden')) {
+        errorAlert.classList.add('hidden');
+      }
+      emailInput?.setAttribute('aria-invalid', 'false');
+      passwordInput?.setAttribute('aria-invalid', 'false');
+    };
+    emailInput?.addEventListener('input', clearError);
+    passwordInput?.addEventListener('input', clearError);
 
-    // Login submit handler
+    // Login submit handler with double-submission protection
+    let isAuthenticating = false;
     if (loginForm && loginForm.dataset.bound !== '1') {
       loginForm.dataset.bound = '1';
 
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isAuthenticating) return;
+
+        // Check network connection first
+        if (!navigator.onLine) {
+          if (errorText) errorText.textContent = 'You are currently offline. Check your network connection and try again.';
+          if (errorAlert) {
+            errorAlert.classList.remove('animate-shake');
+            void errorAlert.offsetWidth;
+            errorAlert.classList.add('animate-shake');
+            errorAlert.classList.remove('hidden');
+          }
+          return;
+        }
+
         const email = emailInput ? emailInput.value.trim() : '';
         const password = passwordInput ? passwordInput.value : '';
         const rememberMe = rememberMeInput ? rememberMeInput.checked : true;
 
-        if (!email || !password) return;
+        if (!email || !password) {
+          if (!email && emailInput) emailInput.focus();
+          else if (!password && passwordInput) passwordInput.focus();
+          return;
+        }
+
+        // Validate email format prior to sending network request
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          if (errorText) errorText.textContent = 'Please enter a valid email address.';
+          if (emailInput) {
+            emailInput.setAttribute('aria-invalid', 'true');
+            emailInput.focus();
+          }
+          if (errorAlert) {
+            errorAlert.classList.remove('animate-shake');
+            void errorAlert.offsetWidth;
+            errorAlert.classList.add('animate-shake');
+            errorAlert.classList.remove('hidden');
+          }
+          return;
+        }
+
+        isAuthenticating = true;
 
         // Loading state
         if (submitBtn) submitBtn.disabled = true;
+        if (emailInput) emailInput.disabled = true;
+        if (passwordInput) passwordInput.disabled = true;
+        if (loginForm) loginForm.classList.add('pointer-events-none', 'opacity-80');
         if (btnText) btnText.textContent = 'Authenticating...';
         if (btnSpinner) btnSpinner.classList.remove('hidden');
         if (errorAlert) errorAlert.classList.add('hidden');
+        if (emailInput) emailInput.setAttribute('aria-invalid', 'false');
+        if (passwordInput) passwordInput.setAttribute('aria-invalid', 'false');
 
+        let isRateLimited = false;
         try {
           await loginStaff({ email, password, rememberMe });
           document.documentElement.classList.add('staff-authenticated');
@@ -640,36 +1009,69 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
             window.history.replaceState({}, '', cleanUrl);
           }
 
+          // Check if there was a redirect query parameter (only redirect if pointing to another subpage)
+          const destRedirect = urlParams.get('redirect');
+          if (destRedirect && destRedirect.startsWith('/internal') && destRedirect !== '/internal/' && destRedirect !== '/internal') {
+            if (btnText) btnText.textContent = 'Redirecting...';
+            window.location.href = destRedirect;
+            return;
+          }
+
           // Hydrate metrics immediately upon login
           loadFinancialMetrics();
           void loadCensusSnapshot();
           void loadGrantsSnapshot();
-
-          // Check if there was a redirect query parameter (only redirect if pointing to another subpage)
-          const redirect = urlParams.get('redirect');
-          if (redirect && redirect.startsWith('/internal') && redirect !== '/internal/' && redirect !== '/internal') {
-            window.location.href = redirect;
-          }
         } catch (err: any) {
           console.warn('[StaffPortal] Login error:', err);
 
           const errorCode = err?.errors?.[0]?.extensions?.code;
           if (errorCode === 'INVALID_CREDENTIALS') {
             if (errorText) errorText.textContent = 'Invalid email or password. Please verify your credentials.';
+          } else if (errorCode === 'REQUESTS_EXCEEDED' || err?.status === 429 || (err?.message && err.message.toLowerCase().includes('too many'))) {
+            isRateLimited = true;
+            let cooldownSec = 60;
+            if (submitBtn) submitBtn.disabled = true;
+            if (btnText) btnText.textContent = 'Wait 60s';
+            if (errorText) errorText.textContent = 'Too many sign-in attempts. Please wait 60 seconds before trying again.';
+            const cooldownTimer = setInterval(() => {
+              cooldownSec--;
+              if (cooldownSec > 0) {
+                if (errorText) errorText.textContent = `Too many sign-in attempts. Please wait ${cooldownSec}s before trying again.`;
+                if (btnText) btnText.textContent = `Wait ${cooldownSec}s`;
+              } else {
+                clearInterval(cooldownTimer);
+                if (submitBtn) submitBtn.disabled = false;
+                if (btnText) btnText.textContent = 'Sign In →';
+                if (errorText) errorText.textContent = 'You may now attempt to sign in again.';
+              }
+            }, 1000);
           } else {
             if (errorText) {
               errorText.textContent = err?.message || 'Unable to connect to authentication service. Please try again.';
             }
           }
+          if (emailInput) emailInput.setAttribute('aria-invalid', 'true');
+          if (passwordInput) passwordInput.setAttribute('aria-invalid', 'true');
+
           if (errorAlert) {
             errorAlert.classList.remove('animate-shake');
             void errorAlert.offsetWidth; // Trigger reflow for repeatable shake animation
             errorAlert.classList.add('animate-shake');
             errorAlert.classList.remove('hidden');
           }
+          if (passwordInput && !isRateLimited) {
+            passwordInput.focus();
+            passwordInput.select();
+          }
         } finally {
-          if (submitBtn) submitBtn.disabled = false;
-          if (btnText) btnText.textContent = 'Secure Sign In';
+          isAuthenticating = false;
+          if (emailInput) emailInput.disabled = false;
+          if (passwordInput) passwordInput.disabled = false;
+          if (loginForm) loginForm.classList.remove('pointer-events-none', 'opacity-80');
+          if (!isRateLimited) {
+            if (submitBtn) submitBtn.disabled = false;
+            if (btnText) btnText.textContent = 'Sign In →';
+          }
           if (btnSpinner) btnSpinner.classList.add('hidden');
         }
       });

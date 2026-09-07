@@ -598,7 +598,7 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
       notes: 'Dedicated major donor sponsorship towards feline isolation & adoption suites renovation. Amount: $15,000.'
     },
     lebel: {
-      match: (title: string, notes: string) =>
+      match: (title: string, _notes: string) =>
         /lebel/i.test(title),
       standardTitle: 'The Harold & Grace LeBel Foundation Grant',
       funder: 'The Harold & Grace LeBel Foundation',
