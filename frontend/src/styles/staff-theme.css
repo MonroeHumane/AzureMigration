@@ -196,10 +196,52 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 }
 
 /* Desktop Sidebar in Light Mode */
-:root:not([data-staff-theme="dark"]) aside {
-  background-color: var(--sp-sidebar-bg) !important;
-  border-color: var(--sp-sidebar-border) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+:root:not([data-staff-theme="dark"]) aside,
+:root:not([data-staff-theme="dark"]) .sidebar-root {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+:root:not([data-staff-theme="dark"]) aside .sidebar-header {
+  border-color: #e2e8f0 !important;
+}
+:root:not([data-staff-theme="dark"]) aside .sidebar-brand-icon {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+}
+:root:not([data-staff-theme="dark"]) aside .sidebar-brand-title {
+  color: #0f172a !important;
+}
+:root:not([data-staff-theme="dark"]) aside .sidebar-brand-subtitle {
+  color: #0f766e !important;
+  font-weight: 700 !important;
+}
+:root:not([data-staff-theme="dark"]) aside #sidebar-cmd-k-btn,
+:root:not([data-staff-theme="dark"]) aside .sidebar-cmd-btn {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+:root:not([data-staff-theme="dark"]) aside #sidebar-cmd-k-btn:hover,
+:root:not([data-staff-theme="dark"]) aside .sidebar-cmd-btn:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+:root:not([data-staff-theme="dark"]) aside #sidebar-cmd-k-btn svg,
+:root:not([data-staff-theme="dark"]) aside .sidebar-cmd-btn svg {
+  color: #64748b !important;
+}
+:root:not([data-staff-theme="dark"]) aside .sidebar-cmd-kbd {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+:root:not([data-staff-theme="dark"]) aside .sidebar-section-heading {
+  color: #475569 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
 }
 :root:not([data-staff-theme="dark"]) aside .border-teal-800\/60,
 :root:not([data-staff-theme="dark"]) aside .border-teal-800\/80 {
@@ -215,11 +257,58 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   background-color: #f1f5f9 !important;
   color: #0f172a !important;
 }
+:root:not([data-staff-theme="dark"]) aside a.active,
 :root:not([data-staff-theme="dark"]) aside a.font-bold,
 :root:not([data-staff-theme="dark"]) aside a[class*="border-teal-600"] {
   background-color: #f0fdfa !important;
   color: #0f766e !important;
-  border-color: #ccfbf1 !important;
+  border-color: #5eead4 !important;
+  font-weight: 700 !important;
+}
+:root:not([data-staff-theme="dark"]) aside a.active .sidebar-nav-icon {
+  background-color: #0f766e !important;
+  border-color: #0f766e !important;
+  color: #ffffff !important;
+}
+:root:not([data-staff-theme="dark"]) aside a:not(.active) .sidebar-nav-icon {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f766e !important;
+}
+:root:not([data-staff-theme="dark"]) aside a:not(.active):hover .sidebar-nav-icon {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #047857 !important;
+}
+:root:not([data-staff-theme="dark"]) aside .sidebar-footer {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+:root:not([data-staff-theme="dark"]) aside #sidebar-user-avatar,
+:root:not([data-staff-theme="dark"]) aside .sidebar-user-avatar {
+  background-color: #0f766e !important;
+  color: #ffffff !important;
+}
+:root:not([data-staff-theme="dark"]) aside .sidebar-user-label {
+  color: #64748b !important;
+  font-weight: 700 !important;
+}
+:root:not([data-staff-theme="dark"]) aside #sidebar-user-email,
+:root:not([data-staff-theme="dark"]) aside .sidebar-user-email {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+:root:not([data-staff-theme="dark"]) aside #sidebar-logout-btn,
+:root:not([data-staff-theme="dark"]) aside .sidebar-logout-btn {
+  background-color: #ffffff !important;
+  color: #e11d48 !important;
+  border: 1px solid #fecdd3 !important;
+}
+:root:not([data-staff-theme="dark"]) aside #sidebar-logout-btn:hover,
+:root:not([data-staff-theme="dark"]) aside .sidebar-logout-btn:hover {
+  background-color: #fff1f2 !important;
+  border-color: #fda4af !important;
+  color: #be123c !important;
 }
 
 /* Cards & Containers in Light Mode */
@@ -383,27 +472,51 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 /* High Contrast Accent Colors in Light Mode */
 :root:not([data-staff-theme="dark"]) .text-teal-200,
 :root:not([data-staff-theme="dark"]) .text-teal-300,
-:root:not([data-staff-theme="dark"]) .text-teal-400 {
+:root:not([data-staff-theme="dark"]) .text-teal-400,
+:root:not([data-staff-theme="dark"]) .text-teal-200\/80,
+:root:not([data-staff-theme="dark"]) .text-teal-300\/80,
+:root:not([data-staff-theme="dark"]) .text-teal-400\/80,
+:root:not([data-staff-theme="dark"]) .text-teal-200\/70,
+:root:not([data-staff-theme="dark"]) .text-teal-300\/70,
+:root:not([data-staff-theme="dark"]) [class*="text-teal-100"],
+:root:not([data-staff-theme="dark"]) [class*="text-teal-200"],
+:root:not([data-staff-theme="dark"]) [class*="text-teal-300"],
+:root:not([data-staff-theme="dark"]) [class*="text-teal-400"] {
   color: #0f766e !important;
 }
 :root:not([data-staff-theme="dark"]) .text-emerald-200,
 :root:not([data-staff-theme="dark"]) .text-emerald-300,
-:root:not([data-staff-theme="dark"]) .text-emerald-400 {
+:root:not([data-staff-theme="dark"]) .text-emerald-400,
+:root:not([data-staff-theme="dark"]) .text-emerald-300\/80,
+:root:not([data-staff-theme="dark"]) .text-emerald-400\/80,
+:root:not([data-staff-theme="dark"]) [class*="text-emerald-100"],
+:root:not([data-staff-theme="dark"]) [class*="text-emerald-200"],
+:root:not([data-staff-theme="dark"]) [class*="text-emerald-300"],
+:root:not([data-staff-theme="dark"]) [class*="text-emerald-400"] {
   color: #065f46 !important;
 }
 :root:not([data-staff-theme="dark"]) .text-rose-200,
 :root:not([data-staff-theme="dark"]) .text-rose-300,
-:root:not([data-staff-theme="dark"]) .text-rose-400 {
+:root:not([data-staff-theme="dark"]) .text-rose-400,
+:root:not([data-staff-theme="dark"]) [class*="text-rose-200"],
+:root:not([data-staff-theme="dark"]) [class*="text-rose-300"],
+:root:not([data-staff-theme="dark"]) [class*="text-rose-400"] {
   color: #9f1239 !important;
 }
 :root:not([data-staff-theme="dark"]) .text-amber-200,
 :root:not([data-staff-theme="dark"]) .text-amber-300,
-:root:not([data-staff-theme="dark"]) .text-amber-400 {
+:root:not([data-staff-theme="dark"]) .text-amber-400,
+:root:not([data-staff-theme="dark"]) [class*="text-amber-200"],
+:root:not([data-staff-theme="dark"]) [class*="text-amber-300"],
+:root:not([data-staff-theme="dark"]) [class*="text-amber-400"] {
   color: #92400e !important;
 }
 :root:not([data-staff-theme="dark"]) .text-purple-200,
 :root:not([data-staff-theme="dark"]) .text-purple-300,
-:root:not([data-staff-theme="dark"]) .text-purple-400 {
+:root:not([data-staff-theme="dark"]) .text-purple-400,
+:root:not([data-staff-theme="dark"]) [class*="text-purple-200"],
+:root:not([data-staff-theme="dark"]) [class*="text-purple-300"],
+:root:not([data-staff-theme="dark"]) [class*="text-purple-400"] {
   color: #6b21a8 !important;
 }
 :root:not([data-staff-theme="dark"]) .text-blue-200,
@@ -411,11 +524,19 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 :root:not([data-staff-theme="dark"]) .text-blue-400,
 :root:not([data-staff-theme="dark"]) .text-sky-200,
 :root:not([data-staff-theme="dark"]) .text-sky-300,
-:root:not([data-staff-theme="dark"]) .text-sky-400 {
+:root:not([data-staff-theme="dark"]) .text-sky-400,
+:root:not([data-staff-theme="dark"]) [class*="text-blue-200"],
+:root:not([data-staff-theme="dark"]) [class*="text-blue-300"],
+:root:not([data-staff-theme="dark"]) [class*="text-blue-400"],
+:root:not([data-staff-theme="dark"]) [class*="text-sky-200"],
+:root:not([data-staff-theme="dark"]) [class*="text-sky-300"],
+:root:not([data-staff-theme="dark"]) [class*="text-sky-400"] {
   color: #1e40af !important;
 }
 :root:not([data-staff-theme="dark"]) .text-slate-100,
-:root:not([data-staff-theme="dark"]) .text-slate-200 {
+:root:not([data-staff-theme="dark"]) .text-slate-200,
+:root:not([data-staff-theme="dark"]) [class*="text-slate-100"],
+:root:not([data-staff-theme="dark"]) [class*="text-slate-200"] {
   color: #1e293b !important;
 }
 

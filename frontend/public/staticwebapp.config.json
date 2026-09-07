@@ -30,6 +30,16 @@
       }
     },
     {
+      "route": "/adopt/apply",
+      "redirect": "/adoptions#Application",
+      "statusCode": 301
+    },
+    {
+      "route": "/adopt/apply/*",
+      "redirect": "/adoptions#Application",
+      "statusCode": 301
+    },
+    {
       "route": "/artwork-contest",
       "redirect": "/events",
       "statusCode": 301

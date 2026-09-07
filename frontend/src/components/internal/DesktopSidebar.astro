@@ -8,21 +8,21 @@ const { activeTab = 'overview' } = Astro.props;
 const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/admin';
 ---
 
-<aside class="hidden lg:flex flex-col w-64 fixed inset-y-0 left-0 z-50 bg-[#051311]/95 backdrop-blur-xl border-r border-teal-800/80 shadow-2xl">
+<aside class="sidebar-root hidden lg:flex flex-col w-64 fixed inset-y-0 left-0 z-50 backdrop-blur-xl border-r shadow-2xl">
   <!-- Brand Header -->
-  <div class="h-16 flex items-center justify-between px-4 border-b border-teal-800/60 shrink-0">
+  <div class="sidebar-header h-16 flex items-center justify-between px-4 border-b shrink-0">
     <a href="/internal/" class="flex items-center gap-2.5 group">
-      <div class="staff-brand-icon p-1.5 rounded-lg bg-teal-900/60 text-emerald-300 border border-teal-700/80 shadow-md group-hover:border-emerald-500/50 group-hover:bg-teal-900 transition">
+      <div class="sidebar-brand-icon p-1.5 rounded-lg border shadow-md transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
         </svg>
       </div>
       <div class="flex flex-col">
-        <span class="staff-brand-text text-sm font-bold text-white tracking-tight group-hover:text-emerald-300 transition leading-none">
+        <span class="sidebar-brand-title text-sm font-bold tracking-tight leading-none">
           Monroe Humane
         </span>
-        <span class="text-[9px] font-bold uppercase tracking-wider text-teal-400/80 mt-1">
-          Staff & Board
+        <span class="sidebar-brand-subtitle text-[9px] font-bold uppercase tracking-wider mt-1">
+          Staff &amp; Board
         </span>
       </div>
     </a>
@@ -57,7 +57,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <button
       id="sidebar-cmd-k-btn"
       type="button"
-      class="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-teal-950/40 border border-teal-800/50 text-teal-300/80 hover:text-white hover:bg-teal-900/60 hover:border-emerald-500/40 transition cursor-pointer text-xs group shadow-inner"
+      class="sidebar-cmd-btn w-full flex items-center justify-between px-3 py-2 rounded-xl transition cursor-pointer text-xs group shadow-inner"
     >
       <div class="flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -66,24 +66,22 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         </svg>
         <span>Search / Jump...</span>
       </div>
-      <kbd class="hidden xl:inline-block px-1.5 py-0.5 rounded-md bg-teal-950 border border-teal-800 text-[10px] font-mono text-teal-400 group-hover:border-emerald-500/50 transition">⌘K</kbd>
+      <kbd class="sidebar-cmd-kbd hidden xl:inline-block px-1.5 py-0.5 rounded-md text-[10px] font-mono transition">⌘K</kbd>
     </button>
   </div>
 
   <!-- Navigation Links -->
   <nav class="flex-1 overflow-y-auto px-3 py-2 space-y-1.5 custom-scrollbar">
-    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-1 pt-2">Modules</div>
+    <div class="sidebar-section-heading text-[10px] font-bold uppercase tracking-wider px-3 pb-1 pt-2">Modules</div>
     
     <a
       href="/internal/"
       data-astro-prefetch="hover"
-      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
-        activeTab === 'overview'
-          ? 'bg-teal-800/40 text-white border border-teal-600/40 font-bold shadow-sm'
-          : 'text-slate-300 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      class={`sidebar-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'overview' ? 'active' : ''
       }`}
     >
-      <div class={`p-1.5 rounded-lg ${activeTab === 'overview' ? 'bg-teal-700/50 text-white' : 'bg-teal-950 text-teal-300 group-hover:bg-teal-900 group-hover:text-teal-200'} transition`}>
+      <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect width="7" height="9" x="3" y="3" rx="1"></rect>
           <rect width="7" height="5" x="14" y="3" rx="1"></rect>
@@ -97,13 +95,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <a
       href="/internal/pets/"
       data-astro-prefetch="hover"
-      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
-        activeTab === 'petsync' || activeTab === 'pets'
-          ? 'bg-teal-800/40 text-white border border-teal-600/40 font-bold shadow-sm'
-          : 'text-slate-300 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      class={`sidebar-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'petsync' || activeTab === 'pets' ? 'active' : ''
       }`}
     >
-      <div class={`p-1.5 rounded-lg ${activeTab === 'petsync' || activeTab === 'pets' ? 'bg-teal-700/50 text-white' : 'bg-teal-950 text-teal-300 group-hover:bg-teal-900 group-hover:text-teal-200'} transition`}>
+      <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="m10 15 5-3-5-3v6Z"></path>
@@ -115,13 +111,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <a
       href="/internal/board/"
       data-astro-prefetch="hover"
-      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
-        activeTab === 'financials'
-          ? 'bg-teal-800/40 text-white border border-teal-600/40 font-bold shadow-sm'
-          : 'text-slate-300 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      class={`sidebar-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'financials' ? 'active' : ''
       }`}
     >
-      <div class={`p-1.5 rounded-lg ${activeTab === 'financials' ? 'bg-teal-700/50 text-white' : 'bg-teal-950 text-teal-300 group-hover:bg-teal-900 group-hover:text-teal-200'} transition`}>
+      <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="1" x2="12" y2="23"></line>
           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
@@ -133,13 +127,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <a
       href="/internal/grants/"
       data-astro-prefetch="hover"
-      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
-        activeTab === 'grants'
-          ? 'bg-teal-800/40 text-white border border-teal-600/40 font-bold shadow-sm'
-          : 'text-slate-300 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      class={`sidebar-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'grants' ? 'active' : ''
       }`}
     >
-      <div class={`p-1.5 rounded-lg ${activeTab === 'grants' ? 'bg-teal-700/50 text-white' : 'bg-teal-950 text-teal-300 group-hover:bg-teal-900 group-hover:text-teal-200'} transition`}>
+      <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
@@ -151,13 +143,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <a
       href="/internal/donors/"
       data-astro-prefetch="hover"
-      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
-        activeTab === 'donors'
-          ? 'bg-teal-800/40 text-white border border-teal-600/40 font-bold shadow-sm'
-          : 'text-slate-300 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      class={`sidebar-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'donors' ? 'active' : ''
       }`}
     >
-      <div class={`p-1.5 rounded-lg ${activeTab === 'donors' ? 'bg-teal-700/50 text-white' : 'bg-teal-950 text-teal-300 group-hover:bg-teal-900 group-hover:text-teal-200'} transition`}>
+      <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
         </svg>
@@ -168,13 +158,11 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <a
       href="/internal/content/"
       data-astro-prefetch="hover"
-      class={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
-        activeTab === 'content'
-          ? 'bg-teal-800/40 text-white border border-teal-600/40 font-bold shadow-sm'
-          : 'text-slate-300 hover:bg-teal-900/40 hover:text-white border border-transparent'
+      class={`sidebar-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+        activeTab === 'content' ? 'active' : ''
       }`}
     >
-      <div class={`p-1.5 rounded-lg ${activeTab === 'content' ? 'bg-teal-700/50 text-white' : 'bg-teal-950 text-teal-300 group-hover:bg-teal-900 group-hover:text-teal-200'} transition`}>
+      <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 20h9"></path>
           <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
@@ -183,16 +171,16 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       Site Content
     </a>
 
-    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-1 pt-6">External Tools</div>
+    <div class="sidebar-section-heading text-[10px] font-bold uppercase tracking-wider px-3 pb-1 pt-6">External Tools</div>
     
     <a
       href={directusAdminUrl}
       target="_blank"
       rel="noopener noreferrer"
-      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold text-teal-200/80 hover:bg-teal-900/40 hover:text-white transition group"
+      class="sidebar-nav-link flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition group"
     >
       <div class="flex items-center gap-3">
-        <div class="p-1.5 rounded-lg bg-teal-950 text-teal-400 group-hover:bg-teal-900 group-hover:text-teal-300 transition">
+        <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
             <line x1="8" y1="21" x2="16" y2="21"></line>
@@ -201,16 +189,16 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         </div>
         Directus CMS
       </div>
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-600 group-hover:text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" class="sidebar-external-arrow w-3.5 h-3.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
     </a>
 
     <a
       href="/"
       data-astro-reload
-      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold text-teal-200/80 hover:bg-teal-900/40 hover:text-white transition group"
+      class="sidebar-nav-link flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition group"
     >
       <div class="flex items-center gap-3">
-        <div class="p-1.5 rounded-lg bg-teal-950 text-teal-400 group-hover:bg-teal-900 group-hover:text-teal-300 transition">
+        <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -221,15 +209,15 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     </a>
   </nav>
 
-  <!-- User Profile & Sign Out Footer -->
-  <div class="p-4 border-t border-teal-800/60 bg-[#040e0c]/80 shrink-0">
+  <!-- User Profile & Sign Out Footer (Bottom Left) -->
+  <div class="sidebar-footer p-4 border-t shrink-0">
     <div class="flex items-center gap-3 min-w-0 mb-3">
-      <div id="sidebar-user-avatar" class="w-9 h-9 rounded-full bg-emerald-600 text-emerald-100 flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
+      <div id="sidebar-user-avatar" class="sidebar-user-avatar w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
         SP
       </div>
       <div class="min-w-0">
-        <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Signed In</div>
-        <div id="sidebar-user-email" class="text-xs font-semibold text-white truncate w-full">
+        <div class="sidebar-user-label text-[9px] font-bold uppercase tracking-wider">Signed In</div>
+        <div id="sidebar-user-email" class="sidebar-user-email text-xs font-semibold truncate w-full">
           staff@monroe-humane.org
         </div>
       </div>
@@ -238,14 +226,14 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <button
       id="sidebar-logout-btn"
       type="button"
-      class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-rose-950/40 text-rose-300 border border-rose-900/50 hover:bg-rose-900 hover:text-white hover:border-rose-700 transition cursor-pointer shadow-sm"
+      class="sidebar-logout-btn w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer shadow-sm"
     >
       <svg id="sidebar-logout-icon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>
         <line x1="21" y1="12" x2="9" y2="12"></line>
       </svg>
-      <svg id="sidebar-logout-spinner" class="hidden animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg id="sidebar-logout-spinner" class="hidden animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
@@ -254,7 +242,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
   </div>
 </aside>
 
-<style>
+<style is:global>
   /* Custom thin scrollbar for the sidebar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
@@ -268,6 +256,252 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
   }
   .custom-scrollbar:hover::-webkit-scrollbar-thumb {
     background-color: rgba(15, 118, 110, 0.6);
+  }
+
+  /* ==========================================================================
+     LIGHT MODE STYLES FOR DESKTOP SIDEBAR
+     ========================================================================== */
+  :root:not([data-staff-theme="dark"]) .sidebar-root {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-header {
+    border-color: #e2e8f0 !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-brand-icon {
+    background-color: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+    color: #065f46 !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-brand-title {
+    color: #0f172a !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-brand-subtitle {
+    color: #0f766e !important;
+    font-weight: 700 !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-cmd-btn {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-cmd-btn:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-cmd-btn svg {
+    color: #64748b !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-cmd-kbd {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-section-heading {
+    color: #475569 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+  }
+
+  /* Inactive Nav Links in Light Mode */
+  :root:not([data-staff-theme="dark"]) .sidebar-nav-link:not(.active) {
+    color: #334155 !important;
+    background-color: transparent !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-nav-link:not(.active):hover {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-nav-link:not(.active) .sidebar-nav-icon {
+    background-color: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f766e !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-nav-link:not(.active):hover .sidebar-nav-icon {
+    background-color: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+    color: #047857 !important;
+  }
+
+  /* Active Nav Link in Light Mode */
+  :root:not([data-staff-theme="dark"]) .sidebar-nav-link.active {
+    background-color: #f0fdfa !important;
+    border: 1px solid #5eead4 !important;
+    color: #0f766e !important;
+    font-weight: 700 !important;
+    box-shadow: 0 1px 3px rgba(15, 118, 110, 0.08) !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-nav-link.active .sidebar-nav-icon {
+    background-color: #0f766e !important;
+    border: 1px solid #0f766e !important;
+    color: #ffffff !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-external-arrow {
+    color: #64748b !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-nav-link:hover .sidebar-external-arrow {
+    color: #0f766e !important;
+  }
+
+  /* User Info Footer in Light Mode (Bottom Left) */
+  :root:not([data-staff-theme="dark"]) .sidebar-footer {
+    background-color: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-user-avatar {
+    background-color: #0f766e !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(15, 118, 110, 0.3) !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-user-label {
+    color: #64748b !important;
+    font-weight: 700 !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-user-email {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+  }
+
+  :root:not([data-staff-theme="dark"]) .sidebar-logout-btn {
+    background-color: #ffffff !important;
+    color: #e11d48 !important;
+    border: 1px solid #fecdd3 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-logout-btn:hover {
+    background-color: #fff1f2 !important;
+    border-color: #fda4af !important;
+    color: #be123c !important;
+  }
+  :root:not([data-staff-theme="dark"]) .sidebar-logout-btn svg {
+    color: #e11d48 !important;
+  }
+
+  /* ==========================================================================
+     DARK OPS MODE STYLES FOR DESKTOP SIDEBAR
+     ========================================================================== */
+  :root[data-staff-theme="dark"] .sidebar-root {
+    background-color: rgba(5, 19, 17, 0.95);
+    border-color: rgba(19, 78, 74, 0.8);
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-header {
+    border-color: rgba(19, 78, 74, 0.6);
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-brand-icon {
+    background-color: rgba(4, 47, 46, 0.6);
+    border-color: rgba(19, 78, 74, 0.8);
+    color: #5eead4;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-brand-title {
+    color: #ffffff;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-brand-subtitle {
+    color: #2dd4bf;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-cmd-btn {
+    background-color: rgba(4, 47, 46, 0.4);
+    border: 1px solid rgba(19, 78, 74, 0.5);
+    color: rgba(94, 234, 212, 0.8);
+  }
+  :root[data-staff-theme="dark"] .sidebar-cmd-btn:hover {
+    background-color: rgba(13, 42, 37, 0.6);
+    border-color: rgba(20, 184, 166, 0.5);
+    color: #ffffff;
+  }
+  :root[data-staff-theme="dark"] .sidebar-cmd-kbd {
+    background-color: rgba(4, 47, 46, 0.8);
+    border: 1px solid rgba(19, 78, 74, 0.8);
+    color: #2dd4bf;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-section-heading {
+    color: #64748b;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-nav-link:not(.active) {
+    color: #cbd5e1;
+    border-color: transparent;
+  }
+  :root[data-staff-theme="dark"] .sidebar-nav-link:not(.active):hover {
+    background-color: rgba(13, 42, 37, 0.4);
+    color: #ffffff;
+  }
+  :root[data-staff-theme="dark"] .sidebar-nav-link:not(.active) .sidebar-nav-icon {
+    background-color: rgba(4, 47, 46, 0.6);
+    color: #5eead4;
+    border: 1px solid transparent;
+  }
+  :root[data-staff-theme="dark"] .sidebar-nav-link:not(.active):hover .sidebar-nav-icon {
+    background-color: rgba(13, 42, 37, 0.8);
+    color: #2dd4bf;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-nav-link.active {
+    background-color: rgba(13, 148, 136, 0.25);
+    border: 1px solid rgba(20, 184, 166, 0.4);
+    color: #ffffff;
+    font-weight: 700;
+  }
+  :root[data-staff-theme="dark"] .sidebar-nav-link.active .sidebar-nav-icon {
+    background-color: rgba(15, 118, 110, 0.6);
+    border: 1px solid rgba(20, 184, 166, 0.5);
+    color: #ffffff;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-external-arrow {
+    color: rgba(20, 184, 166, 0.6);
+  }
+  :root[data-staff-theme="dark"] .sidebar-nav-link:hover .sidebar-external-arrow {
+    color: #5eead4;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-footer {
+    background-color: rgba(4, 14, 12, 0.8);
+    border-top: 1px solid rgba(19, 78, 74, 0.6);
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-user-avatar {
+    background-color: #059669;
+    color: #ffffff;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-user-label {
+    color: #64748b;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-user-email {
+    color: #ffffff;
+  }
+
+  :root[data-staff-theme="dark"] .sidebar-logout-btn {
+    background-color: rgba(76, 5, 25, 0.3);
+    color: #fca5a5;
+    border: 1px solid rgba(159, 18, 57, 0.4);
+  }
+  :root[data-staff-theme="dark"] .sidebar-logout-btn:hover {
+    background-color: rgba(159, 18, 57, 0.6);
+    color: #ffffff;
+    border-color: rgba(225, 29, 72, 0.6);
+  }
+  :root[data-staff-theme="dark"] .sidebar-logout-btn svg {
+    color: #fca5a5;
   }
 </style>
 
