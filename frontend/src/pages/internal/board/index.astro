@@ -7,7 +7,7 @@ import MonthlyStatementTable from '../../../components/board/MonthlyStatementTab
 import BankStatementViewer from '../../../components/board/BankStatementViewer.astro';
 import ExpenseExplorer from '../../../components/board/ExpenseExplorer.astro';
 // Financial JSON is loaded client-side after getStaffToken() via GET /api/financials
-// (YTD report + bank_statement + monthly_drilldown + donors). Do not import
+// (YTD report + bank_statement + bank_statements + monthly_drilldown + donors). Do not import
 // published_2026_ytd.json, statement_2026_08.json, monthly_drilldown_2026.json,
 // or donor_database.json here — Astro SSG would bake them into public HTML.
 
@@ -15,7 +15,7 @@ const subNavItems = [
   { id: 'all',      label: 'All Financials' },
   { id: 'snapshot', label: 'Summary & KPIs' },
   { id: 'statement',label: 'Monthly Statement' },
-  { id: 'expenses', label: 'Cash Flow Explorer' },
+  { id: 'expenses', label: 'Certified P&L' },
   { id: 'audit',    label: 'Bank Statement' },
 ];
 ---
@@ -50,7 +50,7 @@ const subNavItems = [
         <MonthlyStatementTable />
       </section>
 
-      <!-- Section 3: Cash Flow Explorer Drilldown (Inflows & Outflows) -->
+      <!-- Section 3: Certified P&L Explorer (accrual GL, not bank cash) -->
       <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20">
         <ExpenseExplorer statementPeriod="August 2026" />
       </section>

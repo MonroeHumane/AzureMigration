@@ -18,9 +18,15 @@ export function getStaffTheme(): StaffTheme {
   return 'light';
 }
 
+function applyThemeToRoot(target: HTMLElement, theme: StaffTheme): void {
+  target.setAttribute('data-staff-theme', theme);
+  target.classList.toggle('dark', theme === 'dark');
+  target.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+}
+
 export function setStaffTheme(theme: StaffTheme): void {
   if (typeof document === 'undefined') return;
-  document.documentElement.setAttribute('data-staff-theme', theme);
+  applyThemeToRoot(document.documentElement, theme);
   try {
     localStorage.setItem('mchs_staff_theme', theme);
   } catch (e) {}

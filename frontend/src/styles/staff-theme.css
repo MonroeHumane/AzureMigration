@@ -360,11 +360,33 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   color: #334155 !important;
 }
 
-/* Headings in Light Mode */
-:root:not([data-staff-theme="dark"]) h1.text-white,
-:root:not([data-staff-theme="dark"]) h2.text-white,
-:root:not([data-staff-theme="dark"]) h3.text-white {
+:root:not([data-staff-theme="dark"]) {
+  color-scheme: light;
+}
+:root[data-staff-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Staff page titles follow the staff theme, not OS prefers-color-scheme.
+   Scoped to the portal so public dark-hero titles (FAQ, Donate, etc.) stay white. */
+:root:not([data-staff-theme="dark"]) body.staff-portal-body h1.text-white,
+:root:not([data-staff-theme="dark"]) body.staff-portal-body h2.text-white,
+:root:not([data-staff-theme="dark"]) body.staff-portal-body h3.text-white,
+:root:not([data-staff-theme="dark"]) body.staff-portal-body h1.dark\:text-white,
+:root:not([data-staff-theme="dark"]) body.staff-portal-body h2.dark\:text-white,
+:root:not([data-staff-theme="dark"]) body.staff-portal-body h3.dark\:text-white,
+:root:not([data-staff-theme="dark"]) body.staff-portal-body h4.dark\:text-white {
   color: #173a39 !important;
+}
+
+:root[data-staff-theme="dark"] body.staff-portal-body h1.text-white,
+:root[data-staff-theme="dark"] body.staff-portal-body h2.text-white,
+:root[data-staff-theme="dark"] body.staff-portal-body h3.text-white,
+:root[data-staff-theme="dark"] body.staff-portal-body h1.dark\:text-white,
+:root[data-staff-theme="dark"] body.staff-portal-body h2.dark\:text-white,
+:root[data-staff-theme="dark"] body.staff-portal-body h3.dark\:text-white,
+:root[data-staff-theme="dark"] body.staff-portal-body h4.dark\:text-white {
+  color: #ffffff !important;
 }
 
 /* Ensure buttons and badges with .text-white retain crisp white text in Light Mode */

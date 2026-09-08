@@ -6,6 +6,7 @@ module.exports = {
     "./components/**/*.{astro,js,ts,jsx,tsx}",
     "./src/styles/**/*.css"
   ],
+  darkMode: ["selector", '[data-staff-theme="dark"]'],
   theme: { extend: {} },
   plugins: [],
   safelist: [{ pattern: /.*/ }],

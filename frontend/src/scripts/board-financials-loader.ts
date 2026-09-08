@@ -6,7 +6,8 @@ import { publishedLabel, refreshStaffFinancials, setStaffDataStatus } from '../l
  * Authenticated data shape from GET /api/financials (Bearer staff token required):
  *   published YTD report fields — meta, headline_kpis, monthly_statements,
  *   statement_of_position, bridge_composition, multiyear_comparison,
- *   accounts_payable_schedule — plus bank_statement (August statement JSON),
+ *   accounts_payable_schedule — plus bank_statement (August detail JSON),
+ *   bank_statements (Jan–Aug in/out pack keyed by month),
  *   monthly_drilldown ({ meta, months }) for 3-level GL explorer,
  *   donors (array), donor_meta, donor_database ({ meta, donors }).
  * PDFs: GET /api/statement?doc=bank|qbo with Authorization: Bearer only.
@@ -21,8 +22,8 @@ function applyDashboard(data: any, token: string | null): void {
   hydratePositionAndCash(data.statement_of_position);
   hydrateMultiYear(data.multiyear_comparison);
   hydrateScenarioSimulator(data);
-  if (data.bank_statement && token) {
-    hydrateBankStatement(data.bank_statement, token);
+  if (token && (data.bank_statement || data.bank_statements)) {
+    hydrateBankStatements(data, token);
   }
   hydrateExpenseExplorer(data);
   hydrateFooter(data.meta);
@@ -206,6 +207,8 @@ function hydrateExpenseExplorer(data: any): void {
     return;
   }
 
+  // Drilldown missing: stay on certified P&L monthly_statements. Do not feed
+  // bank rows into the explorer (bank cash ≠ P&L spend).
   const months: Record<string, any> = {};
   for (const m of data.monthly_statements || []) {
     months[m.id] = {
@@ -236,21 +239,6 @@ function hydrateExpenseExplorer(data: any): void {
     expenseCategories: ytdExp,
     revenueCategories: ytdRev,
   };
-
-  const stmt = data.bank_statement;
-  if (stmt) {
-    const aug = (data.monthly_statements || []).find((s: any) => /aug/i.test(s.month || ''));
-    const augId = aug?.id || 'month_2026_7';
-    months[augId] = {
-      id: augId,
-      monthName: aug?.month || 'Aug 2026',
-      monthKey: augId,
-      net_margin: aug?.net_margin ?? 0,
-      status: aug?.status || 'Bank Rec',
-      expenseCategories: groupBankRows(stmt.withdrawals, 'payee'),
-      revenueCategories: groupBankRows(stmt.deposits, 'channel'),
-    };
-  }
 
   const hydrate = (window as any).__hydrateExpenseExplorer;
   if (typeof hydrate === 'function') {
@@ -843,6 +831,125 @@ function hydratePositionAndCash(position: any) {
   }
 }
 
+type BankPackState = {
+  token: string;
+  august: any;
+  months: Record<string, any>;
+  meta: any;
+  selected: string;
+};
+
+let bankPackState: BankPackState | null = null;
+
+function monthRecToStatement(rec: any, packMeta: any): any {
+  if (!rec) return null;
+  return {
+    metadata: {
+      bank_name: packMeta?.bank_name || rec.bank_name || 'First Merchants Bank',
+      account_number: packMeta?.account_number || rec.account_number || 'XXXXXX8478',
+      statement_period: rec.statement_period,
+      statement_date: rec.statement_date,
+      statement_beginning_balance: rec.begin,
+      total_deposits_amount: rec.credits,
+      total_deposits_count: rec.credit_count,
+      total_withdrawals_amount: rec.debits,
+      total_withdrawals_count: rec.debit_count,
+      statement_ending_balance: rec.end,
+      qbo_register_balance: rec.book_balance,
+      penny_adjusted_ending_balance: rec.penny_adjusted_ending,
+      reconciled_float: rec.reconciled_float,
+      reconciled_by: rec.reconciled_by,
+      reconciliation_status: rec.reconciliation_status,
+      month_key: rec.id,
+      month_name: rec.monthName,
+      has_daily_balances: !!rec.has_daily_balances,
+      has_recon: !!rec.has_recon,
+    },
+    deposits: rec.deposits || [],
+    withdrawals: rec.withdrawals || [],
+    daily_balances: rec.daily_balances || [],
+  };
+}
+
+function statementMonthKey(stmt: any): string {
+  const meta = stmt?.metadata || {};
+  if (meta.month_key) return meta.month_key;
+  const date = String(meta.statement_date || meta.statement_period || '');
+  const m = date.match(/2026-(\d{2})/) || date.match(/(\d{2})\/\d{2}\/2026/) || date.match(/2026\/(\d{2})/);
+  if (m) return `2026-${m[1]}`;
+  return '2026-08';
+}
+
+function hydrateBankStatements(data: any, token: string): void {
+  const pack = data.bank_statements || {};
+  const months: Record<string, any> = { ...(pack.months || {}) };
+  const meta = pack.meta || {};
+  const august = data.bank_statement || null;
+  if (august?.metadata && !months['2026-08']) {
+    months['2026-08'] = {
+      id: '2026-08',
+      monthName: 'Aug 2026',
+      begin: august.metadata.statement_beginning_balance,
+      credits: august.metadata.total_deposits_amount,
+      credit_count: august.metadata.total_deposits_count,
+      debits: august.metadata.total_withdrawals_amount,
+      debit_count: august.metadata.total_withdrawals_count,
+      end: august.metadata.statement_ending_balance,
+      statement_period: august.metadata.statement_period,
+      statement_date: august.metadata.statement_date,
+      deposits: august.deposits,
+      withdrawals: august.withdrawals,
+      has_daily_balances: true,
+      has_recon: true,
+    };
+  }
+  bankPackState = {
+    token,
+    august,
+    months,
+    meta,
+    selected: '2026-08',
+  };
+  (window as any).__HSMC_BANK_PACK__ = bankPackState;
+  (window as any).__switchBankMonth = (key: string) => {
+    if (!bankPackState || !bankPackState.months[key]) return;
+    bankPackState.selected = key;
+    const rec = bankPackState.months[key];
+    const stmt = key === '2026-08' && bankPackState.august?.metadata
+      ? bankPackState.august
+      : monthRecToStatement(rec, bankPackState.meta);
+    if (stmt) hydrateBankStatement(stmt, bankPackState.token);
+  };
+  const initial = bankPackState.selected;
+  const stmt = initial === '2026-08' && august?.metadata
+    ? august
+    : monthRecToStatement(months[initial], meta);
+  if (stmt) hydrateBankStatement(stmt, token);
+}
+
+function updateBankMonthChrome(monthKey: string): void {
+  document.querySelectorAll<HTMLButtonElement>('[data-bank-month]').forEach((btn) => {
+    const on = btn.getAttribute('data-bank-month') === monthKey;
+    btn.classList.toggle('bg-[#173a39]', on);
+    btn.classList.toggle('text-white', on);
+    btn.classList.toggle('shadow-xs', on);
+    btn.classList.toggle('bg-white', !on);
+    btn.classList.toggle('text-slate-700', !on);
+    btn.classList.toggle('border', !on);
+    btn.classList.toggle('border-slate-200', !on);
+  });
+  const ytd = bankPackState?.meta?.ytd;
+  const setEl = (id: string, text: string) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+  if (ytd) {
+    setEl('bank-ytd-in', `+${formatCents(ytd.in)}`);
+    setEl('bank-ytd-out', `-${formatCents(ytd.out)}`);
+    setEl('bank-ytd-net', formatCents(ytd.net));
+  }
+}
+
 function hydrateBankStatement(stmt: any, token: string) {
   if (!stmt || !stmt.metadata) return;
 
@@ -851,24 +958,66 @@ function hydrateBankStatement(stmt: any, token: string) {
     if (el) el.textContent = text;
   };
 
-  // Quick metrics ribbon
-  setEl('bank-stat-balance', formatCents(stmt.metadata.statement_ending_balance));
-  setEl('bank-stat-cash', formatCents(stmt.metadata.qbo_register_balance));
+  const monthKey = statementMonthKey(stmt);
+  const isAugust = monthKey === '2026-08';
+  const period = stmt.metadata.statement_period || stmt.metadata.month_name || '';
   const acct = stmt.metadata.account_number ? `••••${String(stmt.metadata.account_number).slice(-4)}` : 'on file';
-  setEl('bank-stat-meta-note', `Account ${acct} · Statement Period: August 1 – August 31, 2026 · Reconciled by ${stmt.metadata.reconciled_by || 'staff'} with $0.00 difference.`);
+  const bankEnd = stmt.metadata.statement_ending_balance;
+  const book = stmt.metadata.qbo_register_balance;
+  const floatAmt = stmt.metadata.reconciled_float;
+  const penny = stmt.metadata.penny_adjusted_ending_balance;
+
+  setEl('bank-stat-balance', formatCents(bankEnd));
+  if (book != null && book !== undefined && !Number.isNaN(Number(book))) {
+    setEl('bank-stat-cash', formatCents(book));
+  } else {
+    setEl('bank-stat-cash', '—');
+  }
+
+  if (isAugust && floatAmt != null) {
+    setEl('bank-recon-badge', 'QBO recon $0.00 after float');
+    setEl('bank-stat-recon', '$0.00 after float');
+    setEl('bank-stat-recon-sub', `Float ${formatCents(floatAmt)} · not bank = book`);
+    setEl(
+      'bank-stat-meta-note',
+      `Account ${acct} · ${period} · QBO recon difference after float (${formatCents(floatAmt)}) is $0.00 — that is not bank = book.`
+    );
+    setEl(
+      'bank-recon-explain',
+      `Bank end ${formatCents(bankEnd)} vs book ${formatCents(book)}. The $0.00 figure is the QBO recon difference after float (${formatCents(floatAmt)}), not equality of bank and book. Penny-adjusted statement ending is ${formatCents(penny)}.`
+    );
+  } else {
+    setEl('bank-recon-badge', 'PDF footing');
+    setEl('bank-stat-recon', 'PDF in/out');
+    setEl('bank-stat-recon-sub', 'August holds QBO recon');
+    setEl(
+      'bank-stat-meta-note',
+      `Account ${acct} · ${period} · First Merchants PDF in/out. August is the certified QBO recon month (float and $0.00 difference).`
+    );
+    setEl(
+      'bank-recon-explain',
+      `This month is bank cash in/out from the checking PDF. QBO recon $0.00 after float, bank ${formatCents(24526.34)} vs book ${formatCents(23469.20)}, and penny-adjusted ending ${formatCents(24526.33)} are August-only.`
+    );
+  }
+
+  updateBankMonthChrome(monthKey);
 
   // Statement totals
   setEl('stmt-total-deposits', `+${formatCents(stmt.metadata.total_deposits_amount)}`);
   setEl('stmt-total-withdrawals', `-${formatCents(stmt.metadata.total_withdrawals_amount)}`);
   setEl('stmt-ending-balance', formatCents(stmt.metadata.statement_ending_balance));
-  setEl('daily-august-low-val', formatCents(stmt.metadata.statement_ending_balance));
+  setEl('stmt-totals-label', `Official Statement Totals (First Merchants ${stmt.metadata.month_name || period})`);
   if (stmt.daily_balances && stmt.daily_balances.length) {
+    setEl('daily-august-low-val', formatCents(Math.min(...stmt.daily_balances.map((d: any) => d.balance))));
     const peak = Math.max(...stmt.daily_balances.map((d: any) => d.balance));
     setEl('daily-peak-val', formatCents(peak));
+  } else {
+    setEl('daily-august-low-val', formatCents(bankEnd));
+    setEl('daily-peak-val', '—');
   }
 
   // Bearer-only: fetch PDFs with Authorization and attach blob URLs (never ?token=).
-  void attachStatementPdfBlobs(token);
+  if (token) void attachStatementPdfBlobs(token);
 
   // Hydrate Tab 1 Transactions
   const deposits = (stmt.deposits || []).map((d: any, i: number) => ({
@@ -890,7 +1039,7 @@ function hydrateBankStatement(stmt: any, token: string) {
 
   const withdrawals = (stmt.withdrawals || []).map((w: any, i: number) => {
     const isCheck = !!w.check_number;
-    const isPayroll = w.category.includes('Paycheck') || w.category.includes('Payroll') || (w.relational_link && w.relational_link.includes('126'));
+    const isPayroll = (w.category || '').includes('Paycheck') || (w.category || '').includes('Payroll') || (w.relational_link && w.relational_link.includes('126'));
     const isAP = !!w.relational_link && (w.relational_link.includes('AP Aging') || w.relational_link.includes('Capital Assets'));
     return {
       id: `wd-${i}`,
@@ -1010,6 +1159,15 @@ function hydrateBankStatement(stmt: any, token: string) {
       `;
       dailyTbody.appendChild(tr);
     });
+  } else if (dailyTbody) {
+    dailyTbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="py-8 text-center text-slate-500 text-xs">
+          Daily balances, uncleared float, and QBO recon are certified for August 2026 only.
+          Select Aug 2026 for the float schedule (bank ${formatCents(24526.34)} vs book ${formatCents(23469.20)}).
+        </td>
+      </tr>
+    `;
   }
 }
 

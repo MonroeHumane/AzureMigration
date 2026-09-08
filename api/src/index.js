@@ -19,6 +19,7 @@ function loadJsonOptional(relPath) {
 
 const donorDatabase = loadJsonOptional('../data/donor_database.json');
 const monthlyDrilldown = loadJsonOptional('../data/monthly_drilldown_2026.json');
+const bankInOutData = loadJsonOptional('../data/bank_in_out_2026.json');
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
 const STAFF_SECRET = (process.env.STAFF_AUTH_SECRET || '').trim();
@@ -319,6 +320,9 @@ app.http('financials', {
       ...reportData,
       bank_statement: statementData,
     };
+    if (bankInOutData) {
+      payload.bank_statements = bankInOutData;
+    }
 
     // 3-level GL drilldown for the board explorer (not baked into Astro pages).
     if (monthlyDrilldown) {

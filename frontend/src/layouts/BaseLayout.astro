@@ -216,8 +216,10 @@ const schemaOrg = {
       (function() {
         function syncStaffState(targetEl) {
           try {
-            var savedTheme = localStorage.getItem('mchs_staff_theme') || 'light';
+            var savedTheme = localStorage.getItem('mchs_staff_theme') === 'dark' ? 'dark' : 'light';
             targetEl.setAttribute('data-staff-theme', savedTheme);
+            targetEl.classList.toggle('dark', savedTheme === 'dark');
+            targetEl.style.colorScheme = savedTheme === 'dark' ? 'dark' : 'light';
 
             var token = localStorage.getItem('mchs_staff_token') || sessionStorage.getItem('mchs_staff_token') || '';
             var hasAuth = token.indexOf('mchs_') === 0 && token.indexOf('.') !== -1;

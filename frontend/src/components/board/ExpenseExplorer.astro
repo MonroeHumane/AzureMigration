@@ -1,6 +1,6 @@
 ---
 // ExpenseExplorer.astro
-// Two-Way Cash Flow Explorer: Symmetric 3-Level Inflows & Expenses Drilldown
+// Certified P&L Explorer: Symmetric 3-Level Inflows & Expenses Drilldown
 // Level 1: Category → Level 2: Vendor/Channel/Payee → Level 3: Transaction
 // Multi-Month Support: Jan 2026 – Aug 2026 + All 2026 YTD
 interface Withdrawal {
@@ -327,17 +327,17 @@ const monthKeys = [
       <div>
         <div class="flex items-center gap-2 mb-1">
           <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-200">
-            Cash Flow Explorer
+            Certified P&L
           </span>
           <span class="text-[11px] text-slate-400 font-medium" id="ee-period-subtitle">
             {statementPeriod} · QuickBooks General Ledger Detail
           </span>
         </div>
         <h2 class="text-xl font-bold text-slate-800 tracking-tight" id="ee-title">
-          August 2026 Cash Flow Drilldown
+          August 2026 Certified P&L Drilldown
         </h2>
         <p class="text-xs text-slate-500 mt-0.5" id="ee-desc">
-          Explore month-to-month transactions. Level 1: Categories · Level 2: Bundled payees &amp; vendors · Level 3: Individual transactions.
+          Certified P&amp;L by category (accrual GL). Bank cash in/out is in the statement viewer.
         </p>
       </div>
 
@@ -435,12 +435,47 @@ const monthKeys = [
 
   </div>
 
+  <div id="ee-bank-pnl-bridge" class="bg-white rounded-xl border border-amber-200 shadow-xs p-4 sm:p-5">
+    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+      <div class="min-w-0">
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200">
+          August bank vs certified P&amp;L
+        </span>
+        <h3 class="text-sm font-bold text-slate-800 mt-1.5">Checking cash out is not P&amp;L spend</h3>
+        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+          Bank out <strong class="font-mono">$70,643.29</strong> vs certified P&amp;L spend <strong class="font-mono">$58,133.65</strong>.
+          The gap is explained by Elan <strong class="font-mono">$13,166.74</strong> (credit-card paydown, balance sheet)
+          plus Monroe Fencing <strong class="font-mono">$7,100</strong> (capital play-yard asset). This explorer stays on certified P&amp;L;
+          cash in/out lives in the bank statement viewer.
+        </p>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs shrink-0">
+        <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+          <span class="text-[10px] uppercase font-semibold text-slate-500 block">Bank out</span>
+          <span id="ee-bridge-bank-out" class="font-mono font-bold text-slate-900">$70,643.29</span>
+        </div>
+        <div class="p-2 rounded-lg bg-rose-50 border border-rose-200">
+          <span class="text-[10px] uppercase font-semibold text-rose-700 block">P&amp;L spend</span>
+          <span id="ee-bridge-pnl-spend" class="font-mono font-bold text-rose-900">$58,133.65</span>
+        </div>
+        <div class="p-2 rounded-lg bg-amber-50 border border-amber-200">
+          <span class="text-[10px] uppercase font-semibold text-amber-800 block">Elan</span>
+          <span id="ee-bridge-elan" class="font-mono font-bold text-amber-950">$13,166.74</span>
+        </div>
+        <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
+          <span class="text-[10px] uppercase font-semibold text-teal-800 block">Monroe Fencing</span>
+          <span id="ee-bridge-fencing" class="font-mono font-bold text-teal-950">$7,100.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── 1. EXPENSES VIEW ─────────────────────────────────────────────────── -->
   <div id="ee-view-expenses" class="space-y-2">
     <div id="ee-expense-category-list" class="space-y-2">
       {expenseCategories.length === 0 && (
         <div class="rounded-xl border border-slate-200 bg-white px-5 py-8 text-center text-sm text-slate-500">
-          Loading cash-flow categories after sign-in…
+          Loading certified P&L categories after sign-in…
         </div>
       )}
       {expenseCategories.map((cat, catIdx) => {
@@ -819,8 +854,13 @@ const monthKeys = [
       return n || (cat?.group || 'Uncategorized');
     };
 
-    if (titleEl) titleEl.textContent = `${monthObj.monthName} Cash Flow Drilldown`;
+    if (titleEl) titleEl.textContent = `${monthObj.monthName} Certified P&L Drilldown`;
     if (subEl) subEl.textContent = `${monthObj.monthName} · QuickBooks Online General Ledger`;
+
+    const bridgeEl = document.getElementById('ee-bank-pnl-bridge');
+    if (bridgeEl) {
+      bridgeEl.classList.toggle('hidden', monthId !== 'month_2026_7');
+    }
 
     const catRevSum = (monthObj.revenueCategories || []).reduce((s, c) => s + (c.total || 0), 0);
     const catExpSum = (monthObj.expenseCategories || []).reduce((s, c) => s + (c.total || 0), 0);

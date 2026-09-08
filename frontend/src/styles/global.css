@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Bind dark: to the explicit site theme, not prefers-color-scheme.
+   OS dark + staff/public light was painting white titles on light backgrounds. */
+@custom-variant dark (&:where([data-staff-theme="dark"], [data-staff-theme="dark"] *));
+
 @theme {
   --color-cream: #f9f7f2;
   --color-cream-100: #fffaf2;
