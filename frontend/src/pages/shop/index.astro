@@ -2,119 +2,256 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { SITE } from '../../config/site';
 
-const SQUARE_URL = SITE.integrations.squareStore.url;
-const SHOP_ASSETS = '/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/shop';
+const DONATE_URL = '/donate';
+const RESOURCES_URL = '/resources';
+const NEWSLETTER_URL = '/newsletter';
+const CONTACT_URL = '/contact';
 
-const products = [
-  {
-    title: 'Volunteer message tee',
-    price: '$28',
-    blurb: 'Soft tee with a bold volunteer graphic - great for events and dog walks.',
-    image: `${SHOP_ASSETS}/volunteer-tee-back.png`,
-    alt: 'Powder blue t-shirt, back view, with volunteer lettering and humane society style artwork.',
-  },
-  {
-    title: 'Classic crew tee',
-    price: '$26',
-    blurb: 'Clean crewneck for everyday wear - pair with shelter swag or layer under a hoodie.',
-    image: `${SHOP_ASSETS}/classic-tee-flatlay.jpg`,
-    alt: 'White short-sleeve crewneck t-shirt on a neutral background.',
-  },
-  {
-    title: 'Merch & gifts',
-    price: 'From $12',
-    blurb: 'Hats, drinkware, apparel, and more - browse the full catalog on our Square store.',
-    image: `${SHOP_ASSETS}/merch-store-banner.png`,
-    alt: 'Illustration showing hats, mugs, and folded shirts in a merchandise collage.',
-    contain: true,
-  },
-];
+const HERO_IMAGE =
+  '/assets/recovered/images/monroe-humane.org/wp-content/themes/monroe-rebuild/assets/shop/merch-store-banner.png';
 ---
 
-<BaseLayout title="Shop | 734-243-3669" description="Every purchase helps tails wag and whiskers purr. Browse featured styles, then complete checkout on our secure Square store.">
-  <div class="pb-16 min-h-screen bg-gray-50/50 pt-4 sm:pt-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <section class="relative overflow-hidden bg-gradient-to-br from-[#133c39] via-[#1a4f4b] to-[#0f2e2c] rounded-3xl shadow-xl border border-teal-700/60 flex flex-col lg:flex-row mb-8 sm:mb-10" aria-labelledby="monroe-shop-title">
-        <!-- Ambient radiant glow orbs -->
-        <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
-        <div class="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-amber-400/12 blur-3xl pointer-events-none" aria-hidden="true"></div>
+<BaseLayout
+  title="Shop (Work in Progress) | Humane Society of Monroe County"
+  description="The Monroe Humane shop is currently a work in progress. Online merchandise, pricing, and checkout have not yet been launched."
+>
+  <div class="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
 
-        <div class="relative z-10 p-6 sm:p-10 lg:p-12 flex-1 flex flex-col justify-center">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-400/15 text-emerald-300 border border-emerald-400/25 mb-3 self-start">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
-            Official Shelter Swag
-          </span>
-          <h1 id="monroe-shop-title" class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-4 leading-tight tracking-tight">Monroe Humane Society Shop</h1>
-          <p class="text-teal-100/90 text-base sm:text-lg mb-6 leading-relaxed font-light">Every purchase helps tails wag and whiskers purr. Browse featured styles below, then complete checkout on our secure Square store.</p>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-teal-950 text-xs w-full sm:w-auto min-h-[44px] shadow-md hover:-translate-y-0.5" href="#monroe-shop-catalog">Browse Featured Items</a>
-            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-xs text-xs w-full sm:w-auto min-h-[44px] hover:-translate-y-0.5" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Open Square Store &rarr;</a>
-          </div>
-        </div>
-        <figure class="w-full lg:w-1/2 relative min-h-[220px] sm:min-h-[280px] lg:min-h-[420px]">
-          <img src={`${SHOP_ASSETS}/merch-store-banner.png`} alt="Illustration of hats, mugs, and folded shirts in a merchandise collage." class="absolute inset-0 w-full h-full object-cover" loading="eager" decoding="async" />
-        </figure>
-      </section>
+    <header class="relative rounded-3xl overflow-hidden mb-10 sm:mb-12 shadow-xl bg-gradient-to-br from-[#0e2c2a] via-[#143e3b] to-[#1c5550] text-cream border border-teal-700/40">
+      <div class="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" aria-hidden="true"></div>
+      <div class="absolute -left-20 -bottom-20 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" aria-hidden="true"></div>
 
-      <section id="monroe-shop-catalog" class="mb-12 sm:mb-16">
-        <div class="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
-          <span class="inline-block bg-teal-100 text-teal-800 font-bold uppercase tracking-widest text-xs px-3 py-1 rounded-full mb-3">Featured</span>
-          <h2 class="text-3xl sm:text-4xl font-serif text-teal-900 mb-2">Popular Picks</h2>
-          <p class="text-gray-600 text-base">Inventory, pricing, and shipping are managed on Square. Select an item to open the live store in a new tab.</p>
+      <div class="absolute inset-0 opacity-25 mix-blend-luminosity">
+        <img
+          src={HERO_IMAGE}
+          alt="Monroe Humane merchandise collage of hats, mugs, and shirts"
+          class="w-full h-full object-cover object-center"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-t from-[#0e2c2a] via-[#0e2c2a]/80 to-transparent"></div>
+
+      <div class="relative z-10 p-6 sm:p-10 lg:p-12 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/35 mb-4 backdrop-blur-xs">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" aria-hidden="true"></span>
+          Work in Progress &bull; Store Not Launched
         </div>
 
-        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((p) => (
-            <li class="bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(19,60,57,0.07)] border border-teal-950/10 flex flex-col hover:shadow-[0_20px_35px_-10px_rgba(19,60,57,0.15)] hover:border-teal-700/30 hover:-translate-y-1 transition-all duration-300">
-              <div class="aspect-square bg-gray-100 relative p-8 flex items-center justify-center">
-                <img src={p.image} alt={p.alt} class={`w-full h-full ${p.contain ? 'object-contain' : 'object-cover mix-blend-multiply'}`} loading="lazy" decoding="async" />
-              </div>
-              <div class="p-8 flex flex-col flex-1">
-                <h3 class="text-2xl font-serif text-teal-900 mb-2">{p.title}</h3>
-                <p class="text-emerald-600 font-bold mb-4">{p.price}</p>
-                <p class="text-gray-600 mb-8 flex-1">{p.blurb}</p>
-                <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all bg-teal-50 text-teal-700 hover:bg-teal-100 w-full min-h-[44px]" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Shop on Square</a>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+        <h1 id="monroe-shop-title" class="text-3xl sm:text-5xl font-serif text-white mb-4 leading-[1.15] tracking-tight">
+          Monroe Humane Shop
+        </h1>
 
-      <section id="shop-products" class="bg-teal-900 text-white rounded-3xl overflow-hidden shadow-xl p-6 sm:p-10 lg:p-14">
-        <div class="flex flex-col lg:flex-row gap-8 lg:gap-16">
-          <div class="flex-1">
-            <h2 class="text-3xl sm:text-4xl font-serif mb-4 sm:mb-6">Checkout on Square</h2>
-            <p class="text-teal-100 text-base sm:text-lg mb-6 sm:mb-8">Taxes, shipping, and payment are handled securely by Square.</p>
-            <a class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full transition-all bg-emerald-500 text-teal-900 hover:bg-emerald-400 w-full mb-6 sm:mb-8 shadow-sm min-h-[48px]" href={SQUARE_URL} target="_blank" rel="noopener noreferrer">Visit the online store</a>
-            <div class="bg-white rounded-2xl overflow-hidden h-[460px] sm:h-[560px] lg:h-[640px] w-full">
-              <iframe class="w-full h-full" title="Square online store" src={SQUARE_URL} loading="lazy"></iframe>
+        <p class="text-base sm:text-lg text-cream-100/90 leading-relaxed font-light mb-6 max-w-2xl">
+          Our official online shop is currently a <strong>work in progress</strong>. Merchandise, pricing, and checkout have <strong>not yet been launched</strong>.
+        </p>
+
+        <p class="text-xs sm:text-sm text-cream-100/75 leading-relaxed mb-8 max-w-2xl">
+          While we build a store that supports shelter animals, our community can still help today with a tax-deductible gift.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3.5 mb-6">
+          <a
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-7 py-4 rounded-full bg-emerald-400 text-teal-950 transition-all duration-200 hover:bg-emerald-300 hover:shadow-lg hover:-translate-y-0.5 text-xs min-h-[48px] shadow-md"
+            href={DONATE_URL}
+          >
+            Support Animals Today &rarr;
+          </a>
+          <a
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white transition-all duration-200 text-xs min-h-[48px] backdrop-blur-xs hover:-translate-y-0.5"
+            href={NEWSLETTER_URL}
+          >
+            Get Updates via Newsletter
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <section class="bg-amber-50/80 border-2 border-amber-300/80 rounded-3xl p-6 sm:p-8 mb-10 sm:mb-12 shadow-sm" aria-label="Status Notice">
+      <div class="flex flex-col sm:flex-row items-start gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h2 class="text-xl font-bold text-amber-950 mb-2">Shop Details Are Under Development</h2>
+          <p class="text-sm text-amber-900 leading-relaxed mb-3">
+            Please note that the online store is currently a work in progress. <strong>Inventory, pricing, shipping, and checkout have not been finalized or launched.</strong>
+          </p>
+          <p class="text-xs text-amber-800 leading-relaxed">
+            Our team is working on a merch experience that sends proceeds back to dogs and cats in our care. Check back soon, or make a tax-deductible direct gift today.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-10 sm:mb-14" aria-label="Why a future shop matters">
+      <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+        <span class="inline-block uppercase tracking-widest font-bold text-xs sm:text-sm text-teal-700 bg-teal-50 px-3.5 py-1 rounded-full border border-teal-200/60 mb-2">
+          Future Shop Vision
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-serif text-teal-900 mb-3">
+          What the Shop Will Support
+        </h2>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          Here is what we are building toward for Monroe County animal lovers.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <article class="bg-white p-6 sm:p-8 rounded-3xl border border-teal-900/10 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-700 border border-rose-200/60 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
             </div>
-            <p class="text-xs sm:text-sm text-teal-200 mt-4 text-center">If the preview is blank, use the button above - some browsers block store embeds.</p>
+            <h3 class="text-lg font-bold text-teal-900 mb-2">Shelter care</h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              Future merch proceeds will help fund food, medicine, enrichment, and everyday needs for dogs and cats waiting for homes.
+            </p>
           </div>
-          <aside class="w-full lg:w-1/3 pt-6 lg:pt-0 lg:border-l lg:border-white/10 lg:pl-12 flex flex-col justify-center">
-            <h3 id="monroe-shop-why-title" class="text-2xl font-serif mb-6">Why shop with us?</h3>
-            <ul class="space-y-5 text-teal-50 text-sm">
-              <li class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Proceeds fund shelter care &amp; adoption programs</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Secure payments via Square</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Perfect gifts for fosters &amp; volunteers</span>
-              </li>
-            </ul>
-            <div class="mt-12 p-6 bg-white/5 rounded-2xl border border-white/10">
-              <p class="text-sm text-teal-100 font-medium">Questions about an order? Call the shelter at <a href="tel:734-243-3669" class="text-emerald-400 hover:text-emerald-300">734-243-3669</a>.</p>
-            </div>
-          </aside>
-        </div>
-      </section>
+          <div class="pt-4 mt-4 border-t border-gray-100 text-xs text-rose-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Direct animal rescue &amp; surgery
+          </div>
+        </article>
 
+        <article class="bg-white p-6 sm:p-8 rounded-3xl border border-teal-900/10 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-teal-900 mb-2">Wear your support</h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              Apparel and gifts will let volunteers, adopters, and neighbors show they stand with Monroe Humane.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-gray-100 text-xs text-amber-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Future tees, hats &amp; gifts
+          </div>
+        </article>
+
+        <article class="bg-white p-6 sm:p-8 rounded-3xl border border-teal-900/10 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-800 border border-teal-200/60 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-teal-900 mb-2">Stay connected</h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              When the store opens, we will announce it through our newsletter, events, and the public website.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-gray-100 text-xs text-teal-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span> Launch updates coming soon
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="bg-white border border-teal-900/10 p-6 sm:p-10 rounded-3xl shadow-sm mb-10 sm:mb-12" aria-labelledby="monroe-shop-how-heading">
+      <div class="max-w-2xl mx-auto text-center mb-8">
+        <span class="inline-block uppercase tracking-widest font-bold text-xs text-teal-700 bg-teal-50 px-3 py-1 rounded-full mb-2">
+          Roadmap
+        </span>
+        <h2 id="monroe-shop-how-heading" class="text-2xl sm:text-3xl font-serif text-teal-900 mb-2">
+          Shop development roadmap
+        </h2>
+        <p class="text-gray-600 text-xs sm:text-sm">
+          Here is how we are moving toward an official merch store:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <div class="text-2xl font-serif font-bold text-emerald-700 mb-2">01</div>
+          <h3 class="font-bold text-teal-900 text-base mb-1">Store Design</h3>
+          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            Leadership selects items, pricing, and a checkout experience that sends proceeds to shelter care.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <div class="text-2xl font-serif font-bold text-teal-700 mb-2">02</div>
+          <h3 class="font-bold text-teal-900 text-base mb-1">Community Announcement</h3>
+          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            Official catalog details and timelines will be published once decided.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <div class="text-2xl font-serif font-bold text-amber-700 mb-2">03</div>
+          <h3 class="font-bold text-teal-900 text-base mb-1">Online Orders</h3>
+          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            Supporters will be invited to shop apparel and gifts that help Monroe County animals.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-gradient-to-br from-teal-900 to-[#0e2c2a] text-cream p-8 sm:p-10 rounded-3xl shadow-lg mb-10 sm:mb-12 relative overflow-hidden border border-teal-700/50">
+      <div class="absolute inset-0 bg-[url('/assets/monroe-paw-print-tile.png')] bg-[length:260px] opacity-10 pointer-events-none mix-blend-overlay"></div>
+
+      <div class="relative z-10 max-w-2xl mx-auto text-center">
+        <div class="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto mb-4 border border-white/20">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-serif text-white mb-3">
+          Support Monroe Animals Today
+        </h2>
+        <p class="text-cream-100 text-sm sm:text-base leading-relaxed mb-8 opacity-90 font-light">
+          Even while the shop is in progress, shelter pets need medical care, warm beds, and wholesome meals right now. 100% of your tax-deductible gift stays right here in Monroe County.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            href={DONATE_URL}
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-4 rounded-full bg-emerald-400 text-teal-950 transition-all hover:bg-emerald-300 shadow-md hover:-translate-y-0.5 text-xs min-h-[48px]"
+          >
+            Make a Direct Gift &rarr;
+          </a>
+          <a
+            href={NEWSLETTER_URL}
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white transition-all hover:-translate-y-0.5 text-xs min-h-[48px]"
+          >
+            Join Newsletter for Updates
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <div class="bg-white border border-teal-900/10 p-6 sm:p-8 rounded-3xl shadow-sm">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6">
+        <div>
+          <h3 class="font-bold text-teal-900 text-base mb-1">Have Questions for Our Shelter Team?</h3>
+          <p class="text-xs sm:text-sm text-gray-600">
+            Call us directly at <a href={SITE.contact.phoneTel} class="text-emerald-700 font-bold hover:underline">{SITE.contact.phoneFormatted}</a> or visit us during open hours at {SITE.contact.address.full}.
+          </p>
+        </div>
+        <a
+          href={CONTACT_URL}
+          class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-5 py-3 rounded-full bg-teal-50 text-teal-900 border border-teal-200/60 hover:bg-teal-100 text-xs shrink-0"
+        >
+          Contact Shelter
+        </a>
+      </div>
+
+      <p class="pt-5 border-t border-teal-900/10 text-xs sm:text-sm text-teal-700 font-medium flex flex-wrap gap-4 justify-center sm:justify-start items-center">
+        <a href={RESOURCES_URL} class="hover:text-teal-900 underline underline-offset-4">
+          Shelter services &amp; contact
+        </a>
+        <span class="text-teal-900/30">|</span>
+        <a href={DONATE_URL} class="hover:text-teal-900 underline underline-offset-4">
+          Other ways to give
+        </a>
+      </p>
     </div>
+
   </div>
 </BaseLayout>

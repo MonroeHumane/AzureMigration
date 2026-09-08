@@ -45,17 +45,17 @@ const formatCents = (val: number) => {
 ---
 
 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-  <div class="bg-white rounded-xl p-4 border border-slate-200">
-    <div class="text-xs text-slate-500">YTD net</div>
+  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl p-4 border border-slate-200 dark:border-teal-800/80 dark:text-white">
+    <div class="text-xs text-slate-500 dark:text-slate-400">YTD net</div>
     <div class="mt-1 flex items-baseline gap-2">
-      <span id="kpi-all-in-net" class="text-2xl font-bold tracking-tight text-slate-900">
+      <span id="kpi-all-in-net" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
         {kpis ? formatDollar(kpis.all_in_net) : '--'}
       </span>
-      <span id="kpi-all-in-margin" class="text-sm text-slate-500">
+      <span id="kpi-all-in-margin" class="text-sm text-slate-500 dark:text-slate-400">
         {kpis ? `${kpis.all_in_margin_pct.toFixed(1)}%` : ''}
       </span>
     </div>
-    <p class="text-xs text-slate-500 mt-1">
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
       <span id="kpi-all-in-rev">{kpis ? formatDollar(kpis.all_in_revenue) : '--'}</span>
       in ·
       <span id="kpi-all-in-exp">{kpis ? formatDollar(kpis.all_in_expenditures) : '--'}</span>
@@ -64,35 +64,35 @@ const formatCents = (val: number) => {
     <span id="kpi-all-in-exact" class="hidden">{kpis ? formatCents(kpis.all_in_net) : '--'}</span>
   </div>
 
-  <div class="bg-white rounded-xl p-4 border border-slate-200">
-    <div class="text-xs text-slate-500">Shelter net</div>
+  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl p-4 border border-slate-200 dark:border-teal-800/80 dark:text-white">
+    <div class="text-xs text-slate-500 dark:text-slate-400">Shelter net</div>
     <div class="mt-1 flex items-baseline gap-2">
-      <span id="kpi-qbo-net" class="text-2xl font-bold tracking-tight text-slate-900">
+      <span id="kpi-qbo-net" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
         {kpis ? formatDollar(kpis.qbo_operating_net) : '--'}
       </span>
     </div>
-    <p class="text-xs text-slate-500 mt-1">
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
       <span id="kpi-qbo-rev">{kpis ? formatDollar(kpis.qbo_operating_revenue) : '--'}</span>
       in ·
       <span id="kpi-qbo-exp">{kpis ? formatDollar(kpis.qbo_cogs + kpis.qbo_operating_expenditures) : '--'}</span>
       out
     </p>
-    <p class="text-xs text-slate-500 mt-1">
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
       Bridge <span id="kpi-qbo-bridge">{kpis ? `+${formatDollar(kpis.non_operating_bridge)}` : '--'}</span>
     </p>
   </div>
 
-  <div class="bg-white rounded-xl p-4 border border-slate-200">
-    <div class="text-xs text-slate-500">Program ratio</div>
+  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl p-4 border border-slate-200 dark:border-teal-800/80 dark:text-white">
+    <div class="text-xs text-slate-500 dark:text-slate-400">Program ratio</div>
     <div class="mt-1 flex items-baseline gap-2">
-      <span id="kpi-program-ratio" class="text-2xl font-bold tracking-tight text-slate-900">
+      <span id="kpi-program-ratio" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
         {kpis ? `${kpis.program_ratio_pct.toFixed(1)}%` : '--'}
       </span>
-      <span id="kpi-program-target" class="text-xs text-slate-500">
+      <span id="kpi-program-target" class="text-xs text-slate-500 dark:text-slate-400">
         {kpis ? (kpis.program_ratio_pct >= 75 ? '≥75%' : '<75%') : ''}
       </span>
     </div>
-    <p class="text-xs text-slate-500 mt-1">
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
       <span id="kpi-program-spend">{kpis ? formatDollar(kpis.program_spend) : '--'}</span>
       /
       <span id="kpi-program-opexp">{kpis ? formatDollar(kpis.qbo_operating_expenditures) : '--'}</span>
@@ -101,23 +101,23 @@ const formatCents = (val: number) => {
     <span id="kpi-program-cents" class="hidden"></span>
   </div>
 
-  <div class="bg-white rounded-xl p-4 border border-slate-200">
-    <div class="text-xs text-slate-500">Cash</div>
+  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl p-4 border border-slate-200 dark:border-teal-800/80 dark:text-white">
+    <div class="text-xs text-slate-500 dark:text-slate-400">Cash</div>
     <div class="mt-1 flex items-baseline gap-2">
-      <span id="kpi-total-liquidity" class="text-2xl font-bold tracking-tight text-slate-900">
+      <span id="kpi-total-liquidity" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
         {kpis ? formatDollar((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) : '--'}
       </span>
-      <span id="kpi-runway-badge" class="text-xs text-slate-500">
+      <span id="kpi-runway-badge" class="text-xs text-slate-500 dark:text-slate-400">
         {kpis ? `${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1)} mo` : ''}
       </span>
     </div>
-    <p class="text-xs text-slate-500 mt-1">
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
       <span id="kpi-operating-cash">{kpis ? formatDollar(kpis.bank_register_cash || kpis.operating_checking_first_merchants) : '--'}</span>
       checking ·
       <span id="kpi-fidelity-reserve">{kpis ? formatDollar(kpis.fidelity_reserve) : '--'}</span>
       reserve
     </p>
-    <p class="text-xs text-slate-500 mt-1">
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
       Zero inflow <span id="kpi-zero-inflow">{kpis ? `${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / ((kpis.qbo_cogs + kpis.qbo_operating_expenditures) / 8)).toFixed(1)} mo` : '--'}</span>
     </p>
   </div>

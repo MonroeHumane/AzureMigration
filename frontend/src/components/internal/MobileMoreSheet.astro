@@ -11,29 +11,29 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
   <div class="fixed inset-0 flex items-end justify-center p-0" id="mobile-more-sheet-backdrop">
     <div
       id="mobile-more-sheet-panel"
-      class="w-full max-w-lg bg-[#071a17] text-white rounded-t-3xl border-t border-teal-700/80 shadow-2xl transform translate-y-full transition-transform duration-300 ease-out max-h-[88vh] overflow-y-auto"
+      class="w-full max-w-lg bg-white dark:bg-[#071a17] text-slate-900 dark:text-white rounded-t-3xl border-t border-slate-200 dark:border-teal-700/80 shadow-2xl transform translate-y-full transition-transform duration-300 ease-out max-h-[88vh] overflow-y-auto"
       role="document"
     >
       <!-- Drag handle indicator -->
       <div class="pt-3.5 pb-1 flex justify-center cursor-pointer" id="mobile-more-sheet-handle">
-        <span class="w-12 h-1.5 bg-teal-800 rounded-full"></span>
+        <span class="w-12 h-1.5 bg-slate-300 dark:bg-teal-800 rounded-full"></span>
       </div>
 
       <!-- Header -->
-      <div class="px-5 py-3 border-b border-teal-900/80 flex items-center justify-between">
+      <div class="px-5 py-3 border-b border-slate-200 dark:border-teal-900/80 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <span class="p-1.5 rounded-xl bg-teal-900/80 text-emerald-300 border border-teal-700/80">
+          <span class="p-1.5 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-900/80 dark:text-emerald-300 dark:border-teal-700/80">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
           </span>
-          <h3 class="text-sm font-bold text-white tracking-tight">Portal Utilities &amp; Modules</h3>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white tracking-tight">Portal Utilities &amp; Modules</h3>
         </div>
         <button
           type="button"
           id="close-mobile-more-sheet-btn"
-          class="p-1.5 rounded-lg text-teal-300 hover:text-white hover:bg-teal-900/60 transition cursor-pointer"
+          class="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-teal-300 dark:hover:text-white dark:hover:bg-teal-900/60 transition cursor-pointer"
           aria-label="Close sheet"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -46,10 +46,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       <!-- Content Body -->
       <div class="p-4 space-y-3 text-xs">
         <!-- Navigation Style Switcher Segmented Control -->
-        <div class="p-3 bg-[#0b2420] rounded-2xl border border-teal-800/80 shadow-md">
+        <div class="p-3 bg-slate-50 dark:bg-[#0b2420] rounded-2xl border border-slate-200 dark:border-teal-800/80 shadow-md">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-teal-200">Mobile Navigation Mode</span>
-            <span id="sheet-nav-mode-indicator" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            <span class="text-xs font-bold text-teal-800 dark:text-teal-200">Mobile Navigation Mode</span>
+            <span id="sheet-nav-mode-indicator" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
               Bottom Dock
             </span>
           </div>
@@ -64,7 +64,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             <button
               type="button"
               id="sheet-set-hamburger-btn"
-              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-teal-950 text-teal-200 hover:bg-teal-900 hover:text-white border border-teal-800"
+              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-slate-200 text-slate-700 border border-slate-300 dark:bg-teal-950 dark:text-teal-200 dark:border-teal-800 hover:bg-slate-300 dark:hover:bg-teal-900 dark:hover:text-white"
             >
               <span>🍔 Hamburger</span>
             </button>
@@ -72,10 +72,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         </div>
 
         <!-- Portal Theme Switcher (Light Monroe / Dark Ops) -->
-        <div class="p-3 bg-[#0b2420] rounded-2xl border border-teal-800/80 shadow-md">
+        <div class="p-3 bg-slate-50 dark:bg-[#0b2420] rounded-2xl border border-slate-200 dark:border-teal-800/80 shadow-md">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-teal-200">Portal Theme</span>
-            <span id="sheet-theme-indicator" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            <span class="text-xs font-bold text-teal-800 dark:text-teal-200">Portal Theme</span>
+            <span id="sheet-theme-indicator" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
               Light Monroe
             </span>
           </div>
@@ -90,7 +90,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             <button
               type="button"
               id="sheet-set-dark-theme-btn"
-              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-teal-950 text-teal-200 hover:bg-teal-900 hover:text-white border border-teal-800"
+              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-slate-200 text-slate-700 border border-slate-300 dark:bg-teal-950 dark:text-teal-200 dark:border-teal-800 hover:bg-slate-300 dark:hover:bg-teal-900 dark:hover:text-white"
             >
               <span>🌙 Dark Ops</span>
             </button>
@@ -100,7 +100,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <!-- PWA Install Action Card -->
         <div
           id="pwa-install-container"
-          class="p-3 rounded-2xl bg-gradient-to-r from-teal-950 via-[#0a2723] to-teal-950 text-white border border-teal-700/80 shadow-md flex items-center justify-between"
+          class="p-3 rounded-2xl bg-teal-800 dark:bg-gradient-to-r dark:from-teal-950 dark:via-[#0a2723] dark:to-teal-950 text-white border border-teal-700/80 shadow-md flex items-center justify-between"
         >
           <div class="flex items-center gap-2.5">
             <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
@@ -132,22 +132,22 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           href={directusAdminUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="flex items-center justify-between p-3 rounded-2xl bg-[#0b2420] hover:bg-teal-900/60 border border-teal-800/80 transition group"
+          class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0b2420] hover:bg-teal-50 dark:hover:bg-teal-900/60 border border-slate-200 dark:border-teal-800/80 transition group"
         >
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-teal-900 text-emerald-300 border border-teal-700 flex items-center justify-center font-bold text-sm shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-900 dark:text-emerald-300 dark:border-teal-700 flex items-center justify-center font-bold text-sm shadow-xs">
               CMS
             </div>
             <div>
-              <div class="font-bold text-white group-hover:text-emerald-300 text-xs">
+              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-emerald-300 text-xs">
                 Directus Headless CMS Console
               </div>
-              <div class="text-[11px] text-teal-300/70">
+              <div class="text-[11px] text-slate-500 dark:text-teal-300/70">
                 Manage animal records, newsletters &amp; site assets
               </div>
             </div>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-400 group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-teal-400 group-hover:text-teal-800 dark:group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
             <polyline points="15 3 21 3 21 9"></polyline>
             <line x1="10" y1="14" x2="21" y2="3"></line>
@@ -158,25 +158,25 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <a
           href="/internal/content/"
           data-astro-prefetch="hover"
-          class="flex items-center justify-between p-3 rounded-2xl bg-[#0b2420] hover:bg-teal-900/60 border border-teal-800/80 transition group"
+          class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0b2420] hover:bg-teal-50 dark:hover:bg-teal-900/60 border border-slate-200 dark:border-teal-800/80 transition group"
         >
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-teal-950 text-teal-300 border border-teal-800/80 flex items-center justify-center shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800/80 flex items-center justify-center shadow-xs">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
               </svg>
             </div>
             <div>
-              <div class="font-bold text-white group-hover:text-teal-200 text-xs">
+              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-teal-200 text-xs">
                 Site Content Manager
               </div>
-              <div class="text-[11px] text-slate-300">
+              <div class="text-[11px] text-slate-500 dark:text-slate-300">
                 Memorial tributes, event flyers &amp; newsletters
               </div>
             </div>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-400 group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-teal-400 group-hover:text-teal-800 dark:group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </a>
@@ -185,24 +185,24 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <a
           href="/internal/donors/"
           data-astro-prefetch="hover"
-          class="flex items-center justify-between p-3 rounded-2xl bg-[#0b2420] hover:bg-teal-900/60 border border-teal-800/80 transition group"
+          class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0b2420] hover:bg-teal-50 dark:hover:bg-teal-900/60 border border-slate-200 dark:border-teal-800/80 transition group"
         >
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-teal-950 text-teal-300 border border-teal-800/80 flex items-center justify-center shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800/80 flex items-center justify-center shadow-xs">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
               </svg>
             </div>
             <div>
-              <div class="font-bold text-white group-hover:text-teal-200 text-xs">
+              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-teal-200 text-xs">
                 Donor Registry &amp; Lifetime Giving
               </div>
-              <div class="text-[11px] text-slate-300">
+              <div class="text-[11px] text-slate-500 dark:text-slate-300">
                 Profiles, giving records &amp; tax addresses
               </div>
             </div>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-400 group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-teal-400 group-hover:text-teal-800 dark:group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </a>
@@ -211,10 +211,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <a
           href="/internal/board/print/"
           target="_blank"
-          class="flex items-center justify-between p-3 rounded-2xl bg-[#0b2420] hover:bg-teal-900/60 border border-teal-800/80 transition group"
+          class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0b2420] hover:bg-teal-50 dark:hover:bg-teal-900/60 border border-slate-200 dark:border-teal-800/80 transition group"
         >
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-teal-950 text-teal-300 border border-teal-800/80 flex items-center justify-center shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800/80 flex items-center justify-center shadow-xs">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -222,15 +222,15 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
               </svg>
             </div>
             <div>
-              <div class="font-bold text-white group-hover:text-teal-200 text-xs">
+              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-teal-200 text-xs">
                 Board Financials Print Packet
               </div>
-              <div class="text-[11px] text-slate-300">
+              <div class="text-[11px] text-slate-500 dark:text-slate-300">
                 Executive monthly statement &amp; bank reconciliation
               </div>
             </div>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-400 group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-teal-400 group-hover:text-teal-800 dark:group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </a>
@@ -239,10 +239,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <a
           href="/internal/board/#bank-statement-viewer"
           data-astro-prefetch="hover"
-          class="flex items-center justify-between p-3 rounded-2xl bg-[#0b2420] hover:bg-teal-900/60 border border-teal-800/80 transition group"
+          class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0b2420] hover:bg-teal-50 dark:hover:bg-teal-900/60 border border-slate-200 dark:border-teal-800/80 transition group"
         >
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-teal-900 text-teal-200 border border-teal-700 flex items-center justify-center shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-900 dark:text-teal-200 dark:border-teal-700 flex items-center justify-center shadow-xs">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
@@ -251,15 +251,15 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
               </svg>
             </div>
             <div>
-              <div class="font-bold text-white group-hover:text-teal-200 text-xs">
+              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-teal-200 text-xs">
                 Bank Statement &amp; Audit Scans
               </div>
-              <div class="text-[11px] text-teal-300/70">
+              <div class="text-[11px] text-slate-500 dark:text-teal-300/70">
                 First Merchants dual-PDF reconciliation
               </div>
             </div>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-400 group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-teal-400 group-hover:text-teal-800 dark:group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </a>
@@ -268,25 +268,25 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <a
           href="/"
           data-astro-reload
-          class="flex items-center justify-between p-3 rounded-2xl bg-[#0b2420] hover:bg-teal-900/60 border border-teal-800/80 transition group"
+          class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0b2420] hover:bg-teal-50 dark:hover:bg-teal-900/60 border border-slate-200 dark:border-teal-800/80 transition group"
         >
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-teal-950 text-teal-300 border border-teal-800 flex items-center justify-center shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800 flex items-center justify-center shadow-xs">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
             </div>
             <div>
-              <div class="font-bold text-white group-hover:text-teal-200 text-xs">
+              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-teal-200 text-xs">
                 Return to Public Website
               </div>
-              <div class="text-[11px] text-teal-300/70">
+              <div class="text-[11px] text-slate-500 dark:text-teal-300/70">
                 monroe-humane.org home page
               </div>
             </div>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-400 group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-teal-400 group-hover:text-teal-800 dark:group-hover:text-white transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </a>
@@ -341,15 +341,15 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         modeIndicator.textContent = current === 'bottom-bar' ? 'Bottom Dock' : 'Hamburger';
       }
       if (current === 'bottom-bar') {
-        bottomBarBtn?.classList.remove('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        bottomBarBtn?.classList.remove('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
         bottomBarBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
         hamburgerBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        hamburgerBtn?.classList.add('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        hamburgerBtn?.classList.add('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
       } else {
-        hamburgerBtn?.classList.remove('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        hamburgerBtn?.classList.remove('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
         hamburgerBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
         bottomBarBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        bottomBarBtn?.classList.add('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        bottomBarBtn?.classList.add('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
       }
     }
 
@@ -364,15 +364,15 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         themeIndicator.textContent = current === 'light' ? 'Light Monroe' : 'Dark Ops';
       }
       if (current === 'light') {
-        lightThemeBtn?.classList.remove('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        lightThemeBtn?.classList.remove('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
         lightThemeBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
         darkThemeBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        darkThemeBtn?.classList.add('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        darkThemeBtn?.classList.add('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
       } else {
-        darkThemeBtn?.classList.remove('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        darkThemeBtn?.classList.remove('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
         darkThemeBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
         lightThemeBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        lightThemeBtn?.classList.add('bg-teal-950', 'text-teal-200', 'border', 'border-teal-800');
+        lightThemeBtn?.classList.add('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
       }
     }
 
