@@ -353,8 +353,9 @@
 			state.activeCards.push(computeCardAttributes(raw, idx));
 		});
 
-		// Save cards count
+		// Keep Pass card count and album collected list on the same source of truth
 		try {
+			localStorage.setItem('monroe_discovered_pets', JSON.stringify(Object.keys(state.metIdsSet)));
 			localStorage.setItem('monroeDexCards', String(state.activeCards.length));
 		} catch (e) {}
 
@@ -374,7 +375,15 @@
 	// Header & Progress Updates
 	// ──────────────────────────────────────────────────────────────────────────
 	function updateHeaderStats() {
-		var user = params.dexDisplay || params.dexUser || 'Rescuer';
+		var user = (params.dexDisplay || '').trim();
+		if (!user || user === 'Guest Rescuer') {
+			try {
+				user = (localStorage.getItem('monroeDexUser') || '').trim();
+			} catch (e) {}
+			if (!user) {
+				user = params.dexUser || 'Rescuer';
+			}
+		}
 		if (els.title) {
 			els.title.textContent = user + '’s Pet Binder';
 		}

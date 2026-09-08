@@ -8,6 +8,37 @@
   <link rel="icon" href="/assets/monroe-paw-print-tile.png" />
   <link rel="stylesheet" crossorigin href="./assets/index-BLWOQFaX.css">
   <link rel="stylesheet" href="./embed.css">
+  <style>
+    .booster-empty-inventory {
+      max-width: 22rem;
+      margin: 0 auto;
+      padding: 1.75rem 1.35rem;
+      text-align: center;
+      color: #f1f5f9;
+      background: rgba(8, 36, 31, 0.88);
+      border: 1.5px solid rgba(45, 212, 191, 0.4);
+      border-radius: 18px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+    .booster-empty-inventory p:first-child {
+      font-size: 1.28rem;
+      font-weight: 800;
+      margin-bottom: 0.55rem;
+      color: #fef08a;
+    }
+    .booster-empty-inventory p + p {
+      color: #99f6e4;
+      line-height: 1.45;
+      margin-bottom: 1.15rem;
+    }
+    html.booster-no-packs .pack-wrapper-3d,
+    html.booster-no-packs .pack-selector-bar,
+    html.booster-no-packs .tear-prompt-badge,
+    html.booster-no-packs .tear-canvas-layer {
+      display: none !important;
+      pointer-events: none !important;
+    }
+  </style>
   <script type="module" crossorigin src="./assets/index-znk9ZYV9.js"></script>
 </head>
 <body>
@@ -41,6 +72,45 @@
           } catch (err) {}
         }
       });
+
+      function getLocalPackCount() {
+        try {
+          var raw = localStorage.getItem('monroeDexPacks');
+          if (raw === null) return 1;
+          var n = parseInt(raw, 10);
+          return isNaN(n) ? 0 : Math.max(0, n);
+        } catch (err) {
+          return 0;
+        }
+      }
+
+      function syncNoPacksClass() {
+        document.documentElement.classList.toggle('booster-no-packs', getLocalPackCount() <= 0);
+      }
+
+      function blockTearWhenEmpty(e) {
+        if (getLocalPackCount() > 0) return;
+        var el = e.target;
+        if (!el || !el.closest) return;
+        if (el.closest('.pack-wrapper-3d, .tear-prompt-badge, .tear-canvas-layer')) {
+          e.preventDefault();
+          e.stopPropagation();
+          syncNoPacksClass();
+        }
+      }
+
+      syncNoPacksClass();
+      try {
+        var nativeSetItem = localStorage.setItem.bind(localStorage);
+        localStorage.setItem = function (key, value) {
+          nativeSetItem(key, value);
+          if (key === 'monroeDexPacks') syncNoPacksClass();
+        };
+      } catch (err) {}
+      window.addEventListener('storage', syncNoPacksClass);
+      document.addEventListener('pointerdown', blockTearWhenEmpty, true);
+      document.addEventListener('click', blockTearWhenEmpty, true);
+      window.addEventListener('monroe-adoptedex-updated', syncNoPacksClass);
 
       // Handle arcade sound mute state
       window.addEventListener('message', function (e) {

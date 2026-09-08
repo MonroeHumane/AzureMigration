@@ -36,10 +36,17 @@ class BootScene extends Phaser.Scene {
     }
 
     const startMain = () => this.scene.start('MainMenu');
-    if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(startMain).catch(startMain);
-    } else {
+    let started = false;
+    const go = () => {
+      if (started) return;
+      started = true;
       startMain();
+    };
+    if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(go).catch(go);
+      this.time.delayedCall(1200, go);
+    } else {
+      go();
     }
   }
 

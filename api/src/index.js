@@ -647,3 +647,138 @@ app.http('inquiry', {
   },
 });
 
+// 9. /api/arcade-api/{*rest} — same-origin reverse proxy to the arcade Container App.
+// SWA rewrites /arcade-api/* → /api/arcade-api/*. Preserve the /arcade-api prefix;
+// the PHP app strips it. Do not change staff login/financials behavior.
+const ARCADE_API_BASE = (process.env.ARCADE_API_BASE
+  || 'https://mchs-arcade-api.livelyfield-d0a70609.eastus.azurecontainerapps.io').replace(/\/+$/, '');
+
+const ARCADE_PROXY_REQUEST_HEADERS = [
+  'cookie',
+  'content-type',
+  'authorization',
+  'accept',
+  'origin',
+  'x-cleanup-secret',
+  'x-requested-with',
+];
+
+const ARCADE_PROXY_SKIP_RESPONSE_HEADERS = new Set([
+  'connection',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailer',
+  'transfer-encoding',
+  'upgrade',
+  'content-encoding',
+  'content-length',
+  'host',
+  'set-cookie',
+]);
+
+function arcadeProxyTargetUrl(request) {
+  // SWA wildcard rewrites do not capture the tail. /arcade-api/* → /api/arcade-api/*
+  // would call the Container App with a literal "*". Rewrite to a fixed function
+  // path and recover the browser URL from x-ms-original-url.
+  const originalHeader = (request.headers.get('x-ms-original-url') || '').trim();
+  let incoming;
+  try {
+    incoming = new URL(originalHeader || request.url, request.url);
+  } catch {
+    incoming = new URL(request.url);
+  }
+  const marker = '/arcade-api';
+  const idx = incoming.pathname.indexOf(marker);
+  let pathAndRest;
+  if (idx >= 0) {
+    pathAndRest = incoming.pathname.slice(idx);
+    if (pathAndRest === '/arcade-api/*' || pathAndRest === '/arcade-api/proxy') {
+      pathAndRest = '/arcade-api';
+    }
+  } else {
+    const rest = (request.params && request.params.rest) || '';
+    pathAndRest = rest && rest !== 'proxy' && rest !== '*'
+      ? `/arcade-api/${rest}`
+      : '/arcade-api';
+  }
+  return ARCADE_API_BASE + pathAndRest + incoming.search;
+}
+
+app.http('arcadeProxy', {
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+  authLevel: 'anonymous',
+  route: 'arcade-api/{*rest}',
+  handler: async (request, context) => {
+    const targetUrl = arcadeProxyTargetUrl(request);
+    const method = (request.method || 'GET').toUpperCase();
+    const outboundHeaders = {};
+
+    for (const name of ARCADE_PROXY_REQUEST_HEADERS) {
+      const value = request.headers.get(name);
+      if (value) {
+        outboundHeaders[name] = value;
+      }
+    }
+
+    const init = {
+      method,
+      headers: outboundHeaders,
+      redirect: 'manual',
+    };
+
+    if (method !== 'GET' && method !== 'HEAD') {
+      try {
+        const buf = await request.arrayBuffer();
+        if (buf && buf.byteLength > 0) {
+          init.body = buf;
+        }
+      } catch {
+        // No body (or already consumed) — still proxy method + query.
+      }
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    init.signal = controller.signal;
+
+    try {
+      const upstream = await fetch(targetUrl, init);
+      clearTimeout(timeoutId);
+
+      const responseHeaders = {};
+      upstream.headers.forEach((value, key) => {
+        if (!ARCADE_PROXY_SKIP_RESPONSE_HEADERS.has(key.toLowerCase())) {
+          responseHeaders[key] = value;
+        }
+      });
+
+      const setCookies = typeof upstream.headers.getSetCookie === 'function'
+        ? upstream.headers.getSetCookie()
+        : [];
+      if (setCookies.length === 1) {
+        responseHeaders['Set-Cookie'] = setCookies[0];
+      } else if (setCookies.length > 1) {
+        responseHeaders['Set-Cookie'] = setCookies;
+      }
+
+      const bodyBuffer = Buffer.from(await upstream.arrayBuffer());
+      return {
+        status: upstream.status,
+        headers: responseHeaders,
+        body: bodyBuffer,
+      };
+    } catch (err) {
+      clearTimeout(timeoutId);
+      context.error('[arcadeProxy] Upstream error:', err);
+      return jsonResponse(request, 502, {
+        error: {
+          code: 'proxy_error',
+          message: 'Arcade API unreachable.',
+        },
+      });
+    }
+  },
+});
+

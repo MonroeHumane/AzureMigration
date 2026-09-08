@@ -536,6 +536,25 @@ class A {
       this.currentUserSlug = "player-" + Math.random().toString(36).slice(2, 8);
     }
 
+    if (this.unopenedPacks <= 0) {
+      return {
+        ok: false,
+        error: "no_packs",
+        pendingCommit: false,
+        tier: tier,
+        cards: [],
+        alreadyOwned: [],
+        packRarity: "common",
+        packRarityLabel: "Common Pack",
+        coinsAwarded: 0,
+        coinBalance: this.coinBalance,
+        unopenedPacks: 0,
+        nextUnopenedPacks: 0,
+        nextCoinBalance: this.coinBalance,
+        totalPacksOpened: 0
+      };
+    }
+
     let serverData = null;
     try {
       const res = await fetch(`${this.restBase}adoptedex/${encodeURIComponent(this.currentUserSlug)}/packs/open`, {
@@ -558,30 +577,55 @@ class A {
     let coinsAwarded = 0;
     let packRarity = "common";
     let packRarityLabel = "Common Pack";
+    let nextUnopenedPacks = this.unopenedPacks;
+    let nextCoinBalance = this.coinBalance;
 
     if (serverData) {
-      this.unopenedPacks = parseInt(serverData.unopened_packs, 10) || 0;
-      this.coinBalance = parseInt(serverData.coin_balance, 10) || 0;
+      nextUnopenedPacks = parseInt(serverData.unopened_packs, 10) || 0;
+      nextCoinBalance = parseInt(serverData.coin_balance, 10) || 0;
       finalCards = serverData.cards || [];
       coinsAwarded = parseInt(serverData.coins_awarded, 10) || 0;
       packRarity = serverData.pack_rarity || "common";
       packRarityLabel = serverData.pack_rarity_label || "Common Pack";
     } else {
-      // Offline fallback: draw real shelter pets
       const drawn = await drawOfflinePack(tier);
       finalCards = drawn.cards;
       coinsAwarded = drawn.coinsAwarded;
       packRarity = drawn.packRarity;
       packRarityLabel = drawn.packRarityLabel;
-      this.unopenedPacks = Math.max(0, this.unopenedPacks - 1);
-      this.coinBalance += coinsAwarded;
-      localStorage.setItem("monroeDexCoins", String(this.coinBalance));
+      nextUnopenedPacks = Math.max(0, this.unopenedPacks - 1);
+      nextCoinBalance = this.coinBalance + coinsAwarded;
     }
 
+    return {
+      ok: true,
+      pendingCommit: true,
+      committed: false,
+      tier: tier,
+      cards: finalCards,
+      alreadyOwned: [],
+      packRarity,
+      packRarityLabel,
+      coinsAwarded,
+      coinBalance: nextCoinBalance,
+      unopenedPacks: nextUnopenedPacks,
+      nextUnopenedPacks,
+      nextCoinBalance,
+      totalPacksOpened: 1
+    };
+  }
+
+  commitOpenPack(result) {
+    if (!result || !result.ok || result.committed || !result.pendingCommit) return result;
+    if (!Array.isArray(result.cards) || result.cards.length === 0) return result;
+
+    this.unopenedPacks = typeof result.nextUnopenedPacks === "number" ? result.nextUnopenedPacks : Math.max(0, this.unopenedPacks - 1);
+    this.coinBalance = typeof result.nextCoinBalance === "number" ? result.nextCoinBalance : this.coinBalance;
     localStorage.setItem("monroeDexPacks", String(this.unopenedPacks));
+    localStorage.setItem("monroeDexCoins", String(this.coinBalance));
     this.notifyListeners();
 
-    const petIds = finalCards.map(s => s.id);
+    const petIds = result.cards.map(s => s.id);
     try {
       const s = JSON.parse(localStorage.getItem("monroe_discovered_pets") || "[]");
       const o = new Set([...s, ...petIds]);
@@ -595,22 +639,13 @@ class A {
         user: this.currentUserSlug,
         packOpened: true,
         remainingPacks: this.unopenedPacks,
-        tier: tier
+        tier: result.tier
       }
     }));
 
-    return {
-      ok: true,
-      tier: tier,
-      cards: finalCards,
-      alreadyOwned: [],
-      packRarity,
-      packRarityLabel,
-      coinsAwarded,
-      coinBalance: this.coinBalance,
-      unopenedPacks: this.unopenedPacks,
-      totalPacksOpened: 1
-    };
+    result.committed = true;
+    result.pendingCommit = false;
+    return result;
   }
 }
 
@@ -655,7 +690,7 @@ const h=new A,b={common:{label:"Common Pack",className:"pack-rarity-common"},unc
           </a>
         </div>
       </div>
-    `;const l=this.container.querySelector(".btn-open-more");l&&l.addEventListener("click",()=>{this.container.remove(),this.onOpenAnother()})}}function L(n,e){if(e)switch(e){case"alumni":return{rarity:"alumni",foil:"prism",label:"Adopted Alumni"};case"golden_senior":return{rarity:"golden_senior",foil:"gold",label:"Golden Senior (7+ Yrs)"};case"longtimer":return{rarity:"longtimer",foil:"cosmos",label:"Shelter Champion"};case"tiny_wonder":return{rarity:"tiny_wonder",foil:"aurora",label:"Tiny Wonder (<6 Mos)"};default:return{rarity:"common",foil:"none",label:"Shelter Companion"}}if(n.isArchived)return{rarity:"alumni",foil:"prism",label:"Adopted Alumni"};const t=n.age.toLowerCase(),a=t.includes("month")&&!t.includes("year"),r=t.match(/(\d+)\s*year/);if((r?parseInt(r[1],10):a?0:2)>=7)return{rarity:"golden_senior",foil:"gold",label:"Golden Senior"};if(a){const c=t.match(/(\d+)\s*month/);if((c?parseInt(c[1],10):2)<=6)return{rarity:"tiny_wonder",foil:"aurora",label:"Tiny Wonder"}}return parseInt(n.id.replace(/\D/g,""),10)<6e7?{rarity:"longtimer",foil:"cosmos",label:"Shelter Champion"}:{rarity:"common",foil:"none",label:"Shelter Companion"}}function $(n,e){let t=0;for(let f=0;f<n.id.length;f++)t=(t<<5)-t+n.id.charCodeAt(f),t|=0;const a=Math.abs(t)%25,r=n.age.toLowerCase(),s=r.includes("month")&&!r.includes("year"),o=r.match(/(\d+)\s*year/),c=o?parseInt(o[1],10):2;let l=s?92+a%8:Math.max(35,88-c*6+a%10),d=n.location==="Foster Care"?95:70+a%25,u=s?95:Math.max(40,85-c*4+a%15),m=e==="longtimer"?100:e==="golden_senior"?98:75+a%20;return n.species.toLowerCase()==="cat"&&(d=Math.min(100,d+5)),{energy:Math.min(100,Math.max(20,Math.round(l))),cuddle:Math.min(100,Math.max(20,Math.round(d))),playful:Math.min(100,Math.max(20,Math.round(u))),loyalty:Math.min(100,Math.max(20,Math.round(m)))}}function R(n,e){const t=n.species.toLowerCase()==="cat";return e==="alumni"?{name:"Forever Home Glow",icon:"💖",energyCost:"💖 💖 💖",effect:"Fills the room with endless joy and unlocks unforgettable alumni memories."}:e==="golden_senior"?{name:"Gentle Soul Radiance",icon:"👑",energyCost:"⭐ ⭐",effect:"Bestows a sense of utter peacefulness, granting maximum cuddle priority."}:e==="tiny_wonder"?t?{name:"Pounce of Curiosity",icon:"🐾",energyCost:"⚡",effect:"Darts across the room chasing phantom dust motes with 200% agility."}:{name:"Puppy Eyes Beam",icon:"✨",energyCost:"⚡",effect:"Instantly disarms all human skepticism, securing extra belly rubs."}:e==="longtimer"?{name:"Shelter Champion Bond",icon:"🛡️",energyCost:"🛡️ ⭐",effect:"Guarantees unyielding lifelong loyalty and warm welcoming greetings."}:t?{name:"Purr Motor Surge",icon:"😻",energyCost:"🐾",effect:"Emits a soothing 45 Hz frequency that eases human stress instantly."}:{name:"Tail Wiggle Storm",icon:"🐕",energyCost:"🐾",effect:"Wags tail at lightning speed, spreading enthusiasm throughout the shelter."}}function B(n,e){const t=n.species.toLowerCase()==="cat";let a=["Affectionate","Curious"],r=t?"Feather Teaser":"Tennis Ball";return e==="tiny_wonder"?(a=t?["Playful Sprite","Purr Machine","Adventurer"]:["Bouncy Pup","Nap Champion","Curious"],r=t?"Crinkle Ball":"Squeaky Plush"):e==="golden_senior"?(a=["Wise Soul","Gentle Giant","Lap Enthusiast"],r="Orthopedic Sunbed"):e==="longtimer"?(a=["Staff Favorite","Steadfast Friend","Super Loyal"],r="Peanut Butter KONG"):e==="alumni"?(a=["Living the Dream","Loved Forever","VIP Alum"],r="Forever Family Couch"):a=t?["Sunbeam Lounger","Cuddle Bug"]:["Walk Enthusiast","Treat Connoisseur"],{traits:a,favoriteItem:r}}function F(n,e){const t=n.species.toLowerCase()==="cat";return e==="alumni"?`${n.name} found their forever family and lives happily today. Remembered fondly at Monroe Humane Society for bringing joy to everyone they met!`:e==="golden_senior"?"A wise and gentle companion who has perfected the art of afternoon naps and affectionate greetings. Deserves a warm, loving retirement home!":e==="tiny_wonder"?t?"A curious little explorer who pounces on feather toys and purrs vigorously the moment you pick them up.":"An energetic bundle of joy with bouncy steps and a tail that never stops wagging!":e==="longtimer"?"A loyal shelter champion beloved by all the staff and volunteers. Ready to bring endless unconditional love to their forever human.":t?`A friendly ${n.breed} with a gentle disposition, perfect for warm sunbeams and quiet evenings.`:`A bright, companionable ${n.breed} with plenty of spirit, eager for fun outdoor walks and belly rubs.`}function I(n,e,t){const{rarity:a,foil:r,label:s}=L(n,t),o=$(n,a),c=F(n,a),l=R(n,a),{traits:d,favoriteItem:u}=B(n,a),m="#"+String(e).padStart(3,"0"),f=`HSMC ID #${n.id} • Monroe Co.`,v=`/adopt/${n.id}`;return{id:n.id,name:n.name,dexNumber:m,species:n.species.toLowerCase()==="cat"?"cat":n.species.toLowerCase()==="dog"?"dog":"other",breed:n.breed,gender:n.gender,ageText:n.age,location:n.location,photoUrl:n.photoUrl,rarity:a,foil:r,rarityLabel:s,petBio:c,signatureMove:l,personalityTraits:d,favoriteItem:u,shelterStamp:f,stats:o,isAdopted:n.isArchived,adoptionUrl:v}}async function N(){try{const n=window.location.origin+"/wp-json/monroe/v1/",e=await fetch(`${n}pack-tiers`);if(!e.ok)return;const t=await e.json();Object.keys(y).forEach(a=>{typeof t[a]=="number"&&t[a]>0&&(y[a].cardCount=t[a])})}catch{}}function O(n,e){const t={id:n.id,name:n.name,species:n.type||"Dog",breed:n.breed||"Mixed Breed",gender:n.gender||"Unknown",age:n.age||"2 years",location:"",photoUrl:n.file||"",isArchived:n.archived};return I(t,e+1,n.rarity)}class U{constructor(){i(this,"appRoot");i(this,"currentTier","standard");i(this,"boosterPack",null);i(this,"packSelector",null);i(this,"cardStack",null);i(this,"currentCards",[]);i(this,"currentCoinsAwarded",0);i(this,"currentPackRarityLabel","Common Pack");i(this,"currentPackRarity","common");i(this,"isTearingOrRevealing",!1);this.appRoot=document.getElementById("app"),this.parseQueryParams(),this.init(),this.bindGlobalKeyboard()}parseQueryParams(){try{const e=new URLSearchParams(window.location.search),t=e.get("pack")||e.get("tier");(t==="duo"||t==="deluxe"||t==="standard")&&(this.currentTier=t);const a=e.get("cards");a==="3"&&(this.currentTier="deluxe"),a==="2"&&(this.currentTier="duo"),a==="1"&&(this.currentTier="standard")}catch{}}init(){this.renderHeader(),this.renderStage(),h.connect().catch(()=>{}),N().then(()=>{this.isTearingOrRevealing||this.renderStage()})}bindGlobalKeyboard(){window.addEventListener("keydown",e=>{if(e.key==="m"||e.key==="M"){const t=!p.getMuted();p.setMuted(t);const a=document.querySelector(".sound-icon");a&&(a.textContent=t?"🔇":"🔊")}this.isTearingOrRevealing||(e.key==="1"&&this.switchTier("standard"),e.key==="2"&&this.switchTier("duo"),e.key==="3"&&this.switchTier("deluxe"),(e.key===" "||e.key==="Enter")&&this.boosterPack&&this.boosterPack.ripOpen())})}switchTier(e){this.currentTier=e,this.boosterPack&&this.boosterPack.setTier(e),this.packSelector&&this.renderStage()}renderHeader(){const e=document.createElement("header");e.className="booster-header";const t="/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt/a93f9c_be31971351e8408cb8178224c57b9477-mv2-b3da8eac-1920w.webp",a=p.getMuted();e.innerHTML=`
+    `;const l=this.container.querySelector(".btn-open-more");l&&l.addEventListener("click",()=>{this.container.remove(),this.onOpenAnother()})}}function L(n,e){if(e)switch(e){case"alumni":return{rarity:"alumni",foil:"prism",label:"Adopted Alumni"};case"golden_senior":return{rarity:"golden_senior",foil:"gold",label:"Golden Senior (7+ Yrs)"};case"longtimer":return{rarity:"longtimer",foil:"cosmos",label:"Shelter Champion"};case"tiny_wonder":return{rarity:"tiny_wonder",foil:"aurora",label:"Tiny Wonder (<6 Mos)"};default:return{rarity:"common",foil:"none",label:"Shelter Companion"}}if(n.isArchived)return{rarity:"alumni",foil:"prism",label:"Adopted Alumni"};const t=n.age.toLowerCase(),a=t.includes("month")&&!t.includes("year"),r=t.match(/(\d+)\s*year/);if((r?parseInt(r[1],10):a?0:2)>=7)return{rarity:"golden_senior",foil:"gold",label:"Golden Senior"};if(a){const c=t.match(/(\d+)\s*month/);if((c?parseInt(c[1],10):2)<=6)return{rarity:"tiny_wonder",foil:"aurora",label:"Tiny Wonder"}}return parseInt(n.id.replace(/\D/g,""),10)<6e7?{rarity:"longtimer",foil:"cosmos",label:"Shelter Champion"}:{rarity:"common",foil:"none",label:"Shelter Companion"}}function $(n,e){let t=0;for(let f=0;f<n.id.length;f++)t=(t<<5)-t+n.id.charCodeAt(f),t|=0;const a=Math.abs(t)%25,r=n.age.toLowerCase(),s=r.includes("month")&&!r.includes("year"),o=r.match(/(\d+)\s*year/),c=o?parseInt(o[1],10):2;let l=s?92+a%8:Math.max(35,88-c*6+a%10),d=n.location==="Foster Care"?95:70+a%25,u=s?95:Math.max(40,85-c*4+a%15),m=e==="longtimer"?100:e==="golden_senior"?98:75+a%20;return n.species.toLowerCase()==="cat"&&(d=Math.min(100,d+5)),{energy:Math.min(100,Math.max(20,Math.round(l))),cuddle:Math.min(100,Math.max(20,Math.round(d))),playful:Math.min(100,Math.max(20,Math.round(u))),loyalty:Math.min(100,Math.max(20,Math.round(m)))}}function R(n,e){const t=n.species.toLowerCase()==="cat";return e==="alumni"?{name:"Forever Home Glow",icon:"💖",energyCost:"💖 💖 💖",effect:"Fills the room with endless joy and unlocks unforgettable alumni memories."}:e==="golden_senior"?{name:"Gentle Soul Radiance",icon:"👑",energyCost:"⭐ ⭐",effect:"Bestows a sense of utter peacefulness, granting maximum cuddle priority."}:e==="tiny_wonder"?t?{name:"Pounce of Curiosity",icon:"🐾",energyCost:"⚡",effect:"Darts across the room chasing phantom dust motes with 200% agility."}:{name:"Puppy Eyes Beam",icon:"✨",energyCost:"⚡",effect:"Instantly disarms all human skepticism, securing extra belly rubs."}:e==="longtimer"?{name:"Shelter Champion Bond",icon:"🛡️",energyCost:"🛡️ ⭐",effect:"Guarantees unyielding lifelong loyalty and warm welcoming greetings."}:t?{name:"Purr Motor Surge",icon:"😻",energyCost:"🐾",effect:"Emits a soothing 45 Hz frequency that eases human stress instantly."}:{name:"Tail Wiggle Storm",icon:"🐕",energyCost:"🐾",effect:"Wags tail at lightning speed, spreading enthusiasm throughout the shelter."}}function B(n,e){const t=n.species.toLowerCase()==="cat";let a=["Affectionate","Curious"],r=t?"Feather Teaser":"Tennis Ball";return e==="tiny_wonder"?(a=t?["Playful Sprite","Purr Machine","Adventurer"]:["Bouncy Pup","Nap Champion","Curious"],r=t?"Crinkle Ball":"Squeaky Plush"):e==="golden_senior"?(a=["Wise Soul","Gentle Giant","Lap Enthusiast"],r="Orthopedic Sunbed"):e==="longtimer"?(a=["Staff Favorite","Steadfast Friend","Super Loyal"],r="Peanut Butter KONG"):e==="alumni"?(a=["Living the Dream","Loved Forever","VIP Alum"],r="Forever Family Couch"):a=t?["Sunbeam Lounger","Cuddle Bug"]:["Walk Enthusiast","Treat Connoisseur"],{traits:a,favoriteItem:r}}function F(n,e){const t=n.species.toLowerCase()==="cat";return e==="alumni"?`${n.name} found their forever family and lives happily today. Remembered fondly at Monroe Humane Society for bringing joy to everyone they met!`:e==="golden_senior"?"A wise and gentle companion who has perfected the art of afternoon naps and affectionate greetings. Deserves a warm, loving retirement home!":e==="tiny_wonder"?t?"A curious little explorer who pounces on feather toys and purrs vigorously the moment you pick them up.":"An energetic bundle of joy with bouncy steps and a tail that never stops wagging!":e==="longtimer"?"A loyal shelter champion beloved by all the staff and volunteers. Ready to bring endless unconditional love to their forever human.":t?`A friendly ${n.breed} with a gentle disposition, perfect for warm sunbeams and quiet evenings.`:`A bright, companionable ${n.breed} with plenty of spirit, eager for fun outdoor walks and belly rubs.`}function I(n,e,t){const{rarity:a,foil:r,label:s}=L(n,t),o=$(n,a),c=F(n,a),l=R(n,a),{traits:d,favoriteItem:u}=B(n,a),m="#"+String(e).padStart(3,"0"),f=`HSMC ID #${n.id} • Monroe Co.`,v=`/adopt/${n.id}`;return{id:n.id,name:n.name,dexNumber:m,species:n.species.toLowerCase()==="cat"?"cat":n.species.toLowerCase()==="dog"?"dog":"other",breed:n.breed,gender:n.gender,ageText:n.age,location:n.location,photoUrl:n.photoUrl,rarity:a,foil:r,rarityLabel:s,petBio:c,signatureMove:l,personalityTraits:d,favoriteItem:u,shelterStamp:f,stats:o,isAdopted:n.isArchived,adoptionUrl:v}}async function N(){try{const n=window.location.origin+"/wp-json/monroe/v1/",e=await fetch(`${n}pack-tiers`);if(!e.ok)return;const t=await e.json();Object.keys(y).forEach(a=>{typeof t[a]=="number"&&t[a]>0&&(y[a].cardCount=t[a])})}catch{}}function O(n,e){const t={id:n.id,name:n.name,species:n.type||"Dog",breed:n.breed||"Mixed Breed",gender:n.gender||"Unknown",age:n.age||"2 years",location:"",photoUrl:n.file||"",isArchived:n.archived};return I(t,e+1,n.rarity)}class U{constructor(){i(this,"appRoot");i(this,"currentTier","standard");i(this,"boosterPack",null);i(this,"packSelector",null);i(this,"cardStack",null);i(this,"currentCards",[]);i(this,"currentCoinsAwarded",0);i(this,"currentPackRarityLabel","Common Pack");i(this,"currentPackRarity","common");i(this,"isTearingOrRevealing",!1);this.appRoot=document.getElementById("app"),this.parseQueryParams(),this.init(),this.bindGlobalKeyboard()}parseQueryParams(){try{const e=new URLSearchParams(window.location.search),t=e.get("pack")||e.get("tier");(t==="duo"||t==="deluxe"||t==="standard")&&(this.currentTier=t);const a=e.get("cards");a==="3"&&(this.currentTier="deluxe"),a==="2"&&(this.currentTier="duo"),a==="1"&&(this.currentTier="standard")}catch{}}init(){this.renderHeader(),this.renderStage(),h.connect().catch(()=>{}),N().then(()=>{this.isTearingOrRevealing||this.renderStage()})}bindGlobalKeyboard(){window.addEventListener("keydown",e=>{if(e.key==="m"||e.key==="M"){const t=!p.getMuted();p.setMuted(t);const a=document.querySelector(".sound-icon");a&&(a.textContent=t?"🔇":"🔊")}this.isTearingOrRevealing||(e.key==="1"&&this.switchTier("standard"),e.key==="2"&&this.switchTier("duo"),e.key==="3"&&this.switchTier("deluxe"),(e.key===" "||e.key==="Enter")&&this.boosterPack&&h.getUnopenedPacks()>0&&this.boosterPack.ripOpen())})}switchTier(e){this.currentTier=e,this.boosterPack&&this.boosterPack.setTier(e),this.packSelector&&this.renderStage()}renderHeader(){const e=document.createElement("header");e.className="booster-header";const t="/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt/a93f9c_be31971351e8408cb8178224c57b9477-mv2-b3da8eac-1920w.webp",a=p.getMuted();e.innerHTML=`
       <div class="booster-logo-container">
         <img class="booster-logo-img" src="${t}" alt="Humane Society of Monroe County" onerror="this.style.display='none'">
         <div class="booster-brand-text">
@@ -674,7 +709,13 @@ const h=new A,b={common:{label:"Common Pack",className:"pack-rarity-common"},unc
           <span class="sound-icon">${a?"🔇":"🔊"}</span>
         </button>
       </div>
-    `;const r=e.querySelector("[data-player-name]"),s=e.querySelector("[data-unopened-count]");h.onProfileUpdated((l,d)=>{r&&(r.textContent=d),s&&(s.textContent=String(l))});const o=e.querySelector(".btn-sound-toggle"),c=e.querySelector(".sound-icon");o.addEventListener("click",()=>{const l=!p.getMuted();p.setMuted(l),c.textContent=l?"🔇":"🔊"}),this.appRoot.appendChild(e)}renderStage(){this.isTearingOrRevealing=!1;const e=this.appRoot.querySelector(".booster-stage");e&&e.remove();const t=this.appRoot.querySelector(".pack-selector-bar");t&&t.remove();const a=document.createElement("main");a.className="booster-stage",this.boosterPack=new T(this.currentTier,()=>{this.handlePackTorn()}),a.appendChild(this.boosterPack.getElement()),this.appRoot.appendChild(a),this.packSelector=new M(this.currentTier,r=>{this.currentTier=r,this.boosterPack&&this.boosterPack.setTier(r)}),this.appRoot.appendChild(this.packSelector.getElement())}async handlePackTorn(){this.isTearingOrRevealing=!0;const e=this.appRoot.querySelector(".pack-selector-bar");e&&(e.style.display="none"),this.showRevealLoading();let t;try{t=await h.openPack(this.currentTier)}catch(a){console.error("[Booster] openPack failed:",a),this.showPackOpenError(a instanceof Error?a.message:"Could not open pack.");return}this.currentCards=t.cards.map((a,r)=>O(a,r)),this.currentCoinsAwarded=t.coinsAwarded,this.currentPackRarity=t.packRarity,this.currentPackRarityLabel=t.packRarityLabel,setTimeout(()=>{const a=this.appRoot.querySelector(".booster-stage");a&&(a.innerHTML="",this.cardStack=new S(this.currentCards,()=>{this.handleAllRevealed()}),a.appendChild(this.cardStack.getElement()))},600)}showRevealLoading(){const e=this.appRoot.querySelector(".booster-stage");if(!e)return;const t=document.createElement("div");t.className="pack-reveal-loading",t.innerHTML='<div class="pack-reveal-spinner"></div><p>Opening pack…</p>',e.appendChild(t)}showPackOpenError(e){this.isTearingOrRevealing=!1;const t=this.appRoot.querySelector(".booster-stage");t&&(t.innerHTML=`
+    `;const r=e.querySelector("[data-player-name]"),s=e.querySelector("[data-unopened-count]");h.onProfileUpdated((l,d)=>{r&&(r.textContent=d),s&&(s.textContent=String(l));if(this.isTearingOrRevealing)return;const n=this.appRoot.querySelector(".booster-stage");if(!n)return;const empty=!!n.querySelector(".booster-empty-inventory");if(l<=0&&!empty||l>0&&empty)this.renderStage()});const o=e.querySelector(".btn-sound-toggle"),c=e.querySelector(".sound-icon");o.addEventListener("click",()=>{const l=!p.getMuted();p.setMuted(l),c.textContent=l?"🔇":"🔊"}),this.appRoot.appendChild(e)}renderStage(){this.isTearingOrRevealing=!1;this._packOpenInFlight=!1;this.boosterPack=null;const e=this.appRoot.querySelector(".booster-stage");e&&e.remove();const t=this.appRoot.querySelector(".pack-selector-bar");t&&t.remove();const a=document.createElement("main");a.className="booster-stage";if(h.getUnopenedPacks()<=0){a.innerHTML=`
+        <div class="booster-empty-inventory pack-open-error" role="status">
+          <p>🎁 No packs to open</p>
+          <p>Play Pet Match to earn booster packs, then come back to tear them open.</p>
+          <button class="btn-primary btn-play-match" type="button">🧩 Play Pet Match to Earn Packs</button>
+        </div>
+      `;const matchBtn=a.querySelector(".btn-play-match");matchBtn&&matchBtn.addEventListener("click",()=>{if(window.parent&&window.parent!==window){window.parent.location.href="/games/?game=match"}else{window.location.href="/games/?game=match"}}),this.appRoot.appendChild(a);return}this.boosterPack=new T(this.currentTier,()=>{this.handlePackTorn()}),a.appendChild(this.boosterPack.getElement()),this.appRoot.appendChild(a),this.packSelector=new M(this.currentTier,r=>{this.currentTier=r,this.boosterPack&&this.boosterPack.setTier(r)}),this.appRoot.appendChild(this.packSelector.getElement())}async handlePackTorn(){if(this._packOpenInFlight)return;this._packOpenInFlight=!0;this.isTearingOrRevealing=!0;if(h.getUnopenedPacks()<=0){this._packOpenInFlight=!1;this.renderStage();return}const e=this.appRoot.querySelector(".pack-selector-bar");e&&(e.style.display="none"),this.showRevealLoading();let t;try{t=await h.openPack(this.currentTier)}catch(a){console.error("[Booster] openPack failed:",a),this._packOpenInFlight=!1,this.showPackOpenError(a instanceof Error?a.message:"Could not open pack.");return}if(!t||!t.ok||!Array.isArray(t.cards)||!t.cards.length){this._packOpenInFlight=!1;if(t&&t.error==="no_packs"){this.renderStage();return}this.showPackOpenError("Could not open pack.");return}this.currentCards=t.cards.map((a,r)=>O(a,r)),this.currentCoinsAwarded=t.coinsAwarded,this.currentPackRarity=t.packRarity,this.currentPackRarityLabel=t.packRarityLabel,setTimeout(()=>{const a=this.appRoot.querySelector(".booster-stage");if(!a){this._packOpenInFlight=!1;return}a.innerHTML="",this.cardStack=new S(this.currentCards,()=>{this.handleAllRevealed()}),a.appendChild(this.cardStack.getElement()),h.commitOpenPack(t),this._packOpenInFlight=!1},600)}showRevealLoading(){const e=this.appRoot.querySelector(".booster-stage");if(!e)return;const t=document.createElement("div");t.className="pack-reveal-loading",t.innerHTML='<div class="pack-reveal-spinner"></div><p>Opening pack…</p>',e.appendChild(t)}showPackOpenError(e){this.isTearingOrRevealing=!1;const t=this.appRoot.querySelector(".booster-stage");t&&(t.innerHTML=`
         <div class="pack-open-error" role="alert">
           <p>⚠️ ${e}</p>
           <button class="btn-primary btn-pack-error-back">Back</button>

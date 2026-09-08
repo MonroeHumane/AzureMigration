@@ -91,6 +91,7 @@
 	let reducedMotionCached = null;
 	let previewGeneration = 0;
 	let previewTimers = [];
+	let gameplayTimers = [];
 	let gameGeneration = 0;
 	class PetMatchSound {
 		constructor() {
@@ -503,8 +504,9 @@
 
 	let currentRewardTier = 'standard';
 	// Set by showWinModal() when the just-completed level is a milestone;
-	// hideWinModal() shows the pack reward modal once the win modal itself
-	// has been dismissed, rather than stacking two modals at once.
+	// hideWinModal() shows the pack reward immediately once the win modal
+	// itself has been dismissed (no delayed timer — startLevel bumps
+	// gameGeneration and would cancel a later() callback).
 	let pendingLevelMilestone = null;
 
 	// ---- Dex / Stats helpers ----------------------------------------
@@ -633,13 +635,19 @@
 
 	function openBoosterPackOverlay(tier) {
 		hidePackRewardModal();
+		const user = getDexUser();
+		const api = getDexRestBase();
+		let src = '../booster/index.html?embed=1&pack=' + encodeURIComponent(tier || currentRewardTier);
+		if (api) {
+			src += '&dex_api=' + encodeURIComponent(api);
+		}
+		if (user) {
+			src += '&user=' + encodeURIComponent(user) + '&dex_user=' + encodeURIComponent(user);
+		}
 		if (!els.boosterEmbedModal || !els.boosterFrame) {
-			window.open('../booster/index.html?embed=1&pack=' + (tier || currentRewardTier), '_blank');
+			window.open(src, '_blank');
 			return;
 		}
-		const dex = getDexParams();
-		const user = dex.user || (localStorage.getItem('monroeDexUser') || '').trim();
-		const src = `../booster/index.html?embed=1&pack=${encodeURIComponent(tier || currentRewardTier)}${user ? '&user=' + encodeURIComponent(user) : ''}`;
 		els.boosterFrame.src = src;
 		openModal(els.boosterEmbedModal, closeBoosterPackOverlay);
 	}
@@ -679,7 +687,7 @@
 					const mapped = list.map((p) => {
 						const name = p.name || 'Shelter Pet';
 						const breed = p.breed || p.species_label || 'Companion';
-						const file = p.image || p.photo || p.file || '';
+						const file = p.image || p.image_url || p.photo || p.file || '';
 						return {
 							id: String(p.id || name),
 							name: name,
@@ -701,7 +709,7 @@
 
 		// 2. Try bundled shelter-pets.json
 		try {
-			const resFallback = await fetch(`../../shelter-pets.json?_=${Date.now()}`);
+			const resFallback = await fetch(`/shelter-pets.json?_=${Date.now()}`, { cache: 'no-store' });
 			if (resFallback.ok) {
 				const dataFallback = await resFallback.json();
 				if (Array.isArray(dataFallback) && dataFallback.length >= 4) {
@@ -710,11 +718,13 @@
 						name: p.name,
 						breed: p.breed || 'Companion',
 						type: p.type || 'companion',
-						file: p.image,
-						alt: `${p.name} (${p.breed})`,
-						url: p.url
+						file: p.image || p.image_url || p.photo || p.file || '',
+						alt: `${p.name} (${p.breed || 'Companion'})`,
+						url: p.url || ('/adopt/' + encodeURIComponent(p.id))
 					})).filter(p => !!p.file);
-					return { images: mappedFallback };
+					if (mappedFallback.length >= 4) {
+						return { images: mappedFallback };
+					}
 				}
 			}
 		} catch (err2) {
@@ -1489,18 +1499,45 @@
 			readLocalStats();
 			if (!localStats.claimedLevelWins.includes(currentLevel)) {
 				const restBase = getDexRestBase();
-				const awardMilestonePack = () => {
+				const awardMilestonePack = (notifyParent) => {
 					if (!localStats.claimedLevelWins.includes(currentLevel)) {
 						localStats.claimedLevelWins.push(currentLevel);
 					}
 					writeLocalStats();
 					currentRewardTier = milestone.tier;
 					pendingLevelMilestone = milestone;
+					if (!notifyParent) return;
 					try {
 						if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-							window.parent.postMessage({ type: 'adoptedex:pack_awarded', tier: milestone.tier, level: currentLevel }, '*');
+							let remainingPacks;
+							try {
+								remainingPacks = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
+							} catch (e) {}
+							window.parent.postMessage({
+								type: 'adoptedex:pack_awarded',
+								tier: milestone.tier,
+								level: currentLevel,
+								remainingPacks: remainingPacks
+							}, '*');
 						}
 					} catch (err) {}
+				};
+
+				const showPackRewardIfWinModalGone = () => {
+					if (!pendingLevelMilestone) return;
+					if (!els.winModal || els.winModal.hidden) {
+						const pending = pendingLevelMilestone;
+						pendingLevelMilestone = null;
+						showPackRewardModal(pending);
+					}
+				};
+
+				const creditLocalDexPack = () => {
+					try {
+						const count = 1;
+						const cur = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
+						localStorage.setItem('monroeDexPacks', String(cur + count));
+					} catch (e) {}
 				};
 
 				if (user) {
@@ -1509,14 +1546,21 @@
 						count: 1,
 					}).then((result) => {
 						if (result && result.claimed) {
-							awardMilestonePack();
+							// claimReward already notifies the cabinet (and writes
+							// monroeDexPacks on offline fallback). Do not post again.
+							awardMilestonePack(false);
+							showPackRewardIfWinModalGone();
 						}
 					}).catch((e) => {
 						console.warn('[Pet Match] Reward claim failed, falling back to local award:', e);
-						awardMilestonePack();
+						creditLocalDexPack();
+						awardMilestonePack(true);
+						showPackRewardIfWinModalGone();
 					});
 				} else {
-					awardMilestonePack();
+					creditLocalDexPack();
+					awardMilestonePack(true);
+					showPackRewardIfWinModalGone();
 				}
 			}
 		}
@@ -1543,7 +1587,7 @@
 		if (pendingLevelMilestone) {
 			const milestone = pendingLevelMilestone;
 			pendingLevelMilestone = null;
-			later(300, () => showPackRewardModal(milestone));
+			showPackRewardModal(milestone);
 		}
 	}
 
@@ -1749,7 +1793,11 @@
 		// Persist user slug so the booster overlay can pick it up
 		const user = getDexUser();
 		if (user) {
-			try { localStorage.setItem('monroeDexUser', user); } catch {}
+			try {
+				if (!(localStorage.getItem('monroeDexUser') || '').trim()) {
+					localStorage.setItem('monroeDexUser', user);
+				}
+			} catch {}
 		}
 
 		// Bootstrap local stats then merge server state (non-blocking)

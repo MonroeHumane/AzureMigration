@@ -5,6 +5,9 @@
    Match and Flappy Cat, fixed this session, and must not be reintroduced
    here. */
 
+const SR_RETRY_BTN_W = 280;
+const SR_RETRY_BTN_H = 72;
+
 class RoundOverScene extends Phaser.Scene {
   constructor() { super('RoundOver'); }
 
@@ -15,21 +18,15 @@ class RoundOverScene extends Phaser.Scene {
   }
 
   create() {
-    // Same reasoning as MainMenuScene: position off the actual canvas size,
-    // not the fixed 1280x720 design box.
-    const W = this.scale.width;
-    const H = this.scale.height;
-    const vy = (y) => y * H / CFG.HEIGHT;
-    this._vy = vy;
-    this._W = W;
-
     this.cameras.main.setBackgroundColor('#1a2430');
+    this._started = false;
+    this._banners = [];
 
-    srUiText(this, W / 2, vy(100), 'Run Complete!', { fontSize: '48px', color: '#ffffff' });
-    srUiText(this, W / 2, vy(170), this.distanceMeters + ' meters', { fontSize: '32px', color: '#ffd166' });
-    srUiText(this, W / 2, vy(215), '🐾 ' + this.collectedPetIds.length + ' pet' + (this.collectedPetIds.length === 1 ? '' : 's') + ' rescued along the way', {
-      fontSize: '20px', color: '#a9c4d6',
-    });
+    this._title = srUiText(this, 0, 0, 'Run Complete!', { fontSize: '48px', color: '#ffffff' }).setDepth(5);
+    this._distanceText = srUiText(this, 0, 0, this.distanceMeters + ' meters', { fontSize: '32px', color: '#ffd166' }).setDepth(5);
+    this._petsText = srUiText(this, 0, 0, '🐾 ' + this.collectedPetIds.length + ' pet' + (this.collectedPetIds.length === 1 ? '' : 's') + ' rescued along the way', {
+      fontSize: '20px', color: '#a9c4d6', align: 'center', wordWrap: { width: 400 },
+    }).setDepth(5);
 
     this.rewardBanner = null; // built lazily once/if the server confirms a claim
 
@@ -62,14 +59,110 @@ class RoundOverScene extends Phaser.Scene {
       } catch (err) {}
     }
 
-    const retryBtn = this.add.rectangle(W / 2, vy(560), 260, 64, 0x4a7c40).setInteractive({ useHandCursor: true });
-    srUiText(this, W / 2, vy(560), 'Run Again', { fontSize: '26px', color: '#ffffff' });
-    retryBtn.on('pointerdown', () => {
-      this.scene.start('Game', { companionIndex: this.companionIndex });
-    });
+    this._retryFill = this.add.rectangle(0, 0, SR_RETRY_BTN_W, SR_RETRY_BTN_H, 0x4a7c40).setDepth(20);
+    this._retryZone = this.add.zone(0, 0, SR_RETRY_BTN_W, SR_RETRY_BTN_H)
+      .setDepth(21)
+      .setInteractive({ useHandCursor: true });
+    this._retryLabel = srUiText(this, 0, 0, 'Run Again', { fontSize: '26px', color: '#ffffff' })
+      .setDepth(22)
+      .setInteractive({ useHandCursor: true });
 
-    this.input.keyboard.on('keydown-ENTER', () => retryBtn.emit('pointerdown'));
-    this.input.keyboard.on('keydown-SPACE', () => retryBtn.emit('pointerdown'));
+    this._retryFill.setInteractive({ useHandCursor: true }).on('pointerdown', () => this._runAgain());
+    this._retryZone.on('pointerdown', () => this._runAgain());
+    this._retryLabel.on('pointerdown', () => this._runAgain());
+    this.input.on('pointerdown', (pointer) => this._onScenePointer(pointer));
+
+    if (this.input.keyboard) {
+      this.input.keyboard.on('keydown-ENTER', () => this._runAgain());
+      this.input.keyboard.on('keydown-SPACE', () => this._runAgain());
+    }
+
+    this._layout();
+    this.scale.on('resize', this._layout, this);
+    this.events.once('shutdown', () => this.scale.off('resize', this._layout, this));
+  }
+
+  _runAgain() {
+    if (this._started) return;
+    this._started = true;
+    this.scene.start('Game', { companionIndex: this.companionIndex });
+  }
+
+  _onScenePointer(pointer) {
+    if (this._started) return;
+    const pts = [
+      [pointer.worldX, pointer.worldY],
+      [pointer.x, pointer.y],
+    ];
+    for (let i = 0; i < pts.length; i++) {
+      const x = pts[i][0];
+      const y = pts[i][1];
+      if (this._contains(this._retryZone, x, y) || this._contains(this._retryLabel, x, y) || this._contains(this._retryFill, x, y)) {
+        this._runAgain();
+        return;
+      }
+    }
+  }
+
+  _contains(obj, x, y) {
+    if (!obj) return false;
+    if (typeof obj.getBounds === 'function') {
+      const b = obj.getBounds();
+      if (b && b.width > 0 && b.height > 0 && typeof b.contains === 'function' && b.contains(x, y)) {
+        return true;
+      }
+    }
+    const w = obj.width || 0;
+    const h = obj.height || 0;
+    if (w <= 0 || h <= 0) return false;
+    const ox = obj.originX == null ? 0.5 : obj.originX;
+    const oy = obj.originY == null ? 0.5 : obj.originY;
+    const left = obj.x - w * ox;
+    const top = obj.y - h * oy;
+    return x >= left && x <= left + w && y >= top && y <= top + h;
+  }
+
+  _layout() {
+    const W = this.scale.width;
+    const H = this.scale.height;
+    if (W <= 0 || H <= 0) return;
+
+    const vy = (y) => y * H / CFG.HEIGHT;
+    this._vy = vy;
+    this._W = W;
+
+    const wrapW = Math.max(160, Math.floor(W * 0.88));
+
+    this._title.setPosition(W / 2, vy(100));
+    this._distanceText.setPosition(W / 2, vy(170));
+    this._petsText.setPosition(W / 2, vy(215));
+    this._petsText.setStyle({ align: 'center', wordWrap: { width: wrapW } });
+    if (typeof this._petsText.setWordWrapWidth === 'function') {
+      this._petsText.setWordWrapWidth(wrapW, true);
+    }
+
+    const btnW = Math.max(180, Math.min(SR_RETRY_BTN_W, W - 32));
+    const btnY = vy(560);
+    this._retryFill.setPosition(W / 2, btnY);
+    this._retryFill.setSize(btnW, SR_RETRY_BTN_H);
+    this._retryFill.setInteractive({ useHandCursor: true });
+    this._retryZone.setPosition(W / 2, btnY);
+    if (typeof this._retryZone.setSize === 'function') {
+      this._retryZone.setSize(btnW, SR_RETRY_BTN_H, true);
+    }
+    this._retryZone.setInteractive({ useHandCursor: true });
+    this._retryLabel.setPosition(W / 2, btnY);
+    this._retryLabel.setInteractive({ useHandCursor: true });
+
+    (this._banners || []).forEach((banner, i) => {
+      const y = vy(300) + i * 46;
+      const bannerWidth = Math.min(420, W * 0.9);
+      if (banner.bg) {
+        banner.bg.setPosition(W / 2, y);
+        banner.bg.setSize(bannerWidth, 40);
+      }
+      if (banner.label) banner.label.setPosition(W / 2, y);
+    });
   }
 
   _onMilestoneClaimed(milestone) {
@@ -80,8 +173,9 @@ class RoundOverScene extends Phaser.Scene {
 
     const tierLabel = { standard: 'Standard', duo: 'Duo', deluxe: 'Deluxe' }[milestone.tier] || milestone.tier;
     const bannerWidth = Math.min(420, this._W * 0.9);
-    const bg = this.add.rectangle(this._W / 2, y, bannerWidth, 40, 0x8b5cf6, 0.85);
-    srUiText(this, this._W / 2, y, '🎁 ' + tierLabel + ' pack unlocked!', { fontSize: '18px', color: '#ffffff' });
+    const bg = this.add.rectangle(this._W / 2, y, bannerWidth, 40, 0x8b5cf6, 0.85).setDepth(8);
+    const label = srUiText(this, this._W / 2, y, '🎁 ' + tierLabel + ' pack unlocked!', { fontSize: '18px', color: '#ffffff' }).setDepth(9);
+    this._banners.push({ bg, label });
     this.tweens.add({ targets: bg, alpha: { from: 0, to: 0.85 }, duration: 250 });
   }
 }

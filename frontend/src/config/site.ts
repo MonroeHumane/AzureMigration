@@ -16,8 +16,8 @@ export const SITE = {
     phone: '734-243-3669',
     phoneFormatted: '(734) 243-3669',
     phoneTel: 'tel:734-243-3669',
-    email: 'info@monroe-humane.org',
-    emailMailto: 'mailto:info@monroe-humane.org',
+    email: 'support@monroe-humane.org',
+    emailMailto: 'mailto:support@monroe-humane.org',
     address: {
       street: '911 S. Raisinville Rd',
       city: 'Monroe',

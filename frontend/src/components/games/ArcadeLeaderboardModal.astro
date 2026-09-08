@@ -108,6 +108,12 @@
         <p class="text-xs text-slate-400 mt-1">Be the first player to set a record in this game.</p>
       </div>
 
+      <div id="leaderboard-error" class="hidden text-center py-12 text-slate-400">
+        <span class="text-3xl block mb-2">📡</span>
+        <p class="text-sm font-semibold text-white">Community scores unavailable</p>
+        <p class="text-xs text-slate-400 mt-1">Live leaderboards could not be loaded. You can still play locally.</p>
+      </div>
+
       <div id="leaderboard-rows" class="space-y-2"></div>
     </div>
 
@@ -123,20 +129,34 @@
 <script>
   function initLeaderboard() {
     const modal = document.getElementById('arcade-leaderboard-modal');
+    if (!modal || modal.getAttribute('data-hof-bound') === '1') return;
+    modal.setAttribute('data-hof-bound', '1');
     const closeBtn = document.getElementById('leaderboard-close-btn');
     const rowsEl = document.getElementById('leaderboard-rows');
     const loadingEl = document.getElementById('leaderboard-loading');
     const emptyEl = document.getElementById('leaderboard-empty');
+    const errorEl = document.getElementById('leaderboard-error');
     const gameTabs = document.querySelectorAll<HTMLButtonElement>('.leaderboard-game-tab');
     const timeframeBtns = document.querySelectorAll<HTMLButtonElement>('.leaderboard-timeframe-btn');
 
     let activeGame = 'flappy_cat';
     let activeTimeframe = 'all';
 
+    function showUnavailable() {
+      loadingEl?.classList.add('hidden');
+      emptyEl?.classList.add('hidden');
+      errorEl?.classList.remove('hidden');
+      if (rowsEl) rowsEl.innerHTML = '';
+    }
+
+    let fetchGen = 0;
+
     async function fetchScores() {
       if (!rowsEl || !loadingEl || !emptyEl) return;
+      const gen = ++fetchGen;
       loadingEl.classList.remove('hidden');
       emptyEl.classList.add('hidden');
+      errorEl?.classList.add('hidden');
       rowsEl.innerHTML = '';
 
       const apiUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -147,25 +167,37 @@
         const res = await fetch(`${apiUrl}scores?gameId=${encodeURIComponent(activeGame)}&timeframe=${encodeURIComponent(activeTimeframe)}&limit=25`, {
           credentials: 'same-origin'
         });
+        if (gen !== fetchGen) return;
 
-        if (!res.ok) throw new Error('Could not load scores');
+        if (!res.ok) {
+          showUnavailable();
+          return;
+        }
         const data = await res.json();
+        if (gen !== fetchGen) return;
         loadingEl.classList.add('hidden');
 
-        if (!data || !Array.isArray(data.scores) || data.scores.length === 0) {
+        if (!data || !Array.isArray(data.scores)) {
+          showUnavailable();
+          return;
+        }
+
+        const MOCK_NAMES = new Set(['SmokeyChampion', 'DaisyLover', 'BarnabyAce']);
+        const scores = data.scores.filter((s: { playerName?: string }) => s && !MOCK_NAMES.has(String(s.playerName || '')));
+
+        if (scores.length === 0) {
+          if (data.scores.length > 0) {
+            showUnavailable();
+            return;
+          }
           emptyEl.classList.remove('hidden');
           return;
         }
 
-        renderScores(data.scores);
+        renderScores(scores);
       } catch (e) {
-        loadingEl.classList.add('hidden');
-        // Render fallback mock top scores for preview
-        renderScores([
-          { rank: 1, playerName: 'SmokeyChampion', score: 42, date: '2026-09-06' },
-          { rank: 2, playerName: 'DaisyLover', score: 35, date: '2026-09-05' },
-          { rank: 3, playerName: 'BarnabyAce', score: 28, date: '2026-09-05' },
-        ]);
+        if (gen !== fetchGen) return;
+        showUnavailable();
       }
     }
 

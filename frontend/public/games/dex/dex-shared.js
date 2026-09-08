@@ -24,8 +24,17 @@
 		if (!user) {
 			user = 'guest';
 		}
-		if (!display) {
-			display = 'Guest Rescuer';
+
+		var guestDefault = !display || display === 'Guest Rescuer';
+		if (guestDefault) {
+			var fallbackDisplay = '';
+			try {
+				fallbackDisplay = (localStorage.getItem('monroeDexUser') || '').trim();
+			} catch (e) {}
+			if (!fallbackDisplay && user && String(user).toLowerCase() !== 'guest') {
+				fallbackDisplay = String(user).trim();
+			}
+			display = fallbackDisplay || display || 'Guest Rescuer';
 		}
 
 		var defaultApi = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -161,9 +170,15 @@
 			try {
 				var count = (extra && extra.count) ? extra.count : 1;
 				var cur = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
-				localStorage.setItem('monroeDexPacks', String(cur + count));
+				var next = cur + count;
+				localStorage.setItem('monroeDexPacks', String(next));
 				if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-					window.parent.postMessage({ type: 'adoptedex:pack_awarded', extra: extra, offline: true }, '*');
+					window.parent.postMessage({
+						type: 'adoptedex:pack_awarded',
+						extra: extra,
+						offline: true,
+						remainingPacks: next
+					}, '*');
 				}
 			} catch (e) {}
 			return { ok: true, claimed: true, offline: true };

@@ -55,7 +55,7 @@ const GAMES: GameItem[] = [
     desc: 'Tap to fly! Flap your paws and guide a brave shelter cat home through floating yarn balls, scratching posts, and flying fish treats.',
     action: 'Play Flappy Cat',
     icon: '🐱',
-    url: '/games/flappy-cat/index.html?embed=1',
+    url: '/games/flappy-cat/game/index.html?embed=1',
     leaderboardId: 'flappy_cat',
     needsDex: false,
     perks: ['🏆 Endless High Scores', '🐟 Collect Fish Treats'],
@@ -469,7 +469,7 @@ const MASCOTS = [
     <!-- Cabinet Bottom Quick-Switch Dock (Mobile-First Ergonomic Nav) -->
     <nav
       id="cabinet-quick-dock"
-      class="h-14 sm:h-15 px-2 sm:px-4 bg-[#061815]/95 backdrop-blur-md border-t border-teal-800/80 flex items-center justify-start sm:justify-center gap-1 sm:gap-2.5 shrink-0 select-none z-30 overflow-x-auto scrollbar-none pb-[max(0.25rem,env(safe-area-inset-bottom))]"
+      class="relative h-14 sm:h-15 px-1 sm:px-4 bg-[#061815]/95 backdrop-blur-md border-t border-teal-800/80 flex items-center justify-between sm:justify-center gap-0.5 sm:gap-2.5 shrink-0 select-none z-30 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-[max(0.25rem,env(safe-area-inset-bottom))]"
       aria-label="Arcade Quick Switch Dock"
     >
       <button
@@ -478,10 +478,10 @@ const MASCOTS = [
         data-dock-url="/games/booster/index.html?embed=1"
         data-dock-title="Pet Booster Packs"
         data-dock-icon="✨"
-        class="cabinet-dock-btn flex-1 sm:flex-initial shrink-0 min-w-[70px] sm:min-w-[80px] px-2 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer text-center"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">✨</span>
-        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Packs</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Packs</span>
       </button>
 
       <button
@@ -490,22 +490,22 @@ const MASCOTS = [
         data-dock-url="/games/match/match.html?embed=1"
         data-dock-title="Pet Match Memory"
         data-dock-icon="🧩"
-        class="cabinet-dock-btn flex-1 sm:flex-initial shrink-0 min-w-[70px] sm:min-w-[80px] px-2 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer text-center"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">🧩</span>
-        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Match</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Match</span>
       </button>
 
       <button
         type="button"
         data-dock-game="flappy"
-        data-dock-url="/games/flappy-cat/index.html?embed=1"
+        data-dock-url="/games/flappy-cat/game/index.html?embed=1"
         data-dock-title="Flappy Cat"
         data-dock-icon="🐱"
-        class="cabinet-dock-btn flex-1 sm:flex-initial shrink-0 min-w-[70px] sm:min-w-[80px] px-2 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer text-center"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">🐱</span>
-        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Flappy</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Flappy</span>
       </button>
 
       <button
@@ -514,10 +514,10 @@ const MASCOTS = [
         data-dock-url="/games/catwalk?embed=1"
         data-dock-title="Catwalk Night Patrol"
         data-dock-icon="🐾"
-        class="cabinet-dock-btn flex-1 sm:flex-initial shrink-0 min-w-[70px] sm:min-w-[80px] px-2 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer text-center"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">🐾</span>
-        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Catwalk</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Catwalk</span>
       </button>
 
       <button
@@ -526,10 +526,10 @@ const MASCOTS = [
         data-dock-url="/games/shelter-run/index.html?embed=1"
         data-dock-title="Shelter Run"
         data-dock-icon="🏃"
-        class="cabinet-dock-btn flex-1 sm:flex-initial shrink-0 min-w-[70px] sm:min-w-[80px] px-2 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer text-center"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">🏃</span>
-        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Run</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Run</span>
       </button>
 
       <div class="h-6 w-px bg-teal-800/80 mx-0.5 shrink-0 hidden sm:block"></div>
@@ -540,21 +540,21 @@ const MASCOTS = [
         data-dock-url="/games/dex/album.html?embed=1"
         data-dock-title="Pet Discovery Binder"
         data-dock-icon="📖"
-        class="cabinet-dock-btn flex-1 sm:flex-initial shrink-0 min-w-[70px] sm:min-w-[80px] px-2 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer text-center"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">📖</span>
-        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Binder</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Binder</span>
       </button>
 
       <button
         type="button"
         id="cabinet-dock-scores"
         data-open-leaderboard
-        class="flex-1 sm:flex-initial shrink-0 min-w-[70px] sm:min-w-[80px] px-2 sm:px-3 py-1.5 rounded-xl text-amber-300 hover:text-amber-200 border border-amber-500/40 bg-amber-950/40 hover:bg-amber-900/60 flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer text-center"
+        class="flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-amber-300 hover:text-amber-200 border border-amber-500/40 bg-amber-950/40 hover:bg-amber-900/60 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
         title="Arcade Hall of Fame"
       >
         <span class="text-base sm:text-sm">🏆</span>
-        <span class="text-[10px] sm:text-xs font-bold leading-tight truncate">Scores</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Scores</span>
       </button>
     </nav>
   </div>
@@ -600,6 +600,19 @@ const MASCOTS = [
   .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Edge fade when the dock still overflows (very narrow viewports) */
+  #cabinet-quick-dock.dock-can-scroll:not(.dock-scroll-end)::after {
+    content: '';
+    position: sticky;
+    right: 0;
+    flex: 0 0 1.75rem;
+    align-self: stretch;
+    margin-left: -1.75rem;
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, #061815);
+    z-index: 2;
   }
 
   /* Touch optimizations */
@@ -740,8 +753,10 @@ const MASCOTS = [
     // Player Pass State & Mascot Persistence
     // ─────────────────────────────────────────────────────────────────────────
     const STORAGE_USER_KEY = 'monroeDexUser';
+    const STORAGE_DISPLAY_KEY = 'monroeDexDisplay';
     const STORAGE_PACKS_KEY = 'monroeDexPacks';
     const STORAGE_CARDS_KEY = 'monroeDexCards';
+    const STORAGE_DISCOVERED_KEY = 'monroe_discovered_pets';
     const STORAGE_MASCOT_KEY = 'monroeArcadeMascot';
     const STORAGE_CRT_KEY = 'monroeArcadeCrt';
 
@@ -753,6 +768,15 @@ const MASCOTS = [
       pip: { icon: '🐰', name: 'Pip', desc: 'Shelter Bunny' }
     };
 
+    function seedDisplayName(nickname: string) {
+      try {
+        const existing = (localStorage.getItem(STORAGE_DISPLAY_KEY) || '').trim();
+        if (!existing && nickname) {
+          localStorage.setItem(STORAGE_DISPLAY_KEY, nickname);
+        }
+      } catch (e) {}
+    }
+
     function getSavedUser(): string {
       try {
         let u = (localStorage.getItem(STORAGE_USER_KEY) || '').trim();
@@ -760,9 +784,23 @@ const MASCOTS = [
           u = 'Rescuer_' + Math.floor(1000 + Math.random() * 9000);
           localStorage.setItem(STORAGE_USER_KEY, u);
         }
+        seedDisplayName(u);
         return u;
       } catch (e) {
         return 'guest';
+      }
+    }
+
+    function getSavedDisplay(): string {
+      try {
+        let d = (localStorage.getItem(STORAGE_DISPLAY_KEY) || '').trim();
+        if (!d) {
+          d = getSavedUser();
+          localStorage.setItem(STORAGE_DISPLAY_KEY, d);
+        }
+        return d;
+      } catch (e) {
+        return getSavedUser();
       }
     }
 
@@ -777,10 +815,17 @@ const MASCOTS = [
 
     function getSavedCards(): number {
       try {
-        const val = localStorage.getItem(STORAGE_CARDS_KEY);
-        return val ? Math.max(0, parseInt(val, 10)) : 0;
+        const discovered = JSON.parse(localStorage.getItem(STORAGE_DISCOVERED_KEY) || '[]');
+        const count = Array.isArray(discovered) ? discovered.length : 0;
+        localStorage.setItem(STORAGE_CARDS_KEY, String(count));
+        return count;
       } catch (e) {
-        return 0;
+        try {
+          const val = localStorage.getItem(STORAGE_CARDS_KEY);
+          return val ? Math.max(0, parseInt(val, 10)) : 0;
+        } catch (e2) {
+          return 0;
+        }
       }
     }
 
@@ -831,6 +876,7 @@ const MASCOTS = [
       if (raw) {
         try {
           localStorage.setItem(STORAGE_USER_KEY, raw);
+          localStorage.setItem(STORAGE_DISPLAY_KEY, raw);
           if (saveIndicator) {
             saveIndicator.classList.remove('hidden');
             setTimeout(() => saveIndicator.classList.add('hidden'), 2000);
@@ -948,6 +994,20 @@ const MASCOTS = [
     // ─────────────────────────────────────────────────────────────────────────
     // Launching & Managing Cabinet Player 2.0
     // ─────────────────────────────────────────────────────────────────────────
+    const dockNav = document.getElementById('cabinet-quick-dock');
+
+    function updateDockOverflowHint() {
+      if (!dockNav) return;
+      const overflow = dockNav.scrollWidth > dockNav.clientWidth + 2;
+      dockNav.classList.toggle('dock-can-scroll', overflow);
+      const atEnd = !overflow || dockNav.scrollLeft + dockNav.clientWidth >= dockNav.scrollWidth - 2;
+      dockNav.classList.toggle('dock-scroll-end', atEnd);
+    }
+
+    dockNav?.addEventListener('scroll', updateDockOverflowHint, { passive: true });
+    window.addEventListener('resize', updateDockOverflowHint);
+    updateDockOverflowHint();
+
     function updateDockActive(gameId: string) {
       dockButtons.forEach((btn) => {
         const id = btn.getAttribute('data-dock-game');
@@ -966,14 +1026,31 @@ const MASCOTS = [
       triggerHaptic(20);
 
       const user = getSavedUser();
+      const display = getSavedDisplay();
       const apiUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'https://mchs-arcade-api.livelyfield-d0a70609.eastus.azurecontainerapps.io/arcade-api/v1/'
         : (window.location.origin + '/arcade-api/v1/');
 
-      const separator = url.includes('?') ? '&' : '?';
-      let finalUrl = `${url}${separator}embed=1&dex_api=${encodeURIComponent(apiUrl)}`;
-      if (user) {
-        finalUrl += `&user=${encodeURIComponent(user)}&dex_user=${encodeURIComponent(user)}`;
+      let finalUrl = url;
+      try {
+        const parsed = new URL(url, window.location.origin);
+        if (!parsed.searchParams.has('embed')) {
+          parsed.searchParams.set('embed', '1');
+        }
+        parsed.searchParams.set('dex_api', apiUrl);
+        if (user) {
+          parsed.searchParams.set('user', user);
+          parsed.searchParams.set('dex_user', user);
+          parsed.searchParams.set('dex_display', display);
+        }
+        finalUrl = parsed.pathname + parsed.search + parsed.hash;
+      } catch (e) {
+        const separator = url.includes('?') ? '&' : '?';
+        const embedPart = /(?:\?|&)embed=/.test(url) ? '' : 'embed=1&';
+        finalUrl = `${url}${separator}${embedPart}dex_api=${encodeURIComponent(apiUrl)}`;
+        if (user) {
+          finalUrl += `&user=${encodeURIComponent(user)}&dex_user=${encodeURIComponent(user)}&dex_display=${encodeURIComponent(display)}`;
+        }
       }
 
       if (cabinetTitle) cabinetTitle.textContent = title;
@@ -997,6 +1074,7 @@ const MASCOTS = [
       cabinetModal.classList.remove('hidden');
       requestAnimationFrame(() => {
         cabinetModal.classList.remove('opacity-0');
+        updateDockOverflowHint();
       });
       document.body.style.overflow = 'hidden';
     }
@@ -1076,8 +1154,9 @@ const MASCOTS = [
 
       // When a game awards a booster pack (e.g. Pet Match level milestones)
       if (data.type === 'adoptedex:pack_awarded' || data.action === 'pack_awarded') {
-        const current = getSavedPacks();
-        const next = current + 1;
+        const next = typeof data.remainingPacks === 'number'
+          ? Math.max(0, data.remainingPacks)
+          : getSavedPacks() + 1;
         try {
           localStorage.setItem(STORAGE_PACKS_KEY, String(next));
         } catch (e) {}
@@ -1111,13 +1190,20 @@ const MASCOTS = [
         triggerHaptic(15);
       }
 
-      // When Pet Booster reveals a newly discovered card
+      // When Pet Booster reveals a newly discovered card — Pass count follows discovered pets
       if (data.type === 'adoptedex:pet_discovered' || data.action === 'pet_discovered') {
-        const current = getSavedCards();
-        const added = Array.isArray(data.petIds) && data.petIds.length ? data.petIds.length : 1;
-        const next = current + added;
         try {
-          localStorage.setItem(STORAGE_CARDS_KEY, String(next));
+          const discovered = JSON.parse(localStorage.getItem(STORAGE_DISCOVERED_KEY) || '[]');
+          const ids = Array.isArray(discovered) ? discovered.map(String) : [];
+          const incoming = Array.isArray(data.petIds)
+            ? data.petIds
+            : (data.pet_id ? [data.pet_id] : []);
+          incoming.forEach((id: string) => {
+            const s = String(id);
+            if (s && ids.indexOf(s) === -1) ids.push(s);
+          });
+          localStorage.setItem(STORAGE_DISCOVERED_KEY, JSON.stringify(ids));
+          localStorage.setItem(STORAGE_CARDS_KEY, String(ids.length));
         } catch (e) {}
         updatePassDisplay();
         audio.playCoin();

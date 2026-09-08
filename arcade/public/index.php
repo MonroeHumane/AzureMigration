@@ -73,14 +73,28 @@ $options = [
 $wantSsl = filter_var(getenv('DB_SSL') ?: '', FILTER_VALIDATE_BOOLEAN)
     || str_contains($host, '.mysql.database.azure.com');
 if ($wantSsl) {
-    $caPath = getenv('DB_SSL_CA') ?: '';
-    if ($caPath !== '' && is_readable($caPath)) {
+    // MYSQL_ATTR_SSL_VERIFY_SERVER_CERT alone does not start TLS. mysqlnd
+    // only upgrades the socket when MYSQL_ATTR_SSL_CA (or KEY/CERT) is set.
+    $caCandidates = array_values(array_filter([
+        getenv('DB_SSL_CA') ?: '',
+        '/etc/ssl/certs/ca-certificates.crt',
+        '/etc/ssl/cert.pem',
+        '/etc/pki/tls/certs/ca-bundle.crt',
+    ]));
+    $caPath = '';
+    foreach ($caCandidates as $candidate) {
+        if (is_readable($candidate)) {
+            $caPath = $candidate;
+            break;
+        }
+    }
+    if ($caPath !== '') {
         $options[PDO::MYSQL_ATTR_SSL_CA] = $caPath;
     }
 
     $verifyRaw = getenv('DB_SSL_VERIFY');
     if ($verifyRaw === false || $verifyRaw === '') {
-        $verify = $caPath !== '' && is_readable($caPath);
+        $verify = is_string($caPath) && $caPath !== '';
     } else {
         $verify = filter_var($verifyRaw, FILTER_VALIDATE_BOOLEAN);
     }

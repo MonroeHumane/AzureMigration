@@ -306,9 +306,9 @@ resource arcadeApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'arcade-api'
-          // Align with the image CI already pushes. A live template apply
-          // must keep any existing ghcr.io registry credentials on this app.
-          image: 'ghcr.io/monroehumane/monroe-humane-arcade:latest'
+          // Azure Container Registry. GitHub Actions still tags GHCR, but
+          // production pulls from ACR so MySQL TLS images stay Azure-native.
+          image: 'mchsplatformacr.azurecr.io/monroe-humane-arcade:ssl-fix'
           resources: {
             cpu: json('0.25')
             memory: '0.5Gi'
