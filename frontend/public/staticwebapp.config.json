@@ -22,6 +22,13 @@
       }
     },
     {
+      "route": "/internal/newsletter/preview/*",
+      "rewrite": "/internal/newsletter/preview/index.html",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
+    },
+    {
       "route": "/internal",
       "headers": {
         "Cache-Control": "no-cache, no-store, must-revalidate"
@@ -207,6 +214,24 @@
       "route": "/events-calendar",
       "redirect": "/events",
       "statusCode": 301
+    },
+    {
+      "route": "/newsletter/rss.xml",
+      "rewrite": "/api/newsletters/rss"
+    },
+    {
+      "route": "/newsletter/sitemap.xml",
+      "rewrite": "/api/newsletters/sitemap"
+    },
+    {
+      "route": "/newsletter/open",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
+    },
+    {
+      "route": "/newsletter/issue/*",
+      "rewrite": "/newsletter/open/index.html"
     },
     {
       "route": "/news/*",

@@ -408,6 +408,19 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <a
+            href="/internal/newsletter/"
+            class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white dark:bg-[#0b2420]/85 backdrop-blur-md border border-slate-200 dark:border-teal-800/70 hover:border-teal-500/40 hover:bg-teal-50/60 dark:hover:bg-[#0d2a25] transition group shadow-xs"
+          >
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-950/80 dark:text-teal-300 dark:border-teal-800/80 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-teal-200 transition">Newsletter CMS</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-300 truncate">Draft, schedule &amp; publish public issues</div>
+            </div>
+          </a>
+
+          <a
             href="/internal/content/"
             class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white dark:bg-[#0b2420]/85 backdrop-blur-md border border-slate-200 dark:border-teal-800/70 hover:border-teal-500/40 hover:bg-teal-50/60 dark:hover:bg-[#0d2a25] transition group shadow-xs"
           >
@@ -781,6 +794,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
         else if (redirect.includes('/pets')) name = 'Shelter Animal Census';
         else if (redirect.includes('/donors')) name = 'Donor Registry & Giving';
         else if (redirect.includes('/grants')) name = 'Grants Pipeline';
+        else if (redirect.includes('/newsletter')) name = 'Newsletter CMS';
         else if (redirect.includes('/content')) name = 'Site Content Manager';
         destEl.textContent = name;
         noticeEl.classList.remove('hidden');

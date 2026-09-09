@@ -17,55 +17,16 @@ const initialOutcomes = homepageData.accomplishments?.years || {
   ]
 };
 
-const initialNewsletter = [
-  {
-    id: "2025-in-review",
-    title: "2025 in Review",
-    issue_date: "2026-01-15",
-    slug: "2025-in-review",
-    featured: true,
-    top_line: "PO Box 1457 • Monroe, MI",
-    main_headline: "2025 in Review",
-    newsletter_title: "Monroe Humane Society Newsletter",
-    byline: "by, Jacqueline Monteer",
-    hero_image: "/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png",
-    excerpt: "A new direction, a busy shelter, and a community that showed up all year. Read how 2025 reshaped the shelter — new play yards, climate control, a medical room, and hundreds of animals finding their way home.",
-    blocks: [
-      {
-        id: "1",
-        title: "A New Direction",
-        body: "After years of donations and plans for building a new shelter it was not to be. In 2023 I became president of HSMC there was debt, the Telegraph location was falling apart, very little progress on a new shelter and then covid. I spent a lot of time working with different agencies, government entities and contractors to see if we could salvage the project within a realistic budget. It was not financially prudent.\n\nThe new board took a different direction, and it has been a blessing. We have partnered with the Sheriff’s dept. We are now a vendor for the county and rent the animal control shelter building. With hard work and support of the community we have improved all aspects of shelter life for dogs and cats.\n\nWe wanted to give back to the community as much as possible with improvements to the shelter putting to work all the donations for a new shelter. These improvements are here to stay no matter what. The dogs and cats of Monroe County will benefit from the Humane Society and the generosity of this community."
-      },
-      {
-        id: "2",
-        title: "Things improved",
-        body: "1. Two new fenced play yards and reconfigured fencing for safety.\n2. Installed air conditioning in the dog kennel and separate heating and cooling in the cat area.\n3. Installed commercial sink to sterilize dishes.\n4. Commercial size washer and dryer holding 5x load limit.\n5. Created a medical room for evaluations and vaccinations.\n6. Built outdoor covered kennels.\n7. Staff certified in Fear Free handling.\n8. 'Please' calm sit training.\n9. Doggie Day Out community program.\n10. Community mural painted on shelter."
-      },
-      {
-        id: "3",
-        title: "Partner Shelters & Our Cats",
-        body: "In addition to these changes we trade about 4 dogs a month with partner shelters to help find perfect matches. We also take in cats left behind, owner surrenders, and provide maternity foster care for litters."
-      },
-      {
-        id: "4",
-        title: "The Cat Room 2014 Next Project",
-        body: "Our next planned project is an 800 sq ft Cat Room addition with climbing community kennels, freeing space for isolation kennels and medical clinic operations."
-      }
-    ]
-  }
-];
-
 const bundleData = {
   memorials: initialMemorials,
   flyers: initialFlyers,
-  outcomes: initialOutcomes,
-  newsletters: initialNewsletter
+  outcomes: initialOutcomes
 };
 ---
 
 <StaffPortalLayout
   title="Website Content Manager | Humane Society of Monroe County"
-  description="Directly control and update Memorial Tributes, Event Flyers, Newsletters, and Shelter Outcomes on the Monroe Humane website."
+  description="Directly control and update Memorial Tributes, Event Flyers, and Shelter Outcomes on the Monroe Humane website."
   activeTab="content"
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6" id="content-hub-root">
@@ -85,17 +46,15 @@ const bundleData = {
             <span class="text-slate-400 dark:text-teal-300/80 font-mono text-[11px]">
               Azure Web App v2.5
             </span>
-            <!-- Live Storage / CMS Connection Status Indicator -->
-            <span id="cms-connection-status" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span id="cms-connection-label">Local Storage Active</span>
-            </span>
+            <a href="/internal/newsletter/" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800/80 transition">
+              Newsletter CMS →
+            </a>
           </div>
           <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
             Website Content Manager
           </h1>
           <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-            Directly update public shelter modules without needing external developer tools. Changes persist locally for instant previewing and can be exported as clean JSON ready for site deployment.
+            Update memorial tributes, event flyers, and shelter outcomes. Newsletter issues now have their own staff page. Changes persist locally for instant previewing and can be exported as clean JSON ready for site deployment.
           </p>
         </div>
 
@@ -140,7 +99,7 @@ const bundleData = {
         </div>
       </div>
 
-      <!-- Navigation Tabs: 4 Modules Matching the Reference -->
+      <!-- Navigation Tabs -->
       <div class="flex items-center gap-2 overflow-x-auto mt-6 pt-4 border-t border-slate-200 dark:border-teal-800/80 scrollbar-thin">
         <button
           type="button"
@@ -162,17 +121,6 @@ const bundleData = {
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
           <span>Event Flyers &amp; Calendar</span>
-        </button>
-
-        <button
-          type="button"
-          data-tab-target="newsletter"
-          class="cms-tab-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer"
-        >
-          <div class="w-5 h-5 rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300 flex items-center justify-center shrink-0">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          </div>
-          <span>Newsletter</span>
         </button>
 
         <button
@@ -535,218 +483,6 @@ const bundleData = {
     </section>
 
     <!-- ===================================================================== -->
-    <!-- PANE 3: NEWSLETTER (Screenshot 3) -->
-    <!-- ===================================================================== -->
-    <section id="pane-newsletter" class="cms-pane hidden space-y-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 text-teal-800 dark:bg-teal-950/60 dark:border-teal-800/80 dark:text-teal-300 flex items-center justify-center shrink-0 shadow-2xs">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-        </div>
-        <div>
-          <h2 class="text-xl font-serif font-black text-slate-900 dark:text-white">Newsletter</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Issues published here appear on the homepage and /newsletter/.</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        <!-- Left Sidebar: Issues List -->
-        <div class="lg:col-span-4 bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-xs space-y-3">
-          <button
-            type="button"
-            id="btn-add-issue"
-            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[#173a39] hover:bg-[#112c2b] dark:bg-teal-700 dark:hover:bg-teal-600 transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>Add issue</span>
-          </button>
-
-          <div class="relative">
-            <input
-              type="text"
-              id="input-search-issues"
-              placeholder="Search issues..."
-              class="w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-800 dark:text-slate-100 transition"
-            />
-            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </div>
-
-          <div id="issues-list-container" class="space-y-2">
-            <!-- Populated via client script with ON HOMEPAGE badge -->
-          </div>
-        </div>
-
-        <!-- Right: Issue Editor Form (Screenshot 3 Detail) -->
-        <div class="lg:col-span-8 bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 p-6 sm:p-7 shadow-xs space-y-5">
-          
-          <!-- Info Banner Matching Screenshot 3 with Dark Support -->
-          <div class="p-3.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800/80 text-teal-900 dark:text-teal-200 text-xs flex items-center justify-between gap-3">
-            <span>The teal band above the card is edited on the homepage.</span>
-            <a href="/" target="_blank" class="font-bold text-teal-800 hover:text-teal-950 dark:text-teal-400 dark:hover:text-teal-200 underline shrink-0">Edit homepage</a>
-          </div>
-
-          <div class="space-y-4">
-            <div>
-              <h4 class="text-sm font-serif font-bold text-slate-900 dark:text-white">Issue info</h4>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Shown in the issue list and on /newsletter/.</p>
-            </div>
-
-            <div class="space-y-3 text-xs">
-              <div>
-                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Issue title</label>
-                <input
-                  type="text"
-                  id="issue-title"
-                  class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
-                  placeholder="2025 in Review"
-                />
-              </div>
-
-              <div>
-                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Issue date</label>
-                <input
-                  type="date"
-                  id="issue-date"
-                  class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
-                />
-              </div>
-            </div>
-
-            <!-- Card Header Sub-Section (Screenshot 3) -->
-            <div class="pt-4 border-t border-slate-100 dark:border-teal-900/60 space-y-3.5">
-              <div>
-                <h4 class="text-sm font-serif font-bold text-slate-900 dark:text-white">Card header</h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Top of the cream newsletter card on the homepage and issue page.</p>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div>
-                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Top line</label>
-                  <input
-                    type="text"
-                    id="issue-topline"
-                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
-                    placeholder="PO Box 1457 • Monroe, MI"
-                  />
-                </div>
-
-                <div>
-                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Main headline</label>
-                  <input
-                    type="text"
-                    id="issue-headline"
-                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
-                    placeholder="2025 in Review"
-                  />
-                </div>
-
-                <div>
-                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Newsletter title</label>
-                  <input
-                    type="text"
-                    id="issue-newsletter-title"
-                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
-                    placeholder="Monroe Humane Society Newsletter"
-                  />
-                </div>
-
-                <div>
-                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Byline</label>
-                  <input
-                    type="text"
-                    id="issue-byline"
-                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
-                    placeholder="by, Jacqueline Monteer"
-                  />
-                </div>
-
-                <div class="sm:col-span-2 space-y-1.5">
-                  <label class="block font-semibold text-slate-700 dark:text-slate-300">Hero image URL</label>
-                  <div class="flex items-center gap-3">
-                    <input
-                      type="text"
-                      id="issue-hero-image"
-                      class="flex-1 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white font-mono text-xs transition"
-                      placeholder="/assets/recovered/images/..."
-                    />
-                    <div id="issue-hero-thumb" class="w-12 h-10 rounded border border-slate-200 dark:border-teal-800/80 bg-slate-100 dark:bg-[#061815] flex items-center justify-center shrink-0 overflow-hidden">
-                      <span class="text-[9px] text-slate-400">No img</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Story Blocks Editor -->
-            <div class="pt-4 border-t border-slate-100 dark:border-teal-900/60 space-y-3.5">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h4 class="text-sm font-serif font-bold text-slate-900 dark:text-white">Story blocks (Articles &amp; Milestones)</h4>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">Each block appears in the two-column grid on the newsletter issue page.</p>
-                </div>
-                <button
-                  type="button"
-                  id="btn-add-story-block"
-                  class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-teal-800 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600 text-white cursor-pointer transition flex items-center gap-1"
-                >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                  <span>Add block</span>
-                </button>
-              </div>
-
-              <div id="newsletter-blocks-container" class="space-y-3">
-                <!-- Story blocks rendered via client script -->
-              </div>
-            </div>
-
-            <!-- Actions Bar -->
-            <div class="pt-4 border-t border-slate-100 dark:border-teal-900/60 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div class="flex items-center gap-2">
-                <button
-                  type="button"
-                  id="btn-publish-issue"
-                  class="px-4 py-2 rounded-lg font-bold text-white bg-[#173a39] hover:bg-[#112c2b] dark:bg-teal-700 dark:hover:bg-teal-600 transition shadow-xs cursor-pointer"
-                >
-                  Publish
-                </button>
-                <button
-                  type="button"
-                  id="btn-save-issue"
-                  class="px-3.5 py-2 rounded-lg font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-[#061815] dark:hover:bg-teal-950/80 border border-slate-200 dark:border-teal-800/80 transition cursor-pointer"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  id="btn-toggle-featured"
-                  class="px-3 py-2 rounded-lg font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80 dark:hover:bg-emerald-900/80 transition cursor-pointer"
-                >
-                  Set as Homepage Feature
-                </button>
-                <a
-                  id="link-preview-issue"
-                  href="/newsletter"
-                  target="_blank"
-                  class="px-3 py-2 rounded-lg font-semibold text-teal-800 hover:text-teal-950 dark:text-teal-400 dark:hover:text-teal-200 underline underline-offset-4 transition"
-                >
-                  Preview issue &rarr;
-                </a>
-              </div>
-              <button
-                type="button"
-                id="btn-delete-issue"
-                class="font-semibold text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-300 transition cursor-pointer"
-              >
-                Move to trash
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================================================================== -->
     <!-- PANE 4: SHELTER OUTCOMES WIDGET (Screenshot 4) -->
     <!-- ===================================================================== -->
     <section id="pane-outcomes" class="cms-pane hidden space-y-4">
@@ -821,12 +557,19 @@ const bundleData = {
   let appState = bundleData;
   let selectedTributeIdx = 0;
   let selectedFlyerIdx = 0;
-  let selectedIssueIdx = 0;
   let currentTributeFilter = 'all';
 
   function initContentManager() {
+    const hash = (window.location.hash || '').replace('#', '');
+    const tab = new URLSearchParams(window.location.search).get('tab');
+    if (hash === 'newsletter' || hash === 'pane-newsletter' || tab === 'newsletter') {
+      window.location.replace('/internal/newsletter/');
+      return;
+    }
+
     const root = document.getElementById('content-hub-root');
-    if (!root) return;
+    if (!root || root.dataset.cmsReady === '1') return;
+    root.dataset.cmsReady = '1';
 
     // Load persisted state if exists
     try {
@@ -836,8 +579,7 @@ const bundleData = {
         appState = {
           memorials: parsed.memorials || bundleData.memorials,
           flyers: parsed.flyers || bundleData.flyers,
-          outcomes: parsed.outcomes || bundleData.outcomes,
-          newsletters: parsed.newsletters || bundleData.newsletters
+          outcomes: parsed.outcomes || bundleData.outcomes
         };
       }
     } catch (e) {
@@ -868,27 +610,12 @@ const bundleData = {
       }
     }
 
-    // Directus CMS Connection Indicator
-    const connStatusEl = document.getElementById('cms-connection-status');
-    function updateConnectionStatus() {
-      if (!connStatusEl) return;
-      const isAuth = !!localStorage.getItem('mchs_staff_auth') || !!sessionStorage.getItem('mchs_staff_auth');
-      if (isAuth) {
-        connStatusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Directus CMS Connected</span>';
-        connStatusEl.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80';
-      } else {
-        connStatusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-teal-400"></span><span>Local Storage Active</span>';
-        connStatusEl.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-[#061815] dark:text-teal-300 dark:border-teal-800/80';
-      }
-    }
-    updateConnectionStatus();
-
     // ─────────────────────────────────────────────────────────────────────────
     // TAB SWITCHING & URL HASH SYNCHRONIZATION
     // ─────────────────────────────────────────────────────────────────────────
     const tabBtns = document.querySelectorAll('.cms-tab-btn');
     const panes = document.querySelectorAll('.cms-pane');
-    const validTabs = ['memorials', 'flyers', 'newsletter', 'outcomes'];
+    const validTabs = ['memorials', 'flyers', 'outcomes'];
 
     function switchTab(target, updateHash = true) {
       if (!validTabs.includes(target)) target = 'memorials';
@@ -932,6 +659,10 @@ const bundleData = {
 
     window.addEventListener('hashchange', () => {
       const currentHash = (window.location.hash || '').replace('#', '');
+      if (currentHash === 'newsletter' || currentHash === 'pane-newsletter') {
+        window.location.replace('/internal/newsletter/');
+        return;
+      }
       if (validTabs.includes(currentHash)) {
         switchTab(currentHash, false);
       }
@@ -1364,223 +1095,6 @@ const bundleData = {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 3. NEWSLETTER ISSUES & STORY BLOCKS
-    // ─────────────────────────────────────────────────────────────────────────
-    const issuesContainer = document.getElementById('issues-list-container');
-    const issueTitleInput = document.getElementById('issue-title');
-    const issueDateInput = document.getElementById('issue-date');
-    const issueToplineInput = document.getElementById('issue-topline');
-    const issueHeadlineInput = document.getElementById('issue-headline');
-    const issueNewsletterTitleInput = document.getElementById('issue-newsletter-title');
-    const issueBylineInput = document.getElementById('issue-byline');
-    const issueHeroImageInput = document.getElementById('issue-hero-image');
-    const issueHeroThumb = document.getElementById('issue-hero-thumb');
-    const searchIssuesInput = document.getElementById('input-search-issues');
-    const previewIssueLink = document.getElementById('link-preview-issue');
-    const blocksContainer = document.getElementById('newsletter-blocks-container');
-
-    function updateHeroThumb(url) {
-      if (!issueHeroThumb) return;
-      if (url && url.trim()) {
-        issueHeroThumb.innerHTML = `<img src="${url}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<span class=\\'text-[9px] text-slate-400\\'>err</span>'" />`;
-      } else {
-        issueHeroThumb.innerHTML = '<span class="text-[9px] text-slate-400">No img</span>';
-      }
-    }
-
-    issueHeroImageInput?.addEventListener('input', (e) => {
-      updateHeroThumb(e.target.value);
-    });
-
-    function renderIssuesList(filter = '') {
-      if (!issuesContainer) return;
-      issuesContainer.innerHTML = '';
-      const query = filter.toLowerCase().trim();
-
-      appState.newsletters.forEach((iss, idx) => {
-        const title = iss.title || 'Untitled Issue';
-        if (query && !title.toLowerCase().includes(query)) return;
-
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        const isSelected = idx === selectedIssueIdx;
-        btn.className = `w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-between cursor-pointer ${
-          isSelected
-            ? 'bg-teal-50 border-2 border-teal-800 text-teal-950 font-bold shadow-2xs dark:bg-teal-950/80 dark:border-teal-400 dark:text-teal-100'
-            : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 dark:bg-[#061815] dark:hover:bg-teal-950/40 dark:border-teal-900/80 dark:text-slate-300'
-        }`;
-        
-        const badge = iss.featured ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-teal-900 dark:bg-teal-700 text-white shrink-0">ON HOMEPAGE</span>' : '';
-        btn.innerHTML = `<span class="truncate mr-2">${title}</span>${badge}`;
-        btn.addEventListener('click', () => {
-          selectedIssueIdx = idx;
-          loadIssueForm(idx);
-          renderIssuesList(searchIssuesInput?.value || '');
-        });
-        issuesContainer.appendChild(btn);
-      });
-    }
-
-    function renderStoryBlocks(blocks = []) {
-      if (!blocksContainer) return;
-      blocksContainer.innerHTML = '';
-      if (!blocks || blocks.length === 0) {
-        blocksContainer.innerHTML = '<p class="text-xs text-slate-400 dark:text-slate-500 italic">No story blocks added yet.</p>';
-        return;
-      }
-
-      blocks.forEach((b, bIdx) => {
-        const card = document.createElement('div');
-        card.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-[#061815] border border-slate-200 dark:border-teal-900/80 space-y-2';
-        card.innerHTML = `
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Story Block #${bIdx + 1}</span>
-            <button type="button" data-remove-block="${bIdx}" class="text-[10px] text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300 font-semibold cursor-pointer">Remove</button>
-          </div>
-          <div>
-            <input type="text" data-block-idx="${bIdx}" data-block-field="title" value="${b.title || ''}" placeholder="Story Title" class="block-title-input w-full px-2.5 py-1.5 text-xs rounded border border-slate-200 dark:border-teal-800/80 bg-white dark:bg-[#0b2420] text-slate-900 dark:text-white font-bold outline-none focus:border-teal-700 dark:focus:border-teal-400" />
-          </div>
-          <div>
-            <textarea data-block-idx="${bIdx}" data-block-field="body" rows="3" placeholder="Story text paragraphs..." class="block-body-input w-full px-2.5 py-1.5 text-xs rounded border border-slate-200 dark:border-teal-800/80 bg-white dark:bg-[#0b2420] text-slate-900 dark:text-white outline-none focus:border-teal-700 dark:focus:border-teal-400">${b.body || ''}</textarea>
-          </div>
-        `;
-        blocksContainer.appendChild(card);
-      });
-
-      blocksContainer.querySelectorAll('[data-remove-block]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const idx = parseInt(btn.getAttribute('data-remove-block') || '0', 10);
-          const currentIssue = appState.newsletters[selectedIssueIdx];
-          if (currentIssue && currentIssue.blocks) {
-            currentIssue.blocks.splice(idx, 1);
-            persistState();
-            renderStoryBlocks(currentIssue.blocks);
-            showToast('Story block removed.');
-          }
-        });
-      });
-
-      // Synchronize input changes back to state
-      blocksContainer.querySelectorAll('.block-title-input, .block-body-input').forEach(input => {
-        input.addEventListener('input', () => {
-          const bIdx = parseInt(input.getAttribute('data-block-idx') || '0', 10);
-          const field = input.getAttribute('data-block-field');
-          const currentIssue = appState.newsletters[selectedIssueIdx];
-          if (currentIssue && currentIssue.blocks && currentIssue.blocks[bIdx]) {
-            currentIssue.blocks[bIdx][field] = input.value;
-          }
-        });
-      });
-    }
-
-    document.getElementById('btn-add-story-block')?.addEventListener('click', () => {
-      const currentIssue = appState.newsletters[selectedIssueIdx];
-      if (!currentIssue) return;
-      if (!currentIssue.blocks) currentIssue.blocks = [];
-      currentIssue.blocks.push({
-        id: String(Date.now()),
-        title: 'New Story Headline',
-        body: 'Enter your article paragraphs here.'
-      });
-      persistState();
-      renderStoryBlocks(currentIssue.blocks);
-      showToast('New story block added.');
-    });
-
-    function loadIssueForm(idx) {
-      const iss = appState.newsletters[idx];
-      if (!iss) return;
-      if (issueTitleInput) issueTitleInput.value = iss.title || '';
-      if (issueDateInput) issueDateInput.value = iss.issue_date || '';
-      if (issueToplineInput) issueToplineInput.value = iss.top_line || '';
-      if (issueHeadlineInput) issueHeadlineInput.value = iss.main_headline || '';
-      if (issueNewsletterTitleInput) issueNewsletterTitleInput.value = iss.newsletter_title || '';
-      if (issueBylineInput) issueBylineInput.value = iss.byline || '';
-      if (issueHeroImageInput) issueHeroImageInput.value = iss.hero_image || '';
-      if (previewIssueLink) previewIssueLink.href = `/newsletter/issue/${iss.slug || '2025-in-review'}`;
-      updateHeroThumb(iss.hero_image || '');
-      renderStoryBlocks(iss.blocks || []);
-    }
-
-    function saveCurrentIssue() {
-      if (!appState.newsletters[selectedIssueIdx]) return;
-      appState.newsletters[selectedIssueIdx] = {
-        ...appState.newsletters[selectedIssueIdx],
-        title: issueTitleInput?.value || 'Untitled Issue',
-        issue_date: issueDateInput?.value || '',
-        top_line: issueToplineInput?.value || '',
-        main_headline: issueHeadlineInput?.value || '',
-        newsletter_title: issueNewsletterTitleInput?.value || '',
-        byline: issueBylineInput?.value || '',
-        hero_image: issueHeroImageInput?.value || ''
-      };
-      persistState();
-      renderIssuesList(searchIssuesInput?.value || '');
-      showToast('Newsletter issue updated.');
-    }
-
-    document.getElementById('btn-add-issue')?.addEventListener('click', () => {
-      const newIss = {
-        id: 'issue-' + Date.now(),
-        title: 'New Shelter Chronicle',
-        issue_date: '2026-09-01',
-        slug: 'new-chronicle',
-        featured: false,
-        top_line: 'PO Box 1457 • Monroe, MI',
-        main_headline: 'Fall Rescues & Community News',
-        newsletter_title: 'Monroe Humane Society Newsletter',
-        byline: 'by, Staff Team',
-        hero_image: '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png',
-        blocks: [
-          {
-            id: "1",
-            title: "Community Update",
-            body: "News from the shelter team and latest pet placements."
-          }
-        ]
-      };
-      appState.newsletters.unshift(newIss);
-      selectedIssueIdx = 0;
-      persistState();
-      renderIssuesList();
-      loadIssueForm(0);
-      issueTitleInput?.focus();
-      showToast('New newsletter draft created.');
-    });
-
-    document.getElementById('btn-save-issue')?.addEventListener('click', saveCurrentIssue);
-    document.getElementById('btn-publish-issue')?.addEventListener('click', () => {
-      saveCurrentIssue();
-      showToast('Newsletter issue published!');
-    });
-
-    document.getElementById('btn-toggle-featured')?.addEventListener('click', () => {
-      appState.newsletters.forEach((iss, i) => {
-        iss.featured = (i === selectedIssueIdx);
-      });
-      persistState();
-      renderIssuesList(searchIssuesInput?.value || '');
-      showToast(`Set "${appState.newsletters[selectedIssueIdx]?.title}" as homepage feature.`);
-    });
-
-    document.getElementById('btn-delete-issue')?.addEventListener('click', () => {
-      if (appState.newsletters.length <= 1) {
-        alert('Cannot delete the last remaining issue.');
-        return;
-      }
-      appState.newsletters.splice(selectedIssueIdx, 1);
-      selectedIssueIdx = Math.max(0, selectedIssueIdx - 1);
-      persistState();
-      renderIssuesList();
-      loadIssueForm(selectedIssueIdx);
-      showToast('Issue moved to trash.');
-    });
-
-    searchIssuesInput?.addEventListener('input', (e) => {
-      renderIssuesList(e.target.value);
-    });
-
-    // ─────────────────────────────────────────────────────────────────────────
     // 4. SHELTER OUTCOMES WIDGET
     // ─────────────────────────────────────────────────────────────────────────
     const outcomesContainer = document.getElementById('outcomes-years-container');
@@ -1769,18 +1283,16 @@ const bundleData = {
 
           const hasValidSection = Array.isArray(parsed.memorials) ||
             Array.isArray(parsed.flyers) ||
-            Array.isArray(parsed.newsletters) ||
             (parsed.outcomes && typeof parsed.outcomes === 'object');
 
           if (!hasValidSection) {
-            throw new Error('Unrecognized bundle: file must contain memorials, flyers, newsletters, or outcomes.');
+            throw new Error('Unrecognized bundle: file must contain memorials, flyers, or outcomes. Newsletters are stored in Directus, not this JSON file.');
           }
 
           appState = {
             memorials: Array.isArray(parsed.memorials) ? parsed.memorials : appState.memorials,
             flyers: Array.isArray(parsed.flyers) ? parsed.flyers : appState.flyers,
-            outcomes: (parsed.outcomes && typeof parsed.outcomes === 'object') ? parsed.outcomes : appState.outcomes,
-            newsletters: Array.isArray(parsed.newsletters) ? parsed.newsletters : appState.newsletters
+            outcomes: (parsed.outcomes && typeof parsed.outcomes === 'object') ? parsed.outcomes : appState.outcomes
           };
 
           persistState();
@@ -1790,8 +1302,6 @@ const bundleData = {
           renderFlyersList();
           loadFlyerForm(0);
           renderCalendarPreview();
-          renderIssuesList();
-          loadIssueForm(0);
           renderOutcomesCards();
 
           showToast('Content bundle imported successfully.');
@@ -1813,8 +1323,6 @@ const bundleData = {
         renderFlyersList();
         loadFlyerForm(0);
         renderCalendarPreview();
-        renderIssuesList();
-        loadIssueForm(0);
         renderOutcomesCards();
         showToast('Reset to default repository data.');
       }
@@ -1826,8 +1334,6 @@ const bundleData = {
     renderFlyersList();
     loadFlyerForm(selectedFlyerIdx);
     renderCalendarPreview();
-    renderIssuesList();
-    loadIssueForm(selectedIssueIdx);
     renderOutcomesCards();
   }
 

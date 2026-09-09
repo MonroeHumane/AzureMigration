@@ -19,6 +19,8 @@ interface Props {
   bodyClass?: string;
   /** Whether to hide public marketing nav and footer (defaults to true on /internal routes). */
   hidePublicNav?: boolean;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
@@ -27,7 +29,12 @@ const {
   image = SITE.assets.defaultOgImage,
   bodyClass = 'monroe-inner-page',
   hidePublicNav = Astro.url.pathname.startsWith('/internal'),
+  noindex = false,
+  jsonLd,
 } = Astro.props;
+
+const isNewsletterRoute = Astro.url.pathname.startsWith('/newsletter');
+const extraJsonLd = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE.url);
 
@@ -105,7 +112,11 @@ const schemaOrg = {
     <!-- SEO Meta -->
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalURL.href} />
+    {isNewsletterRoute && (
+      <link rel="alternate" type="application/rss+xml" title="Monroe Humane Society Newsletter" href="/newsletter/rss.xml" />
+    )}
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -123,6 +134,9 @@ const schemaOrg = {
 
     <!-- Structured Data (Schema.org) -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
+    {extraJsonLd.map((node) => (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(node)} />
+    ))}
 
     <!-- Theme fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

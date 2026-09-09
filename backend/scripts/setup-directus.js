@@ -112,17 +112,29 @@ async function main() {
           }
           if (Object.keys(metaPatch).length === 0) {
             console.log(`   ℹ️ Field up to date: ${col.collection}.${field.field}`);
-            continue;
-          }
-          const patchRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}/${field.field}`, {
-            method: 'PATCH',
-            headers: authHeaders,
-            body: JSON.stringify({ meta: metaPatch }),
-          });
-          if (patchRes.ok) {
-            console.log(`   ✅ Updated field styling: ${col.collection}.${field.field} (${Object.keys(metaPatch).join(', ')})`);
           } else {
-            console.warn(`   ⚠️ Field update failed for ${col.collection}.${field.field} (${patchRes.status}): ${await patchRes.text()}`);
+            const patchRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}/${field.field}`, {
+              method: 'PATCH',
+              headers: authHeaders,
+              body: JSON.stringify({ meta: metaPatch }),
+            });
+            if (patchRes.ok) {
+              console.log(`   ✅ Updated field styling: ${col.collection}.${field.field} (${Object.keys(metaPatch).join(', ')})`);
+            } else {
+              console.warn(`   ⚠️ Field update failed for ${col.collection}.${field.field} (${patchRes.status}): ${await patchRes.text()}`);
+            }
+          }
+          if (col.collection === 'newsletter_issues' && field.field === 'slug' && field.schema && field.schema.is_unique && !(existing.schema && existing.schema.is_unique)) {
+            const uniqueRes = await fetch(`${DIRECTUS_URL}/fields/${col.collection}/${field.field}`, {
+              method: 'PATCH',
+              headers: authHeaders,
+              body: JSON.stringify({ schema: { is_unique: true } }),
+            });
+            if (uniqueRes.ok) {
+              console.log('   ✅ Unique constraint on newsletter_issues.slug');
+            } else {
+              console.warn(`   ⚠️ Could not set unique slug (${uniqueRes.status}): ${await uniqueRes.text()}`);
+            }
           }
         }
         continue;
@@ -269,6 +281,129 @@ async function main() {
     console.warn('   ⚠️ PetSync service account setup error:', err.message);
   }
 
+  // 3b. Least-privilege newsletter Function service (CRUD + files, not admin).
+  console.log('🔧 Setting up Newsletter Function service account...');
+  try {
+    let nlPolicyId = null;
+    const nlPoliciesRes = await fetch(`${DIRECTUS_URL}/policies?filter[name][_eq]=Newsletter Function Service`, { headers: authHeaders });
+    if (nlPoliciesRes.ok) {
+      const nlPoliciesData = await nlPoliciesRes.json();
+      if (nlPoliciesData.data && nlPoliciesData.data.length > 0) {
+        nlPolicyId = nlPoliciesData.data[0].id;
+        console.log('   ℹ️ Newsletter Function Service policy already exists.');
+      }
+    }
+    if (!nlPolicyId) {
+      const nlPolicyRes = await fetch(`${DIRECTUS_URL}/policies`, {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ name: 'Newsletter Function Service', icon: 'newspaper', admin_access: false, app_access: false }),
+      });
+      if (nlPolicyRes.ok) {
+        nlPolicyId = (await nlPolicyRes.json()).data.id;
+        console.log('   ✅ Created Newsletter Function Service policy.');
+      } else {
+        console.warn(`   ⚠️ Newsletter policy creation failed (${nlPolicyRes.status}): ${await nlPolicyRes.text()}`);
+      }
+    }
+    if (nlPolicyId) {
+      const nlPerms = [
+        { collection: 'newsletter_issues', action: 'create' },
+        { collection: 'newsletter_issues', action: 'read' },
+        { collection: 'newsletter_issues', action: 'update' },
+        { collection: 'newsletter_issues', action: 'delete' },
+        { collection: 'directus_files', action: 'create' },
+        { collection: 'directus_files', action: 'read' },
+        { collection: 'directus_revisions', action: 'read' },
+      ];
+      const existingNlPermsRes = await fetch(`${DIRECTUS_URL}/permissions?filter[policy][_eq]=${nlPolicyId}&limit=-1`, { headers: authHeaders });
+      const existingNlPerms = existingNlPermsRes.ok ? (await existingNlPermsRes.json()).data || [] : [];
+      const hasNl = (collection, action) => existingNlPerms.some((p) => p.collection === collection && p.action === action);
+      for (const p of nlPerms) {
+        if (hasNl(p.collection, p.action)) {
+          console.log(`   ℹ️ Permission already exists: ${p.action} ${p.collection}`);
+          continue;
+        }
+        const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({ policy: nlPolicyId, collection: p.collection, action: p.action, fields: ['*'] }),
+        });
+        if (permRes.ok) {
+          console.log(`   ✅ Granted: ${p.action} ${p.collection}`);
+        } else {
+          console.warn(`   ⚠️ Permission grant failed for ${p.action} ${p.collection} (${permRes.status}): ${await permRes.text()}`);
+        }
+      }
+
+      let nlUserId = null;
+      const nlUsersRes = await fetch(`${DIRECTUS_URL}/users?filter[email][_eq]=newsletter-service@monroe-humane.org`, { headers: authHeaders });
+      if (nlUsersRes.ok) {
+        const nlUsersData = await nlUsersRes.json();
+        if (nlUsersData.data && nlUsersData.data.length > 0) {
+          nlUserId = nlUsersData.data[0].id;
+          console.log('   ℹ️ Newsletter service user already exists.');
+        }
+      }
+      if (!nlUserId) {
+        const nlToken = `nlsvc_${Buffer.from(`${Date.now()}-${Math.random()}`).toString('base64url').slice(0, 40)}`;
+        const nlUserRes = await fetch(`${DIRECTUS_URL}/users`, {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({
+            email: 'newsletter-service@monroe-humane.org',
+            status: 'active',
+            first_name: 'Newsletter',
+            last_name: 'Service',
+            token: nlToken,
+          }),
+        });
+        if (nlUserRes.ok) {
+          nlUserId = (await nlUserRes.json()).data.id;
+          console.log('   ✅ Created Newsletter service user. Set DIRECTUS_NEWSLETTER_TOKEN in SWA (token not printed).');
+          if (process.env.SET_SWA_NEWSLETTER_TOKEN === '1') {
+            const { spawnSync } = require('child_process');
+            const azBin = process.platform === 'win32' ? 'az.cmd' : 'az';
+            const setRes = spawnSync(azBin, [
+              'staticwebapp', 'appsettings', 'set',
+              '-n', process.env.SWA_NAME || 'mchs-frontend-prod',
+              '-g', process.env.SWA_RG || 'MCHS-Platform-RG',
+              '--setting-names', `DIRECTUS_NEWSLETTER_TOKEN=${nlToken}`,
+              '--output', 'none',
+            ], { encoding: 'utf8', windowsHide: true, shell: false });
+            if (setRes.status === 0) {
+              console.log('   ✅ DIRECTUS_NEWSLETTER_TOKEN stored in Static Web App settings.');
+            } else {
+              console.warn('   ⚠️ Could not write SWA app setting (run SET_SWA_NEWSLETTER_TOKEN=1 after creating the user).');
+            }
+          }
+        } else {
+          console.warn(`   ⚠️ Newsletter service user creation failed (${nlUserRes.status}): ${await nlUserRes.text()}`);
+        }
+      }
+      if (nlUserId) {
+        const nlAccessRes = await fetch(`${DIRECTUS_URL}/access?filter[user][_eq]=${nlUserId}&filter[policy][_eq]=${nlPolicyId}`, { headers: authHeaders });
+        const nlAccessExists = nlAccessRes.ok && (await nlAccessRes.json()).data?.length > 0;
+        if (!nlAccessExists) {
+          const linkRes = await fetch(`${DIRECTUS_URL}/access`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({ user: nlUserId, policy: nlPolicyId }),
+          });
+          if (linkRes.ok) {
+            console.log('   ✅ Linked Newsletter service user to policy.');
+          } else {
+            console.warn(`   ⚠️ Newsletter user-policy link failed (${linkRes.status}): ${await linkRes.text()}`);
+          }
+        } else {
+          console.log('   ℹ️ Newsletter service user already linked to policy.');
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('   ⚠️ Newsletter Function service setup error:', err.message);
+  }
+
   // 4. Configure Public Read Permissions
   console.log('🔐 Configuring Public Read permissions for frontend access...');
   const publicCollections = [
@@ -298,18 +433,48 @@ async function main() {
   } else {
     const existingPublicRes = await fetch(`${DIRECTUS_URL}/permissions?filter[policy][_eq]=${publicPolicyId}&limit=-1`, { headers: authHeaders });
     const existingPublic = existingPublicRes.ok ? (await existingPublicRes.json()).data || [] : [];
-    const hasPublicRead = (collection) => existingPublic.some((p) => p.collection === collection && p.action === 'read');
+    const publicReadPerm = (collection) => existingPublic.find((p) => p.collection === collection && p.action === 'read');
+    const newsletterPublicFilter = { status: { _eq: 'published' } };
 
     for (const col of publicCollections) {
-      if (hasPublicRead(col)) {
-        console.log(`   ℹ️ Public read already exists: ${col}`);
+      const existingPerm = publicReadPerm(col);
+      const body = {
+        policy: publicPolicyId,
+        collection: col,
+        action: 'read',
+        fields: ['*'],
+      };
+      if (col === 'newsletter_issues') {
+        body.permissions = newsletterPublicFilter;
+      }
+      if (existingPerm) {
+        if (col === 'newsletter_issues') {
+          const currentFilter = JSON.stringify(existingPerm.permissions || {});
+          const desiredFilter = JSON.stringify(newsletterPublicFilter);
+          if (currentFilter !== desiredFilter) {
+            const patchRes = await fetch(`${DIRECTUS_URL}/permissions/${existingPerm.id}`, {
+              method: 'PATCH',
+              headers: authHeaders,
+              body: JSON.stringify({ permissions: newsletterPublicFilter }),
+            });
+            if (patchRes.ok) {
+              console.log('   ✅ Public read filter (published only): newsletter_issues');
+            } else {
+              console.warn(`   ⚠️ Public newsletter filter patch failed (${patchRes.status}): ${await patchRes.text()}`);
+            }
+          } else {
+            console.log('   ℹ️ Public read already exists: newsletter_issues (published only)');
+          }
+        } else {
+          console.log(`   ℹ️ Public read already exists: ${col}`);
+        }
         continue;
       }
       try {
         const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
           method: 'POST',
           headers: authHeaders,
-          body: JSON.stringify({ policy: publicPolicyId, collection: col, action: 'read', fields: ['*'] }),
+          body: JSON.stringify(body),
         });
         if (permRes.ok) {
           console.log(`   ✅ Public read granted: ${col}`);
@@ -322,41 +487,65 @@ async function main() {
     }
   }
 
-  // 5. Staff / app-access policies: grants pipeline CRUD (never public)
-  console.log('🔐 Configuring staff grants permissions...');
+  // 5. Staff / app-access policies: grants + newsletter CRUD (never public)
+  console.log('🔐 Configuring staff grants and newsletter permissions...');
   try {
     const policiesRes = await fetch(`${DIRECTUS_URL}/policies?limit=-1`, { headers: authHeaders });
     const policies = policiesRes.ok ? ((await policiesRes.json()).data || []) : [];
-    const grantActions = ['read', 'create', 'update', 'delete'];
+    const staffActions = ['read', 'create', 'update', 'delete'];
+    const staffCollections = ['grants', 'newsletter_issues'];
+    const extraStaffPerms = [
+      { collection: 'directus_files', action: 'create' },
+      { collection: 'directus_files', action: 'read' },
+      { collection: 'directus_revisions', action: 'read' },
+    ];
     for (const policy of policies) {
       const name = String(policy.name || '');
       if (name === '$t:public_label' || name.toLowerCase().includes('public')) continue;
       if (policy.admin_access) continue;
       if (!policy.app_access && name !== 'PetSync Service') continue;
-      if (name === 'PetSync Service') continue;
+      if (name === 'PetSync Service' || name === 'Newsletter Function Service') continue;
 
       const existingRes = await fetch(`${DIRECTUS_URL}/permissions?filter[policy][_eq]=${policy.id}&limit=-1`, { headers: authHeaders });
       const existing = existingRes.ok ? ((await existingRes.json()).data || []) : [];
-      const has = (action) => existing.some((p) => p.collection === 'grants' && p.action === action);
-      for (const action of grantActions) {
-        if (has(action)) {
-          console.log(`   ℹ️ ${name} already has ${action} grants`);
+      const has = (collection, action) => existing.some((p) => p.collection === collection && p.action === action);
+      for (const collection of staffCollections) {
+        for (const action of staffActions) {
+          if (has(collection, action)) {
+            console.log(`   ℹ️ ${name} already has ${action} ${collection}`);
+            continue;
+          }
+          const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({ policy: policy.id, collection, action, fields: ['*'] }),
+          });
+          if (permRes.ok) {
+            console.log(`   ✅ ${name}: ${action} ${collection}`);
+          } else {
+            console.warn(`   ⚠️ ${name} ${action} ${collection} failed (${permRes.status}): ${await permRes.text()}`);
+          }
+        }
+      }
+      for (const extra of extraStaffPerms) {
+        if (has(extra.collection, extra.action)) {
+          console.log(`   ℹ️ ${name} already has ${extra.action} ${extra.collection}`);
           continue;
         }
-        const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
+        const extraRes = await fetch(`${DIRECTUS_URL}/permissions`, {
           method: 'POST',
           headers: authHeaders,
-          body: JSON.stringify({ policy: policy.id, collection: 'grants', action, fields: ['*'] }),
+          body: JSON.stringify({ policy: policy.id, collection: extra.collection, action: extra.action, fields: ['*'] }),
         });
-        if (permRes.ok) {
-          console.log(`   ✅ ${name}: ${action} grants`);
+        if (extraRes.ok) {
+          console.log(`   ✅ ${name}: ${extra.action} ${extra.collection}`);
         } else {
-          console.warn(`   ⚠️ ${name} ${action} grants failed (${permRes.status}): ${await permRes.text()}`);
+          console.warn(`   ⚠️ ${name} ${extra.action} ${extra.collection} failed (${extraRes.status}): ${await extraRes.text()}`);
         }
       }
     }
   } catch (err) {
-    console.warn('   ⚠️ Staff grants permission setup error:', err.message);
+    console.warn('   ⚠️ Staff grants/newsletter permission setup error:', err.message);
   }
 
   // 6. Seed grants pipeline if empty
@@ -413,6 +602,75 @@ async function main() {
     }
   } catch (e) {
     console.warn('   ⚠️ Grants seed skipped:', e.message);
+  }
+
+  // 6b. Seed newsletter archive if empty
+  try {
+    const nlCheck = await fetch(`${DIRECTUS_URL}/items/newsletter_issues?limit=1`, { headers: authHeaders });
+    if (nlCheck.ok) {
+      const nlData = await nlCheck.json();
+      if ((nlData.data || []).length === 0) {
+        console.log('🌱 Seeding 2025 in Review newsletter issue...');
+        const seedIssue = {
+          status: 'published',
+          title: '2025 in Review',
+          slug: '2025-in-review',
+          issue_date: '2026-01-15',
+          heading: '2025 in Review',
+          lead: 'A new direction, a busy shelter, and a community that showed up all year.',
+          byline: 'by, Jacqueline Monteer',
+          featured: true,
+          hero_image: '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png',
+          excerpt: 'A new direction, a busy shelter, and a community that showed up all year. Read how 2025 reshaped the shelter — new play yards, climate control, a medical room, and hundreds of animals finding their way home.',
+          pdf_url: '',
+          top_line: 'PO Box 1457 • Monroe, MI',
+          newsletter_title: 'Monroe Humane Society Newsletter',
+          main_headline: '2025 in Review',
+          blocks: [
+            {
+              id: '1',
+              type: 'story',
+              title: 'A New Direction',
+              body: 'After years of donations and plans for building a new shelter it was not to be. In 2023 I became president of HSMC there was debt, the Telegraph location was falling apart, very little progress on a new shelter and then covid. I spent a lot of time working with different agencies, government entities and contractors to see if we could salvage the project within a realistic budget. It was not financially prudent.\n\nThe new board took a different direction, and it has been a blessing. We have partnered with the Sheriff’s dept. We are now a vendor for the county and rent the animal control shelter building. With hard work and support of the community we have improved all aspects of shelter life for dogs and cats.\n\nWe wanted to give back to the community as much as possible with improvements to the shelter putting to work all the donations for a new shelter. These improvements are here to stay no matter what. The dogs and cats of Monroe County will benefit from the Humane Society and the generosity of this community.',
+            },
+            {
+              id: '2',
+              type: 'story',
+              title: 'Things improved',
+              body: '1. Two new fenced play yards and reconfigured some of the existing fencing so that if a dog escapes the kennel area it is confined inside the fencing. We also installed a pedestrian gate so that access is easier and safer for dogs being walked.\n2. Installed air conditioning in the dog kennel and installed a separate heating and cooling unit in the cat area.\n3. Installed new commercial sink, allowing us to clean and sterilize all animal dishes and other items.\n4. Installed commercial size washer and dryer. It holds 5 times the load limit of the previous units capacity.\n5. Created a medical room. All animals brought into the shelter are evaluated and vaccinated.\n6. Are in the process of building two additional outdoor covered kennels. Previously we had just small kennel runs under a permanent roof and 6 larger runs on gravel with no overhead protection except a tarp. The new kennels have roofs and are larger than the existing runs with a total of 14 larger runs. So with what is here now we will have more room to get dogs out in good weather and places to put them for cleaning kennels where they are protected from the elements.\n7. All of the staff are certified in Fear Free which is a course offered to teach how to handle shelter animals to reduce fear and stress.\n8. We also implemented a program called Please, the dogs are asked to sit and calm before exiting their kennel.\n9. We have created play groups for the dogs. We find which dogs like each other and we allow them to play in the play yard together. Often, they will let us know when they are ready to come in and some of our dogs would rather be in a play group than to go for a walk.\n10. We have a program called Doggie Day Out which allows dogs to leave the shelter for a day. We have dogs who now drool when they go by a fast food place that has pup cups, some dogs go to a park and some go to a home for a day of cuddles. They usually come back tired and happy.\n11. We rotate dogs in the office area so that they are exposed to different people and different situations. Much like they experience in a home.\n12. We had a mural painted on the side of the building. This was a community event with many people helping to paint. The animals on the wall are all former residents of the shelter. On the front of the building is a memorial to ACO Darrian Young and Dr. Hermann, both had dedicated their lives to animals and the community and each tragically were killed in car accidents.',
+            },
+            {
+              id: '3',
+              type: 'story',
+              title: 'Partner Shelters & Our Cats',
+              body: 'In addition to all these changes and improvements we have programs with other state approved shelters. We trade about 4 dogs a month, sometimes it just takes another set of eyes to find the perfect match.\n\nIn reading this you may have noticed most centers around our dogs. We also have cats here for adoption and looking for homes. Each year we take in cats that are left behind or have owners that have passed and many other unfortunate circumstances. We have cats that give birth in our care, we have litters brought to us and there is always far more in need than we can care for.',
+            },
+            {
+              id: '4',
+              type: 'story',
+              title: 'The Cat Room 2014 Next Project',
+              body: 'With that, the next project we have planned is for a “Cat Room”. We want to build onto the front of the building, about 800 square feet, where we can put community kennels for the cats. Where they can play and climb and do what cats and kittens do. An architect donated his time and drew up plans. Building the cat room will move the cats from the garage to an area built specifically for them and their needs. This will also leave us with a large area at the back of the building where we can build isolation kennels, so that when a dog is brought into the building it can go to the isolation area to decompress and be observed for health problems.\n\nAt the same time, it will open some much needed space outside of the medical room for Legacy Pet Care, for the vaccine and animal care clinic once monthly.\n\nThis project will be expensive and will require fundraisers. We will need corporate sponsors and will offer naming rights for this new addition.',
+            },
+          ],
+        };
+        const createRes = await fetch(`${DIRECTUS_URL}/items/newsletter_issues`, {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify(seedIssue),
+        });
+        if (createRes.ok) {
+          console.log('   ✅ Seeded: 2025 in Review');
+        } else {
+          console.warn(`   ⚠️ Newsletter seed failed (${createRes.status}): ${await createRes.text()}`);
+        }
+      } else {
+        console.log('   ℹ️ Newsletter collection already has records.');
+      }
+    } else {
+      console.warn(`   ⚠️ Could not read newsletter_issues for seeding (${nlCheck.status}): ${await nlCheck.text()}`);
+    }
+  } catch (e) {
+    console.warn('   ⚠️ Newsletter seed skipped:', e.message);
   }
 
   // 7. Seed Site Settings if empty

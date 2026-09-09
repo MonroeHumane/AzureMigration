@@ -10,11 +10,12 @@ import MobileTOC from '../components/MobileTOC.astro';
 import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
 
-import { getSiteSettings, getEventFlyers, getNewsletterIssues } from '../lib/directus';
+import { getSiteSettings, getEventFlyers, getNewsletterIssues, getFeaturedNewsletterIssue } from '../lib/directus';
 const pets = (await getPets()).slice(0, 6);
 const settings = await getSiteSettings();
 const events = await getEventFlyers();
 const newsletters = await getNewsletterIssues();
+const featuredNewsletter = await getFeaturedNewsletterIssue();
 const now = new Date();
 
 // Spotlight the soonest genuinely upcoming flyer event, not just whichever
@@ -23,7 +24,7 @@ const now = new Date();
 const latestEvent = events
   .filter((e) => e.event_date && new Date(e.event_date) >= now)
   .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime())[0];
-const latestNewsletter = newsletters[0];
+const latestNewsletter = featuredNewsletter || newsletters[0] || null;
 
 // "Next event" widget: spotlight the soonest upcoming event from event flyers if present,
 // falling back to home.next_event.
@@ -82,7 +83,7 @@ const sideNavSections = [
   { id: 'SupporterStory', title: 'Supporter Story' },
   { id: 'Donations', title: 'Donations & Giving' },
   { id: 'Social', title: 'Facebook' },
-  { id: 'Newsletter', title: '2025 in Review' },
+  { id: 'Newsletter', title: latestNewsletter?.title || 'Newsletter' },
   { id: 'FAQ', title: 'Shelter FAQ' },
   { id: 'Accomplishments', title: 'Annual Outcomes' },
   { id: 'Games', title: 'Shelter Games' },
@@ -832,19 +833,19 @@ const sideNavSections = [
       </div>
     </div>
 
-    <!-- 14. Newsletter: 2025 in Review -->
+    <!-- 14. Newsletter: featured published issue -->
     <div class="wp-block-group alignwide home-editable-section home-editable-newsletter-section is-layout-constrained">
       <div class="wp-block-group home-editable-news-card home-editable-runtime-card is-style-monroe-news-band is-layout-constrained" id="Newsletter">
-        <p class="home-editable-section-label wp-block-paragraph" id="2025-in-review">{home.newsletter.label}</p>
+        <p class="home-editable-section-label wp-block-paragraph" id="newsletter-section-label">{latestNewsletter?.title || home.newsletter.label}</p>
         <h2 class="wp-block-heading">{home.newsletter.title}</h2>
         <p class="wp-block-paragraph">{home.newsletter.intro}</p>
 
         <div class="monroe-home-newsletter-slot">
-          <section id="hs-news-2025review" class="hs-news-section" aria-labelledby="hs-news-2025review-title" data-hs-lightbox="hsLb-181">
+          <section id="hs-news-featured" class="hs-news-section" aria-labelledby="hs-news-featured-title" data-hs-lightbox="hsLb-181" data-newsletter-home>
             <div class="hs-wrap">
-              <div class="hs-card" role="region" aria-label="2025 in Review">
+              <div class="hs-card" role="region" aria-label="Latest newsletter">
                 <div class="hs-hero">
-                    <img src={latestNewsletter ? latestNewsletter.hero_image : home.newsletter.hero_image} alt={latestNewsletter ? latestNewsletter.title : "2025 in Review"} width="1200" height="400" decoding="async" loading="lazy" />
+                    <img data-nl-hero src={latestNewsletter ? latestNewsletter.hero_image : home.newsletter.hero_image} alt={latestNewsletter ? latestNewsletter.title : "Latest newsletter"} width="1200" height="400" decoding="async" loading="lazy" />
                     <div class="hs-hero-overlay"></div>
                     <div class="hs-hero-text">
                       <div class="hs-eyebrow">{home.newsletter.eyebrow}</div>
@@ -853,8 +854,8 @@ const sideNavSections = [
                   </div>
                   <div class="hs-head">
                     <div>
-                      <h3 id="hs-news-2025review-title" class="hs-title">{latestNewsletter ? latestNewsletter.title : home.newsletter.title}</h3>
-                      <div class="hs-sub">{latestNewsletter ? formatDate(latestNewsletter.issue_date, home.newsletter.byline) : home.newsletter.byline}</div>
+                      <h3 id="hs-news-featured-title" class="hs-title" data-nl-title>{latestNewsletter ? latestNewsletter.title : home.newsletter.title}</h3>
+                      <div class="hs-sub" data-nl-byline>{latestNewsletter ? formatDate(latestNewsletter.issue_date, home.newsletter.byline) : home.newsletter.byline}</div>
                     </div>
                     <div class="hs-actions" role="group" aria-label="Quick pet filters">
                       {latestNewsletter && latestNewsletter.pdf_url && (
@@ -872,39 +873,15 @@ const sideNavSections = [
                       {latestNewsletter ? (
                         <div class="hs-box" style="grid-column: 1 / -1;">
                           <div class="hs-letter">
-                            <p>{latestNewsletter.excerpt}</p>
-                            <a href={`/newsletter/issue/${latestNewsletter.slug}`} style="font-weight:bold; color:#0f766e; margin-top:1rem; display:inline-block;">Read Full Issue &rarr;</a>
+                            <p data-nl-excerpt>{latestNewsletter.excerpt}</p>
+                            <a data-nl-link href={`/newsletter/issue/${latestNewsletter.slug}`} style="font-weight:bold; color:#0f766e; margin-top:1rem; display:inline-block;">Read Full Issue &rarr;</a>
                           </div>
                         </div>
                       ) : (
-                        <>
-                          {home.newsletter.letters.map((letter) => (
-                            <div class="hs-box">
-                              <div class="hs-letter">
-                                <h3 class="hs-section-title">{letter.title}</h3>
-                                {letter.paragraphs && <p>{letter.paragraphs[0]}</p>}
-                                <details class="monroe-newsletter-details">
-                                  <summary>Read the rest of this letter</summary>
-                                  <div class="monroe-newsletter-details-content">
-                                    {letter.paragraphs?.slice(1).map((p) => <p>{p}</p>)}
-                                    {letter.improvements && (
-                                      <ol class="hs-improvements">
-                                        {letter.improvements.map((li) => <li>{li}</li>)}
-                                      </ol>
-                                    )}
-                                  </div>
-                                </details>
-                              </div>
-                            </div>
-                          ))}
-                          <aside class="hs-box" aria-label="Newsletter photo gallery">
-                            <div class="hs-gallery">
-                              {home.newsletter.gallery.map((img) => (
-                                <img src={img.src} alt={img.alt} loading="lazy" decoding="async" />
-                              ))}
-                            </div>
-                          </aside>
-                        </>
+                        <div class="hs-box" style="grid-column: 1 / -1;">
+                          <p data-nl-excerpt>No published newsletter yet.</p>
+                          <a data-nl-link href="/newsletter" style="font-weight:bold; color:#0f766e; margin-top:1rem; display:inline-block;">View archive &rarr;</a>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1094,8 +1071,10 @@ const sideNavSections = [
 </BaseLayout>
 
 <script>
+  import { hydrateHomeNewsletter } from '../scripts/newsletter-hydrate';
+
   function initHomePage() {
-    // Featured pets: Expand view opens a <dialog> with the same cards.
+    hydrateHomeNewsletter();
     const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
     const fpwExpand = document.getElementById('fpwExpandBtn');
     if (fpwDialog && fpwExpand) {

@@ -362,11 +362,28 @@ function sanitizeGrantInput(body) {
 }
 
 async function getDirectusServiceToken() {
-  const staticToken = (process.env.DIRECTUS_TOKEN || '').trim();
-  if (staticToken) return staticToken;
-
   if (cachedDirectusService.token && Date.now() < cachedDirectusService.expiresAt) {
     return cachedDirectusService.token;
+  }
+
+  const candidates = [
+    (process.env.DIRECTUS_NEWSLETTER_TOKEN || '').trim(),
+    (process.env.DIRECTUS_TOKEN || '').trim(),
+  ].filter(Boolean);
+
+  for (const token of candidates) {
+    try {
+      const probe = await fetch(`${DIRECTUS_URL}/items/newsletter_issues?limit=1&fields=id`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(4000),
+      });
+      if (probe.ok) {
+        cachedDirectusService = { token, expiresAt: Date.now() + 10 * 60 * 1000 };
+        return token;
+      }
+    } catch {
+      // try next candidate
+    }
   }
 
   const email = (process.env.DIRECTUS_ADMIN_EMAIL || 'admin@monroe-humane.org').trim();
@@ -528,6 +545,486 @@ app.http('grants', {
     } catch (err) {
       context.error('[Grants] Unexpected error', err);
       return jsonResponse(request, 500, { error: 'Grants service error.' }, { 'Cache-Control': 'no-store, private' });
+    }
+  },
+});
+
+const NEWSLETTER_STATUSES = new Set(['draft', 'published', 'archived', 'scheduled']);
+const NEWSLETTER_LIST_FIELDS = 'id,status,title,slug,issue_date,featured,excerpt,hero_image,pdf_url,publish_at,seo_title,seo_description,date_updated';
+const NEWSLETTER_PUBLIC_FIELDS = `${NEWSLETTER_LIST_FIELDS},byline,top_line,newsletter_title,main_headline,heading,lead,blocks`;
+const NEWSLETTER_ASSET_HOST = 'mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
+
+function slugifyNewsletter(title) {
+  const slug = String(title || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+  return slug || 'issue';
+}
+
+function isAllowedNewsletterUrl(url) {
+  const s = String(url || '').trim();
+  if (!s) return true;
+  if (s.startsWith('/assets/')) return true;
+  try {
+    const parsed = new URL(s);
+    if (parsed.protocol !== 'https:') return false;
+    if (parsed.hostname === NEWSLETTER_ASSET_HOST && parsed.pathname.startsWith('/assets/')) return true;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeNewsletterBlocks(blocks) {
+  if (!Array.isArray(blocks)) return [];
+  return blocks.slice(0, 40).map((block, index) => ({
+    id: String(block && block.id ? block.id : index + 1).slice(0, 64),
+    type: 'story',
+    title: String(block && block.title ? block.title : '').slice(0, 255),
+    body: String(block && block.body ? block.body : '').slice(0, 20000),
+  }));
+}
+
+function sanitizeNewsletterInput(body, options) {
+  const partial = !!(options && options.partial);
+  const title = String(body && body.title != null ? body.title : '').trim().slice(0, 255);
+  if (!partial && !title) {
+    return { error: 'Issue title is required.' };
+  }
+  if (partial && body && body.title != null && !title) {
+    return { error: 'Issue title is required.' };
+  }
+  const payload = {};
+  if (title) payload.title = title;
+  if (body && body.slug != null) {
+    payload.slug = slugifyNewsletter(body.slug);
+  } else if (title && !partial) {
+    payload.slug = slugifyNewsletter(title);
+  }
+  if (body && body.status != null) {
+    const statusRaw = String(body.status || '').trim().toLowerCase();
+    payload.status = NEWSLETTER_STATUSES.has(statusRaw) ? statusRaw : 'draft';
+  } else if (!partial) {
+    payload.status = 'draft';
+  }
+  if (payload.status === 'scheduled' && !(body && body.publish_at)) {
+    return { error: 'Scheduled issues need a publish date and time.' };
+  }
+  if (body && body.issue_date != null) payload.issue_date = String(body.issue_date).trim().slice(0, 64);
+  if (body && body.heading != null) payload.heading = String(body.heading).trim().slice(0, 255);
+  if (body && body.lead != null) payload.lead = String(body.lead).slice(0, 4000);
+  if (body && body.byline != null) payload.byline = String(body.byline).trim().slice(0, 128);
+  if (body && body.hero_image != null) {
+    const hero = String(body.hero_image).trim().slice(0, 512);
+    if (!isAllowedNewsletterUrl(hero)) return { error: 'Hero image must be an https URL or /assets/ path.' };
+    payload.hero_image = hero;
+  }
+  if (body && body.excerpt != null) payload.excerpt = String(body.excerpt).slice(0, 4000);
+  if (body && body.pdf_url != null) {
+    const pdf = String(body.pdf_url).trim().slice(0, 512);
+    if (!isAllowedNewsletterUrl(pdf)) return { error: 'PDF URL must be an https URL or /assets/ path.' };
+    payload.pdf_url = pdf;
+  }
+  if (body && body.top_line != null) payload.top_line = String(body.top_line).trim().slice(0, 255);
+  if (body && body.newsletter_title != null) payload.newsletter_title = String(body.newsletter_title).trim().slice(0, 255);
+  if (body && body.main_headline != null) payload.main_headline = String(body.main_headline).trim().slice(0, 255);
+  if (body && body.seo_title != null) payload.seo_title = String(body.seo_title).trim().slice(0, 255);
+  if (body && body.seo_description != null) payload.seo_description = String(body.seo_description).slice(0, 400);
+  if (body && body.publish_at != null) payload.publish_at = String(body.publish_at).trim().slice(0, 64);
+  if (body && Object.prototype.hasOwnProperty.call(body, 'featured')) payload.featured = !!body.featured;
+  if (payload.featured && payload.status && payload.status !== 'published') {
+    payload.featured = false;
+  }
+  if (body && body.blocks != null) payload.blocks = sanitizeNewsletterBlocks(body.blocks);
+  return { payload };
+}
+
+function xmlResponse(request, status, xml, contentType, extraHeaders) {
+  return {
+    status,
+    headers: corsHeaders(request, Object.assign({
+      'Content-Type': contentType || 'application/rss+xml; charset=utf-8',
+    }, extraHeaders || {})),
+    body: xml,
+  };
+}
+
+function escapeXml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function logNewsletter(context, staff, action, extra) {
+  const email = staff && staff.email ? staff.email : 'anonymous';
+  const bits = extra ? Object.keys(extra).map((key) => `${key}=${extra[key]}`).join(' ') : '';
+  context.log(`[Newsletters] ${action} staff=${email} ${bits}`.trim());
+}
+
+async function findNewsletterSlugClash(serviceToken, slug, excludeId) {
+  const encoded = encodeURIComponent(slug);
+  const found = await directusJson(
+    `/items/newsletter_issues?filter[slug][_eq]=${encoded}&limit=5&fields=id,slug`,
+    { method: 'GET' },
+    serviceToken
+  );
+  const rows = found.ok && Array.isArray(found.json && found.json.data) ? found.json.data : [];
+  return rows.find((row) => String(row.id) !== String(excludeId || '')) || null;
+}
+
+async function ensureUniqueNewsletterSlug(serviceToken, slug, excludeId) {
+  let candidate = slug;
+  for (let i = 0; i < 20; i += 1) {
+    const clash = await findNewsletterSlugClash(serviceToken, candidate, excludeId);
+    if (!clash) return candidate;
+    candidate = `${slug}-${i + 2}`.slice(0, 80);
+  }
+  return `${slug}-${Date.now()}`.slice(0, 80);
+}
+
+async function clearOtherFeaturedIssues(serviceToken, keepId) {
+  const bulk = await directusJson(
+    `/items/newsletter_issues?filter[featured][_eq]=true&filter[id][_neq]=${encodeURIComponent(keepId)}`,
+    { method: 'PATCH', body: JSON.stringify({ featured: false }) },
+    serviceToken
+  );
+  if (bulk.ok) return;
+  const listed = await directusJson(
+    '/items/newsletter_issues?filter[featured][_eq]=true&fields=id&limit=50',
+    { method: 'GET' },
+    serviceToken
+  );
+  const rows = listed.ok && Array.isArray(listed.json && listed.json.data) ? listed.json.data : [];
+  for (const row of rows) {
+    if (String(row.id) === String(keepId)) continue;
+    await directusJson(`/items/newsletter_issues/${encodeURIComponent(row.id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ featured: false }),
+    }, serviceToken);
+  }
+}
+
+async function fetchPublishedNewsletterIssues(serviceToken) {
+  return directusJson(
+    '/items/newsletter_issues?filter[status][_eq]=published&sort=-issue_date,-id&limit=50',
+    { method: 'GET' },
+    serviceToken
+  );
+}
+
+async function applyDueScheduledIssues(serviceToken, context) {
+  const nowIso = new Date().toISOString();
+  const listed = await directusJson(
+    `/items/newsletter_issues?filter[status][_eq]=scheduled&filter[publish_at][_lte]=${encodeURIComponent(nowIso)}&fields=id,featured,status,publish_at&limit=50`,
+    { method: 'GET' },
+    serviceToken
+  );
+  if (!listed.ok) {
+    if (context) context.warn('[Newsletters] scheduled list failed', listed.status);
+    return { published: 0 };
+  }
+  const rows = Array.isArray(listed.json && listed.json.data) ? listed.json.data : [];
+  let published = 0;
+  for (const row of rows) {
+    const updated = await directusJson(`/items/newsletter_issues/${encodeURIComponent(row.id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'published' }),
+    }, serviceToken);
+    if (updated.ok) {
+      published += 1;
+      if (row.featured) await clearOtherFeaturedIssues(serviceToken, row.id);
+    }
+  }
+  return { published };
+}
+
+function xmlTextResponse(request, xml, extraHeaders) {
+  return xmlResponse(request, 200, xml, 'application/rss+xml; charset=utf-8', extraHeaders);
+}
+
+function buildNewsletterRss(issues) {
+  const site = 'https://monroe-humane.org';
+  const items = (issues || []).map((issue) => {
+    const link = `${site}/newsletter/issue/${encodeURIComponent(issue.slug || '')}`;
+    const desc = escapeXml(issue.excerpt || issue.seo_description || issue.lead || '');
+    const date = issue.issue_date ? new Date(`${issue.issue_date}T12:00:00Z`).toUTCString() : new Date().toUTCString();
+    return `<item><title>${escapeXml(issue.title || 'Untitled')}</title><link>${link}</link><guid isPermaLink="true">${link}</guid><pubDate>${date}</pubDate><description>${desc}</description></item>`;
+  }).join('');
+  return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Monroe Humane Society Newsletter</title><link>${site}/newsletter/</link><description>Published shelter newsletters</description>${items}</channel></rss>`;
+}
+
+function buildNewsletterSitemap(issues) {
+  const site = 'https://monroe-humane.org';
+  const urls = [`${site}/newsletter/`].concat((issues || []).filter((issue) => issue.slug).map((issue) => `${site}/newsletter/issue/${encodeURIComponent(issue.slug)}`));
+  const body = urls.map((loc) => `<url><loc>${escapeXml(loc)}</loc></url>`).join('');
+  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</urlset>`;
+}
+
+app.http('newsletters', {
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  authLevel: 'anonymous',
+  route: 'newsletters/{id?}',
+  handler: async (request, context) => {
+    if (request.method === 'OPTIONS') {
+      return corsPreflight(request, 'GET, POST, PATCH, DELETE, OPTIONS');
+    }
+
+    const id = (request.params && request.params.id ? String(request.params.id) : '').trim();
+    const serviceToken = await getDirectusServiceToken();
+    if (!serviceToken) {
+      return jsonResponse(request, 503, {
+        error: 'Newsletter service is not configured.',
+        code: 'DIRECTUS_SERVICE_UNAVAILABLE',
+      }, { 'Cache-Control': 'no-store, private' });
+    }
+
+    try {
+      if (request.method === 'GET' && (id === 'rss' || id === 'sitemap' || id === 'public')) {
+        await applyDueScheduledIssues(serviceToken, context);
+        const listed = await fetchPublishedNewsletterIssues(serviceToken);
+        if (!listed.ok) {
+          context.warn('[Newsletters] public Directus read failed', listed.status);
+          return jsonResponse(request, 502, {
+            error: 'Could not load published newsletters.',
+            code: 'NEWSLETTERS_PUBLIC_READ_FAILED',
+          }, { 'Cache-Control': 'no-store' });
+        }
+        const data = Array.isArray(listed.json && listed.json.data) ? listed.json.data : [];
+        if (id === 'rss') {
+          return xmlTextResponse(request, buildNewsletterRss(data), { 'Cache-Control': 'public, max-age=300' });
+        }
+        if (id === 'sitemap') {
+          return xmlResponse(request, 200, buildNewsletterSitemap(data), 'application/xml; charset=utf-8', { 'Cache-Control': 'public, max-age=300' });
+        }
+        const url = new URL(request.url);
+        const slug = (url.searchParams.get('slug') || '').trim();
+        const featuredOnly = url.searchParams.get('featured') === '1' || url.searchParams.get('featured') === 'true';
+        let rows = data;
+        if (slug) rows = data.filter((row) => row.slug === slug);
+        else if (featuredOnly) rows = data.filter((row) => row.featured).slice(0, 1);
+        return jsonResponse(request, 200, { ok: true, data: rows }, { 'Cache-Control': 'public, s-maxage=60' });
+      }
+
+      const auth = await requireStaff(request);
+      if (auth.errorResponse) return auth.errorResponse;
+      const staff = auth.staff || {};
+
+      if (request.method === 'POST' && id === 'upload') {
+        const form = await request.formData().catch(() => null);
+        const file = form && (form.get('file') || form.get('hero'));
+        if (!file || typeof file.arrayBuffer !== 'function') {
+          return jsonResponse(request, 400, { error: 'A file field named file is required.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        const name = String(file.name || 'hero.jpg').replace(/[^\w.\-]+/g, '_').slice(0, 120);
+        const type = String(file.type || 'application/octet-stream');
+        if (!/^image\/(jpeg|png|webp|gif)$/i.test(type) && !/\.(jpe?g|png|webp|gif)$/i.test(name)) {
+          return jsonResponse(request, 400, { error: 'Upload a JPEG, PNG, WebP, or GIF image.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        const outbound = new FormData();
+        outbound.append('file', file, name);
+        const uploaded = await fetch(`${DIRECTUS_URL}/files`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${serviceToken}` },
+          body: outbound,
+        });
+        const uploadedJson = await uploaded.json().catch(() => ({}));
+        if (!uploaded.ok || !uploadedJson.data || !uploadedJson.data.id) {
+          context.warn('[Newsletters] file upload failed', uploaded.status);
+          return jsonResponse(request, 502, { error: 'Could not upload image.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        const assetUrl = `${DIRECTUS_URL}/assets/${uploadedJson.data.id}`;
+        logNewsletter(context, staff, 'upload', { file: uploadedJson.data.id });
+        return jsonResponse(request, 201, { ok: true, data: { id: uploadedJson.data.id, url: assetUrl } }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      if (request.method === 'GET' && !id) {
+        const url = new URL(request.url);
+        const includeArchived = url.searchParams.get('include') === 'archived';
+        const filter = includeArchived ? '' : '&filter[status][_neq]=archived';
+        const listed = await directusJson(
+          `/items/newsletter_issues?limit=100&sort=-issue_date,-id&fields=${NEWSLETTER_LIST_FIELDS}${filter}`,
+          { method: 'GET' },
+          serviceToken
+        );
+        if (!listed.ok) {
+          context.warn('[Newsletters] Directus list failed', listed.status, listed.json);
+          return jsonResponse(request, listed.status === 403 ? 403 : 502, {
+            error: 'Could not load newsletters from Directus.',
+            code: 'NEWSLETTERS_READ_FAILED',
+          }, { 'Cache-Control': 'no-store, private' });
+        }
+        const data = Array.isArray(listed.json && listed.json.data) ? listed.json.data : [];
+        logNewsletter(context, staff, 'list', { count: data.length, archived: includeArchived });
+        return jsonResponse(request, 200, { ok: true, data }, { 'Cache-Control': 'private, no-store' });
+      }
+
+      if (request.method === 'GET' && id && !['rss', 'sitemap', 'public', 'upload'].includes(id)) {
+        const detail = await directusJson(
+          `/items/newsletter_issues/${encodeURIComponent(id)}`,
+          { method: 'GET' },
+          serviceToken
+        );
+        if (!detail.ok || !detail.json || !detail.json.data) {
+          return jsonResponse(request, detail.status === 404 ? 404 : 502, { error: 'Issue not found.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        logNewsletter(context, staff, 'read', { id });
+        return jsonResponse(request, 200, { ok: true, data: detail.json.data }, { 'Cache-Control': 'private, no-store' });
+      }
+
+      if (request.method === 'POST' && !id) {
+        const body = await request.json().catch(() => ({}));
+        const sanitized = sanitizeNewsletterInput(body, { partial: false });
+        if (sanitized.error) {
+          return jsonResponse(request, 400, { error: sanitized.error }, { 'Cache-Control': 'no-store, private' });
+        }
+        sanitized.payload.slug = await ensureUniqueNewsletterSlug(serviceToken, sanitized.payload.slug);
+        const created = await directusJson('/items/newsletter_issues', {
+          method: 'POST',
+          body: JSON.stringify(sanitized.payload),
+        }, serviceToken);
+        if (!created.ok) {
+          context.warn('[Newsletters] Directus create failed', created.status, created.json);
+          return jsonResponse(request, 502, { error: 'Could not save newsletter issue.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        const row = created.json && created.json.data;
+        if (row && row.featured && row.id) {
+          await clearOtherFeaturedIssues(serviceToken, row.id);
+        }
+        logNewsletter(context, staff, 'create', { id: row && row.id, status: sanitized.payload.status });
+        return jsonResponse(request, 201, { ok: true, data: row }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      if (!id) {
+        return jsonResponse(request, 400, { error: 'Issue id is required.' }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      if (request.method === 'PATCH') {
+        const body = await request.json().catch(() => ({}));
+        const sanitized = sanitizeNewsletterInput(body, { partial: true });
+        if (sanitized.error) {
+          return jsonResponse(request, 400, { error: sanitized.error }, { 'Cache-Control': 'no-store, private' });
+        }
+        if (sanitized.payload.status === 'draft') sanitized.payload.featured = false;
+        if (sanitized.payload.featured === true) {
+          const currentStatus = sanitized.payload.status
+            || ((await directusJson(`/items/newsletter_issues/${encodeURIComponent(id)}?fields=status`, { method: 'GET' }, serviceToken)).json || {}).data?.status;
+          if (currentStatus !== 'published') {
+            return jsonResponse(request, 400, { error: 'Only a published issue can be featured on the homepage.' }, { 'Cache-Control': 'no-store, private' });
+          }
+        }
+        const expectedUpdated = request.headers.get('if-match') || body.date_updated || body.expected_updated;
+        if (expectedUpdated) {
+          const current = await directusJson(`/items/newsletter_issues/${encodeURIComponent(id)}?fields=id,date_updated`, { method: 'GET' }, serviceToken);
+          const liveUpdated = current.ok && current.json && current.json.data ? current.json.data.date_updated : null;
+          if (liveUpdated && String(liveUpdated) !== String(expectedUpdated)) {
+            return jsonResponse(request, 409, { error: 'This issue was saved by someone else. Reload and try again.', code: 'STALE_ISSUE' }, { 'Cache-Control': 'no-store, private' });
+          }
+        }
+        if (sanitized.payload.slug) {
+          const clash = await findNewsletterSlugClash(serviceToken, sanitized.payload.slug, id);
+          if (clash) {
+            return jsonResponse(request, 409, { error: 'That URL slug is already in use.', code: 'SLUG_TAKEN' }, { 'Cache-Control': 'no-store, private' });
+          }
+        }
+        const updated = await directusJson(`/items/newsletter_issues/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(sanitized.payload),
+        }, serviceToken);
+        if (!updated.ok) {
+          context.warn('[Newsletters] Directus update failed', updated.status, updated.json);
+          return jsonResponse(request, 502, { error: 'Could not update newsletter issue.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        const row = updated.json && updated.json.data;
+        if (sanitized.payload.featured === true || (row && row.featured)) {
+          await clearOtherFeaturedIssues(serviceToken, id);
+        }
+        logNewsletter(context, staff, 'update', { id, status: sanitized.payload.status || (row && row.status) });
+        return jsonResponse(request, 200, { ok: true, data: row }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      if (request.method === 'DELETE') {
+        const archived = await directusJson(`/items/newsletter_issues/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'archived', featured: false }),
+        }, serviceToken);
+        if (!archived.ok) {
+          context.warn('[Newsletters] Directus archive failed', archived.status, archived.json);
+          return jsonResponse(request, 502, { error: 'Could not archive newsletter issue.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        logNewsletter(context, staff, 'archive', { id });
+        return jsonResponse(request, 200, { ok: true, data: archived.json && archived.json.data }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      return jsonResponse(request, 405, { error: 'Method not allowed.' }, { 'Cache-Control': 'no-store, private' });
+    } catch (err) {
+      context.error('[Newsletters] Unexpected error', err);
+      return jsonResponse(request, 500, { error: 'Newsletter service error.' }, { 'Cache-Control': 'no-store, private' });
+    }
+  },
+});
+
+app.http('newslettersNested', {
+  methods: ['GET', 'POST', 'OPTIONS'],
+  authLevel: 'anonymous',
+  route: 'newsletters/{id}/{action}/{rev?}',
+  handler: async (request, context) => {
+    if (request.method === 'OPTIONS') {
+      return corsPreflight(request, 'GET, POST, OPTIONS');
+    }
+    const auth = await requireStaff(request);
+    if (auth.errorResponse) return auth.errorResponse;
+    const serviceToken = await getDirectusServiceToken();
+    if (!serviceToken) {
+      return jsonResponse(request, 503, { error: 'Newsletter service is not configured.' }, { 'Cache-Control': 'no-store, private' });
+    }
+    const id = (request.params && request.params.id ? String(request.params.id) : '').trim();
+    const action = (request.params && request.params.action ? String(request.params.action) : '').trim();
+    const rev = (request.params && request.params.rev ? String(request.params.rev) : '').trim();
+    try {
+      if (request.method === 'GET' && action === 'revisions') {
+        const listed = await directusJson(
+          `/revisions?filter[collection][_eq]=newsletter_issues&filter[item][_eq]=${encodeURIComponent(id)}&sort=-id&limit=25&fields=id,activity,data,delta,version`,
+          { method: 'GET' },
+          serviceToken
+        );
+        const data = listed.ok && Array.isArray(listed.json && listed.json.data) ? listed.json.data : [];
+        logNewsletter(context, auth.staff, 'revisions', { id, count: data.length });
+        return jsonResponse(request, 200, { ok: true, data }, { 'Cache-Control': 'private, no-store' });
+      }
+      if (request.method === 'POST' && action === 'restore' && rev) {
+        const revision = await directusJson(`/revisions/${encodeURIComponent(rev)}`, { method: 'GET' }, serviceToken);
+        const snap = revision.ok && revision.json && revision.json.data ? revision.json.data : null;
+        let restoredPayload = snap && (snap.data || snap.delta);
+        if (typeof restoredPayload === 'string') {
+          try { restoredPayload = JSON.parse(restoredPayload); } catch { restoredPayload = null; }
+        }
+        if (!restoredPayload || typeof restoredPayload !== 'object') {
+          return jsonResponse(request, 404, { error: 'Revision not found.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        const sanitized = sanitizeNewsletterInput(Object.assign({}, restoredPayload, { status: 'draft', featured: false }), { partial: true });
+        if (sanitized.error) {
+          return jsonResponse(request, 400, { error: sanitized.error }, { 'Cache-Control': 'no-store, private' });
+        }
+        const next = Object.assign({}, sanitized.payload, { status: 'draft', featured: false });
+        delete next.id;
+        const updated = await directusJson(`/items/newsletter_issues/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(next),
+        }, serviceToken);
+        if (!updated.ok) {
+          return jsonResponse(request, 502, { error: 'Could not restore revision.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        logNewsletter(context, auth.staff, 'restore', { id, rev });
+        return jsonResponse(request, 200, { ok: true, data: updated.json && updated.json.data }, { 'Cache-Control': 'no-store, private' });
+      }
+      return jsonResponse(request, 405, { error: 'Method not allowed.' }, { 'Cache-Control': 'no-store, private' });
+    } catch (err) {
+      context.error('[Newsletters] Nested route error', err);
+      return jsonResponse(request, 500, { error: 'Newsletter service error.' }, { 'Cache-Control': 'no-store, private' });
     }
   },
 });
@@ -754,7 +1251,7 @@ app.http('health', {
       timestamp: new Date().toISOString(),
       features: {
         staffAuth: isStaffSecretConfigured(),
-        grantsProxy: Boolean((process.env.DIRECTUS_TOKEN || process.env.DIRECTUS_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || '').trim()),
+        grantsProxy: Boolean((process.env.DIRECTUS_NEWSLETTER_TOKEN || process.env.DIRECTUS_TOKEN || process.env.DIRECTUS_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || '').trim()),
         petSyncWebhook: Boolean(process.env.DIRECTUS_WEBHOOK_SECRET && process.env.GITHUB_DISPATCH_PAT),
         financialReports: Boolean(reportData),
         bankStatements: Boolean(statementData),

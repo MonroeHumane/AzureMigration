@@ -2,11 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getNewsletterIssues } from '../../lib/directus';
 
-/*
- Newsletter archive - the real "2025 in Review" issue (also featured on
- the homepage) renders from the same content that powers the issue page.
-*/
-
 const issues = await getNewsletterIssues();
 const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png';
 ---
@@ -20,7 +15,8 @@ const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/up
       <p class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-4">Stay in touch</p>
       <h1 class="text-5xl md:text-6xl font-serif text-teal-900 mb-6">Newsletter Archive</h1>
       <p class="text-xl text-gray-600 leading-relaxed">
-        Read past shelter newsletters and see the latest issue highlighted on our homepage.
+        Read past shelter newsletters and see the latest issue highlighted on the homepage.
+        <a class="text-teal-700 font-semibold underline underline-offset-4 ml-1" href="/newsletter/rss.xml">RSS feed</a>
       </p>
     </header>
     
@@ -32,8 +28,10 @@ const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/up
         </p>
       </div>
 
-      <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-        {issues.map((issue) => (
+      <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12" data-newsletter-archive data-fallback-thumb={FALLBACK_THUMB}>
+        {issues.length === 0 ? (
+          <li class="text-center text-gray-600 col-span-full">No published issues yet.</li>
+        ) : issues.map((issue) => (
           <li>
             <a class="block group h-full bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-shadow" href={`/newsletter/issue/${issue.slug}`}>
               <div class="aspect-[2/1] overflow-hidden bg-gray-100">
@@ -52,6 +50,16 @@ const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/up
                   <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider rounded-full mb-3">On homepage</span>
                 )}
                 <h3 class="text-xl font-serif text-teal-900 group-hover:text-teal-700 transition-colors">{issue.title}</h3>
+                {issue.issue_date && (
+                  <p class="text-sm text-gray-500 mt-2">
+                    {/^\d{4}-\d{2}-\d{2}$/.test(issue.issue_date)
+                      ? new Date(`${issue.issue_date}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                      : issue.issue_date}
+                  </p>
+                )}
+                {issue.excerpt && (
+                  <p class="text-sm text-gray-600 mt-3 leading-relaxed">{issue.excerpt}</p>
+                )}
               </div>
             </a>
           </li>
@@ -66,3 +74,12 @@ const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/up
     </section>
   </div>
 </BaseLayout>
+
+<script>
+  import { hydrateNewsletterArchive } from '../../scripts/newsletter-hydrate';
+  function init() {
+    hydrateNewsletterArchive();
+  }
+  document.addEventListener('astro:page-load', init);
+  if (document.readyState !== 'loading') init();
+</script>

@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activeTab?: 'overview' | 'pets' | 'financials' | 'grants' | 'donors' | 'content';
+  activeTab?: 'overview' | 'pets' | 'financials' | 'grants' | 'donors' | 'content' | 'newsletter';
 }
 
 const { activeTab = 'overview' } = Astro.props;
@@ -92,7 +92,7 @@ const { activeTab = 'overview' } = Astro.props;
       type="button"
       id="bottom-dock-more-btn"
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
-        activeTab === 'content' || activeTab === 'donors'
+        activeTab === 'content' || activeTab === 'donors' || activeTab === 'newsletter'
           ? 'text-white font-bold bg-teal-800/50 border border-teal-600/50 shadow-inner'
           : 'text-slate-400 hover:text-white hover:bg-white/5'
       }`}

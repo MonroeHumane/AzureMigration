@@ -1,0 +1,83 @@
+---
+import StaffPortalLayout from '../../../../layouts/StaffPortalLayout.astro';
+---
+
+<StaffPortalLayout
+  title="Newsletter preview | Humane Society of Monroe County"
+  description="Staff-only preview of a newsletter issue, including drafts."
+  activeTab="newsletter"
+>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <p class="text-xs font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-4">Staff preview — not public</p>
+    <p class="mb-6">
+      <a class="text-teal-700 dark:text-teal-300 font-bold text-sm" href="/internal/newsletter/">← Back to editor</a>
+    </p>
+    <div id="nl-preview-missing" class="hidden max-w-xl mx-auto text-center py-16">
+      <h1 class="text-3xl font-serif text-teal-900 dark:text-teal-100 mb-4">Could not load issue</h1>
+      <a class="text-teal-700 font-bold" href="/internal/newsletter/">Back to editor</a>
+    </div>
+    <div
+      id="nl-preview-shell"
+      class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100"
+      data-newsletter-issue
+    >
+      <div class="relative h-64 sm:h-80 md:h-96 w-full">
+        <div class="absolute inset-0 bg-teal-900/40 mix-blend-multiply z-10"></div>
+        <img data-nl-hero src="/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png" alt="" class="absolute inset-0 w-full h-full object-cover z-0" />
+        <div class="absolute inset-0 p-8 flex flex-col justify-end z-20 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
+          <p class="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-2" data-nl-topline>PO Box 1457 • Monroe, MI</p>
+          <h1 class="text-3xl sm:text-5xl font-serif text-white" data-nl-headline>Loading…</h1>
+        </div>
+      </div>
+      <div class="p-8 sm:p-12 border-b border-gray-100 bg-gray-50">
+        <h2 class="text-2xl font-bold text-teal-900 mb-1" data-nl-masthead>Monroe Humane Society Newsletter</h2>
+        <div class="text-gray-500 font-medium" data-nl-byline></div>
+      </div>
+      <div class="p-8 sm:p-12 bg-white">
+        <div class="grid grid-cols-1 gap-8" data-nl-blocks></div>
+      </div>
+    </div>
+  </div>
+</StaffPortalLayout>
+
+<script>
+  import { renderIssueInto } from '../../../../scripts/newsletter-hydrate';
+  import { getStaffToken } from '../../../../lib/staff-auth';
+
+  function previewIssueId() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('id')) return params.get('id') || '';
+    const parts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+    const idx = parts.lastIndexOf('preview');
+    if (idx >= 0 && parts[idx + 1]) return decodeURIComponent(parts[idx + 1]);
+    return '';
+  }
+
+  async function init() {
+    const shell = document.getElementById('nl-preview-shell');
+    const missing = document.getElementById('nl-preview-missing');
+    const issueId = previewIssueId();
+    const token = await getStaffToken();
+    if (!token || !issueId) {
+      shell?.classList.add('hidden');
+      missing?.classList.remove('hidden');
+      return;
+    }
+    const res = await fetch('/api/newsletters/' + encodeURIComponent(issueId), {
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'X-Staff-Token': token,
+        'X-Authorization': 'Bearer ' + token,
+      },
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.data) {
+      shell?.classList.add('hidden');
+      missing?.classList.remove('hidden');
+      return;
+    }
+    document.title = (json.data.seo_title || json.data.title || 'Preview') + ' | Staff preview';
+    renderIssueInto(shell as HTMLElement, json.data);
+  }
+  init();
+</script>

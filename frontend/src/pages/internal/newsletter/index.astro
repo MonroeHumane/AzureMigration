@@ -1,0 +1,1011 @@
+---
+import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
+---
+
+<StaffPortalLayout
+  title="Newsletter CMS | Humane Society of Monroe County"
+  description="Create, schedule, and publish Monroe Humane newsletter issues for the public site."
+  activeTab="newsletter"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+    <section class="bg-white dark:bg-[#0b2420]/90 rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 dark:border-teal-800/80 transition-colors">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="space-y-2 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <a href="/internal/" class="text-xs text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-emerald-300 transition font-medium flex items-center gap-1">
+              &larr; Executive Hub
+            </a>
+            <span class="text-slate-300 dark:text-teal-800">/</span>
+            <span class="px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800/80">
+              Newsletter CMS
+            </span>
+            <span id="cms-connection-status" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-[#061815] dark:text-teal-300 dark:border-teal-800/80">
+              <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
+              <span>Connecting…</span>
+            </span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+            Newsletter
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Draft, schedule, and publish issues that appear on the homepage and public archive. Drafts stay private until you publish.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+          <a
+            href="/newsletter/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 dark:bg-teal-950/80 dark:hover:bg-teal-900 dark:text-teal-200 dark:border-teal-700/80 transition"
+          >
+            Public archive ↗
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <div id="cms-toast" class="hidden fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-2xl border border-slate-700 flex items-center gap-2.5 transition-all transform translate-y-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="cms-toast-msg">Changes saved successfully.</span>
+    </div>
+
+    <section id="newsletter-editor-root" class="space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <!-- Left Sidebar: Issues List -->
+        <div class="lg:col-span-4 bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-xs space-y-3">
+          <button
+            type="button"
+            id="btn-add-issue"
+            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[#173a39] hover:bg-[#112c2b] dark:bg-teal-700 dark:hover:bg-teal-600 transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Add issue</span>
+          </button>
+
+          <div class="flex gap-1 p-1 rounded-lg bg-slate-100 dark:bg-[#061815] border border-slate-200 dark:border-teal-900/80">
+            <button type="button" data-nl-filter="active" class="nl-filter-chip flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-white dark:bg-teal-900 text-teal-900 dark:text-teal-100">All</button>
+            <button type="button" data-nl-filter="draft" class="nl-filter-chip flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Drafts</button>
+            <button type="button" data-nl-filter="published" class="nl-filter-chip flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Live</button>
+            <button type="button" data-nl-filter="archived" class="nl-filter-chip flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Trash</button>
+          </div>
+
+          <div class="relative">
+            <input
+              type="text"
+              id="input-search-issues"
+              placeholder="Search issues..."
+              class="w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-800 dark:text-slate-100 transition"
+            />
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
+
+          <div id="issues-list-container" class="space-y-2">
+            <!-- Populated via client script with ON HOMEPAGE badge -->
+          </div>
+        </div>
+
+        <!-- Right: Issue Editor Form (Screenshot 3 Detail) -->
+        <div class="lg:col-span-8 bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 p-6 sm:p-7 shadow-xs space-y-5">
+          
+          <!-- Info Banner Matching Screenshot 3 with Dark Support -->
+          <div class="p-3.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800/80 text-teal-900 dark:text-teal-200 text-xs flex items-center justify-between gap-3">
+            <span>The teal band above the card is edited on the homepage.</span>
+            <a href="/" target="_blank" class="font-bold text-teal-800 hover:text-teal-950 dark:text-teal-400 dark:hover:text-teal-200 underline shrink-0">Edit homepage</a>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <h4 class="text-sm font-serif font-bold text-slate-900 dark:text-white">Issue info</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Shown in the issue list and on /newsletter/.</p>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Issue title</label>
+                <input
+                  type="text"
+                  id="issue-title"
+                  class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
+                  placeholder="2025 in Review"
+                />
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Issue date</label>
+                <input
+                  type="date"
+                  id="issue-date"
+                  class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
+                />
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">URL slug</label>
+                <input
+                  type="text"
+                  id="issue-slug"
+                  class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white font-mono transition"
+                  placeholder="2025-in-review"
+                />
+                <p id="issue-slug-hint" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Public URL: /newsletter/issue/…</p>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Homepage excerpt</label>
+                <textarea
+                  id="issue-excerpt"
+                  rows="3"
+                  class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
+                  placeholder="One or two sentences for the homepage and archive cards."
+                ></textarea>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">PDF URL (optional)</label>
+                <input
+                  type="text"
+                  id="issue-pdf"
+                  class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white font-mono transition"
+                  placeholder="https://… or /assets/…"
+                />
+              </div>
+            </div>
+
+            <!-- Card Header Sub-Section (Screenshot 3) -->
+            <div class="pt-4 border-t border-slate-100 dark:border-teal-900/60 space-y-3.5">
+              <div>
+                <h4 class="text-sm font-serif font-bold text-slate-900 dark:text-white">Card header</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Top of the cream newsletter card on the homepage and issue page.</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Top line</label>
+                  <input
+                    type="text"
+                    id="issue-topline"
+                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
+                    placeholder="PO Box 1457 • Monroe, MI"
+                  />
+                </div>
+
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Main headline</label>
+                  <input
+                    type="text"
+                    id="issue-headline"
+                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
+                    placeholder="2025 in Review"
+                  />
+                </div>
+
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Newsletter title</label>
+                  <input
+                    type="text"
+                    id="issue-newsletter-title"
+                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
+                    placeholder="Monroe Humane Society Newsletter"
+                  />
+                </div>
+
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Byline</label>
+                  <input
+                    type="text"
+                    id="issue-byline"
+                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white transition"
+                    placeholder="by, Jacqueline Monteer"
+                  />
+                </div>
+
+                <div class="sm:col-span-2 space-y-1.5">
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300">Hero image</label>
+                  <div class="flex items-center gap-3">
+                    <input
+                      type="text"
+                      id="issue-hero-image"
+                      class="flex-1 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white font-mono text-xs transition"
+                      placeholder="/assets/recovered/images/..."
+                    />
+                    <label class="shrink-0 px-2.5 py-2 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-teal-950 border border-slate-200 dark:border-teal-800 cursor-pointer">
+                      Upload
+                      <input type="file" id="issue-hero-file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
+                    </label>
+                    <div id="issue-hero-thumb" class="w-12 h-10 rounded border border-slate-200 dark:border-teal-800/80 bg-slate-100 dark:bg-[#061815] flex items-center justify-center shrink-0 overflow-hidden">
+                      <span class="text-[9px] text-slate-400">No img</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">SEO title</label>
+                  <input type="text" id="issue-seo-title" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] outline-none text-slate-900 dark:text-white" placeholder="Defaults to issue title" />
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Schedule publish</label>
+                  <input type="datetime-local" id="issue-publish-at" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] outline-none text-slate-900 dark:text-white" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">SEO description</label>
+                  <textarea id="issue-seo-description" rows="2" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] outline-none text-slate-900 dark:text-white" placeholder="Defaults to excerpt"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Story Blocks Editor -->
+            <div class="pt-4 border-t border-slate-100 dark:border-teal-900/60 space-y-3.5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-serif font-bold text-slate-900 dark:text-white">Story blocks (Articles &amp; Milestones)</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Each block appears in the two-column grid on the newsletter issue page.</p>
+                </div>
+                <button
+                  type="button"
+                  id="btn-add-story-block"
+                  class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-teal-800 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600 text-white cursor-pointer transition flex items-center gap-1"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  <span>Add block</span>
+                </button>
+              </div>
+
+              <div id="newsletter-blocks-container" class="space-y-3">
+                <!-- Story blocks rendered via client script -->
+              </div>
+            </div>
+
+            <!-- Actions Bar -->
+            <div class="pt-4 border-t border-slate-100 dark:border-teal-900/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  id="btn-publish-issue"
+                  class="px-4 py-2 rounded-lg font-bold text-white bg-[#173a39] hover:bg-[#112c2b] dark:bg-teal-700 dark:hover:bg-teal-600 transition shadow-xs cursor-pointer"
+                >
+                  Publish
+                </button>
+                <button
+                  type="button"
+                  id="btn-unpublish-issue"
+                  class="hidden px-3.5 py-2 rounded-lg font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800/80 transition cursor-pointer"
+                >
+                  Unpublish
+                </button>
+                <button
+                  type="button"
+                  id="btn-schedule-issue"
+                  class="px-3.5 py-2 rounded-lg font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-[#061815] dark:hover:bg-teal-950/80 border border-slate-200 dark:border-teal-800/80 transition cursor-pointer"
+                >
+                  Schedule
+                </button>
+                <button
+                  type="button"
+                  id="btn-save-issue"
+                  class="px-3.5 py-2 rounded-lg font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-[#061815] dark:hover:bg-teal-950/80 border border-slate-200 dark:border-teal-800/80 transition cursor-pointer"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  id="btn-toggle-featured"
+                  class="px-3 py-2 rounded-lg font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80 dark:hover:bg-emerald-900/80 transition cursor-pointer"
+                >
+                  Set as Homepage Feature
+                </button>
+                <button
+                  type="button"
+                  id="btn-duplicate-issue"
+                  class="px-3 py-2 rounded-lg font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-teal-800/80 transition cursor-pointer"
+                >
+                  Duplicate
+                </button>
+                <button
+                  type="button"
+                  id="btn-history-issue"
+                  class="px-3 py-2 rounded-lg font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-teal-800/80 transition cursor-pointer"
+                >
+                  History
+                </button>
+                <a
+                  id="link-preview-issue"
+                  href="/newsletter"
+                  target="_blank"
+                  class="px-3 py-2 rounded-lg font-semibold text-teal-800 hover:text-teal-950 dark:text-teal-400 dark:hover:text-teal-200 underline underline-offset-4 transition"
+                >
+                  Preview issue &rarr;
+                </a>
+              </div>
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  id="btn-restore-issue"
+                  class="hidden font-semibold text-teal-800 hover:text-teal-950 dark:text-teal-400 transition cursor-pointer"
+                >
+                  Restore from trash
+                </button>
+                <button
+                  type="button"
+                  id="btn-delete-issue"
+                  class="font-semibold text-rose-700 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-300 transition cursor-pointer"
+                >
+                  Move to trash
+                </button>
+              </div>
+            </div>
+            <div id="nl-history-drawer" class="hidden mt-3 p-3 rounded-xl border border-slate-200 dark:border-teal-900/80 bg-slate-50 dark:bg-[#061815] text-xs space-y-2"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</StaffPortalLayout>
+
+<script is:inline>
+  function initNewsletterEditor() {
+    const root = document.getElementById('newsletter-editor-root');
+    if (!root || root.dataset.cmsReady === '1') return;
+    root.dataset.cmsReady = '1';
+
+    let issues = [];
+    let selectedIssueIdx = 0;
+
+    const toast = document.getElementById('cms-toast');
+    const toastMsg = document.getElementById('cms-toast-msg');
+    let toastTimeout = null;
+
+    function showToast(msg) {
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = msg;
+      toast.classList.remove('hidden');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+
+    function getStaffTokenSync() {
+      try {
+        return localStorage.getItem('mchs_staff_token') || sessionStorage.getItem('mchs_staff_token') || '';
+      } catch {
+        return '';
+      }
+    }
+
+    async function staffApi(path, options = {}) {
+      const token = getStaffTokenSync();
+      if (!token) throw new Error('No staff session');
+      return fetch(path, {
+        ...options,
+        headers: Object.assign({
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+          'X-Staff-Token': token,
+          'X-Authorization': 'Bearer ' + token
+        }, options.headers || {})
+      });
+    }
+
+    const connStatusEl = document.getElementById('cms-connection-status');
+    function updateConnectionStatus(state, note) {
+      if (!connStatusEl) return;
+      if (state === 'ok') {
+        connStatusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Directus CMS Connected</span>';
+        connStatusEl.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80';
+        connStatusEl.title = note || 'Newsletter API reachable';
+        return;
+      }
+      if (state === 'error') {
+        connStatusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>CMS Unavailable</span>';
+        connStatusEl.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80';
+        connStatusEl.title = note || 'Could not load newsletters';
+        return;
+      }
+      connStatusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span><span>Connecting…</span>';
+      connStatusEl.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-[#061815] dark:text-teal-300 dark:border-teal-800/80';
+    }
+    updateConnectionStatus('connecting');
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 3. NEWSLETTER ISSUES & STORY BLOCKS
+    // ─────────────────────────────────────────────────────────────────────────
+    const issuesContainer = document.getElementById('issues-list-container');
+    const issueTitleInput = document.getElementById('issue-title');
+    const issueDateInput = document.getElementById('issue-date');
+    const issueSlugInput = document.getElementById('issue-slug');
+    const issueExcerptInput = document.getElementById('issue-excerpt');
+    const issuePdfInput = document.getElementById('issue-pdf');
+    const issueToplineInput = document.getElementById('issue-topline');
+    const issueHeadlineInput = document.getElementById('issue-headline');
+    const issueNewsletterTitleInput = document.getElementById('issue-newsletter-title');
+    const issueBylineInput = document.getElementById('issue-byline');
+    const issueHeroImageInput = document.getElementById('issue-hero-image');
+    const issueHeroThumb = document.getElementById('issue-hero-thumb');
+    const issueSeoTitleInput = document.getElementById('issue-seo-title');
+    const issueSeoDescInput = document.getElementById('issue-seo-description');
+    const issuePublishAtInput = document.getElementById('issue-publish-at');
+    const searchIssuesInput = document.getElementById('input-search-issues');
+    const previewIssueLink = document.getElementById('link-preview-issue');
+    const blocksContainer = document.getElementById('newsletter-blocks-container');
+    const btnPublishIssue = document.getElementById('btn-publish-issue');
+    const btnUnpublishIssue = document.getElementById('btn-unpublish-issue');
+    const btnRestoreIssue = document.getElementById('btn-restore-issue');
+    const btnDeleteIssue = document.getElementById('btn-delete-issue');
+    const historyDrawer = document.getElementById('nl-history-drawer');
+    let nlFilter = 'active';
+    let nlDirty = false;
+    let nlSaving = false;
+
+    window.addEventListener('beforeunload', (e) => {
+      if (!nlDirty) return;
+      e.preventDefault();
+      e.returnValue = '';
+    });
+    function slugifyClient(value) {
+      return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'issue';
+    }
+    function markNlDirty() { nlDirty = true; }
+    function escapeText(value) {
+      return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function setNlSaving(on) {
+      nlSaving = !!on;
+      ['btn-save-issue', 'btn-publish-issue', 'btn-unpublish-issue', 'btn-toggle-featured', 'btn-schedule-issue', 'btn-add-issue'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = nlSaving;
+      });
+    }
+    function isDefaultSlug(slug) {
+      return !slug || /^new-shelter-chronicle(-\d+)?$/.test(slug);
+    }
+    function toLocalDatetimeValue(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return String(iso).slice(0, 16);
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function updateHeroThumb(url) {
+      if (!issueHeroThumb) return;
+      issueHeroThumb.replaceChildren();
+      if (url && url.trim()) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = '';
+        img.className = 'w-full h-full object-cover';
+        img.onerror = () => { issueHeroThumb.textContent = 'err'; };
+        issueHeroThumb.appendChild(img);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'text-[9px] text-slate-400';
+        span.textContent = 'No img';
+        issueHeroThumb.appendChild(span);
+      }
+    }
+
+    issueHeroImageInput?.addEventListener('input', (e) => {
+      markNlDirty();
+      updateHeroThumb(e.target.value);
+    });
+    [issueTitleInput, issueDateInput, issueSlugInput, issueExcerptInput, issuePdfInput, issueToplineInput, issueHeadlineInput, issueNewsletterTitleInput, issueBylineInput, issueSeoTitleInput, issueSeoDescInput, issuePublishAtInput].forEach((el) => {
+      el?.addEventListener('input', markNlDirty);
+    });
+    issueTitleInput?.addEventListener('input', () => {
+      const current = issues[selectedIssueIdx];
+      if (current && isDefaultSlug(issueSlugInput?.value || current.slug) && issueSlugInput) {
+        issueSlugInput.value = slugifyClient(issueTitleInput.value);
+      }
+    });
+    issueSlugInput?.addEventListener('input', () => {
+      const hint = document.getElementById('issue-slug-hint');
+      if (hint) hint.textContent = 'Public URL: /newsletter/issue/' + slugifyClient(issueSlugInput.value);
+    });
+
+    document.getElementById('issue-hero-file')?.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      try {
+        const token = getStaffTokenSync();
+        const form = new FormData();
+        form.append('file', file, file.name);
+        const res = await fetch('/api/newsletters/upload', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token, 'X-Staff-Token': token, 'X-Authorization': 'Bearer ' + token },
+          body: form
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || !json.data || !json.data.url) {
+          showToast(json.error || 'Could not upload image.');
+          return;
+        }
+        if (issueHeroImageInput) issueHeroImageInput.value = json.data.url;
+        updateHeroThumb(json.data.url);
+        markNlDirty();
+        showToast('Hero image uploaded. Save to keep it.');
+      } catch {
+        showToast('Could not upload image.');
+      }
+    });
+
+    function renderIssuesList(filter = '') {
+      if (!issuesContainer) return;
+      issuesContainer.innerHTML = '';
+      const query = filter.toLowerCase().trim();
+      issues.forEach((iss, idx) => {
+        const status = iss.status || 'draft';
+        if (nlFilter === 'archived' && status !== 'archived') return;
+        if (nlFilter === 'draft' && status !== 'draft') return;
+        if (nlFilter === 'published' && status !== 'published') return;
+        if (nlFilter === 'active' && status === 'archived') return;
+        const title = iss.title || 'Untitled Issue';
+        if (query && !title.toLowerCase().includes(query)) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const isSelected = idx === selectedIssueIdx;
+        btn.className = `w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-between gap-2 cursor-pointer ${
+          isSelected
+            ? 'bg-teal-50 border-2 border-teal-800 text-teal-950 font-bold shadow-2xs dark:bg-teal-950/80 dark:border-teal-400 dark:text-teal-100'
+            : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 dark:bg-[#061815] dark:hover:bg-teal-950/40 dark:border-teal-900/80 dark:text-slate-300'
+        }`;
+        const left = document.createElement('span');
+        left.className = 'truncate mr-2';
+        left.textContent = title;
+        const badges = document.createElement('span');
+        badges.className = 'flex items-center gap-1 shrink-0';
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ' + (
+          status === 'published' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+            : status === 'scheduled' ? 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'
+            : status === 'archived' ? 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+            : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+        );
+        statusBadge.textContent = status;
+        badges.appendChild(statusBadge);
+        if (iss.featured) {
+          const feat = document.createElement('span');
+          feat.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-teal-900 dark:bg-teal-700 text-white';
+          feat.textContent = 'ON HOMEPAGE';
+          badges.appendChild(feat);
+        }
+        btn.appendChild(left);
+        btn.appendChild(badges);
+        btn.addEventListener('click', async () => {
+          if (nlDirty && !confirm('Discard unsaved newsletter changes?')) return;
+          selectedIssueIdx = idx;
+          await loadIssueForm(idx);
+          renderIssuesList(searchIssuesInput?.value || '');
+        });
+        issuesContainer.appendChild(btn);
+      });
+    }
+
+    document.querySelectorAll('.nl-filter-chip').forEach((chip) => {
+      chip.addEventListener('click', async () => {
+        nlFilter = chip.getAttribute('data-nl-filter') || 'active';
+        document.querySelectorAll('.nl-filter-chip').forEach((c) => {
+          const on = c.getAttribute('data-nl-filter') === nlFilter;
+          c.className = 'nl-filter-chip flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wide ' + (on
+            ? 'bg-white dark:bg-teal-900 text-teal-900 dark:text-teal-100'
+            : 'text-slate-500 dark:text-slate-400');
+        });
+        await loadNewslettersFromApi();
+      });
+    });
+
+    function renderStoryBlocks(blocks = []) {
+      if (!blocksContainer) return;
+      blocksContainer.replaceChildren();
+      if (!blocks || blocks.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'text-xs text-slate-400 dark:text-slate-500 italic';
+        empty.textContent = 'No story blocks added yet.';
+        blocksContainer.appendChild(empty);
+        return;
+      }
+      blocks.forEach((b, bIdx) => {
+        const card = document.createElement('div');
+        card.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-[#061815] border border-slate-200 dark:border-teal-900/80 space-y-2';
+        const head = document.createElement('div');
+        head.className = 'flex items-center justify-between gap-2';
+        const label = document.createElement('span');
+        label.className = 'text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide';
+        label.textContent = 'Story Block #' + (bIdx + 1);
+        const tools = document.createElement('div');
+        tools.className = 'flex items-center gap-2';
+        const up = document.createElement('button');
+        up.type = 'button';
+        up.textContent = 'Up';
+        up.className = 'text-[10px] font-semibold text-slate-500 cursor-pointer';
+        up.addEventListener('click', () => {
+          const currentIssue = issues[selectedIssueIdx];
+          if (!currentIssue || bIdx === 0) return;
+          const arr = currentIssue.blocks;
+          [arr[bIdx - 1], arr[bIdx]] = [arr[bIdx], arr[bIdx - 1]];
+          markNlDirty();
+          renderStoryBlocks(arr);
+        });
+        const down = document.createElement('button');
+        down.type = 'button';
+        down.textContent = 'Down';
+        down.className = 'text-[10px] font-semibold text-slate-500 cursor-pointer';
+        down.addEventListener('click', () => {
+          const currentIssue = issues[selectedIssueIdx];
+          if (!currentIssue || bIdx >= currentIssue.blocks.length - 1) return;
+          const arr = currentIssue.blocks;
+          [arr[bIdx + 1], arr[bIdx]] = [arr[bIdx], arr[bIdx + 1]];
+          markNlDirty();
+          renderStoryBlocks(arr);
+        });
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = 'Remove';
+        remove.className = 'text-[10px] text-rose-600 hover:text-rose-800 dark:text-rose-400 font-semibold cursor-pointer';
+        remove.addEventListener('click', () => {
+          const currentIssue = issues[selectedIssueIdx];
+          if (currentIssue && currentIssue.blocks) {
+            currentIssue.blocks.splice(bIdx, 1);
+            markNlDirty();
+            renderStoryBlocks(currentIssue.blocks);
+            showToast('Story block removed. Save to persist.');
+          }
+        });
+        tools.appendChild(up);
+        tools.appendChild(down);
+        tools.appendChild(remove);
+        head.appendChild(label);
+        head.appendChild(tools);
+        const title = document.createElement('input');
+        title.type = 'text';
+        title.value = b.title || '';
+        title.placeholder = 'Story Title';
+        title.className = 'w-full px-2.5 py-1.5 text-xs rounded border border-slate-200 dark:border-teal-800/80 bg-white dark:bg-[#0b2420] text-slate-900 dark:text-white font-bold outline-none';
+        title.addEventListener('input', () => {
+          const currentIssue = issues[selectedIssueIdx];
+          if (currentIssue && currentIssue.blocks && currentIssue.blocks[bIdx]) {
+            currentIssue.blocks[bIdx].title = title.value;
+            currentIssue.blocks[bIdx].type = 'story';
+            markNlDirty();
+          }
+        });
+        const body = document.createElement('textarea');
+        body.rows = 8;
+        body.value = b.body || '';
+        body.placeholder = 'Story text paragraphs...';
+        body.className = 'w-full px-2.5 py-1.5 text-xs rounded border border-slate-200 dark:border-teal-800/80 bg-white dark:bg-[#0b2420] text-slate-900 dark:text-white outline-none';
+        body.addEventListener('input', () => {
+          const currentIssue = issues[selectedIssueIdx];
+          if (currentIssue && currentIssue.blocks && currentIssue.blocks[bIdx]) {
+            currentIssue.blocks[bIdx].body = body.value;
+            markNlDirty();
+          }
+        });
+        card.appendChild(head);
+        card.appendChild(title);
+        card.appendChild(body);
+        blocksContainer.appendChild(card);
+      });
+    }
+
+    document.getElementById('btn-add-story-block')?.addEventListener('click', () => {
+      const currentIssue = issues[selectedIssueIdx];
+      if (!currentIssue) return;
+      if (!currentIssue.blocks) currentIssue.blocks = [];
+      currentIssue.blocks.push({ id: String(Date.now()), type: 'story', title: 'New Story Headline', body: 'Enter your article paragraphs here.' });
+      markNlDirty();
+      renderStoryBlocks(currentIssue.blocks);
+      showToast('New story block added. Save to persist.');
+    });
+
+    function syncActionButtons(iss) {
+      const status = iss.status || 'draft';
+      if (btnPublishIssue) btnPublishIssue.textContent = status === 'published' ? 'Update live' : 'Publish';
+      btnUnpublishIssue?.classList.toggle('hidden', status !== 'published' && status !== 'scheduled');
+      btnRestoreIssue?.classList.toggle('hidden', status !== 'archived');
+      btnDeleteIssue?.classList.toggle('hidden', status === 'archived');
+      if (previewIssueLink) {
+        if (status === 'published') {
+          previewIssueLink.href = '/newsletter/issue/' + (iss.slug || '');
+          previewIssueLink.classList.remove('opacity-50', 'pointer-events-none');
+          previewIssueLink.title = '';
+          previewIssueLink.textContent = 'Preview issue →';
+        } else if (iss.id != null) {
+          previewIssueLink.href = '/internal/newsletter/preview/' + encodeURIComponent(iss.id);
+          previewIssueLink.classList.remove('opacity-50', 'pointer-events-none');
+          previewIssueLink.title = 'Staff-only preview of this unpublished issue';
+          previewIssueLink.textContent = 'Staff preview →';
+        } else {
+          previewIssueLink.href = '#';
+          previewIssueLink.classList.add('opacity-50', 'pointer-events-none');
+          previewIssueLink.title = 'Save this issue first';
+        }
+      }
+    }
+
+    async function loadIssueForm(idx) {
+      const iss = issues[idx];
+      if (!iss) return;
+      if (iss.id != null && !Array.isArray(iss.blocks)) {
+        try {
+          const res = await staffApi('/api/newsletters/' + encodeURIComponent(iss.id));
+          const json = await res.json().catch(() => ({}));
+          if (res.ok && json.data) issues[idx] = Object.assign(iss, json.data);
+        } catch {}
+      }
+      const row = issues[idx];
+      if (issueTitleInput) issueTitleInput.value = row.title || '';
+      if (issueDateInput) issueDateInput.value = row.issue_date || '';
+      if (issueSlugInput) issueSlugInput.value = row.slug || '';
+      if (issueExcerptInput) issueExcerptInput.value = row.excerpt || '';
+      if (issuePdfInput) issuePdfInput.value = row.pdf_url || '';
+      if (issueToplineInput) issueToplineInput.value = row.top_line || '';
+      if (issueHeadlineInput) issueHeadlineInput.value = row.main_headline || '';
+      if (issueNewsletterTitleInput) issueNewsletterTitleInput.value = row.newsletter_title || '';
+      if (issueBylineInput) issueBylineInput.value = row.byline || '';
+      if (issueHeroImageInput) issueHeroImageInput.value = row.hero_image || '';
+      if (issueSeoTitleInput) issueSeoTitleInput.value = row.seo_title || '';
+      if (issueSeoDescInput) issueSeoDescInput.value = row.seo_description || '';
+      if (issuePublishAtInput) issuePublishAtInput.value = toLocalDatetimeValue(row.publish_at);
+      const hint = document.getElementById('issue-slug-hint');
+      if (hint) hint.textContent = 'Public URL: /newsletter/issue/' + (row.slug || '…');
+      updateHeroThumb(row.hero_image || '');
+      renderStoryBlocks(row.blocks || []);
+      syncActionButtons(row);
+      nlDirty = false;
+      historyDrawer?.classList.add('hidden');
+    }
+
+    function collectIssuePayload(extra) {
+      const current = issues[selectedIssueIdx] || {};
+      const blocks = (current.blocks || []).map((block, index) => ({
+        id: String(block.id || index + 1),
+        type: 'story',
+        title: block.title || '',
+        body: block.body || ''
+      }));
+      const excerpt = (issueExcerptInput?.value || '').trim() || (blocks[0] && blocks[0].body) || '';
+      const slugRaw = (issueSlugInput?.value || current.slug || '').trim();
+      const title = issueTitleInput?.value || 'Untitled Issue';
+      return Object.assign({
+        title,
+        slug: slugRaw || slugifyClient(title),
+        issue_date: issueDateInput?.value || '',
+        top_line: issueToplineInput?.value || '',
+        main_headline: issueHeadlineInput?.value || '',
+        newsletter_title: issueNewsletterTitleInput?.value || '',
+        byline: issueBylineInput?.value || '',
+        hero_image: issueHeroImageInput?.value || '',
+        excerpt: String(excerpt).slice(0, 4000),
+        pdf_url: issuePdfInput?.value || '',
+        seo_title: issueSeoTitleInput?.value || '',
+        seo_description: issueSeoDescInput?.value || '',
+        publish_at: issuePublishAtInput?.value ? new Date(issuePublishAtInput.value).toISOString() : '',
+        blocks,
+        featured: !!current.featured,
+        status: current.status || 'draft',
+        date_updated: current.date_updated
+      }, extra || {});
+    }
+
+    async function loadNewslettersFromApi() {
+      try {
+        const qs = nlFilter === 'archived' ? '?include=archived' : '';
+        const res = await staffApi('/api/newsletters' + qs);
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || !Array.isArray(json.data)) {
+          updateConnectionStatus('error', json.error || 'Newsletter API failed');
+          return;
+        }
+        issues = json.data;
+        const firstVisible = issues.findIndex((iss) => {
+          const status = iss.status || 'draft';
+          if (nlFilter === 'archived') return status === 'archived';
+          if (nlFilter === 'draft') return status === 'draft';
+          if (nlFilter === 'published') return status === 'published';
+          return status !== 'archived';
+        });
+        selectedIssueIdx = firstVisible >= 0 ? firstVisible : 0;
+        updateConnectionStatus('ok');
+        renderIssuesList(searchIssuesInput?.value || '');
+        if (issues.length && firstVisible >= 0) await loadIssueForm(selectedIssueIdx);
+      } catch (err) {
+        updateConnectionStatus('error', err && err.message);
+      }
+    }
+
+    async function saveCurrentIssue(extra, successMsg) {
+      const current = issues[selectedIssueIdx];
+      if (!current || current.id == null) {
+        showToast('Select an issue first.');
+        return;
+      }
+      if (nlSaving) return;
+      setNlSaving(true);
+      try {
+        const payload = collectIssuePayload(extra);
+        if (extra && extra.status === 'published' && isDefaultSlug(current.slug)) {
+          payload.slug = slugifyClient(payload.title);
+        }
+        const res = await staffApi('/api/newsletters/' + encodeURIComponent(current.id), {
+          method: 'PATCH',
+          headers: current.date_updated ? { 'If-Match': current.date_updated } : {},
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || !json.data) {
+          showToast(json.error || 'Could not save issue.');
+          return;
+        }
+        issues[selectedIssueIdx] = json.data;
+        if (json.data.featured) {
+          issues.forEach((iss, i) => { if (i !== selectedIssueIdx) iss.featured = false; });
+        }
+        nlDirty = false;
+        renderIssuesList(searchIssuesInput?.value || '');
+        await loadIssueForm(selectedIssueIdx);
+        showToast(successMsg || 'Newsletter issue saved.');
+      } catch (err) {
+        showToast('Could not save issue.');
+      } finally {
+        setNlSaving(false);
+      }
+    }
+
+    document.getElementById('btn-add-issue')?.addEventListener('click', async () => {
+      if (nlSaving) return;
+      setNlSaving(true);
+      try {
+        const res = await staffApi('/api/newsletters', {
+          method: 'POST',
+          body: JSON.stringify({
+            title: 'New Shelter Chronicle',
+            issue_date: new Date().toISOString().slice(0, 10),
+            status: 'draft',
+            featured: false,
+            top_line: 'PO Box 1457 • Monroe, MI',
+            main_headline: 'Shelter News',
+            newsletter_title: 'Monroe Humane Society Newsletter',
+            byline: 'Humane Society of Monroe County',
+            hero_image: '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png',
+            excerpt: '',
+            blocks: [{ id: '1', type: 'story', title: 'Community Update', body: 'News from the shelter team and latest pet placements.' }]
+          })
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || !json.data) {
+          showToast(json.error || 'Could not create issue.');
+          return;
+        }
+        issues.unshift(json.data);
+        selectedIssueIdx = 0;
+        nlFilter = 'active';
+        renderIssuesList();
+        await loadIssueForm(0);
+        issueTitleInput?.focus();
+        showToast('New newsletter draft created.');
+      } catch {
+        showToast('Could not create issue.');
+      } finally {
+        setNlSaving(false);
+      }
+    });
+
+    document.getElementById('btn-save-issue')?.addEventListener('click', () => saveCurrentIssue({}, 'Newsletter issue saved.'));
+    document.getElementById('btn-publish-issue')?.addEventListener('click', () => saveCurrentIssue({ status: 'published', featured: issues[selectedIssueIdx]?.featured || false }, 'Newsletter issue published.'));
+    document.getElementById('btn-unpublish-issue')?.addEventListener('click', () => saveCurrentIssue({ status: 'draft', featured: false }, 'Issue unpublished. It is a draft again.'));
+    document.getElementById('btn-schedule-issue')?.addEventListener('click', () => {
+      if (!issuePublishAtInput?.value) {
+        showToast('Pick a schedule date and time first.');
+        issuePublishAtInput?.focus();
+        return;
+      }
+      saveCurrentIssue({ status: 'scheduled', featured: false }, 'Issue scheduled.');
+    });
+    document.getElementById('btn-toggle-featured')?.addEventListener('click', () => {
+      const current = issues[selectedIssueIdx];
+      if (!current || current.status !== 'published') {
+        showToast('Publish the issue before featuring it on the homepage.');
+        return;
+      }
+      if (!confirm('This will replace the current homepage newsletter.')) return;
+      saveCurrentIssue({ featured: true, status: 'published' }, 'Set as homepage feature.');
+    });
+    document.getElementById('btn-duplicate-issue')?.addEventListener('click', async () => {
+      const payload = collectIssuePayload({ status: 'draft', featured: false });
+      payload.title = (payload.title || 'Issue') + ' (copy)';
+      payload.slug = slugifyClient(payload.title);
+      try {
+        const res = await staffApi('/api/newsletters', { method: 'POST', body: JSON.stringify(payload) });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || !json.data) {
+          showToast(json.error || 'Could not duplicate issue.');
+          return;
+        }
+        issues.unshift(json.data);
+        selectedIssueIdx = 0;
+        renderIssuesList();
+        await loadIssueForm(0);
+        showToast('Draft copy created.');
+      } catch {
+        showToast('Could not duplicate issue.');
+      }
+    });
+    document.getElementById('btn-history-issue')?.addEventListener('click', async () => {
+      const current = issues[selectedIssueIdx];
+      if (!current || current.id == null || !historyDrawer) return;
+      historyDrawer.classList.remove('hidden');
+      historyDrawer.textContent = 'Loading history…';
+      try {
+        const res = await staffApi('/api/newsletters/' + encodeURIComponent(current.id) + '/revisions');
+        const json = await res.json().catch(() => ({}));
+        const rows = Array.isArray(json.data) ? json.data : [];
+        historyDrawer.replaceChildren();
+        if (!rows.length) {
+          historyDrawer.textContent = 'No revision history yet.';
+          return;
+        }
+        rows.forEach((rev) => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2';
+          const label = document.createElement('span');
+          label.textContent = 'Revision #' + rev.id;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'font-semibold text-teal-800 dark:text-teal-300';
+          btn.textContent = 'Restore as draft';
+          btn.addEventListener('click', async () => {
+            if (!confirm('Restore this snapshot as a draft? The live page will not change until you publish again.')) return;
+            const restore = await staffApi('/api/newsletters/' + encodeURIComponent(current.id) + '/restore/' + encodeURIComponent(rev.id), { method: 'POST' });
+            const restored = await restore.json().catch(() => ({}));
+            if (!restore.ok || !restored.data) {
+              showToast(restored.error || 'Could not restore.');
+              return;
+            }
+            issues[selectedIssueIdx] = restored.data;
+            await loadIssueForm(selectedIssueIdx);
+            renderIssuesList(searchIssuesInput?.value || '');
+            showToast('Revision restored as a draft.');
+          });
+          row.appendChild(label);
+          row.appendChild(btn);
+          historyDrawer.appendChild(row);
+        });
+      } catch {
+        historyDrawer.textContent = 'Could not load history.';
+      }
+    });
+    document.getElementById('btn-restore-issue')?.addEventListener('click', () => saveCurrentIssue({ status: 'draft', featured: false }, 'Issue restored from trash.'));
+    document.getElementById('btn-delete-issue')?.addEventListener('click', async () => {
+      const current = issues[selectedIssueIdx];
+      if (!current || current.id == null) return;
+      if (!confirm('Archive this issue? It will leave the public site. You can restore it from Trash.')) return;
+      try {
+        const res = await staffApi('/api/newsletters/' + encodeURIComponent(current.id), { method: 'DELETE' });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          showToast(json.error || 'Could not archive issue.');
+          return;
+        }
+        issues.splice(selectedIssueIdx, 1);
+        selectedIssueIdx = Math.max(0, selectedIssueIdx - 1);
+        renderIssuesList();
+        if (issues.length) await loadIssueForm(selectedIssueIdx);
+        showToast('Issue archived.');
+      } catch {
+        showToast('Could not archive issue.');
+      }
+    });
+
+    searchIssuesInput?.addEventListener('input', (e) => {
+      renderIssuesList(e.target.value);
+    });
+
+    loadNewslettersFromApi();
+  }
+
+  if (document.readyState !== 'loading') {
+    initNewsletterEditor();
+  } else {
+    document.addEventListener('DOMContentLoaded', initNewsletterEditor);
+  }
+  document.addEventListener('astro:page-load', initNewsletterEditor);
+</script>

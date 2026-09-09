@@ -570,6 +570,7 @@
       "field": "status",
       "type": "string",
       "meta": {
+        "interface": "select-dropdown",
         "options": {
           "choices": [
             {
@@ -579,12 +580,20 @@
             {
               "text": "Draft",
               "value": "draft"
+            },
+            {
+              "text": "Scheduled",
+              "value": "scheduled"
+            },
+            {
+              "text": "Archived",
+              "value": "archived"
             }
           ]
         }
       },
       "schema": {
-        "default_value": "published",
+        "default_value": "draft",
         "length": 16
       }
     },
@@ -607,7 +616,8 @@
         "required": true
       },
       "schema": {
-        "length": 255
+        "length": 255,
+        "is_unique": true
       }
     },
     {
@@ -658,6 +668,74 @@
       "type": "boolean",
       "schema": {
         "default_value": false
+      }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "hero_image",
+      "type": "string",
+      "schema": {
+        "length": 512
+      }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "excerpt",
+      "type": "text",
+      "schema": {}
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "pdf_url",
+      "type": "string",
+      "schema": {
+        "length": 512
+      }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "top_line",
+      "type": "string",
+      "schema": {
+        "length": 255
+      }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "newsletter_title",
+      "type": "string",
+      "schema": {
+        "length": 255
+      }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "main_headline",
+      "type": "string",
+      "schema": {
+        "length": 255
+      }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "seo_title",
+      "type": "string",
+      "schema": {
+        "length": 255
+      }
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "seo_description",
+      "type": "text",
+      "schema": {}
+    },
+    {
+      "collection": "newsletter_issues",
+      "field": "publish_at",
+      "type": "string",
+      "schema": {
+        "length": 64
       }
     },
     {

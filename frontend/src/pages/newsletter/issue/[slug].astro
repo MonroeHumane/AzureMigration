@@ -1,37 +1,82 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getNewsletterIssues } from '../../../lib/directus';
+import { SITE } from '../../../config/site';
 
 export async function getStaticPaths() {
   const issues = await getNewsletterIssues();
-  return issues.map((issue: any) => ({
+  const paths = issues.filter((issue) => issue.slug).map((issue) => ({
     params: { slug: issue.slug },
     props: { issue },
   }));
+  if (paths.length === 0) {
+    paths.push({
+      params: { slug: '2025-in-review' },
+      props: {
+        issue: {
+          id: 'stub',
+          title: 'Monroe Humane Society Newsletter',
+          slug: '2025-in-review',
+          byline: 'Humane Society of Monroe County',
+          top_line: 'PO Box 1457 • Monroe, MI',
+          newsletter_title: 'Monroe Humane Society Newsletter',
+          hero_image: '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png',
+          excerpt: 'Stories, updates, and highlights from shelter care and community support.',
+          blocks: [],
+        },
+      },
+    });
+  }
+  return paths;
 }
 
 const { issue } = Astro.props;
+const storyBlocks = (issue.blocks || []).filter((block: any) => !block.type || block.type === 'story');
+const useTwoCol = storyBlocks.length >= 2 && storyBlocks.every((block: any) => String(block.body || '').length < 500);
+const seoTitle = issue.seo_title || `${issue.title} | 734-243-3669`;
+const seoDescription = issue.seo_description || issue.excerpt || `Monroe Humane Society Newsletter — ${issue.title}.`;
+const newsArticle = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: issue.seo_title || issue.main_headline || issue.title,
+  description: seoDescription,
+  image: issue.hero_image ? [issue.hero_image] : undefined,
+  datePublished: issue.issue_date || undefined,
+  author: {
+    '@type': 'Organization',
+    name: issue.byline || 'Humane Society of Monroe County',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: SITE.name,
+    url: SITE.url,
+  },
+  mainEntityOfPage: `${SITE.url}/newsletter/issue/${issue.slug}`,
+};
 ---
 
-<BaseLayout title={`${issue.title} | 734-243-3669`} description={`Monroe Humane Society Newsletter - ${issue.title}.`}>
-  <div class="pb-24 px-4 max-w-7xl mx-auto mt-12">
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  image={issue.hero_image}
+  jsonLd={newsArticle}
+>
+  <div class="pb-24 px-4 max-w-7xl mx-auto mt-12" data-newsletter-issue>
     <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
       
-      <!-- Hero -->
       <div class="relative h-64 sm:h-80 md:h-96 w-full">
         <div class="absolute inset-0 bg-teal-900/40 mix-blend-multiply z-10"></div>
-        <img src={issue.hero_image} alt={issue.title} class="absolute inset-0 w-full h-full object-cover z-0" loading="eager" decoding="async" />
+        <img data-nl-hero src={issue.hero_image} alt={issue.title} class="absolute inset-0 w-full h-full object-cover z-0" loading="eager" decoding="async" />
         <div class="absolute inset-0 p-8 flex flex-col justify-end z-20 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
-          <p class="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-2">PO Box 1457 &bull; Monroe, MI</p>
-          <h1 class="text-3xl sm:text-5xl font-serif text-white">{issue.title}</h1>
+          <p class="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-2" data-nl-topline>{issue.top_line || 'PO Box 1457 • Monroe, MI'}</p>
+          <h1 class="text-3xl sm:text-5xl font-serif text-white" data-nl-headline>{issue.main_headline || issue.title}</h1>
         </div>
       </div>
 
-      <!-- Head / Metadata -->
       <div class="p-8 sm:p-12 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50">
         <div>
-          <h2 id="hs-news-issue-title" class="text-2xl font-bold text-teal-900 mb-1">Monroe Humane Society Newsletter</h2>
-          <div class="text-gray-500 font-medium">{issue.byline || 'Humane Society of Monroe County'}</div>
+          <h2 id="hs-news-issue-title" class="text-2xl font-bold text-teal-900 mb-1" data-nl-masthead>{issue.newsletter_title || 'Monroe Humane Society Newsletter'}</h2>
+          <div class="text-gray-500 font-medium" data-nl-byline>{issue.byline || 'Humane Society of Monroe County'}</div>
         </div>
         <div class="flex flex-wrap gap-4" role="group" aria-label="Quick pet filters">
           <a href="/adopt/dogs" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900 text-sm">See Adoptable Dogs</a>
@@ -40,10 +85,9 @@ const { issue } = Astro.props;
         </div>
       </div>
 
-      <!-- Body / Stories -->
       <div class="p-8 sm:p-12 bg-white">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {issue.blocks?.filter((b: any) => b.type === 'story').map((block: any) => (
+        <div class:list={['grid', 'gap-8', useTwoCol ? 'grid-cols-1 md:grid-cols-2 md:gap-12' : 'grid-cols-1 max-w-3xl mx-auto']} data-nl-blocks>
+          {storyBlocks.map((block: any) => (
             <div class="prose prose-teal max-w-none">
               <h3 class="text-2xl font-serif text-teal-900 mb-6">{block.title}</h3>
               {(block.body ?? '').split('\n').filter(Boolean).map((para: string) => (
@@ -62,3 +106,15 @@ const { issue } = Astro.props;
     </nav>
   </div>
 </BaseLayout>
+
+<script>
+  import { hydrateIssuePage } from '../../../scripts/newsletter-hydrate';
+  let started = false;
+  function init() {
+    if (started) return;
+    started = true;
+    hydrateIssuePage();
+  }
+  document.addEventListener('astro:page-load', init);
+  if (document.readyState !== 'loading') init();
+</script>

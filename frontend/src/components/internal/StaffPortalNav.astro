@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'donors' | 'overview' | 'content';
+  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'donors' | 'overview' | 'content' | 'newsletter';
 }
 
 const { activeTab = 'overview' } = Astro.props;
@@ -234,6 +234,25 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       </a>
 
       <a
+        href="/internal/newsletter/"
+        data-astro-prefetch="hover"
+        data-nav-tab="newsletter"
+        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+          activeTab === 'newsletter'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
+            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        Newsletter
+      </a>
+
+      <a
         href="/internal/content/"
         data-astro-prefetch="hover"
         data-nav-tab="content"
@@ -350,6 +369,24 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
         </svg>
         Donors & Giving
+      </a>
+
+      <a
+        href="/internal/newsletter/"
+        data-astro-prefetch="hover"
+        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
+          activeTab === 'newsletter'
+            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
+            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        Newsletter
       </a>
 
       <a
