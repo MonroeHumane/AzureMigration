@@ -1,5 +1,23 @@
 const fs = require('fs');
 const path = require('path');
+const {
+  loadRecodeMap,
+  indexRecodeMap,
+  applyCategoryRules,
+} = require('./qbo_category_rules.cjs');
+
+const recodeIndex = indexRecodeMap(loadRecodeMap());
+const BOARD_LABELS = require('../frontend/src/data/board_display_labels.json');
+
+function displayCategoryName(name) {
+  const raw = String(name || '').trim();
+  return BOARD_LABELS.categories[raw] || BOARD_LABELS.categories[raw.toLowerCase()] || raw;
+}
+
+function displayGroupName(group) {
+  const raw = String(group || '').trim();
+  return BOARD_LABELS.groups[raw] || BOARD_LABELS.groups[raw.toLowerCase()] || raw;
+}
 
 const stepsMap = [
   { id: 'month_2026_0', key: '2026-01', name: 'Jan 2026', step: 3087 },
@@ -127,6 +145,7 @@ function payeeFromMemo(payee, memo, txnType) {
   if (/SQUARE INC\/SQ/i.test(m) || /SQUARE INC\/SQUAR/i.test(m)) return 'Square Inc';
   if (/Family Dollar/i.test(m)) return 'Family Dollar';
   if (/THRIVENTGRANT/i.test(m)) return 'Thrivent Financial';
+  if (/COUNTY\s+(QUARTERLY\s+)?PAYMENT/i.test(m) || /COUNTY OF MONROE/i.test(m)) return 'COUNTY OF MONROE';
   let clean = (payee || '').trim();
   const orgSelf = /^HUMANE SOCIETY OF MONROE COUNTY$/i.test(clean);
   const junkVendor = /Mi Corporations Div Lansing Mi Mi Corporations/i.test(clean);
@@ -143,15 +162,17 @@ function payeeFromMemo(payee, memo, txnType) {
   return clean;
 }
 
-function applyMemoOverrides(meta, isRev, memo, payee) {
-  const blob = `${memo || ''} ${payee || ''}`;
-  if (/THRIVENTGRANT/i.test(blob)) {
-    return { meta: { name: 'Foundation Grants', group: 'Contributed Income' }, isRev: true };
-  }
-  if (/UNV\s*LAUNDRY/i.test(blob)) {
-    return { meta: ACCOUNT_NORMALIZATION['Laundry & Sanitation Services'], isRev: false };
-  }
-  return { meta, isRev };
+function applyMemoOverrides(meta, isRev, memo, payee, txnId, amount) {
+  return applyCategoryRules({
+    meta,
+    isRev,
+    memo,
+    payee,
+    txnId,
+    amount,
+    accountNormalization: ACCOUNT_NORMALIZATION,
+    recodeIndex,
+  });
 }
 
 function parseSection(sec, parentName = '') {
@@ -164,6 +185,7 @@ function parseSection(sec, parentName = '') {
       if (child.ColData) {
         const date = child.ColData[0]?.value;
         const txnType = child.ColData[1]?.value || '';
+        const txnId = String(child.ColData[1]?.id || '');
         const docNum = child.ColData[2]?.value || '';
         const payee = child.ColData[3]?.value || '';
         const memo = child.ColData[4]?.value || '';
@@ -183,7 +205,9 @@ function parseSection(sec, parentName = '') {
           if (!meta.name) {
             meta = { name: parentName || (isRev ? 'Revenue' : 'Uncategorized'), group: parentName || meta.group };
           }
-          ({ meta, isRev } = applyMemoOverrides(meta, isRev, memo, payee));
+          ({ meta, isRev, payee: cleanPayee } = applyMemoOverrides(
+            meta, isRev, memo, cleanPayee, txnId, Math.abs(rawAmt)
+          ));
 
           // Reclassify donations with explicit memorial/tribute dedications as Memorial Donations
           const fullMemo = (memo + ' ' + payee).toLowerCase();
@@ -207,6 +231,8 @@ function parseSection(sec, parentName = '') {
             }
           }
 
+          const legalName = meta.name;
+          const legalGroup = meta.group;
           txs.push({
             date,
             txnType,
@@ -216,8 +242,10 @@ function parseSection(sec, parentName = '') {
             split: split.trim(),
             amount: Math.abs(rawAmt),
             rawAmount: rawAmt,
-            category: meta.name,
-            group: meta.group,
+            category: displayCategoryName(legalName),
+            group: displayGroupName(legalGroup) || legalGroup,
+            legalName,
+            legalGroup,
             isRevenue: isRev
           });
         }
@@ -266,7 +294,9 @@ for (const m of stepsMap) {
       if (!catMap[t.category]) {
         catMap[t.category] = {
           name: t.category,
+          legalName: t.legalName || t.category,
           group: t.group,
+          legalGroup: t.legalGroup || t.group,
           transactions: []
         };
       }
@@ -370,7 +400,9 @@ function buildYtdRollup() {
       if (!catMap[t.category]) {
         catMap[t.category] = {
           name: t.category,
+          legalName: t.legalName || t.category,
           group: t.group,
+          legalGroup: t.legalGroup || t.group,
           transactions: []
         };
       }

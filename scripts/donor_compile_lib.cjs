@@ -38,6 +38,9 @@ const NAME_ALIAS_DISPLAY = {
   'kevin valerie mitchell': 'KEVIN & VALERIE MITCHELL',
   'county of monroe': 'COUNTY OF MONROE',
   'county of monroe finance department': 'COUNTY OF MONROE',
+  'dave durchman': 'Dave Durchman',
+  'david j durchman': 'Dave Durchman',
+  'david durchman': 'Dave Durchman',
 };
 
 function resolveDonorName(raw) {
@@ -52,6 +55,7 @@ function isAggregateName(name) {
   if (/^(26|202[0-9])\s+AUCTION\b/i.test(t)) return true;
   if (/\bCAR SHOW EVENT\b/i.test(t)) return true;
   if (/^trust fund payment\b/i.test(t)) return true;
+  if (/^branch cash( deposit)?$/i.test(t)) return true;
   return false;
 }
 
@@ -126,6 +130,41 @@ function resolveDepositPayor(entityName, description, account) {
   }
   const resolved = entity || collapseNameJoiners(entityName);
   return { name: resolved, aggregate: isAggregateName(resolved), via: '' };
+}
+
+function flattenManualDepositSplits(payload) {
+  const gifts = [];
+  for (const dep of (payload && payload.deposits) || []) {
+    for (const line of dep.lines || []) {
+      const bank = String(line.bank || '').trim();
+      const checkDate = String(line.checkDate || '').trim();
+      const noteParts = [
+        String(dep.privateNote || '').trim(),
+        bank ? `Bank: ${bank}` : '',
+        checkDate ? `Check date: ${checkDate}` : '',
+      ].filter(Boolean);
+      gifts.push({
+        date: dep.date,
+        amount: Math.round(Number(line.amount) * 100) / 100,
+        donorName: String(line.donorName || '').trim(),
+        memo: String(line.description || '').trim(),
+        description: String(line.description || '').trim(),
+        account: String(line.account || '').trim(),
+        qboType: 'Deposit',
+        reference: String(line.checkNum || dep.parentId || ''),
+        checkNum: String(line.checkNum || '').trim(),
+        paymentMethod: String(line.paymentMethod || '').trim(),
+        qboClass: '',
+        entityType: '',
+        entityId: '',
+        source: (payload && payload.source) || 'Deposit slip',
+        parentId: String(dep.qboDepositId || dep.parentId || ''),
+        lineId: String(line.lineId || ''),
+        privateNote: noteParts.join(' | '),
+      });
+    }
+  }
+  return gifts;
 }
 
 function formatMailingAddress(...inputs) {
@@ -236,6 +275,7 @@ module.exports = {
   isBankProcessorName,
   looksLikeNamedDonor,
   resolveDepositPayor,
+  flattenManualDepositSplits,
   formatMailingAddress,
   isCompleteMailingAddress,
   assertDonorInvariants,

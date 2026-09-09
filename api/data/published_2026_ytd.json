@@ -6,22 +6,24 @@
     "has_partial_cutoff": false,
     "published_by": "Jeffery Howard, Director's Assistant",
     "published_at": "2026-09-04T21:15:00Z",
-    "sha256_checksum": "9e2c2620216571312e2216f25049d57bf4dc1f74b12b025ae0961b8cd64c6d76",
+    "sha256_checksum": "338bec511c6a71ab0a7d9cfa9af8bad0bafdfa19ac56fa29ca2424b449bfd390",
     "basis": "Accrual",
     "governance_level": "Board-Confidential",
     "organization_name": "Humane Society of Monroe County",
-    "extended_payload_sha256": "27835453dc0482ca3ba4d6fcc63449b30dd4674256d1e53f7925b0ec3ad1bb8f"
+    "extended_payload_sha256": "648b6683022997c206a009a1e3a441ce85abf5c01fcb90b74478cfe5b9fa7a21",
+    "restated_at": "2026-09-09T20:00:00Z",
+    "restatement_note": "2026-09-09 restatement to live QBO recodes: county off endowment, Kroger off Corporate, Thrivent Choice onto Foundation Grants. Deposit 5100 keeps both $375.14 Thrivent lines."
   },
   "headline_kpis": {
     "all_in_revenue": 382325.58,
     "all_in_expenditures": 489718.91,
     "all_in_net": -107393.33,
     "all_in_margin_pct": -28.1,
-    "qbo_operating_revenue": 342606.03,
+    "qbo_operating_revenue": 369289.29,
     "qbo_cogs": 11911.71,
     "qbo_operating_expenditures": 466860.75,
-    "qbo_operating_net": -136166.43,
-    "non_operating_bridge": 28773.1,
+    "qbo_operating_net": -109483.17,
+    "non_operating_bridge": 2089.84,
     "program_ratio_pct": 85.4,
     "program_spend": 398856.67,
     "mg_spend": 56399.27,
@@ -39,11 +41,11 @@
     "baseline_monthly_burn": 55400
   },
   "bridge_composition": {
-    "endowment_distributions": 28463.96,
-    "recycling_and_rebates": 11255.59,
+    "endowment_distributions": 0.0,
+    "recycling_and_rebates": 13036.29,
     "recycling_detail": {
       "bottle_and_can_recycling": 8204,
-      "retail_partner_rebates": 2991.59,
+      "retail_partner_rebates": 4772.29,
       "court_restitution": 60
     },
     "fleet_transit_and_fuel": -10946.45,
@@ -51,8 +53,9 @@
       "gas": 10756.35,
       "repairs_and_maintenance": 190.1
     },
-    "net_bridge_total": 28773.1,
-    "c2_commentary": "Fleet fuel and recycling rebates are operational in nature, but classified as other revenue and expenditure in QuickBooks Online."
+    "net_bridge_total": 2089.84,
+    "c2_commentary": "County animal-control contract payments ($28,463.96) now sit in operating Government grants, not endowment. Kroger Community Rewards ($1,780.70) sit in Retail Partner Rebates (other income). Fleet fuel remains other expense. All-in revenue and spend are unchanged.",
+    "restatement_note": "2026-09-09 restatement to live QBO recodes: county off endowment, Kroger off Corporate, Thrivent Choice onto Foundation Grants. Deposit 5100 keeps both $375.14 Thrivent lines."
   },
   "monthly_statements": [
     {
@@ -66,13 +69,13 @@
       "total_exp": 78342.09,
       "net_margin": -10825.22,
       "margin_pct": -16,
-      "status": "Seasonal Burn",
-      "driver": "Annual insurance renewals & winter utility baseline",
+      "status": "",
+      "driver": "Insurance renewals and winter utilities",
       "rev_items": [
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 25292.4
+          "amount": 24542.12
         },
         {
           "name": "Corporate Donations",
@@ -80,8 +83,8 @@
           "amount": 19266.19
         },
         {
-          "name": "Quarterly Endowment Distributions",
-          "group": "Other Revenue",
+          "name": "Government grants & contracts",
+          "group": "Contributed income",
           "amount": 12555.48
         },
         {
@@ -93,6 +96,11 @@
           "name": "Memorial Donations",
           "group": "Contributed income",
           "amount": 1015.0
+        },
+        {
+          "name": "Foundation Grants",
+          "group": "Contributed income",
+          "amount": 750.28
         },
         {
           "name": "Event Donation",
@@ -259,8 +267,8 @@
       "total_exp": 48624.35,
       "net_margin": 443.88,
       "margin_pct": 0.9,
-      "status": "Operating Surplus",
-      "driver": "Operationally balanced month; strong adoption and clinic revenue",
+      "status": "",
+      "driver": "Strong adoptions and clinic fees",
       "rev_items": [
         {
           "name": "Individual Donor Contributions",
@@ -392,14 +400,9 @@
       "total_exp": 54065.44,
       "net_margin": -20389.53,
       "margin_pct": -60.5,
-      "status": "Seasonal Burn",
-      "driver": "Pre-gala operational expenditures & spring medical intake",
+      "status": "",
+      "driver": "Spring vet bills before the gala",
       "rev_items": [
-        {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
-          "amount": 6230.61
-        },
         {
           "name": "Event Donation",
           "group": "Revenue",
@@ -416,9 +419,19 @@
           "amount": 6504.17
         },
         {
+          "name": "Animal Adoptions",
+          "group": "Revenue",
+          "amount": 6230.61
+        },
+        {
           "name": "Corporate Donations",
           "group": "Contributed income",
-          "amount": 1901.99
+          "amount": 1000.0
+        },
+        {
+          "name": "Retail Partner Rebates",
+          "group": "Other Revenue",
+          "amount": 901.99
         },
         {
           "name": "Bottle & Can Recycling Revenue",
@@ -555,18 +568,18 @@
       "total_exp": 63022.61,
       "net_margin": 26840.31,
       "margin_pct": 29.9,
-      "status": "Operating Surplus",
-      "driver": "Annual Charity Spring Gala proceeds surge ($48.9k event revenue)",
+      "status": "",
+      "driver": "Spring gala proceeds",
       "rev_items": [
-        {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
-          "amount": 31145.41
-        },
         {
           "name": "Event Donation",
           "group": "Revenue",
           "amount": 32730
+        },
+        {
+          "name": "Animal Adoptions",
+          "group": "Revenue",
+          "amount": 31145.41
         },
         {
           "name": "Individual Donor Contributions",
@@ -574,9 +587,9 @@
           "amount": 16213.09
         },
         {
-          "name": "Government grants & contracts",
+          "name": "Foundation Grants",
           "group": "Contributed income",
-          "amount": 3245
+          "amount": 3334.86
         },
         {
           "name": "Memorial Donations",
@@ -602,11 +615,6 @@
           "name": "Bottle & Can Recycling Revenue",
           "group": "Other Revenue",
           "amount": 176
-        },
-        {
-          "name": "Foundation Grants",
-          "group": "Contributed income",
-          "amount": 89.86
         }
       ],
       "exp_items": [
@@ -718,8 +726,8 @@
       "total_exp": 50003.67,
       "net_margin": -23697.84,
       "margin_pct": -90.1,
-      "status": "Seasonal Burn",
-      "driver": "Post-gala giving lull & early summer kitten intake surge",
+      "status": "",
+      "driver": "Quieter giving and kitten intake",
       "rev_items": [
         {
           "name": "Animal Adoptions",
@@ -727,8 +735,8 @@
           "amount": 8317.63
         },
         {
-          "name": "Quarterly Endowment Distributions",
-          "group": "Other Revenue",
+          "name": "Government grants & contracts",
+          "group": "Contributed income",
           "amount": 7429.1
         },
         {
@@ -752,14 +760,9 @@
           "amount": 756.6
         },
         {
-          "name": "Government grants & contracts",
-          "group": "Contributed income",
-          "amount": 122
-        },
-        {
           "name": "Foundation Grants",
           "group": "Contributed income",
-          "amount": 63.06
+          "amount": 185.06
         }
       ],
       "exp_items": [
@@ -876,8 +879,8 @@
       "total_exp": 51675.71,
       "net_margin": 7733.6,
       "margin_pct": 13,
-      "status": "Operating Surplus",
-      "driver": "Summer adoption peak & quarterly endowment distribution",
+      "status": "",
+      "driver": "Peak adoptions and community gifts",
       "rev_items": [
         {
           "name": "Individual Donor Contributions",
@@ -910,14 +913,9 @@
           "amount": 2040
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed income",
-          "amount": 1028.71
-        },
-        {
           "name": "Retail Partner Rebates",
           "group": "Other Revenue",
-          "amount": 823.17
+          "amount": 1701.88
         },
         {
           "name": "cremation",
@@ -925,9 +923,14 @@
           "amount": 309.54
         },
         {
-          "name": "Government grants & contracts",
+          "name": "Foundation Grants",
           "group": "Contributed income",
-          "amount": 177
+          "amount": 187.0
+        },
+        {
+          "name": "Corporate Donations",
+          "group": "Contributed income",
+          "amount": 150.0
         },
         {
           "name": "Grants from other nonprofits",
@@ -940,19 +943,14 @@
           "amount": 120
         },
         {
-          "name": "Angels Medical Fund",
-          "group": "Revenue",
-          "amount": 40
-        },
-        {
-          "name": "Foundation Grants",
-          "group": "Contributed income",
-          "amount": 10
-        },
-        {
           "name": "Memorial Donations",
           "group": "Contributed income",
           "amount": 100.0
+        },
+        {
+          "name": "Angels Medical Fund",
+          "group": "Revenue",
+          "amount": 40
         }
       ],
       "exp_items": [
@@ -1074,8 +1072,8 @@
       "total_exp": 85851.39,
       "net_margin": -70379.13,
       "margin_pct": -454.9,
-      "status": "Seasonal Burn",
-      "driver": "3-payroll calendar spike (~ wages) & high medical volume",
+      "status": "",
+      "driver": "Three paydays and high vet bills",
       "rev_items": [
         {
           "name": "Animal Adoptions",
@@ -1085,7 +1083,7 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 4067.46
+          "amount": 4017.46
         },
         {
           "name": "Bottle & Can Recycling Revenue",
@@ -1100,7 +1098,7 @@
         {
           "name": "Foundation Grants",
           "group": "Contributed income",
-          "amount": 1225
+          "amount": 1275.0
         },
         {
           "name": "Event Donation",
@@ -1262,9 +1260,24 @@
       "total_exp": 58133.65,
       "net_margin": -17119.4,
       "margin_pct": -41.7,
-      "status": "Seasonal Burn",
-      "driver": "Late summer medical intake & vehicle transport spend",
+      "status": "",
+      "driver": "Late-summer vet bills and van costs",
       "rev_items": [
+        {
+          "name": "Animal Adoptions",
+          "group": "Revenue",
+          "amount": 9829.97
+        },
+        {
+          "name": "Government grants & contracts",
+          "group": "Contributed income",
+          "amount": 8479.38
+        },
+        {
+          "name": "Memorial Donations",
+          "group": "Contributed income",
+          "amount": 7999.17
+        },
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
@@ -1274,21 +1287,6 @@
           "name": "Foundation Grants",
           "group": "Contributed income",
           "amount": 2929
-        },
-        {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
-          "amount": 9829.97
-        },
-        {
-          "name": "Quarterly Endowment Distributions",
-          "group": "Other Revenue",
-          "amount": 8479.38
-        },
-        {
-          "name": "Memorial Donations",
-          "group": "Contributed income",
-          "amount": 7999.17
         },
         {
           "name": "Event Donation",
@@ -1731,7 +1729,7 @@
   },
   "kpi_dictionary": {
     "Program Efficiency Ratio": "85.5% = Program expenditures ($400,679.69) divided by core operating expenditures ($468,683.77) under Form 990 Part IX functional expense allocation. Represents direct deployment into animal welfare, veterinary care, medications, and shelter caregiving.",
-    "Operating Net vs All-In Net": "Operating Net (-$136,346.17) represents core shelter operations before investment/endowment draws. All-In Net (-$107,573.07) includes the quarterly endowment distribution (+$28,463.96) and recycling/rebate support.",
+    "Operating Net vs All-In Net": "Operating Net ($-109,483.17) is shelter operations after moving the county contract into Government grants. All-In Net ($-107,393.33) still adds recycling/rebate support and subtracts fleet fuel. No Community Foundation endowment draw remains in this YTD window.",
     "Bank Cash Runway": "Liquid checking buffer (19 days) based on actual average monthly operational spend.",
     "Total Reserve Runway": "Total available liquidity including the Fidelity board-designated operating reserve (4.0 months).",
     "Accounts Payable": "Legitimate current rolling vendor payables ($3,533.11 across all 19 scheduled vendor lines: Top 8 Primary $2,739.76 + Remaining Aging $793.35).",

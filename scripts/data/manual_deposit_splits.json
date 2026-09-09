@@ -1,0 +1,157 @@
+{
+  "source": "Deposit slip + check photos (staff)",
+  "deposits": [
+    {
+      "parentId": "slip-20260907",
+      "date": "2026-09-07",
+      "privateNote": "First Merchants deposit 9/7/26. Bank credited $3,517.17. Slip lists 11 checks $2,492.17 + cash $1,002.00; remaining $23.00 is cash not counted on the slip.",
+      "split": "First Merchants Bank",
+      "lines": [
+        {
+          "lineId": "1",
+          "donorName": "Cathy A. Campbell",
+          "amount": 100.0,
+          "checkNum": "1396",
+          "checkDate": "2026-08-25",
+          "paymentMethod": "Check",
+          "bank": "Fifth Third",
+          "description": "In memory of Brian Kalte",
+          "account": "Contributed income:Memorial Donations"
+        },
+        {
+          "lineId": "2",
+          "donorName": "Debra E. Spurlock / Curtis D. Spurlock, Sr.",
+          "amount": 25.0,
+          "checkNum": "3007",
+          "checkDate": "2026-08-13",
+          "paymentMethod": "Check",
+          "bank": "PNC",
+          "description": "Memory Kathy (Monk) Cornprobst",
+          "account": "Contributed income:Memorial Donations"
+        },
+        {
+          "lineId": "3",
+          "donorName": "Dean I. Zorn / Sheryl R. Zorn",
+          "amount": 100.0,
+          "checkNum": "8277",
+          "checkDate": "2026-08-24",
+          "paymentMethod": "Check",
+          "bank": "First Merchants",
+          "description": "Memory of David Etue",
+          "account": "Contributed income:Memorial Donations"
+        },
+        {
+          "lineId": "4",
+          "donorName": "Promedica Health System",
+          "amount": 721.0,
+          "checkNum": "6000000159",
+          "checkDate": "2026-08-20",
+          "paymentMethod": "Check",
+          "bank": "Bank of America",
+          "description": "",
+          "account": "Corporate Donations"
+        },
+        {
+          "lineId": "5",
+          "donorName": "Kroger",
+          "amount": 896.17,
+          "checkNum": "504892405",
+          "checkDate": "2026-08-26",
+          "paymentMethod": "Check",
+          "bank": "US Bank",
+          "description": "Colin L. Fike",
+          "account": "Retail Partner Rebates"
+        },
+        {
+          "lineId": "6",
+          "donorName": "Dave Durchman",
+          "amount": 250.0,
+          "checkNum": "113",
+          "checkDate": "2026-08-26",
+          "paymentMethod": "Check",
+          "bank": "Key",
+          "description": "SEPT. DONATION / HSMC",
+          "account": "Contributed income:Donations directed by individuals"
+        },
+        {
+          "lineId": "7",
+          "donorName": "Denise L. or Philip P. Swy",
+          "amount": 150.0,
+          "checkNum": "5941",
+          "checkDate": "2026-08-10",
+          "paymentMethod": "Check",
+          "bank": "First Merchants",
+          "description": "In memory of Karen Kincaid",
+          "account": "Contributed income:Memorial Donations"
+        },
+        {
+          "lineId": "8",
+          "donorName": "Dennis K. Jenkins / Mary L. Jenkins",
+          "amount": 50.0,
+          "checkNum": "2802",
+          "checkDate": "2026-08-16",
+          "paymentMethod": "Check",
+          "bank": "Fifth Third",
+          "description": "",
+          "account": "Contributed income:Donations directed by individuals"
+        },
+        {
+          "lineId": "9",
+          "donorName": "Kimberly Haupricht",
+          "amount": 50.0,
+          "checkNum": "213",
+          "checkDate": "2026-08-10",
+          "paymentMethod": "Check",
+          "bank": "County National",
+          "description": "Memory of Karen Kincaid / gift of",
+          "account": "Contributed income:Memorial Donations"
+        },
+        {
+          "lineId": "10",
+          "donorName": "Jimmy and Joyce Cothren Revocable Trust",
+          "amount": 50.0,
+          "checkNum": "1268",
+          "checkDate": "2026-08-10",
+          "paymentMethod": "Check",
+          "bank": "Citizens",
+          "description": "Karen Kincaid",
+          "account": "Contributed income:Memorial Donations"
+        },
+        {
+          "lineId": "11",
+          "donorName": "Catherine A. Miller",
+          "amount": 100.0,
+          "checkNum": "4281",
+          "checkDate": "2026-08-24",
+          "paymentMethod": "Check",
+          "bank": "First Merchants",
+          "description": "",
+          "account": "Contributed income:Donations directed by individuals"
+        },
+        {
+          "lineId": "12",
+          "donorName": "Branch Cash Deposit",
+          "amount": 1002.0,
+          "checkNum": "",
+          "checkDate": "",
+          "paymentMethod": "Cash",
+          "bank": "",
+          "description": "Cash listed on deposit slip",
+          "account": "Contributed income:Donations directed by individuals"
+        },
+        {
+          "lineId": "13",
+          "donorName": "Branch Cash Deposit",
+          "amount": 23.0,
+          "checkNum": "",
+          "checkDate": "",
+          "paymentMethod": "Cash",
+          "bank": "",
+          "description": "Cash not counted on slip (bank credited $3,517.17)",
+          "account": "Contributed income:Donations directed by individuals"
+        }
+      ],
+      "qboDepositId": "7952"
+    }
+  ]
+}

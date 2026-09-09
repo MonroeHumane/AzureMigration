@@ -647,17 +647,9 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
 
     const auditEl = document.getElementById('metric-audit-diff');
     if (auditEl) {
-      const note = data.statement_of_position?.assets?.bank_register_note
-        || data.notes?.['Bank Statement Reconciliation']
-        || data.meta?.reconciliation_note;
-      if (note && typeof note === 'string') {
-        const reconMatch = note.match(/reconciled to [^.]+/i);
-        auditEl.textContent = reconMatch
-          ? (reconMatch[0].charAt(0).toUpperCase() + reconMatch[0].slice(1))
-          : (runway ? `Cash runway ${runway} at current operating pace` : 'Balanced & reconciled to QuickBooks Online');
-      } else {
-        auditEl.textContent = runway ? `Cash runway ${runway} at current pace` : 'Balanced & reconciled to QuickBooks Online';
-      }
+      auditEl.textContent = runway
+        ? `About ${runway.replace(/ months?$/, '')} months of cash at this spending pace`
+        : 'Cash runway unavailable';
     }
 
     const finPill = document.getElementById('hub-status-financials');

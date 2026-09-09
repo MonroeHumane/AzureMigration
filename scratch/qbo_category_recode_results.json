@@ -1,0 +1,255 @@
+{
+  "ok": 26,
+  "fail": 0,
+  "skipped": 2,
+  "linesChanged": 25,
+  "results": [
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "County quarterly on Uncategorized Income",
+      "id": "3026",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 7981.0
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "County 2nd quarter on endowment",
+      "id": "3524",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 12202.18
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "County quarterly on endowment",
+      "id": "5319",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "4",
+      "total": 13904.48
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "County balance of 20k on endowment",
+      "id": "5920",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "3",
+      "total": 10907.16
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "County payment on endowment",
+      "id": "6513",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "5",
+      "total": 10593.38
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Kroger rewards on Corporate",
+      "id": "4274",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 6904.72
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Kroger rewards on Corporate",
+      "id": "4984",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 25181.28
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Kroger rewards on Corporate",
+      "id": "5497",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "6",
+      "total": 7852.64
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Kroger rewards on Corporate",
+      "id": "6146",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "5",
+      "total": 3448.29
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Thrivent / Wendy Waltz on individual donations",
+      "id": "4936",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 2038.25
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Thrivent / Barbara Bosse (two identical lines kept)",
+      "id": "5100",
+      "changed": 2,
+      "already": 0,
+      "syncToken": "2",
+      "total": 10939.47
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Thrivent batch on government grants",
+      "id": "5846",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 3245.0
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Thrivent batch on government grants",
+      "id": "6329",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 122.0
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Thrivent batch on government grants",
+      "id": "6324",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 177.0
+    },
+    {
+      "kind": "Deposit",
+      "ok": true,
+      "note": "Thrivent batch on individual donations",
+      "id": "6758",
+      "changed": 1,
+      "already": 0,
+      "syncToken": "2",
+      "total": 50.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "UNV Laundry on Cleaning",
+      "id": "3455",
+      "changed": 1,
+      "syncToken": "2",
+      "total": 482.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "UNV Laundry on Cleaning",
+      "id": "3456",
+      "changed": 1,
+      "syncToken": "2",
+      "total": 482.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "UNV Laundry on Cleaning",
+      "id": "3595",
+      "changed": 1,
+      "syncToken": "2",
+      "total": 482.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "skipped": true,
+      "note": "UNV Laundry on D&O Insurance",
+      "id": "6742",
+      "changed": 0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "Auth.net on Software",
+      "id": "1435",
+      "changed": 1,
+      "syncToken": "3",
+      "total": 30.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "Auth.net on Software",
+      "id": "1508",
+      "changed": 1,
+      "syncToken": "3",
+      "total": 30.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "Auth.net on Software",
+      "id": "1458",
+      "changed": 1,
+      "syncToken": "3",
+      "total": 30.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "Auth.net on Software",
+      "id": "1490",
+      "changed": 1,
+      "syncToken": "3",
+      "total": 30.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "Auth.net on Software",
+      "id": "1546",
+      "changed": 1,
+      "syncToken": "3",
+      "total": 30.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "note": "Auth.net on Software",
+      "id": "1672",
+      "changed": 1,
+      "syncToken": "3",
+      "total": 30.0
+    },
+    {
+      "kind": "Purchase",
+      "ok": true,
+      "skipped": true,
+      "note": "Canva on Memberships",
+      "id": "6019",
+      "changed": 0
+    }
+  ]
+}

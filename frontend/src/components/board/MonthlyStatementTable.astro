@@ -51,39 +51,26 @@ const monthsMap: Record<string, any> = {};
   <div class="px-5 py-4 border-b border-slate-100 bg-[#f5efe3]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     <div>
       <h3 class="text-base font-semibold text-[#173a39]">
-        2026 Month-by-Month Operating Statement
+        Month by month
       </h3>
       <p class="text-xs text-slate-500 mt-0.5">
-        Reconciled from QuickBooks Online general ledger. Click a month, then a category, then a payee to open the actual transactions.
+        Click a month to see where the money came from and went.
       </p>
     </div>
     <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-      <a
-        href="/internal/donors/?recency=2026"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-teal-800 border border-teal-200 hover:bg-teal-50 shadow-xs transition"
-        title="Cross-reference individual donor contributions and platforms"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-        </svg>
-        <span>Donor Registry &rarr;</span>
-      </a>
       <button
         id="export-statement-csv-btn"
         type="button"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#173a39] border border-slate-300 hover:bg-slate-50 hover:border-slate-400 shadow-xs transition cursor-pointer"
-        title="Download certified 8-month statement as Excel/CSV"
+        title="Download the month-by-month spreadsheet"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <polyline points="7 10 12 15 17 10"></polyline>
           <line x1="12" y1="15" x2="12" y2="3"></line>
         </svg>
-        <span>Export CSV (Excel)</span>
+        <span>Download spreadsheet</span>
       </button>
-      <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-        Exact Footing Reconciled
-      </span>
     </div>
   </div>
 
@@ -92,15 +79,14 @@ const monthsMap: Record<string, any> = {};
     <table class="w-full text-left text-xs sm:text-sm">
       <thead class="bg-slate-100/80 text-slate-600 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
         <tr>
-          <th scope="col" class="py-3 px-4">Period</th>
-          <th scope="col" class="py-3 px-3 text-right">Revenue</th>
-          <th scope="col" class="py-3 px-3 text-right">Direct Care (COGS)</th>
-          <th scope="col" class="py-3 px-3 text-right">Operations & Payroll</th>
-          <th scope="col" class="py-3 px-3 text-right">Fleet & Other</th>
-          <th scope="col" class="py-3 px-3 text-right">Total Exp</th>
-          <th scope="col" class="py-3 px-3 text-right">Net Margin</th>
-          <th scope="col" class="py-3 px-3 text-right">Margin %</th>
-          <th scope="col" class="py-3 px-4">Driver & Status</th>
+          <th scope="col" class="py-3 px-4">Month</th>
+          <th scope="col" class="py-3 px-3 text-right">Money in</th>
+          <th scope="col" class="py-3 px-3 text-right">Animal care</th>
+          <th scope="col" class="py-3 px-3 text-right">Staff and operations</th>
+          <th scope="col" class="py-3 px-3 text-right">Van and other</th>
+          <th scope="col" class="py-3 px-3 text-right">Total spent</th>
+          <th scope="col" class="py-3 px-3 text-right">Leftover</th>
+          <th scope="col" class="py-3 px-4">Why</th>
         </tr>
       </thead>
       <tbody id="statement-rows-tbody" class="divide-y divide-slate-200/70">
@@ -428,7 +414,7 @@ const monthsMap: Record<string, any> = {};
           })
         ) : (
           <tr id="statement-loading-row" class="animate-pulse">
-            <td colspan="9" class="py-8 text-center text-slate-400">
+            <td colspan="8" class="py-8 text-center text-slate-400">
               <div class="inline-flex items-center gap-2">
                 <svg class="animate-spin h-4 w-4 text-teal-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -444,7 +430,7 @@ const monthsMap: Record<string, any> = {};
       <tfoot class="certified-footing bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
         <tr>
           <td class="py-3 px-4 font-bold text-white uppercase tracking-wider">
-            2026 YTD Certified Footing
+            2026 year to date
           </td>
           <td id="footing-rev" class="py-3 px-3 text-right font-mono text-emerald-300 font-bold">{statements.length ? formatDollar(totalRev) : '--'}</td>
           <td id="footing-cogs" class="py-3 px-3 text-right font-mono text-slate-300">{statements.length ? formatDollar(totalCogs) : '--'}</td>
@@ -452,10 +438,7 @@ const monthsMap: Record<string, any> = {};
           <td id="footing-other-exp" class="py-3 px-3 text-right font-mono text-slate-300">{statements.length ? formatDollar(totalOtherExp) : '--'}</td>
           <td id="footing-total-exp" class="py-3 px-3 text-right font-mono text-amber-300 font-bold">{statements.length ? formatDollar(totalExp) : '--'}</td>
           <td id="footing-net-margin" class="py-3 px-3 text-right font-mono text-rose-400 font-bold">{statements.length ? formatDollar(totalNet) : '--'}</td>
-          <td id="footing-margin-pct" class="py-3 px-3 text-right text-rose-300 font-bold">{statements.length ? `${totalMarginPct.toFixed(1)}%` : '--%'}</td>
-          <td class="py-3 px-4 text-emerald-400 text-xs">
-            ✓ Balanced &amp; reconciled to QuickBooks Online
-          </td>
+          <td class="py-3 px-4 text-emerald-400 text-xs"></td>
         </tr>
       </tfoot>
     </table>
@@ -522,7 +505,7 @@ const monthsMap: Record<string, any> = {};
               class="w-full py-1.5 px-3 rounded text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100/80 border border-teal-200/60 flex items-center justify-center gap-1.5 transition cursor-pointer"
               data-mobile-target={`mobile-drawer-${m.id}`}
             >
-              <span>View Hierarchical Drilldown</span>
+              <span>Show details</span>
               <svg class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
@@ -671,15 +654,14 @@ const monthsMap: Record<string, any> = {};
           const statements = JSON.parse(raw);
 
           const headers = [
-            'Period',
-            'Revenue ($)',
-            'Direct Care COGS ($)',
-            'Operations & Payroll ($)',
-            'Fleet & Other ($)',
-            'Total Expenditures ($)',
-            'Net Margin ($)',
-            'Margin (%)',
-            'Driver & Status'
+            'Month',
+            'Money in ($)',
+            'Animal care ($)',
+            'Staff and operations ($)',
+            'Van and other ($)',
+            'Total spent ($)',
+            'Leftover ($)',
+            'Why'
           ];
 
           const rows = statements.map((s: any) => [
@@ -690,7 +672,6 @@ const monthsMap: Record<string, any> = {};
             s.other_exp.toFixed(2),
             s.total_exp.toFixed(2),
             s.net_margin.toFixed(2),
-            s.margin_pct.toFixed(1),
             `"${(s.driver || '').replace(/"/g, '""')}"`
           ]);
 
@@ -704,15 +685,14 @@ const monthsMap: Record<string, any> = {};
           const totMarginPct = (totNet / totRev) * 100;
 
           rows.push([
-            '"2026 YTD Certified Footing"',
+            '"2026 year to date"',
             totRev.toFixed(2),
             totCogs.toFixed(2),
             totOp.toFixed(2),
             totOther.toFixed(2),
             totExp.toFixed(2),
             totNet.toFixed(2),
-            totMarginPct.toFixed(1),
-            '"Reconciled to QuickBooks Online general ledger"'
+            '""'
           ]);
 
           const csvString = [headers.join(','), ...rows.map((r: string[]) => r.join(','))].join('\r\n');

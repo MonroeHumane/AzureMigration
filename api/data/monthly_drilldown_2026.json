@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-07T22:33:41.663Z",
+    "generatedAt": "2026-09-09T20:10:08.054Z",
     "source": "QuickBooks Online General Ledger",
     "closedMonthsCount": 8,
     "cutoffDate": "2026-08-31",
@@ -24,10 +24,10 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed Income",
-          "total": 25956.4,
-          "pctOfTotal": 38.4,
+          "total": 25206.12,
+          "pctOfTotal": 37.3,
           "payeeCount": 5,
-          "txCount": 34,
+          "txCount": 32,
           "payees": [
             {
               "name": "Paypal",
@@ -46,8 +46,8 @@
             },
             {
               "name": "Branch Deposit Batch",
-              "total": 9472.28,
-              "txCount": 17,
+              "total": 8722,
+              "txCount": 15,
               "transactions": [
                 {
                   "date": "2026-01-27",
@@ -117,25 +117,9 @@
                   "date": "2026-01-08",
                   "type": "Deposit",
                   "num": "",
-                  "memo": "BARBARA BOSSE",
-                  "split": "First Merchants Bank",
-                  "amount": 375.14
-                },
-                {
-                  "date": "2026-01-08",
-                  "type": "Deposit",
-                  "num": "",
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 1000
-                },
-                {
-                  "date": "2026-01-08",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BARBARA BOSSE",
-                  "split": "First Merchants Bank",
-                  "amount": 375.14
                 },
                 {
                   "date": "2026-01-08",
@@ -396,15 +380,15 @@
           ]
         },
         {
-          "name": "Community Foundation Endowment Grants",
-          "group": "Endowment Support",
+          "name": "Municipal Contracts & Grants",
+          "group": "Contributed Income",
           "total": 12555.48,
           "pctOfTotal": 18.6,
           "payeeCount": 1,
           "txCount": 1,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "COUNTY OF MONROE",
               "total": 12555.48,
               "txCount": 1,
               "transactions": [
@@ -756,6 +740,39 @@
                   "memo": "JEAN EARLY",
                   "split": "First Merchants Bank",
                   "amount": 50
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Foundation Grants",
+          "group": "Contributed Income",
+          "total": 750.28,
+          "pctOfTotal": 1.1,
+          "payeeCount": 1,
+          "txCount": 2,
+          "payees": [
+            {
+              "name": "BARBARA BOSSE",
+              "total": 750.28,
+              "txCount": 2,
+              "transactions": [
+                {
+                  "date": "2026-01-08",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BARBARA BOSSE",
+                  "split": "First Merchants Bank",
+                  "amount": 375.14
+                },
+                {
+                  "date": "2026-01-08",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BARBARA BOSSE",
+                  "split": "First Merchants Bank",
+                  "amount": 375.14
                 }
               ]
             }
@@ -6642,15 +6659,15 @@
         {
           "name": "Corporate Donations",
           "group": "Contributed Income",
-          "total": 1901.99,
-          "pctOfTotal": 5.6,
+          "total": 1000,
+          "pctOfTotal": 3,
           "payeeCount": 1,
-          "txCount": 2,
+          "txCount": 1,
           "payees": [
             {
               "name": "Branch Deposit Batch",
-              "total": 1901.99,
-              "txCount": 2,
+              "total": 1000,
+              "txCount": 1,
               "transactions": [
                 {
                   "date": "2026-03-23",
@@ -6659,7 +6676,24 @@
                   "memo": "MIDWAY ANIMAL HOSP",
                   "split": "First Merchants Bank",
                   "amount": 1000
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Retail Partner Rebates (Kroger/Meijer)",
+          "group": "Community Support",
+          "total": 901.99,
+          "pctOfTotal": 2.7,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "Kroger",
+              "total": 901.99,
+              "txCount": 1,
+              "transactions": [
                 {
                   "date": "2026-03-02",
                   "type": "Deposit",
@@ -11706,15 +11740,15 @@
           ]
         },
         {
-          "name": "Community Foundation Endowment Grants",
-          "group": "Endowment Support",
+          "name": "Municipal Contracts & Grants",
+          "group": "Contributed Income",
           "total": 7429.1,
           "pctOfTotal": 28.2,
           "payeeCount": 1,
           "txCount": 1,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "COUNTY OF MONROE",
               "total": 7429.1,
               "txCount": 1,
               "transactions": [
@@ -13859,7 +13893,7 @@
       "monthName": "Jun 2026",
       "isPartial": false,
       "status": "Operating Surplus",
-      "driver": "Summer adoption peak & quarterly endowment distribution",
+      "driver": "Summer adoption peak & community giving",
       "revenue": 59409.31,
       "total_exp": 51675.71,
       "net_margin": 7733.6,
@@ -14421,26 +14455,18 @@
           ]
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed Income",
-          "total": 1028.71,
-          "pctOfTotal": 1.7,
-          "payeeCount": 1,
-          "txCount": 2,
+          "name": "Retail Partner Rebates (Kroger/Meijer)",
+          "group": "Community Support",
+          "total": 1701.88,
+          "pctOfTotal": 2.9,
+          "payeeCount": 3,
+          "txCount": 3,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 1028.71,
-              "txCount": 2,
+              "name": "Kroger",
+              "total": 878.71,
+              "txCount": 1,
               "transactions": [
-                {
-                  "date": "2026-06-13",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Allen Chevrolet  adoption  6/26",
-                  "split": "First Merchants Bank",
-                  "amount": 150
-                },
                 {
                   "date": "2026-06-13",
                   "type": "Deposit",
@@ -14450,17 +14476,7 @@
                   "amount": 878.71
                 }
               ]
-            }
-          ]
-        },
-        {
-          "name": "Retail Partner Rebates (Kroger/Meijer)",
-          "group": "Community Support",
-          "total": 823.17,
-          "pctOfTotal": 1.4,
-          "payeeCount": 2,
-          "txCount": 2,
-          "payees": [
+            },
             {
               "name": "Branch Deposit Batch",
               "total": 822.67,
@@ -14658,6 +14674,31 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Corporate Donations",
+          "group": "Contributed Income",
+          "total": 150,
+          "pctOfTotal": 0.3,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "Branch Deposit Batch",
+              "total": 150,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-06-13",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Allen Chevrolet  adoption  6/26",
+                  "split": "First Merchants Bank",
+                  "amount": 150
                 }
               ]
             }
@@ -20117,15 +20158,15 @@
           ]
         },
         {
-          "name": "Community Foundation Endowment Grants",
-          "group": "Endowment Support",
+          "name": "Municipal Contracts & Grants",
+          "group": "Contributed Income",
           "total": 8479.38,
           "pctOfTotal": 20.7,
           "payeeCount": 1,
           "txCount": 1,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "COUNTY OF MONROE",
               "total": 8479.38,
               "txCount": 1,
               "transactions": [
@@ -22568,15 +22609,15 @@
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed Income",
-          "total": 131483.3,
-          "pctOfTotal": 34.4,
+          "total": 130733.02,
+          "pctOfTotal": 34.2,
           "payeeCount": 11,
-          "txCount": 168,
+          "txCount": 166,
           "payees": [
             {
               "name": "Branch Deposit Batch",
-              "total": 98898.73,
-              "txCount": 100,
+              "total": 98148.45,
+              "txCount": 98,
               "transactions": [
                 {
                   "date": "2026-08-26",
@@ -23310,25 +23351,9 @@
                   "date": "2026-01-08",
                   "type": "Deposit",
                   "num": "",
-                  "memo": "BARBARA BOSSE",
-                  "split": "First Merchants Bank",
-                  "amount": 375.14
-                },
-                {
-                  "date": "2026-01-08",
-                  "type": "Deposit",
-                  "num": "",
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 1000
-                },
-                {
-                  "date": "2026-01-08",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BARBARA BOSSE",
-                  "split": "First Merchants Bank",
-                  "amount": 375.14
                 },
                 {
                   "date": "2026-01-08",
@@ -26175,15 +26200,15 @@
           ]
         },
         {
-          "name": "Community Foundation Endowment Grants",
-          "group": "Endowment Support",
+          "name": "Municipal Contracts & Grants",
+          "group": "Contributed Income",
           "total": 28463.96,
           "pctOfTotal": 7.4,
           "payeeCount": 1,
           "txCount": 3,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "COUNTY OF MONROE",
               "total": 28463.96,
               "txCount": 3,
               "transactions": [
@@ -27665,15 +27690,15 @@
         {
           "name": "Corporate Donations",
           "group": "Contributed Income",
-          "total": 23790.91,
-          "pctOfTotal": 6.2,
+          "total": 22010.21,
+          "pctOfTotal": 5.8,
           "payeeCount": 1,
-          "txCount": 20,
+          "txCount": 18,
           "payees": [
             {
               "name": "Branch Deposit Batch",
-              "total": 23790.91,
-              "txCount": 20,
+              "total": 22010.21,
+              "txCount": 18,
               "transactions": [
                 {
                   "date": "2026-07-12",
@@ -27708,14 +27733,6 @@
                   "amount": 150
                 },
                 {
-                  "date": "2026-06-13",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Local business sponsorship / corporate partnership",
-                  "split": "First Merchants Bank",
-                  "amount": 878.71
-                },
-                {
                   "date": "2026-04-22",
                   "type": "Deposit",
                   "num": "",
@@ -27746,14 +27763,6 @@
                   "memo": "MIDWAY ANIMAL HOSP",
                   "split": "First Merchants Bank",
                   "amount": 1000
-                },
-                {
-                  "date": "2026-03-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "Local business sponsorship / corporate partnership",
-                  "split": "First Merchants Bank",
-                  "amount": 901.99
                 },
                 {
                   "date": "2026-02-25",
@@ -27842,10 +27851,10 @@
         {
           "name": "Foundation Grants",
           "group": "Contributed Income",
-          "total": 9694.03,
-          "pctOfTotal": 2.5,
-          "payeeCount": 2,
-          "txCount": 17,
+          "total": 10444.31,
+          "pctOfTotal": 2.7,
+          "payeeCount": 3,
+          "txCount": 19,
           "payees": [
             {
               "name": "Thrivent Financial",
@@ -27994,6 +28003,29 @@
                   "memo": "",
                   "split": "First Merchants Bank",
                   "amount": 96.38
+                }
+              ]
+            },
+            {
+              "name": "BARBARA BOSSE",
+              "total": 750.28,
+              "txCount": 2,
+              "transactions": [
+                {
+                  "date": "2026-01-08",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BARBARA BOSSE",
+                  "split": "First Merchants Bank",
+                  "amount": 375.14
+                },
+                {
+                  "date": "2026-01-08",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "BARBARA BOSSE",
+                  "split": "First Merchants Bank",
+                  "amount": 375.14
                 }
               ]
             }
@@ -28363,10 +28395,10 @@
         {
           "name": "Retail Partner Rebates (Kroger/Meijer)",
           "group": "Community Support",
-          "total": 3636.91,
-          "pctOfTotal": 1,
-          "payeeCount": 2,
-          "txCount": 5,
+          "total": 5417.61,
+          "pctOfTotal": 1.4,
+          "payeeCount": 3,
+          "txCount": 7,
           "payees": [
             {
               "name": "Branch Deposit Batch",
@@ -28388,6 +28420,29 @@
                   "memo": "PARASEDGE",
                   "split": "First Merchants Bank",
                   "amount": 2168.92
+                }
+              ]
+            },
+            {
+              "name": "Kroger",
+              "total": 1780.7,
+              "txCount": 2,
+              "transactions": [
+                {
+                  "date": "2026-06-13",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Local business sponsorship / corporate partnership",
+                  "split": "First Merchants Bank",
+                  "amount": 878.71
+                },
+                {
+                  "date": "2026-03-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "Local business sponsorship / corporate partnership",
+                  "split": "First Merchants Bank",
+                  "amount": 901.99
                 }
               ]
             },

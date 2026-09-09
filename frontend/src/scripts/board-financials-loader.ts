@@ -1,6 +1,13 @@
 import { isStaffAuthenticated, getStaffToken } from '../lib/staff-auth';
 import { getStoredStaffToken, getCachedFinancials } from '../lib/api';
 import { publishedLabel, refreshStaffFinancials, setStaffDataStatus } from '../lib/staff-financials';
+import {
+  decorateBoardCategory,
+  displayCategoryName,
+  displayGroupName,
+  inflowGroupTone as legendInflowTone,
+  isVisibleAmount,
+} from '../lib/board-display-labels';
 
 /**
  * Authenticated data shape from GET /api/financials (Bearer staff token required):
@@ -172,6 +179,17 @@ function groupBankRows(rows: any[], nameKey: string): any[] {
 }
 
 function hydrateExpenseExplorer(data: any): void {
+  const decorateMonth = (month: any, merge: boolean) => {
+    if (!month) return month;
+    const exp = merge
+      ? mergeExplorerCategories(month.expenseCategories || [])
+      : decorateCats(month.expenseCategories || []);
+    const rev = merge
+      ? mergeExplorerCategories(month.revenueCategories || [])
+      : decorateCats(month.revenueCategories || []);
+    return { ...month, expenseCategories: exp, revenueCategories: rev };
+  };
+
   const drilldownMonths = data.monthly_drilldown?.months;
   if (
     drilldownMonths &&
@@ -179,27 +197,26 @@ function hydrateExpenseExplorer(data: any): void {
     !Array.isArray(drilldownMonths) &&
     Object.values(drilldownMonths).some((m: any) => Array.isArray(m?.expenseCategories) || Array.isArray(m?.revenueCategories))
   ) {
-    const months: Record<string, any> = { ...drilldownMonths };
+    const months: Record<string, any> = {};
     const ytdExp: any[] = [];
     const ytdRev: any[] = [];
     let ytdNet = 0;
-    for (const month of Object.values(months) as any[]) {
-      if (!month || month.id === 'all_ytd') continue;
+    for (const [id, month] of Object.entries(drilldownMonths) as [string, any][]) {
+      if (!month || month.id === 'all_ytd' || id === 'all_ytd') continue;
+      months[id] = decorateMonth(month, false);
       ytdExp.push(...(month.expenseCategories || []));
       ytdRev.push(...(month.revenueCategories || []));
       ytdNet += month.net_margin || 0;
     }
-    if (!months.all_ytd) {
-      months.all_ytd = {
-        id: 'all_ytd',
-        monthName: 'All 2026 YTD',
-        monthKey: 'all_ytd',
-        net_margin: ytdNet,
-        status: 'YTD',
-        expenseCategories: ytdExp,
-        revenueCategories: ytdRev,
-      };
-    }
+    months.all_ytd = {
+      id: 'all_ytd',
+      monthName: 'All 2026',
+      monthKey: 'all_ytd',
+      net_margin: ytdNet,
+      status: 'YTD',
+      expenseCategories: mergeExplorerCategories(ytdExp),
+      revenueCategories: mergeExplorerCategories(ytdRev),
+    };
     const hydrate = (window as any).__hydrateExpenseExplorer;
     if (typeof hydrate === 'function') {
       hydrate(months);
@@ -217,8 +234,8 @@ function hydrateExpenseExplorer(data: any): void {
       monthKey: m.id,
       net_margin: m.net_margin,
       status: m.status,
-      expenseCategories: itemsToExplorerCats(m.exp_items, m.total_exp, 'expense'),
-      revenueCategories: itemsToExplorerCats(m.rev_items, m.revenue, 'revenue'),
+      expenseCategories: decorateCats(itemsToExplorerCats(m.exp_items, m.total_exp, 'expense')),
+      revenueCategories: decorateCats(itemsToExplorerCats(m.rev_items, m.revenue, 'revenue')),
     };
   }
 
@@ -232,12 +249,12 @@ function hydrateExpenseExplorer(data: any): void {
   }
   months.all_ytd = {
     id: 'all_ytd',
-    monthName: 'All 2026 YTD',
+    monthName: 'All 2026',
     monthKey: 'all_ytd',
     net_margin: ytdNet,
     status: 'YTD',
-    expenseCategories: ytdExp,
-    revenueCategories: ytdRev,
+    expenseCategories: mergeExplorerCategories(ytdExp),
+    revenueCategories: mergeExplorerCategories(ytdRev),
   };
 
   const hydrate = (window as any).__hydrateExpenseExplorer;
@@ -249,16 +266,16 @@ function hydrateExpenseExplorer(data: any): void {
 function hydrateExecutiveBanner(meta: any) {
   if (!meta) return;
   const titleEl = document.getElementById('banner-period-title');
-  if (titleEl) titleEl.textContent = meta.period_title;
-
-  const govEl = document.getElementById('banner-governance');
-  if (govEl) govEl.textContent = meta.governance_level;
+  if (titleEl) titleEl.textContent = '2026 board finances';
 
   const cutoffEl = document.getElementById('banner-cutoff');
-  if (cutoffEl) cutoffEl.textContent = meta.cutoff_date || '';
-
-  const pubEl = document.getElementById('banner-publisher');
-  if (pubEl) pubEl.textContent = meta.published_by || '';
+  if (cutoffEl) {
+    const raw = String(meta.cutoff_date || '');
+    const d = raw ? new Date(`${raw.slice(0, 10)}T00:00:00`) : null;
+    cutoffEl.textContent = d && !Number.isNaN(d.getTime())
+      ? `Closed ${d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
+      : 'Closed August 31';
+  }
 }
 
 function hydrateHeadlineKpis(kpis: any) {
@@ -289,7 +306,7 @@ function hydrateHeadlineKpis(kpis: any) {
   if (qboExp) qboExp.textContent = formatDollar(kpis.qbo_cogs + kpis.qbo_operating_expenditures);
 
   const qboBridge = document.getElementById('kpi-qbo-bridge');
-  if (qboBridge) qboBridge.textContent = `+${formatDollar(kpis.non_operating_bridge)}`;
+  if (qboBridge) qboBridge.textContent = formatSigned(kpis.non_operating_bridge);
 
   const progRatio = document.getElementById('kpi-program-ratio');
   if (progRatio) progRatio.textContent = `${kpis.program_ratio_pct.toFixed(1)}%`;
@@ -301,7 +318,7 @@ function hydrateHeadlineKpis(kpis: any) {
 
   const progCents = document.getElementById('kpi-program-cents');
   if (progCents) {
-    progCents.textContent = `${Math.round(kpis.program_ratio_pct)}¢ of every dollar spent goes directly to animal rescue, clinical veterinary care, and feeding.`;
+    progCents.textContent = `${Math.round(kpis.program_ratio_pct)}¢ of every dollar spent`;
   }
 
   const progSpend = document.getElementById('kpi-program-spend');
@@ -320,6 +337,12 @@ function hydrateHeadlineKpis(kpis: any) {
   if (runwayBadge) {
     const mo = (realLiquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1);
     runwayBadge.textContent = `${mo} mo`;
+  }
+
+  const cashRunway = document.getElementById('kpi-cash-runway');
+  if (cashRunway) {
+    const mo = (realLiquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1);
+    cashRunway.textContent = `About ${mo} months if we keep spending like this.`;
   }
 
   const totLiq = document.getElementById('kpi-total-liquidity');
@@ -343,8 +366,14 @@ function hydrateOperatingBridge(kpis: any, bridge: any) {
 
   const badge = document.getElementById('bridge-badge');
   if (badge) {
-    const formatted = formatCents(bridge.net_bridge_total).replace('(', '').replace(')', '');
-    badge.textContent = `Net Outside Support: +${formatted}`;
+    const net = Number(bridge.net_bridge_total || 0);
+    if (Math.abs(net) < 1) {
+      badge.classList.add('hidden');
+      badge.textContent = '';
+    } else {
+      badge.classList.remove('hidden');
+      badge.textContent = `${net >= 0 ? '+' : '-'}$${Math.abs(Math.round(net)).toLocaleString('en-US')} after van costs`;
+    }
   }
 
   const qboNet = document.getElementById('bridge-qbo-net');
@@ -356,8 +385,24 @@ function hydrateOperatingBridge(kpis: any, bridge: any) {
   const opOutflows = document.getElementById('bridge-op-outflows');
   if (opOutflows) opOutflows.textContent = `(${formatCents(kpis.qbo_cogs + kpis.qbo_operating_expenditures)})`;
 
+  const endowment = Number(bridge.endowment_distributions || 0);
+  const endRow = document.getElementById('bridge-endowment-row');
+  if (endRow) endRow.classList.toggle('hidden', Math.abs(endowment) < 1);
   const endEl = document.getElementById('bridge-endowment');
-  if (endEl) endEl.textContent = formatSigned(bridge.endowment_distributions);
+  if (endEl) endEl.textContent = formatSigned(endowment);
+
+  const detail = bridge.recycling_detail || {};
+  const bottles = Number(detail.bottle_and_can_recycling || 0);
+  const rebates = Number(detail.retail_partner_rebates || 0);
+  const court = Number(detail.court_restitution || 0);
+  const bottlesEl = document.getElementById('bridge-recycling-bottles');
+  if (bottlesEl) bottlesEl.textContent = formatSigned(bottles);
+  const rebatesEl = document.getElementById('bridge-recycling-rebates');
+  if (rebatesEl) rebatesEl.textContent = formatSigned(rebates);
+  const courtRow = document.getElementById('bridge-restitution-row');
+  if (courtRow) courtRow.classList.toggle('hidden', Math.abs(court) < 1);
+  const courtEl = document.getElementById('bridge-recycling-court');
+  if (courtEl) courtEl.textContent = formatSigned(court);
 
   const recEl = document.getElementById('bridge-recycling');
   if (recEl) recEl.textContent = formatSigned(bridge.recycling_and_rebates);
@@ -366,7 +411,7 @@ function hydrateOperatingBridge(kpis: any, bridge: any) {
   if (fleetEl) fleetEl.textContent = formatSigned(bridge.fleet_transit_and_fuel);
 
   const netTot = document.getElementById('bridge-net-total');
-  if (netTot) netTot.textContent = `+${formatCents(bridge.net_bridge_total)}`;
+  if (netTot) netTot.textContent = formatSigned(bridge.net_bridge_total);
 
   const allInNet = document.getElementById('bridge-all-in-net');
   if (allInNet) allInNet.textContent = formatCents(kpis.all_in_net);
@@ -378,7 +423,9 @@ function hydrateOperatingBridge(kpis: any, bridge: any) {
   if (allinOutflows) allinOutflows.textContent = `(${formatCents(kpis.all_in_expenditures)})`;
 
   const commEl = document.getElementById('bridge-c2-commentary');
-  if (commEl) commEl.textContent = bridge.c2_commentary || '';
+  if (commEl) {
+    commEl.textContent = 'County animal-control pay is already in shelter operations. This card is only recycling, rebates, and the van.';
+  }
 }
 
 function hydrateStatementFootings(statements: any[]) {
@@ -423,9 +470,71 @@ function escapeHtml(value: unknown): string {
     .replace(/"/g, '&quot;');
 }
 
-function renderShareBar(pct: number, tone: 'rev' | 'exp'): string {
+function renderShareBar(pct: number, tone: 'rev' | 'exp', fill?: string): string {
   const width = Math.min(100, Math.max(0, Number.isFinite(pct) ? pct : 0));
-  return `<div class="drawer-share-track" aria-hidden="true"><div class="drawer-share-fill ${tone === 'rev' ? 'is-rev' : 'is-exp'}" style="width:${width}%"></div></div>`;
+  const fillStyle = fill ? `background:${fill};` : '';
+  return `<div class="drawer-share-track" aria-hidden="true"><div class="drawer-share-fill ${tone === 'rev' ? 'is-rev' : 'is-exp'}" style="width:${width}%;${fillStyle}"></div></div>`;
+}
+
+function inflowGroupTone(group: string): { dot: string; fill: string; badge: string } {
+  const tone = legendInflowTone(group);
+  return { dot: tone.dot, fill: tone.fill, badge: tone.badge };
+}
+
+function decorateCats(cats: any[] | undefined): any[] {
+  return (cats || [])
+    .filter((cat) => isVisibleAmount(cat?.total ?? cat?.amount))
+    .map((cat) => decorateBoardCategory(cat));
+}
+
+function decorateFallbackItems(items: any[] | undefined): any[] {
+  return (items || [])
+    .filter((it) => isVisibleAmount(it?.amount))
+    .map((it) => ({
+      ...it,
+      legalName: it.name,
+      name: displayCategoryName(it.name),
+      group: displayGroupName(it.group) || it.group,
+    }));
+}
+
+function mergeExplorerCategories(list: any[]): any[] {
+  const map = new Map<string, any>();
+  for (const cat of decorateCats(list)) {
+    const key = `${cat.legalName || cat.name}::${cat.legalGroup || cat.group}`;
+    if (!map.has(key)) {
+      map.set(key, {
+        ...cat,
+        payees: [...(cat.payees || [])],
+        txCount: Number(cat.txCount) || 0,
+        payeeCount: Number(cat.payeeCount) || (cat.payees || []).length,
+        total: Number(cat.total) || 0,
+      });
+      continue;
+    }
+    const dest = map.get(key);
+    dest.total += Number(cat.total) || 0;
+    dest.txCount += Number(cat.txCount) || 0;
+    const payeeMap = new Map((dest.payees || []).map((p: any) => [p.name, { ...p, transactions: [...(p.transactions || [])] }]));
+    for (const payee of cat.payees || []) {
+      if (!payeeMap.has(payee.name)) {
+        payeeMap.set(payee.name, { ...payee, transactions: [...(payee.transactions || [])] });
+      } else {
+        const d = payeeMap.get(payee.name);
+        d.total += Number(payee.total) || 0;
+        d.txCount += Number(payee.txCount) || 0;
+        d.transactions = [...(d.transactions || []), ...(payee.transactions || [])];
+      }
+    }
+    dest.payees = Array.from(payeeMap.values()).sort((a: any, b: any) => b.total - a.total);
+    dest.payeeCount = dest.payees.length;
+  }
+  const merged = Array.from(map.values()).sort((a, b) => b.total - a.total);
+  const total = merged.reduce((s, c) => s + c.total, 0);
+  return merged.map((c) => ({
+    ...c,
+    pctOfTotal: total > 0 ? Math.round((c.total / total) * 1000) / 10 : 0,
+  }));
 }
 
 function renderTxRows(transactions: any[], inflow: boolean): string {
@@ -481,22 +590,24 @@ function renderCategoryBlocks(
   fallbackTotal: number,
 ): string {
   if (cats.length) {
-    return cats.map((cat: any, catIdx: number) => {
+    return decorateCats(cats).map((cat: any, catIdx: number) => {
       const catId = `${inflow ? 'rev' : 'exp'}-cat-${monthId}-${catIdx}`;
       const pct = Number(cat.pctOfTotal ?? 0);
       const prefix = inflow ? '+' : '';
       const amtClass = inflow ? 'text-emerald-700' : 'text-slate-900';
       const hover = inflow ? 'hover:bg-emerald-50/60' : 'hover:bg-slate-50';
       const panel = inflow ? 'bg-emerald-50/30 border-emerald-400' : 'bg-slate-50/60 border-[#173a39]';
+      const tone = inflow ? inflowGroupTone(cat.legalGroup || cat.group || '') : { dot: 'bg-slate-400', fill: '', badge: '' };
+      const legal = cat.legalName || cat.name;
       return `
-        <div class="py-1 drawer-cat-item" data-cat-name="${escapeHtml((cat.name || '').toLowerCase())}">
+        <div class="py-1 drawer-cat-item" data-cat-name="${escapeHtml((`${cat.name} ${legal} ${cat.group || ''}`).toLowerCase())}">
           <button type="button" class="cat-toggle-btn w-full text-left p-2 rounded-lg ${hover} transition cursor-pointer" data-toggle-target="${catId}" aria-expanded="false">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2 min-w-0 pr-2">
                 <svg class="drawer-chevron w-3.5 h-3.5 ${inflow ? 'text-emerald-600' : 'text-teal-700'} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                <span class="w-2 h-2 rounded-full ${inflow ? 'bg-emerald-500' : 'bg-slate-400'} shrink-0"></span>
+                <span class="w-2 h-2 rounded-full ${tone.dot} shrink-0"></span>
                 <div class="min-w-0">
-                  <span class="font-semibold text-slate-800 text-xs block truncate">${escapeHtml(cat.name)}</span>
+                  <span class="font-semibold text-slate-800 text-xs block truncate" title="${escapeHtml(legal)}">${escapeHtml(cat.name)}</span>
                   <span class="text-[10px] text-slate-400 block truncate">${escapeHtml(cat.group || '')}</span>
                 </div>
               </div>
@@ -505,7 +616,7 @@ function renderCategoryBlocks(
                 <span class="text-[10px] text-slate-400">${pct.toFixed(1)}% · ${cat.payeeCount || 0} ${inflow ? 'entities' : 'payees'} · ${cat.txCount || 0} txs</span>
               </div>
             </div>
-            ${renderShareBar(pct, inflow ? 'rev' : 'exp')}
+            ${renderShareBar(pct, inflow ? 'rev' : 'exp', inflow ? tone.fill : undefined)}
           </button>
           <div id="${catId}" class="hidden pl-5 pr-1 pt-1 pb-2 space-y-1.5 ${panel} rounded-b-lg border-l-2 mt-1">
             ${renderPayeeBlocks(cat.payees, monthId, catIdx, inflow)}
@@ -515,7 +626,7 @@ function renderCategoryBlocks(
     }).join('');
   }
 
-  return (fallbackItems || []).map((it: any) => {
+  return decorateFallbackItems(fallbackItems || []).map((it: any) => {
     const pct = fallbackTotal > 0 ? (Number(it.amount) / fallbackTotal) * 100 : 0;
     const prefix = inflow ? '+' : '';
     const amtClass = inflow ? 'text-emerald-700' : 'text-slate-900';
@@ -544,9 +655,8 @@ function renderMonthDrawerToolbar(m: any, drill: any, drawerId: string): string 
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pb-3 border-b border-slate-200">
       <div>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-sm font-bold text-slate-900">${escapeHtml(m.month)} Hierarchical Drilldown</span>
-          <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">QuickBooks Verified</span>
-          <span class="text-[11px] text-slate-500">${expTxs} spend txs · ${revTxs} inflow txs</span>
+          <span class="text-sm font-bold text-slate-900">${escapeHtml(m.month)}</span>
+          <span class="text-[11px] text-slate-500">${expTxs} spent · ${revTxs} received</span>
         </div>
         <p class="text-xs text-slate-500 mt-0.5">Click a category to see payees, then a payee to open each transaction.</p>
       </div>
@@ -557,8 +667,8 @@ function renderMonthDrawerToolbar(m: any, drill: any, drawerId: string): string 
         </div>
         <button type="button" class="drawer-expand-all px-2.5 py-1.5 rounded-md text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 cursor-pointer">Expand all</button>
         <button type="button" class="drawer-collapse-all px-2.5 py-1.5 rounded-md text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 cursor-pointer">Collapse</button>
-        <button type="button" class="jump-to-explorer-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs cursor-pointer" data-month-id="${escapeHtml(m.id)}" title="Open this month in the certified P&amp;L explorer">
-          <span>Certified P&amp;L</span>
+        <button type="button" class="jump-to-explorer-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs cursor-pointer" data-month-id="${escapeHtml(m.id)}" title="Open this month in money detail">
+          <span>Money detail</span>
           <svg class="w-3 h-3 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </button>
       </div>
@@ -584,7 +694,7 @@ function renderFlowCard(opts: {
   const border = inflow ? 'border-emerald-200/80' : 'border-rose-200/80';
   const footer = inflow ? 'bg-emerald-50/70 border-emerald-100 text-emerald-900' : 'bg-slate-50 border-slate-200 text-slate-900';
   const footerAmt = inflow ? 'text-emerald-800' : 'text-slate-900';
-  const noun = inflow ? 'Inflows' : 'Spend';
+  const noun = inflow ? 'in' : 'spent';
   return `
     <div class="bg-white rounded-xl border ${border} shadow-2xs overflow-hidden flex flex-col">
       <div class="drill-flow-header ${headerBg} text-white px-4 py-2.5 flex items-center justify-between">
@@ -598,7 +708,7 @@ function renderFlowCard(opts: {
         ${renderCategoryBlocks(cats, monthId, inflow, fallbackItems, total)}
       </div>
       <div class="mt-auto px-4 py-2.5 ${footer} border-t flex items-center justify-between text-xs font-bold">
-        <span>Total Verified ${noun} (${count} categories):</span>
+        <span>Total ${noun} (${count} categories):</span>
         <span class="font-mono font-bold ${footerAmt}">${formatDollar(total)}</span>
       </div>
     </div>
@@ -647,13 +757,11 @@ function bindMonthlyStatementInteractions(): void {
     const jump = target.closest('.jump-to-explorer-btn');
     if (jump) {
       const monthId = jump.getAttribute('data-month-id');
+      if (typeof (window as any).__setBoardSection === 'function') {
+        (window as any).__setBoardSection('expenses', true);
+      }
       if (monthId && typeof (window as any).switchExpenseExplorerMonth === 'function') {
         (window as any).switchExpenseExplorerMonth(monthId);
-      }
-      const expensesSec = document.getElementById('sec-expenses');
-      if (expensesSec) {
-        expensesSec.classList.remove('hidden');
-        expensesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       return;
     }
@@ -747,14 +855,8 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
         <td class="py-3 px-3 text-right font-mono font-bold whitespace-nowrap ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}">
           ${isSurplus ? '+' : ''}${formatDollar(m.net_margin)}
         </td>
-        <td class="py-3 px-3 text-right font-semibold whitespace-nowrap ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}">
-          ${m.margin_pct.toFixed(1)}%
-        </td>
-        <td class="py-3 px-4 text-xs text-slate-500 whitespace-nowrap flex items-center justify-between">
-          <span class="truncate max-w-[140px] sm:max-w-xs" title="${escapeHtml(m.driver)}">${escapeHtml(m.driver)}</span>
-          <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${isSurplus ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
-            ${escapeHtml(m.status)}
-          </span>
+        <td class="py-3 px-4 text-xs text-slate-500">
+          <span class="truncate max-w-[180px] sm:max-w-xs block" title="${escapeHtml(m.driver)}">${escapeHtml(m.driver)}</span>
         </td>
       `;
 
@@ -768,7 +870,7 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
       const expCats = Array.isArray(drill?.expenseCategories) ? drill.expenseCategories : [];
 
       drawerTr.innerHTML = `
-        <td colspan="9" class="p-4 sm:p-6" data-month-drawer="${escapeHtml(m.id)}">
+        <td colspan="8" class="p-4 sm:p-6" data-month-drawer="${escapeHtml(m.id)}">
           <div class="space-y-4">
             ${renderMonthDrawerToolbar(m, drill, `drawer-${m.id}`)}
             <div class="flex flex-wrap items-center gap-2 text-xs">
@@ -783,19 +885,19 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
               ${renderFlowCard({
                 monthId: m.id,
                 monthLabel: m.month,
-                title: 'Revenue Inflows',
+                title: 'Money in',
                 total: m.revenue,
-                cats: revCats,
-                fallbackItems: m.rev_items || [],
+                cats: decorateCats(revCats),
+                fallbackItems: decorateFallbackItems(m.rev_items || []),
                 inflow: true,
               })}
               ${renderFlowCard({
                 monthId: m.id,
                 monthLabel: m.month,
-                title: 'Expenditures by Category',
+                title: 'Money out',
                 total: m.total_exp,
-                cats: expCats,
-                fallbackItems: m.exp_items || [],
+                cats: decorateCats(expCats),
+                fallbackItems: decorateFallbackItems(m.exp_items || []),
                 inflow: false,
               })}
             </div>
@@ -835,28 +937,23 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
             <span class="font-mono font-bold text-sm ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}">
               ${isSurplus ? '+' : ''}${formatDollar(m.net_margin)}
             </span>
-            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold mt-0.5 ${
-              isSurplus ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
-            }">
-              ${m.margin_pct.toFixed(1)}% &bull; ${m.status}
-            </span>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80 text-xs mb-2.5">
           <div>
-            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Revenue</span>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Money in</span>
             <span class="font-mono font-semibold text-slate-800">${formatDollar(m.revenue)}</span>
           </div>
           <div>
-            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Total Exp</span>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Total spent</span>
             <span class="font-mono font-semibold text-slate-800">${formatDollar(m.total_exp)}</span>
           </div>
           <div>
-            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Direct Care</span>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Animal care</span>
             <span class="font-mono text-slate-600">${formatDollar(m.cogs)}</span>
           </div>
           <div>
-            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Ops & Payroll</span>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Staff and operations</span>
             <span class="font-mono text-slate-600">${formatDollar(m.operating_exp)}</span>
           </div>
         </div>
@@ -865,7 +962,7 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
           class="w-full py-1.5 px-3 rounded text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100/80 border border-teal-200/60 flex items-center justify-center gap-1.5 transition cursor-pointer"
           data-mobile-target="mobile-drawer-${m.id}"
         >
-          <span>View Hierarchical Drilldown</span>
+          <span>Show details</span>
           <svg class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
@@ -875,19 +972,19 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
           ${renderFlowCard({
             monthId: `m-${m.id}`,
             monthLabel: m.month,
-            title: 'Revenue Inflows',
+            title: 'Money in',
             total: m.revenue,
-            cats: revCats,
-            fallbackItems: m.rev_items || [],
+            cats: decorateCats(revCats),
+            fallbackItems: decorateFallbackItems(m.rev_items || []),
             inflow: true,
           })}
           ${renderFlowCard({
             monthId: `m-${m.id}`,
             monthLabel: m.month,
-            title: 'Expenditures',
+            title: 'Money out',
             total: m.total_exp,
-            cats: expCats,
-            fallbackItems: m.exp_items || [],
+            cats: decorateCats(expCats),
+            fallbackItems: decorateFallbackItems(m.exp_items || []),
             inflow: false,
           })}
         </div>
@@ -901,25 +998,20 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
     footingCard.className = 'certified-footing p-4 bg-[#173a39] text-white';
     footingCard.innerHTML = `
       <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-2 flex items-center justify-between">
-        <span>2026 YTD Certified Footing</span>
-        <span class="text-[10px] text-emerald-400 font-normal">✓ Cent-for-cent</span>
+        <span>2026 year to date</span>
       </div>
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div>
-          <span class="text-slate-300 block text-[10px]">Total Revenue</span>
+          <span class="text-slate-300 block text-[10px]">Money in</span>
           <span id="mobile-footing-rev" class="font-mono font-bold text-emerald-300"></span>
         </div>
         <div>
-          <span class="text-slate-300 block text-[10px]">Total Expenditures</span>
+          <span class="text-slate-300 block text-[10px]">Total spent</span>
           <span id="mobile-footing-exp" class="font-mono font-bold text-amber-300"></span>
         </div>
         <div>
-          <span class="text-slate-300 block text-[10px]">Net Margin</span>
+          <span class="text-slate-300 block text-[10px]">Leftover</span>
           <span id="mobile-footing-net" class="font-mono font-bold text-rose-400"></span>
-        </div>
-        <div>
-          <span class="text-slate-300 block text-[10px]">Margin %</span>
-          <span id="mobile-footing-pct" class="font-mono font-bold text-rose-300"></span>
         </div>
       </div>
     `;
@@ -1120,7 +1212,6 @@ function hydrateBankStatement(stmt: any, token: string) {
   const bankEnd = stmt.metadata.statement_ending_balance;
   const book = stmt.metadata.qbo_register_balance;
   const floatAmt = stmt.metadata.reconciled_float;
-  const penny = stmt.metadata.penny_adjusted_ending_balance;
 
   setEl('bank-stat-balance', formatCents(bankEnd));
   if (book != null && book !== undefined && !Number.isNaN(Number(book))) {
@@ -1130,28 +1221,26 @@ function hydrateBankStatement(stmt: any, token: string) {
   }
 
   if (isAugust && floatAmt != null) {
-    setEl('bank-recon-badge', 'QBO recon $0.00 after float');
-    setEl('bank-stat-recon', '$0.00 after float');
-    setEl('bank-stat-recon-sub', `Float ${formatCents(floatAmt)} · not bank = book`);
-    setEl(
-      'bank-stat-meta-note',
-      `Account ${acct} · ${period} · QBO recon difference after float (${formatCents(floatAmt)}) is $0.00 — that is not bank = book.`
-    );
+    const floatAbs = Math.abs(Number(floatAmt));
+    setEl('bank-recon-badge', 'Outstanding checks');
+    setEl('bank-stat-recon', formatCents(floatAbs));
+    setEl('bank-stat-recon-sub', '');
+    setEl('bank-stat-meta-note', `Account ${acct} · ${period}`);
     setEl(
       'bank-recon-explain',
-      `Bank end ${formatCents(bankEnd)} vs book ${formatCents(book)}. The $0.00 figure is the QBO recon difference after float (${formatCents(floatAmt)}), not equality of bank and book. Penny-adjusted statement ending is ${formatCents(penny)}.`
+      `The books are ${formatCents(floatAbs)} behind the bank because of checks that have not cleared. QuickBooks shows $0.00 leftover after that.`
     );
   } else {
-    setEl('bank-recon-badge', 'PDF footing');
-    setEl('bank-stat-recon', 'PDF in/out');
-    setEl('bank-stat-recon-sub', 'August holds QBO recon');
+    setEl('bank-recon-badge', 'Bank PDF');
+    setEl('bank-stat-recon', 'See August');
+    setEl('bank-stat-recon-sub', 'August has the outstanding-check difference');
     setEl(
       'bank-stat-meta-note',
-      `Account ${acct} · ${period} · First Merchants PDF in/out. August is the certified QBO recon month (float and $0.00 difference).`
+      `Account ${acct} · ${period}`
     );
     setEl(
       'bank-recon-explain',
-      `This month is bank cash in/out from the checking PDF. QBO recon $0.00 after float, bank ${formatCents(24526.34)} vs book ${formatCents(23469.20)}, and penny-adjusted ending ${formatCents(24526.33)} are August-only.`
+      'This month is checking in and out from the bank PDF. August is the month with outstanding checks explained.'
     );
   }
 

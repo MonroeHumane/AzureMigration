@@ -1,0 +1,253 @@
+{
+  "note": "Line-level QBO account recodes from the all-year category review. Apply with scratch/apply_qbo_category_recodes.py. Compiler (scripts/qbo_category_rules.cjs) applies the same map by txn Id + amount so the GL explorer matches live books even when the Gemini GL export is stale. Does not delete the two Thrivent $375.14 lines on Deposit 5100.",
+  "keepBoth": [
+    {
+      "id": "5100",
+      "date": "2026-01-08",
+      "amount": 375.14,
+      "reason": "Two Thrivent Choice checks same day same amount (1862114 and 1861882, both Barbara Bosse). Deposit total $10,939.47 equals line sum. Keep both."
+    }
+  ],
+  "bankRules": [
+    {
+      "name": "County animal-control contract",
+      "qboUi": "Banking → Rules → New. Description contains COUNTY PAYMENT or COUNTY QUARTERLY or payee contains COUNTY OF MONROE. Assign account Government grants & contracts. Split deposits: match the county line only.",
+      "assignAccount": "Contributed income:Government grants & contracts"
+    },
+    {
+      "name": "Kroger Community Rewards",
+      "qboUi": "Payee contains Kroger and amount is a quarterly rewards check. Assign Retail Partner Rebates (Other Income). Do not use Corporate Donations.",
+      "assignAccount": "Retail Partner Rebates"
+    },
+    {
+      "name": "Thrivent Choice / THRIVENTGRANT",
+      "qboUi": "Description contains THRIVENTGRANT or payee Thrivent. Assign Foundation Grants. Never Government grants.",
+      "assignAccount": "Contributed income:Foundation Grants"
+    },
+    {
+      "name": "UNV Laundry",
+      "qboUi": "Description contains UNV LAUNDRY. Assign Laundry & Sanitation Services. Never Cleaning or D&O Insurance.",
+      "assignAccount": "Shelter Operations & Facilities:Laundry & Sanitation Services"
+    },
+    {
+      "name": "Authorize.Net gateway fee",
+      "qboUi": "Description contains AUTHNET GATEWAY. Assign Merchant Account Fees. Never Software & Apps.",
+      "assignAccount": "Office expenses:Merchant Account Fees"
+    }
+  ],
+  "unnamedWatchlist": [
+    { "id": "7643", "date": "2026-07-16", "amount": 1992.0, "namedLines": 0, "note": "Single unnamed individual-donation lump. Need deposit slip." },
+    { "id": "7647", "date": "2026-08-03", "amount": 1765.0, "namedLines": 0, "note": "Single unnamed individual-donation lump. Need deposit slip." },
+    { "id": "6247", "date": "2026-07-01", "amount": 3927.0, "namedLines": 12, "note": "14-line deposit. Unnamed: memorial check 575391 $500; Car Show Event 2026 $790 (event aggregate). Need slip for the memorial check." },
+    { "id": "7650", "date": "2026-08-13", "amount": 216.77, "namedLines": 0, "note": "Single unnamed individual-donation lump. Need deposit slip." },
+    { "id": "6441", "date": "2026-07-16", "amount": 2153.0, "namedLines": 7, "note": "8-line deposit; 7 named. One line still unnamed — need slip." },
+    { "id": "5817", "date": "2026-04-20", "amount": 22863.72, "namedLines": 1, "note": "Square Inc on Animal Adoptions. Keep unless Square payout detail is imported." }
+  ],
+  "targets": {
+    "government_grants": { "id": "56", "name": "Contributed income:Government grants & contracts" },
+    "foundation_grants": { "id": "143", "name": "Contributed income:Foundation Grants" },
+    "kroger_rebates": { "id": "1150040043", "name": "Retail Partner Rebates" },
+    "laundry": { "id": "1150040018", "name": "Shelter Operations & Facilities:Laundry & Sanitation Services" },
+    "merchant_fees": { "id": "68", "name": "Office expenses:Merchant Account Fees" },
+    "software": { "id": "72", "name": "Office expenses:Software & Apps" }
+  },
+  "deposits": [
+    {
+      "id": "3026",
+      "date": "2025-04-22",
+      "reason": "County quarterly on Uncategorized Income",
+      "payee": "COUNTY OF MONROE",
+      "lines": [{ "lineId": "1", "amount": 7981.0, "target": "government_grants" }]
+    },
+    {
+      "id": "3524",
+      "date": "2025-07-22",
+      "reason": "County 2nd quarter on endowment",
+      "payee": "COUNTY OF MONROE",
+      "lines": [{ "lineId": "5", "amount": 11102.96, "target": "government_grants" }]
+    },
+    {
+      "id": "5319",
+      "date": "2026-01-27",
+      "reason": "County quarterly on endowment",
+      "payee": "COUNTY OF MONROE",
+      "lines": [{ "lineId": "4", "amount": 12555.48, "target": "government_grants" }]
+    },
+    {
+      "id": "5920",
+      "date": "2026-05-14",
+      "reason": "County balance of 20k on endowment",
+      "payee": "COUNTY OF MONROE",
+      "lines": [{ "lineId": "5", "amount": 7429.1, "target": "government_grants" }]
+    },
+    {
+      "id": "6513",
+      "date": "2026-08-02",
+      "reason": "County payment on endowment",
+      "payee": "COUNTY OF MONROE",
+      "lines": [{ "lineId": "6", "amount": 8479.38, "target": "government_grants" }]
+    },
+    {
+      "id": "4274",
+      "date": "2025-08-27",
+      "reason": "Kroger rewards on Corporate",
+      "payee": "Kroger",
+      "lines": [{ "lineId": "1", "amount": 948.61, "target": "kroger_rebates" }]
+    },
+    {
+      "id": "4984",
+      "date": "2025-12-19",
+      "reason": "Kroger rewards on Corporate",
+      "payee": "Kroger",
+      "lines": [{ "lineId": "6", "amount": 921.28, "target": "kroger_rebates" }]
+    },
+    {
+      "id": "5497",
+      "date": "2026-03-02",
+      "reason": "Kroger rewards on Corporate",
+      "payee": "Kroger",
+      "lines": [{ "lineId": "7", "amount": 901.99, "target": "kroger_rebates" }]
+    },
+    {
+      "id": "6146",
+      "date": "2026-06-13",
+      "reason": "Kroger rewards on Corporate",
+      "payee": "Kroger",
+      "lines": [{ "lineId": "4", "amount": 878.71, "target": "kroger_rebates" }]
+    },
+    {
+      "id": "4936",
+      "date": "2025-12-13",
+      "reason": "Thrivent / Wendy Waltz on individual donations",
+      "payee": "Thrivent Financial",
+      "lines": [{ "lineId": "6", "amount": 200.0, "target": "foundation_grants" }]
+    },
+    {
+      "id": "5100",
+      "date": "2026-01-08",
+      "reason": "Thrivent / Barbara Bosse (two identical lines kept)",
+      "lines": [
+        { "lineId": "6", "amount": 375.14, "target": "foundation_grants" },
+        { "lineId": "7", "amount": 375.14, "target": "foundation_grants" }
+      ]
+    },
+    {
+      "id": "5846",
+      "date": "2026-04-08",
+      "reason": "Thrivent batch on government grants",
+      "payee": "Thrivent Financial",
+      "lines": [{ "lineId": "1", "amount": 3245.0, "target": "foundation_grants" }]
+    },
+    {
+      "id": "6329",
+      "date": "2026-05-07",
+      "reason": "Thrivent batch on government grants",
+      "payee": "Thrivent Financial",
+      "lines": [{ "lineId": "1", "amount": 122.0, "target": "foundation_grants" }]
+    },
+    {
+      "id": "6324",
+      "date": "2026-06-12",
+      "reason": "Thrivent batch on government grants",
+      "payee": "Thrivent Financial",
+      "lines": [{ "lineId": "1", "amount": 177.0, "target": "foundation_grants" }]
+    },
+    {
+      "id": "6758",
+      "date": "2026-07-15",
+      "reason": "Thrivent batch on individual donations",
+      "payee": "Thrivent Financial",
+      "lines": [{ "lineId": "1", "amount": 50.0, "target": "foundation_grants" }]
+    }
+  ],
+  "purchases": [
+    {
+      "id": "3455",
+      "date": "2025-06-03",
+      "reason": "UNV Laundry on Cleaning",
+      "amount": 482.0,
+      "payee": "UNV Laundry",
+      "target": "laundry"
+    },
+    {
+      "id": "3456",
+      "date": "2025-07-03",
+      "reason": "UNV Laundry on Cleaning",
+      "amount": 482.0,
+      "payee": "UNV Laundry",
+      "target": "laundry"
+    },
+    {
+      "id": "3595",
+      "date": "2025-08-01",
+      "reason": "UNV Laundry on Cleaning",
+      "amount": 482.0,
+      "payee": "UNV Laundry",
+      "target": "laundry"
+    },
+    {
+      "id": "6742",
+      "date": "2026-08-19",
+      "reason": "UNV Laundry on D&O Insurance",
+      "amount": 482.0,
+      "payee": "UNV Laundry",
+      "target": "laundry"
+    },
+    {
+      "id": "1435",
+      "date": "2024-03-04",
+      "reason": "Auth.net on Software",
+      "amount": 30.0,
+      "payee": "Authorize.Net",
+      "target": "merchant_fees"
+    },
+    {
+      "id": "1508",
+      "date": "2024-04-02",
+      "reason": "Auth.net on Software",
+      "amount": 30.0,
+      "payee": "Authorize.Net",
+      "target": "merchant_fees"
+    },
+    {
+      "id": "1458",
+      "date": "2024-05-02",
+      "reason": "Auth.net on Software",
+      "amount": 30.0,
+      "payee": "Authorize.Net",
+      "target": "merchant_fees"
+    },
+    {
+      "id": "1490",
+      "date": "2024-06-04",
+      "reason": "Auth.net on Software",
+      "amount": 30.0,
+      "payee": "Authorize.Net",
+      "target": "merchant_fees"
+    },
+    {
+      "id": "1546",
+      "date": "2024-07-02",
+      "reason": "Auth.net on Software",
+      "amount": 30.0,
+      "payee": "Authorize.Net",
+      "target": "merchant_fees"
+    },
+    {
+      "id": "1672",
+      "date": "2024-11-04",
+      "reason": "Auth.net on Software",
+      "amount": 30.0,
+      "payee": "Authorize.Net",
+      "target": "merchant_fees"
+    },
+    {
+      "id": "6019",
+      "date": "2026-04-24",
+      "reason": "Canva on Memberships",
+      "amount": 72.98,
+      "payee": "Canva",
+      "target": "software"
+    }
+  ]
+}

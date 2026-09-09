@@ -278,15 +278,15 @@ function cc(color: string): ColorSet {
 }
 
 const monthKeys = [
-  { id: 'month_2026_7', label: 'Aug 2026' },
-  { id: 'month_2026_6', label: 'Jul 2026' },
-  { id: 'month_2026_5', label: 'Jun 2026' },
-  { id: 'month_2026_4', label: 'May 2026' },
-  { id: 'month_2026_3', label: 'Apr 2026' },
-  { id: 'month_2026_2', label: 'Mar 2026' },
-  { id: 'month_2026_1', label: 'Feb 2026' },
-  { id: 'month_2026_0', label: 'Jan 2026' },
-  { id: 'all_ytd',      label: 'All 2026 YTD' },
+  { id: 'all_ytd',      label: 'All 2026' },
+  { id: 'month_2026_7', label: 'Aug' },
+  { id: 'month_2026_6', label: 'Jul' },
+  { id: 'month_2026_5', label: 'Jun' },
+  { id: 'month_2026_4', label: 'May' },
+  { id: 'month_2026_3', label: 'Apr' },
+  { id: 'month_2026_2', label: 'Mar' },
+  { id: 'month_2026_1', label: 'Feb' },
+  { id: 'month_2026_0', label: 'Jan' },
 ];
 
 ---
@@ -311,7 +311,7 @@ const monthKeys = [
         <button
           type="button"
           class={`ee-period-btn px-2.5 py-1.5 rounded-lg font-bold text-xs whitespace-nowrap transition cursor-pointer ${
-            m.id === 'month_2026_7'
+            m.id === 'all_ytd'
               ? 'bg-[#173a39] text-white shadow-xs'
               : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 border border-slate-200/70'
           }`}
@@ -327,26 +327,26 @@ const monthKeys = [
       <div>
         <div class="flex items-center gap-2 mb-1">
           <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-200">
-            Certified P&L
+            From the books
           </span>
           <span class="text-[11px] text-slate-400 font-medium" id="ee-period-subtitle">
-            {statementPeriod} · QuickBooks General Ledger Detail
+            From the books, not the bank.
           </span>
         </div>
         <h2 class="text-xl font-bold text-slate-800 tracking-tight" id="ee-title">
-          August 2026 Certified P&L Drilldown
+          Where the money went
         </h2>
         <p class="text-xs text-slate-500 mt-0.5" id="ee-desc">
-          Certified P&amp;L by category (accrual GL). Bank cash in/out is in the statement viewer.
+          From the books, not the bank.
         </p>
       </div>
 
       <!-- Net Monthly Variance Callout -->
       <div class="flex items-center gap-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200 shrink-0" id="ee-variance-card">
         <div class="text-right">
-          <div class="text-[10px] uppercase font-bold text-slate-400" id="ee-variance-label">August Net Margin</div>
+          <div class="text-[10px] uppercase font-bold text-slate-400" id="ee-variance-label">Year leftover</div>
           <div class="font-mono font-black text-sm text-slate-500" id="ee-variance-value">{expenseCategories.length ? fmt(netMonthVariance) : '--'}</div>
-          <div class="text-[9px] text-slate-500" id="ee-variance-caption">QuickBooks Online Verified</div>
+          <div class="text-[9px] text-slate-500" id="ee-variance-caption">From the books</div>
         </div>
         <div class="w-8 h-8 rounded-lg bg-slate-200/70 text-slate-600 flex items-center justify-center shrink-0">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,7 +366,7 @@ const monthKeys = [
         <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
         </svg>
-        <span>Expenditures</span>
+        <span>Where the money went</span>
         <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-white/20 text-white" id="ee-badge-exp-count">
           {expenseCategories.length ? `${expenseCategories.length} categories` : 'Loading…'}
         </span>
@@ -380,7 +380,7 @@ const monthKeys = [
         <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
-        <span>Revenue Inflows</span>
+        <span>Where it came from</span>
         <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-slate-100 text-slate-600" id="ee-badge-inf-count">
           {inflowCategories.length ? `${inflowCategories.length} categories` : 'Loading…'}
         </span>
@@ -410,64 +410,46 @@ const monthKeys = [
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          <span id="ee-export-label">Export CSV</span>
+          <span id="ee-export-label">Download spreadsheet</span>
         </button>
       </div>
     </div>
 
-    <!-- Group Filter Chips (Expenses) -->
-    <div id="ee-expense-filters" class="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-slate-100">
-      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Group:</span>
-      <button class="ee-filter-chip active" data-ee-filter="all">All Groups</button>
-      <button class="ee-filter-chip" data-ee-filter="payroll">Payroll &amp; Taxes</button>
-      <button class="ee-filter-chip" data-ee-filter="operations">Shelter &amp; Medical Ops</button>
-      <button class="ee-filter-chip" data-ee-filter="capital">Capital Projects</button>
-    </div>
-
-    <!-- Group Filter Chips (Inflows) -->
-    <div id="ee-inflow-filters" class="hidden flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-slate-100">
-      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Group:</span>
-      <button class="ee-filter-chip active" data-ee-filter="all">All Inflows</button>
-      <button class="ee-filter-chip" data-ee-filter="contributions">Donations &amp; Grants</button>
-      <button class="ee-filter-chip" data-ee-filter="services">Adoption Fees</button>
-      <button class="ee-filter-chip" data-ee-filter="contracts">Contracts</button>
+    <div id="ee-inflow-legend" class="hidden flex-wrap items-center gap-3 mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Groups:</span>
+      <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-600"></span> Gifts and grants</span>
+      <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Rebates and recycling</span>
+      <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Adoptions and events</span>
     </div>
 
   </div>
 
-  <div id="ee-bank-pnl-bridge" class="bg-white rounded-xl border border-amber-200 shadow-xs p-4 sm:p-5">
-    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-      <div class="min-w-0">
-        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200">
-          August bank vs certified P&amp;L
-        </span>
-        <h3 class="text-sm font-bold text-slate-800 mt-1.5">Checking cash out is not P&amp;L spend</h3>
-        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-          Bank out <strong class="font-mono">$70,643.29</strong> vs certified P&amp;L spend <strong class="font-mono">$58,133.65</strong>.
-          The gap is explained by Elan <strong class="font-mono">$13,166.74</strong> (credit-card paydown, balance sheet)
-          plus Monroe Fencing <strong class="font-mono">$7,100</strong> (capital play-yard asset). This explorer stays on certified P&amp;L;
-          cash in/out lives in the bank statement viewer.
-        </p>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs shrink-0">
+  <div id="ee-bank-pnl-bridge" class="hidden rounded-xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-xs text-slate-700">
+    <p>
+      Bank withdrawals are not the same as expenses. Credit-card payoff and the play-yard fence sit on the bank statement.
+      <a href="#bank-statement-viewer" data-goto-section="audit" class="font-semibold text-teal-800 hover:text-teal-950">See bank</a>
+    </p>
+    <details class="mt-2">
+      <summary class="cursor-pointer font-semibold text-slate-800">Why bank and books differ</summary>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2">
         <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
           <span class="text-[10px] uppercase font-semibold text-slate-500 block">Bank out</span>
           <span id="ee-bridge-bank-out" class="font-mono font-bold text-slate-900">$70,643.29</span>
         </div>
         <div class="p-2 rounded-lg bg-rose-50 border border-rose-200">
-          <span class="text-[10px] uppercase font-semibold text-rose-700 block">P&amp;L spend</span>
+          <span class="text-[10px] uppercase font-semibold text-rose-700 block">Books spend</span>
           <span id="ee-bridge-pnl-spend" class="font-mono font-bold text-rose-900">$58,133.65</span>
         </div>
         <div class="p-2 rounded-lg bg-amber-50 border border-amber-200">
-          <span class="text-[10px] uppercase font-semibold text-amber-800 block">Elan</span>
+          <span class="text-[10px] uppercase font-semibold text-amber-800 block">Card payoff</span>
           <span id="ee-bridge-elan" class="font-mono font-bold text-amber-950">$13,166.74</span>
         </div>
         <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
-          <span class="text-[10px] uppercase font-semibold text-teal-800 block">Monroe Fencing</span>
+          <span class="text-[10px] uppercase font-semibold text-teal-800 block">Play-yard fence</span>
           <span id="ee-bridge-fencing" class="font-mono font-bold text-teal-950">$7,100.00</span>
         </div>
       </div>
-    </div>
+    </details>
   </div>
 
   <!-- ── 1. EXPENSES VIEW ─────────────────────────────────────────────────── -->
@@ -810,7 +792,7 @@ const monthKeys = [
 
 <script is:inline>
   let allMonths = {};
-  let activeMonthId = 'month_2026_7'; // Default August 2026
+  let activeMonthId = 'all_ytd';
   let currentMode = 'expenses';
 
   window.__hydrateExpenseExplorer = function(months) {
@@ -853,9 +835,23 @@ const monthKeys = [
       const n = (cat?.name || '').trim();
       return n || (cat?.group || 'Uncategorized');
     };
+    const catLegal = (cat) => (cat?.legalName || catLabel(cat));
 
-    if (titleEl) titleEl.textContent = `${monthObj.monthName} Certified P&L Drilldown`;
-    if (subEl) subEl.textContent = `${monthObj.monthName} · QuickBooks Online General Ledger`;
+    function inflowGroupTone(group) {
+      const g = String(group || '').toLowerCase();
+      if (g.includes('gift') || g.includes('grant') || g.includes('contributed')) return { dot: 'bg-teal-600', fill: '#0f766e', badge: 'bg-teal-100 text-teal-800', border: 'border-teal-200' };
+      if (g.includes('rebate') || g.includes('recycl') || g.includes('community')) return { dot: 'bg-sky-500', fill: '#0284c7', badge: 'bg-sky-100 text-sky-800', border: 'border-sky-200' };
+      if (g.includes('adoption') || g.includes('event') || g.includes('earned')) return { dot: 'bg-emerald-500', fill: '#059669', badge: 'bg-emerald-100 text-emerald-800', border: 'border-emerald-200' };
+      return { dot: 'bg-slate-400', fill: '#94a3b8', badge: 'bg-slate-100 text-slate-700', border: 'border-slate-200' };
+    }
+
+    function shareBar(pct, fill) {
+      const width = Math.min(100, Math.max(0, Number(pct) || 0));
+      return `<div class="h-1 mt-2 rounded-full bg-slate-100 overflow-hidden" aria-hidden="true"><div class="h-full rounded-full" style="width:${width}%;background:${fill}"></div></div>`;
+    }
+
+    if (titleEl) titleEl.textContent = currentMode === 'inflows' ? 'Where it came from' : 'Where the money went';
+    if (subEl) subEl.textContent = 'From the books, not the bank.';
 
     const bridgeEl = document.getElementById('ee-bank-pnl-bridge');
     if (bridgeEl) {
@@ -869,15 +865,13 @@ const monthKeys = [
     const netGap = Math.round((impliedNet - certifiedNet) * 100) / 100;
 
     const netVal = monthObj.net_margin;
-    if (varLabel) varLabel.textContent = `${monthObj.monthName.split(' ')[0]} Net Margin`;
+    if (varLabel) varLabel.textContent = `${monthObj.monthName} leftover`;
     if (varVal) {
       varVal.textContent = fmtCurrency(netVal);
       varVal.className = `font-mono font-black text-sm ${netVal >= 0 ? 'text-emerald-700' : 'text-rose-700'}`;
     }
     if (varCap) {
-      varCap.textContent = Math.abs(netGap) > 0.02
-        ? `Certified P&L · category stack ${netGap > 0 ? '+' : ''}${fmtCurrency(netGap)} vs headline`
-        : (monthObj.status || 'Verified Ledger');
+      varCap.textContent = 'From the books';
     }
 
     // Update period button active states
@@ -895,11 +889,11 @@ const monthKeys = [
     // Update expense list
     const expContainer = document.getElementById('ee-expense-category-list');
     const expBadge = document.getElementById('ee-badge-exp-count');
-    if (expBadge) expBadge.textContent = `${monthObj.expenseCategories.length} categories`;
+    if (expBadge) expBadge.textContent = `${(monthObj.expenseCategories || []).filter((c) => Math.abs(c.total || 0) >= 1).length} categories`;
 
     if (expContainer) {
       expContainer.innerHTML = '';
-      monthObj.expenseCategories.forEach((cat, cIdx) => {
+      monthObj.expenseCategories.filter((cat) => Math.abs(cat.total || 0) >= 1).forEach((cat, cIdx) => {
         const catDiv = document.createElement('div');
         catDiv.className = 'ee-category-block rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden';
         catDiv.dataset.catKey = catLabel(cat).toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -912,10 +906,11 @@ const monthKeys = [
             <span class="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0"></span>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-slate-800 text-sm">${catLabel(cat)}</span>
+                <span class="font-bold text-slate-800 text-sm" title="${catLegal(cat)}">${catLabel(cat)}</span>
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${cat.group}</span>
               </div>
               <p class="text-[11px] text-slate-500 mt-0.5 truncate">${cat.pctOfTotal}% of monthly spend</p>
+              ${shareBar(cat.pctOfTotal, '#94a3b8')}
             </div>
             <div class="text-right flex-shrink-0 mr-1">
               <span class="font-black font-mono text-base block text-slate-900">${fmtCurrency(cat.total)}</span>
@@ -995,27 +990,29 @@ const monthKeys = [
     // Update inflow list
     const infContainer = document.getElementById('ee-inflow-category-list');
     const infBadge = document.getElementById('ee-badge-inf-count');
-    if (infBadge) infBadge.textContent = `${monthObj.revenueCategories.length} categories`;
+    if (infBadge) infBadge.textContent = `${(monthObj.revenueCategories || []).filter((c) => Math.abs(c.total || 0) >= 1).length} categories`;
 
     if (infContainer) {
       infContainer.innerHTML = '';
-      monthObj.revenueCategories.forEach((cat, cIdx) => {
+      monthObj.revenueCategories.filter((cat) => Math.abs(cat.total || 0) >= 1).forEach((cat, cIdx) => {
         const catDiv = document.createElement('div');
-        catDiv.className = 'ee-inflow-block rounded-xl border border-emerald-200 bg-white shadow-xs overflow-hidden';
+        const tone = inflowGroupTone(cat.group);
+        catDiv.className = `ee-inflow-block rounded-xl border ${tone.border} bg-white shadow-xs overflow-hidden`;
         catDiv.dataset.catKey = catLabel(cat).toLowerCase().replace(/[^a-z0-9]/g, '-');
         catDiv.dataset.catGroup = (cat.group || 'Contributed').toLowerCase();
         catDiv.dataset.catTotal = cat.total.toString();
         catDiv.dataset.catName = catLabel(cat);
 
         catDiv.innerHTML = `
-          <button class="ee-inflow-toggle w-full flex items-center gap-3 px-5 py-4 text-left transition hover:bg-emerald-50/50 group cursor-pointer" aria-expanded="false" data-cat-idx="${cIdx}">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+          <button class="ee-inflow-toggle w-full flex items-center gap-3 px-5 py-4 text-left transition hover:bg-slate-50/80 group cursor-pointer" aria-expanded="false" data-cat-idx="${cIdx}">
+            <span class="w-2.5 h-2.5 rounded-full ${tone.dot} shrink-0"></span>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-slate-800 text-sm">${catLabel(cat)}</span>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${cat.group}</span>
+                <span class="font-bold text-slate-800 text-sm" title="${catLegal(cat)}">${catLabel(cat)}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${tone.badge}">${cat.group}</span>
               </div>
               <p class="text-[11px] text-slate-500 mt-0.5 truncate">${cat.pctOfTotal}% of monthly revenue</p>
+              ${shareBar(cat.pctOfTotal, tone.fill)}
             </div>
             <div class="text-right flex-shrink-0 mr-1">
               <span class="font-black font-mono text-base block text-emerald-700">+${fmtCurrency(cat.total)}</span>
@@ -1163,6 +1160,8 @@ const monthKeys = [
     const viewInflows  = document.getElementById('ee-view-inflows');
     const expFilters = document.getElementById('ee-expense-filters');
     const infFilters = document.getElementById('ee-inflow-filters');
+    const infLegend = document.getElementById('ee-inflow-legend');
+    const titleEl = document.getElementById('ee-title');
 
     if (mode === 'expenses') {
       tabExpenses?.classList.add('active');
@@ -1170,17 +1169,22 @@ const monthKeys = [
       tabInflows?.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-600');
       viewExpenses?.classList.remove('hidden');
       viewInflows?.classList.add('hidden');
-      expFilters?.classList.remove('hidden');
+      expFilters?.classList.add('hidden');
       infFilters?.classList.add('hidden');
+      infLegend?.classList.add('hidden');
+      infLegend?.classList.remove('flex');
+      if (titleEl) titleEl.textContent = 'Where the money went';
     } else {
       tabInflows?.classList.add('active');
       tabExpenses?.classList.remove('active');
       tabExpenses?.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-600');
       viewInflows?.classList.remove('hidden');
       viewExpenses?.classList.add('hidden');
-      infFilters?.classList.remove('hidden');
-      infFilters?.classList.add('flex');
+      infFilters?.classList.add('hidden');
       expFilters?.classList.add('hidden');
+      infLegend?.classList.remove('hidden');
+      infLegend?.classList.add('flex');
+      if (titleEl) titleEl.textContent = 'Where it came from';
     }
   }
 
@@ -1241,8 +1245,8 @@ const monthKeys = [
           payee.transactions.forEach(tx => {
             rows.push(csvRow([
               monthObj.monthName,
-              catLabel(cat),
-              cat.group,
+              cat.legalName || catLabel(cat),
+              cat.legalGroup || cat.group,
               payee.name,
               tx.date,
               tx.type,

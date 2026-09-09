@@ -40,10 +40,10 @@ const formatSigned = (val: number) => {
 <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
   <div class="px-5 py-4 border-b border-slate-100 bg-[#f5efe3]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     <div>
-      <h3 class="text-base font-semibold text-[#173a39]">Operating bridge</h3>
+      <h3 class="text-base font-semibold text-[#173a39]">From shelter operations to the bottom line</h3>
     </div>
-    <span id="bridge-badge" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
-      {bridge ? `Net Outside Support: +${formatCents(bridge.net_bridge_total).replace('(', '').replace(')', '')}` : 'Net Outside Support'}
+    <span id="bridge-badge" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
+      {bridge && Math.abs(bridge.net_bridge_total) >= 1 ? `${formatSigned(Math.round(bridge.net_bridge_total))} after van costs` : ''}
     </span>
   </div>
 
@@ -52,7 +52,7 @@ const formatSigned = (val: number) => {
       <!-- Starting point -->
       <div class="flex items-center justify-between p-3 rounded-lg bg-amber-50/60 border border-amber-200/70">
         <div>
-          <span class="text-sm font-medium text-slate-800">Shelter net</span>
+          <span class="text-sm font-medium text-slate-800">Shelter operations</span>
           <p class="text-xs text-slate-500"><span id="bridge-op-inflows"></span> <span id="bridge-op-outflows"></span></p>
         </div>
         <span id="bridge-qbo-net" class="text-base font-bold font-mono text-amber-900">{qboOperatingNet !== undefined ? formatCents(qboOperatingNet) : '--'}</span>
@@ -60,34 +60,51 @@ const formatSigned = (val: number) => {
 
       <!-- Additions & Subtractions -->
       <div class="pl-4 pr-3 py-2 space-y-2.5 border-l-2 border-[#1c746c]/30 ml-3">
-        <!-- Endowment -->
+        <div id="bridge-endowment-row" class={(!bridge || Math.abs(bridge.endowment_distributions) < 1) ? 'hidden' : ''}>
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-600 font-bold text-xs">(+)</span>
+              <span class="text-slate-700">Community Foundation endowment</span>
+            </div>
+            <span id="bridge-endowment" class="font-mono font-medium text-emerald-700">{bridge ? formatSigned(bridge.endowment_distributions) : '--'}</span>
+          </div>
+        </div>
+
         <div class="flex items-center justify-between text-sm">
           <div class="flex items-center gap-2">
             <span class="text-emerald-600 font-bold text-xs">(+)</span>
             <div>
-              <span class="text-slate-700">Endowment</span>
+              <span class="text-slate-700">Bottle recycling</span>
             </div>
           </div>
-          <span id="bridge-endowment" class="font-mono font-medium text-emerald-700">{bridge ? formatSigned(bridge.endowment_distributions) : '--'}</span>
+          <span id="bridge-recycling-bottles" class="font-mono font-medium text-emerald-700">{bridge?.recycling_detail ? formatSigned(bridge.recycling_detail.bottle_and_can_recycling) : '--'}</span>
         </div>
 
-        <!-- Recycling & Rebates -->
         <div class="flex items-center justify-between text-sm">
           <div class="flex items-center gap-2">
             <span class="text-emerald-600 font-bold text-xs">(+)</span>
             <div>
-              <span class="text-slate-700">Recycling / rebates</span>
+              <span class="text-slate-700">Kroger / Meijer rebates</span>
             </div>
           </div>
-          <span id="bridge-recycling" class="font-mono font-medium text-emerald-700">{bridge ? formatSigned(bridge.recycling_and_rebates) : '--'}</span>
+          <span id="bridge-recycling-rebates" class="font-mono font-medium text-emerald-700">{bridge?.recycling_detail ? formatSigned(bridge.recycling_detail.retail_partner_rebates) : '--'}</span>
         </div>
 
-        <!-- Fleet Transit -->
+        <div id="bridge-restitution-row" class={(!bridge || Math.abs(bridge.recycling_detail?.court_restitution || 0) < 1) ? 'hidden' : ''}>
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-600 font-bold text-xs">(+)</span>
+              <span class="text-slate-700">Court restitution</span>
+            </div>
+            <span id="bridge-recycling-court" class="font-mono font-medium text-emerald-700">{bridge?.recycling_detail ? formatSigned(bridge.recycling_detail.court_restitution) : '--'}</span>
+          </div>
+        </div>
+
         <div class="flex items-center justify-between text-sm">
           <div class="flex items-center gap-2">
             <span class="text-rose-600 font-bold text-xs">(-)</span>
             <div>
-              <span class="text-slate-700">Fleet</span>
+              <span class="text-slate-700">Van fuel</span>
             </div>
           </div>
           <span id="bridge-fleet" class="font-mono font-medium text-rose-700">{bridge ? formatSigned(bridge.fleet_transit_and_fuel) : '--'}</span>
@@ -97,15 +114,15 @@ const formatSigned = (val: number) => {
       <!-- Net Bridge Subtotal -->
       <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
         <div>
-          <span class="text-xs text-slate-600">Outside support</span>
+          <span class="text-xs text-slate-600">After van costs</span>
         </div>
-        <span id="bridge-net-total" class="text-sm font-bold font-mono text-emerald-700">{bridge ? `+${formatCents(bridge.net_bridge_total)}` : '--'}</span>
+        <span id="bridge-net-total" class="text-sm font-bold font-mono text-emerald-700">{bridge ? formatSigned(bridge.net_bridge_total) : '--'}</span>
       </div>
 
       <!-- Final Bottom Line -->
       <div class="flex items-center justify-between p-3.5 rounded-lg bg-rose-50 border border-rose-300">
         <div>
-          <span class="text-sm font-medium text-slate-800">YTD net</span>
+          <span class="text-sm font-medium text-slate-800">Bottom line</span>
           <p class="text-xs text-slate-500"><span id="bridge-allin-inflows"></span> <span id="bridge-allin-outflows"></span></p>
         </div>
         <span id="bridge-all-in-net" class="text-lg font-bold font-mono text-rose-700">{allInNet !== undefined ? formatCents(allInNet) : '--'}</span>
@@ -120,7 +137,7 @@ const formatSigned = (val: number) => {
         </svg>
         <div>
           <p class="text-slate-600">
-            <span id="bridge-c2-commentary">{bridge?.c2_commentary || ''}</span>
+            <span id="bridge-c2-commentary">{bridge?.c2_commentary || 'County animal-control pay is already in shelter operations. This card is only recycling, rebates, and the van.'}</span>
           </p>
         </div>
       </div>

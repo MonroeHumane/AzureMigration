@@ -8,6 +8,7 @@ const {
   campaignFromQboAccount,
   isBankProcessorName,
   resolveDepositPayor,
+  flattenManualDepositSplits,
   formatMailingAddress,
   isCompleteMailingAddress,
   assertDonorInvariants,
@@ -91,6 +92,7 @@ test('aggregate vs person', () => {
   assert.strictEqual(isAggregateName('26 AUCTION SILENT AUCTION'), true);
   assert.strictEqual(isAggregateName('CAR SHOW EVENT 2026'), true);
   assert.strictEqual(isAggregateName('Trust Fund Payment (via Bank of America)'), true);
+  assert.strictEqual(isAggregateName('Branch Cash Deposit'), true);
   assert.strictEqual(isAggregateName('DOUGLAS KURAS'), false);
   assert.strictEqual(isAggregateName('COUNTY OF MONROE'), false);
 });
@@ -127,6 +129,35 @@ test('assertDonorInvariants passes corrected BoA + county', () => {
     },
   ]);
   assert.strictEqual(good.ok, true, good.messages.join('\n'));
+});
+
+test('Sep 7 slip is one split deposit: 11 named checks + listed cash + uncounted cash', () => {
+  const slip = require('./data/manual_deposit_splits.json');
+  const gifts = flattenManualDepositSplits(slip);
+  const checks = gifts.filter((g) => g.paymentMethod === 'Check');
+  const cash = gifts.filter((g) => g.paymentMethod === 'Cash');
+  const sum = (rows) => Math.round(rows.reduce((s, g) => s + Number(g.amount), 0) * 100) / 100;
+  assert.strictEqual(gifts.length, 13);
+  assert.strictEqual(checks.length, 11);
+  assert.strictEqual(cash.length, 2);
+  assert.strictEqual(sum(checks), 2492.17);
+  assert.strictEqual(sum(cash), 1025);
+  assert.strictEqual(sum(gifts), 3517.17);
+  assert.ok(gifts.every((g) => g.parentId === '7952' && g.date === '2026-09-07'));
+  assert.strictEqual(new Set(checks.map((g) => g.checkNum)).size, 11);
+  assert.ok(checks.every((g) => g.donorName && g.checkNum));
+  assert.ok(cash.every((g) => g.donorName === 'Branch Cash Deposit'));
+  assert.strictEqual(isAggregateName('Branch Cash Deposit'), true);
+  const listedCash = cash.find((g) => g.amount === 1002);
+  const extraCash = cash.find((g) => g.amount === 23);
+  assert.ok(listedCash && /listed on deposit slip/i.test(listedCash.description));
+  assert.ok(extraCash && /not counted/i.test(extraCash.description));
+  assert.strictEqual(aliasKey('David J. Durchman'), aliasKey('Dave Durchman'));
+  assert.strictEqual(resolveDonorName('David J. Durchman'), 'Dave Durchman');
+  const kroger = checks.find((g) => g.checkNum === '504892405');
+  assert.strictEqual(kroger.donorName, 'Kroger');
+  assert.strictEqual(kroger.description, 'Colin L. Fike');
+  assert.strictEqual(campaignFromQboAccount(kroger.account), 'Retail Partner Rebates (Kroger/Meijer)');
 });
 
 console.log('All donor_compile tests passed');

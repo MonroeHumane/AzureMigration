@@ -21,10 +21,10 @@ const { meta } = Astro.props;
     <div>
       <a href="/internal/" class="text-xs text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-emerald-300 transition inline-flex items-center gap-1 font-medium">← Return to Hub</a>
       <h1 id="banner-period-title" class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
-        {meta?.period_title || '2026 YTD Executive Financials'}
+        2026 board finances
       </h1>
       <p class="text-xs text-slate-600 dark:text-teal-300/80 mt-0.5">
-        <span id="banner-cutoff">{meta?.cutoff_date || 'Closed Aug 31, 2026'}</span>
+        <span id="banner-cutoff">Closed August 31</span>
         <span id="banner-governance" class="hidden">{meta?.governance_level || ''}</span>
         <span id="banner-publisher" class="hidden">{meta?.published_by || ''}</span>
         <span id="banner-basis" class="hidden"></span>
@@ -36,7 +36,7 @@ const { meta } = Astro.props;
       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-950/80 hover:bg-teal-900 text-emerald-300 hover:text-white border border-teal-700/80 text-xs font-semibold transition shadow-xs"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
-      <span>Print Board Packet</span>
+      <span>Print packet</span>
     </a>
   </div>
 </header>

@@ -3,6 +3,7 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
 import StaffSubNav from '../../../components/internal/StaffSubNav.astro';
 import ExecutiveBanner from '../../../components/board/ExecutiveBanner.astro';
 import HeadlineKpiGrid from '../../../components/board/HeadlineKpiGrid.astro';
+import OperatingBridgeCard from '../../../components/board/OperatingBridgeCard.astro';
 import MonthlyStatementTable from '../../../components/board/MonthlyStatementTable.astro';
 import BankStatementViewer from '../../../components/board/BankStatementViewer.astro';
 import ExpenseExplorer from '../../../components/board/ExpenseExplorer.astro';
@@ -12,11 +13,10 @@ import ExpenseExplorer from '../../../components/board/ExpenseExplorer.astro';
 // or donor_database.json here — Astro SSG would bake them into public HTML.
 
 const subNavItems = [
-  { id: 'all',      label: 'All Financials' },
-  { id: 'snapshot', label: 'Summary & KPIs' },
-  { id: 'statement',label: 'Monthly Statement' },
-  { id: 'expenses', label: 'Certified P&L' },
-  { id: 'audit',    label: 'Bank Statement' },
+  { id: 'snapshot', label: 'Summary' },
+  { id: 'statement',label: 'Months' },
+  { id: 'expenses', label: 'Money detail' },
+  { id: 'audit',    label: 'Bank' },
 ];
 ---
 
@@ -31,7 +31,7 @@ const subNavItems = [
     <ExecutiveBanner />
 
     <!-- Modular Financial Sub-Navigation Bar (Sticky) -->
-    <StaffSubNav items={subNavItems} activeId="all" ariaLabel="Financial modules subnavigation" />
+    <StaffSubNav items={subNavItems} activeId="snapshot" ariaLabel="Financial modules subnavigation" />
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
       <div id="board-data-status" class="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-950" role="status">
@@ -43,20 +43,21 @@ const subNavItems = [
       <!-- Section 1: Headline KPI Grid -->
       <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20">
         <HeadlineKpiGrid />
+        <OperatingBridgeCard />
       </section>
 
       <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
-      <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20">
+      <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20 hidden">
         <MonthlyStatementTable />
       </section>
 
-      <!-- Section 3: Certified P&L Explorer (accrual GL, not bank cash) -->
-      <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20">
-        <ExpenseExplorer statementPeriod="August 2026" />
+      <!-- Section 3: Money detail (books, not bank cash) -->
+      <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20 hidden">
+        <ExpenseExplorer statementPeriod="All 2026" />
       </section>
 
-      <!-- Section 4: Bank Statement & QBO Reconciliation Viewer (Tabular & Dual PDF) -->
-      <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20">
+      <!-- Section 4: Checking account -->
+      <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20 hidden">
         <BankStatementViewer />
       </section>
 
@@ -74,6 +75,9 @@ const subNavItems = [
       const sections = document.querySelectorAll('.financial-module');
 
       function setActiveModule(targetId: string, scroll = true) {
+        const allowed = new Set(['snapshot', 'statement', 'expenses', 'audit']);
+        if (targetId === 'all' || !allowed.has(targetId)) targetId = 'snapshot';
+
         pills.forEach((p) => {
           const isTarget = p.getAttribute('data-subnav-target') === targetId;
           if (isTarget) {
@@ -85,50 +89,55 @@ const subNavItems = [
           }
         });
 
-        if (targetId === 'all') {
-          sections.forEach((sec) => sec.classList.remove('hidden'));
-          if (scroll) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        } else {
-          sections.forEach((sec) => {
-            if (sec.id === `sec-${targetId}`) {
-              sec.classList.remove('hidden');
-              if (scroll) {
-                sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            } else {
-              sec.classList.add('hidden');
+        sections.forEach((sec) => {
+          if (sec.id === `sec-${targetId}`) {
+            sec.classList.remove('hidden');
+            if (scroll) {
+              sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-          });
-        }
+          } else {
+            sec.classList.add('hidden');
+          }
+        });
       }
+
+      (window as any).__setBoardSection = (id: string, scroll = true) => {
+        setActiveModule(id, scroll);
+        const url = new URL(window.location.href);
+        if (id === 'snapshot') url.searchParams.delete('section');
+        else url.searchParams.set('section', id);
+        window.history.replaceState({}, '', url.toString());
+      };
 
       pills.forEach((pill) => {
         if ((pill as HTMLElement).dataset.bound === '1') return;
         (pill as HTMLElement).dataset.bound = '1';
         pill.addEventListener('click', () => {
           const target = pill.getAttribute('data-subnav-target');
-          if (target) {
-            setActiveModule(target);
-            const url = new URL(window.location.href);
-            if (target === 'all') {
-              url.searchParams.delete('section');
-            } else {
-              url.searchParams.set('section', target);
-            }
-            window.history.replaceState({}, '', url.toString());
-          }
+          if (target) (window as any).__setBoardSection(target, true);
         });
       });
 
-      // Handle initial hash or query
+      if (!(document.body as HTMLElement).dataset.boardGotoBound) {
+        (document.body as HTMLElement).dataset.boardGotoBound = '1';
+        document.addEventListener('click', (event) => {
+          const link = (event.target as HTMLElement | null)?.closest('[data-goto-section]');
+          if (!link) return;
+          const target = link.getAttribute('data-goto-section');
+          if (!target) return;
+          event.preventDefault();
+          (window as any).__setBoardSection(target, true);
+        });
+      }
+
       const urlParams = new URLSearchParams(window.location.search);
       const initialSec = urlParams.get('section');
       if (initialSec) {
         setActiveModule(initialSec, false);
       } else if (window.location.hash === '#bank-statement-viewer') {
         setActiveModule('audit', true);
+      } else {
+        setActiveModule('snapshot', false);
       }
     }
 

@@ -8,6 +8,7 @@ const {
   isAggregateName,
   campaignFromQboAccount,
   resolveDepositPayor,
+  flattenManualDepositSplits,
   formatMailingAddress,
   isCompleteMailingAddress,
   assertDonorInvariants,
@@ -475,6 +476,68 @@ function platformFromQbo(payee, txnType) {
   return 'Physical Paper Check';
 }
 
+function isTributeGift(memo, account) {
+  return /memorial|in memory|memory of|\bmemory\b|in honor|dedication/i.test(`${memo || ''} ${account || ''}`);
+}
+
+function giftPlatform(g) {
+  if (/^cash$/i.test(g.paymentMethod || '')) return 'Cash';
+  return platformFromQbo(g.donorName, g.qboType);
+}
+
+function giftType(g, isTribute) {
+  if (isTribute) return 'Memorial & Tribute';
+  if (/^cash$/i.test(g.paymentMethod || '')) return 'Cash';
+  return (g.qboType === 'Deposit' ? 'Physical Paper Check' : (g.qboType || 'Direct Check'));
+}
+
+function ingestDepositEntityGifts(gifts, fillFromDirectory) {
+  const fill = typeof fillFromDirectory === 'function' ? fillFromDirectory : function () {};
+  let entityGiftCount = 0;
+  for (const g of gifts || []) {
+    const donorName = String(g.donorName || '').trim();
+    if (!donorName || isPlatformPayee(donorName)) continue;
+    const desc = String(g.description || '').trim();
+    const note = String(g.privateNote || '').trim();
+    const memo = String(g.memo || '').trim() || desc;
+    const payor = resolveDepositPayor(donorName, memo, g.account);
+    if (!payor.name || isPlatformPayee(payor.name)) continue;
+    const donor = findOrCreateDonor(payor.name, '', '', '');
+    if (payor.aggregate) donor.isAggregate = true;
+    if (!payor.via) fill(donor, g.entityType, g.entityId, donorName);
+    else fill(donor, '', '', payor.name);
+    const isTribute = isTributeGift(memo, g.account);
+    const campaign = campaignFromQboAccount(g.account, payor.name, g.account || 'Direct Gift');
+    const checkNumber = String(g.checkNum || '').trim();
+    addGift(donor, {
+      date: g.date,
+      amount: g.amount,
+      platform: giftPlatform(g),
+      campaign,
+      type: giftType(g, isTribute),
+      memo,
+      description: desc,
+      privateNote: note,
+      dedication: isTribute ? memo : '',
+      isTribute,
+      reference: checkNumber || g.reference || g.parentId || '',
+      checkNumber,
+      paymentMethod: String(g.paymentMethod || '').trim(),
+      qboClass: String(g.qboClass || '').trim(),
+      entityType: String(g.entityType || '').trim(),
+      entityId: String(g.entityId || '').trim(),
+      qboType: g.qboType || '',
+      account: g.account || '',
+      glCategory: g.account || '',
+      source: g.source || 'QuickBooks Online',
+      parentId: g.parentId || '',
+      lineId: g.lineId || '',
+    });
+    entityGiftCount += 1;
+  }
+  return entityGiftCount;
+}
+
 const drilldownCandidates = [
   path.join(__dirname, '..', 'frontend', 'src', 'data', 'monthly_drilldown_2026.json'),
   path.join(__dirname, '..', 'api', 'data', 'monthly_drilldown_2026.json'),
@@ -594,46 +657,7 @@ if (drilldownPath) {
         }
       }
 
-      let entityGiftCount = 0;
-      for (const g of payload.gifts || []) {
-        const donorName = String(g.donorName || '').trim();
-        if (!donorName || isPlatformPayee(donorName)) continue;
-        const desc = String(g.description || '').trim();
-        const note = String(g.privateNote || '').trim();
-        const memo = String(g.memo || '').trim() || desc || note;
-        const payor = resolveDepositPayor(donorName, memo, g.account);
-        if (!payor.name || isPlatformPayee(payor.name)) continue;
-        const donor = findOrCreateDonor(payor.name, '', '', '');
-        if (payor.aggregate) donor.isAggregate = true;
-        if (!payor.via) fillFromDirectory(donor, g.entityType, g.entityId, donorName);
-        else fillFromDirectory(donor, '', '', payor.name);
-        const isTribute = /memorial|in memory|in honor|dedication/i.test(`${memo} ${g.account || ''}`);
-        const campaign = campaignFromQboAccount(g.account, payor.name, g.account || 'Direct Gift');
-        const checkNumber = String(g.checkNum || '').trim();
-        addGift(donor, {
-          date: g.date,
-          amount: g.amount,
-          platform: platformFromQbo(donorName, g.qboType),
-          campaign,
-          type: isTribute ? 'Memorial & Tribute' : (g.qboType === 'Deposit' ? 'Physical Paper Check' : (g.qboType || 'Direct Check')),
-          memo,
-          description: desc,
-          privateNote: note,
-          dedication: isTribute ? memo : '',
-          isTribute,
-          reference: checkNumber || g.reference || g.parentId || '',
-          checkNumber,
-          paymentMethod: String(g.paymentMethod || '').trim(),
-          qboClass: String(g.qboClass || '').trim(),
-          entityType: String(g.entityType || '').trim(),
-          entityId: String(g.entityId || '').trim(),
-          qboType: g.qboType || '',
-          account: g.account || '',
-          glCategory: g.account || '',
-          source: 'QuickBooks Online'
-        });
-        entityGiftCount += 1;
-      }
+      const entityGiftCount = ingestDepositEntityGifts(payload.gifts, fillFromDirectory);
 
       // Fill remaining blanks from Customer, then Vendor, by display name.
       let filledContacts = 0;
@@ -648,6 +672,17 @@ if (drilldownPath) {
     }
   } else {
     console.warn('extract_qbo_deposit_gifts.py not found; batch deposit names will be skipped');
+  }
+}
+
+// 5c. Staff-photographed split deposits (QBO-style: one line per payer + cash)
+{
+  const manualPath = path.join(__dirname, 'data', 'manual_deposit_splits.json');
+  if (fs.existsSync(manualPath)) {
+    const manual = JSON.parse(fs.readFileSync(manualPath, 'utf8'));
+    const gifts = flattenManualDepositSplits(manual);
+    const n = ingestDepositEntityGifts(gifts);
+    console.log('Manual split-deposit gift lines considered:', n);
   }
 }
 
