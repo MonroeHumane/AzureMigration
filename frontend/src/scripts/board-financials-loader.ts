@@ -330,35 +330,21 @@ function hydrateHeadlineKpis(kpis: any) {
   const progExact = document.getElementById('kpi-program-exact');
   if (progExact) progExact.textContent = formatCents(kpis.program_spend);
 
-  const bankChecking = kpis.bank_register_cash || kpis.operating_checking_first_merchants || 0;
-  const realLiquidity = bankChecking + kpis.fidelity_reserve;
+  const qbChecking = Number(kpis.operating_checking_first_merchants || 0);
 
-  const runwayBadge = document.getElementById('kpi-runway-badge');
-  if (runwayBadge) {
-    const mo = (realLiquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1);
-    runwayBadge.textContent = `${mo} mo`;
-  }
+  const totLiq = document.getElementById('kpi-total-liquidity');
+  if (totLiq) totLiq.textContent = formatCents(qbChecking);
 
   const cashRunway = document.getElementById('kpi-cash-runway');
   if (cashRunway) {
-    const mo = (realLiquidity / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1);
-    cashRunway.textContent = `About ${mo} months if we keep spending like this.`;
+    cashRunway.textContent = 'Balance at August 31.';
   }
 
-  const totLiq = document.getElementById('kpi-total-liquidity');
-  if (totLiq) totLiq.textContent = formatDollar(realLiquidity);
-
   const opCash = document.getElementById('kpi-operating-cash');
-  if (opCash) opCash.textContent = formatDollar(bankChecking);
+  if (opCash) opCash.textContent = formatCents(qbChecking);
 
   const fidRes = document.getElementById('kpi-fidelity-reserve');
   if (fidRes) fidRes.textContent = formatDollar(kpis.fidelity_reserve);
-
-  const zeroInf = document.getElementById('kpi-zero-inflow');
-  if (zeroInf) {
-    const moZero = (realLiquidity / ((kpis.qbo_cogs + kpis.qbo_operating_expenditures) / 8)).toFixed(1);
-    zeroInf.textContent = `${moZero} mo`;
-  }
 }
 
 function hydrateOperatingBridge(kpis: any, bridge: any) {

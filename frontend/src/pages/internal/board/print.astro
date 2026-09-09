@@ -102,7 +102,7 @@
     }
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
       margin-bottom: 8px;
     }
@@ -231,25 +231,20 @@
   </div>
 
   <div class="kpi-grid">
+    <div class="kpi-card kpi-card-hero">
+      <div class="kpi-title" style="color:#0f766e;">First Merchants checking</div>
+      <div id="print-total-liq" class="kpi-val" style="color:#0f766e;">--</div>
+      <div id="print-runway-sub" class="kpi-sub" style="color:#115e59;">Balance at August 31.</div>
+    </div>
     <div class="kpi-card">
-      <div class="kpi-title">Bottom line</div>
+      <div class="kpi-title">This year leftover</div>
       <div id="print-allin-net" class="kpi-val text-rose">--</div>
       <div id="print-allin-margin" class="kpi-sub">Money in / money out</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-title">Shelter operations</div>
-      <div id="print-qbo-net" class="kpi-val" style="color:#b45309;">--</div>
-      <div class="kpi-sub">In / out</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-title">Share on animal care</div>
+      <div class="kpi-title">Animal care</div>
       <div id="print-prog-ratio" class="kpi-val text-emerald">--</div>
       <div class="kpi-sub">Of every dollar spent</div>
-    </div>
-    <div class="kpi-card kpi-card-hero">
-      <div class="kpi-title" style="color:#0f766e;">Cash on hand</div>
-      <div id="print-total-liq" class="kpi-val" style="color:#0f766e;">--</div>
-      <div id="print-runway-sub" class="kpi-sub" style="color:#115e59;">Runway loads after sign-in</div>
     </div>
   </div>
 
@@ -606,14 +601,11 @@
           const k = data.headline_kpis;
           setEl('print-allin-net', formatDollar(k.all_in_net));
           setEl('print-allin-margin', `${formatDollar(k.all_in_revenue)} in · ${formatDollar(k.all_in_expenditures)} out`);
-          setEl('print-qbo-net', formatDollar(k.qbo_operating_net));
           setEl('print-prog-ratio', `${Math.round(k.program_ratio_pct)}¢ of every dollar spent`);
 
-          const bankCash = k.bank_register_cash || k.operating_checking_bank_register || 0;
-          const fidCash = k.fidelity_reserve || 0;
-          setEl('print-total-liq', formatDollar(bankCash + fidCash));
-          const burn = Math.abs((k.qbo_operating_net || 0) / 8) || 1;
-          setEl('print-runway-sub', `About ${((bankCash + fidCash) / burn).toFixed(1)} months if we keep spending like this.`);
+          const qbChecking = k.operating_checking_first_merchants || 0;
+          setEl('print-total-liq', formatCents(qbChecking));
+          setEl('print-runway-sub', 'Balance at August 31.');
         }
 
         if (data.monthly_statements) {

@@ -42,86 +42,58 @@ const formatCents = (val: number) => {
   const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(abs);
   return isNeg ? `(${formatted})` : formatted;
 };
+
+const qbChecking = kpis?.operating_checking_first_merchants ?? null;
 ---
 
-<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl p-4 border border-slate-200 dark:border-teal-800/80 dark:text-white">
-    <div class="text-xs text-slate-500 dark:text-slate-400">Bottom line</div>
-    <div class="mt-1 flex items-baseline gap-2">
-      <span id="kpi-all-in-net" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+<section class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 dark:text-white overflow-hidden">
+  <div class="px-5 py-6 sm:px-8 sm:py-8">
+    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">First Merchants checking</p>
+    <div class="mt-1 flex flex-wrap items-end justify-between gap-3">
+      <span id="kpi-total-liquidity" class="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
+        {qbChecking != null ? formatCents(qbChecking) : '--'}
+      </span>
+      <a href="#bank-statement-viewer" data-goto-section="audit" class="text-sm font-semibold text-teal-800 hover:text-teal-950 dark:text-emerald-300">See bank</a>
+    </div>
+    <p id="kpi-cash-runway" class="mt-2 text-sm text-slate-600 dark:text-teal-200/80">
+      Balance at August 31.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-teal-800/80 border-t border-slate-200 dark:border-teal-800/80">
+    <div class="px-5 py-4 sm:px-6">
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">This year leftover</div>
+      <div id="kpi-all-in-net" class="mt-1 text-lg font-semibold font-mono text-slate-900 dark:text-white">
         {kpis ? formatDollar(kpis.all_in_net) : '--'}
-      </span>
-      <span id="kpi-all-in-margin" class="hidden">
-        {kpis ? `${kpis.all_in_margin_pct.toFixed(1)}%` : ''}
-      </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-0.5">
+        <span id="kpi-all-in-rev">{kpis ? formatDollar(kpis.all_in_revenue) : '--'}</span>
+        in ·
+        <span id="kpi-all-in-exp">{kpis ? formatDollar(kpis.all_in_expenditures) : '--'}</span>
+        out
+      </p>
     </div>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-      <span id="kpi-all-in-rev">{kpis ? formatDollar(kpis.all_in_revenue) : '--'}</span>
-      in ·
-      <span id="kpi-all-in-exp">{kpis ? formatDollar(kpis.all_in_expenditures) : '--'}</span>
-      out
-    </p>
-    <span id="kpi-all-in-exact" class="hidden">{kpis ? formatCents(kpis.all_in_net) : '--'}</span>
-  </div>
-
-  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl p-4 border border-slate-200 dark:border-teal-800/80 dark:text-white">
-    <div class="text-xs text-slate-500 dark:text-slate-400">Shelter operations</div>
-    <div class="mt-1 flex items-baseline gap-2">
-      <span id="kpi-qbo-net" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-        {kpis ? formatDollar(kpis.qbo_operating_net) : '--'}
-      </span>
-    </div>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-      <span id="kpi-qbo-rev">{kpis ? formatDollar(kpis.qbo_operating_revenue) : '--'}</span>
-      in ·
-      <span id="kpi-qbo-exp">{kpis ? formatDollar(kpis.qbo_cogs + kpis.qbo_operating_expenditures) : '--'}</span>
-      out
-    </p>
-    <span id="kpi-qbo-bridge" class="hidden">{kpis ? `+${formatDollar(kpis.non_operating_bridge)}` : '--'}</span>
-  </div>
-
-  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl p-4 border border-slate-200 dark:border-teal-800/80 dark:text-white">
-    <div class="text-xs text-slate-500 dark:text-slate-400">Share spent on animal care</div>
-    <div class="mt-1 flex items-baseline gap-2">
-      <span id="kpi-program-cents" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+    <div class="px-5 py-4 sm:px-6">
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Animal care</div>
+      <div id="kpi-program-cents" class="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
         {kpis ? `${Math.round(kpis.program_ratio_pct)}¢ of every dollar spent` : '--'}
-      </span>
-      <span id="kpi-program-ratio" class="hidden">
-        {kpis ? `${kpis.program_ratio_pct.toFixed(1)}%` : '--'}
-      </span>
-      <span id="kpi-program-target" class="hidden">
-        {kpis ? (kpis.program_ratio_pct >= 75 ? '≥75%' : '<75%') : ''}
-      </span>
+      </div>
     </div>
-    <p class="hidden">
-      <span id="kpi-program-spend">{kpis ? formatDollar(kpis.program_spend) : '--'}</span>
-      /
-      <span id="kpi-program-opexp">{kpis ? formatDollar(kpis.qbo_operating_expenditures) : '--'}</span>
-    </p>
-    <span id="kpi-program-exact" class="hidden">{kpis ? formatCents(kpis.program_spend) : '--'}</span>
   </div>
 
-  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl p-4 border border-slate-200 dark:border-teal-800/80 dark:text-white">
-    <div class="text-xs text-slate-500 dark:text-slate-400">Cash on hand</div>
-    <div class="mt-1 flex items-baseline gap-2">
-      <span id="kpi-total-liquidity" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-        {kpis ? formatDollar((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) : '--'}
-      </span>
-      <span id="kpi-runway-badge" class="hidden"></span>
-    </div>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-      <span id="kpi-operating-cash">{kpis ? formatDollar(kpis.bank_register_cash || kpis.operating_checking_first_merchants) : '--'}</span>
-      checking ·
-      <span id="kpi-fidelity-reserve">{kpis ? formatDollar(kpis.fidelity_reserve) : '--'}</span>
-      board reserve
-    </p>
-    <p id="kpi-cash-runway" class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-      {kpis ? `About ${(((kpis.bank_register_cash || kpis.operating_checking_first_merchants) + kpis.fidelity_reserve) / Math.abs(kpis.qbo_operating_net / 8)).toFixed(1)} months if we keep spending like this.` : ''}
-    </p>
-    <p class="text-xs mt-1">
-      <a href="#bank-statement-viewer" data-goto-section="audit" class="text-teal-800 hover:text-teal-950 font-semibold">See bank</a>
-    </p>
-    <span id="kpi-zero-inflow" class="hidden"></span>
-  </div>
+  <span id="kpi-fidelity-reserve" class="hidden"></span>
+
+  <span id="kpi-all-in-margin" class="hidden">{kpis ? `${kpis.all_in_margin_pct.toFixed(1)}%` : ''}</span>
+  <span id="kpi-all-in-exact" class="hidden">{kpis ? formatCents(kpis.all_in_net) : '--'}</span>
+  <span id="kpi-qbo-net" class="hidden">{kpis ? formatDollar(kpis.qbo_operating_net) : '--'}</span>
+  <span id="kpi-qbo-rev" class="hidden">{kpis ? formatDollar(kpis.qbo_operating_revenue) : '--'}</span>
+  <span id="kpi-qbo-exp" class="hidden">{kpis ? formatDollar(kpis.qbo_cogs + kpis.qbo_operating_expenditures) : '--'}</span>
+  <span id="kpi-qbo-bridge" class="hidden">{kpis ? `+${formatDollar(kpis.non_operating_bridge)}` : '--'}</span>
+  <span id="kpi-program-ratio" class="hidden">{kpis ? `${kpis.program_ratio_pct.toFixed(1)}%` : '--'}</span>
+  <span id="kpi-program-target" class="hidden">{kpis ? (kpis.program_ratio_pct >= 75 ? '≥75%' : '<75%') : ''}</span>
+  <span id="kpi-program-spend" class="hidden">{kpis ? formatDollar(kpis.program_spend) : '--'}</span>
+  <span id="kpi-program-opexp" class="hidden">{kpis ? formatDollar(kpis.qbo_operating_expenditures) : '--'}</span>
+  <span id="kpi-program-exact" class="hidden">{kpis ? formatCents(kpis.program_spend) : '--'}</span>
+  <span id="kpi-runway-badge" class="hidden"></span>
+  <span id="kpi-zero-inflow" class="hidden"></span>
 </section>
-

@@ -16,14 +16,12 @@ export function formatUsd(val: number, digits = 0): string {
   return isNeg ? `(${formatted})` : formatted;
 }
 
-export function cashRunwayMonths(data: any): string | null {
-  const kpis = data?.headline_kpis;
-  if (!kpis) return null;
-  const checking = kpis.bank_register_cash || kpis.operating_checking_first_merchants || 0;
-  const liquidity = checking + (kpis.fidelity_reserve || 0);
-  const monthlyNet = Math.abs((kpis.qbo_operating_net || 0) / 8);
-  if (!monthlyNet) return null;
-  return `${(liquidity / monthlyNet).toFixed(1)} months`;
+export function firstMerchantsChecking(data: any): number | null {
+  const fromKpis = data?.headline_kpis?.operating_checking_first_merchants;
+  if (typeof fromKpis === 'number') return fromKpis;
+  const fromPosition = data?.statement_of_position?.assets?.operating_checking_first_merchants;
+  if (typeof fromPosition === 'number') return fromPosition;
+  return null;
 }
 
 export function publishedLabel(data: any): string {
