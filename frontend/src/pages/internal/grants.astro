@@ -10,11 +10,16 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
   <div class="grants-portal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
     <!-- Dashboard Screen -->
     <div id="dashboard-view" class="portal-view space-y-6">
-      <header class="flex flex-wrap items-baseline justify-between gap-3 pb-3 border-b border-slate-200 dark:border-teal-800/60">
-        <div>
-          <a href="/internal/" class="text-xs text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-emerald-300 transition inline-flex items-center gap-1 font-medium">← Return to Hub</a>
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">Grants Pipeline &amp; Opportunities</h1>
-          <p class="text-xs text-slate-600 dark:text-teal-200/80 mt-0.5">Philanthropic funding, foundation awards, and corporate capital grants.</p>
+      <header class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-slate-200 dark:border-teal-800/60">
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="hidden sm:flex w-11 h-11 shrink-0 rounded-2xl bg-[#173a39] text-amber-300 items-center justify-center shadow-sm border border-teal-900/40" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M5 9a3 3 0 0 1-2-2V4h4"/><path d="M19 9a3 3 0 0 0 2-2V4h-4"/></svg>
+          </div>
+          <div class="min-w-0">
+            <a href="/internal/" class="text-xs text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-emerald-300 transition inline-flex items-center gap-1 font-medium">← Return to Hub</a>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">Grants Pipeline</h1>
+            <p class="text-sm text-slate-600 dark:text-teal-200/80 mt-1 max-w-xl">Foundation awards, corporate capital grants, and open funding opportunities — live from Directus.</p>
+          </div>
         </div>
       </header>
 
@@ -37,12 +42,12 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
             <span id="grant-stat-open-value" class="text-xs text-purple-800/80 dark:text-purple-300/80 font-mono mt-0.5 block">Seeking funding</span>
           </div>
           <div class="p-4 rounded-2xl bg-white dark:bg-[#0b2420]/85 backdrop-blur-md border border-slate-200 dark:border-teal-800/80 shadow-xs">
-            <span class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider block">Directus CMS Sync</span>
-            <span id="grant-stat-sync" class="font-bold text-emerald-700 dark:text-emerald-400 text-base block mt-1 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
-              Synchronized
+            <span class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider block">Directus CMS</span>
+            <span id="grant-stat-sync" class="font-bold text-slate-600 dark:text-slate-300 text-base block mt-1 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
+              Connecting
             </span>
-            <span id="grant-stat-sync-note" class="text-xs text-slate-500 dark:text-slate-300 mt-0.5 block">Directus Database Active</span>
+            <span id="grant-stat-sync-note" class="text-xs text-slate-500 dark:text-slate-300 mt-0.5 block">Checking grant records…</span>
           </div>
         </div>
       </section>
@@ -83,12 +88,12 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
             <div class="flex items-center gap-3">
-              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Applications &amp; Funding Pipeline</h2>
-              <span id="grants-count-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-800 border border-teal-200">
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Applications &amp; Funding Pipeline</h2>
+              <span id="grants-count-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-800 border border-teal-200 dark:bg-teal-950/70 dark:text-teal-200 dark:border-teal-800">
                 Loading...
               </span>
             </div>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">Directus-synchronized philanthropic tracker, capital campaign gifts, and foundation awards.</p>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Directus-synchronized tracker for capital gifts, foundation awards, and open applications.</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
@@ -136,14 +141,14 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         </div>
 
         <!-- Filter & Search Toolbar -->
-        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4 p-3 rounded-xl bg-slate-50/90 border border-slate-200">
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4 p-3 rounded-xl bg-slate-50/90 dark:bg-[#0b2420]/60 border border-slate-200 dark:border-teal-800/70">
           <div class="relative flex-1">
             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input
               type="text"
               id="grants-search-input"
               placeholder="Search grants by title, funder, amount, or notes..."
-              class="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 transition"
+              class="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white dark:bg-[#061815] border border-slate-200 dark:border-teal-800 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-teal-300/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 transition"
             />
             <button id="clear-search-btn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm font-bold w-4 h-4 flex items-center justify-center">&times;</button>
           </div>
@@ -151,16 +156,18 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
           <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0" id="grants-filter-pills">
             <button type="button" data-filter="all" class="filter-pill active text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-teal-800 text-white transition">All</button>
             <button type="button" data-filter="open" class="filter-pill text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Open</button>
+            <button type="button" data-filter="applied" class="filter-pill text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Applied</button>
             <button type="button" data-filter="awarded" class="filter-pill text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Awarded</button>
             <button type="button" data-filter="watch" class="filter-pill text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Watch</button>
           </div>
         </div>
 
         <!-- Table Container -->
-        <div id="grants-container" class="table-container shadow-sm border border-slate-200 rounded-xl overflow-hidden bg-white">
-          <div class="empty-state py-12 text-center text-slate-500">
-            <div class="spinner mx-auto mb-3"></div>
-            <p class="text-sm font-medium">Loading grants pipeline...</p>
+        <div id="grants-container" class="table-container shadow-sm border border-slate-200 dark:border-teal-800/80 rounded-xl overflow-hidden">
+          <div class="empty-state py-14 text-center text-slate-500 dark:text-slate-400">
+            <div class="grants-spinner mx-auto mb-4"></div>
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">Loading grants pipeline…</p>
+            <p class="text-xs mt-1 text-slate-500">Fetching records from Directus CMS</p>
           </div>
         </div>
       </section>
@@ -308,7 +315,6 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
   }
   
   .portal-view {
-    max-width: 1100px;
     margin: 0 auto;
     animation: fadeIn 0.3s ease;
   }
@@ -343,6 +349,18 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
   .tool-aawa { border-color: #ffedd5; }
   .tool-aawa h3, .tool-aawa .tool-link { color: #ea580c; }
 
+  .grants-spinner {
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    border: 3px solid #ccfbf1;
+    border-top-color: #0f766e;
+    animation: grantsSpin 0.7s linear infinite;
+  }
+  @keyframes grantsSpin {
+    to { transform: rotate(360deg); }
+  }
+
   /* Table Container & Layout */
   .grants-portal .table-container {
     background: #ffffff;
@@ -361,22 +379,25 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
 
   .grants-portal th {
     background: #f8fafc;
-    padding: 0.875rem 1.25rem;
-    font-size: 0.75rem;
+    padding: 0.75rem 1.1rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: #475569;
     border-bottom: 1px solid #e2e8f0;
     white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 
   .grants-portal td {
-    padding: 1.125rem 1.25rem;
+    padding: 0.95rem 1.1rem;
     font-size: 0.875rem;
     color: #1e293b;
     border-bottom: 1px solid #f1f5f9;
-    vertical-align: middle;
+    vertical-align: top;
   }
 
   .grants-portal tr:last-child td {
@@ -389,6 +410,17 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
 
   .grants-portal tbody tr:hover td {
     background-color: #f8fafc;
+  }
+
+  .grants-cards { display: none; }
+  .grant-card {
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .grant-card:last-child { border-bottom: none; }
+  @media (max-width: 768px) {
+    .grants-table-wrap { display: none; }
+    .grants-cards { display: block; }
   }
 
   /* Status Badges */
@@ -506,6 +538,9 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
   :root[data-staff-theme="dark"] .grants-portal tbody tr:hover td {
     background-color: rgba(13, 42, 37, 0.75);
   }
+  :root[data-staff-theme="dark"] .grant-card {
+    border-color: rgba(19, 78, 74, 0.4);
+  }
   :root[data-staff-theme="dark"] .grants-portal .bg-slate-50\/90 {
     background-color: rgba(11, 36, 32, 0.6) !important;
     border-color: rgba(19, 78, 74, 0.6) !important;
@@ -540,6 +575,23 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
   :root[data-staff-theme="dark"] .grants-portal dialog.modal label {
     color: #cbd5e1;
   }
+  :root[data-staff-theme="dark"] .grants-portal .tool-card {
+    background: rgba(11, 36, 32, 0.9);
+    border-color: rgba(19, 78, 74, 0.7);
+    box-shadow: none;
+  }
+  :root[data-staff-theme="dark"] .grants-portal .tool-card p {
+    color: #94a3b8;
+  }
+  :root[data-staff-theme="dark"] .grants-portal .grants-spinner {
+    border-color: rgba(19, 78, 74, 0.8);
+    border-top-color: #5eead4;
+  }
+  :root[data-staff-theme="dark"] .grants-portal .amount-chip {
+    background: rgba(6, 78, 59, 0.45);
+    color: #6ee7b7;
+    border-color: rgba(16, 185, 129, 0.35);
+  }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
@@ -548,7 +600,7 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
 </style>
 
 <script>
-  import { staffClient, DIRECTUS_URL, isStaffAuthenticated } from '../../lib/staff-auth';
+  import { staffClient, DIRECTUS_URL, isStaffAuthenticated, ensureDirectusSession, getStaffToken } from '../../lib/staff-auth';
   import { readItems, createItem, updateItem, deleteItem } from '@directus/sdk';
 
   // Standardized representations of the user's raw grant records
@@ -759,6 +811,51 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
     return '';
   }
 
+  function escapeHtml(value: unknown): string {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  async function staffApi(path: string, options: RequestInit = {}): Promise<Response> {
+    const token = await getStaffToken();
+    if (!token) throw new Error('No staff session');
+    return fetch(path, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'X-Staff-Token': token,
+        'X-Authorization': `Bearer ${token}`,
+        ...(options.headers || {}),
+      },
+    });
+  }
+
+  function setGrantSyncState(state: 'connecting' | 'ok' | 'error', note?: string) {
+    const statSync = document.getElementById('grant-stat-sync');
+    const statSyncNote = document.getElementById('grant-stat-sync-note');
+    if (!statSync) return;
+    if (state === 'ok') {
+      statSync.className = 'font-bold text-emerald-700 dark:text-emerald-400 text-base block mt-1 flex items-center gap-1.5';
+      statSync.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span> Synchronized`;
+      if (statSyncNote) statSyncNote.textContent = note || 'Directus records loaded';
+      return;
+    }
+    if (state === 'error') {
+      statSync.className = 'font-bold text-amber-600 dark:text-amber-400 text-base block mt-1 flex items-center gap-1.5';
+      statSync.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Unavailable`;
+      if (statSyncNote) statSyncNote.textContent = note || 'Could not reach grant records';
+      return;
+    }
+    statSync.className = 'font-bold text-slate-600 dark:text-slate-300 text-base block mt-1 flex items-center gap-1.5';
+    statSync.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span> Connecting`;
+    if (statSyncNote) statSyncNote.textContent = note || 'Checking grant records…';
+  }
+
   function initGrantsPortal() {
     const dashboardView = document.getElementById('dashboard-view') as HTMLElement | null;
     const grantsContainer = document.getElementById('grants-container') as HTMLElement | null;
@@ -886,13 +983,19 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         }
 
         try {
-          await staffClient.request(createItem('grants', {
-            id: crypto.randomUUID(),
-            title,
-            source,
-            status,
-            deadline_notes: notes
-          }));
+          const res = await staffApi('/api/grants', {
+            method: 'POST',
+            body: JSON.stringify({ title, source, status, deadline_notes: notes }),
+          });
+          if (!res.ok) {
+            await staffClient.request(createItem('grants', {
+              id: crypto.randomUUID(),
+              title,
+              source,
+              status,
+              deadline_notes: notes
+            }));
+          }
 
           formAddGrant.reset();
           addModal?.close();
@@ -928,12 +1031,18 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         }
 
         try {
-          await staffClient.request(updateItem('grants', grantId, {
-            title,
-            source,
-            status,
-            deadline_notes: notes
-          }));
+          const res = await staffApi(`/api/grants/${encodeURIComponent(grantId)}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ title, source, status, deadline_notes: notes }),
+          });
+          if (!res.ok) {
+            await staffClient.request(updateItem('grants', grantId, {
+              title,
+              source,
+              status,
+              deadline_notes: notes
+            }));
+          }
 
           editModal?.close();
           showToast(`Grant "${title}" updated successfully!`);
@@ -958,7 +1067,10 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         }
 
         try {
-          await staffClient.request(deleteItem('grants', grantId));
+          const res = await staffApi(`/api/grants/${encodeURIComponent(grantId)}`, { method: 'DELETE' });
+          if (!res.ok) {
+            await staffClient.request(deleteItem('grants', grantId));
+          }
           editModal?.close();
           showToast(`Grant "${title}" deleted.`);
           loadGrants();
@@ -986,19 +1098,28 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         clearSearchBtn.classList.toggle('hidden', query.length === 0);
       }
 
-      const rows = grantsContainer?.querySelectorAll('tbody tr') || [];
+      const rows = grantsContainer?.querySelectorAll('[data-status]') || [];
       let visibleCount = 0;
+      const countedIds = new Set<string>();
 
       rows.forEach((tr) => {
         const status = (tr.getAttribute('data-status') || '').toLowerCase();
         const text = tr.textContent?.toLowerCase() || '';
         
-        const matchesStatus = (currentFilter === 'all' || status === currentFilter);
+        const matchesStatus = currentFilter === 'all'
+          || status === currentFilter
+          || (currentFilter === 'open' && (status === 'applied' || status === 'submitted' || status === 'pending'))
+          || (currentFilter === 'awarded' && (status === 'won' || status === 'awarded'))
+          || (currentFilter === 'applied' && (status === 'applied' || status === 'submitted'));
         const matchesQuery = query === '' || text.includes(query);
 
         if (matchesStatus && matchesQuery) {
           (tr as HTMLElement).style.display = '';
-          visibleCount++;
+          const rowId = tr.getAttribute('data-id') || String(visibleCount);
+          if (!countedIds.has(rowId)) {
+            countedIds.add(rowId);
+            visibleCount++;
+          }
         } else {
           (tr as HTMLElement).style.display = 'none';
         }
@@ -1150,14 +1271,63 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
       });
     }
 
-    async function loadGrants() {
+    async function fetchGrantsFromDirectus(): Promise<any[]> {
       try {
-        const grants = await staffClient.request(readItems('grants', {
-          sort: ['-id']
-        }));
+        const res = await staffApi('/api/grants');
+        if (res.ok) {
+          const payload = await res.json();
+          if (Array.isArray(payload?.data)) return payload.data;
+        }
+      } catch (err) {
+        console.warn('[Grants] /api/grants unavailable, trying Directus SDK', err);
+      }
 
-        currentGrants = (grants as any[]) || [];
+      const cmsReady = await ensureDirectusSession();
+      if (!cmsReady) {
+        throw new Error('CMS_SESSION_MISSING');
+      }
+
+      const attempts: Array<Record<string, unknown>> = [
+        { limit: -1, sort: ['-date_created'] },
+        { limit: -1, sort: ['-date_updated'] },
+        { limit: -1 },
+      ];
+      let lastError: unknown = null;
+      for (const query of attempts) {
+        try {
+          const grants = await staffClient.request(readItems('grants', query));
+          return Array.isArray(grants) ? grants : [];
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      throw lastError || new Error('Could not load grants');
+    }
+
+    async function loadGrants() {
+      setGrantSyncState('connecting');
+      if (grantsContainer && !grantsContainer.querySelector('[data-status], table')) {
+        grantsContainer.innerHTML = `
+          <div class="empty-state py-14 text-center text-slate-500 dark:text-slate-400">
+            <div class="grants-spinner mx-auto mb-4"></div>
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">Loading grants pipeline…</p>
+            <p class="text-xs mt-1">Fetching records from Directus CMS</p>
+          </div>
+        `;
+      }
+
+      try {
+        currentGrants = await fetchGrantsFromDirectus();
         normalizedGrants = currentGrants.map(normalizeGrantData);
+
+        const statusRank = (status: string) => {
+          const s = (status || '').toLowerCase();
+          if (s === 'awarded' || s === 'won') return 0;
+          if (s === 'open' || s === 'applied' || s === 'submitted' || s === 'pending') return 1;
+          if (s === 'watch') return 2;
+          return 3;
+        };
+        normalizedGrants.sort((a, b) => statusRank(a.status) - statusRank(b.status) || (b.numericAmount || 0) - (a.numericAmount || 0));
 
         // Check if there are any raw entries needing standardization
         const rawCount = normalizedGrants.filter((g) => g.isRaw).length;
@@ -1180,7 +1350,10 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         // Calculate Portfolio Totals
         const totalCount = normalizedGrants.length;
         const awardedGrants = normalizedGrants.filter((g) => (g.status || '').toLowerCase() === 'awarded' || (g.status || '').toLowerCase() === 'won');
-        const openGrants = normalizedGrants.filter((g) => (g.status || '').toLowerCase() === 'open' || (g.status || '').toLowerCase() === 'submitted' || (g.status || '').toLowerCase() === 'pending');
+        const openGrants = normalizedGrants.filter((g) => {
+          const s = (g.status || '').toLowerCase();
+          return s === 'open' || s === 'submitted' || s === 'pending' || s === 'applied';
+        });
 
         const totalValue = normalizedGrants.reduce((sum, g) => sum + (g.numericAmount || 0), 0);
         const awardedValue = awardedGrants.reduce((sum, g) => sum + (g.numericAmount || 0), 0);
@@ -1202,30 +1375,24 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         const statOpenValue = document.getElementById('grant-stat-open-value');
         if (statOpenValue) statOpenValue.textContent = `$${openValue.toLocaleString('en-US')} In Pipeline`;
 
-        const statSync = document.getElementById('grant-stat-sync');
-        if (statSync) {
-          statSync.className = 'font-bold text-emerald-400 text-base block mt-1 flex items-center gap-1.5';
-          statSync.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Synchronized`;
-        }
-        const statSyncNote = document.getElementById('grant-stat-sync-note');
-        if (statSyncNote) statSyncNote.textContent = 'Directus Database Active';
+        setGrantSyncState('ok', `${totalCount} record${totalCount === 1 ? '' : 's'} from Directus`);
 
         if (!grantsContainer) return;
 
         if (normalizedGrants.length === 0) {
           grantsContainer.innerHTML = `
-            <div class="empty-state py-12 text-center text-slate-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-3 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-              <h3 class="text-base font-bold text-slate-800 mb-1">No grants recorded yet</h3>
-              <p class="text-xs text-slate-500">Click "+ Add Grant" to log your first foundation opportunity.</p>
+            <div class="empty-state py-14 text-center text-slate-500 dark:text-slate-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-3 text-teal-300 dark:text-teal-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              <h3 class="text-base font-bold text-slate-800 dark:text-white mb-1">No grants recorded yet</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">Click “+ Add Grant” to log a foundation opportunity, capital gift, or awarded funding.</p>
             </div>
           `;
           if (countPill) countPill.textContent = '0 Grants';
           return;
         }
 
-        // Render Table HTML
         let html = `
+          <div class="grants-table-wrap">
           <table>
             <thead>
               <tr>
@@ -1240,23 +1407,50 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
             <tbody>
         `;
 
+        let cardsHtml = `<div class="grants-cards">`;
+
         for (const item of normalizedGrants) {
           const sourceClass = getSourceBadgeClass(item.source);
           const dotClass = getStatusDotClass(item.status);
           const deadlineBadge = formatDeadlineBadge(item.notes);
           const directusEditUrl = `${DIRECTUS_URL}/admin/content/grants/${item.id}`;
 
+          cardsHtml += `
+            <article class="grant-card" data-id="${escapeHtml(item.id)}" data-status="${escapeHtml(item.status)}">
+              <div class="flex items-start justify-between gap-3">
+                <button type="button" class="grant-title-btn text-left min-w-0" data-id="${escapeHtml(item.id)}">
+                  <h3 class="font-bold text-slate-900 dark:text-white text-sm leading-snug">${escapeHtml(item.title)}</h3>
+                  <p class="text-xs text-slate-500 dark:text-teal-200/70 mt-0.5">${escapeHtml(item.funder)}</p>
+                </button>
+                <span class="amount-chip shrink-0 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">${escapeHtml(item.amount)}</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5 mt-3">
+                <span class="badge-status ${escapeHtml(item.status)}">
+                  <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span>
+                  <span>${escapeHtml(item.status)}</span>
+                </span>
+                <span class="badge-source ${sourceClass}">${escapeHtml(item.source)}</span>
+                ${deadlineBadge}
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-2.5 line-clamp-2" title="${escapeHtml(item.notes)}">${escapeHtml(item.notes)}</p>
+              <div class="mt-3 flex items-center justify-end gap-1">
+                <button type="button" class="btn-row-edit text-xs font-semibold px-2.5 py-1.5 rounded-lg text-teal-800 dark:text-teal-200 hover:bg-teal-50 dark:hover:bg-teal-950/50" data-id="${escapeHtml(item.id)}">Edit</button>
+                <a href="${escapeHtml(directusEditUrl)}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-teal-950/50">CMS ↗</a>
+              </div>
+            </article>
+          `;
+
           html += `
-            <tr data-id="${item.id}" data-status="${item.status}">
+            <tr data-id="${escapeHtml(item.id)}" data-status="${escapeHtml(item.status)}">
               <!-- Title & Funder -->
               <td>
                 <div class="flex items-start justify-between gap-2">
                   <div>
-                    <div class="font-bold text-slate-900 hover:text-teal-700 transition cursor-pointer text-sm flex items-center gap-1.5 grant-title-btn" data-id="${item.id}" title="Click to edit details">
-                      <span>${item.title}</span>
+                    <div class="font-bold text-slate-900 dark:text-white hover:text-teal-700 dark:hover:text-emerald-300 transition cursor-pointer text-sm flex items-center gap-1.5 grant-title-btn" data-id="${escapeHtml(item.id)}" title="Click to edit details">
+                      <span>${escapeHtml(item.title)}</span>
                     </div>
-                    <div class="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 font-medium">
-                      <span>${item.funder}</span>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 font-medium">
+                      <span>${escapeHtml(item.funder)}</span>
                     </div>
                   </div>
                 </div>
@@ -1264,30 +1458,30 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
 
               <!-- Estimated Amount / Value -->
               <td>
-                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs">
-                  ${item.amount}
+                <span class="amount-chip inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xs">
+                  ${escapeHtml(item.amount)}
                 </span>
               </td>
 
               <!-- Discovery Source Badge -->
               <td>
                 <span class="badge-source ${sourceClass}">
-                  ${item.source}
+                  ${escapeHtml(item.source)}
                 </span>
               </td>
 
               <!-- Status Badge -->
               <td>
-                <span class="badge-status ${item.status}">
+                <span class="badge-status ${escapeHtml(item.status)}">
                   <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span>
-                  <span>${item.status}</span>
+                  <span>${escapeHtml(item.status)}</span>
                 </span>
               </td>
 
               <!-- Notes & Deadlines -->
-              <td class="text-xs text-slate-600 max-w-sm">
-                <div class="line-clamp-2" title="${item.notes}">
-                  ${item.notes}
+              <td class="text-xs text-slate-600 dark:text-slate-300 max-w-sm">
+                <div class="line-clamp-2" title="${escapeHtml(item.notes)}">
+                  ${escapeHtml(item.notes)}
                 </div>
                 ${deadlineBadge}
               </td>
@@ -1297,17 +1491,17 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
                 <div class="inline-flex items-center gap-1">
                   <button
                     type="button"
-                    class="btn-row-edit p-1.5 rounded-lg text-slate-500 hover:text-teal-700 hover:bg-teal-50 transition"
-                    data-id="${item.id}"
+                    class="btn-row-edit p-1.5 rounded-lg text-slate-500 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/50 dark:hover:text-emerald-300 transition"
+                    data-id="${escapeHtml(item.id)}"
                     title="Edit Grant Details"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </button>
                   <a
-                    href="${directusEditUrl}"
+                    href="${escapeHtml(directusEditUrl)}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition inline-flex items-center"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-teal-950/50 dark:hover:text-slate-200 transition inline-flex items-center"
                     title="Open in Directus Admin"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -1318,7 +1512,7 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
           `;
         }
 
-        html += '</tbody></table>';
+        html += '</tbody></table></div>' + cardsHtml + '</div>';
         grantsContainer.innerHTML = html;
 
         // Bind Edit buttons and Title clicks in the rendered table
@@ -1333,22 +1527,23 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         applyFilterAndSearch();
       } catch (error: any) {
         console.error('Error loading grants:', error);
-        const statSync = document.getElementById('grant-stat-sync');
-        if (statSync) {
-          statSync.className = 'font-bold text-amber-500 text-base block mt-1';
-          statSync.textContent = 'Sync Delayed';
-        }
-        const statSyncNote = document.getElementById('grant-stat-sync-note');
-        if (statSyncNote) statSyncNote.textContent = 'Directus connection offline or re-authenticating';
+        const sessionMissing = String(error?.message || '') === 'CMS_SESSION_MISSING';
+        setGrantSyncState('error', sessionMissing ? 'Sign in again to load the pipeline' : 'Could not reach grant records');
 
         if (!grantsContainer) return;
         grantsContainer.innerHTML = `
-          <div class="empty-state py-12 text-center text-slate-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto mb-2 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <h3 class="text-base font-bold text-slate-800 mb-1">Could not load grants pipeline</h3>
-            <p class="text-xs text-slate-500">Please verify staff authentication or try refreshing the page.</p>
+          <div class="empty-state py-14 px-6 text-center text-slate-500 dark:text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto mb-3 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white mb-1">${sessionMissing ? 'Staff session needs a refresh' : 'Could not load grants pipeline'}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">${sessionMissing ? 'Your portal login is still open, but the grants service could not authorize this request. Sign in once more, then return here.' : 'The grants tracker talks to Directus through the staff API. Retry in a moment, or open CMS Admin if records still do not appear.'}</p>
+            <div class="mt-4 flex items-center justify-center gap-2">
+              <button type="button" id="retry-grants-btn" class="btn-success text-xs font-semibold px-3.5 py-2 rounded-lg">Retry</button>
+              ${sessionMissing ? `<a href="/internal/?reauth=1&redirect=${encodeURIComponent('/internal/grants/')}" class="btn-outline text-xs font-semibold px-3.5 py-2 rounded-lg inline-flex">Sign in again</a>` : `<a href="${DIRECTUS_URL}/admin/content/grants" target="_blank" rel="noopener noreferrer" class="btn-outline text-xs font-semibold px-3.5 py-2 rounded-lg inline-flex">Open Directus ↗</a>`}
+            </div>
           </div>
         `;
+        const retryBtn = document.getElementById('retry-grants-btn');
+        retryBtn?.addEventListener('click', () => loadGrants());
       }
     }
 

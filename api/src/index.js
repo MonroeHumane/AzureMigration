@@ -343,6 +343,195 @@ app.http('financials', {
   },
 });
 
+const GRANT_STATUSES = new Set(['open', 'watch', 'applied', 'awarded', 'skipped']);
+let cachedDirectusService = { token: '', expiresAt: 0 };
+
+function sanitizeGrantInput(body) {
+  const title = String(body?.title || '').trim().slice(0, 255);
+  if (!title) {
+    return { error: 'Grant title is required.' };
+  }
+  const source = String(body?.source || 'Manual').trim().slice(0, 120) || 'Manual';
+  const statusRaw = String(body?.status || 'open').trim().toLowerCase();
+  const status = GRANT_STATUSES.has(statusRaw) ? statusRaw : 'open';
+  const deadline_notes = body?.deadline_notes == null ? '' : String(body.deadline_notes).slice(0, 4000);
+  const payload = { title, source, status, deadline_notes };
+  if (body?.open_url != null) payload.open_url = String(body.open_url).trim().slice(0, 500);
+  if (body?.apply_url != null) payload.apply_url = String(body.apply_url).trim().slice(0, 500);
+  return { payload };
+}
+
+async function getDirectusServiceToken() {
+  const staticToken = (process.env.DIRECTUS_TOKEN || '').trim();
+  if (staticToken) return staticToken;
+
+  if (cachedDirectusService.token && Date.now() < cachedDirectusService.expiresAt) {
+    return cachedDirectusService.token;
+  }
+
+  const email = (process.env.DIRECTUS_ADMIN_EMAIL || 'admin@monroe-humane.org').trim();
+  const password = (process.env.DIRECTUS_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || '').trim();
+  if (!password) return null;
+
+  const res = await fetch(`${DIRECTUS_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    cachedDirectusService = { token: '', expiresAt: 0 };
+    return null;
+  }
+  const data = await res.json();
+  const token = data && data.data && data.data.access_token ? data.data.access_token : null;
+  const ttl = typeof data?.data?.expires === 'number' && data.data.expires < 1e12
+    ? data.data.expires
+    : 10 * 60 * 1000;
+  if (token) {
+    cachedDirectusService = { token, expiresAt: Date.now() + Math.max(60 * 1000, ttl - 60 * 1000) };
+  }
+  return token;
+}
+
+async function directusJson(path, options, token) {
+  const res = await fetch(`${DIRECTUS_URL}${path}`, {
+    ...options,
+    headers: Object.assign({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    }, options && options.headers ? options.headers : {}),
+  });
+  const text = await res.text();
+  let json = null;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    json = { raw: text };
+  }
+  return { ok: res.ok, status: res.status, json };
+}
+
+async function requireStaff(request) {
+  if (!isStaffSecretConfigured()) {
+    return { errorResponse: staffAuthUnavailable(request) };
+  }
+  const token = bearerToken(request);
+  if (!token) {
+    return { errorResponse: jsonResponse(request, 401, { error: 'Unauthorized: Bearer token required.' }, { 'Cache-Control': 'no-store, private' }) };
+  }
+  const staff = await authenticateRequest(token);
+  if (!staff) {
+    return { errorResponse: jsonResponse(request, 401, { error: 'Unauthorized: Invalid or expired token.' }, { 'Cache-Control': 'no-store, private' }) };
+  }
+  return { staff };
+}
+
+// HMAC-authenticated grants pipeline proxy. Staff portal HMAC lasts ~30 days;
+// Directus JWTs expire in minutes, so the tracker cannot depend on them.
+app.http('grants', {
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  authLevel: 'anonymous',
+  route: 'grants/{id?}',
+  handler: async (request, context) => {
+    if (request.method === 'OPTIONS') {
+      return corsPreflight(request, 'GET, POST, PATCH, DELETE, OPTIONS');
+    }
+
+    const auth = await requireStaff(request);
+    if (auth.errorResponse) return auth.errorResponse;
+
+    const serviceToken = await getDirectusServiceToken();
+    if (!serviceToken) {
+      return jsonResponse(request, 503, {
+        error: 'Grants service is not configured.',
+        code: 'DIRECTUS_SERVICE_UNAVAILABLE',
+      }, { 'Cache-Control': 'no-store, private' });
+    }
+
+    const id = (request.params && request.params.id ? String(request.params.id) : '').trim();
+
+    try {
+      if (request.method === 'GET') {
+        const attempts = [
+          '/items/grants?limit=-1&sort=-date_created',
+          '/items/grants?limit=-1&sort=-date_updated',
+          '/items/grants?limit=-1',
+        ];
+        let last = null;
+        for (const path of attempts) {
+          last = await directusJson(path, { method: 'GET' }, serviceToken);
+          if (last.ok) {
+            const data = Array.isArray(last.json && last.json.data) ? last.json.data : [];
+            return jsonResponse(request, 200, { ok: true, data }, { 'Cache-Control': 'private, no-store' });
+          }
+          const message = String(last.json && last.json.errors && last.json.errors[0] && last.json.errors[0].message || '');
+          if (!/sort|field/i.test(message)) break;
+        }
+        context.warn('[Grants] Directus list failed', last && last.status, last && last.json);
+        return jsonResponse(request, last && last.status === 403 ? 403 : 502, {
+          error: 'Could not load grants from Directus.',
+          code: 'GRANTS_READ_FAILED',
+        }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      if (request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        const sanitized = sanitizeGrantInput(body);
+        if (sanitized.error) {
+          return jsonResponse(request, 400, { error: sanitized.error }, { 'Cache-Control': 'no-store, private' });
+        }
+        const created = await directusJson('/items/grants', {
+          method: 'POST',
+          body: JSON.stringify(sanitized.payload),
+        }, serviceToken);
+        if (!created.ok) {
+          context.warn('[Grants] Directus create failed', created.status, created.json);
+          return jsonResponse(request, 502, { error: 'Could not save grant.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        return jsonResponse(request, 201, { ok: true, data: created.json && created.json.data }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      if (!id) {
+        return jsonResponse(request, 400, { error: 'Grant id is required.' }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      if (request.method === 'PATCH') {
+        const body = await request.json().catch(() => ({}));
+        const sanitized = sanitizeGrantInput({ ...body, title: body.title || 'Grant' });
+        if (sanitized.error) {
+          return jsonResponse(request, 400, { error: sanitized.error }, { 'Cache-Control': 'no-store, private' });
+        }
+        if (!body.title) delete sanitized.payload.title;
+        const updated = await directusJson(`/items/grants/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(sanitized.payload),
+        }, serviceToken);
+        if (!updated.ok) {
+          context.warn('[Grants] Directus update failed', updated.status, updated.json);
+          return jsonResponse(request, 502, { error: 'Could not update grant.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        return jsonResponse(request, 200, { ok: true, data: updated.json && updated.json.data }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      if (request.method === 'DELETE') {
+        const deleted = await directusJson(`/items/grants/${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+        }, serviceToken);
+        if (!deleted.ok) {
+          context.warn('[Grants] Directus delete failed', deleted.status, deleted.json);
+          return jsonResponse(request, 502, { error: 'Could not delete grant.' }, { 'Cache-Control': 'no-store, private' });
+        }
+        return jsonResponse(request, 200, { ok: true }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      return jsonResponse(request, 405, { error: 'Method not allowed.' }, { 'Cache-Control': 'no-store, private' });
+    } catch (err) {
+      context.error('[Grants] Unexpected error', err);
+      return jsonResponse(request, 500, { error: 'Grants service error.' }, { 'Cache-Control': 'no-store, private' });
+    }
+  },
+});
+
 // 4. GET /api/statement
 app.http('statement', {
   methods: ['GET', 'OPTIONS'],
@@ -565,6 +754,7 @@ app.http('health', {
       timestamp: new Date().toISOString(),
       features: {
         staffAuth: isStaffSecretConfigured(),
+        grantsProxy: Boolean((process.env.DIRECTUS_TOKEN || process.env.DIRECTUS_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || '').trim()),
         petSyncWebhook: Boolean(process.env.DIRECTUS_WEBHOOK_SECRET && process.env.GITHUB_DISPATCH_PAT),
         financialReports: Boolean(reportData),
         bankStatements: Boolean(statementData),

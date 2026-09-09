@@ -17,7 +17,7 @@ function getAuthStorage() {
     get() {
       try {
         const raw = localStorage.getItem(DIRECTUS_AUTH_KEY) || sessionStorage.getItem(DIRECTUS_AUTH_KEY);
-        return raw ? JSON.parse(raw) : null;
+        return raw ? normalizeDirectusAuth(JSON.parse(raw)) : null;
       } catch {
         return null;
       }
@@ -25,7 +25,7 @@ function getAuthStorage() {
     set(data: any) {
       try {
         if (data) {
-          const str = JSON.stringify(data);
+          const str = JSON.stringify(normalizeDirectusAuth(data) || data);
           localStorage.setItem(DIRECTUS_AUTH_KEY, str);
           sessionStorage.setItem(DIRECTUS_AUTH_KEY, str);
         } else {
@@ -100,9 +100,41 @@ export function getStoredHmacStaffToken(): string | null {
 }
 
 /**
- * True only when this browser has an HMAC staff token from /api/login or /api/session.
- * A leftover mchs_staff_auth flag or expired Directus JWT is not enough.
+ * Directus REST /auth/login returns `expires` as a TTL in milliseconds
+ * (e.g. 900000). The SDK treats `expires` / `expires_at` as epoch timestamps.
+ * Saving the raw payload makes the session look expired immediately, so the
+ * grants pipeline (and other CMS reads) fail while HMAC staff login still works.
  */
+export function normalizeDirectusAuth(data: any): any {
+  if (!data || typeof data !== 'object') return data;
+  const access = data.access_token || data.accessToken || null;
+  const refresh = data.refresh_token || data.refreshToken || null;
+  if (!access && !refresh) return data;
+
+  let expires = typeof data.expires === 'number' ? data.expires : null;
+  let expiresAt = typeof data.expires_at === 'number' ? data.expires_at : null;
+  if (expiresAt == null && expires != null && expires > 0 && expires < 1e12) {
+    expiresAt = Date.now() + expires;
+  } else if (expiresAt == null && expires != null && expires >= 1e12) {
+    expiresAt = expires;
+  }
+
+  return {
+    access_token: access,
+    refresh_token: refresh,
+    expires,
+    expires_at: expiresAt,
+  };
+}
+
+export async function ensureDirectusSession(): Promise<boolean> {
+  try {
+    const token = await staffClient.getToken();
+    return typeof token === 'string' && token.length > 10;
+  } catch {
+    return false;
+  }
+}
 export function isStaffAuthenticated(): boolean {
   return getStoredHmacStaffToken() !== null;
 }
@@ -209,7 +241,7 @@ export async function loginStaff(opts: {
       const data = await res.json();
       if (data && data.token) {
         staffToken = data.token;
-        directusPayload = data.directus;
+        directusPayload = data.directus ? normalizeDirectusAuth(data.directus) : null;
       }
     } else if (res.status === 401) {
       throw new Error('Invalid email or password. Please verify your credentials.');

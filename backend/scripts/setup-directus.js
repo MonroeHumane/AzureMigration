@@ -322,7 +322,100 @@ async function main() {
     }
   }
 
-  // 5. Seed Site Settings if empty
+  // 5. Staff / app-access policies: grants pipeline CRUD (never public)
+  console.log('🔐 Configuring staff grants permissions...');
+  try {
+    const policiesRes = await fetch(`${DIRECTUS_URL}/policies?limit=-1`, { headers: authHeaders });
+    const policies = policiesRes.ok ? ((await policiesRes.json()).data || []) : [];
+    const grantActions = ['read', 'create', 'update', 'delete'];
+    for (const policy of policies) {
+      const name = String(policy.name || '');
+      if (name === '$t:public_label' || name.toLowerCase().includes('public')) continue;
+      if (policy.admin_access) continue;
+      if (!policy.app_access && name !== 'PetSync Service') continue;
+      if (name === 'PetSync Service') continue;
+
+      const existingRes = await fetch(`${DIRECTUS_URL}/permissions?filter[policy][_eq]=${policy.id}&limit=-1`, { headers: authHeaders });
+      const existing = existingRes.ok ? ((await existingRes.json()).data || []) : [];
+      const has = (action) => existing.some((p) => p.collection === 'grants' && p.action === action);
+      for (const action of grantActions) {
+        if (has(action)) {
+          console.log(`   ℹ️ ${name} already has ${action} grants`);
+          continue;
+        }
+        const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({ policy: policy.id, collection: 'grants', action, fields: ['*'] }),
+        });
+        if (permRes.ok) {
+          console.log(`   ✅ ${name}: ${action} grants`);
+        } else {
+          console.warn(`   ⚠️ ${name} ${action} grants failed (${permRes.status}): ${await permRes.text()}`);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('   ⚠️ Staff grants permission setup error:', err.message);
+  }
+
+  // 6. Seed grants pipeline if empty
+  try {
+    const grantsCheck = await fetch(`${DIRECTUS_URL}/items/grants?limit=1`, { headers: authHeaders });
+    if (grantsCheck.ok) {
+      const grantsData = await grantsCheck.json();
+      const existingCount = (grantsData.data || []).length;
+      if (existingCount === 0) {
+        console.log('🌱 Seeding initial grants pipeline...');
+        const seedGrants = [
+          {
+            title: 'La-Z-Boy Foundation — Feline Room Renovation',
+            source: 'Manual',
+            status: 'open',
+            deadline_notes: 'Capital grant for shelter feline adoption room expansion and modern cat housing suites. Amount: $25,000.',
+          },
+          {
+            title: 'Microsoft Azure for Nonprofits Cloud Grant',
+            source: 'Manual',
+            status: 'awarded',
+            deadline_notes: 'Annual recurring nonprofit cloud credits supporting Monroe Humane website, Directus CMS, database, and PetSync services. Amount: $2,000/yr.',
+          },
+          {
+            title: 'Dave Durbano Philanthropic Gift — Feline Care Wing',
+            source: 'Manual',
+            status: 'open',
+            deadline_notes: 'Dedicated major donor sponsorship towards feline isolation & adoption suites renovation. Amount: $15,000.',
+          },
+          {
+            title: 'The Harold & Grace LeBel Foundation Grant',
+            source: 'Manual',
+            status: 'open',
+            deadline_notes: 'Animal welfare operations, intake veterinary medical supplies, and shelter care support. Amount: $2,000.',
+          },
+        ];
+        for (const row of seedGrants) {
+          const createRes = await fetch(`${DIRECTUS_URL}/items/grants`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify(row),
+          });
+          if (createRes.ok) {
+            console.log(`   ✅ Seeded: ${row.title}`);
+          } else {
+            console.warn(`   ⚠️ Seed failed for ${row.title} (${createRes.status}): ${await createRes.text()}`);
+          }
+        }
+      } else {
+        console.log('   ℹ️ Grants collection already has records.');
+      }
+    } else {
+      console.warn(`   ⚠️ Could not read grants for seeding (${grantsCheck.status}): ${await grantsCheck.text()}`);
+    }
+  } catch (e) {
+    console.warn('   ⚠️ Grants seed skipped:', e.message);
+  }
+
+  // 7. Seed Site Settings if empty
   try {
     const settingsCheck = await fetch(`${DIRECTUS_URL}/items/site_settings/1`, { headers: authHeaders });
     if (!settingsCheck.ok) {
