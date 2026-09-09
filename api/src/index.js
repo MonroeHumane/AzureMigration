@@ -20,6 +20,8 @@ function loadJsonOptional(relPath) {
 const donorDatabase = loadJsonOptional('../data/donor_database.json');
 const monthlyDrilldown = loadJsonOptional('../data/monthly_drilldown_2026.json');
 const bankInOutData = loadJsonOptional('../data/bank_in_out_2026.json');
+const bankInOut2024 = loadJsonOptional('../data/bank_in_out_2024.json');
+const bankInOut2025 = loadJsonOptional('../data/bank_in_out_2025.json');
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
 const STAFF_SECRET = (process.env.STAFF_AUTH_SECRET || '').trim();
@@ -45,6 +47,51 @@ const STATEMENT_FILES = {
   bank: 'First_Merchant_Chkng_XXXXXX8478_08312026.pdf',
   qbo: 'QBO_Reconciliation_Report_08312026.pdf',
 };
+
+const BANK_PACKS = {
+  2024: bankInOut2024,
+  2025: bankInOut2025,
+  2026: bankInOutData,
+};
+
+function indexBankStatementFiles(pack, into) {
+  if (!pack || !pack.months) return;
+  Object.keys(pack.months).forEach((key) => {
+    const fileName = pack.months[key] && pack.months[key].statement_file;
+    if (fileName && /^First_Merchant_Chkng_XXXXXX8478_\d{8}\.pdf$/.test(fileName)) {
+      into[key] = fileName;
+    }
+  });
+}
+
+function mergeBankStatementPacks() {
+  const months = {};
+  const ytdByYear = {};
+  const years = [];
+  [2024, 2025, 2026].forEach((year) => {
+    const pack = BANK_PACKS[year];
+    if (!pack || !pack.months) return;
+    years.push(String(year));
+    Object.assign(months, pack.months);
+    if (pack.meta && pack.meta.ytd) ytdByYear[String(year)] = pack.meta.ytd;
+  });
+  const base = bankInOutData && typeof bankInOutData === 'object' ? bankInOutData : { meta: {}, months: {} };
+  return {
+    ...base,
+    months,
+    meta: Object.assign({}, base.meta || {}, {
+      years,
+      default_year: '2026',
+      ytd_by_year: ytdByYear,
+    }),
+  };
+}
+
+const BANK_STATEMENT_BY_MONTH = {};
+[2024, 2025, 2026].forEach((year) => indexBankStatementFiles(BANK_PACKS[year], BANK_STATEMENT_BY_MONTH));
+if (!BANK_STATEMENT_BY_MONTH['2026-08']) {
+  BANK_STATEMENT_BY_MONTH['2026-08'] = STATEMENT_FILES.bank;
+}
 
 function isStaffSecretConfigured() {
   return STAFF_SECRET.length > 0;
@@ -320,8 +367,8 @@ app.http('financials', {
       ...reportData,
       bank_statement: statementData,
     };
-    if (bankInOutData) {
-      payload.bank_statements = bankInOutData;
+    if (bankInOutData || bankInOut2024 || bankInOut2025) {
+      payload.bank_statements = mergeBankStatementPacks();
     }
 
     // 3-level GL drilldown for the board explorer (not baked into Astro pages).
@@ -1057,9 +1104,25 @@ app.http('statement', {
     }
 
     const docKey = request.query.get('doc') || 'bank';
-    const fileName = STATEMENT_FILES[docKey];
-    if (!fileName) {
+    const month = request.query.get('month') || '2026-08';
+    if (!/^\d{4}-\d{2}$/.test(month)) {
+      return jsonResponse(request, 400, { error: 'Invalid month. Use YYYY-MM.' });
+    }
+
+    let fileName = null;
+    if (docKey === 'qbo') {
+      if (month !== '2026-08') {
+        return jsonResponse(request, 404, { error: 'QBO reconciliation PDF is available for August 2026 only.' });
+      }
+      fileName = STATEMENT_FILES.qbo;
+    } else if (docKey === 'bank') {
+      fileName = BANK_STATEMENT_BY_MONTH[month] || null;
+    } else {
       return jsonResponse(request, 400, { error: 'Invalid document requested. Allowed: bank, qbo' });
+    }
+
+    if (!fileName) {
+      return jsonResponse(request, 404, { error: 'No statement PDF for that month.' });
     }
 
     const filePath = path.join(__dirname, '..', 'data', 'files', fileName);
@@ -1073,6 +1136,7 @@ app.http('statement', {
       headers: corsHeaders(request, {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="${fileName}"`,
+        'Access-Control-Expose-Headers': 'Content-Disposition',
         'Cache-Control': 'private, no-cache, no-store, must-revalidate',
       }),
       body: fileBuffer,

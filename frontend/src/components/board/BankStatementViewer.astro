@@ -54,25 +54,36 @@
       The books are $1,057 behind the bank because of checks that have not cleared. QuickBooks shows $0.00 leftover after that.
     </p>
 
-    <!-- Month pager: Jan–Aug checking PDFs -->
-    <div class="flex items-center gap-1.5 overflow-x-auto mt-4 pt-3 border-t border-slate-200/80 text-xs">
-      <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1.5">Statement:</span>
+    <!-- Year stays put; months wrap so a 12-month year does not scroll the dropdown away -->
+    <div class="flex flex-col sm:flex-row sm:items-start gap-2 mt-4 pt-3 border-t border-slate-200/80 text-xs">
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Statement</span>
+        <label for="bank-year-select" class="sr-only">Statement year</label>
+        <select
+          id="bank-year-select"
+          class="h-8 px-2 rounded-lg font-bold text-xs bg-white border border-slate-200 text-slate-800 cursor-pointer dark:bg-teal-950/60 dark:border-teal-800/80 dark:text-white"
+        >
+          <option value="2026" selected>2026</option>
+        </select>
+      </div>
+      <div id="bank-month-pager" class="flex flex-wrap items-center gap-1.5 min-w-0">
       {['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08'].map((id) => (
         <button
           type="button"
-          class={`bank-month-btn px-2.5 py-1.5 rounded-lg font-bold text-xs whitespace-nowrap transition cursor-pointer ${
+          class={`bank-month-btn h-8 px-2.5 rounded-lg font-bold text-xs whitespace-nowrap transition cursor-pointer ${
             id === '2026-08'
               ? 'bg-[#173a39] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-teal-950/60 dark:text-teal-200 dark:border-teal-800/80'
           }`}
           data-bank-month={id}
         >
-          {id === '2026-01' ? 'Jan' : id === '2026-02' ? 'Feb' : id === '2026-03' ? 'Mar' : id === '2026-04' ? 'Apr' : id === '2026-05' ? 'May' : id === '2026-06' ? 'Jun' : id === '2026-07' ? 'Jul' : 'Aug'} 2026
+          {id === '2026-01' ? 'Jan' : id === '2026-02' ? 'Feb' : id === '2026-03' ? 'Mar' : id === '2026-04' ? 'Apr' : id === '2026-05' ? 'May' : id === '2026-06' ? 'Jun' : id === '2026-07' ? 'Jul' : 'Aug'}
         </button>
       ))}
+      </div>
     </div>
     <div id="bank-ytd-strip" class="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-600">
-      <span class="font-semibold text-slate-500 uppercase tracking-wider">2026 YTD bank</span>
+      <span id="bank-ytd-label" class="font-semibold text-slate-500 uppercase tracking-wider">2026 YTD bank</span>
       <span>In <strong id="bank-ytd-in" class="font-mono text-emerald-700">--</strong></span>
       <span>Out <strong id="bank-ytd-out" class="font-mono text-rose-700">--</strong></span>
       <span>Net <strong id="bank-ytd-net" class="font-mono text-slate-800">--</strong></span>
@@ -324,7 +335,7 @@
           data-pdf-url=""
           data-pdf-title="First Merchants Bank Statement (Aug 2026)"
         >
-          1. First Merchants Bank Statement (6 Pages)
+          1. First Merchants Bank Statement
         </button>
         <button
           type="button"
@@ -456,18 +467,27 @@
   }
 
   function initBankStatementViewer() {
-    // Month pager: Jan–Aug bank statements
-    document.querySelectorAll<HTMLButtonElement>('[data-bank-month]').forEach((btn) => {
-      if (btn.dataset.bound !== '1') {
-        btn.dataset.bound = '1';
-        btn.addEventListener('click', () => {
-          const key = btn.getAttribute('data-bank-month');
-          if (key && typeof (window as any).__switchBankMonth === 'function') {
-            (window as any).__switchBankMonth(key);
-          }
-        });
-      }
-    });
+    const pager = document.getElementById('bank-month-pager');
+    if (pager && pager.dataset.bound !== '1') {
+      pager.dataset.bound = '1';
+      pager.addEventListener('click', (event) => {
+        const btn = (event.target as HTMLElement | null)?.closest?.('[data-bank-month]') as HTMLButtonElement | null;
+        const key = btn?.getAttribute('data-bank-month');
+        if (key && typeof (window as any).__switchBankMonth === 'function') {
+          (window as any).__switchBankMonth(key);
+        }
+      });
+    }
+
+    const yearSelect = document.getElementById('bank-year-select') as HTMLSelectElement | null;
+    if (yearSelect && yearSelect.dataset.bound !== '1') {
+      yearSelect.dataset.bound = '1';
+      yearSelect.addEventListener('change', () => {
+        if (typeof (window as any).__switchBankYear === 'function') {
+          (window as any).__switchBankYear(yearSelect.value);
+        }
+      });
+    }
 
     // Tab Switching Logic
     const tabButtons = document.querySelectorAll<HTMLButtonElement>('.statement-tab-btn');
