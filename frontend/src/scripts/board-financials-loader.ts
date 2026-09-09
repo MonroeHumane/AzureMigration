@@ -515,7 +515,9 @@ function mergeExplorerCategories(list: any[]): any[] {
     const dest = map.get(key);
     dest.total += Number(cat.total) || 0;
     dest.txCount += Number(cat.txCount) || 0;
-    const payeeMap = new Map((dest.payees || []).map((p: any) => [p.name, { ...p, transactions: [...(p.transactions || [])] }]));
+    const payeeMap = new Map<string, any>(
+      (dest.payees || []).map((p: any) => [p.name, { ...p, transactions: [...(p.transactions || [])] }]),
+    );
     for (const payee of cat.payees || []) {
       if (!payeeMap.has(payee.name)) {
         payeeMap.set(payee.name, { ...payee, transactions: [...(payee.transactions || [])] });
