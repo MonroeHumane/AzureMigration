@@ -83,7 +83,8 @@ const commands = [
     const emptyMsg = document.getElementById('cmd-k-empty');
     const closeBtn = document.getElementById('cmd-k-close-btn');
 
-    if (!dialog || !input) return;
+    if (!dialog || !input || dialog.dataset.bound === '1') return;
+    dialog.dataset.bound = '1';
 
     let selectedIndex = 0;
     let visibleItems = items;

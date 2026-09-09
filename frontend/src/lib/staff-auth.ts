@@ -26,8 +26,12 @@ function getAuthStorage() {
       try {
         if (data) {
           const str = JSON.stringify(normalizeDirectusAuth(data) || data);
-          localStorage.setItem(DIRECTUS_AUTH_KEY, str);
           sessionStorage.setItem(DIRECTUS_AUTH_KEY, str);
+          if (localStorage.getItem(STAFF_REMEMBER_KEY) === 'true') {
+            localStorage.setItem(DIRECTUS_AUTH_KEY, str);
+          } else {
+            localStorage.removeItem(DIRECTUS_AUTH_KEY);
+          }
         } else {
           localStorage.removeItem(DIRECTUS_AUTH_KEY);
           sessionStorage.removeItem(DIRECTUS_AUTH_KEY);
@@ -43,20 +47,10 @@ export const staffClient = createDirectus(DIRECTUS_URL)
   .with(rest())
   .with(authentication('json', { storage: getAuthStorage() }));
 
-// Preserve original logout method
-const _originalLogout = staffClient.logout.bind(staffClient);
-// Flag controlling whether logout should be allowed
-let _allowSdkLogout = false;
-// Expose helpers to enable/disable logout for explicit sign‑out
-export function enableSdkLogout(): void { _allowSdkLogout = true; }
-export function disableSdkLogout(): void { _allowSdkLogout = false; }
-// Monkey‑patch logout – suppress unless explicitly enabled
-staffClient.logout = async (...args: any[]) => {
-  if (!_allowSdkLogout) {
-    console.warn('[StaffAuth] Suppressed automatic SDK logout');
-    return; // no server call, keep session intact
-  }
-  return _originalLogout(...args);
+// Directus SDK logs out automatically on some 401s. Never let that wipe the
+// HMAC staff session; explicit Sign Out uses logoutStaff() instead.
+staffClient.logout = async () => {
+  return;
 };
 
 export function isStaffHmacToken(token: string | null | undefined): token is string {
@@ -215,8 +209,26 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutM
   }
 }
 
+async function exchangeDirectusTokenForStaffSession(email: string, directusToken: string): Promise<string | null> {
+  const sRes = await fetchWithTimeout('/api/session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${directusToken}`,
+      'X-Staff-Token': directusToken,
+      'X-Authorization': `Bearer ${directusToken}`,
+    },
+    body: JSON.stringify({ email, directus_token: directusToken, token: directusToken }),
+  }, 8000);
+  if (!sRes.ok) return null;
+  const sData = await sRes.json().catch(() => ({}));
+  return sData && sData.token ? sData.token : null;
+}
+
 /**
- * Executes login via /api/login and Directus SDK, saves persistent tokens and user flags.
+ * Sign in through /api/login. That Function already authenticates against Directus
+ * and returns both the HMAC staff token and Directus tokens — do not call
+ * Directus /auth/login again on the happy path (it doubles wait time and can 429).
  */
 export async function loginStaff(opts: {
   email: string;
@@ -229,7 +241,6 @@ export async function loginStaff(opts: {
   let staffToken: string | null = null;
   let directusPayload: any = null;
 
-  // 1. Primary: Authenticate through Azure Functions /api/login
   try {
     const res = await fetchWithTimeout('/api/login', {
       method: 'POST',
@@ -256,36 +267,33 @@ export async function loginStaff(opts: {
     console.warn('[StaffAuth] /api/login call failed, falling back to Directus SDK:', err);
   }
 
-  // 2. Directus SDK authentication (for CMS items access)
-  try {
-    await staffClient.login({ email, password });
-    if (!staffToken) {
+  // Fallback only when Azure login did not issue a staff session.
+  if (!isStaffHmacToken(staffToken)) {
+    let sdkTimer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        staffClient.login({ email, password }),
+        new Promise((_, reject) => {
+          sdkTimer = setTimeout(() => {
+            reject(Object.assign(new Error('Directus login timed out'), { name: 'AbortError' }));
+          }, 10000);
+        }),
+      ]);
       const dt = await staffClient.getToken();
       if (dt) {
-        // Exchange Directus token for HMAC staff session token
+        staffToken = await exchangeDirectusTokenForStaffSession(email, dt);
         try {
-          const sRes = await fetchWithTimeout('/api/session', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${dt}`,
-              'X-Staff-Token': dt,
-              'X-Authorization': `Bearer ${dt}`,
-            },
-            body: JSON.stringify({ email, directus_token: dt, token: dt }),
-          }, 8000);
-          if (sRes.ok) {
-            const sData = await sRes.json();
-            if (sData && sData.token) {
-              staffToken = sData.token;
-            }
-          }
+          const stored = getAuthStorage().get();
+          if (stored) directusPayload = stored;
         } catch {}
       }
-    }
-  } catch (sdkErr: any) {
-    if (!staffToken) {
+    } catch (sdkErr: any) {
+      if (sdkErr?.name === 'AbortError') {
+        throw new Error('Authentication request timed out. Please check your network connection and try again.');
+      }
       throw sdkErr;
+    } finally {
+      if (sdkTimer) clearTimeout(sdkTimer);
     }
   }
 
@@ -313,6 +321,7 @@ export async function loginStaff(opts: {
       localStorage.removeItem(STAFF_AUTH_FLAG);
       localStorage.removeItem(STAFF_TOKEN_KEY);
       localStorage.removeItem(STAFF_REMEMBER_KEY);
+      localStorage.removeItem(STAFF_USER_KEY);
       localStorage.removeItem(DIRECTUS_AUTH_KEY);
     } catch {}
   }
@@ -334,24 +343,75 @@ export async function loginStaff(opts: {
   }
 }
 
+function resetLogoutButtons(): void {
+  if (typeof document === 'undefined') return;
+  const buttons = [
+    {
+      btn: 'global-staff-logout-btn',
+      text: 'logout-btn-text',
+      icon: 'logout-btn-icon',
+      spinner: 'logout-btn-spinner',
+    },
+    {
+      btn: 'sidebar-logout-btn',
+      text: 'sidebar-logout-text',
+      icon: 'sidebar-logout-icon',
+      spinner: 'sidebar-logout-spinner',
+    },
+  ];
+  for (const ids of buttons) {
+    const button = document.getElementById(ids.btn) as HTMLButtonElement | null;
+    if (button) button.disabled = false;
+    const label = document.getElementById(ids.text);
+    if (label) label.textContent = 'Sign Out';
+    document.getElementById(ids.icon)?.classList.remove('hidden');
+    document.getElementById(ids.spinner)?.classList.add('hidden');
+  }
+}
+
+function isStaffHubPath(pathname: string): boolean {
+  return pathname === '/internal' || pathname === '/internal/';
+}
+
 /**
- * Signs out of Staff Portal (revokes remote token and wipes all client-side storage).
- * Only invoked when user explicitly clicks "Sign Out".
+ * Signs out of Staff Portal. Clears local session immediately and does not wait
+ * on Directus — HMAC staff tokens are not revoked server-side, and a hung
+ * /auth/logout call is what made Sign Out feel stuck.
  */
 export async function logoutStaff(redirectUrl: string = '/internal/'): Promise<void> {
+  let refreshToken: string | null = null;
   try {
-    // Allow the SDK to perform a real logout for explicit sign‑out
-    enableSdkLogout();
-    await staffClient.logout();
+    const raw = localStorage.getItem(DIRECTUS_AUTH_KEY) || sessionStorage.getItem(DIRECTUS_AUTH_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      refreshToken = parsed?.refresh_token || parsed?.refreshToken || null;
+    }
   } catch {}
-  finally {
-    // Ensure automatic suppression is reinstated
-    disableSdkLogout();
-  }
 
   clearStaffClientSession();
 
-  window.location.href = redirectUrl;
+  if (refreshToken) {
+    try {
+      fetch(`${DIRECTUS_URL}/auth/logout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch {}
+  }
+
+  const passwordInput = document.getElementById('unified-password') as HTMLInputElement | null;
+  if (passwordInput) passwordInput.value = '';
+
+  if (isStaffHubPath(window.location.pathname) && isStaffHubPath(redirectUrl.replace(/\?.*$/, ''))) {
+    document.documentElement.classList.remove('staff-authenticated');
+    resetLogoutButtons();
+    window.history.replaceState({}, '', '/internal/');
+    return;
+  }
+
+  window.location.replace(redirectUrl);
 }
 
 /**

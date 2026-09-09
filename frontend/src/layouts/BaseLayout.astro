@@ -234,14 +234,6 @@ const schemaOrg = {
             targetEl.setAttribute('data-staff-theme', savedTheme);
             targetEl.classList.toggle('dark', savedTheme === 'dark');
             targetEl.style.colorScheme = savedTheme === 'dark' ? 'dark' : 'light';
-
-            var token = localStorage.getItem('mchs_staff_token') || sessionStorage.getItem('mchs_staff_token') || '';
-            var hasAuth = token.indexOf('mchs_') === 0 && token.indexOf('.') !== -1;
-            if (hasAuth) {
-              targetEl.classList.add('staff-authenticated');
-            } else {
-              targetEl.classList.remove('staff-authenticated');
-            }
           } catch (e) {}
         }
         syncStaffState(document.documentElement);

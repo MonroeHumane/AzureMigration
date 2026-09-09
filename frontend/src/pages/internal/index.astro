@@ -17,19 +17,6 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
   description="Humane Society of Monroe County Staff Portal: Animal Census, Board Financials, and Grants Pipeline."
   bodyClass="antialiased min-h-screen relative overflow-x-hidden"
 >
-  <!-- Zero-Flicker Synchronous Auth Hydration (Runs before paint) -->
-  <script is:inline>
-    (function() {
-      try {
-        var token = localStorage.getItem('mchs_staff_token') || sessionStorage.getItem('mchs_staff_token') || '';
-        var hasAuth = token.indexOf('mchs_') === 0 && token.indexOf('.') !== -1;
-        if (hasAuth) {
-          document.documentElement.classList.add('staff-authenticated');
-        }
-      } catch (e) {}
-    })();
-  </script>
-
   <!-- SCREEN 1: UNIFIED STAFF LOGIN GATE (Shown when unauthenticated) -->
   <div id="staff-portal-auth-gate" class="min-h-dvh flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
     <!-- Theme Switcher Pill in Top Right -->
@@ -762,9 +749,11 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
   }
 
   function initStaffPortal() {
-    initStaffThemeToggle();
-
     const loginForm = document.getElementById('unified-login-form') as HTMLFormElement | null;
+    if (!loginForm || loginForm.dataset.portalReady === '1') return;
+    loginForm.dataset.portalReady = '1';
+
+    initStaffThemeToggle();
     const emailInput = document.getElementById('unified-email') as HTMLInputElement | null;
     const passwordInput = document.getElementById('unified-password') as HTMLInputElement | null;
     const rememberMeInput = document.getElementById('unified-remember-me') as HTMLInputElement | null;
@@ -1008,8 +997,10 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
         if (passwordInput) passwordInput.setAttribute('aria-invalid', 'false');
 
         let isRateLimited = false;
+        let loginSucceeded = false;
         try {
           await loginStaff({ email, password, rememberMe });
+          loginSucceeded = true;
           document.documentElement.classList.add('staff-authenticated');
 
           if (staffUserEmail) {
@@ -1027,7 +1018,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
           const destRedirect = urlParams.get('redirect');
           if (destRedirect && destRedirect.startsWith('/internal') && destRedirect !== '/internal/' && destRedirect !== '/internal') {
             if (btnText) btnText.textContent = 'Redirecting...';
-            window.location.href = destRedirect;
+            window.location.replace(destRedirect);
             return;
           }
 
@@ -1035,6 +1026,16 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
           loadFinancialMetrics();
           void loadCensusSnapshot();
           void loadGrantsSnapshot();
+
+          if (emailInput) emailInput.disabled = false;
+          if (passwordInput) {
+            passwordInput.disabled = false;
+            passwordInput.value = '';
+          }
+          if (loginForm) loginForm.classList.remove('pointer-events-none', 'opacity-80');
+          if (submitBtn) submitBtn.disabled = false;
+          if (btnText) btnText.textContent = 'Sign In →';
+          if (btnSpinner) btnSpinner.classList.add('hidden');
         } catch (err: any) {
           console.warn('[StaffPortal] Login error:', err);
 
@@ -1079,14 +1080,16 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
           }
         } finally {
           isAuthenticating = false;
-          if (emailInput) emailInput.disabled = false;
-          if (passwordInput) passwordInput.disabled = false;
-          if (loginForm) loginForm.classList.remove('pointer-events-none', 'opacity-80');
-          if (!isRateLimited) {
-            if (submitBtn) submitBtn.disabled = false;
-            if (btnText) btnText.textContent = 'Sign In →';
+          if (!loginSucceeded) {
+            if (emailInput) emailInput.disabled = false;
+            if (passwordInput) passwordInput.disabled = false;
+            if (loginForm) loginForm.classList.remove('pointer-events-none', 'opacity-80');
+            if (!isRateLimited) {
+              if (submitBtn) submitBtn.disabled = false;
+              if (btnText) btnText.textContent = 'Sign In →';
+            }
+            if (btnSpinner) btnSpinner.classList.add('hidden');
           }
-          if (btnSpinner) btnSpinner.classList.add('hidden');
         }
       });
     }

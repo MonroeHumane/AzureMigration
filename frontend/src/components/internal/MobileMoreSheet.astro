@@ -359,6 +359,9 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     const handle = document.getElementById('mobile-more-sheet-handle');
     const backdrop = document.getElementById('mobile-more-sheet-backdrop');
 
+    if (!sheetDialog || sheetDialog.dataset.sheetReady === '1') return;
+    sheetDialog.dataset.sheetReady = '1';
+
     // Nav switch controls inside sheet
     const bottomBarBtn = document.getElementById('sheet-set-bottom-bar-btn');
     const hamburgerBtn = document.getElementById('sheet-set-hamburger-btn');

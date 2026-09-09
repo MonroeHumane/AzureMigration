@@ -505,10 +505,9 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
   import { initStaffThemeToggle } from '../../lib/staff-theme';
 
   function initStaffNav() {
-    // 0. Initialize Top-Left Theme Switcher
     initStaffThemeToggle();
 
-    // 1. Hydrate User Info
+    // 1. Hydrate User Info (safe to re-run after view transitions)
     const email = getStaffUserEmail();
     const emailEl = document.getElementById('nav-user-email');
     const avatarEl = document.getElementById('nav-user-avatar');
@@ -526,8 +525,9 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       avatarEl.textContent = initials;
     }
 
-    // 2. Mobile Drawer Toggle & Touch Swipe Dismissal
-    const headerEl = document.querySelector('.staff-portal-header');
+    const headerEl = document.querySelector('.staff-portal-header') as HTMLElement | null;
+    if (headerEl?.dataset.navReady === '1') return;
+    if (headerEl) headerEl.dataset.navReady = '1';
     const mobileBtn = document.getElementById('mobile-nav-toggle-btn');
     const drawer = document.getElementById('mobile-nav-drawer');
     const hamburgerIcon = document.getElementById('hamburger-icon');
