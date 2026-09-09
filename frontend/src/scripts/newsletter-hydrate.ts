@@ -189,14 +189,31 @@ function setMetaContent(selector: string, value: string) {
   if (el) el.setAttribute('content', value);
 }
 
-function applyIssueSeo(issue: LiveNewsletterIssue, missing = false) {
-  const pageTitle = missing
-    ? 'Issue not found | 734-243-3669'
-    : `${issue.seo_title || issue.title || 'Newsletter'} | 734-243-3669`;
+function applyIssueSeo(issue: LiveNewsletterIssue | null, missing = false) {
+  if (missing || !issue) {
+    const pageTitle = 'Issue not found | 734-243-3669';
+    const description = 'That newsletter is not published, or the link is out of date.';
+    document.title = pageTitle;
+    setMetaContent('meta[name="description"]', description);
+    setMetaContent('meta[property="og:title"]', pageTitle);
+    setMetaContent('meta[property="og:description"]', description);
+    setMetaContent('meta[name="twitter:title"]', pageTitle);
+    setMetaContent('meta[name="twitter:description"]', description);
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement('meta');
+      robots.setAttribute('name', 'robots');
+      document.head.appendChild(robots);
+    }
+    robots.setAttribute('content', 'noindex, nofollow');
+    document.getElementById('nl-newsarticle-jsonld')?.remove();
+    return;
+  }
+
+  const pageTitle = `${issue.seo_title || issue.title || 'Newsletter'} | 734-243-3669`;
+  const description =
+    issue.seo_description || issueExcerpt(issue, 160) || `Monroe Humane Society Newsletter — ${issue.title || ''}`.trim();
   document.title = pageTitle;
-  const description = missing
-    ? 'That newsletter is not published, or the link is out of date.'
-    : issue.seo_description || issueExcerpt(issue, 160) || `Monroe Humane Society Newsletter — ${issue.title || ''}`.trim();
   setMetaContent('meta[name="description"]', description);
   setMetaContent('meta[property="og:title"]', pageTitle);
   setMetaContent('meta[property="og:description"]', description);
@@ -206,21 +223,10 @@ function applyIssueSeo(issue: LiveNewsletterIssue, missing = false) {
     setMetaContent('meta[property="og:image"]', issue.hero_image);
     setMetaContent('meta[name="twitter:image"]', issue.hero_image);
   }
-  let robots = document.querySelector('meta[name="robots"]');
-  if (missing) {
-    if (!robots) {
-      robots = document.createElement('meta');
-      robots.setAttribute('name', 'robots');
-      document.head.appendChild(robots);
-    }
-    robots.setAttribute('content', 'noindex, nofollow');
-  } else if (robots) {
-    robots.setAttribute('content', 'index, follow');
-  }
+  const robots = document.querySelector('meta[name="robots"]');
+  if (robots) robots.setAttribute('content', 'index, follow');
 
-  const existing = document.getElementById('nl-newsarticle-jsonld');
-  if (existing) existing.remove();
-  if (missing) return;
+  document.getElementById('nl-newsarticle-jsonld')?.remove();
   const script = document.createElement('script');
   script.id = 'nl-newsarticle-jsonld';
   script.type = 'application/ld+json';
@@ -248,12 +254,12 @@ function applyIssueSeo(issue: LiveNewsletterIssue, missing = false) {
 export async function hydrateIssuePage(slug = slugFromPath()): Promise<boolean> {
   const root = document.querySelector<HTMLElement>('[data-newsletter-issue]');
   if (!root || !slug) {
-    applyIssueSeo({ title: '', slug: '' }, true);
+    applyIssueSeo(null, true);
     return false;
   }
   const issue = await fetchIssueBySlug(slug);
   if (!issue) {
-    applyIssueSeo({ title: '', slug }, true);
+    applyIssueSeo(null, true);
     return false;
   }
   applyIssueSeo(issue, false);

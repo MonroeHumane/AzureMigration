@@ -438,15 +438,12 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
     window.addEventListener('beforeunload', (e) => {
       if (!nlDirty) return;
       e.preventDefault();
-      e.returnValue = '';
+      Object.assign(e, { returnValue: '' });
     });
     function slugifyClient(value) {
       return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'issue';
     }
     function markNlDirty() { nlDirty = true; }
-    function escapeText(value) {
-      return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
     function setNlSaving(on) {
       nlSaving = !!on;
       ['btn-save-issue', 'btn-publish-issue', 'btn-unpublish-issue', 'btn-toggle-featured', 'btn-schedule-issue', 'btn-add-issue'].forEach((id) => {

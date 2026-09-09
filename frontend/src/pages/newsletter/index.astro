@@ -4,6 +4,14 @@ import { getNewsletterIssues } from '../../lib/directus';
 
 const issues = await getNewsletterIssues();
 const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png';
+
+function formatArchiveDate(value?: string) {
+  if (!value) return '';
+  const isoDay = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const d = isoDay ? new Date(`${value}T12:00:00`) : new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
 ---
 
 <BaseLayout
@@ -51,11 +59,7 @@ const FALLBACK_THUMB = '/assets/recovered/images/monroe-humane.org/wp-content/up
                 )}
                 <h3 class="text-xl font-serif text-teal-900 group-hover:text-teal-700 transition-colors">{issue.title}</h3>
                 {issue.issue_date && (
-                  <p class="text-sm text-gray-500 mt-2">
-                    {/^\d{4}-\d{2}-\d{2}$/.test(issue.issue_date)
-                      ? new Date(`${issue.issue_date}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-                      : issue.issue_date}
-                  </p>
+                  <p class="text-sm text-gray-500 mt-2">{formatArchiveDate(issue.issue_date)}</p>
                 )}
                 {issue.excerpt && (
                   <p class="text-sm text-gray-600 mt-3 leading-relaxed">{issue.excerpt}</p>
