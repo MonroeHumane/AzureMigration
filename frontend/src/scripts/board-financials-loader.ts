@@ -18,7 +18,7 @@ function applyDashboard(data: any, token: string | null): void {
   hydrateExecutiveBanner(data.meta);
   hydrateHeadlineKpis(data.headline_kpis);
   hydrateOperatingBridge(data.headline_kpis, data.bridge_composition);
-  hydrateMonthlyStatements(data.monthly_statements);
+  hydrateMonthlyStatements(data.monthly_statements, data.monthly_drilldown?.months);
   hydratePositionAndCash(data.statement_of_position);
   hydrateMultiYear(data.multiyear_comparison);
   hydrateScenarioSimulator(data);
@@ -415,7 +415,304 @@ function hydrateStatementFootings(statements: any[]) {
   if (mfPct) mfPct.textContent = `${totalMarginPct.toFixed(1)}%`;
 }
 
-function hydrateMonthlyStatements(statements: any[]) {
+function escapeHtml(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function renderShareBar(pct: number, tone: 'rev' | 'exp'): string {
+  const width = Math.min(100, Math.max(0, Number.isFinite(pct) ? pct : 0));
+  return `<div class="drawer-share-track" aria-hidden="true"><div class="drawer-share-fill ${tone === 'rev' ? 'is-rev' : 'is-exp'}" style="width:${width}%"></div></div>`;
+}
+
+function renderTxRows(transactions: any[], inflow: boolean): string {
+  const prefix = inflow ? '+' : '';
+  const amtClass = inflow ? 'text-emerald-700' : 'text-slate-900';
+  return (transactions || []).map((t: any) => `
+    <div class="flex items-start justify-between gap-2 text-[11px] py-1.5 px-1.5 rounded hover:bg-white/80">
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="font-mono text-slate-400 shrink-0">${escapeHtml(t.date)}</span>
+          ${t.num ? `<span class="px-1 rounded bg-slate-200 text-slate-700 text-[9px] font-mono">#${escapeHtml(t.num)}</span>` : ''}
+          <span class="text-slate-700 font-medium">${escapeHtml(t.type)}</span>
+        </div>
+        ${t.memo ? `<div class="text-[10px] text-slate-500 truncate mt-0.5">${escapeHtml(t.memo)}</div>` : ''}
+        ${t.split ? `<div class="text-[9px] text-slate-400 truncate">Account: ${escapeHtml(t.split)}</div>` : ''}
+      </div>
+      <span class="font-mono font-bold text-xs ${amtClass} shrink-0">${prefix}${formatCents(Number(t.amount) || 0)}</span>
+    </div>
+  `).join('');
+}
+
+function renderPayeeBlocks(payees: any[], monthId: string, catIdx: number, inflow: boolean): string {
+  const prefix = inflow ? '+' : '';
+  const amtClass = inflow ? 'text-emerald-800' : 'text-slate-900';
+  const border = inflow ? 'border-emerald-100' : 'border-slate-200';
+  return (payees || []).map((payee: any, pIdx: number) => {
+    const payeeId = `${inflow ? 'rev' : 'exp'}-payee-${monthId}-${catIdx}-${pIdx}`;
+    return `
+      <div class="drawer-payee-item bg-white/90 rounded border ${border} p-2" data-payee-name="${escapeHtml((payee.name || '').toLowerCase())}">
+        <button type="button" class="payee-toggle-btn w-full flex items-center justify-between text-left cursor-pointer" data-toggle-target="${payeeId}" aria-expanded="false">
+          <div class="flex items-center gap-1.5 min-w-0 pr-2">
+            <svg class="drawer-chevron w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            <span class="text-xs font-medium text-slate-800 truncate">${escapeHtml(payee.name)}</span>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="text-[10px] text-slate-400 font-mono">${payee.txCount || 0} txs</span>
+            <span class="font-mono font-semibold text-xs ${amtClass}">${prefix}${formatCents(Number(payee.total) || 0)}</span>
+          </div>
+        </button>
+        <div id="${payeeId}" class="hidden mt-2 pt-2 border-t border-slate-100 space-y-0.5">
+          ${renderTxRows(payee.transactions, inflow)}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCategoryBlocks(
+  cats: any[],
+  monthId: string,
+  inflow: boolean,
+  fallbackItems: any[],
+  fallbackTotal: number,
+): string {
+  if (cats.length) {
+    return cats.map((cat: any, catIdx: number) => {
+      const catId = `${inflow ? 'rev' : 'exp'}-cat-${monthId}-${catIdx}`;
+      const pct = Number(cat.pctOfTotal ?? 0);
+      const prefix = inflow ? '+' : '';
+      const amtClass = inflow ? 'text-emerald-700' : 'text-slate-900';
+      const hover = inflow ? 'hover:bg-emerald-50/60' : 'hover:bg-slate-50';
+      const panel = inflow ? 'bg-emerald-50/30 border-emerald-400' : 'bg-slate-50/60 border-[#173a39]';
+      return `
+        <div class="py-1 drawer-cat-item" data-cat-name="${escapeHtml((cat.name || '').toLowerCase())}">
+          <button type="button" class="cat-toggle-btn w-full text-left p-2 rounded-lg ${hover} transition cursor-pointer" data-toggle-target="${catId}" aria-expanded="false">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0 pr-2">
+                <svg class="drawer-chevron w-3.5 h-3.5 ${inflow ? 'text-emerald-600' : 'text-teal-700'} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                <span class="w-2 h-2 rounded-full ${inflow ? 'bg-emerald-500' : 'bg-slate-400'} shrink-0"></span>
+                <div class="min-w-0">
+                  <span class="font-semibold text-slate-800 text-xs block truncate">${escapeHtml(cat.name)}</span>
+                  <span class="text-[10px] text-slate-400 block truncate">${escapeHtml(cat.group || '')}</span>
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="font-mono font-bold text-xs ${amtClass} block">${prefix}${formatCents(Number(cat.total) || 0)}</span>
+                <span class="text-[10px] text-slate-400">${pct.toFixed(1)}% · ${cat.payeeCount || 0} ${inflow ? 'entities' : 'payees'} · ${cat.txCount || 0} txs</span>
+              </div>
+            </div>
+            ${renderShareBar(pct, inflow ? 'rev' : 'exp')}
+          </button>
+          <div id="${catId}" class="hidden pl-5 pr-1 pt-1 pb-2 space-y-1.5 ${panel} rounded-b-lg border-l-2 mt-1">
+            ${renderPayeeBlocks(cat.payees, monthId, catIdx, inflow)}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  return (fallbackItems || []).map((it: any) => {
+    const pct = fallbackTotal > 0 ? (Number(it.amount) / fallbackTotal) * 100 : 0;
+    const prefix = inflow ? '+' : '';
+    const amtClass = inflow ? 'text-emerald-700' : 'text-slate-900';
+    return `
+      <div class="py-2 px-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0 pr-2">
+            <div class="font-semibold text-slate-800 text-xs truncate">${escapeHtml(it.name)}</div>
+            ${it.group ? `<span class="text-[10px] text-slate-400 block truncate">${escapeHtml(it.group)}</span>` : ''}
+          </div>
+          <div class="text-right shrink-0">
+            <span class="font-mono font-bold text-xs ${amtClass} block">${prefix}${formatCents(Number(it.amount) || 0)}</span>
+            <span class="text-[10px] text-slate-400">${pct.toFixed(1)}%</span>
+          </div>
+        </div>
+        ${renderShareBar(pct, inflow ? 'rev' : 'exp')}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderMonthDrawerToolbar(m: any, drill: any, drawerId: string): string {
+  const expTxs = drill?.totalExpenseTxs || 0;
+  const revTxs = drill?.totalRevenueTxs || 0;
+  return `
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pb-3 border-b border-slate-200">
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-sm font-bold text-slate-900">${escapeHtml(m.month)} Hierarchical Drilldown</span>
+          <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">QuickBooks Verified</span>
+          <span class="text-[11px] text-slate-500">${expTxs} spend txs · ${revTxs} inflow txs</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-0.5">Click a category to see payees, then a payee to open each transaction.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="relative min-w-[200px] flex-1">
+          <input type="text" placeholder="Filter categories, payees, checks..." class="drawer-search-input w-full pl-7 pr-2 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-teal-600 focus:border-teal-600" data-drawer-id="${drawerId}" />
+          <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+        <button type="button" class="drawer-expand-all px-2.5 py-1.5 rounded-md text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 cursor-pointer">Expand all</button>
+        <button type="button" class="drawer-collapse-all px-2.5 py-1.5 rounded-md text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 cursor-pointer">Collapse</button>
+        <button type="button" class="jump-to-explorer-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs cursor-pointer" data-month-id="${escapeHtml(m.id)}" title="Open this month in the certified P&amp;L explorer">
+          <span>Certified P&amp;L</span>
+          <svg class="w-3 h-3 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderFlowCard(opts: {
+  monthId: string;
+  monthLabel: string;
+  title: string;
+  total: number;
+  cats: any[];
+  fallbackItems: any[];
+  inflow: boolean;
+}): string {
+  const { monthId, monthLabel, title, total, cats, fallbackItems, inflow } = opts;
+  const count = cats.length || (fallbackItems || []).length;
+  const headerBg = inflow ? 'bg-emerald-900' : 'bg-[#173a39]';
+  const headerText = inflow ? 'text-emerald-100' : 'text-slate-200';
+  const totalChip = inflow
+    ? 'text-emerald-200 bg-emerald-950/60 border-emerald-700/60'
+    : 'text-amber-200 bg-teal-950/60 border-teal-700/60';
+  const border = inflow ? 'border-emerald-200/80' : 'border-rose-200/80';
+  const footer = inflow ? 'bg-emerald-50/70 border-emerald-100 text-emerald-900' : 'bg-slate-50 border-slate-200 text-slate-900';
+  const footerAmt = inflow ? 'text-emerald-800' : 'text-slate-900';
+  const noun = inflow ? 'Inflows' : 'Spend';
+  return `
+    <div class="bg-white rounded-xl border ${border} shadow-2xs overflow-hidden flex flex-col">
+      <div class="${headerBg} text-white px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full ${inflow ? 'bg-emerald-400' : 'bg-amber-400'} shrink-0"></span>
+          <h4 class="text-xs font-bold uppercase tracking-wider ${headerText}">${title} (${escapeHtml(monthLabel)})</h4>
+        </div>
+        <span class="text-xs font-mono font-bold ${totalChip} px-2 py-0.5 rounded border">${inflow ? '+' : ''}${formatDollar(total)}</span>
+      </div>
+      <div class="p-2 divide-y divide-slate-100 drawer-cat-list" data-flow="${inflow ? 'revenue' : 'expense'}">
+        ${renderCategoryBlocks(cats, monthId, inflow, fallbackItems, total)}
+      </div>
+      <div class="mt-auto px-4 py-2.5 ${footer} border-t flex items-center justify-between text-xs font-bold">
+        <span>Total Verified ${noun} (${count} categories):</span>
+        <span class="font-mono font-bold ${footerAmt}">${formatDollar(total)}</span>
+      </div>
+    </div>
+  `;
+}
+
+function bindMonthlyStatementInteractions(): void {
+  const root = document.getElementById('monthly-statement-root');
+  if (!root || root.dataset.drawerBound === '1') return;
+  root.dataset.drawerBound = '1';
+
+  const setOpen = (btn: Element, panel: Element, open: boolean) => {
+    panel.classList.toggle('hidden', !open);
+    btn.classList.toggle('is-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  };
+
+  root.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    const toggleBtn = target.closest('.cat-toggle-btn, .payee-toggle-btn');
+    if (toggleBtn) {
+      event.preventDefault();
+      const id = toggleBtn.getAttribute('data-toggle-target');
+      const panel = id ? document.getElementById(id) : null;
+      if (panel) setOpen(toggleBtn, panel, panel.classList.contains('hidden'));
+      return;
+    }
+
+    const scopeBtn = target.closest('.drawer-expand-all, .drawer-collapse-all');
+    if (scopeBtn) {
+      const drawer = scopeBtn.closest('[data-month-drawer]');
+      if (!drawer) return;
+      const expand = scopeBtn.classList.contains('drawer-expand-all');
+      drawer.querySelectorAll('[id^="rev-cat-"], [id^="exp-cat-"], [id^="rev-payee-"], [id^="exp-payee-"]').forEach((panel) => {
+        panel.classList.toggle('hidden', !expand);
+      });
+      drawer.querySelectorAll('.cat-toggle-btn, .payee-toggle-btn').forEach((btn) => {
+        btn.classList.toggle('is-open', expand);
+        btn.setAttribute('aria-expanded', String(expand));
+      });
+      return;
+    }
+
+    const jump = target.closest('.jump-to-explorer-btn');
+    if (jump) {
+      const monthId = jump.getAttribute('data-month-id');
+      if (monthId && typeof (window as any).switchExpenseExplorerMonth === 'function') {
+        (window as any).switchExpenseExplorerMonth(monthId);
+      }
+      const expensesSec = document.getElementById('sec-expenses');
+      if (expensesSec) {
+        expensesSec.classList.remove('hidden');
+        expensesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    const mobileBtn = target.closest('[data-mobile-target]');
+    if (mobileBtn) {
+      const id = mobileBtn.getAttribute('data-mobile-target');
+      const drawer = id ? document.getElementById(id) : null;
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+        mobileBtn.querySelector('svg')?.classList.toggle('rotate-180');
+      }
+      return;
+    }
+
+    const row = target.closest('tr[data-target]');
+    if (row && root.contains(row)) {
+      const id = row.getAttribute('data-target');
+      const drawer = id ? document.getElementById(id) : null;
+      if (drawer) {
+        const open = drawer.classList.contains('hidden');
+        drawer.classList.toggle('hidden', !open);
+        row.classList.toggle('is-open', open);
+      }
+    }
+  });
+
+  root.addEventListener('input', (event) => {
+    const input = event.target as HTMLInputElement | null;
+    if (!input || !input.classList.contains('drawer-search-input')) return;
+    const drawerId = input.getAttribute('data-drawer-id');
+    const drawer = drawerId ? document.getElementById(drawerId) : null;
+    if (!drawer) return;
+    const query = input.value.toLowerCase().trim();
+    drawer.querySelectorAll<HTMLElement>('.drawer-cat-item').forEach((catItem) => {
+      const catName = catItem.getAttribute('data-cat-name') || '';
+      let matchedPayees = 0;
+      catItem.querySelectorAll<HTMLElement>('.drawer-payee-item').forEach((pItem) => {
+        const hit = !query
+          || (pItem.getAttribute('data-payee-name') || '').includes(query)
+          || (pItem.textContent || '').toLowerCase().includes(query);
+        pItem.classList.toggle('hidden', Boolean(query) && !hit);
+        if (hit) matchedPayees += 1;
+      });
+      const show = !query || catName.includes(query) || matchedPayees > 0;
+      catItem.classList.toggle('hidden', !show);
+      if (query && show) {
+        const catSub = catItem.querySelector('[id^="rev-cat-"], [id^="exp-cat-"]');
+        if (catSub) {
+          catSub.classList.remove('hidden');
+          catItem.querySelector('.cat-toggle-btn')?.classList.add('is-open');
+        }
+      }
+    });
+  });
+}
+
+function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<string, any>) {
   if (!statements || !statements.length) return;
 
   const tbody = document.getElementById('statement-rows-tbody');
@@ -424,14 +721,7 @@ function hydrateMonthlyStatements(statements: any[]) {
     root.setAttribute('data-statements', JSON.stringify(statements));
   }
 
-  // If statically rendered rows with 3-level drilldowns are already present, preserve them!
-  const hasExistingDrilldowns = document.getElementById('row-month_2026_0');
-  const hasLoadingRow = document.getElementById('statement-loading-row');
-  if (hasExistingDrilldowns && !hasLoadingRow) {
-    // Update footing only
-    hydrateStatementFootings(statements);
-    return;
-  }
+  bindMonthlyStatementInteractions();
 
   if (tbody) {
     tbody.innerHTML = '';
@@ -444,10 +734,10 @@ function hydrateMonthlyStatements(statements: any[]) {
 
       tr.innerHTML = `
         <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap flex items-center gap-2">
-          <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition transform group-[.is-open]:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="drawer-month-chevron w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
-          <span>${m.month}</span>
+          <span>${escapeHtml(m.month)}</span>
           ${m.is_partial ? '<span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded border border-amber-200">Partial</span>' : ''}
         </td>
         <td class="py-3 px-3 text-right font-mono font-medium text-slate-900 whitespace-nowrap">${formatDollar(m.revenue)}</td>
@@ -462,9 +752,9 @@ function hydrateMonthlyStatements(statements: any[]) {
           ${m.margin_pct.toFixed(1)}%
         </td>
         <td class="py-3 px-4 text-xs text-slate-500 whitespace-nowrap flex items-center justify-between">
-          <span class="truncate max-w-[140px] sm:max-w-xs" title="${m.driver}">${m.driver}</span>
+          <span class="truncate max-w-[140px] sm:max-w-xs" title="${escapeHtml(m.driver)}">${escapeHtml(m.driver)}</span>
           <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${isSurplus ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
-            ${m.status}
+            ${escapeHtml(m.status)}
           </span>
         </td>
       `;
@@ -474,115 +764,45 @@ function hydrateMonthlyStatements(statements: any[]) {
       drawerTr.id = `drawer-${m.id}`;
       drawerTr.className = 'hidden bg-[#fbf9f5] border-y border-slate-200/80';
 
-      const revItemsHtml = (m.rev_items || [])
-        .map((it: any) => {
-          const pct = m.revenue > 0 ? ((it.amount / m.revenue) * 100).toFixed(1) : '0.0';
-          return `
-            <div class="py-2 px-2 flex items-center justify-between hover:bg-emerald-50/40 rounded transition">
-              <div class="pr-2 min-w-0">
-                <div class="font-semibold text-slate-800 text-xs truncate">${it.name}</div>
-                ${it.group ? `<span class="text-[10px] text-slate-400 font-medium block truncate">${it.group}</span>` : ''}
-              </div>
-              <div class="text-right shrink-0">
-                <span class="font-mono font-bold text-xs text-emerald-700 block">+${formatCents(it.amount)}</span>
-                <span class="text-[10px] text-slate-400 font-medium">${pct}% of rev</span>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      const expItemsHtml = (m.exp_items || [])
-        .map((it: any) => {
-          const pct = m.total_exp > 0 ? ((it.amount / m.total_exp) * 100).toFixed(1) : '0.0';
-          return `
-            <div class="py-2 px-2 flex items-center justify-between hover:bg-slate-50 rounded transition">
-              <div class="pr-2 min-w-0">
-                <div class="font-semibold text-slate-800 text-xs truncate">${it.name}</div>
-                ${it.group ? `<span class="text-[10px] text-slate-400 font-medium block truncate">${it.group}</span>` : ''}
-              </div>
-              <div class="text-right shrink-0">
-                <span class="font-mono font-bold text-xs text-slate-900 block">${formatCents(it.amount)}</span>
-                <span class="text-[10px] text-slate-400 font-medium">${pct}% of spend</span>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
+      const drill = drilldownMonths?.[m.id] || null;
+      const revCats = Array.isArray(drill?.revenueCategories) ? drill.revenueCategories : [];
+      const expCats = Array.isArray(drill?.expenseCategories) ? drill.expenseCategories : [];
 
       drawerTr.innerHTML = `
-        <td colspan="9" class="p-4 sm:p-6">
+        <td colspan="9" class="p-4 sm:p-6" data-month-drawer="${escapeHtml(m.id)}">
           <div class="space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-bold text-slate-900">${m.month} Complete Category Breakdown</span>
-                <span class="text-[11px] text-slate-500 font-medium">QuickBooks Online Verified Ledger</span>
-              </div>
-              <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span class="font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                  Total Revenue: <strong class="font-mono">${formatDollar(m.revenue)}</strong> (${(m.rev_items || []).length} categories)
-                </span>
-                <span class="font-semibold text-rose-800 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">
-                  Total Expenditures: <strong class="font-mono">${formatDollar(m.total_exp)}</strong> (${(m.exp_items || []).length} categories)
-                </span>
-              </div>
+            ${renderMonthDrawerToolbar(m, drill, `drawer-${m.id}`)}
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                Total Revenue: <strong class="font-mono">${formatDollar(m.revenue)}</strong> (${revCats.length || (m.rev_items || []).length} categories)
+              </span>
+              <span class="font-semibold text-rose-800 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">
+                Total Expenditures: <strong class="font-mono">${formatDollar(m.total_exp)}</strong> (${expCats.length || (m.exp_items || []).length} categories)
+              </span>
             </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <!-- Revenue Inflows Schedule -->
-              <div class="bg-white rounded-xl border border-emerald-200/80 shadow-2xs overflow-hidden flex flex-col">
-                <div class="bg-emerald-900 text-white px-4 py-2.5 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75"/></svg>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-100">
-                      Revenue Inflows (${m.month})
-                    </h4>
-                  </div>
-                  <span class="text-xs font-mono font-bold text-emerald-200 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">
-                    ${formatDollar(m.revenue)}
-                  </span>
-                </div>
-                <div class="p-3 divide-y divide-slate-100 max-h-96 overflow-y-auto">
-                  ${revItemsHtml}
-                </div>
-                <div class="mt-auto px-4 py-2.5 bg-emerald-50/70 border-t border-emerald-100 flex items-center justify-between text-xs text-emerald-900 font-bold">
-                  <span>Total Verified Inflows (${(m.rev_items || []).length} categories):</span>
-                  <span class="font-mono font-bold text-emerald-800">${formatDollar(m.revenue)}</span>
-                </div>
-              </div>
-
-              <!-- Expenditures Schedule -->
-              <div class="bg-white rounded-xl border border-rose-200/80 shadow-2xs overflow-hidden flex flex-col">
-                <div class="bg-[#173a39] text-white px-4 py-2.5 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-rose-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75"/></svg>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">
-                      Expenditures by Category (${m.month})
-                    </h4>
-                  </div>
-                  <span class="text-xs font-mono font-bold text-amber-200 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-700/60">
-                    ${formatDollar(m.total_exp)}
-                  </span>
-                </div>
-                <div class="p-3 divide-y divide-slate-100 max-h-96 overflow-y-auto">
-                  ${expItemsHtml}
-                </div>
-                <div class="mt-auto px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-900 font-bold">
-                  <span>Total Verified Spend (${(m.exp_items || []).length} categories):</span>
-                  <span class="font-mono font-bold text-slate-900">${formatDollar(m.total_exp)}</span>
-                </div>
-              </div>
+              ${renderFlowCard({
+                monthId: m.id,
+                monthLabel: m.month,
+                title: 'Revenue Inflows',
+                total: m.revenue,
+                cats: revCats,
+                fallbackItems: m.rev_items || [],
+                inflow: true,
+              })}
+              ${renderFlowCard({
+                monthId: m.id,
+                monthLabel: m.month,
+                title: 'Expenditures by Category',
+                total: m.total_exp,
+                cats: expCats,
+                fallbackItems: m.exp_items || [],
+                inflow: false,
+              })}
             </div>
           </div>
         </td>
       `;
-
-      // Accordion click handler
-      tr.addEventListener('click', () => {
-        const isOpen = !drawerTr.classList.contains('hidden');
-        drawerTr.classList.toggle('hidden', isOpen);
-        tr.classList.toggle('is-open', !isOpen);
-      });
 
       tbody.appendChild(tr);
       tbody.appendChild(drawerTr);
@@ -599,48 +819,18 @@ function hydrateMonthlyStatements(statements: any[]) {
       card.className = 'p-4 bg-white hover:bg-slate-50/80 transition';
       card.id = `mobile-card-${m.id}`;
 
-      const revItemsHtml = (m.rev_items || [])
-        .map((it: any) => {
-          const pct = m.revenue > 0 ? ((it.amount / m.revenue) * 100).toFixed(1) : '0.0';
-          return `
-            <div class="py-1.5 px-1 flex justify-between items-center text-slate-700">
-              <div class="min-w-0 pr-2">
-                <span class="font-medium text-slate-800 block truncate">${it.name}</span>
-                ${it.group ? `<span class="text-[10px] text-slate-400 block truncate">${it.group}</span>` : ''}
-              </div>
-              <div class="text-right shrink-0">
-                <span class="font-mono font-semibold text-emerald-700 block">+${formatDollar(it.amount)}</span>
-                <span class="text-[9px] text-slate-400">${pct}%</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-      const expItemsHtml = (m.exp_items || [])
-        .map((it: any) => {
-          const pct = m.total_exp > 0 ? ((it.amount / m.total_exp) * 100).toFixed(1) : '0.0';
-          return `
-            <div class="py-1.5 px-1 flex justify-between items-center text-slate-700">
-              <div class="min-w-0 pr-2">
-                <span class="font-medium text-slate-800 block truncate">${it.name}</span>
-                ${it.group ? `<span class="text-[10px] text-slate-400 block truncate">${it.group}</span>` : ''}
-              </div>
-              <div class="text-right shrink-0">
-                <span class="font-mono font-semibold text-slate-900 block">${formatDollar(it.amount)}</span>
-                <span class="text-[9px] text-slate-400">${pct}%</span>
-              </div>
-            </div>
-          `;
-        }).join('');
+      const drill = drilldownMonths?.[m.id] || null;
+      const revCats = Array.isArray(drill?.revenueCategories) ? drill.revenueCategories : [];
+      const expCats = Array.isArray(drill?.expenseCategories) ? drill.expenseCategories : [];
 
       card.innerHTML = `
         <div class="flex items-start justify-between gap-2 mb-2">
           <div>
             <div class="flex items-center gap-1.5 font-bold text-slate-900 text-sm">
-              <span>${m.month}</span>
+              <span>${escapeHtml(m.month)}</span>
               ${m.is_partial ? '<span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded border border-amber-200">Partial</span>' : ''}
             </div>
-            <div class="text-[11px] text-slate-500 mt-0.5" title="${m.driver}">${m.driver}</div>
+            <div class="text-[11px] text-slate-500 mt-0.5" title="${escapeHtml(m.driver)}">${escapeHtml(m.driver)}</div>
           </div>
           <div class="text-right flex flex-col items-end shrink-0">
             <span class="font-mono font-bold text-sm ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}">
@@ -676,43 +866,40 @@ function hydrateMonthlyStatements(statements: any[]) {
           class="w-full py-1.5 px-3 rounded text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100/80 border border-teal-200/60 flex items-center justify-center gap-1.5 transition cursor-pointer"
           data-mobile-target="mobile-drawer-${m.id}"
         >
-          <span>View Breakdown</span>
+          <span>View Hierarchical Drilldown</span>
           <svg class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-        <div id="mobile-drawer-${m.id}" class="hidden pt-3 space-y-3">
-          <div class="bg-emerald-50/40 p-3 rounded-lg border border-emerald-100 text-xs">
-            <h4 class="text-[11px] font-bold uppercase tracking-wider text-emerald-900 pb-1.5 border-b border-emerald-200/60 mb-1.5">
-              Revenue Inflows Schedule (${m.month})
-            </h4>
-            <div class="space-y-1">${revItemsHtml}</div>
-          </div>
-          <div class="bg-rose-50/40 p-3 rounded-lg border border-rose-100 text-xs">
-            <h4 class="text-[11px] font-bold uppercase tracking-wider text-rose-900 pb-1.5 border-b border-rose-200/60 mb-1.5">
-              Expenditures Schedule (${m.month})
-            </h4>
-            <div class="space-y-1">${expItemsHtml}</div>
-          </div>
+        <div id="mobile-drawer-${m.id}" class="hidden pt-3 space-y-3" data-month-drawer="${escapeHtml(m.id)}">
+          ${renderMonthDrawerToolbar(m, drill, `mobile-drawer-${m.id}`)}
+          ${renderFlowCard({
+            monthId: `m-${m.id}`,
+            monthLabel: m.month,
+            title: 'Revenue Inflows',
+            total: m.revenue,
+            cats: revCats,
+            fallbackItems: m.rev_items || [],
+            inflow: true,
+          })}
+          ${renderFlowCard({
+            monthId: `m-${m.id}`,
+            monthLabel: m.month,
+            title: 'Expenditures',
+            total: m.total_exp,
+            cats: expCats,
+            fallbackItems: m.exp_items || [],
+            inflow: false,
+          })}
         </div>
       `;
-
-      const btn = card.querySelector('[data-mobile-target]');
-      const drawer = card.querySelector(`#mobile-drawer-${m.id}`);
-      if (btn && drawer) {
-        btn.addEventListener('click', () => {
-          drawer.classList.toggle('hidden');
-          const svg = btn.querySelector('svg');
-          if (svg) svg.classList.toggle('rotate-180');
-        });
-      }
 
       mobileContainer.appendChild(card);
     });
 
     // Mobile Footing card
     const footingCard = document.createElement('div');
-    footingCard.className = 'p-4 bg-[#173a39] text-white';
+    footingCard.className = 'certified-footing p-4 bg-[#173a39] text-white';
     footingCard.innerHTML = `
       <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-2 flex items-center justify-between">
         <span>2026 YTD Certified Footing</span>
@@ -740,38 +927,7 @@ function hydrateMonthlyStatements(statements: any[]) {
     mobileContainer.appendChild(footingCard);
   }
 
-  // Totals footing
-  const totalRev = statements.reduce((acc, m) => acc + m.revenue, 0);
-  const totalCogs = statements.reduce((acc, m) => acc + m.cogs, 0);
-  const totalOpExp = statements.reduce((acc, m) => acc + m.operating_exp, 0);
-  const totalOtherExp = statements.reduce((acc, m) => acc + m.other_exp, 0);
-  const totalExp = statements.reduce((acc, m) => acc + m.total_exp, 0);
-  const totalNet = statements.reduce((acc, m) => acc + m.net_margin, 0);
-  const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
-
-  const fRev = document.getElementById('footing-rev');
-  if (fRev) fRev.textContent = formatDollar(totalRev);
-  const fCogs = document.getElementById('footing-cogs');
-  if (fCogs) fCogs.textContent = formatDollar(totalCogs);
-  const fOp = document.getElementById('footing-op-exp');
-  if (fOp) fOp.textContent = formatDollar(totalOpExp);
-  const fOther = document.getElementById('footing-other-exp');
-  if (fOther) fOther.textContent = formatDollar(totalOtherExp);
-  const fTotExp = document.getElementById('footing-total-exp');
-  if (fTotExp) fTotExp.textContent = formatDollar(totalExp);
-  const fNet = document.getElementById('footing-net-margin');
-  if (fNet) fNet.textContent = `${totalNet >= 0 ? '+' : ''}${formatDollar(totalNet)}`;
-  const fPct = document.getElementById('footing-margin-pct');
-  if (fPct) fPct.textContent = `${totalMarginPct.toFixed(1)}%`;
-
-  const mfRev = document.getElementById('mobile-footing-rev');
-  if (mfRev) mfRev.textContent = formatDollar(totalRev);
-  const mfTotExp = document.getElementById('mobile-footing-exp');
-  if (mfTotExp) mfTotExp.textContent = formatDollar(totalExp);
-  const mfNet = document.getElementById('mobile-footing-net');
-  if (mfNet) mfNet.textContent = `${totalNet >= 0 ? '+' : ''}${formatDollar(totalNet)}`;
-  const mfPct = document.getElementById('mobile-footing-pct');
-  if (mfPct) mfPct.textContent = `${totalMarginPct.toFixed(1)}%`;
+  hydrateStatementFootings(statements);
 }
 
 function hydratePositionAndCash(position: any) {

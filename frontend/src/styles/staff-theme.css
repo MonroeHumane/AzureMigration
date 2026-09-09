@@ -1383,3 +1383,90 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   border-color: rgba(20, 184, 166, 0.5);
   color: #ffffff;
 }
+
+/*
+  Certified footing is always a dark bar (#173a39). Light-mode remaps
+  turn pastel utilities (emerald-300, amber-300, rose-400) into dark
+  ink meant for light cards — unreadable here. Pin light figures in both themes.
+*/
+:root:not([data-staff-theme="dark"]) .certified-footing,
+:root:not([data-staff-theme="dark"]) .certified-footing td,
+:root[data-staff-theme="dark"] .certified-footing,
+:root[data-staff-theme="dark"] .certified-footing td {
+  background-color: #173a39 !important;
+  color: #ffffff !important;
+}
+:root:not([data-staff-theme="dark"]) .certified-footing .text-white,
+:root[data-staff-theme="dark"] .certified-footing .text-white {
+  color: #ffffff !important;
+}
+:root:not([data-staff-theme="dark"]) .certified-footing .text-emerald-300,
+:root:not([data-staff-theme="dark"]) .certified-footing [class*="text-emerald-300"],
+:root[data-staff-theme="dark"] .certified-footing .text-emerald-300,
+:root[data-staff-theme="dark"] .certified-footing [class*="text-emerald-300"] {
+  color: #6ee7b7 !important;
+}
+:root:not([data-staff-theme="dark"]) .certified-footing .text-emerald-400,
+:root:not([data-staff-theme="dark"]) .certified-footing [class*="text-emerald-400"],
+:root[data-staff-theme="dark"] .certified-footing .text-emerald-400,
+:root[data-staff-theme="dark"] .certified-footing [class*="text-emerald-400"] {
+  color: #34d399 !important;
+}
+:root:not([data-staff-theme="dark"]) .certified-footing .text-slate-300,
+:root:not([data-staff-theme="dark"]) .certified-footing [class*="text-slate-300"],
+:root[data-staff-theme="dark"] .certified-footing .text-slate-300,
+:root[data-staff-theme="dark"] .certified-footing [class*="text-slate-300"] {
+  color: #cbd5e1 !important;
+}
+:root:not([data-staff-theme="dark"]) .certified-footing .text-amber-300,
+:root:not([data-staff-theme="dark"]) .certified-footing [class*="text-amber-300"],
+:root[data-staff-theme="dark"] .certified-footing .text-amber-300,
+:root[data-staff-theme="dark"] .certified-footing [class*="text-amber-300"] {
+  color: #fcd34d !important;
+}
+:root:not([data-staff-theme="dark"]) .certified-footing .text-rose-400,
+:root:not([data-staff-theme="dark"]) .certified-footing [class*="text-rose-400"],
+:root[data-staff-theme="dark"] .certified-footing .text-rose-400,
+:root[data-staff-theme="dark"] .certified-footing [class*="text-rose-400"] {
+  color: #fb7185 !important;
+}
+:root:not([data-staff-theme="dark"]) .certified-footing .text-rose-300,
+:root:not([data-staff-theme="dark"]) .certified-footing [class*="text-rose-300"],
+:root[data-staff-theme="dark"] .certified-footing .text-rose-300,
+:root[data-staff-theme="dark"] .certified-footing [class*="text-rose-300"] {
+  color: #fda4af !important;
+}
+
+/* Month drawer: chevrons and share bars stay theme-stable */
+#monthly-statement-root .drawer-chevron,
+#monthly-statement-root .drawer-month-chevron {
+  transition: transform 0.15s ease;
+}
+#monthly-statement-root tr.is-open .drawer-month-chevron,
+#monthly-statement-root .cat-toggle-btn.is-open .drawer-chevron,
+#monthly-statement-root .payee-toggle-btn.is-open .drawer-chevron {
+  transform: rotate(90deg);
+}
+#monthly-statement-root .drawer-share-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-top: 6px;
+}
+#monthly-statement-root .drawer-share-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+#monthly-statement-root .drawer-share-fill.is-rev {
+  background: #10b981;
+}
+#monthly-statement-root .drawer-share-fill.is-exp {
+  background: #94a3b8;
+}
+
+/* Print packet control sits on a dark chip in both themes */
+:root:not([data-staff-theme="dark"]) a[href*="/internal/board/print/"].text-emerald-300,
+:root:not([data-staff-theme="dark"]) a[href*="/internal/board/print/"] [class*="text-emerald-300"] {
+  color: #6ee7b7 !important;
+}

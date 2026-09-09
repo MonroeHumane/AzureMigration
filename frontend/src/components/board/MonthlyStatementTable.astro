@@ -54,7 +54,7 @@ const monthsMap: Record<string, any> = {};
         2026 Month-by-Month Operating Statement
       </h3>
       <p class="text-xs text-slate-500 mt-0.5">
-        Reconciled from QuickBooks Online general ledger. Click any month row to view 3-level interactive drilldown (Categories → Payees/Entities → Granular Transactions).
+        Reconciled from QuickBooks Online general ledger. Click a month, then a category, then a payee to open the actual transactions.
       </p>
     </div>
     <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
@@ -441,7 +441,7 @@ const monthsMap: Record<string, any> = {};
         )}
       </tbody>
       {/* Certified Footing Row */}
-      <tfoot class="bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
+      <tfoot class="certified-footing bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
         <tr>
           <td class="py-3 px-4 font-bold text-white uppercase tracking-wider">
             2026 YTD Certified Footing
@@ -628,7 +628,7 @@ const monthsMap: Record<string, any> = {};
     )}
 
     {/* Mobile Certified Footing Card */}
-    <div class="p-4 bg-[#173a39] text-white">
+    <div class="certified-footing p-4 bg-[#173a39] text-white">
       <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-2 flex items-center justify-between">
         <span>2026 YTD Certified Footing</span>
         <span class="text-[10px] text-emerald-400 font-normal">✓ Cent-for-cent</span>
@@ -657,127 +657,8 @@ const monthsMap: Record<string, any> = {};
 
 <script>
   function initMonthlyStatement() {
-    // Desktop drawer expand/collapse (Month level)
-    document.querySelectorAll('[data-target]').forEach((row) => {
-      row.addEventListener('click', () => {
-        const targetId = row.getAttribute('data-target');
-        if (targetId) {
-          const drawer = document.getElementById(targetId);
-          if (drawer) {
-            drawer.classList.toggle('hidden');
-            row.classList.toggle('is-open');
-          }
-        }
-      });
-    });
-
-    // Mobile drawer expand/collapse
-    document.querySelectorAll('[data-mobile-target]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const targetId = btn.getAttribute('data-mobile-target');
-        if (targetId) {
-          const drawer = document.getElementById(targetId);
-          if (drawer) {
-            drawer.classList.toggle('hidden');
-            const svg = btn.querySelector('svg');
-            if (svg) svg.classList.toggle('rotate-180');
-          }
-        }
-      });
-    });
-
-    // Level 1: Category toggle inside drawer
-    document.querySelectorAll('.cat-toggle-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const targetId = btn.getAttribute('data-toggle-target');
-        if (targetId) {
-          const targetEl = document.getElementById(targetId);
-          if (targetEl) {
-            targetEl.classList.toggle('hidden');
-            btn.classList.toggle('is-cat-open');
-          }
-        }
-      });
-    });
-
-    // Level 2: Payee toggle inside drawer
-    document.querySelectorAll('.payee-toggle-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const targetId = btn.getAttribute('data-toggle-target');
-        if (targetId) {
-          const targetEl = document.getElementById(targetId);
-          if (targetEl) {
-            targetEl.classList.toggle('hidden');
-            btn.classList.toggle('is-payee-open');
-          }
-        }
-      });
-    });
-
-    // In-drawer real-time filter search
-    document.querySelectorAll('.drawer-search-input').forEach((input) => {
-      input.addEventListener('input', (e) => {
-        const query = (e.target as HTMLInputElement).value.toLowerCase().trim();
-        const drawerId = input.getAttribute('data-drawer-id');
-        if (!drawerId) return;
-        const drawer = document.getElementById(drawerId);
-        if (!drawer) return;
-
-        const catItems = drawer.querySelectorAll<HTMLElement>('.drawer-cat-item');
-        catItems.forEach((catItem) => {
-          const catName = catItem.getAttribute('data-cat-name') || '';
-          const payeeItems = catItem.querySelectorAll<HTMLElement>('.drawer-payee-item');
-          let catMatched = catName.includes(query);
-          let matchedPayeeCount = 0;
-
-          payeeItems.forEach((pItem) => {
-            const pName = pItem.getAttribute('data-payee-name') || '';
-            const textContent = pItem.textContent?.toLowerCase() || '';
-            const pMatch = pName.includes(query) || textContent.includes(query);
-            if (pMatch) {
-              pItem.classList.remove('hidden');
-              matchedPayeeCount++;
-            } else {
-              pItem.classList.add('hidden');
-            }
-          });
-
-          if (!query || catMatched || matchedPayeeCount > 0) {
-            catItem.classList.remove('hidden');
-            // Auto-expand if searching
-            if (query) {
-              const catSub = catItem.querySelector('[id^="rev-cat-"], [id^="exp-cat-"]');
-              if (catSub) catSub.classList.remove('hidden');
-            }
-          } else {
-            catItem.classList.add('hidden');
-          }
-        });
-      });
-    });
-
-    // Cross-module linking: Jump to Certified P&L explorer for selected month
-    document.querySelectorAll('.jump-to-explorer-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const monthId = btn.getAttribute('data-month-id');
-        if (!monthId) return;
-
-        // Trigger month selection in Expense Explorer if function is available
-        if (typeof (window as any).switchExpenseExplorerMonth === 'function') {
-          (window as any).switchExpenseExplorerMonth(monthId);
-        }
-
-        // Show all modules or activate expenses section
-        const expensesSec = document.getElementById('sec-expenses');
-        if (expensesSec) {
-          expensesSec.classList.remove('hidden');
-          expensesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
+    // Drawer expand/search/jump is bound by board-financials-loader after
+    // monthly_drilldown hydrates. Do not attach a second set of toggles here.
 
     // Handle CSV export
     const exportBtn = document.getElementById('export-statement-csv-btn');
