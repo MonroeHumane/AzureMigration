@@ -204,14 +204,14 @@ const monthsMap: Record<string, any> = {};
 
                         {/* Revenue Inflows Schedule */}
                         <div class="bg-white rounded-xl border border-emerald-200/80 shadow-2xs overflow-hidden flex flex-col">
-                          <div class="bg-emerald-900 text-white px-4 py-2.5 flex items-center justify-between">
+                          <div class="drill-flow-header bg-emerald-900 text-white px-4 py-2.5 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                               <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
-                              <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-100">
+                              <h4 class="text-xs font-bold uppercase tracking-wider text-white">
                                 Revenue Inflows ({m.month})
                               </h4>
                             </div>
-                            <span class="text-xs font-mono font-bold text-emerald-200 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">
+                            <span class="drill-flow-total text-xs font-mono font-bold text-white bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">
                               {formatDollar(m.revenue)}
                             </span>
                           </div>
@@ -312,14 +312,14 @@ const monthsMap: Record<string, any> = {};
 
                         {/* Expenditures Schedule */}
                         <div class="bg-white rounded-xl border border-rose-200/80 shadow-2xs overflow-hidden flex flex-col">
-                          <div class="bg-[#173a39] text-white px-4 py-2.5 flex items-center justify-between">
+                          <div class="drill-flow-header bg-[#173a39] text-white px-4 py-2.5 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                               <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
-                              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">
+                              <h4 class="text-xs font-bold uppercase tracking-wider text-white">
                                 Expenditures by Category ({m.month})
                               </h4>
                             </div>
-                            <span class="text-xs font-mono font-bold text-amber-200 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-700/60">
+                            <span class="drill-flow-total text-xs font-mono font-bold text-white bg-teal-950/60 px-2 py-0.5 rounded border border-teal-700/60">
                               {formatDollar(m.total_exp)}
                             </span>
                           </div>
@@ -531,12 +531,12 @@ const monthsMap: Record<string, any> = {};
             <div id={`mobile-drawer-${m.id}`} class="hidden pt-3 space-y-3">
               {/* Mobile Revenue List */}
               <div class="bg-white rounded-lg border border-emerald-200 shadow-2xs overflow-hidden">
-                <div class="bg-emerald-800 text-white px-3 py-2 flex items-center justify-between">
-                  <span class="text-xs font-bold flex items-center gap-1.5">
+                <div class="drill-flow-header bg-emerald-800 text-white px-3 py-2 flex items-center justify-between">
+                  <span class="text-xs font-bold flex items-center gap-1.5 text-white">
                     <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
                     Revenue Inflows ({m.month})
                   </span>
-                  <span class="font-mono font-bold text-xs text-emerald-200">{formatDollar(m.revenue)}</span>
+                  <span class="drill-flow-total font-mono font-bold text-xs text-white">{formatDollar(m.revenue)}</span>
                 </div>
                 <div class="p-2 divide-y divide-slate-100 text-xs max-h-72 overflow-y-auto">
                   {revCats.map((cat: any) => (
@@ -571,12 +571,12 @@ const monthsMap: Record<string, any> = {};
 
               {/* Mobile Expenditures List */}
               <div class="bg-white rounded-lg border border-rose-200 shadow-2xs overflow-hidden">
-                <div class="bg-[#173a39] text-white px-3 py-2 flex items-center justify-between">
-                  <span class="text-xs font-bold flex items-center gap-1.5">
+                <div class="drill-flow-header bg-[#173a39] text-white px-3 py-2 flex items-center justify-between">
+                  <span class="text-xs font-bold flex items-center gap-1.5 text-white">
                     <span class="w-2 h-2 rounded-full bg-amber-300"></span>
                     Expenditures ({m.month})
                   </span>
-                  <span class="font-mono font-bold text-xs text-amber-200">{formatDollar(m.total_exp)}</span>
+                  <span class="drill-flow-total font-mono font-bold text-xs text-white">{formatDollar(m.total_exp)}</span>
                 </div>
                 <div class="p-2 divide-y divide-slate-100 text-xs max-h-72 overflow-y-auto">
                   {expCats.map((cat: any) => (

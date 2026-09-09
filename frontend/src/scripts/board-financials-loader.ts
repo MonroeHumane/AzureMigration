@@ -578,22 +578,21 @@ function renderFlowCard(opts: {
   const { monthId, monthLabel, title, total, cats, fallbackItems, inflow } = opts;
   const count = cats.length || (fallbackItems || []).length;
   const headerBg = inflow ? 'bg-emerald-900' : 'bg-[#173a39]';
-  const headerText = inflow ? 'text-emerald-100' : 'text-slate-200';
   const totalChip = inflow
-    ? 'text-emerald-200 bg-emerald-950/60 border-emerald-700/60'
-    : 'text-amber-200 bg-teal-950/60 border-teal-700/60';
+    ? 'bg-emerald-950/60 border-emerald-700/60'
+    : 'bg-teal-950/60 border-teal-700/60';
   const border = inflow ? 'border-emerald-200/80' : 'border-rose-200/80';
   const footer = inflow ? 'bg-emerald-50/70 border-emerald-100 text-emerald-900' : 'bg-slate-50 border-slate-200 text-slate-900';
   const footerAmt = inflow ? 'text-emerald-800' : 'text-slate-900';
   const noun = inflow ? 'Inflows' : 'Spend';
   return `
     <div class="bg-white rounded-xl border ${border} shadow-2xs overflow-hidden flex flex-col">
-      <div class="${headerBg} text-white px-4 py-2.5 flex items-center justify-between">
+      <div class="drill-flow-header ${headerBg} text-white px-4 py-2.5 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full ${inflow ? 'bg-emerald-400' : 'bg-amber-400'} shrink-0"></span>
-          <h4 class="text-xs font-bold uppercase tracking-wider ${headerText}">${title} (${escapeHtml(monthLabel)})</h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white">${title} (${escapeHtml(monthLabel)})</h4>
         </div>
-        <span class="text-xs font-mono font-bold ${totalChip} px-2 py-0.5 rounded border">${inflow ? '+' : ''}${formatDollar(total)}</span>
+        <span class="drill-flow-total text-xs font-mono font-bold text-white ${totalChip} px-2 py-0.5 rounded border">${inflow ? '+' : ''}${formatDollar(total)}</span>
       </div>
       <div class="p-2 divide-y divide-slate-100 drawer-cat-list" data-flow="${inflow ? 'revenue' : 'expense'}">
         ${renderCategoryBlocks(cats, monthId, inflow, fallbackItems, total)}

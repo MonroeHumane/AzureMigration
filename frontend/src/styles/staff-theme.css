@@ -416,7 +416,7 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 :root:not([data-staff-theme="dark"]) #donor-kpi-addresses,
 :root:not([data-staff-theme="dark"]) #donor-kpi-active,
 :root:not([data-staff-theme="dark"]) #grant-stat-total,
-:root:not([data-staff-theme="dark"]) .font-mono.font-bold.text-white {
+:root:not([data-staff-theme="dark"]) .font-mono.font-bold.text-white:not(.drill-flow-total) {
   color: #173a39 !important;
 }
 
@@ -575,6 +575,28 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 :root:not([data-staff-theme="dark"]) [class*="text-slate-100"],
 :root:not([data-staff-theme="dark"]) [class*="text-slate-200"] {
   color: #1e293b !important;
+}
+
+/* Monthly drilldown flow headers sit on dark bars. Keep titles and total chips
+   white even in light mode, where pastel and .font-mono.font-bold.text-white
+   remaps force ink on dark backgrounds. */
+.drill-flow-header,
+.drill-flow-header *,
+.drill-flow-header h4,
+.drill-flow-header .drill-flow-total {
+  color: #ffffff !important;
+}
+:root:not([data-staff-theme="dark"]) .drill-flow-header,
+:root:not([data-staff-theme="dark"]) .drill-flow-header *,
+:root:not([data-staff-theme="dark"]) .drill-flow-header h4,
+:root:not([data-staff-theme="dark"]) .drill-flow-header .drill-flow-total,
+:root:not([data-staff-theme="dark"]) .drill-flow-header .font-mono.font-bold.text-white,
+:root[data-staff-theme="dark"] .drill-flow-header,
+:root[data-staff-theme="dark"] .drill-flow-header *,
+:root[data-staff-theme="dark"] .drill-flow-header h4,
+:root[data-staff-theme="dark"] .drill-flow-header .drill-flow-total,
+:root[data-staff-theme="dark"] .drill-flow-header .font-mono.font-bold.text-white {
+  color: #ffffff !important;
 }
 
 /* Universal Return to Hub Links */
