@@ -1,15 +1,17 @@
 const fs = require('fs');
 const path = require('path');
-
-// Helper to normalize names for deduplication
-function normName(s) {
-  if (!s) return '';
-  return s
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+const crypto = require('crypto');
+const {
+  normName,
+  aliasKey,
+  resolveDonorName,
+  isAggregateName,
+  campaignFromQboAccount,
+  resolveDepositPayor,
+  formatMailingAddress,
+  isCompleteMailingAddress,
+  assertDonorInvariants,
+} = require('./donor_compile_lib.cjs');
 
 function cleanPhone(p) {
   if (!p) return '';
@@ -39,26 +41,68 @@ const donorMap = new Map();
 const emailIndex = new Map();
 const nameIndex = new Map();
 
+const existingDonorsPath = path.join(__dirname, '..', 'api', 'data', 'donor_database.json');
+const existingIdByKey = new Map();
+if (fs.existsSync(existingDonorsPath)) {
+  try {
+    const prev = JSON.parse(fs.readFileSync(existingDonorsPath, 'utf8'));
+    for (const d of prev.donors || []) {
+      const email = (d.email || '').trim().toLowerCase();
+      const n = normName(d.name);
+      const ak = aliasKey(d.name);
+      if (email) existingIdByKey.set('e:' + email, d.id);
+      if (n) existingIdByKey.set('n:' + n, d.id);
+      if (ak) existingIdByKey.set('n:' + ak, d.id);
+    }
+    console.log('Reusing stable IDs from existing donor database');
+  } catch (err) {
+    console.warn('Could not read existing donor IDs:', err.message);
+  }
+}
+
+function stableDonorId(name, email) {
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const n = normName(name);
+  const ak = aliasKey(name);
+  if (cleanEmail && existingIdByKey.has('e:' + cleanEmail)) return existingIdByKey.get('e:' + cleanEmail);
+  if (n && existingIdByKey.has('n:' + n)) return existingIdByKey.get('n:' + n);
+  if (ak && existingIdByKey.has('n:' + ak)) return existingIdByKey.get('n:' + ak);
+  return 'dn_' + crypto.createHash('sha1').update(`${ak || n}|${cleanEmail}`).digest('hex').slice(0, 7);
+}
+
+function namesAreCompatible(a, b) {
+  const ka = aliasKey(a);
+  const kb = aliasKey(b);
+  if (!ka || !kb) return true;
+  return ka === kb;
+}
+
 function findOrCreateDonor(primaryName, email, phone, address) {
-  const normN = normName(primaryName);
+  const resolved = resolveDonorName(primaryName);
+  const normN = aliasKey(resolved) || aliasKey(primaryName);
   const cleanEmail = (email || '').trim().toLowerCase();
 
   let donor = null;
-  if (cleanEmail && emailIndex.has(cleanEmail)) {
-    donor = emailIndex.get(cleanEmail);
-  } else if (normN && nameIndex.has(normN)) {
+  if (normN && nameIndex.has(normN)) {
     donor = nameIndex.get(normN);
+  } else if (cleanEmail && emailIndex.has(cleanEmail)) {
+    const byEmail = emailIndex.get(cleanEmail);
+    if (namesAreCompatible(byEmail.name, resolved || primaryName)) {
+      donor = byEmail;
+    }
   }
 
   if (!donor) {
-    const id = 'dn_' + Math.random().toString(36).substring(2, 9);
+    const id = stableDonorId(resolved || primaryName, cleanEmail);
     donor = {
       id,
-      name: primaryName || 'Anonymous Donor',
-      email: cleanEmail || '',
+      name: resolved || primaryName || 'Anonymous Donor',
+      email: '',
       phone: cleanPhone(phone),
-      address: (address || '').trim(),
+      address: formatMailingAddress(address),
       lifetimeTotal: 0,
+      itemizedTotal: 0,
+      isAggregate: isAggregateName(resolved || primaryName),
       transactionsCount: 0,
       firstGiftDate: '',
       latestGiftDate: '',
@@ -70,23 +114,31 @@ function findOrCreateDonor(primaryName, email, phone, address) {
     donorMap.set(id, donor);
   }
 
-  // Enrich donor details if previously missing
-  if (primaryName && (!donor.name || donor.name === 'Anonymous Donor' || donor.name.toLowerCase() === donor.name)) {
-    donor.name = primaryName;
+  // Keep the first real display name (master-roll runs first).
+  if (resolved && (!donor.name || donor.name === 'Anonymous Donor')) {
+    donor.name = resolved;
+  }
+  if (isAggregateName(resolved || primaryName) || isAggregateName(donor.name)) {
+    donor.isAggregate = true;
   }
   if (cleanEmail && !donor.email) {
-    donor.email = cleanEmail;
-    emailIndex.set(cleanEmail, donor);
+    const owner = emailIndex.get(cleanEmail);
+    if (!owner || owner === donor) {
+      donor.email = cleanEmail;
+    }
   }
   if (phone && !donor.phone) {
     donor.phone = cleanPhone(phone);
   }
-  if (address && !donor.address) {
-    donor.address = address.trim();
+  const formattedAddress = formatMailingAddress(address);
+  if (formattedAddress && !donor.address) {
+    donor.address = formattedAddress;
   }
 
-  if (cleanEmail) emailIndex.set(cleanEmail, donor);
+  if (donor.email) emailIndex.set(donor.email, donor);
   if (normN) nameIndex.set(normN, donor);
+  const rawKey = aliasKey(primaryName);
+  if (rawKey && namesAreCompatible(donor.name, primaryName)) nameIndex.set(rawKey, donor);
 
   return donor;
 }
@@ -129,7 +181,7 @@ if (fs.existsSync(masterRollPath)) {
     const lastDate = cols[7] ? cols[7].split(' ')[0] : '';
     const platforms = cols[8] ? cols[8].replace(/"/g, '') : '';
     const campaign = cols[9] ? cols[9].replace(/"/g, '') : '';
-    const address = cols[10] ? cols[10].replace(/"/g, '').replace(/\|/g, ', ') : '';
+    const address = formatMailingAddress(cols[10] ? cols[10].replace(/"/g, '') : '');
 
     const donor = findOrCreateDonor(name, email, phone, address);
     donor.baselineLifetime = lifetimeGiven;
@@ -140,7 +192,9 @@ if (fs.existsSync(masterRollPath)) {
       platforms.split(',').map(p => p.trim()).filter(Boolean).forEach(p => donor.platforms.add(p));
     }
     if (campaign) {
-      campaign.split(',').map(c => c.trim()).filter(Boolean).forEach(c => donor.campaigns.add(c));
+      campaign.split(',').map(c => c.trim()).filter(Boolean).forEach(c => {
+        donor.campaigns.add(campaignFromQboAccount(c, donor.name, c));
+      });
     }
   }
 }
@@ -176,10 +230,7 @@ if (fs.existsSync(contactsPath)) {
     const state = (cols[12] || '').trim();
     const zip = (cols[13] || '').trim();
 
-    let fullAddr = '';
-    if (street || city) {
-      fullAddr = [street, city, state, zip].filter(Boolean).join(', ');
-    }
+    let fullAddr = formatMailingAddress(street, city, state, zip);
 
     if (fullName || email) {
       const donor = findOrCreateDonor(fullName, email, phone, fullAddr);
@@ -191,10 +242,34 @@ if (fs.existsSync(contactsPath)) {
 // Set of transaction hashes to prevent duplicate gift insertion
 const seenTxHashes = new Set();
 
+function mergeGiftFields(target, src) {
+  const fillKeys = [
+    'checkNumber', 'paymentMethod', 'qboClass', 'description', 'privateNote',
+    'memo', 'account', 'qboType', 'entityType', 'entityId', 'glCategory', 'source'
+  ];
+  for (const k of fillKeys) {
+    if (!target[k] && src[k]) target[k] = src[k];
+  }
+  if ((!target.reference || String(target.reference).length < String(src.reference || '').length) && src.reference) {
+    if (!target.reference) target.reference = src.reference;
+  }
+  if ((!target.description || /^DEPOSIT$/i.test(String(target.description))) && src.description && !/^DEPOSIT$/i.test(String(src.description))) {
+    target.description = src.description;
+  }
+}
+
 function addGift(donor, gift) {
   const hash = `${donor.id}_${gift.date}_${gift.amount}_${gift.platform}_${gift.reference || ''}`;
-  if (seenTxHashes.has(hash)) return;
+  const loose = `${donor.id}_${gift.date}_${Number(gift.amount).toFixed(2)}`;
+  if (seenTxHashes.has(hash) || seenTxHashes.has(loose)) {
+    const existing = donor.gifts.find((g) =>
+      g.date === gift.date && Number(g.amount).toFixed(2) === Number(gift.amount).toFixed(2)
+    );
+    if (existing) mergeGiftFields(existing, gift);
+    return;
+  }
   seenTxHashes.add(hash);
+  seenTxHashes.add(loose);
 
   donor.gifts.push(gift);
   donor.platforms.add(gift.platform);
@@ -266,8 +341,7 @@ if (fs.existsSync(buTxPath)) {
       }
     }
 
-    let fullAddr = '';
-    if (street || city) fullAddr = [street, city, state, zip].filter(Boolean).join(', ');
+    const fullAddr = formatMailingAddress(street, city, state, zip);
 
     const donor = findOrCreateDonor(fullName, email, phone, fullAddr);
 
@@ -347,38 +421,233 @@ if (fs.existsSync(ppPath)) {
   }
 }
 
-// 5. Ingest 2026 QBO Check Donations from monthly_drilldown_2026.json
-const drilldownPath = 'frontend/src/data/monthly_drilldown_2026.json';
-if (fs.existsSync(drilldownPath)) {
-  console.log('Ingesting 2026 QBO check donors from:', drilldownPath);
+// 5. Ingest 2026 QBO revenue lines (paper checks, named deposits, sales receipts)
+const PLATFORM_PAYEES = new Set([
+  'BETTER UNITE', 'BetterUnite', 'Paypal', 'PayPal', 'SQUARE', 'Square Inc', 'INTUIT *',
+  'Branch Deposit Batch', 'Public / Shelter Adopters', 'QuickBooks Journal Adjustment',
+  'Zeffy', 'ZEFFY', 'Zeffy Inc'
+]);
+const SKIP_REVENUE_CAT = /Adoption Fees|Cremation|Merchandise|Swag|Recycling Proceeds/i;
+const SKIP_MEMO_RE = /square|paypal|betterunite|authnet|cash drawer|teller check|gala:|car show|ticket sales|raffle|register cash|\bzeffy\b/i;
+const MEMO_DONOR_ALIASES = [
+  { re: /COUNTY\s+(QUARTERLY\s+)?PAYMENT/i, name: 'COUNTY OF MONROE' },
+  { re: /BALANCE OF 20K/i, name: 'COUNTY OF MONROE' },
+];
+
+function looksLikeNamedDonor(raw) {
+  const t = String(raw || '').replace(/\s+/g, ' ').trim();
+  if (t.length < 5 || t.length > 80) return false;
+  if (SKIP_MEMO_RE.test(t)) return false;
+  const words = t.split(' ');
+  if (words.length < 2) return false;
+  return words.every((w) => /^[A-Za-z][A-Za-z.'-]*$/.test(w) || /^(AND|&|OF|THE|SON|FOR)$/i.test(w));
+}
+
+function resolveQboDonorName(payee, memo) {
+  const m = String(memo || '').trim();
+  // BetterUnite payouts are already itemized from the platform CSV.
+  if (/Donor:\s*/i.test(m)) return '';
+  if (payee && !PLATFORM_PAYEES.has(payee) && !/^Memorial:/i.test(payee)) return payee;
+  for (const alias of MEMO_DONOR_ALIASES) {
+    if (alias.re.test(m)) return alias.name;
+  }
+  const cleaned = m.replace(/\s*TY SENT\s*/ig, ' ').replace(/\s+/g, ' ').trim();
+  if (!cleaned || /^DEPOSIT$/i.test(cleaned) || SKIP_MEMO_RE.test(cleaned)) return '';
+  if (looksLikeNamedDonor(cleaned)) return cleaned;
+  return '';
+}
+
+function isPlatformPayee(name) {
+  const n = String(name || '').trim();
+  if (!n) return true;
+  if (PLATFORM_PAYEES.has(n)) return true;
+  return /better\s*unite|paypal|square(\s+inc)?$|^intuit\b|\bzeffy\b|branch deposit batch/i.test(n);
+}
+
+function platformFromQbo(payee, txnType) {
+  if (/BETTER\s*UNITE/i.test(payee || '')) return 'BetterUnite';
+  if (/paypal/i.test(payee || '')) return 'PayPal';
+  if (/square/i.test(payee || '')) return 'Square';
+  if (/zeffy/i.test(payee || '')) return 'Zeffy';
+  if ((txnType || '') === 'Deposit' || (txnType || '') === 'Sales Receipt' || (txnType || '') === 'Check') {
+    return 'Physical Paper Check';
+  }
+  return 'Physical Paper Check';
+}
+
+const drilldownCandidates = [
+  path.join(__dirname, '..', 'frontend', 'src', 'data', 'monthly_drilldown_2026.json'),
+  path.join(__dirname, '..', 'api', 'data', 'monthly_drilldown_2026.json'),
+];
+const drilldownPath = drilldownCandidates.find((p) => fs.existsSync(p));
+if (drilldownPath) {
+  console.log('Ingesting 2026 QBO check/deposit donors from:', drilldownPath);
   const drilldownData = JSON.parse(fs.readFileSync(drilldownPath, 'utf8'));
+  const months = drilldownData.months || {};
+  let qboGiftCount = 0;
 
-  for (const [monthKey, monthObj] of Object.entries(drilldownData)) {
-    for (const cat of (monthObj.categories || [])) {
-      if (cat.group === 'Contributed Income' || cat.name.includes('Donation')) {
-        for (const payee of (cat.payees || [])) {
-          const pName = payee.name;
-          if (pName === 'BETTER UNITE' || pName === 'Paypal' || pName === 'Branch Deposit Batch' || pName === 'SQUARE') continue;
+  for (const [monthKey, monthObj] of Object.entries(months)) {
+    if (!monthObj || monthKey === 'all_ytd') continue;
+    const cats = monthObj.revenueCategories || monthObj.categories || [];
+    for (const cat of cats) {
+      if (SKIP_REVENUE_CAT.test(cat.name || '') || SKIP_REVENUE_CAT.test(cat.group || '')) continue;
+      for (const payee of (cat.payees || [])) {
+        for (const tx of (payee.transactions || [])) {
+          const donorName = resolveQboDonorName(payee.name, tx.memo);
+          if (!donorName) continue;
+          if (isPlatformPayee(donorName) || isPlatformPayee(payee.name)) continue;
+          const memo = (tx.memo || '').trim();
+          const payor = resolveDepositPayor(donorName, memo, cat.name);
+          if (!payor.name || isPlatformPayee(payor.name)) continue;
 
-          for (const tx of (payee.transactions || [])) {
-            const donor = findOrCreateDonor(pName, '', '', '');
-            const isTribute = cat.name === 'Memorial Donations' || (tx.memo && (tx.memo.toLowerCase().includes('in memory') || tx.memo.toLowerCase().includes('memorial')));
-
-            addGift(donor, {
-              date: tx.date,
-              amount: tx.amount,
-              platform: 'Paper Check / In-Person',
-              campaign: cat.name,
-              type: isTribute ? 'Memorial & Tribute' : 'Direct Check',
-              memo: tx.memo || '',
-              dedication: isTribute ? tx.memo : '',
-              isTribute,
-              reference: tx.num || ''
-            });
-          }
+          const donor = findOrCreateDonor(payor.name, '', '', '');
+          if (payor.aggregate) donor.isAggregate = true;
+          const isTribute = cat.name === 'Memorial Donations'
+            || /in memory|memorial|in honor|dedication/i.test(memo);
+          const campaign = campaignFromQboAccount(cat.name, payor.name, cat.name);
+          addGift(donor, {
+            date: tx.date,
+            amount: tx.amount,
+            platform: platformFromQbo(payee.name, tx.type),
+            campaign,
+            type: isTribute ? 'Memorial & Tribute' : ((tx.type || 'Deposit') === 'Deposit' ? 'Physical Paper Check' : (tx.type || 'Direct Check')),
+            memo,
+            description: memo,
+            dedication: isTribute ? memo : '',
+            isTribute,
+            reference: tx.num || '',
+            checkNumber: tx.num || '',
+            paymentMethod: /check/i.test(tx.type || '') ? 'Check' : '',
+            qboClass: '',
+            qboType: tx.type || '',
+            account: tx.split || '',
+            glCategory: cat.name,
+            source: 'QuickBooks Online'
+          });
+          qboGiftCount += 1;
         }
       }
     }
+  }
+  console.log('QBO-attributed gift lines considered:', qboGiftCount);
+} else {
+  console.warn('monthly_drilldown_2026.json not found; paper checks will not be itemized');
+}
+
+// 5b. QBO Deposit / SalesReceipt entities (GL often blanks Name/Memo on batches)
+{
+  const { spawnSync } = require('child_process');
+  const os = require('os');
+  const extractScript = path.join(__dirname, 'extract_qbo_deposit_gifts.py');
+  const extractOut = path.join(os.tmpdir(), 'qbo_named_gifts_2026.json');
+  if (fs.existsSync(extractScript)) {
+    console.log('Ingesting QBO Deposit/SalesReceipt entity lines from local mirror');
+    const extracted = spawnSync('python', [extractScript, extractOut], {
+      encoding: 'utf8',
+      windowsHide: true,
+    });
+    if (extracted.status !== 0) {
+      console.warn('QBO entity extract failed:', (extracted.stderr || extracted.stdout || '').slice(0, 500));
+    } else if (fs.existsSync(extractOut)) {
+      const payload = JSON.parse(fs.readFileSync(extractOut, 'utf8'));
+      const directory = payload.directory || { customers: [], vendors: [] };
+      const dirById = new Map();
+      const dirByNameCustomer = new Map();
+      const dirByNameVendor = new Map();
+
+      function indexDirEntry(entry, type, nameMap) {
+        if (!entry) return;
+        const id = String(entry.id || '').trim();
+        if (id) dirById.set(`${type}:${id}`, entry);
+        const k = aliasKey(entry.displayName);
+        if (k && !nameMap.has(k)) nameMap.set(k, entry);
+      }
+      for (const cust of directory.customers || []) indexDirEntry(cust, 'CUSTOMER', dirByNameCustomer);
+      for (const vend of directory.vendors || []) indexDirEntry(vend, 'VENDOR', dirByNameVendor);
+
+      function fillFromDirectory(donor, entityType, entityId, donorName) {
+        const type = String(entityType || '').toUpperCase();
+        const id = String(entityId || '').trim();
+        const nameKey = aliasKey(donorName || donor.name);
+        const fromId = type && id ? dirById.get(`${type}:${id}`) : null;
+        const fromCust = nameKey ? dirByNameCustomer.get(nameKey) : null;
+        const fromVend = nameKey ? dirByNameVendor.get(nameKey) : null;
+        const order = [];
+        if (fromId && type === 'CUSTOMER') order.push(fromId);
+        if (fromCust) order.push(fromCust);
+        if (fromId && type === 'VENDOR') order.push(fromId);
+        if (fromVend) order.push(fromVend);
+        for (const entry of order) {
+          if (!donor.email && entry.email) {
+            const em = String(entry.email).trim().toLowerCase();
+            const owner = emailIndex.get(em);
+            if (!owner || owner === donor) {
+              donor.email = em;
+              emailIndex.set(em, donor);
+            }
+          }
+          if (!donor.phone && entry.phone) donor.phone = cleanPhone(entry.phone);
+          if (!donor.address && entry.address) {
+            const formatted = formatMailingAddress(entry.address);
+            if (formatted) donor.address = formatted;
+          }
+        }
+      }
+
+      let entityGiftCount = 0;
+      for (const g of payload.gifts || []) {
+        const donorName = String(g.donorName || '').trim();
+        if (!donorName || isPlatformPayee(donorName)) continue;
+        const desc = String(g.description || '').trim();
+        const note = String(g.privateNote || '').trim();
+        const memo = String(g.memo || '').trim() || desc || note;
+        const payor = resolveDepositPayor(donorName, memo, g.account);
+        if (!payor.name || isPlatformPayee(payor.name)) continue;
+        const donor = findOrCreateDonor(payor.name, '', '', '');
+        if (payor.aggregate) donor.isAggregate = true;
+        if (!payor.via) fillFromDirectory(donor, g.entityType, g.entityId, donorName);
+        else fillFromDirectory(donor, '', '', payor.name);
+        const isTribute = /memorial|in memory|in honor|dedication/i.test(`${memo} ${g.account || ''}`);
+        const campaign = campaignFromQboAccount(g.account, payor.name, g.account || 'Direct Gift');
+        const checkNumber = String(g.checkNum || '').trim();
+        addGift(donor, {
+          date: g.date,
+          amount: g.amount,
+          platform: platformFromQbo(donorName, g.qboType),
+          campaign,
+          type: isTribute ? 'Memorial & Tribute' : (g.qboType === 'Deposit' ? 'Physical Paper Check' : (g.qboType || 'Direct Check')),
+          memo,
+          description: desc,
+          privateNote: note,
+          dedication: isTribute ? memo : '',
+          isTribute,
+          reference: checkNumber || g.reference || g.parentId || '',
+          checkNumber,
+          paymentMethod: String(g.paymentMethod || '').trim(),
+          qboClass: String(g.qboClass || '').trim(),
+          entityType: String(g.entityType || '').trim(),
+          entityId: String(g.entityId || '').trim(),
+          qboType: g.qboType || '',
+          account: g.account || '',
+          glCategory: g.account || '',
+          source: 'QuickBooks Online'
+        });
+        entityGiftCount += 1;
+      }
+
+      // Fill remaining blanks from Customer, then Vendor, by display name.
+      let filledContacts = 0;
+      for (const donor of donorMap.values()) {
+        const before = `${donor.email}|${donor.phone}|${donor.address}`;
+        fillFromDirectory(donor, '', '', donor.name);
+        const after = `${donor.email}|${donor.phone}|${donor.address}`;
+        if (after !== before) filledContacts += 1;
+      }
+      console.log('QBO entity/description gift lines considered:', entityGiftCount);
+      console.log('QBO directory fill-blank contacts:', filledContacts);
+    }
+  } else {
+    console.warn('extract_qbo_deposit_gifts.py not found; batch deposit names will be skipped');
   }
 }
 
@@ -391,8 +660,10 @@ for (const donor of donorMap.values()) {
   // Calculate lifetime total: sum of itemized gifts, or fallback to baseline if larger
   const itemizedSum = donor.gifts.reduce((sum, g) => sum + g.amount, 0);
   const baseline = donor.baselineLifetime || 0;
+  donor.itemizedTotal = Math.round(itemizedSum * 100) / 100;
   donor.lifetimeTotal = Math.max(itemizedSum, baseline);
   donor.transactionsCount = Math.max(donor.gifts.length, donor.baselineTxs || 0);
+  donor.isAggregate = Boolean(donor.isAggregate) || isAggregateName(donor.name);
 
   // Skip zero/negative or systemic artifacts
   if (donor.lifetimeTotal <= 0 && donor.transactionsCount === 0) continue;
@@ -404,8 +675,9 @@ for (const donor of donorMap.values()) {
   donor.tierColor = tier.color;
 
   donor.platformsList = Array.from(donor.platforms);
-  donor.campaignsList = Array.from(donor.campaigns);
-  donor.hasMailingAddress = Boolean(donor.address && donor.address.length > 5);
+  donor.campaignsList = Array.from(new Set(Array.from(donor.campaigns).map((c) => campaignFromQboAccount(c, donor.name, c))));
+  donor.address = formatMailingAddress(donor.address);
+  donor.hasMailingAddress = isCompleteMailingAddress(donor.address);
 
   delete donor.platforms;
   delete donor.campaigns;
@@ -453,6 +725,20 @@ console.log('Total Lifetime Volume: $' + totalRaised.toLocaleString('en-US', { m
 console.log('Donors with Full Mailing Address:', totalWithAddress, `(${((totalWithAddress/totalDonors)*100).toFixed(1)}%)`);
 console.log('Major Donors ($1,000+):', majorDonors);
 console.log('Active 2026 Donors:', active2026);
+
+const compileAssert = assertDonorInvariants(finalDonors);
+for (const msg of compileAssert.messages) console.warn('[compile-assert]', msg);
+if (compileAssert.ok) {
+  const boa = finalDonors.find((d) => aliasKey(d.name) === 'bank of america');
+  const trust = finalDonors.find((d) => /^trust fund payment \(via bank of america\)$/i.test(d.name));
+  const county = finalDonors.find((d) => aliasKey(d.name) === 'county of monroe');
+  console.log('[compile-assert] Bank of America lifetime', boa && boa.lifetimeTotal, 'gifts', boa && boa.gifts.length, 'address', JSON.stringify(boa && boa.address));
+  console.log('[compile-assert] Trust Fund Payment gifts', trust && trust.gifts.map((g) => `${g.date} $${g.amount} ${g.campaign} #${g.checkNumber}`).join('; '), 'aggregate', trust && trust.isAggregate);
+  const y2026 = (county && county.gifts || []).filter((g) => String(g.date).startsWith('2026') && g.amount > 7000);
+  console.log('[compile-assert] COUNTY OF MONROE 2026 contracts', y2026.map((g) => `${g.date} $${g.amount} ${g.campaign} #${g.checkNumber}`).join('; '), 'address', JSON.stringify(county && county.address));
+} else {
+  console.warn('[compile-assert] FAILED', compileAssert.messages.length, 'issue(s)');
+}
 
 // Server-side only. Do not write frontend/src/data — Astro SSG would bake PII into public HTML.
 const targetApi = 'api/data/donor_database.json';

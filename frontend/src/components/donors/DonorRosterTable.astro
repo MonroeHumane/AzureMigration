@@ -6,9 +6,18 @@ interface Gift {
   campaign: string;
   type: string;
   memo: string;
+  description?: string;
+  privateNote?: string;
   dedication: string;
   isTribute: boolean;
   reference: string;
+  checkNumber?: string;
+  paymentMethod?: string;
+  qboClass?: string;
+  qboType?: string;
+  account?: string;
+  glCategory?: string;
+  source?: string;
 }
 
 export interface Donor {
@@ -18,6 +27,8 @@ export interface Donor {
   phone: string;
   address: string;
   lifetimeTotal: number;
+  itemizedTotal?: number;
+  isAggregate?: boolean;
   transactionsCount: number;
   firstGiftDate: string;
   latestGiftDate: string;
@@ -53,7 +64,7 @@ const { donors = [] } = Astro.props;
         <input
           type="text"
           id="donor-search-input"
-          placeholder="Search by donor name, email, phone, city, state, or dedication memo..."
+          placeholder="Search by name, email, or city"
           class="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-slate-900 transition outline-none"
         />
         <button
@@ -122,43 +133,43 @@ const { donors = [] } = Astro.props;
 
       <!-- Platform Filter -->
       <div>
-        <label for="filter-platform" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Source Platform</label>
+        <label for="filter-platform" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">How they gave</label>
         <select
           id="filter-platform"
           class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
         >
-          <option value="all">All Platforms</option>
+          <option value="all">All ways</option>
           <option value="BetterUnite">BetterUnite</option>
           <option value="PayPal">PayPal</option>
-          <option value="Paper Check">Paper Check / Bank</option>
-          <option value="multi">Multi-Platform Donors</option>
+          <option value="Paper Check">Check</option>
+          <option value="multi">More than one way</option>
         </select>
       </div>
 
       <!-- Address Status Filter -->
       <div>
-        <label for="filter-address" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Tax Mailing Address</label>
+        <label for="filter-address" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Address</label>
         <select
           id="filter-address"
           class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
         >
-          <option value="all">All Donors</option>
-          <option value="has_address">Has Verified Address (Ready)</option>
-          <option value="no_address">Missing Address</option>
+          <option value="all">Anyone</option>
+          <option value="has_address">Has mailing address</option>
+          <option value="no_address">Missing address</option>
         </select>
       </div>
 
       <!-- Recency Filter -->
       <div>
-        <label for="filter-recency" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Activity Period</label>
+        <label for="filter-recency" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">When</label>
         <select
           id="filter-recency"
           class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
         >
-          <option value="all">All Giving History</option>
-          <option value="2026">Active in 2026 YTD</option>
-          <option value="2025">Active in 2025</option>
-          <option value="earlier">Prior to 2025</option>
+          <option value="all">Any year</option>
+          <option value="2026">Gave in 2026</option>
+          <option value="2025">Gave in 2025</option>
+          <option value="earlier">Before 2025</option>
         </select>
       </div>
 
@@ -169,14 +180,18 @@ const { donors = [] } = Astro.props;
           id="filter-sort"
           class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs font-medium"
         >
-          <option value="lifetime_desc">Lifetime Total (High &rarr; Low)</option>
-          <option value="lifetime_asc">Lifetime Total (Low &rarr; High)</option>
-          <option value="recent_desc">Most Recent Gift</option>
-          <option value="gifts_desc">Most Transactions</option>
-          <option value="name_asc">Donor Name (A &rarr; Z)</option>
+          <option value="lifetime_desc">Largest first</option>
+          <option value="lifetime_asc">Smallest first</option>
+          <option value="recent_desc">Most recent gift</option>
+          <option value="gifts_desc">Most gifts</option>
+          <option value="name_asc">Name A–Z</option>
         </select>
       </div>
     </div>
+    <label class="inline-flex items-center gap-2 text-[11px] text-slate-600 pt-1 cursor-pointer select-none">
+      <input id="filter-show-batches" type="checkbox" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-500/30">
+      <span>Include event totals and unnamed bank deposits</span>
+    </label>
   </div>
 
   <!-- Table Container -->
@@ -186,13 +201,13 @@ const { donors = [] } = Astro.props;
         <thead>
           <tr class="bg-slate-50/90 text-slate-600 border-b border-slate-200 font-semibold uppercase tracking-wider text-[10px]">
             <th class="py-3 px-4 w-10 text-center"></th>
-            <th class="py-3 px-4">Donor & Contact</th>
-            <th class="py-3 px-4">Giving Tier</th>
-            <th class="py-3 px-4">Channels Used</th>
+            <th class="py-3 px-4">Donor</th>
+            <th class="py-3 px-4">Tier</th>
+            <th class="py-3 px-4">How they gave</th>
             <th class="py-3 px-4 text-center">Gifts</th>
-            <th class="py-3 px-4">Latest Gift</th>
-            <th class="py-3 px-4 text-right">Lifetime Total</th>
-            <th class="py-3 px-4 text-center w-24">Action</th>
+            <th class="py-3 px-4">Latest gift</th>
+            <th class="py-3 px-4 text-right">Lifetime</th>
+            <th class="py-3 px-4 text-center w-24"></th>
           </tr>
         </thead>
         <tbody id="donor-table-body" class="divide-y divide-slate-100">
@@ -207,8 +222,8 @@ const { donors = [] } = Astro.props;
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
       </svg>
-      <div class="text-sm font-semibold text-slate-700">No donors match your search criteria</div>
-      <p class="text-xs text-slate-500">Try adjusting your filters, clearing your search query, or selecting "All Tiers".</p>
+      <div class="text-sm font-semibold text-slate-700">No matching donors</div>
+      <p class="text-xs text-slate-500">Clear the search box or reset the filters.</p>
     </div>
 
     <!-- Pagination & Stats Footer -->
@@ -308,6 +323,7 @@ const { donors = [] } = Astro.props;
       filterAddress: document.getElementById('filter-address'),
       filterRecency: document.getElementById('filter-recency'),
       filterSort: document.getElementById('filter-sort'),
+      filterShowBatches: document.getElementById('filter-show-batches'),
       pageSizeSelect: document.getElementById('page-size'),
       prevBtn: document.getElementById('pagination-prev-btn'),
       nextBtn: document.getElementById('pagination-next-btn'),
@@ -345,7 +361,7 @@ const { donors = [] } = Astro.props;
           d.address,
           d.givingTier,
           (d.platformsList || []).join(' '),
-          (d.gifts || []).map(g => `${g.campaign || ''} ${g.memo || ''} ${g.dedication || ''} ${g.reference || ''}`).join(' ')
+          (d.gifts || []).map(g => `${g.campaign || ''} ${g.memo || ''} ${g.description || ''} ${g.dedication || ''} ${g.reference || ''} ${g.checkNumber || ''} ${g.paymentMethod || ''} ${g.account || ''} ${g.qboType || ''} ${g.qboClass || ''}`).join(' ')
         ].join(' ').toLowerCase();
       }
     });
@@ -365,6 +381,89 @@ const { donors = [] } = Astro.props;
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
     return d;
+  }
+
+  function giftDescription(g) {
+    const parts = [g.description, g.memo, g.privateNote, g.dedication];
+    for (const p of parts) {
+      const t = String(p || '').trim();
+      if (t && !/^DEPOSIT$/i.test(t)) return t;
+    }
+    return '';
+  }
+
+  function itemizedTotalOf(donor) {
+    if (typeof donor.itemizedTotal === 'number') return donor.itemizedTotal;
+    return (donor.gifts || []).reduce((sum, g) => sum + (g.amount || 0), 0);
+  }
+
+  function coverageCopy(donor) {
+    if (donor.isAggregate) return '';
+    const itemized = itemizedTotalOf(donor);
+    const lifetime = donor.lifetimeTotal || 0;
+    if (Math.abs(lifetime - itemized) < 0.005) return '';
+    return 'Lifetime includes unlabeled bank deposits that QuickBooks did not name.';
+  }
+
+  function aggregateKind(donor) {
+    if (!donor.isAggregate) return '';
+    if (/trust fund|via bank of america/i.test(donor.name || '')) return 'bank';
+    return 'event';
+  }
+
+  function shortChannel(p) {
+    const raw = String(p || '');
+    if (/check/i.test(raw)) return 'Check';
+    if (/paypal/i.test(raw)) return 'PayPal';
+    if (/better/i.test(raw)) return 'BetterUnite';
+    if (/square/i.test(raw)) return 'Square';
+    return raw;
+  }
+
+  function checkOrMethod(g) {
+    const checkNo = String(g.checkNumber || '').trim();
+    if (checkNo) return checkNo;
+    const method = String(g.paymentMethod || '').trim();
+    if (method) return method;
+    return String(g.reference || '').trim();
+  }
+
+  function formatDisplayAddress(addr) {
+    if (!addr) return '';
+    const parts = String(addr).split(/[|,]/).map((p) => p.trim().replace(/\s+/g, ' ')).filter(Boolean);
+    const out = [];
+    for (const t of parts) {
+      if (!out.length || out[out.length - 1].toLowerCase() !== t.toLowerCase()) out.push(t);
+    }
+    if (!out.length) return '';
+    if (out.length === 1 && /^[A-Z]{2}$/i.test(out[0])) return '';
+    const joined = out.join(', ').replace(/^[,\s]+/, '').replace(/[,\s]+$/, '');
+    if (/^MI\s*$/i.test(joined) || /^,\s*MI\b/i.test(joined)) return '';
+    return joined;
+  }
+
+  function emptyHistoryCopy(donor) {
+    const kind = aggregateKind(donor);
+    if (kind === 'bank') {
+      return 'This is a trust or foundation check the bank deposited. QuickBooks does not name the trust, so this is not a gift from the bank.';
+    }
+    if (kind === 'event') {
+      return 'This is an event total (auction, car show, or similar), not a person.';
+    }
+    if ((donor.lifetimeTotal || 0) > 0.01) {
+      return 'No named checks on file. The lifetime total includes unlabeled deposits.';
+    }
+    return 'No gifts on file yet.';
+  }
+
+  function groupGiftsByYear(gifts) {
+    const map = new Map();
+    for (const g of gifts || []) {
+      const year = String(g.date || '').slice(0, 4) || 'Unknown';
+      if (!map.has(year)) map.set(year, []);
+      map.get(year).push(g);
+    }
+    return Array.from(map.entries()).sort((a, b) => String(b[0]).localeCompare(String(a[0])));
   }
 
   function getTierBadge(tierId, label) {
@@ -391,18 +490,19 @@ const { donors = [] } = Astro.props;
     return `
       <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${badgeBg}">
         <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
-        <span>${label}</span>
+        <span title="${escapeHtml(label)}">${escapeHtml(String(label).split(' (')[0])}</span>
       </span>
     `;
   }
 
   function getPlatformPill(p) {
+    const label = shortChannel(p);
     let color = 'bg-slate-100 text-slate-600 border-slate-200';
-    if (p === 'BetterUnite') color = 'bg-teal-50 text-teal-700 border-teal-200';
-    else if (p === 'PayPal') color = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-    else if (p.includes('Check')) color = 'bg-amber-50 text-amber-800 border-amber-200';
+    if (label === 'BetterUnite') color = 'bg-teal-50 text-teal-700 border-teal-200';
+    else if (label === 'PayPal') color = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    else if (label === 'Check') color = 'bg-amber-50 text-amber-800 border-amber-200';
 
-    return `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border ${color}">${p}</span>`;
+    return `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border ${color}">${escapeHtml(label)}</span>`;
   }
 
   function applyFilters() {
@@ -413,6 +513,7 @@ const { donors = [] } = Astro.props;
     const addr = els.filterAddress?.value || 'all';
     const rec = els.filterRecency?.value || 'all';
     const sort = els.filterSort?.value || 'lifetime_desc';
+    const showBatches = Boolean(els.filterShowBatches?.checked);
 
     if (els.clearSearchBtn) {
       els.clearSearchBtn.classList.toggle('hidden', !q);
@@ -421,6 +522,7 @@ const { donors = [] } = Astro.props;
     filteredDonors = allDonors.filter(d => {
       // Fast Search
       if (q && !d._searchStr.includes(q)) return false;
+      if (!showBatches && d.isAggregate && !q) return false;
 
       // Tier
       if (tier !== 'all' && d.tierId !== tier) return false;
@@ -504,6 +606,7 @@ const { donors = [] } = Astro.props;
     const rowsHtml = pageSlice.map((donor, idx) => {
       const isOpen = openDrawers.has(donor.id);
       const isEven = idx % 2 === 0;
+      const displayAddr = formatDisplayAddress(donor.address);
 
       // Badges
       const tributeBadge = donor.tributesCount > 0
@@ -513,12 +616,12 @@ const { donors = [] } = Astro.props;
            </span>`
         : '';
 
-      const addressBadge = donor.hasMailingAddress
-        ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Verified mailing address ready for tax acknowledgments">
-             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-             Tax Letter Ready
-           </span>`
-        : '';
+      const kind = aggregateKind(donor);
+      const kindBadge = kind === 'bank'
+        ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">Bank deposit</span>`
+        : kind === 'event'
+          ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">Event total</span>`
+          : '';
 
       // Main Row
       const mainRow = `
@@ -543,12 +646,12 @@ const { donors = [] } = Astro.props;
             <div class="font-bold text-slate-900 text-xs flex items-center gap-2">
               <span>${escapeHtml(donor.name)}</span>
               ${tributeBadge}
-              ${addressBadge}
+              ${kindBadge}
             </div>
             <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 mt-0.5">
               ${donor.email ? `<span class="text-slate-600 font-mono text-[10px]">${escapeHtml(donor.email)}</span>` : ''}
               ${donor.phone ? `<span>&bull; ${escapeHtml(donor.phone)}</span>` : ''}
-              ${donor.address ? `<span class="truncate max-w-[280px]" title="${escapeHtml(donor.address)}">&bull; ${escapeHtml(donor.address)}</span>` : ''}
+              ${displayAddr ? `<span class="truncate max-w-[280px]" title="${escapeHtml(displayAddr)}">&bull; ${escapeHtml(displayAddr)}</span>` : ''}
             </div>
           </td>
           <td class="py-3 px-4 whitespace-nowrap">
@@ -573,7 +676,7 @@ const { donors = [] } = Astro.props;
               type="button"
               class="inspect-donor-btn px-2.5 py-1 rounded text-[11px] font-semibold transition border ${isOpen ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'}"
             >
-              ${isOpen ? 'Close' : 'Inspect'}
+              ${isOpen ? 'Close' : 'View'}
             </button>
           </td>
         </tr>
@@ -583,127 +686,128 @@ const { donors = [] } = Astro.props;
       if (!isOpen) return mainRow;
 
       const giftsList = donor.gifts || [];
-      const giftsHtml = giftsList.length > 0
-        ? giftsList.map((g, gIdx) => `
-            <tr class="${gIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} text-slate-700 hover:bg-slate-100/60 transition">
-              <td class="py-2 px-3 font-mono text-[11px] text-slate-600">${formatDate(g.date)}</td>
-              <td class="py-2 px-3">${getPlatformPill(g.platform)}</td>
-              <td class="py-2 px-3 font-medium text-slate-800">${escapeHtml(g.campaign || 'Direct Support')}</td>
-              <td class="py-2 px-3 text-[11px] text-slate-500">${escapeHtml(g.type || 'Direct Gift')}</td>
-              <td class="py-2 px-3 font-mono font-bold text-slate-900 text-right">${formatMoney(g.amount)}</td>
-              <td class="py-2 px-3 text-[11px] text-slate-600 max-w-[280px] truncate" title="${escapeHtml(g.dedication || g.memo || '')}">
-                ${g.dedication ? `<span class="font-semibold text-amber-800">Tribute:</span> ${escapeHtml(g.dedication)}` : escapeHtml(g.memo || '—')}
-              </td>
-              <td class="py-2 px-3 font-mono text-[10px] text-slate-400 text-right">${escapeHtml(g.reference || '—')}</td>
-            </tr>
-          `).join('')
-        : `
-          <tr>
-            <td colspan="7" class="py-4 text-center text-xs text-slate-400 italic">
-              No itemized gifts recorded in historical register.
+      const coverage = coverageCopy(donor);
+      const yearGroups = groupGiftsByYear(giftsList);
+      const giftRowsForYear = (yearGifts) => yearGifts.map((g, gIdx) => {
+        const desc = giftDescription(g);
+        const checkLabel = checkOrMethod(g);
+        const dedication = (g.dedication || '').trim();
+        const descHtml = [];
+        if (g.isTribute && dedication && dedication !== desc) {
+          descHtml.push(`<div><span class="font-semibold text-amber-800 dark:text-amber-300">In memory / honor:</span> ${escapeHtml(dedication)}</div>`);
+        }
+        if (desc) {
+          descHtml.push(`<div class="text-slate-700 dark:text-slate-200">${escapeHtml(desc)}</div>`);
+        }
+        return `
+          <tr class="${gIdx % 2 === 0 ? 'bg-white dark:bg-[#0b2420]/40' : 'bg-slate-50/50 dark:bg-[#061815]/80'} text-slate-700 dark:text-slate-200 hover:bg-teal-50/40 dark:hover:bg-teal-950/40 transition align-top">
+            <td class="py-2 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap">${formatDate(g.date)}</td>
+            <td class="py-2 px-3">${getPlatformPill(g.platform)}</td>
+            <td class="py-2 px-3 font-medium text-slate-800 dark:text-slate-100">${escapeHtml(g.campaign || 'Gift')}</td>
+            <td class="py-2 px-3 font-mono font-bold text-slate-900 dark:text-white text-right whitespace-nowrap">${formatMoney(g.amount)}</td>
+            <td class="py-2 px-3 text-[11px] text-slate-600 dark:text-slate-300 max-w-[280px]" title="${escapeHtml(desc || dedication || '')}">
+              ${descHtml.join('') || '<span class="text-slate-400 dark:text-slate-500">—</span>'}
             </td>
+            <td class="py-2 px-3 font-mono text-[11px] text-slate-700 dark:text-teal-200 text-right whitespace-nowrap">${escapeHtml(checkLabel || '—')}</td>
           </tr>
         `;
+      }).join('');
+
+      let historyHtml = '';
+      if (donor.isAggregate && giftsList.length > 0) {
+        historyHtml = `
+          <div class="rounded-lg border border-amber-200 dark:border-amber-800/70 bg-amber-50/80 dark:bg-amber-950/40 px-3 py-2.5 text-xs text-amber-900 dark:text-amber-200">
+            ${escapeHtml(emptyHistoryCopy(donor))}
+          </div>
+        `;
+      }
+      if (giftsList.length === 0) {
+        historyHtml += `
+          <div class="py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+            ${escapeHtml(emptyHistoryCopy(donor))}
+          </div>
+        `;
+      } else {
+        const showYearHeads = yearGroups.length > 1;
+        historyHtml += yearGroups.map(([year, yearGifts]) => {
+          const yearSum = yearGifts.reduce((s, g) => s + (g.amount || 0), 0);
+          return `
+            <div class="space-y-1.5">
+              ${showYearHeads ? `<div class="flex items-center justify-between gap-2 px-0.5">
+                <h5 class="text-[11px] font-bold text-teal-800 dark:text-teal-300">${escapeHtml(year)}</h5>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400">${yearGifts.length} gift${yearGifts.length === 1 ? '' : 's'} · ${formatMoney(yearSum)}</span>
+              </div>` : ''}
+              <div class="overflow-x-auto border border-slate-200 dark:border-teal-800/80 rounded-lg">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50/90 dark:bg-[#061815] text-slate-600 dark:text-teal-300 font-semibold text-[11px] border-b border-slate-200 dark:border-teal-900/60">
+                    <tr>
+                      <th class="py-2 px-3">Date</th>
+                      <th class="py-2 px-3">How</th>
+                      <th class="py-2 px-3">For</th>
+                      <th class="py-2 px-3 text-right">Amount</th>
+                      <th class="py-2 px-3">Note</th>
+                      <th class="py-2 px-3 text-right">Check</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-teal-900/50">
+                    ${giftRowsForYear(yearGifts)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const contactBits = [];
+      if (donor.email) {
+        contactBits.push(`<div><a href="mailto:${escapeHtml(donor.email)}" class="text-emerald-700 dark:text-emerald-300 hover:underline">${escapeHtml(donor.email)}</a></div>`);
+      }
+      if (donor.phone) {
+        contactBits.push(`<div>${escapeHtml(donor.phone)}</div>`);
+      }
+      if (displayAddr) {
+        contactBits.push(`<div class="leading-snug">${escapeHtml(displayAddr)}</div>`);
+      }
+      const contactPanel = contactBits.length
+        ? `<div class="text-xs bg-slate-50/60 dark:bg-[#061815] p-3 rounded-lg border border-slate-100 dark:border-teal-900/60 text-slate-700 dark:text-slate-200 space-y-0.5">${contactBits.join('')}</div>`
+        : '';
 
       const drawerRow = `
         ${mainRow}
-        <tr id="drawer-${donor.id}" class="bg-slate-100/70 border-b-2 border-emerald-600/30">
+        <tr id="drawer-${donor.id}" class="bg-slate-100/70 dark:bg-[#061815] border-b-2 border-emerald-600/30 dark:border-teal-800/80">
           <td colspan="8" class="p-4 sm:p-5">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
-              <!-- Drawer Header / Quick Actions -->
-              <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
-                    ${escapeHtml(donor.name.substring(0, 2).toUpperCase())}
+            <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-4 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-teal-900/60">
+                <div>
+                  <div class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2 flex-wrap">
+                    <span title="${escapeHtml(donor.id)}">${escapeHtml(donor.name)}</span>
+                    ${kindBadge}
                   </div>
-                  <div>
-                    <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                      <span>${escapeHtml(donor.name)}</span>
-                      <span class="text-xs font-mono font-normal text-slate-400">(ID: ${donor.id})</span>
-                    </div>
-                    <div class="text-xs text-slate-500">
-                      ${donor.givingTier} &bull; ${donor.transactionsCount} Lifetime Gifts &bull; ${formatMoney(donor.lifetimeTotal)} Total
-                    </div>
+                  <div class="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
+                    ${giftsList.length} gift${giftsList.length === 1 ? '' : 's'} · ${formatMoney(donor.lifetimeTotal)}
+                    ${donor.firstGiftDate ? ` · first ${formatDate(donor.firstGiftDate)}` : ''}
                   </div>
+                  ${coverage ? `<div class="text-[11px] text-slate-600 dark:text-slate-300 mt-1">${escapeHtml(coverage)}</div>` : ''}
                 </div>
-
-                <div class="flex items-center gap-2">
-                  <button
-                    type="button"
-                    class="export-single-donor-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition border border-slate-200 cursor-pointer"
-                    data-donor-id="${donor.id}"
-                    title="Export giving history for this donor to CSV"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    <span>Export Statement CSV</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  class="export-single-donor-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-[#061815] dark:hover:bg-teal-950/80 dark:text-slate-200 transition border border-slate-200 dark:border-teal-800/80 cursor-pointer"
+                  data-donor-id="${donor.id}"
+                  title="Download this donor as CSV"
+                >
+                  <span>Download CSV</span>
+                </button>
               </div>
-
-              <!-- Profile Details Grid -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-slate-50/60 p-3 rounded-lg border border-slate-100">
-                <div>
-                  <span class="font-semibold text-slate-400 uppercase tracking-wider text-[10px] block">Contact Coordinates</span>
-                  <div class="mt-1 space-y-0.5 text-slate-700">
-                    <div>Email: ${donor.email ? `<a href="mailto:${escapeHtml(donor.email)}" class="text-emerald-700 hover:underline font-mono text-[11px]">${escapeHtml(donor.email)}</a>` : '<span class="text-slate-400 italic">None</span>'}</div>
-                    <div>Phone: ${donor.phone ? `<span class="font-mono text-[11px]">${escapeHtml(donor.phone)}</span>` : '<span class="text-slate-400 italic">None</span>'}</div>
-                  </div>
-                </div>
-
-                <div>
-                  <span class="font-semibold text-slate-400 uppercase tracking-wider text-[10px] block">Mailing Address</span>
-                  <div class="mt-1 text-slate-700">
-                    ${donor.address ? `<div class="leading-snug">${escapeHtml(donor.address)}</div>` : '<div class="text-slate-400 italic">No address on file</div>'}
-                  </div>
-                </div>
-
-                <div>
-                  <span class="font-semibold text-slate-400 uppercase tracking-wider text-[10px] block">Giving Summary</span>
-                  <div class="mt-1 space-y-0.5 text-slate-700">
-                    <div>First Gift: <span class="font-medium">${formatDate(donor.firstGiftDate)}</span></div>
-                    <div>Latest Gift: <span class="font-medium">${formatDate(donor.latestGiftDate)}</span></div>
-                    <div>Average Gift: <span class="font-mono font-bold">${formatMoney(donor.averageGift || (donor.lifetimeTotal / (donor.transactionsCount || 1)))}</span></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Itemized Gift Timeline -->
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>Transaction History</span>
-                    <span class="px-1.5 py-0.2 rounded text-[10px] bg-slate-100 text-slate-600 font-mono">${giftsList.length}</span>
-                  </h4>
-                  <span class="text-[11px] text-slate-400">Chronological transaction register</span>
-                </div>
-
-                <div class="overflow-x-auto border border-slate-200 rounded-lg max-h-64 overflow-y-auto">
-                  <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50/90 text-slate-600 font-semibold text-[11px] border-b border-slate-200 sticky top-0">
-                      <tr>
-                        <th class="py-2 px-3">Date</th>
-                        <th class="py-2 px-3">Platform</th>
-                        <th class="py-2 px-3">Campaign / Cause</th>
-                        <th class="py-2 px-3">Type</th>
-                        <th class="py-2 px-3 text-right">Amount</th>
-                        <th class="py-2 px-3">Dedication / Memo</th>
-                        <th class="py-2 px-3 text-right">Reference ID</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                      ${giftsHtml}
-                    </tbody>
-                  </table>
-                </div>
+              ${contactPanel}
+              <div class="space-y-3">
+                ${historyHtml}
               </div>
             </div>
           </td>
         </tr>
       `;
+
 
       return drawerRow;
     }).join('');
@@ -773,7 +877,7 @@ const { donors = [] } = Astro.props;
       `"${(d.name || '').replace(/"/g, '""')}"`,
       `"${(d.email || '').replace(/"/g, '""')}"`,
       `"${(d.phone || '').replace(/"/g, '""')}"`,
-      `"${(d.address || '').replace(/"/g, '""')}"`,
+      `"${formatDisplayAddress(d.address).replace(/"/g, '""')}"`,
       d.lifetimeTotal.toFixed(2),
       d.transactionsCount,
       `"${d.givingTier}"`,
@@ -801,25 +905,31 @@ const { donors = [] } = Astro.props;
       const csvRows = [
         ['Humane Society of Monroe County - Donor Giving Statement'],
         ['Donor Name', donor.name],
+        ['Donor ID', donor.id],
         ['Email', donor.email],
         ['Phone', donor.phone],
-        ['Mailing Address', `"${(donor.address || '').replace(/"/g, '""')}"`],
-        ['Lifetime Total', donor.lifetimeTotal.toFixed(2)],
+        ['Mailing Address', `"${formatDisplayAddress(donor.address).replace(/"/g, '""')}"`],
+        ['Lifetime Total', (donor.lifetimeTotal || 0).toFixed(2)],
+        ['Itemized Total', (typeof donor.itemizedTotal === 'number' ? donor.itemizedTotal : (donor.gifts || []).reduce((s, g) => s + (g.amount || 0), 0)).toFixed(2)],
         ['Giving Tier', donor.givingTier],
         ['Total Gifts', donor.transactionsCount],
         [],
-        ['Date', 'Platform', 'Campaign', 'Type', 'Amount', 'Dedication', 'Reference ID']
+        ['Date', 'How', 'For', 'Amount', 'Note', 'Check']
       ];
 
       (donor.gifts || []).forEach(g => {
+        const desc = [g.description, g.dedication, g.memo, g.privateNote]
+          .map(s => String(s || '').trim())
+          .find(s => s && !/^DEPOSIT$/i.test(s)) || '';
+        const how = /check/i.test(g.platform || '') ? 'Check' : (g.platform || '');
+        const checkLabel = String(g.checkNumber || g.paymentMethod || g.reference || '').trim();
         csvRows.push([
           g.date,
-          g.platform,
+          how,
           `"${(g.campaign || '').replace(/"/g, '""')}"`,
-          g.type,
-          g.amount.toFixed(2),
-          `"${(g.dedication || g.memo || '').replace(/"/g, '""')}"`,
-          `"${(g.reference || '').replace(/"/g, '""')}"`
+          (g.amount || 0).toFixed(2),
+          `"${desc.replace(/"/g, '""')}"`,
+          `"${checkLabel.replace(/"/g, '""')}"`
         ]);
       });
 
@@ -869,7 +979,7 @@ const { donors = [] } = Astro.props;
     }
 
     // Filter change handlers
-    [els.filterTier, els.filterPlatform, els.filterAddress, els.filterRecency, els.filterSort].forEach(flt => {
+    [els.filterTier, els.filterPlatform, els.filterAddress, els.filterRecency, els.filterSort, els.filterShowBatches].forEach(flt => {
       if (flt && flt.dataset.bound !== '1') {
         flt.dataset.bound = '1';
         flt.addEventListener('change', applyFilters);

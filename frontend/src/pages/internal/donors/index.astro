@@ -14,7 +14,7 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
     <div class="flex flex-wrap items-baseline justify-between gap-3 pb-3 border-b border-slate-200 dark:border-teal-800/60">
       <div>
         <a href="/internal/" class="text-xs text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-emerald-300 transition inline-flex items-center gap-1 font-medium">← Return to Hub</a>
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">Donor Registry &amp; Giving</h1>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">Donors</h1>
       </div>
       <p class="text-xs text-slate-600 dark:text-slate-300">
         <span id="donor-banner-volume" class="font-bold text-emerald-700 dark:text-emerald-400">--</span>
@@ -49,7 +49,7 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
       </section>
 
       <div id="donor-api-status" class="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-950 shadow-xs">
-        Loading donor registry…
+        Loading donors…
       </div>
 
       <section id="donor-roster-section" class="hidden">
@@ -102,11 +102,11 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
 
     async function loadDonors() {
       if (!isStaffAuthenticated()) return;
-      setStaffDataStatus('donor-api-status', 'loading', 'Loading donor registry…');
+      setStaffDataStatus('donor-api-status', 'loading', 'Loading donors…');
 
       const cached = await fetchStaffFinancials();
       if (cached.ok && applyDonorPayload(cached.data)) {
-        setStaffDataStatus('donor-api-status', 'loading', 'Refreshing donor registry…');
+        setStaffDataStatus('donor-api-status', 'loading', 'Refreshing…');
       }
 
       const fresh = await refreshStaffFinancials();
