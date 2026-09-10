@@ -219,8 +219,11 @@ async function authenticateRequest(token) {
 }
 
 function bearerToken(request) {
-  // Azure Static Web Apps reserves/strips standard 'Authorization' header.
-  // We check X-Staff-Token, X-Authorization, query token, and Authorization.
+  // Prefer header auth only. Azure Static Web Apps may reserve/strip the
+  // standard Authorization header, so also accept X-Staff-Token / X-Authorization.
+  // Query ?token= is intentionally NOT accepted: tokens in URLs leak via
+  // proxies, access logs, and Referer. Staff PDF/print flows use Bearer /
+  // X-Staff-Token headers and blob URLs (see board-financials-loader.ts).
   const custom = request.headers.get('x-staff-token') || request.headers.get('x-authorization') || '';
   if (custom) {
     return custom.startsWith('Bearer ') ? custom.substring(7).trim() : custom.trim();
@@ -229,12 +232,6 @@ function bearerToken(request) {
   if (authHeader.startsWith('Bearer ')) {
     return authHeader.substring(7).trim();
   }
-  try {
-    const url = new URL(request.url);
-    const qToken = url.searchParams.get('token');
-    if (qToken) return qToken.trim();
-  } catch {}
-
   return authHeader.trim();
 }
 
@@ -1466,15 +1463,18 @@ app.http('inquiry', {
         ip: request.headers.get('x-forwarded-for') || 'direct',
       };
 
-      context.log('[Inquiry] Received valid inquiry:', {
+      // Intake is not wired to email or a Directus collection yet — do not
+      // claim delivery. Log for ops visibility and return 501 so clients
+      // can fall back to mailto / phone (see /contact).
+      context.log('[Inquiry] Valid inquiry received but intake not configured:', {
         topic: cleanInquiry.topic,
         email: cleanInquiry.email,
         pet_id: cleanInquiry.pet_id,
       });
 
-      return jsonResponse(request, 200, {
-        ok: true,
-        message: 'Thank you! Your inquiry has been sent to our shelter team.',
+      return jsonResponse(request, 501, {
+        ok: false,
+        error: 'Online inquiry intake is not configured yet. Please email support@monroe-humane.org or call (734) 243-3669.',
         received_at: cleanInquiry.received_at,
       });
     } catch (err) {

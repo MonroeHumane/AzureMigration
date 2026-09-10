@@ -97,7 +97,7 @@ The Monroe County Humane Society platform is an enterprise web architecture engi
 | `memorial_tributes` | Honor Roll & Memorial donations | Read-Only |
 | `newsletter_issues` | Seasonal and annual review publications | Read-Only |
 | `testimonials` | Community reviews & adoption stories | Read-Only |
-| `membership_tiers` | Annual and monthly membership packages | Read-Only |
+| `membership_tiers` | Annual/monthly packages (CMS may exist; **public `/membership` page is WIP / noindex**) | Read-Only |
 | `site_settings` | Shelter hours, emergency phone, annual counts | Read-Only |
 | `board_meetings` | Meeting dates, agendas, and minutes | Authenticated Staff/Board |
 | `board_documents` | Monthly financials, statements, and audit reports | Authenticated Staff/Board |
@@ -117,14 +117,14 @@ The Monroe County Humane Society platform is an enterprise web architecture engi
 * `GET/POST /api/scores`: Global arcade leaderboards.
 * `GET/POST /api/dexit`: Adoptédex card collection albums.
 * `GET/POST /api/tycoon/save`: Cloud save states for the Shelter Tycoon management sim.
-* **Featured Games**:
-  * *Pet Snake* (`/games/petsnake.html`): Classic snack trail arcade.
-  * *Pet Snake Adventure* (`/games/petsnakerouguelike.html`): 15-floor roguelike with upgrades.
-  * *Found* (`/games/found/index.html`): Stray cat neighborhood navigation.
-  * *Catwalk* (`/games/catwalk`): Vector wireframe arcade night patrol.
-  * *Pet Match Memory* (`/games/match/match.html`): Real shelter pet photo matching.
-  * *Adoptédex Album* (`/games/dex/dex.html`): Collectible digital cards.
-  * *Shelter Tycoon* (`/games/shelter-tycoon/index.html`): Humane society management sim.
+* **Featured Games** (cabinet hub `/games` — verified against `frontend/src/pages/games/index.astro`):
+  * *Pet Booster Packs* (`/games/booster/`)
+  * *Pet Match Memory* (`/games/match/match.html`)
+  * *Flappy Cat* (`/games/flappy-cat/`)
+  * *Catwalk Night Patrol* (`/games/catwalk`)
+  * *Shelter Run* (`/games/shelter-run/`)
+  * *Adoptédex* dock (`/games/dex/album.html`) — binder / collectibles, not a separate GAMES[] card
+  * **Legacy** (deep links kept, listed under Legacy on hub): Pet Snake, Pet Snake Adventure, Shelter Tycoon. `found/` and large experimental assets remain on disk pending a later archive pass.
 
 ---
 
@@ -233,4 +233,4 @@ node test-site-integrity.cjs
 * **Cold Starts & Sessions**: Directus `KEY` and `SECRET` are stored as Container App secrets (not plaintext env). When applying Bicep to the live app, pass the KEY and SECRET already running on `mchs-directus` — do not generate new values. Rotating `KEY` can make existing encrypted fields unreadable. Those live values are not in git.
 * **Database Backups**: Azure MySQL Flexible Server automated locally redundant backups with 7-day point-in-time recovery. Geo-redundant backup is not enabled: the live SKU is Burstable `Standard_B1ms`, which does not support geo-redundant backup.
 * **Zero-Downtime Fallback**: If Directus is warming up during an Astro build, the build automatically uses bundled JSON fallback data, guaranteeing 100% CI/CD uptime.
-* **Content Security Policy (CSP)**: Hardened headers in `staticwebapp.config.json` protecting against XSS, clickjacking, and MIME sniffing while allowing verified frames (BetterUnite, PayPal, Google Forms).
+* **Content Security Policy (CSP)**: Headers in `staticwebapp.config.json` protect against XSS, clickjacking, and MIME sniffing while allowing verified frames (Zeffy, PayPal, Google Forms, Facebook). BetterUnite frame hosts were removed after confirming no live embeds.

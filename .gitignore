@@ -16,3 +16,12 @@ frontend/.astro/
 
 # Donor PII must stay server-side (api/data). Never bake into Astro src.
 frontend/src/data/donor_database.json
+
+# Operational PII / financial dumps — keep out of new commits.
+# api/data/donor_database.json remains deferred for removal from tracking:
+# /api/financials still loadJsonOptional()s it at runtime in production deploys.
+# Do not force-push history rewrite; migrate to private artifact store first.
+api/data/donor_database.json
+scratch/qbo_named_gifts*.json
+scratch/*donor*.json
+

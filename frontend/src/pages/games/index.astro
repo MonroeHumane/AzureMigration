@@ -18,6 +18,14 @@ interface GameItem {
   accentText: string;
 }
 
+
+/** Legacy / experimental HTML games kept for deep links; not in primary cabinet. */
+const LEGACY_GAMES: { title: string; href: string; note: string }[] = [
+  { title: 'Pet Snake', href: '/games/petsnake.html', note: 'Classic arcade (legacy)' },
+  { title: 'Pet Snake Adventure', href: '/games/petsnakerouguelike.html', note: 'Roguelike (legacy)' },
+  { title: 'Shelter Tycoon', href: '/games/shelter-tycoon/index.html', note: 'Management sim (legacy)' },
+];
+
 const GAMES: GameItem[] = [
   {
     id: 'booster',
@@ -573,7 +581,28 @@ const MASCOTS = [
   </div>
 
   <!-- Global Arcade Leaderboard Modal -->
-  <ArcadeLeaderboardModal />
+  
+    <section class="mt-10 mb-6 rounded-2xl border border-white/10 bg-slate-950/40 p-5 sm:p-6" aria-label="Legacy games">
+      <h2 class="text-lg font-bold text-white mb-1">Legacy games</h2>
+      <p class="text-sm text-slate-300 mb-4">
+        Older experimental titles kept for bookmarks. Prefer the cabinet above for the supported set.
+      </p>
+      <ul class="flex flex-wrap gap-3">
+        {LEGACY_GAMES.map((game) => (
+          <li>
+            <a
+              href={game.href}
+              class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-amber-100 hover:bg-white/10"
+            >
+              <span class="font-semibold">{game.title}</span>
+              <span class="text-xs text-slate-400">{game.note}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <ArcadeLeaderboardModal />
 </BaseLayout>
 
 <style>
