@@ -8,6 +8,10 @@ Rewrite homepage surfaces one at a time into native Astro + Tailwind components 
 
 | Surface | Component | Notes |
 |---------|-----------|--------|
+| Hero / cover (`#Top`) | `frontend/src/components/home/HomeHeroSection.astro` | **Hybrid BEM extract** (parity over purity). Keeps `wp-block-cover` / `home-editable-hero`, cover-dim ladder (`has-background-dim-40` + global-styles dim rules), poster backdrop, `data-hero-video*` toggle hooks, CTA row, and hero stats. Page script in `index.astro` still owns play/pause / reduced-motion / save-data behavior against `#Top`. Pure Tailwind deferred — prior rewrite reverted (`33768e1`). |
+| Intro / About Our Shelter (`#Intro`) | `frontend/src/components/home/HomeIntroSection.astro` | Hybrid BEM; preserves `#Intro`. Call CTA uses `SITE.contact.phoneTel` (replaces undefined `TEL` reference in prior inline markup). |
+| Hero Fence (`#hs-hero-fence-widget`) | `frontend/src/components/home/HomeHeroFenceSection.astro` | Preserves fence id + title id; keeps `hs-feature-widget` BEM shared with events/supporter story widgets. |
+| Feature card (post–hero-fence) | `frontend/src/components/home/HomeFeatureCardSection.astro` | Keeps `home-editable-feature-card` / media / copy BEM for monroe-home.css layout + buttons. |
 | Newsletter band (`.home-nl` + monroe-news-band card) | `frontend/src/components/home/HomeNewsletterSection.astro` | Teal gradient band + cream letter card; Directus featured/latest issue via existing loaders in `index.astro`; preserves `#Newsletter` + `data-nl-*` hydrate hooks. |
 | Featured pets / adopt cards (`#FeaturedPets`) | `frontend/src/components/home/HomeFeaturedPets.astro` | Elevated white card + longest-residents badge/CTAs; Directus `getPets().slice(0, 6)` passed from `index.astro`; Tailwind pet cards + scoped marquee; preserves `#FeaturedPets`, `#featuredPetsWidget`, `#fpwExpandBtn`, `#featuredPetsFsDialog`, `#longestRow` / `.scroll-strip--primary`, and `#fpw-fs-longest` so the existing fullscreen-gallery script still works. Dialog nested under `#featuredPetsWidget` so gallery grid styles apply (was previously a sibling, so orphaned `#featuredPetsWidget dialog…` CSS never matched). |
 | Events band + flyers rail (`#Events`) | `frontend/src/components/home/HomeEventsSection.astro` | Winner/feature card + next-event hero (pet slideshow + calendar CTAs) + horizontal upcoming flyers strip. Next-event + rail use the same Directus `getEventFlyers()` path as `/events` (upcoming by `event_date`). Preserves `#Events`, `data-home-nav-section="Events"`, and `hs-shirt-artwork-contest-title`. Legacy side `.home-editable-flyers-rail` markup was already absent from `index.astro` (body still carries `home-editable-has-flyers-rail` for theme CSS); native rail restores flyer thumbnails from Directus images. |
@@ -24,20 +28,17 @@ Rewrite homepage surfaces one at a time into native Astro + Tailwind components 
 | Humane Games CTA (`#Games`) | `frontend/src/components/home/HomeGamesSection.astro` | Teaser grid + CTA; Tailwind/scoped parity; preserves `#Games` + `#home-games-heading`. |
 | Contact & Hours (`#Contact`) | `frontend/src/components/home/HomeContactSection.astro` | Mailto form + map + open/closed badge; preserves `#Contact`, field IDs, `data-monroe-contact-mailto`, and `data-hours-*` hooks used by `index.astro` page script. |
 
-## Explicitly not touched
+## Explicitly not touched (this PR)
 
-- Hero / cover / `wp-block-cover` / video dim ladder (`#Top`)
-- Intro card (`#Intro`)
-- Hero Fence (`#hs-hero-fence-widget`)
-- Feature card (post–hero-fence band)
-- No deletion of `monroe-home.css` / `monroe-home-widgets.css` / `monroe-wp-compat.css` (sponsor / social / contact / membership / hs-feature / faq / games rules intentionally left; FAQ/games native styles coexist until purge)
+- **No deletion** of `monroe-home.css` / `monroe-home-widgets.css` / `monroe-wp-compat.css` / global-styles cover-dim ladder — orphaned rules intentionally left until visual soak + purge.
+- Hero video **behavior script** remains in `index.astro` (queries `#Top`); markup only moved into `HomeHeroSection`.
+- Side dock / Mobile TOC section list unchanged (`Top`, `Intro`, `hs-hero-fence-widget`, …).
 
 ## Deferred
 
-- **Hero / cover last** — highest risk (video, cover-dim ladder, CTA overlap with intro card).
-- **Intro / Hero Fence / Feature card** — remaining chrome adjacent to hero; convert with or after hero so layout/CTA relationships stay coherent.
-- **Sponsors Tailwind restyle** — componentized, but vet/auction/marquee still rely on existing BEM CSS for parity (auction-five `nth-child` grid + logo modifiers + marquee edge fades). Port styles into scoped Tailwind during CSS purge after visual sign-off.
-- **CSS purge** — orphaned rules for converted bands (and leftover sponsor BEM once restyled) after visual sign-off.
+- **Visual soak** of hero + intro + fence + feature card (desktop/mobile, video, cover dim, CTAs, deep links).
+- **CSS purge** — orphaned rules for all converted bands after sign-off; then optional drop of unused `monroe-wp-compat` / cover-dim only when confirmed unused.
+- **Sponsors / hero hybrid class cleanup** — port remaining BEM (`sponsor-*`, `hs-feature-widget`, `wp-block-cover` / `home-editable-hero*`, intro/feature cards) into scoped Tailwind **after** soak, not in this PR.
 
 ## Recommended next order
 
@@ -47,30 +48,37 @@ Rewrite homepage surfaces one at a time into native Astro + Tailwind components 
 4. ~~**Accomplishments**~~ ✅
 5. ~~**Donations**~~ ✅
 6. ~~**Sponsors widgets**~~ ✅ (componentized; Tailwind style port with purge)
-7. ~~**FAQ / membership / social / games / supporter / contact**~~ ✅ (this PR)
-8. **Intro + Hero Fence + Feature card** (remaining chrome), or fold into hero pass.
-9. **Hero / cover last** — highest risk (video, cover-dim ladder, CTA overlap with intro card).
-10. **CSS purge** after visual sign-off.
+7. ~~**FAQ / membership / social / games / supporter / contact**~~ ✅
+8. ~~**Intro + Hero Fence + Feature card**~~ ✅ (this PR, with hero)
+9. ~~**Hero / cover last**~~ ✅ (this PR — hybrid BEM extract)
+10. **Visual soak** (hero video, cover dim, CTAs, fence widget, intro/feature).
+11. **CSS purge** / drop unused wp-compat after sign-off; optional Tailwind class cleanup for hybrid surfaces.
 
-## Visual QA checklist (this PR)
+## Visual QA checklist (this PR — hero highest risk)
 
-### Sponsors
-- Vet partners: 2-col cards → 1-col ≤900px; square/wide logo modifiers; Visit website CTAs open partner sites.
-- Auction: 3+2 centred five-card grid on desktop; stacks correctly ≤900 / ≤580.
-- Marquee: continuous scroll; pauses on hover/focus; edge fades; reduced-motion shows static wrap (clone set hidden).
-- Side dock targets `#VetPartners`, `#furry-friends-auction-sponsors`, `#sponsorMarqueeWidget` still land.
+### Hero / cover (`#Top`)
+- [ ] Desktop + mobile: display / title / copy / three CTAs / hero stats match pre-extract look (no redesign drift).
+- [ ] Background video autoplays when allowed; poster visible before play / when paused.
+- [ ] Cover dim ladder still darkens video (`has-background-dim-40` + global-styles `.wp-block-cover__background` opacities) — text remains readable.
+- [ ] Play/Pause toggle works; reduced-motion / save-data start paused with poster; Low Power Mode autoplay rejection falls back gracefully.
+- [ ] `is-video-playing` / `is-motion-paused` class toggles still drive CSS (poster fade / video opacity).
+- [ ] Hero CTAs: Adopt → `/adopt`, Adoptions → `/adoptions`, third button external `target=_blank`.
+- [ ] Side dock / Mobile TOC / Header deep link `/#Top` still lands.
 
-### Remaining bands
-- Membership under-construction notice + `#Membership` anchor.
-- Supporter story quote + gallery pair; `#SupporterStory` dock link.
-- Social split: feature grid + Facebook iframe; loader CTA visible before iframe load; `is-loaded` after load.
-- FAQ 3 tiles → stack on mobile; external donate link keeps `target=_blank`.
-- Games teasers link to `/games`; `#Games` / `#home-games-heading` anchors.
-- Contact mailto honeypot + feedback; hours badge Open/Closed; map iframe; `#Contact` anchor.
-- Hero / Intro / Hero Fence / Feature card unchanged.
+### Intro / Fence / Feature
+- [ ] `#Intro` card layout (65/35 columns → stack on small) + Call CTA dials `tel:` via `SITE.contact.phoneTel`.
+- [ ] `#hs-hero-fence-widget` copy/media/CTA; dock title “Hero Fence” still scrolls to widget.
+- [ ] Feature card image + copy + two CTAs (`/adoptions`, `/dog-and-cat-shelter`).
+- [ ] Scroll-reveal still applies to `.home-editable-section` wrappers (intro/fence/feature).
+
+### Regression (already-native)
+- [ ] Events band still sits correctly under hero (sibling `~` spacing selectors).
+- [ ] Featured pets, sponsors, social, contact, newsletter, etc. unchanged functionally.
+- [ ] `monroe-home.css` / widgets / wp-compat / global-styles cover-dim **not** deleted.
 
 ## Follow-ups
 
-- Purge orphaned CSS only after visual sign-off (sponsors BEM + social/contact/membership/hs-feature leftovers + earlier converted bands).
-- Optional: Tailwind restyle of sponsor cards/marquee once auction-five + modifier parity is signed off.
-- Intro / Hero Fence / Feature card next; hero last.
+- Soak visually before any CSS purge.
+- Purge orphaned CSS only after sign-off (hero BEM + earlier converted bands + leftover sponsor BEM once restyled).
+- Optional: Tailwind restyle of hero/intro/fence/feature once parity is signed off.
+- Optional: move hero video init into a small client script colocated with `HomeHeroSection` (behavior currently correct in page script).

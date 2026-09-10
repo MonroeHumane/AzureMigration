@@ -19,6 +19,10 @@ import HomeSocialSection from '../components/home/HomeSocialSection.astro';
 import HomeFaqSection from '../components/home/HomeFaqSection.astro';
 import HomeGamesSection from '../components/home/HomeGamesSection.astro';
 import HomeContactSection from '../components/home/HomeContactSection.astro';
+import HomeHeroSection from '../components/home/HomeHeroSection.astro';
+import HomeIntroSection from '../components/home/HomeIntroSection.astro';
+import HomeHeroFenceSection from '../components/home/HomeHeroFenceSection.astro';
+import HomeFeatureCardSection from '../components/home/HomeFeatureCardSection.astro';
 
 import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
@@ -128,75 +132,8 @@ const sideNavSections = [
   <MobileTOC sections={sideNavSections} />
 
   <div class="home-editable-shell is-layout-constrained">
-    <!-- 1. Hero -->
-    <div class="wp-block-cover has-custom-content-position is-position-center-center home-editable-hero" id="Top">
-      <span aria-hidden="true" class="wp-block-cover__background has-contrast-background-color has-background-dim-40 has-background-dim"></span>
-      <div class="home-hero-poster-backdrop" aria-hidden="true">
-        <img
-          src={home.hero.video_poster}
-          alt=""
-          loading="eager"
-          decoding="async"
-          class="home-hero-poster-img"
-        />
-      </div>
-      <video
-        class="wp-block-cover__video-background intrinsic-ignore"
-        muted
-        loop
-        playsinline
-        autoplay
-        poster={home.hero.video_poster}
-        src={home.hero.video_src}
-        data-hero-video></video>
-      <button
-        type="button"
-        class="home-hero-video-toggle"
-        data-hero-video-toggle
-        aria-label="Pause background video"
-        title="Pause background motion"
-      >
-        <svg class="home-hero-toggle-icon home-hero-toggle-icon--pause" viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
-          <rect x="5" y="4" width="4" height="16" rx="1.5"></rect>
-          <rect x="15" y="4" width="4" height="16" rx="1.5"></rect>
-        </svg>
-        <svg class="home-hero-toggle-icon home-hero-toggle-icon--play" viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
-          <polygon points="6 4 20 12 6 20 6 4"></polygon>
-        </svg>
-        <span class="home-hero-toggle-label" data-hero-video-toggle-label>Pause</span>
-      </button>
-      <div class="wp-block-cover__inner-container is-layout-flow">
-        <div class="wp-block-group home-editable-hero-panel is-layout-constrained">
-          <p class="home-editable-hero-display wp-block-paragraph">{home.hero.display}</p>
-          <h1 class="wp-block-heading home-editable-hero-title">{home.hero.title}</h1>
-          <p class="home-editable-hero-copy wp-block-paragraph">{home.hero.copy}</p>
-
-          <div class="wp-block-buttons aligncenter is-layout-flex">
-            <div class="wp-block-button">
-              <a class="wp-block-button__link has-base-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href="/adopt">{home.hero.buttons[0].label}</a>
-            </div>
-            <div class="wp-block-button home-editable-hero-btn--orange">
-              <a class="wp-block-button__link wp-element-button" href="/adoptions">{home.hero.buttons[1].label}</a>
-            </div>
-            <div class="wp-block-button is-style-outline">
-              <a class="wp-block-button__link wp-element-button" href={home.hero.buttons[2].href} target="_blank" rel="noreferrer noopener">{home.hero.buttons[2].label}</a>
-            </div>
-          </div>
-
-          <div class="home-editable-hero-stats" aria-label="Shelter highlights">
-            <div class="home-editable-stat-grid home-editable-stat-grid--hero">
-              {home.hero.stats.map((s) => (
-                <div class:list={['home-editable-stat', { 'is-accent': s.accent }]}>
-                  <strong>{s.kicker}</strong>
-                  <h3>{s.title}</h3>
-                  <p>{s.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 1. Hero / cover: native Astro component (Phase 3 — hybrid BEM for parity) -->
+    <HomeHeroSection />
 
     <!-- 2. Events band: native Astro component (Phase 3) -->
     <HomeEventsSection
@@ -206,83 +143,17 @@ const sideNavSections = [
       upcomingFlyers={upcomingFlyers}
     />
 
-    <!-- 3. Intro -->
-    <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
-      <div class="wp-block-group home-editable-intro-card is-layout-constrained" id="Intro">
-        <div class="wp-block-columns are-vertically-aligned-center is-layout-flex">
-          <div class="wp-block-column is-vertically-aligned-center is-layout-flow" style="flex-basis:65%">
-            <p class="home-editable-pill wp-block-paragraph">{home.intro.pill}</p>
-            <h2 class="wp-block-heading">{home.intro.title}</h2>
-            <p class="wp-block-paragraph">{home.intro.copy}</p>
-            <div class="wp-block-buttons is-layout-flex">
-              <div class="wp-block-button">
-                <a class="wp-block-button__link has-base-color has-contrast-background-color has-text-color has-background wp-element-button" href={TEL}>{home.intro.call_button}</a>
-              </div>
-            </div>
-          </div>
-          <div class="wp-block-column is-layout-flow" style="flex-basis:35%">
-            <div class="home-editable-stat-grid">
-              {home.intro.stats.map((s) => (
-                <div class:list={['home-editable-stat', { 'is-accent': s.accent }]}>
-                  <strong>{s.kicker}</strong>
-                  <h3>{s.title}</h3>
-                  <p>{s.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 3. Intro: native Astro component (Phase 3 — hybrid BEM for parity) -->
+    <HomeIntroSection />
 
     <!-- 4. Featured pets: native Astro component (Phase 3) -->
     <HomeFeaturedPets pets={pets} />
 
-    <!-- 5. Hero Fence -->
-    <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
-      <section id="hs-hero-fence-widget" class="hs-feature-widget" aria-labelledby="hs-hero-fence-title">
-        <div class="hs-wrap">
-          <div class="hs-copy">
-            <p class="hs-kicker">{home.hero_fence.kicker}</p>
-            <h2 id="hs-hero-fence-title">{home.hero_fence.title}</h2>
-            {home.hero_fence.body.map((p) => <p class="hs-body">{p}</p>)}
-            <div class="hs-note">{home.hero_fence.note}</div>
-            <div class="hs-actions">
-              <a class="hs-btn" href={home.hero_fence.cta.href}>{home.hero_fence.cta.label}</a>
-            </div>
-          </div>
-          <div class="hs-media" aria-hidden="true">
-            <img decoding="async" src={home.hero_fence.image} alt={home.hero_fence.image_alt} loading="lazy" />
-          </div>
-        </div>
-      </section>
-    </div>
+    <!-- 5. Hero Fence: native Astro component (Phase 3 — hybrid BEM for parity) -->
+    <HomeHeroFenceSection />
 
-    <!-- 6. Feature card -->
-    <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
-      <div class="wp-block-group home-editable-feature-card is-layout-constrained">
-        <div class="wp-block-columns are-vertically-aligned-stretch is-layout-flex">
-          <div class="wp-block-column is-vertically-aligned-stretch home-editable-feature-media is-layout-flow" style="flex-basis:45%">
-            <figure class="wp-block-image size-full">
-              <img loading="lazy" decoding="async" src={home.feature_card.image} alt={home.feature_card.image_alt} />
-            </figure>
-          </div>
-          <div class="wp-block-column is-vertically-aligned-center home-editable-feature-copy is-layout-flow" style="flex-basis:55%">
-            <p class="home-editable-section-label wp-block-paragraph">{home.feature_card.label}</p>
-            <h2 class="wp-block-heading">{home.feature_card.title}</h2>
-            <p class="wp-block-paragraph">{home.feature_card.copy}</p>
-            <div class="wp-block-buttons is-layout-flex">
-              <div class="wp-block-button">
-                <a class="wp-block-button__link has-base-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href="/adoptions">{home.feature_card.buttons[0].label}</a>
-              </div>
-              <div class="wp-block-button is-style-outline">
-                <a class="wp-block-button__link wp-element-button" href="/dog-and-cat-shelter">{home.feature_card.buttons[1].label}</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 6. Feature card: native Astro component (Phase 3 — hybrid BEM for parity) -->
+    <HomeFeatureCardSection />
 
     <!-- 7. Vet partners: native Astro component (Phase 3) -->
     <HomeVetPartnersSection />
