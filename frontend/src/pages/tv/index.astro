@@ -100,8 +100,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
        not just "technically inside the reported viewport". */
     .tv-brand-corner {
       position: fixed;
-      top: 56px;
-      left: 64px;
+      top: 40px;
+      left: 48px;
       display: flex;
       align-items: center;
       gap: 14px;
@@ -124,8 +124,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
     .tv-clock-corner {
       position: fixed;
-      top: 56px;
-      right: 80px;
+      top: 40px;
+      right: 48px;
       text-align: right;
       z-index: 3;
     }
@@ -156,7 +156,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: clamp(5.5rem, 7vw, 6.5rem) clamp(1.5rem, 3vw, 3rem) clamp(8rem, 11vw, 9.5rem);
+      padding: 6.5rem 3rem 11rem;
     }
 
     .tv-card { transition: opacity 0.45s ease; }
@@ -178,12 +178,15 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
        flat dead space. */
     .tv-card__photo-wrap {
       position: relative;
-      width: 94vw;
-      height: 82vh;
-      border-radius: 28px;
+      width: min(56vw, calc(100vw - 18rem));
+      height: calc(100vh - 17.5rem);
+      max-width: min(56vw, calc(100vw - 18rem));
+      max-height: calc(100vh - 17.5rem);
+      border-radius: 18px;
       overflow: hidden;
-      border: 3px solid rgba(255, 255, 255, 0.14);
-      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
+      border: 3px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
+      background: transparent;
     }
 
     .tv-card__photo {
@@ -192,6 +195,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       object-fit: contain;
       display: block;
       transform: scale(1);
+      transform-origin: center center;
       transition: transform 9s ease, opacity 0.4s ease;
     }
 
@@ -219,10 +223,10 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     /* ---------------- Bottom caption bar: name + facts, over the scrim ---------------- */
     .tv-caption {
       position: fixed;
-      left: 64px;
-      bottom: 64px;
+      left: 48px;
+      bottom: 40px;
       z-index: 3;
-      max-width: 62vw;
+      max-width: calc(100vw - 20rem);
     }
 
     .tv-page-title {
@@ -239,7 +243,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
     .tv-card__name {
       font-family: var(--tv-font-display);
-      font-size: clamp(3rem, 6vw, 5.25rem);
+      font-size: clamp(2.6rem, 5vw, 4.4rem);
       line-height: 1;
       color: #ffffff;
       text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
@@ -289,45 +293,46 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
          reports, so this corner needs real breathing room, not just
          "technically inside the viewport". */
       position: fixed;
-      bottom: 64px;
-      right: 80px;
+      bottom: 40px;
+      right: 48px;
       display: flex;
-      align-items: center;
-      gap: 18px;
+      align-items: flex-end;
+      gap: 14px;
       z-index: 3;
     }
 
     .tv-apply-qr__label {
       text-align: right;
       font-family: var(--tv-font-display);
-      font-size: 26px;
+      font-size: 20px;
       color: #ffffff;
       text-shadow: 0 3px 16px rgba(0, 0, 0, 0.5);
       line-height: 1.15;
+      padding-bottom: 6px;
     }
 
     .tv-apply-qr__ring {
       position: relative;
       flex-shrink: 0;
-      padding: 16px;
-      border-radius: 30px;
+      padding: 10px;
+      border-radius: 22px;
       overflow: hidden;
       background: linear-gradient(135deg, var(--tv-teal), var(--tv-gold));
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
       animation: tv-qr-pulse 3.2s ease-in-out infinite;
     }
 
     @keyframes tv-qr-pulse {
-      0%, 100% { box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(45, 212, 191, 0.4); }
-      50% { box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 0 14px rgba(45, 212, 191, 0); }
+      0%, 100% { box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(45, 212, 191, 0.4); }
+      50% { box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 0 10px rgba(45, 212, 191, 0); }
     }
 
     .tv-apply-qr__code {
-      width: 240px;
-      height: 240px;
+      width: 168px;
+      height: 168px;
       background: #ffffff;
-      border-radius: 18px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -336,16 +341,19 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     }
 
     /* The generated SVG is already sized to exactly fill this box's
-       216px content area (see the QRCodeStyling call below) — no
+       148px content area (see the QRCodeStyling call below) — no
        width/height: 100% override needed, which is what silently
        stretched and off-centered it before (a percentage-height-on-
        SVG quirk that resolved width but not height). */
     .tv-apply-qr__code svg { display: block; }
 
     @media (max-width: 900px) {
-      .tv-caption { max-width: 90vw; }
-      .tv-apply-qr { flex-direction: column-reverse; align-items: flex-end; gap: 8px; }
-      .tv-apply-qr__label { text-align: right; font-size: 18px; }
+      .tv-caption { max-width: calc(100vw - 8rem); left: 24px; bottom: 24px; }
+      .tv-apply-qr { right: 24px; bottom: 24px; flex-direction: column-reverse; align-items: flex-end; gap: 8px; }
+      .tv-apply-qr__label { text-align: right; font-size: 16px; padding-bottom: 0; }
+      .tv-brand-corner, .tv-clock-corner { top: 24px; }
+      .tv-brand-corner { left: 24px; }
+      .tv-clock-corner { right: 24px; }
     }
   </style>
 </head>
@@ -429,6 +437,29 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     const petCard = $('petCard');
     const clockTime = $('clockTime');
     const clockDate = $('clockDate');
+    const photoWrap = petPhoto.closest('.tv-card__photo-wrap') as HTMLElement | null;
+    const stageEl = document.querySelector('.tv-stage') as HTMLElement | null;
+
+    // Size the frame to the photo's aspect ratio so the border hugs the
+    // image instead of letterboxing a 94vw box around it.
+    function fitPhotoFrame() {
+      if (!photoWrap || !stageEl || !petPhoto.naturalWidth || !petPhoto.naturalHeight) return;
+      const cs = getComputedStyle(stageEl);
+      const maxW = stageEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const maxH = stageEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (maxW < 80 || maxH < 80) return;
+      const ratio = petPhoto.naturalWidth / petPhoto.naturalHeight;
+      let height = maxH;
+      let width = height * ratio;
+      if (width > maxW) {
+        width = maxW;
+        height = width / ratio;
+      }
+      photoWrap.style.width = `${Math.round(width)}px`;
+      photoWrap.style.height = `${Math.round(height)}px`;
+    }
+    petPhoto.addEventListener('load', fitPhotoFrame);
+    window.addEventListener('resize', fitPhotoFrame);
 
     // The one QR code on the page: static, always the shelter's
     // adoption application form — not tied to whichever pet happens to
@@ -444,8 +475,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     const APPLICATION_FORM_URL =
       'https://docs.google.com/forms/d/e/1FAIpQLSfA70kSNxQZQBbC0Jq9gHfmgHiAs4k5ytci3t4IhOMzfrSjhQ/viewform';
 
-    // Sized to exactly match the container's content box (240px box,
-    // 12px padding -> 216px) instead of relying on a CSS width/height:
+    // Sized to exactly match the container's content box (168px box,
+    // 10px padding -> 148px) instead of relying on a CSS width/height:
     // 100% override on the generated <svg>. That override silently
     // failed for height only (a percentage-height-on-SVG quirk — width
     // resolved to the container's 100%, height stayed at the library's
@@ -468,8 +499,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     // own, only that specific pairing breaks finder-pattern detection.
     // Leaving the eye as the library's plain default fixes it.
     const applyQrCode = new QRCodeStyling({
-      width: 216,
-      height: 216,
+      width: 148,
+      height: 148,
       type: 'svg',
       data: APPLICATION_FORM_URL,
       margin: 8,
@@ -524,6 +555,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
         petPhoto.src = photoSrc;
         petPhoto.alt = pet.name;
         petBackdrop.src = photoSrc;
+        if (petPhoto.complete) fitPhotoFrame();
         setTimeout(() => petPhoto.classList.add('zooming'), 50);
 
         petName.textContent = pet.name;
