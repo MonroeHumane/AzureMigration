@@ -82,3 +82,10 @@ Rewrite homepage surfaces one at a time into native Astro + Tailwind components 
 - Purge orphaned CSS only after sign-off (hero BEM + earlier converted bands + leftover sponsor BEM once restyled).
 - Optional: Tailwind restyle of hero/intro/fence/feature once parity is signed off.
 - Optional: move hero video init into a small client script colocated with `HomeHeroSection` (behavior currently correct in page script).
+
+## CSS purge status
+
+See **`PHASE_CSS_PURGE_NOTES.md`** (branch `chore/homepage-css-orphan-purge`).
+
+- Careful orphan-rule purge of `monroe-home.css` + `monroe-home-widgets.css` after full homepage componentization.
+- ~79KB saved; hybrid BEM retained where still referenced; `monroe-wp-compat.css` + cover-dim + `monroe-rebuild-theme` untouched.
