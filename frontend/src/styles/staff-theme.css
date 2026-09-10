@@ -131,6 +131,33 @@
   --sp-sidebar-active-shadow: 0 1px 3px rgba(15, 118, 110, 0.08);
   --sp-sidebar-logout-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 
+
+  /* Table / modal / input / panel (batch 3) */
+  --sp-table-bg: #ffffff;
+  --sp-table-border: #cbd5e1;
+  --sp-table-text: #1e293b;
+  --sp-th-bg: #f8fafc;
+  --sp-th-text: #334155;
+  --sp-td-text: #334155;
+  --sp-tr-hover-bg: #f1f5f9;
+  --sp-input-bg: #f8fafc;
+  --sp-input-border: #cbd5e1;
+  --sp-input-text: #0f172a;
+  --sp-input-placeholder: #64748b;
+  --sp-input-focus-bg: #ffffff;
+  --sp-input-focus-border: #0f766e;
+  --sp-modal-bg: #ffffff;
+  --sp-modal-border: #cbd5e1;
+  --sp-panel-bg: #f8fafc;
+  --sp-panel-nested-bg: #ffffff;
+  --sp-panel-thead-bg: #f1f5f9;
+  --sp-muted-panel-bg: #f8fafc;
+  --sp-brand-hover: #112c2b;
+  --sp-on-brand-accent: #34d399;
+  --sp-warn-text: #b45309;
+  --sp-review-live: #0f766e;
+  --sp-review-error: #be123c;
+
   --sp-ambient-opacity: 0.04;
 
   /* Aliases for Tailwind-oriented naming in future utilities */
@@ -255,6 +282,33 @@
   --sp-sidebar-avatar-shadow: none;
   --sp-sidebar-active-shadow: none;
   --sp-sidebar-logout-shadow: none;
+
+
+  /* Table / modal / input / panel (batch 3) */
+  --sp-table-bg: rgba(11, 36, 32, 0.85);
+  --sp-table-border: rgba(19, 78, 74, 0.8);
+  --sp-table-text: #e2e8f0;
+  --sp-th-bg: rgba(6, 24, 21, 0.95);
+  --sp-th-text: #94a3b8;
+  --sp-td-text: #cbd5e1;
+  --sp-tr-hover-bg: rgba(13, 42, 37, 0.7);
+  --sp-input-bg: rgba(6, 24, 21, 0.8);
+  --sp-input-border: rgba(19, 78, 74, 0.8);
+  --sp-input-text: #ffffff;
+  --sp-input-placeholder: #64748b;
+  --sp-input-focus-bg: rgba(6, 24, 21, 0.95);
+  --sp-input-focus-border: #14b8a6;
+  --sp-modal-bg: rgba(11, 36, 32, 0.95);
+  --sp-modal-border: rgba(19, 78, 74, 0.8);
+  --sp-panel-bg: rgba(6, 24, 21, 0.7);
+  --sp-panel-nested-bg: rgba(11, 36, 32, 0.9);
+  --sp-panel-thead-bg: rgba(4, 18, 15, 0.95);
+  --sp-muted-panel-bg: rgba(6, 24, 21, 0.7);
+  --sp-brand-hover: #0d2a25;
+  --sp-on-brand-accent: #34d399;
+  --sp-warn-text: #fbbf24;
+  --sp-review-live: #5eead4;
+  --sp-review-error: #fda4af;
 
   --sp-ambient-opacity: 0.10;
 
@@ -1151,7 +1205,7 @@ html[data-pwa="standalone"] #pwa-install-container {
 #hub-status-financials[data-review="loading"],
 #hub-status-petsync[data-review="loading"],
 #hub-census-sync[data-review="loading"] {
-  color: #0f766e !important;
+  color: var(--sp-review-live) !important;
   font-weight: 600 !important;
 }
 #hub-status-financials[data-review="stale"],
@@ -1160,35 +1214,14 @@ html[data-pwa="standalone"] #pwa-install-container {
 #hub-status-financials[data-review="offline"],
 #hub-status-petsync[data-review="offline"],
 #hub-census-sync[data-review="offline"] {
-  color: #b45309 !important;
+  color: var(--sp-warn-text) !important;
   font-weight: 600 !important;
 }
 #hub-status-financials[data-review="error"],
 #hub-status-petsync[data-review="error"],
 #hub-census-sync[data-review="error"] {
-  color: #be123c !important;
+  color: var(--sp-review-error) !important;
   font-weight: 600 !important;
-}
-:root[data-staff-theme="dark"] #hub-status-financials[data-review="live"],
-:root[data-staff-theme="dark"] #hub-status-petsync[data-review="live"],
-:root[data-staff-theme="dark"] #hub-census-sync[data-review="live"],
-:root[data-staff-theme="dark"] #hub-status-financials[data-review="loading"],
-:root[data-staff-theme="dark"] #hub-status-petsync[data-review="loading"],
-:root[data-staff-theme="dark"] #hub-census-sync[data-review="loading"] {
-  color: #5eead4 !important;
-}
-:root[data-staff-theme="dark"] #hub-status-financials[data-review="stale"],
-:root[data-staff-theme="dark"] #hub-status-petsync[data-review="stale"],
-:root[data-staff-theme="dark"] #hub-census-sync[data-review="stale"],
-:root[data-staff-theme="dark"] #hub-status-financials[data-review="offline"],
-:root[data-staff-theme="dark"] #hub-status-petsync[data-review="offline"],
-:root[data-staff-theme="dark"] #hub-census-sync[data-review="offline"] {
-  color: #fbbf24 !important;
-}
-:root[data-staff-theme="dark"] #hub-status-financials[data-review="error"],
-:root[data-staff-theme="dark"] #hub-status-petsync[data-review="error"],
-:root[data-staff-theme="dark"] #hub-census-sync[data-review="error"] {
-  color: #fda4af !important;
 }
 
 .staff-data-status--loading {
@@ -1331,61 +1364,61 @@ html[data-pwa="standalone"] #pwa-install-container {
   color: #9a3412 !important;
 }
 
-/* PetSync Summary Cards in Light Mode */
+/* PetSync Summary Cards in Light Mode → card/text tokens */
 :root:not([data-staff-theme="dark"]) #petsync-portal-root .bg-white.rounded-xl.border-slate-200 {
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 2px 8px -2px rgba(23, 58, 57, 0.08) !important;
+  border-color: var(--sp-card-border) !important;
+  box-shadow: var(--sp-card-shadow) !important;
 }
 :root:not([data-staff-theme="dark"]) #petsync-portal-root .text-slate-500 {
-  color: #334155 !important;
+  color: var(--sp-text-secondary) !important;
   font-weight: 600 !important;
 }
 
-/* Donor Roster Portal in Light Mode */
+/* Donor Roster Portal in Light Mode → surface/table/input/brand tokens */
 :root:not([data-staff-theme="dark"]) #donor-roster-container .bg-white {
-  background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 2px 8px -2px rgba(23, 58, 57, 0.08) !important;
+  background-color: var(--sp-card-bg) !important;
+  border-color: var(--sp-card-border) !important;
+  box-shadow: var(--sp-card-shadow) !important;
 }
 :root:not([data-staff-theme="dark"]) #donor-roster-container input,
 :root:not([data-staff-theme="dark"]) #donor-roster-container select {
-  background-color: #f8fafc !important;
-  border-color: #cbd5e1 !important;
-  color: #0f172a !important;
+  background-color: var(--sp-input-bg) !important;
+  border-color: var(--sp-input-border) !important;
+  color: var(--sp-input-text) !important;
 }
 :root:not([data-staff-theme="dark"]) #donor-roster-container input:focus,
 :root:not([data-staff-theme="dark"]) #donor-roster-container select:focus {
-  background-color: #ffffff !important;
-  border-color: #0f766e !important;
+  background-color: var(--sp-input-focus-bg) !important;
+  border-color: var(--sp-input-focus-border) !important;
 }
 :root:not([data-staff-theme="dark"]) #donor-roster-container label {
-  color: #334155 !important;
+  color: var(--sp-text-secondary) !important;
   font-weight: 700 !important;
 }
 :root:not([data-staff-theme="dark"]) #donor-roster-container thead tr {
-  background-color: #f8fafc !important;
-  border-color: #e2e8f0 !important;
+  background-color: var(--sp-th-bg) !important;
+  border-color: var(--sp-border-subtle) !important;
 }
 :root:not([data-staff-theme="dark"]) #donor-roster-container thead th {
-  color: #334155 !important;
+  color: var(--sp-th-text) !important;
   font-weight: 700 !important;
 }
 :root:not([data-staff-theme="dark"]) #donor-roster-container tbody tr:hover {
-  background-color: #f1f5f9 !important;
+  background-color: var(--sp-tr-hover-bg) !important;
 }
 :root:not([data-staff-theme="dark"]) #export-donors-csv-btn {
-  background-color: #173a39 !important;
-  color: #ffffff !important;
-  border-color: #173a39 !important;
+  background-color: var(--sp-brand) !important;
+  color: var(--sp-on-accent) !important;
+  border-color: var(--sp-brand) !important;
 }
 :root:not([data-staff-theme="dark"]) #export-donors-csv-btn:hover {
-  background-color: #112c2b !important;
+  background-color: var(--sp-brand-hover) !important;
 }
 :root:not([data-staff-theme="dark"]) #export-donors-csv-btn * {
-  color: #ffffff !important;
+  color: var(--sp-on-accent) !important;
 }
 :root:not([data-staff-theme="dark"]) #export-donors-csv-btn svg {
-  color: #34d399 !important;
+  color: var(--sp-on-brand-accent) !important;
 }
 
 
@@ -1396,27 +1429,27 @@ html[data-pwa="standalone"] #pwa-install-container {
 
 :root[data-staff-theme="dark"] .table-container,
 :root[data-staff-theme="dark"] table {
-  background-color: rgba(11, 36, 32, 0.85) !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
-  color: #e2e8f0 !important;
+  background-color: var(--sp-table-bg) !important;
+  border-color: var(--sp-table-border) !important;
+  color: var(--sp-table-text) !important;
 }
 :root[data-staff-theme="dark"] th {
-  background-color: rgba(6, 24, 21, 0.95) !important;
-  color: #94a3b8 !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
+  background-color: var(--sp-th-bg) !important;
+  color: var(--sp-th-text) !important;
+  border-color: var(--sp-table-border) !important;
 }
 :root[data-staff-theme="dark"] td {
-  color: #cbd5e1 !important;
-  border-color: rgba(19, 78, 74, 0.6) !important;
+  color: var(--sp-td-text) !important;
+  border-color: var(--sp-border-subtle) !important;
 }
 :root[data-staff-theme="dark"] tr:hover td {
-  background-color: rgba(13, 42, 37, 0.7) !important;
+  background-color: var(--sp-tr-hover-bg) !important;
 }
 :root[data-staff-theme="dark"] .td-title {
-  color: #ffffff !important;
+  color: var(--sp-text-primary) !important;
 }
 
-/* Comprehensive Dark Card Adaptation */
+/* Comprehensive Dark Card Adaptation → card/surface/text tokens */
 :root[data-staff-theme="dark"] .staff-portal-body .bg-white,
 :root[data-staff-theme="dark"] #staff-portal-content .bg-white,
 :root[data-staff-theme="dark"] main .bg-white,
@@ -1425,47 +1458,47 @@ html[data-pwa="standalone"] #pwa-install-container {
 :root[data-staff-theme="dark"] #donor-roster-container .bg-white,
 :root[data-staff-theme="dark"] #section-petsync-main .bg-white,
 :root[data-staff-theme="dark"] .cms-pane .bg-white {
-  background-color: rgba(11, 36, 32, 0.85) !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
-  color: #ffffff !important;
+  background-color: var(--sp-card-bg) !important;
+  border-color: var(--sp-border) !important;
+  color: var(--sp-text-primary) !important;
 }
 
 :root[data-staff-theme="dark"] .staff-portal-body .border-slate-200,
 :root[data-staff-theme="dark"] .staff-portal-body .border-slate-100 {
-  border-color: rgba(19, 78, 74, 0.6) !important;
+  border-color: var(--sp-border-subtle) !important;
 }
 
 :root[data-staff-theme="dark"] .staff-portal-body .text-slate-900,
 :root[data-staff-theme="dark"] .staff-portal-body .text-slate-800,
 :root[data-staff-theme="dark"] .staff-portal-body .text-slate-700 {
-  color: #e2e8f0 !important;
+  color: var(--sp-table-text) !important;
 }
 
 :root[data-staff-theme="dark"] .staff-portal-body .text-slate-500,
 :root[data-staff-theme="dark"] .staff-portal-body .text-slate-600 {
-  color: #94a3b8 !important;
+  color: var(--sp-text-secondary) !important;
 }
 
 :root[data-staff-theme="dark"] .staff-portal-body .bg-slate-50,
 :root[data-staff-theme="dark"] .staff-portal-body .bg-slate-100 {
-  background-color: rgba(6, 24, 21, 0.7) !important;
-  color: #cbd5e1 !important;
-  border-color: rgba(19, 78, 74, 0.6) !important;
+  background-color: var(--sp-muted-panel-bg) !important;
+  color: var(--sp-td-text) !important;
+  border-color: var(--sp-border-subtle) !important;
 }
 
 :root[data-staff-theme="dark"] .staff-portal-body input.bg-slate-50,
 :root[data-staff-theme="dark"] .staff-portal-body input.bg-white,
 :root[data-staff-theme="dark"] .staff-portal-body textarea.bg-white {
-  background-color: rgba(4, 47, 46, 0.5) !important;
-  color: #ffffff !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
+  background-color: var(--sp-input-bg) !important;
+  color: var(--sp-input-text) !important;
+  border-color: var(--sp-input-border) !important;
 }
 
 :root[data-staff-theme="dark"] dialog.modal,
 :root[data-staff-theme="dark"] .modal-content {
-  background-color: rgba(11, 36, 32, 0.95) !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
-  color: #ffffff !important;
+  background-color: var(--sp-modal-bg) !important;
+  border-color: var(--sp-modal-border) !important;
+  color: var(--sp-text-primary) !important;
 }
 
 /* Grants / tool cards: shell shared above; keep brand-tint link colors + text in Dark Ops */
@@ -1518,13 +1551,13 @@ html[data-pwa="standalone"] #pwa-install-container {
 :root[data-staff-theme="dark"] .bg-\[\#f5efe3\],
 :root[data-staff-theme="dark"] .bg-\[\#fbf9f5\],
 :root[data-staff-theme="dark"] .bg-\[\#fbf9f5\]\/50 {
-  background-color: rgba(6, 24, 21, 0.85) !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
+  background-color: var(--sp-header-bg) !important;
+  border-color: var(--sp-border) !important;
 }
 :root[data-staff-theme="dark"] h2.text-\[\#173a39\],
 :root[data-staff-theme="dark"] h3.text-\[\#173a39\],
 :root[data-staff-theme="dark"] .text-\[\#173a39\] {
-  color: #ffffff !important;
+  color: var(--sp-text-primary) !important;
 }
 
 /* Dark Mode Pill & Badge Adaptations (Prevent harsh white/pastel badges) */
@@ -1711,58 +1744,58 @@ html[data-pwa="standalone"] #pwa-install-container {
   border-color: var(--sp-logout-hover-border) !important;
 }
 
-/* Scoped Dark Inputs, Selects & Textareas across all portal subpages */
+/* Scoped Dark Inputs, Selects & Textareas → input tokens */
 :root[data-staff-theme="dark"] .staff-portal-body input:not([type="checkbox"]):not([type="radio"]),
 :root[data-staff-theme="dark"] .staff-portal-body select,
 :root[data-staff-theme="dark"] .staff-portal-body textarea {
-  background-color: rgba(6, 24, 21, 0.8) !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
-  color: #ffffff !important;
+  background-color: var(--sp-input-bg) !important;
+  border-color: var(--sp-input-border) !important;
+  color: var(--sp-input-text) !important;
 }
 :root[data-staff-theme="dark"] .staff-portal-body input::placeholder,
 :root[data-staff-theme="dark"] .staff-portal-body textarea::placeholder {
-  color: #64748b !important;
+  color: var(--sp-input-placeholder) !important;
 }
 :root[data-staff-theme="dark"] .staff-portal-body input:focus,
 :root[data-staff-theme="dark"] .staff-portal-body select:focus,
 :root[data-staff-theme="dark"] .staff-portal-body textarea:focus {
-  border-color: #14b8a6 !important;
-  background-color: rgba(6, 24, 21, 0.95) !important;
+  border-color: var(--sp-input-focus-border) !important;
+  background-color: var(--sp-input-focus-bg) !important;
 }
 
-/* Accordion Drawers, Vendor Panels & Sub-Tables */
+/* Accordion Drawers, Vendor Panels & Sub-Tables → panel tokens */
 :root[data-staff-theme="dark"] .ee-vendor-panel,
 :root[data-staff-theme="dark"] .ee-inflow-panel,
 :root[data-staff-theme="dark"] .ee-tx-panel,
 :root[data-staff-theme="dark"] .ee-inflow-tx-panel,
 :root[data-staff-theme="dark"] tr[id^="drawer-"] {
-  background-color: rgba(6, 24, 21, 0.7) !important;
-  border-color: rgba(19, 78, 74, 0.6) !important;
+  background-color: var(--sp-panel-bg) !important;
+  border-color: var(--sp-border-subtle) !important;
 }
 :root[data-staff-theme="dark"] tr[id^="drawer-"] .bg-white {
-  background-color: rgba(11, 36, 32, 0.9) !important;
-  border-color: rgba(19, 78, 74, 0.7) !important;
+  background-color: var(--sp-panel-nested-bg) !important;
+  border-color: var(--sp-card-border) !important;
 }
 :root[data-staff-theme="dark"] tr[id^="drawer-"] table thead tr {
-  background-color: rgba(4, 18, 15, 0.95) !important;
+  background-color: var(--sp-panel-thead-bg) !important;
 }
 
-/* Table Headers with Opacity Slashes */
+/* Table Headers with Opacity Slashes → th tokens */
 :root[data-staff-theme="dark"] thead tr,
 :root[data-staff-theme="dark"] tr.bg-slate-100\/80,
 :root[data-staff-theme="dark"] thead.bg-slate-100\/80,
 :root[data-staff-theme="dark"] thead tr.bg-slate-100\/80,
 :root[data-staff-theme="dark"] tr.bg-slate-50\/90,
 :root[data-staff-theme="dark"] thead tr.bg-slate-50\/90 {
-  background-color: rgba(6, 24, 21, 0.95) !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
-  color: #94a3b8 !important;
+  background-color: var(--sp-th-bg) !important;
+  border-color: var(--sp-table-border) !important;
+  color: var(--sp-th-text) !important;
 }
 :root[data-staff-theme="dark"] thead th,
 :root[data-staff-theme="dark"] thead tr th {
-  color: #94a3b8 !important;
-  background-color: rgba(6, 24, 21, 0.95) !important;
-  border-color: rgba(19, 78, 74, 0.8) !important;
+  color: var(--sp-th-text) !important;
+  background-color: var(--sp-th-bg) !important;
+  border-color: var(--sp-table-border) !important;
 }
 
 
