@@ -9,14 +9,16 @@ export async function getStaticPaths() {
     params: { slug: issue.slug },
     props: { issue },
   }));
-  if (paths.length === 0) {
+  const have = new Set(paths.map((path) => path.params.slug));
+  for (const slug of ['2025-in-review', 'september-2026']) {
+    if (have.has(slug)) continue;
     paths.push({
-      params: { slug: '2025-in-review' },
+      params: { slug },
       props: {
         issue: {
           id: 'stub',
-          title: 'Monroe Humane Society Newsletter',
-          slug: '2025-in-review',
+          title: slug === 'september-2026' ? 'September 2026' : 'Monroe Humane Society Newsletter',
+          slug,
           byline: 'Humane Society of Monroe County',
           top_line: 'PO Box 1457 • Monroe, MI',
           newsletter_title: 'Monroe Humane Society Newsletter',
@@ -79,6 +81,13 @@ const newsArticle = {
           <div class="text-gray-500 font-medium" data-nl-byline>{issue.byline || 'Humane Society of Monroe County'}</div>
         </div>
         <div class="flex flex-wrap gap-4" role="group" aria-label="Quick pet filters">
+          <a
+            data-nl-pdf
+            href={issue.pdf_url || '#'}
+            class:list={['inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 border-2 border-teal-700 text-teal-700 hover:bg-teal-50 text-sm', !issue.pdf_url && 'hidden']}
+            target="_blank"
+            rel="noopener noreferrer"
+          >Download PDF</a>
           <a href="/adopt/dogs" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900 text-sm">See Adoptable Dogs</a>
           <a href="/adopt/cats" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900 text-sm">See Adoptable Cats</a>
           <a href="/adopt" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50 text-sm">See All Pets</a>
@@ -89,7 +98,7 @@ const newsArticle = {
         <div class:list={['grid', 'gap-8', useTwoCol ? 'grid-cols-1 md:grid-cols-2 md:gap-12' : 'grid-cols-1 max-w-3xl mx-auto']} data-nl-blocks>
           {storyBlocks.map((block: any) => (
             <div class="prose prose-teal max-w-none">
-              <h3 class="text-2xl font-serif text-teal-900 mb-6">{block.title}</h3>
+              {block.title ? <h3 class="text-2xl font-serif text-teal-900 mb-6">{block.title}</h3> : null}
               {(block.body ?? '').split('\n').filter(Boolean).map((para: string) => (
                 <p class="text-gray-700 leading-relaxed mb-4">{para}</p>
               ))}

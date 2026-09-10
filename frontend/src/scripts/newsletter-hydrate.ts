@@ -165,6 +165,16 @@ export function renderIssueInto(root: HTMLElement, issue: LiveNewsletterIssue): 
   if (masthead) masthead.textContent = issue.newsletter_title || 'Monroe Humane Society Newsletter';
   const byline = root.querySelector('[data-nl-byline]');
   if (byline) byline.textContent = issue.byline || 'Humane Society of Monroe County';
+  const pdf = root.querySelector<HTMLAnchorElement>('[data-nl-pdf]');
+  if (pdf) {
+    if (issue.pdf_url) {
+      pdf.href = issue.pdf_url;
+      pdf.classList.remove('hidden');
+    } else {
+      pdf.removeAttribute('href');
+      pdf.classList.add('hidden');
+    }
+  }
   const body = root.querySelector('[data-nl-blocks]');
   if (body) {
     const blocks = storyBlocks(issue);
@@ -178,7 +188,10 @@ export function renderIssueInto(root: HTMLElement, issue: LiveNewsletterIssue): 
           .filter(Boolean)
           .map((para) => `<p class="text-gray-700 leading-relaxed mb-4">${escapeHtml(para)}</p>`)
           .join('');
-        return `<div class="prose prose-teal max-w-none"><h3 class="text-2xl font-serif text-teal-900 mb-6">${escapeHtml(block.title || '')}</h3>${paras}</div>`;
+        const heading = block.title
+          ? `<h3 class="text-2xl font-serif text-teal-900 mb-6">${escapeHtml(block.title)}</h3>`
+          : '';
+        return `<div class="prose prose-teal max-w-none">${heading}${paras}</div>`;
       })
       .join('');
   }
