@@ -35,6 +35,8 @@ const excerpt = issue?.excerpt || 'No published newsletter yet.';
 const readHref = issue?.slug ? `/newsletter/issue/${issue.slug}` : '/newsletter';
 const readLabel = issue ? 'Read the letter' : 'View archive';
 const pdfUrl = issue?.pdf_url || '';
+const storyBlocks = (issue?.blocks || []).filter((block) => !block.type || block.type === 'story');
+const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim().length > 0);
 ---
 
 <section
@@ -107,10 +109,45 @@ const pdfUrl = issue?.pdf_url || '';
         </p>
         <p
           data-nl-excerpt
-          class="m-0 mb-[1.35rem] font-['Questrial','Segoe_UI',sans-serif] text-[1.05rem] font-normal leading-[1.75] text-[#3d4f4e]"
+          class="m-0 mb-3 font-['Questrial','Segoe_UI',sans-serif] text-[1.05rem] font-normal leading-[1.75] text-[#3d4f4e]"
         >
           {excerpt}
         </p>
+
+        {hasFullLetter ? (
+          <details
+            data-nl-readall
+            class="group mb-4 rounded-2xl border border-[rgba(31,76,73,0.14)] bg-[#f7fbf9] open:bg-white open:shadow-[inset_0_0_0_1px_rgba(31,76,73,0.08)]"
+          >
+            <summary
+              class="cursor-pointer list-none px-4 py-3 font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.06em] text-[#1f4c49] marker:content-none flex items-center justify-between gap-3 select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2dd4bf] rounded-2xl"
+            >
+              <span>Read the full letter</span>
+              <span aria-hidden="true" class="text-lg leading-none transition-transform group-open:rotate-180">▾</span>
+            </summary>
+            <div
+              data-nl-fullbody
+              class="border-t border-[rgba(31,76,73,0.1)] px-4 pb-4 pt-3 max-h-[min(28rem,55vh)] overflow-y-auto"
+            >
+              {storyBlocks.map((block) => (
+                <div class="mb-4 last:mb-0">
+                  {block.title ? (
+                    <h4 class="m-0 mb-2 font-serif text-lg text-[#153635]">{block.title}</h4>
+                  ) : null}
+                  {String(block.body || '')
+                    .split('\n')
+                    .filter(Boolean)
+                    .map((para) => (
+                      <p class="m-0 mb-3 font-['Questrial','Segoe_UI',sans-serif] text-[1.02rem] leading-[1.75] text-[#3d4f4e] last:mb-0">
+                        {para}
+                      </p>
+                    ))}
+                </div>
+              ))}
+            </div>
+          </details>
+        ) : null}
+
         <div class="mt-auto flex flex-wrap gap-[0.55rem]">
           <a
             data-nl-link
