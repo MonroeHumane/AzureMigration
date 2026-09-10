@@ -131,7 +131,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <button
           id="mobile-nav-toggle-btn"
           type="button"
-          class="md:hidden p-2 rounded-lg bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-teal-950/80 dark:text-teal-200 dark:hover:text-white dark:border-teal-800 focus:outline-none cursor-pointer"
+          class="lg:hidden p-2 rounded-lg bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-teal-950/80 dark:text-teal-200 dark:hover:text-white dark:border-teal-800 focus:outline-none cursor-pointer"
           aria-label="Toggle Staff Navigation Menu"
           aria-expanded="false"
         >
@@ -287,7 +287,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     <!-- Mobile Drawer Menu (Collapsible when in Hamburger mode) -->
     <nav
       id="mobile-nav-drawer"
-      class="hidden md:hidden pt-3 pb-2 space-y-1.5 border-t border-slate-200 dark:border-teal-800/80 mt-2.5 transition-all duration-200"
+      class="hidden pt-3 pb-2 space-y-1.5 border-t border-slate-200 dark:border-teal-800/80 mt-2.5 transition-all duration-200"
       aria-label="Mobile Staff Modules"
     >
       <a
@@ -648,10 +648,5 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initStaffNav);
-  } else {
-    initStaffNav();
-  }
   document.addEventListener('astro:page-load', initStaffNav);
 </script>

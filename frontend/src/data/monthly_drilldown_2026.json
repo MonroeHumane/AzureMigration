@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-09T20:10:08.054Z",
+    "generatedAt": "2026-09-10T01:08:38.513Z",
     "source": "QuickBooks Online General Ledger",
     "closedMonthsCount": 8,
     "cutoffDate": "2026-08-31",
@@ -13,8 +13,8 @@
       "monthKey": "2026-01",
       "monthName": "Jan 2026",
       "isPartial": false,
-      "status": "Seasonal Burn",
-      "driver": "Annual insurance renewals & winter utility baseline",
+      "status": "",
+      "driver": "Insurance renewals and winter utilities",
       "revenue": 67516.87,
       "total_exp": 78342.09,
       "net_margin": -10825.22,
@@ -22,8 +22,8 @@
       "totalExpenseTxs": 211,
       "revenueCategories": [
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 25206.12,
           "pctOfTotal": 37.3,
           "payeeCount": 5,
@@ -323,8 +323,8 @@
           ]
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed Income",
+          "name": "Corporate gifts",
+          "group": "Gifts and grants",
           "total": 19266.19,
           "pctOfTotal": 28.5,
           "payeeCount": 1,
@@ -380,8 +380,8 @@
           ]
         },
         {
-          "name": "Municipal Contracts & Grants",
-          "group": "Contributed Income",
+          "name": "County animal-control contract",
+          "group": "Gifts and grants",
           "total": 12555.48,
           "pctOfTotal": 18.6,
           "payeeCount": 1,
@@ -405,8 +405,8 @@
           ]
         },
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 8730.8,
           "pctOfTotal": 12.9,
           "payeeCount": 1,
@@ -566,8 +566,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 1015,
           "pctOfTotal": 1.5,
           "payeeCount": 6,
@@ -746,8 +746,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 750.28,
           "pctOfTotal": 1.1,
           "payeeCount": 1,
@@ -779,8 +779,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 235,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -812,8 +812,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 202,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -845,8 +845,8 @@
           ]
         },
         {
-          "name": "Canister & Community Coin Banks",
-          "group": "Contributed Income",
+          "name": "Donation canisters",
+          "group": "Gifts and grants",
           "total": 200,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -870,8 +870,8 @@
           ]
         },
         {
-          "name": "Grants from Other Nonprofits",
-          "group": "Contributed Income",
+          "name": "Nonprofit grants",
+          "group": "Gifts and grants",
           "total": 20,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -905,8 +905,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 49200.19,
           "pctOfTotal": 62.8,
           "payeeCount": 21,
@@ -1614,8 +1614,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 7286.3,
           "pctOfTotal": 9.3,
           "payeeCount": 2,
@@ -1670,8 +1670,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 5289.02,
           "pctOfTotal": 6.8,
           "payeeCount": 21,
@@ -2379,8 +2379,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 3253.18,
           "pctOfTotal": 4.2,
           "payeeCount": 4,
@@ -2561,8 +2561,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 2591.36,
           "pctOfTotal": 3.3,
           "payeeCount": 4,
@@ -2631,8 +2631,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 1801.75,
           "pctOfTotal": 2.3,
           "payeeCount": 1,
@@ -2656,8 +2656,8 @@
           ]
         },
         {
-          "name": "Promotional Items & Outreach",
-          "group": "Marketing & Outreach",
+          "name": "Promotional items",
+          "group": "Outreach",
           "total": 1725.5,
           "pctOfTotal": 2.2,
           "payeeCount": 3,
@@ -2719,8 +2719,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 1680.15,
           "pctOfTotal": 2.1,
           "payeeCount": 3,
@@ -2790,8 +2790,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 1192.64,
           "pctOfTotal": 1.5,
           "payeeCount": 3,
@@ -2885,8 +2885,8 @@
           ]
         },
         {
-          "name": "Special Events & Gala Expenses",
-          "group": "Fundraising & Events",
+          "name": "Gala expenses",
+          "group": "Events",
           "total": 1050,
           "pctOfTotal": 1.3,
           "payeeCount": 2,
@@ -2925,8 +2925,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 912,
           "pctOfTotal": 1.2,
           "payeeCount": 2,
@@ -2965,8 +2965,8 @@
           ]
         },
         {
-          "name": "Facility & Cleaning Supplies",
-          "group": "Shelter Operations",
+          "name": "Cleaning supplies",
+          "group": "Shelter operations",
           "total": 664.43,
           "pctOfTotal": 0.8,
           "payeeCount": 1,
@@ -2990,8 +2990,8 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
+          "name": "Adoption refunds",
+          "group": "Shelter operations",
           "total": 659.02,
           "pctOfTotal": 0.8,
           "payeeCount": 3,
@@ -3045,8 +3045,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 482,
           "pctOfTotal": 0.6,
           "payeeCount": 1,
@@ -3070,8 +3070,8 @@
           ]
         },
         {
-          "name": "Office Supplies",
-          "group": "Office & Admin",
+          "name": "Office supplies",
+          "group": "Office",
           "total": 300,
           "pctOfTotal": 0.4,
           "payeeCount": 1,
@@ -3095,8 +3095,8 @@
           ]
         },
         {
-          "name": "Equipment Lease & Maintenance",
-          "group": "Office & Admin",
+          "name": "Equipment lease",
+          "group": "Office",
           "total": 285.79,
           "pctOfTotal": 0.4,
           "payeeCount": 1,
@@ -3128,8 +3128,8 @@
           ]
         },
         {
-          "name": "General Shelter Supplies",
-          "group": "Shelter Operations",
+          "name": "Shelter supplies",
+          "group": "Shelter operations",
           "total": 152.41,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -3169,8 +3169,8 @@
           ]
         },
         {
-          "name": "Staff & Volunteer Meals",
-          "group": "Personnel & Staffing",
+          "name": "Staff meals",
+          "group": "Staff",
           "total": 147.55,
           "pctOfTotal": 0.2,
           "payeeCount": 2,
@@ -3209,8 +3209,8 @@
           ]
         },
         {
-          "name": "Printing & Photocopying",
-          "group": "Office & Admin",
+          "name": "Printing",
+          "group": "Office",
           "total": 76.3,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -3242,8 +3242,8 @@
           ]
         },
         {
-          "name": "Building Repairs & Maintenance",
-          "group": "Shelter Operations",
+          "name": "Building repairs",
+          "group": "Shelter operations",
           "total": 58.06,
           "pctOfTotal": 0.1,
           "payeeCount": 3,
@@ -3305,8 +3305,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 45,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -3345,8 +3345,8 @@
           ]
         },
         {
-          "name": "Facility Deep Cleaning",
-          "group": "Shelter Operations",
+          "name": "Deep cleaning",
+          "group": "Shelter operations",
           "total": 31.74,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -3370,8 +3370,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 30,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -3395,8 +3395,8 @@
           ]
         },
         {
-          "name": "Fundraising Platform Fees",
-          "group": "Financial Operations",
+          "name": "Fundraising fees",
+          "group": "Fees",
           "total": 15,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -3420,8 +3420,8 @@
           ]
         },
         {
-          "name": "Vehicle Repairs & Maintenance",
-          "group": "Vehicle Expenses",
+          "name": "Van repairs",
+          "group": "Van and other",
           "total": 12.7,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -3451,8 +3451,8 @@
       "monthKey": "2026-02",
       "monthName": "Feb 2026",
       "isPartial": false,
-      "status": "Operating Surplus",
-      "driver": "Operationally balanced month; strong adoption and clinic revenue",
+      "status": "",
+      "driver": "Strong adoptions and clinic fees",
       "revenue": 49068.23,
       "total_exp": 48624.35,
       "net_margin": 443.88,
@@ -3460,8 +3460,8 @@
       "totalExpenseTxs": 122,
       "revenueCategories": [
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 27089.28,
           "pctOfTotal": 55.2,
           "payeeCount": 5,
@@ -3729,8 +3729,8 @@
           ]
         },
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 11822.65,
           "pctOfTotal": 24.1,
           "payeeCount": 2,
@@ -3937,8 +3937,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 6068.19,
           "pctOfTotal": 12.4,
           "payeeCount": 1,
@@ -3986,8 +3986,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 2210,
           "pctOfTotal": 4.5,
           "payeeCount": 7,
@@ -4197,8 +4197,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 1763.11,
           "pctOfTotal": 3.6,
           "payeeCount": 1,
@@ -4230,8 +4230,8 @@
           ]
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed Income",
+          "name": "Corporate gifts",
+          "group": "Gifts and grants",
           "total": 863.07,
           "pctOfTotal": 1.8,
           "payeeCount": 1,
@@ -4287,8 +4287,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 310,
           "pctOfTotal": 0.6,
           "payeeCount": 1,
@@ -4328,8 +4328,8 @@
           ]
         },
         {
-          "name": "Canister & Community Coin Banks",
-          "group": "Contributed Income",
+          "name": "Donation canisters",
+          "group": "Gifts and grants",
           "total": 100,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -4355,8 +4355,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 31598.43,
           "pctOfTotal": 65,
           "payeeCount": 19,
@@ -4778,8 +4778,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 5364,
           "pctOfTotal": 11,
           "payeeCount": 2,
@@ -4866,8 +4866,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 3752.53,
           "pctOfTotal": 7.7,
           "payeeCount": 1,
@@ -4891,8 +4891,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 3351.97,
           "pctOfTotal": 6.9,
           "payeeCount": 19,
@@ -5314,8 +5314,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 1842.93,
           "pctOfTotal": 3.8,
           "payeeCount": 6,
@@ -5470,8 +5470,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 1063.66,
           "pctOfTotal": 2.2,
           "payeeCount": 5,
@@ -5627,8 +5627,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 597,
           "pctOfTotal": 1.2,
           "payeeCount": 1,
@@ -5652,8 +5652,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 538.67,
           "pctOfTotal": 1.1,
           "payeeCount": 2,
@@ -5692,8 +5692,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 482,
           "pctOfTotal": 1,
           "payeeCount": 1,
@@ -5717,8 +5717,8 @@
           ]
         },
         {
-          "name": "Shipping & Postage",
-          "group": "Office & Admin",
+          "name": "Postage",
+          "group": "Office",
           "total": 250,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -5742,8 +5742,8 @@
           ]
         },
         {
-          "name": "Facility & Cleaning Supplies",
-          "group": "Shelter Operations",
+          "name": "Cleaning supplies",
+          "group": "Shelter operations",
           "total": 249.89,
           "pctOfTotal": 0.5,
           "payeeCount": 3,
@@ -5797,8 +5797,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 219.35,
           "pctOfTotal": 0.5,
           "payeeCount": 3,
@@ -5852,8 +5852,8 @@
           ]
         },
         {
-          "name": "Staff & Volunteer Meals",
-          "group": "Personnel & Staffing",
+          "name": "Staff meals",
+          "group": "Staff",
           "total": 67.99,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -5877,8 +5877,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 59,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -5925,8 +5925,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 30,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -5956,8 +5956,8 @@
       "monthKey": "2026-03",
       "monthName": "Mar 2026",
       "isPartial": false,
-      "status": "Seasonal Burn",
-      "driver": "Pre-gala operational expenditures & spring medical intake",
+      "status": "",
+      "driver": "Spring vet bills before the gala",
       "revenue": 33675.91,
       "total_exp": 54065.44,
       "net_margin": -20389.53,
@@ -5965,8 +5965,8 @@
       "totalExpenseTxs": 129,
       "revenueCategories": [
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 13707.6,
           "pctOfTotal": 40.7,
           "payeeCount": 1,
@@ -6198,8 +6198,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 9517.01,
           "pctOfTotal": 28.3,
           "payeeCount": 5,
@@ -6331,8 +6331,8 @@
           ]
         },
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 9380.73,
           "pctOfTotal": 27.9,
           "payeeCount": 5,
@@ -6488,8 +6488,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 6504.17,
           "pctOfTotal": 19.3,
           "payeeCount": 9,
@@ -6657,8 +6657,8 @@
           ]
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed Income",
+          "name": "Corporate gifts",
+          "group": "Gifts and grants",
           "total": 1000,
           "pctOfTotal": 3,
           "payeeCount": 1,
@@ -6682,8 +6682,8 @@
           ]
         },
         {
-          "name": "Retail Partner Rebates (Kroger/Meijer)",
-          "group": "Community Support",
+          "name": "Kroger / Meijer rebates",
+          "group": "Rebates and recycling",
           "total": 901.99,
           "pctOfTotal": 2.7,
           "payeeCount": 1,
@@ -6707,8 +6707,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 91.4,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -6740,8 +6740,8 @@
           ]
         },
         {
-          "name": "Merchandise & Swag Sales",
-          "group": "Earned Revenue",
+          "name": "Merchandise sales",
+          "group": "Adoptions and events",
           "total": 30,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -6765,8 +6765,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 20,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -6800,8 +6800,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 32263.7,
           "pctOfTotal": 59.7,
           "payeeCount": 19,
@@ -7223,8 +7223,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 5193.3,
           "pctOfTotal": 9.6,
           "payeeCount": 2,
@@ -7303,8 +7303,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 3175.94,
           "pctOfTotal": 5.9,
           "payeeCount": 20,
@@ -7741,8 +7741,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 2987.27,
           "pctOfTotal": 5.5,
           "payeeCount": 1,
@@ -7766,8 +7766,8 @@
           ]
         },
         {
-          "name": "Emergency & Specialty Veterinary",
-          "group": "Veterinary & Medical Care",
+          "name": "Emergency vet care",
+          "group": "Animal care",
           "total": 2597.87,
           "pctOfTotal": 4.8,
           "payeeCount": 1,
@@ -7799,8 +7799,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 2271,
           "pctOfTotal": 4.2,
           "payeeCount": 1,
@@ -7840,8 +7840,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 1574.48,
           "pctOfTotal": 2.9,
           "payeeCount": 2,
@@ -8041,8 +8041,8 @@
           ]
         },
         {
-          "name": "Promotional Items & Outreach",
-          "group": "Marketing & Outreach",
+          "name": "Promotional items",
+          "group": "Outreach",
           "total": 648.16,
           "pctOfTotal": 1.2,
           "payeeCount": 1,
@@ -8066,8 +8066,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 614.08,
           "pctOfTotal": 1.1,
           "payeeCount": 3,
@@ -8161,8 +8161,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 597,
           "pctOfTotal": 1.1,
           "payeeCount": 1,
@@ -8186,8 +8186,8 @@
           ]
         },
         {
-          "name": "Office Supplies",
-          "group": "Office & Admin",
+          "name": "Office supplies",
+          "group": "Office",
           "total": 550,
           "pctOfTotal": 1,
           "payeeCount": 1,
@@ -8219,8 +8219,8 @@
           ]
         },
         {
-          "name": "Equipment Lease & Maintenance",
-          "group": "Office & Admin",
+          "name": "Equipment lease",
+          "group": "Office",
           "total": 487.92,
           "pctOfTotal": 0.9,
           "payeeCount": 1,
@@ -8252,8 +8252,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 482,
           "pctOfTotal": 0.9,
           "payeeCount": 1,
@@ -8277,8 +8277,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 430.86,
           "pctOfTotal": 0.8,
           "payeeCount": 3,
@@ -8332,8 +8332,8 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
+          "name": "Adoption refunds",
+          "group": "Shelter operations",
           "total": 100,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -8357,8 +8357,8 @@
           ]
         },
         {
-          "name": "General Administrative & Office",
-          "group": "Office & Admin",
+          "name": "Office costs",
+          "group": "Office",
           "total": 83.37,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -8382,8 +8382,8 @@
           ]
         },
         {
-          "name": "Building Repairs & Maintenance",
-          "group": "Shelter Operations",
+          "name": "Building repairs",
+          "group": "Shelter operations",
           "total": 71.5,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -8407,8 +8407,8 @@
           ]
         },
         {
-          "name": "General Shelter Supplies",
-          "group": "Shelter Operations",
+          "name": "Shelter supplies",
+          "group": "Shelter operations",
           "total": 64.02,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -8432,8 +8432,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 59,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -8472,8 +8472,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 30,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -8503,8 +8503,8 @@
       "monthKey": "2026-04",
       "monthName": "Apr 2026",
       "isPartial": false,
-      "status": "Operating Surplus",
-      "driver": "Annual Charity Spring Gala proceeds surge ($48.9k event revenue)",
+      "status": "",
+      "driver": "Spring gala proceeds",
       "revenue": 89862.92,
       "total_exp": 63022.61,
       "net_margin": 26840.31,
@@ -8512,8 +8512,8 @@
       "totalExpenseTxs": 123,
       "revenueCategories": [
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 33560.05,
           "pctOfTotal": 37.3,
           "payeeCount": 1,
@@ -8713,8 +8713,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 32730,
           "pctOfTotal": 36.4,
           "payeeCount": 2,
@@ -9065,8 +9065,8 @@
           ]
         },
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 16213.09,
           "pctOfTotal": 18,
           "payeeCount": 4,
@@ -9303,8 +9303,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 3334.86,
           "pctOfTotal": 3.7,
           "payeeCount": 2,
@@ -9359,8 +9359,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 3005,
           "pctOfTotal": 3.3,
           "payeeCount": 13,
@@ -9756,8 +9756,8 @@
           ]
         },
         {
-          "name": "Retail Partner Rebates (Kroger/Meijer)",
-          "group": "Community Support",
+          "name": "Kroger / Meijer rebates",
+          "group": "Rebates and recycling",
           "total": 2593.56,
           "pctOfTotal": 2.9,
           "payeeCount": 2,
@@ -9796,8 +9796,8 @@
           ]
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed Income",
+          "name": "Corporate gifts",
+          "group": "Gifts and grants",
           "total": 465,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -9837,8 +9837,8 @@
           ]
         },
         {
-          "name": "Canister & Community Coin Banks",
-          "group": "Contributed Income",
+          "name": "Donation canisters",
+          "group": "Gifts and grants",
           "total": 200,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -9862,8 +9862,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 176,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -9897,8 +9897,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 34376.25,
           "pctOfTotal": 54.5,
           "payeeCount": 20,
@@ -10343,8 +10343,8 @@
           ]
         },
         {
-          "name": "Special Events & Gala Expenses",
-          "group": "Fundraising & Events",
+          "name": "Gala expenses",
+          "group": "Events",
           "total": 7504.86,
           "pctOfTotal": 11.9,
           "payeeCount": 2,
@@ -10391,8 +10391,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 5151,
           "pctOfTotal": 8.2,
           "payeeCount": 2,
@@ -10447,8 +10447,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 3261.53,
           "pctOfTotal": 5.2,
           "payeeCount": 20,
@@ -10893,8 +10893,8 @@
           ]
         },
         {
-          "name": "Promotional Items & Outreach",
-          "group": "Marketing & Outreach",
+          "name": "Promotional items",
+          "group": "Outreach",
           "total": 3230,
           "pctOfTotal": 5.1,
           "payeeCount": 1,
@@ -10918,8 +10918,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 2615.54,
           "pctOfTotal": 4.2,
           "payeeCount": 2,
@@ -10966,8 +10966,8 @@
           ]
         },
         {
-          "name": "Emergency & Specialty Veterinary",
-          "group": "Veterinary & Medical Care",
+          "name": "Emergency vet care",
+          "group": "Animal care",
           "total": 2307.64,
           "pctOfTotal": 3.7,
           "payeeCount": 1,
@@ -10999,8 +10999,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 1398.56,
           "pctOfTotal": 2.2,
           "payeeCount": 1,
@@ -11024,8 +11024,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 597,
           "pctOfTotal": 0.9,
           "payeeCount": 1,
@@ -11049,8 +11049,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 596.59,
           "pctOfTotal": 0.9,
           "payeeCount": 2,
@@ -11137,8 +11137,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 569.27,
           "pctOfTotal": 0.9,
           "payeeCount": 2,
@@ -11265,8 +11265,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 496.34,
           "pctOfTotal": 0.8,
           "payeeCount": 4,
@@ -11335,8 +11335,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 482,
           "pctOfTotal": 0.8,
           "payeeCount": 1,
@@ -11360,8 +11360,8 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
+          "name": "Adoption refunds",
+          "group": "Shelter operations",
           "total": 225,
           "pctOfTotal": 0.4,
           "payeeCount": 1,
@@ -11385,8 +11385,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 134,
           "pctOfTotal": 0.2,
           "payeeCount": 3,
@@ -11440,8 +11440,8 @@
           ]
         },
         {
-          "name": "General Administrative & Office",
-          "group": "Office & Admin",
+          "name": "Office costs",
+          "group": "Office",
           "total": 130.38,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -11465,8 +11465,8 @@
           ]
         },
         {
-          "name": "Office Supplies",
-          "group": "Office & Admin",
+          "name": "Office supplies",
+          "group": "Office",
           "total": 78.68,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -11490,8 +11490,8 @@
           ]
         },
         {
-          "name": "Vehicle Repairs & Maintenance",
-          "group": "Vehicle Expenses",
+          "name": "Van repairs",
+          "group": "Van and other",
           "total": 52.97,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -11515,8 +11515,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 30,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -11546,8 +11546,8 @@
       "monthKey": "2026-05",
       "monthName": "May 2026",
       "isPartial": false,
-      "status": "Seasonal Burn",
-      "driver": "Post-gala giving lull & early summer kitten intake surge",
+      "status": "",
+      "driver": "Quieter giving and kitten intake",
       "revenue": 26305.83,
       "total_exp": 50003.67,
       "net_margin": -23697.84,
@@ -11555,8 +11555,8 @@
       "totalExpenseTxs": 124,
       "revenueCategories": [
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 8517.63,
           "pctOfTotal": 32.4,
           "payeeCount": 1,
@@ -11740,8 +11740,8 @@
           ]
         },
         {
-          "name": "Municipal Contracts & Grants",
-          "group": "Contributed Income",
+          "name": "County animal-control contract",
+          "group": "Gifts and grants",
           "total": 7429.1,
           "pctOfTotal": 28.2,
           "payeeCount": 1,
@@ -11765,8 +11765,8 @@
           ]
         },
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 6782.44,
           "pctOfTotal": 25.8,
           "payeeCount": 3,
@@ -11900,8 +11900,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 1585,
           "pctOfTotal": 6,
           "payeeCount": 2,
@@ -11956,8 +11956,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 1250,
           "pctOfTotal": 4.8,
           "payeeCount": 4,
@@ -12026,8 +12026,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 756.6,
           "pctOfTotal": 2.9,
           "payeeCount": 1,
@@ -12139,8 +12139,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 185.06,
           "pctOfTotal": 0.7,
           "payeeCount": 2,
@@ -12197,8 +12197,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 33638.01,
           "pctOfTotal": 67.3,
           "payeeCount": 21,
@@ -12666,8 +12666,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 3078.85,
           "pctOfTotal": 6.2,
           "payeeCount": 21,
@@ -13135,8 +13135,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 3003.7,
           "pctOfTotal": 6,
           "payeeCount": 1,
@@ -13176,8 +13176,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 2722,
           "pctOfTotal": 5.4,
           "payeeCount": 1,
@@ -13209,8 +13209,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 1516.3,
           "pctOfTotal": 3,
           "payeeCount": 1,
@@ -13234,8 +13234,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 1468.17,
           "pctOfTotal": 2.9,
           "payeeCount": 2,
@@ -13330,8 +13330,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 1248.65,
           "pctOfTotal": 2.5,
           "payeeCount": 5,
@@ -13471,8 +13471,8 @@
           ]
         },
         {
-          "name": "Workplace Injury Care",
-          "group": "Personnel & Staffing",
+          "name": "Workplace injury care",
+          "group": "Staff",
           "total": 721,
           "pctOfTotal": 1.4,
           "payeeCount": 1,
@@ -13496,8 +13496,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 597,
           "pctOfTotal": 1.2,
           "payeeCount": 1,
@@ -13521,8 +13521,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 482,
           "pctOfTotal": 1,
           "payeeCount": 1,
@@ -13546,8 +13546,8 @@
           ]
         },
         {
-          "name": "Equipment Lease & Maintenance",
-          "group": "Office & Admin",
+          "name": "Equipment lease",
+          "group": "Office",
           "total": 465.19,
           "pctOfTotal": 0.9,
           "payeeCount": 1,
@@ -13571,8 +13571,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 457.35,
           "pctOfTotal": 0.9,
           "payeeCount": 4,
@@ -13641,8 +13641,8 @@
           ]
         },
         {
-          "name": "Facility & Cleaning Supplies",
-          "group": "Shelter Operations",
+          "name": "Cleaning supplies",
+          "group": "Shelter operations",
           "total": 186.58,
           "pctOfTotal": 0.4,
           "payeeCount": 1,
@@ -13666,8 +13666,8 @@
           ]
         },
         {
-          "name": "General Shelter Supplies",
-          "group": "Shelter Operations",
+          "name": "Shelter supplies",
+          "group": "Shelter operations",
           "total": 113.06,
           "pctOfTotal": 0.2,
           "payeeCount": 3,
@@ -13721,8 +13721,8 @@
           ]
         },
         {
-          "name": "Printing & Photocopying",
-          "group": "Office & Admin",
+          "name": "Printing",
+          "group": "Office",
           "total": 83.37,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -13746,8 +13746,8 @@
           ]
         },
         {
-          "name": "Shipping & Postage",
-          "group": "Office & Admin",
+          "name": "Postage",
+          "group": "Office",
           "total": 69.44,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -13771,8 +13771,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 59,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -13811,8 +13811,8 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
+          "name": "Adoption refunds",
+          "group": "Shelter operations",
           "total": 50,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -13836,8 +13836,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 30,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -13861,8 +13861,8 @@
           ]
         },
         {
-          "name": "Fundraising Platform Fees",
-          "group": "Financial Operations",
+          "name": "Fundraising fees",
+          "group": "Fees",
           "total": 15,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -13892,8 +13892,8 @@
       "monthKey": "2026-06",
       "monthName": "Jun 2026",
       "isPartial": false,
-      "status": "Operating Surplus",
-      "driver": "Summer adoption peak & community giving",
+      "status": "",
+      "driver": "Peak adoptions and community gifts",
       "revenue": 59409.31,
       "total_exp": 51675.71,
       "net_margin": 7733.6,
@@ -13901,8 +13901,8 @@
       "totalExpenseTxs": 138,
       "revenueCategories": [
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 34005.17,
           "pctOfTotal": 57.2,
           "payeeCount": 4,
@@ -14075,8 +14075,8 @@
           ]
         },
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 8413.85,
           "pctOfTotal": 14.2,
           "payeeCount": 1,
@@ -14276,8 +14276,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 5444.08,
           "pctOfTotal": 9.2,
           "payeeCount": 1,
@@ -14357,8 +14357,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 3553,
           "pctOfTotal": 6,
           "payeeCount": 1,
@@ -14422,8 +14422,8 @@
           ]
         },
         {
-          "name": "Cat Room Expansion Fund",
-          "group": "Contributed Income",
+          "name": "Cat room fund",
+          "group": "Gifts and grants",
           "total": 2040,
           "pctOfTotal": 3.4,
           "payeeCount": 1,
@@ -14455,8 +14455,8 @@
           ]
         },
         {
-          "name": "Retail Partner Rebates (Kroger/Meijer)",
-          "group": "Community Support",
+          "name": "Kroger / Meijer rebates",
+          "group": "Rebates and recycling",
           "total": 1701.88,
           "pctOfTotal": 2.9,
           "payeeCount": 3,
@@ -14510,8 +14510,8 @@
           ]
         },
         {
-          "name": "Pet Cremation Services",
-          "group": "Earned Revenue",
+          "name": "Cremation fees",
+          "group": "Adoptions and events",
           "total": 309.54,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -14607,8 +14607,8 @@
           ]
         },
         {
-          "name": "Canister & Community Coin Banks",
-          "group": "Contributed Income",
+          "name": "Donation canisters",
+          "group": "Gifts and grants",
           "total": 300,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -14640,8 +14640,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 187,
           "pctOfTotal": 0.3,
           "payeeCount": 2,
@@ -14680,8 +14680,8 @@
           ]
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed Income",
+          "name": "Corporate gifts",
+          "group": "Gifts and grants",
           "total": 150,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -14705,8 +14705,8 @@
           ]
         },
         {
-          "name": "Grants from Other Nonprofits",
-          "group": "Contributed Income",
+          "name": "Nonprofit grants",
+          "group": "Gifts and grants",
           "total": 147,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -14730,8 +14730,8 @@
           ]
         },
         {
-          "name": "Merchandise & Swag Sales",
-          "group": "Earned Revenue",
+          "name": "Merchandise sales",
+          "group": "Adoptions and events",
           "total": 120,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -14755,8 +14755,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 100,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -14782,8 +14782,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 37865.23,
           "pctOfTotal": 73.3,
           "payeeCount": 21,
@@ -15275,8 +15275,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 3335.67,
           "pctOfTotal": 6.5,
           "payeeCount": 22,
@@ -15783,8 +15783,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 2213.8,
           "pctOfTotal": 4.3,
           "payeeCount": 1,
@@ -15832,8 +15832,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 1699.36,
           "pctOfTotal": 3.3,
           "payeeCount": 4,
@@ -15982,8 +15982,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 1638.61,
           "pctOfTotal": 3.2,
           "payeeCount": 1,
@@ -16007,8 +16007,8 @@
           ]
         },
         {
-          "name": "Emergency & Specialty Veterinary",
-          "group": "Veterinary & Medical Care",
+          "name": "Emergency vet care",
+          "group": "Animal care",
           "total": 1130.96,
           "pctOfTotal": 2.2,
           "payeeCount": 1,
@@ -16032,8 +16032,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 740,
           "pctOfTotal": 1.4,
           "payeeCount": 2,
@@ -16072,8 +16072,8 @@
           ]
         },
         {
-          "name": "Facility & Cleaning Supplies",
-          "group": "Shelter Operations",
+          "name": "Cleaning supplies",
+          "group": "Shelter operations",
           "total": 702.25,
           "pctOfTotal": 1.4,
           "payeeCount": 1,
@@ -16097,8 +16097,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 597,
           "pctOfTotal": 1.2,
           "payeeCount": 1,
@@ -16122,8 +16122,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 476.44,
           "pctOfTotal": 0.9,
           "payeeCount": 1,
@@ -16147,8 +16147,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 475.64,
           "pctOfTotal": 0.9,
           "payeeCount": 3,
@@ -16202,8 +16202,8 @@
           ]
         },
         {
-          "name": "Special Events & Gala Expenses",
-          "group": "Fundraising & Events",
+          "name": "Gala expenses",
+          "group": "Events",
           "total": 469.6,
           "pctOfTotal": 0.9,
           "payeeCount": 1,
@@ -16227,8 +16227,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 418.26,
           "pctOfTotal": 0.8,
           "payeeCount": 3,
@@ -16330,8 +16330,8 @@
           ]
         },
         {
-          "name": "Building Repairs & Maintenance",
-          "group": "Shelter Operations",
+          "name": "Building repairs",
+          "group": "Shelter operations",
           "total": 300.31,
           "pctOfTotal": 0.6,
           "payeeCount": 2,
@@ -16370,8 +16370,8 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
+          "name": "Adoption refunds",
+          "group": "Shelter operations",
           "total": 300,
           "pctOfTotal": 0.6,
           "payeeCount": 1,
@@ -16403,8 +16403,8 @@
           ]
         },
         {
-          "name": "Staff & Volunteer Meals",
-          "group": "Personnel & Staffing",
+          "name": "Staff meals",
+          "group": "Staff",
           "total": 272.18,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -16444,8 +16444,8 @@
           ]
         },
         {
-          "name": "Printing & Photocopying",
-          "group": "Office & Admin",
+          "name": "Printing",
+          "group": "Office",
           "total": 154.15,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -16469,8 +16469,8 @@
           ]
         },
         {
-          "name": "Medical Vendor Rebates",
-          "group": "Veterinary & Medical Care",
+          "name": "Vet rebates",
+          "group": "Animal care",
           "total": 93.85,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -16494,8 +16494,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 83.46,
           "pctOfTotal": 0.2,
           "payeeCount": 2,
@@ -16534,8 +16534,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 59,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -16599,8 +16599,8 @@
           ]
         },
         {
-          "name": "Equipment Lease & Maintenance",
-          "group": "Office & Admin",
+          "name": "Equipment lease",
+          "group": "Office",
           "total": 17.28,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -16630,8 +16630,8 @@
       "monthKey": "2026-07",
       "monthName": "Jul 2026",
       "isPartial": false,
-      "status": "Seasonal Burn",
-      "driver": "3-payroll calendar spike (~ wages) & high medical volume",
+      "status": "",
+      "driver": "Three paydays and high vet bills",
       "revenue": 15472.26,
       "total_exp": 85851.39,
       "net_margin": -70379.13,
@@ -16639,8 +16639,8 @@
       "totalExpenseTxs": 199,
       "revenueCategories": [
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 8265.85,
           "pctOfTotal": 53.4,
           "payeeCount": 1,
@@ -16848,8 +16848,8 @@
           ]
         },
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 4017.46,
           "pctOfTotal": 26,
           "payeeCount": 3,
@@ -17023,8 +17023,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 2514,
           "pctOfTotal": 16.2,
           "payeeCount": 1,
@@ -17112,8 +17112,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 1840,
           "pctOfTotal": 11.9,
           "payeeCount": 13,
@@ -17349,8 +17349,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 1275,
           "pctOfTotal": 8.2,
           "payeeCount": 2,
@@ -17389,8 +17389,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 1106,
           "pctOfTotal": 7.1,
           "payeeCount": 1,
@@ -17430,8 +17430,8 @@
           ]
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed Income",
+          "name": "Corporate gifts",
+          "group": "Gifts and grants",
           "total": 265.95,
           "pctOfTotal": 1.7,
           "payeeCount": 1,
@@ -17471,8 +17471,8 @@
           ]
         },
         {
-          "name": "Cat Room Expansion Fund",
-          "group": "Contributed Income",
+          "name": "Cat room fund",
+          "group": "Gifts and grants",
           "total": 180,
           "pctOfTotal": 1.2,
           "payeeCount": 1,
@@ -17496,8 +17496,8 @@
           ]
         },
         {
-          "name": "Court Restitution",
-          "group": "Community Support",
+          "name": "Court restitution",
+          "group": "Rebates and recycling",
           "total": 60,
           "pctOfTotal": 0.4,
           "payeeCount": 1,
@@ -17523,8 +17523,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 53554.03,
           "pctOfTotal": 62.4,
           "payeeCount": 21,
@@ -18152,8 +18152,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 5609,
           "pctOfTotal": 6.5,
           "payeeCount": 1,
@@ -18193,8 +18193,8 @@
           ]
         },
         {
-          "name": "Workplace Injury Care",
-          "group": "Personnel & Staffing",
+          "name": "Workplace injury care",
+          "group": "Staff",
           "total": 5266,
           "pctOfTotal": 6.1,
           "payeeCount": 1,
@@ -18226,8 +18226,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 4583.98,
           "pctOfTotal": 5.3,
           "payeeCount": 21,
@@ -18855,8 +18855,8 @@
           ]
         },
         {
-          "name": "Microchips & Registries",
-          "group": "Shelter Operations",
+          "name": "Microchips",
+          "group": "Shelter operations",
           "total": 3888.75,
           "pctOfTotal": 4.5,
           "payeeCount": 1,
@@ -18880,8 +18880,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 3582.86,
           "pctOfTotal": 4.2,
           "payeeCount": 2,
@@ -18968,8 +18968,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 1746.07,
           "pctOfTotal": 2,
           "payeeCount": 6,
@@ -19188,8 +19188,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 1491.5,
           "pctOfTotal": 1.7,
           "payeeCount": 2,
@@ -19228,17 +19228,17 @@
           ]
         },
         {
-          "name": "Building Repairs & Maintenance",
-          "group": "Shelter Operations",
-          "total": 1421.92,
-          "pctOfTotal": 1.7,
+          "name": "Building repairs",
+          "group": "Shelter operations",
+          "total": 1321.92,
+          "pctOfTotal": 1.5,
           "payeeCount": 1,
-          "txCount": 8,
+          "txCount": 7,
           "payees": [
             {
               "name": "Robert Monteer",
-              "total": 1421.92,
-              "txCount": 8,
+              "total": 1321.92,
+              "txCount": 7,
               "transactions": [
                 {
                   "date": "2026-07-22",
@@ -19247,14 +19247,6 @@
                   "memo": "2 more lights for kennel",
                   "split": "Accounts Payable (A/P)",
                   "amount": 81.68
-                },
-                {
-                  "date": "2026-07-22",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "woof lodge  6 hours   20.00 per hour with tools",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 100
                 },
                 {
                   "date": "2026-07-22",
@@ -19309,8 +19301,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 1308.53,
           "pctOfTotal": 1.5,
           "payeeCount": 2,
@@ -19349,8 +19341,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 1015.3,
           "pctOfTotal": 1.2,
           "payeeCount": 6,
@@ -19489,8 +19481,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 482,
           "pctOfTotal": 0.6,
           "payeeCount": 1,
@@ -19514,8 +19506,8 @@
           ]
         },
         {
-          "name": "Equipment Lease & Maintenance",
-          "group": "Office & Admin",
+          "name": "Equipment lease",
+          "group": "Office",
           "total": 431.96,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -19539,8 +19531,8 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
+          "name": "Adoption refunds",
+          "group": "Shelter operations",
           "total": 384,
           "pctOfTotal": 0.4,
           "payeeCount": 3,
@@ -19594,8 +19586,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 343.41,
           "pctOfTotal": 0.4,
           "payeeCount": 2,
@@ -19634,8 +19626,8 @@
           ]
         },
         {
-          "name": "Office Supplies",
-          "group": "Office & Admin",
+          "name": "Office supplies",
+          "group": "Office",
           "total": 214.92,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -19667,8 +19659,8 @@
           ]
         },
         {
-          "name": "Printing & Photocopying",
-          "group": "Office & Admin",
+          "name": "Printing",
+          "group": "Office",
           "total": 180.15,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -19692,8 +19684,8 @@
           ]
         },
         {
-          "name": "Emergency & Specialty Veterinary",
-          "group": "Veterinary & Medical Care",
+          "name": "Emergency vet care",
+          "group": "Animal care",
           "total": 129.48,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -19717,8 +19709,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 109,
           "pctOfTotal": 0.1,
           "payeeCount": 3,
@@ -19772,8 +19764,8 @@
           ]
         },
         {
-          "name": "General Shelter Supplies",
-          "group": "Shelter Operations",
+          "name": "Shelter supplies",
+          "group": "Shelter operations",
           "total": 106.91,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -19828,8 +19820,33 @@
           ]
         },
         {
-          "name": "General Administrative & Office",
-          "group": "Office & Admin",
+          "name": "Contract labor",
+          "group": "Staff",
+          "total": 100,
+          "pctOfTotal": 0.1,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "Robert Monteer",
+              "total": 100,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-22",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "woof lodge  6 hours   20.00 per hour with tools",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Office costs",
+          "group": "Office",
           "total": 68.28,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -19868,8 +19885,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 30,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -19893,8 +19910,8 @@
           ]
         },
         {
-          "name": "Shipping & Postage",
-          "group": "Office & Admin",
+          "name": "Postage",
+          "group": "Office",
           "total": 16.94,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -19918,8 +19935,8 @@
           ]
         },
         {
-          "name": "Special Events & Gala Expenses",
-          "group": "Fundraising & Events",
+          "name": "Gala expenses",
+          "group": "Events",
           "total": 12.72,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -19949,8 +19966,8 @@
       "monthKey": "2026-08",
       "monthName": "Aug 2026",
       "isPartial": false,
-      "status": "Seasonal Burn",
-      "driver": "Late summer medical intake & vehicle transport spend",
+      "status": "",
+      "driver": "Late-summer vet bills and van costs",
       "revenue": 41014.25,
       "total_exp": 58133.65,
       "net_margin": -17119.4,
@@ -19958,8 +19975,8 @@
       "totalExpenseTxs": 120,
       "revenueCategories": [
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 9829.97,
           "pctOfTotal": 24,
           "payeeCount": 2,
@@ -20158,8 +20175,8 @@
           ]
         },
         {
-          "name": "Municipal Contracts & Grants",
-          "group": "Contributed Income",
+          "name": "County animal-control contract",
+          "group": "Gifts and grants",
           "total": 8479.38,
           "pctOfTotal": 20.7,
           "payeeCount": 1,
@@ -20183,8 +20200,8 @@
           ]
         },
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 8038.73,
           "pctOfTotal": 19.6,
           "payeeCount": 4,
@@ -20373,8 +20390,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 7999.17,
           "pctOfTotal": 19.5,
           "payeeCount": 16,
@@ -20671,8 +20688,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 2929,
           "pctOfTotal": 7.1,
           "payeeCount": 1,
@@ -20696,8 +20713,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 2099,
           "pctOfTotal": 5.1,
           "payeeCount": 1,
@@ -20769,8 +20786,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 1439,
           "pctOfTotal": 3.5,
           "payeeCount": 1,
@@ -20842,8 +20859,8 @@
           ]
         },
         {
-          "name": "Retail Partner Rebates (Kroger/Meijer)",
-          "group": "Community Support",
+          "name": "Kroger / Meijer rebates",
+          "group": "Rebates and recycling",
           "total": 220.18,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -20867,8 +20884,8 @@
           ]
         },
         {
-          "name": "Canister & Community Coin Banks",
-          "group": "Contributed Income",
+          "name": "Donation canisters",
+          "group": "Gifts and grants",
           "total": 200,
           "pctOfTotal": 0.5,
           "payeeCount": 1,
@@ -20894,8 +20911,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 37116.69,
           "pctOfTotal": 63.8,
           "payeeCount": 20,
@@ -21340,8 +21357,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 5731.12,
           "pctOfTotal": 9.9,
           "payeeCount": 2,
@@ -21380,8 +21397,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 5235,
           "pctOfTotal": 9,
           "payeeCount": 1,
@@ -21421,8 +21438,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 3154.79,
           "pctOfTotal": 5.4,
           "payeeCount": 20,
@@ -21867,8 +21884,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 1819.25,
           "pctOfTotal": 3.1,
           "payeeCount": 4,
@@ -21969,8 +21986,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 964,
           "pctOfTotal": 1.7,
           "payeeCount": 1,
@@ -22002,8 +22019,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 667.9,
           "pctOfTotal": 1.1,
           "payeeCount": 1,
@@ -22035,8 +22052,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 597,
           "pctOfTotal": 1,
           "payeeCount": 1,
@@ -22060,8 +22077,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 506.74,
           "pctOfTotal": 0.9,
           "payeeCount": 3,
@@ -22131,8 +22148,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 365.54,
           "pctOfTotal": 0.6,
           "payeeCount": 2,
@@ -22171,8 +22188,8 @@
           ]
         },
         {
-          "name": "General Shelter Supplies",
-          "group": "Shelter Operations",
+          "name": "Shelter supplies",
+          "group": "Shelter operations",
           "total": 313.49,
           "pctOfTotal": 0.5,
           "payeeCount": 3,
@@ -22226,8 +22243,8 @@
           ]
         },
         {
-          "name": "Staff & Volunteer Meals",
-          "group": "Personnel & Staffing",
+          "name": "Staff meals",
+          "group": "Staff",
           "total": 280.83,
           "pctOfTotal": 0.5,
           "payeeCount": 4,
@@ -22296,8 +22313,8 @@
           ]
         },
         {
-          "name": "Facility & Cleaning Supplies",
-          "group": "Shelter Operations",
+          "name": "Cleaning supplies",
+          "group": "Shelter operations",
           "total": 239.5,
           "pctOfTotal": 0.4,
           "payeeCount": 2,
@@ -22336,8 +22353,8 @@
           ]
         },
         {
-          "name": "Workplace Injury Care",
-          "group": "Personnel & Staffing",
+          "name": "Workplace injury care",
+          "group": "Staff",
           "total": 225,
           "pctOfTotal": 0.4,
           "payeeCount": 1,
@@ -22361,8 +22378,8 @@
           ]
         },
         {
-          "name": "Equipment Lease & Maintenance",
-          "group": "Office & Admin",
+          "name": "Equipment lease",
+          "group": "Office",
           "total": 190.79,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -22386,8 +22403,8 @@
           ]
         },
         {
-          "name": "Office Supplies",
-          "group": "Office & Admin",
+          "name": "Office supplies",
+          "group": "Office",
           "total": 152.56,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -22411,8 +22428,8 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
+          "name": "Adoption refunds",
+          "group": "Shelter operations",
           "total": 150,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -22436,8 +22453,8 @@
           ]
         },
         {
-          "name": "Printing & Photocopying",
-          "group": "Office & Admin",
+          "name": "Printing",
+          "group": "Office",
           "total": 142.35,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -22469,8 +22486,8 @@
           ]
         },
         {
-          "name": "Vehicle Repairs & Maintenance",
-          "group": "Vehicle Expenses",
+          "name": "Van repairs",
+          "group": "Van and other",
           "total": 124.43,
           "pctOfTotal": 0.2,
           "payeeCount": 1,
@@ -22494,8 +22511,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 79,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -22542,8 +22559,8 @@
           ]
         },
         {
-          "name": "General Administrative & Office",
-          "group": "Office & Admin",
+          "name": "Office costs",
+          "group": "Office",
           "total": 47.67,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -22567,8 +22584,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 30,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -22607,8 +22624,8 @@
       "totalExpenseTxs": 1166,
       "revenueCategories": [
         {
-          "name": "Individual Donor Contributions",
-          "group": "Contributed Income",
+          "name": "Individual gifts",
+          "group": "Gifts and grants",
           "total": 130733.02,
           "pctOfTotal": 34.2,
           "payeeCount": 11,
@@ -24022,8 +24039,8 @@
           ]
         },
         {
-          "name": "Animal Adoption Fees",
-          "group": "Earned Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "total": 102848.4,
           "pctOfTotal": 26.9,
           "payeeCount": 3,
@@ -25501,8 +25518,8 @@
           ]
         },
         {
-          "name": "Event Proceeds & Ticket Donations",
-          "group": "Earned Revenue",
+          "name": "Event proceeds",
+          "group": "Adoptions and events",
           "total": 58784.28,
           "pctOfTotal": 15.4,
           "payeeCount": 7,
@@ -26200,8 +26217,8 @@
           ]
         },
         {
-          "name": "Municipal Contracts & Grants",
-          "group": "Contributed Income",
+          "name": "County animal-control contract",
+          "group": "Gifts and grants",
           "total": 28463.96,
           "pctOfTotal": 7.4,
           "payeeCount": 1,
@@ -26241,8 +26258,8 @@
           ]
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed Income",
+          "name": "Memorial gifts",
+          "group": "Gifts and grants",
           "total": 23923.34,
           "pctOfTotal": 6.3,
           "payeeCount": 59,
@@ -27688,8 +27705,8 @@
           ]
         },
         {
-          "name": "Corporate Donations",
-          "group": "Contributed Income",
+          "name": "Corporate gifts",
+          "group": "Gifts and grants",
           "total": 22010.21,
           "pctOfTotal": 5.8,
           "payeeCount": 1,
@@ -27849,8 +27866,8 @@
           ]
         },
         {
-          "name": "Foundation Grants",
-          "group": "Contributed Income",
+          "name": "Foundation grants",
+          "group": "Gifts and grants",
           "total": 10444.31,
           "pctOfTotal": 2.7,
           "payeeCount": 3,
@@ -28032,8 +28049,8 @@
           ]
         },
         {
-          "name": "Bottle & Can Recycling Proceeds",
-          "group": "Community Support",
+          "name": "Bottle recycling",
+          "group": "Rebates and recycling",
           "total": 9042,
           "pctOfTotal": 2.4,
           "payeeCount": 1,
@@ -28393,8 +28410,8 @@
           ]
         },
         {
-          "name": "Retail Partner Rebates (Kroger/Meijer)",
-          "group": "Community Support",
+          "name": "Kroger / Meijer rebates",
+          "group": "Rebates and recycling",
           "total": 5417.61,
           "pctOfTotal": 1.4,
           "payeeCount": 3,
@@ -28480,8 +28497,8 @@
           ]
         },
         {
-          "name": "Cat Room Expansion Fund",
-          "group": "Contributed Income",
+          "name": "Cat room fund",
+          "group": "Gifts and grants",
           "total": 2220,
           "pctOfTotal": 0.6,
           "payeeCount": 1,
@@ -28521,8 +28538,8 @@
           ]
         },
         {
-          "name": "Canister & Community Coin Banks",
-          "group": "Contributed Income",
+          "name": "Donation canisters",
+          "group": "Gifts and grants",
           "total": 1000,
           "pctOfTotal": 0.3,
           "payeeCount": 1,
@@ -28586,8 +28603,8 @@
           ]
         },
         {
-          "name": "Pet Cremation Services",
-          "group": "Earned Revenue",
+          "name": "Cremation fees",
+          "group": "Adoptions and events",
           "total": 309.54,
           "pctOfTotal": 0.1,
           "payeeCount": 1,
@@ -28683,8 +28700,8 @@
           ]
         },
         {
-          "name": "Grants from Other Nonprofits",
-          "group": "Contributed Income",
+          "name": "Nonprofit grants",
+          "group": "Gifts and grants",
           "total": 167,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -28724,8 +28741,8 @@
           ]
         },
         {
-          "name": "Merchandise & Swag Sales",
-          "group": "Earned Revenue",
+          "name": "Merchandise sales",
+          "group": "Adoptions and events",
           "total": 150,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -28757,8 +28774,8 @@
           ]
         },
         {
-          "name": "Court Restitution",
-          "group": "Community Support",
+          "name": "Court restitution",
+          "group": "Rebates and recycling",
           "total": 60,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -28784,8 +28801,8 @@
       ],
       "expenseCategories": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "total": 309612.53,
           "pctOfTotal": 63.2,
           "payeeCount": 32,
@@ -31842,8 +31859,8 @@
           ]
         },
         {
-          "name": "Spay & Neuter Program",
-          "group": "Veterinary & Medical Care",
+          "name": "Spay and neuter",
+          "group": "Animal care",
           "total": 38774.4,
           "pctOfTotal": 7.9,
           "payeeCount": 2,
@@ -32146,8 +32163,8 @@
           ]
         },
         {
-          "name": "Payroll Taxes",
-          "group": "Personnel & Staffing",
+          "name": "Payroll taxes",
+          "group": "Staff",
           "total": 29231.75,
           "pctOfTotal": 6,
           "payeeCount": 33,
@@ -35227,8 +35244,8 @@
           ]
         },
         {
-          "name": "Medications & Vaccines",
-          "group": "Veterinary & Medical Care",
+          "name": "Medicines and vaccines",
+          "group": "Animal care",
           "total": 20134.67,
           "pctOfTotal": 4.1,
           "payeeCount": 3,
@@ -35338,8 +35355,8 @@
           ]
         },
         {
-          "name": "Primary Care & Wellness Clinics",
-          "group": "Veterinary & Medical Care",
+          "name": "Wellness clinics",
+          "group": "Animal care",
           "total": 15099.82,
           "pctOfTotal": 3.1,
           "payeeCount": 4,
@@ -35600,8 +35617,8 @@
           ]
         },
         {
-          "name": "Rescue Van Fuel & Transit",
-          "group": "Vehicle Expenses",
+          "name": "Van fuel",
+          "group": "Van and other",
           "total": 10759.57,
           "pctOfTotal": 2.2,
           "payeeCount": 12,
@@ -36430,8 +36447,8 @@
           ]
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal food and supplies",
+          "group": "Shelter operations",
           "total": 9869.06,
           "pctOfTotal": 2,
           "payeeCount": 11,
@@ -37301,8 +37318,8 @@
           ]
         },
         {
-          "name": "Special Events & Gala Expenses",
-          "group": "Fundraising & Events",
+          "name": "Gala expenses",
+          "group": "Events",
           "total": 9037.18,
           "pctOfTotal": 1.8,
           "payeeCount": 5,
@@ -37402,8 +37419,8 @@
           ]
         },
         {
-          "name": "Workplace Injury Care",
-          "group": "Personnel & Staffing",
+          "name": "Workplace injury care",
+          "group": "Staff",
           "total": 6212,
           "pctOfTotal": 1.3,
           "payeeCount": 2,
@@ -37458,8 +37475,8 @@
           ]
         },
         {
-          "name": "Emergency & Specialty Veterinary",
-          "group": "Veterinary & Medical Care",
+          "name": "Emergency vet care",
+          "group": "Animal care",
           "total": 6165.95,
           "pctOfTotal": 1.3,
           "payeeCount": 2,
@@ -37530,8 +37547,8 @@
           ]
         },
         {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance & Risk",
+          "name": "Property insurance",
+          "group": "Insurance",
           "total": 5985.5,
           "pctOfTotal": 1.2,
           "payeeCount": 3,
@@ -37641,8 +37658,8 @@
           ]
         },
         {
-          "name": "Promotional Items & Outreach",
-          "group": "Marketing & Outreach",
+          "name": "Promotional items",
+          "group": "Outreach",
           "total": 5603.66,
           "pctOfTotal": 1.1,
           "payeeCount": 4,
@@ -37727,8 +37744,8 @@
           ]
         },
         {
-          "name": "Software & Cloud Apps",
-          "group": "Office & Admin",
+          "name": "Software",
+          "group": "Office",
           "total": 5379.85,
           "pctOfTotal": 1.1,
           "payeeCount": 6,
@@ -37979,8 +37996,8 @@
           ]
         },
         {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations",
+          "name": "Laundry and sanitation",
+          "group": "Shelter operations",
           "total": 4332.44,
           "pctOfTotal": 0.9,
           "payeeCount": 1,
@@ -38068,8 +38085,8 @@
           ]
         },
         {
-          "name": "Microchips & Registries",
-          "group": "Shelter Operations",
+          "name": "Microchips",
+          "group": "Shelter operations",
           "total": 3888.75,
           "pctOfTotal": 0.8,
           "payeeCount": 1,
@@ -38093,8 +38110,8 @@
           ]
         },
         {
-          "name": "Facility & Cleaning Supplies",
-          "group": "Shelter Operations",
+          "name": "Cleaning supplies",
+          "group": "Shelter operations",
           "total": 2042.65,
           "pctOfTotal": 0.4,
           "payeeCount": 6,
@@ -38209,8 +38226,8 @@
           ]
         },
         {
-          "name": "Equipment Lease & Maintenance",
-          "group": "Office & Admin",
+          "name": "Equipment lease",
+          "group": "Office",
           "total": 1878.93,
           "pctOfTotal": 0.4,
           "payeeCount": 2,
@@ -38297,8 +38314,8 @@
           ]
         },
         {
-          "name": "Adoption Fee Refunds & Returns",
-          "group": "Shelter Operations",
+          "name": "Adoption refunds",
+          "group": "Shelter operations",
           "total": 1868.02,
           "pctOfTotal": 0.4,
           "payeeCount": 11,
@@ -38480,17 +38497,17 @@
           ]
         },
         {
-          "name": "Building Repairs & Maintenance",
-          "group": "Shelter Operations",
-          "total": 1851.79,
+          "name": "Building repairs",
+          "group": "Shelter operations",
+          "total": 1751.79,
           "pctOfTotal": 0.4,
           "payeeCount": 4,
-          "txCount": 15,
+          "txCount": 14,
           "payees": [
             {
               "name": "Robert Monteer",
-              "total": 1460,
-              "txCount": 10,
+              "total": 1360,
+              "txCount": 9,
               "transactions": [
                 {
                   "date": "2026-07-22",
@@ -38499,14 +38516,6 @@
                   "memo": "2 more lights for kennel",
                   "split": "Accounts Payable (A/P)",
                   "amount": 81.68
-                },
-                {
-                  "date": "2026-07-22",
-                  "type": "Bill",
-                  "num": "",
-                  "memo": "woof lodge  6 hours   20.00 per hour with tools",
-                  "split": "Accounts Payable (A/P)",
-                  "amount": 100
                 },
                 {
                   "date": "2026-07-22",
@@ -38638,8 +38647,8 @@
           ]
         },
         {
-          "name": "Office Supplies",
-          "group": "Office & Admin",
+          "name": "Office supplies",
+          "group": "Office",
           "total": 1296.16,
           "pctOfTotal": 0.3,
           "payeeCount": 5,
@@ -38739,8 +38748,8 @@
           ]
         },
         {
-          "name": "Staff & Volunteer Meals",
-          "group": "Personnel & Staffing",
+          "name": "Staff meals",
+          "group": "Staff",
           "total": 768.55,
           "pctOfTotal": 0.2,
           "payeeCount": 6,
@@ -38871,8 +38880,8 @@
           ]
         },
         {
-          "name": "General Shelter Supplies",
-          "group": "Shelter Operations",
+          "name": "Shelter supplies",
+          "group": "Shelter operations",
           "total": 749.89,
           "pctOfTotal": 0.2,
           "payeeCount": 7,
@@ -39067,8 +39076,8 @@
           ]
         },
         {
-          "name": "Printing & Photocopying",
-          "group": "Office & Admin",
+          "name": "Printing",
+          "group": "Office",
           "total": 636.32,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -39147,8 +39156,8 @@
           ]
         },
         {
-          "name": "Bank & Account Fees",
-          "group": "Financial Operations",
+          "name": "Bank fees",
+          "group": "Fees",
           "total": 603,
           "pctOfTotal": 0.1,
           "payeeCount": 3,
@@ -39338,8 +39347,8 @@
           ]
         },
         {
-          "name": "Shipping & Postage",
-          "group": "Office & Admin",
+          "name": "Postage",
+          "group": "Office",
           "total": 336.38,
           "pctOfTotal": 0.1,
           "payeeCount": 3,
@@ -39393,8 +39402,8 @@
           ]
         },
         {
-          "name": "General Administrative & Office",
-          "group": "Office & Admin",
+          "name": "Office costs",
+          "group": "Office",
           "total": 329.7,
           "pctOfTotal": 0.1,
           "payeeCount": 4,
@@ -39471,8 +39480,8 @@
           ]
         },
         {
-          "name": "Merchant Gateway & Card Fees",
-          "group": "Financial Operations",
+          "name": "Card processing fees",
+          "group": "Fees",
           "total": 293.46,
           "pctOfTotal": 0.1,
           "payeeCount": 2,
@@ -39567,8 +39576,8 @@
           ]
         },
         {
-          "name": "Vehicle Repairs & Maintenance",
-          "group": "Vehicle Expenses",
+          "name": "Van repairs",
+          "group": "Van and other",
           "total": 190.1,
           "pctOfTotal": 0,
           "payeeCount": 2,
@@ -39615,8 +39624,33 @@
           ]
         },
         {
-          "name": "Medical Vendor Rebates",
-          "group": "Veterinary & Medical Care",
+          "name": "Contract labor",
+          "group": "Staff",
+          "total": 100,
+          "pctOfTotal": 0,
+          "payeeCount": 1,
+          "txCount": 1,
+          "payees": [
+            {
+              "name": "Robert Monteer",
+              "total": 100,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2026-07-22",
+                  "type": "Bill",
+                  "num": "",
+                  "memo": "woof lodge  6 hours   20.00 per hour with tools",
+                  "split": "Accounts Payable (A/P)",
+                  "amount": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Vet rebates",
+          "group": "Animal care",
           "total": 93.85,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -39665,8 +39699,8 @@
           ]
         },
         {
-          "name": "Facility Deep Cleaning",
-          "group": "Shelter Operations",
+          "name": "Deep cleaning",
+          "group": "Shelter operations",
           "total": 31.74,
           "pctOfTotal": 0,
           "payeeCount": 1,
@@ -39690,8 +39724,8 @@
           ]
         },
         {
-          "name": "Fundraising Platform Fees",
-          "group": "Financial Operations",
+          "name": "Fundraising fees",
+          "group": "Fees",
           "total": 30,
           "pctOfTotal": 0,
           "payeeCount": 1,

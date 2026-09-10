@@ -85,9 +85,4 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
   }
 
   document.addEventListener('astro:page-load', initFAB);
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFAB);
-  } else {
-    initFAB();
-  }
 </script>

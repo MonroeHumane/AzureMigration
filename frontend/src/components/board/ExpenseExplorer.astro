@@ -1191,6 +1191,11 @@ const monthKeys = [
   function initExpenseExplorer() {
     const root = document.getElementById('expense-explorer-root');
     if (!root) return;
+    if (root.dataset.eeBound === '1') {
+      rebindAccordionListeners();
+      return;
+    }
+    root.dataset.eeBound = '1';
 
     // Period buttons
     root.querySelectorAll('.ee-period-btn').forEach(btn => {
@@ -1271,6 +1276,4 @@ const monthKeys = [
   }
 
   document.addEventListener('astro:page-load', initExpenseExplorer);
-  if (document.readyState !== 'loading') initExpenseExplorer();
-  else document.addEventListener('DOMContentLoaded', initExpenseExplorer);
 </script>

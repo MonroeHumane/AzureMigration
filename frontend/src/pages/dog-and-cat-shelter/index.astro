@@ -320,10 +320,5 @@ const dayCards = [
     });
 
     document.addEventListener('astro:page-load', initShelterNav);
-    if (document.readyState !== 'loading') {
-      initShelterNav();
-    } else {
-      document.addEventListener('DOMContentLoaded', initShelterNav);
-    }
   </script>
 </BaseLayout>

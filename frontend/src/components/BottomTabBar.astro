@@ -84,15 +84,17 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
       type="button"
       id="bottom-tab-menu-btn"
       class="monroe-bottom-tab-bar__item cursor-pointer"
-      aria-label="Open site directory bottom sheet"
+      aria-label="Open site directory"
       aria-haspopup="dialog"
+      aria-controls="monroe-bottom-sheet"
+      aria-expanded="false"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
         <line x1="4" y1="6" x2="20" y2="6" stroke-linecap="round"/>
         <line x1="4" y1="12" x2="20" y2="12" stroke-linecap="round"/>
         <line x1="4" y1="18" x2="20" y2="18" stroke-linecap="round"/>
       </svg>
-      <span>Menu</span>
+      <span>More</span>
     </button>
   </div>
 </nav>
@@ -241,10 +243,14 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
     unsubscribeFavoritesBadge = favoritePetIds.subscribe(syncBadge);
   }
 
-  initFavoritesBadge();
   document.addEventListener('astro:page-load', initFavoritesBadge);
 
+  let cleanupBottomSheet: (() => void) | null = null;
+
   function initBottomTabBar() {
+    cleanupBottomSheet?.();
+    cleanupBottomSheet = null;
+
     const menuBtn = document.getElementById('bottom-tab-menu-btn');
     const sheet = document.getElementById('monroe-bottom-sheet') as HTMLDialogElement | null;
     const closeBtn = document.getElementById('monroe-bottom-sheet-close');
@@ -253,57 +259,46 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
 
     if (!menuBtn || !sheet) return;
 
+    const ac = new AbortController();
+    const { signal } = ac;
+    cleanupBottomSheet = () => ac.abort();
+
     const openSheet = () => {
       menuBtn.classList.add('is-active');
-      sheet.showModal();
+      menuBtn.setAttribute('aria-expanded', 'true');
+      if (!sheet.open) sheet.showModal();
     };
 
     const closeSheet = () => {
-      if (sheet.open) {
-        sheet.close();
-      }
+      if (sheet.open) sheet.close();
       menuBtn.classList.remove('is-active');
+      menuBtn.setAttribute('aria-expanded', 'false');
     };
 
     menuBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      if (sheet.open) {
-        closeSheet();
-      } else {
-        openSheet();
-      }
-    });
+      if (sheet.open) closeSheet();
+      else openSheet();
+    }, { signal });
 
-    closeBtn?.addEventListener('click', closeSheet);
+    closeBtn?.addEventListener('click', closeSheet, { signal });
 
     sheet.addEventListener('close', () => {
       menuBtn.classList.remove('is-active');
-    });
+      menuBtn.setAttribute('aria-expanded', 'false');
+    }, { signal });
 
-    // Close when clicking outside the dialog content (on backdrop)
     sheet.addEventListener('click', (e) => {
-      const rect = sheet.getBoundingClientRect();
-      const inSheet = (
-        rect.top <= e.clientY &&
-        e.clientY <= rect.top + rect.height &&
-        rect.left <= e.clientX &&
-        e.clientX <= rect.left + rect.width
-      );
-      if (!inSheet) {
-        closeSheet();
-      }
-    });
+      if (e.target === sheet) closeSheet();
+    }, { signal });
 
-    // Navigation preferences trigger
     prefBtn?.addEventListener('click', () => {
       closeSheet();
       const settingsBtn = document.getElementById('nav-settings-btn');
-      if (settingsBtn) {
-        settingsBtn.click();
-      }
-    });
+      if (settingsBtn) settingsBtn.click();
+    }, { signal });
 
-    // Touch physics: swipe down to dismiss modal
     let touchStartY = 0;
     let touchStartX = 0;
 
@@ -312,7 +307,7 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
         touchStartY = e.touches[0].clientY;
         touchStartX = e.touches[0].clientX;
       }
-    }, { passive: true });
+    }, { passive: true, signal });
 
     sheet.addEventListener('touchend', (e) => {
       if (e.changedTouches.length > 0) {
@@ -320,17 +315,12 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
         const touchEndX = e.changedTouches[0].clientX;
         const deltaY = touchEndY - touchStartY;
         const deltaX = Math.abs(touchEndX - touchStartX);
-
-        // Allow dismissal if swiped down > 50px and either at the top of sheet scroll or dragged from handle
         const isAtTop = !content || content.scrollTop <= 5;
-        if (deltaY > 50 && deltaY > deltaX && isAtTop) {
-          closeSheet();
-        }
+        if (deltaY > 50 && deltaY > deltaX && isAtTop) closeSheet();
       }
-    }, { passive: true });
+    }, { passive: true, signal });
   }
 
-  initBottomTabBar();
   document.addEventListener('astro:page-load', initBottomTabBar);
 </script>
 

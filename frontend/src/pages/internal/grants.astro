@@ -1550,10 +1550,5 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
     loadGrants();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGrantsPortal);
-  } else {
-    initGrantsPortal();
-  }
   document.addEventListener('astro:page-load', initGrantsPortal);
 </script>

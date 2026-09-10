@@ -707,11 +707,6 @@
     }
 
     document.addEventListener('astro:page-load', initPrintView);
-    if (document.readyState !== 'loading') {
-      initPrintView();
-    } else {
-      document.addEventListener('DOMContentLoaded', initPrintView);
-    }
   </script>
 </body>
 </html>

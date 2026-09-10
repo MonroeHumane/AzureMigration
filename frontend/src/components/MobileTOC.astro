@@ -150,11 +150,6 @@ const { sections } = Astro.props;
   });
 
   document.addEventListener('astro:page-load', initMobileTOC);
-  if (document.readyState !== 'loading') {
-    initMobileTOC();
-  } else {
-    document.addEventListener('DOMContentLoaded', initMobileTOC);
-  }
 </script>
 
 <style>

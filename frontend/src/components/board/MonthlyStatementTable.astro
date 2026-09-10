@@ -646,7 +646,8 @@ const monthsMap: Record<string, any> = {};
     // Handle CSV export
     const exportBtn = document.getElementById('export-statement-csv-btn');
     const root = document.getElementById('monthly-statement-root');
-    if (exportBtn && root) {
+    if (exportBtn && root && exportBtn.dataset.bound !== '1') {
+      exportBtn.dataset.bound = '1';
       exportBtn.addEventListener('click', () => {
         try {
           const raw = root.getAttribute('data-statements');
@@ -713,9 +714,4 @@ const monthsMap: Record<string, any> = {};
   }
 
   document.addEventListener('astro:page-load', initMonthlyStatement);
-  if (document.readyState !== 'loading') {
-    initMonthlyStatement();
-  } else {
-    document.addEventListener('DOMContentLoaded', initMonthlyStatement);
-  }
 </script>

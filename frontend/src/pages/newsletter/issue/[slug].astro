@@ -109,12 +109,8 @@ const newsArticle = {
 
 <script>
   import { hydrateIssuePage } from '../../../scripts/newsletter-hydrate';
-  let started = false;
   function init() {
-    if (started) return;
-    started = true;
     hydrateIssuePage();
   }
   document.addEventListener('astro:page-load', init);
-  if (document.readyState !== 'loading') init();
 </script>

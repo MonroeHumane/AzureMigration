@@ -88,6 +88,8 @@
 </dialog>
 
 <script>
+  import { onAstroPageLoad } from '../lib/astro-page-init';
+
   function initUserSettings() {
     const btn = document.getElementById('nav-settings-btn') as HTMLButtonElement | null;
     const dialog = document.getElementById('nav-settings-dialog') as HTMLDialogElement | null;
@@ -96,35 +98,24 @@
 
     if (!btn || !dialog) return;
 
+    const ac = new AbortController();
+    const { signal } = ac;
+
     // Open the native modal
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Sync radio selection with current preference before opening
       const currentPref = localStorage.getItem('monroe-nav-pref') || 'bottom-bar';
       const activeRadio = dialog.querySelector<HTMLInputElement>(`input[value="${currentPref}"]`);
       if (activeRadio) activeRadio.checked = true;
-      dialog.showModal();
-    });
+      if (!dialog.open) dialog.showModal();
+    }, { signal });
 
-    closeBtn?.addEventListener('click', () => {
-      dialog.close();
-    });
+    closeBtn?.addEventListener('click', () => dialog.close(), { signal });
 
-    // Close on click outside modal content
     dialog.addEventListener('click', (e) => {
-      const rect = dialog.getBoundingClientRect();
-      const isInDialog = (
-        rect.top <= e.clientY &&
-        e.clientY <= rect.top + rect.height &&
-        rect.left <= e.clientX &&
-        e.clientX <= rect.left + rect.width
-      );
-      if (!isInDialog) {
-        dialog.close();
-      }
-    });
+      if (e.target === dialog) dialog.close();
+    }, { signal });
 
-    // Touch Physics: Swipe down to dismiss modal
     let touchStartY = 0;
     let touchStartX = 0;
 
@@ -133,7 +124,7 @@
         touchStartY = e.touches[0].clientY;
         touchStartX = e.touches[0].clientX;
       }
-    }, { passive: true });
+    }, { passive: true, signal });
 
     dialog.addEventListener('touchend', (e) => {
       if (e.changedTouches.length > 0) {
@@ -141,30 +132,24 @@
         const touchEndX = e.changedTouches[0].clientX;
         const deltaY = touchEndY - touchStartY;
         const deltaX = Math.abs(touchEndX - touchStartX);
-
-        // If swiped down by more than 50px and vertical movement dominates
-        if (deltaY > 50 && deltaY > deltaX) {
-          dialog.close();
-        }
+        if (deltaY > 50 && deltaY > deltaX) dialog.close();
       }
-    }, { passive: true });
+    }, { passive: true, signal });
 
-    // Handle radio change
     radios.forEach((radio) => {
       radio.addEventListener('change', (e) => {
-        const target = e.target as HTMLInputElement;
-        const val = target.value;
+        const val = (e.target as HTMLInputElement).value;
         document.documentElement.setAttribute('data-nav-style', val);
         try {
           localStorage.setItem('monroe-nav-pref', val);
         } catch (err) {}
-      });
+      }, { signal });
     });
+
+    return () => ac.abort();
   }
 
-  // Initialize on page load and View Transitions
-  initUserSettings();
-  document.addEventListener('astro:page-load', initUserSettings);
+  onAstroPageLoad(initUserSettings);
 </script>
 
 <style>

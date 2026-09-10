@@ -3,7 +3,7 @@
   "short_name": "HSMC Ops",
   "description": "Unified Operations & Governance Portal for the Humane Society of Monroe County",
   "id": "/internal/",
-  "start_url": "/internal/?source=pwa",
+  "start_url": "/internal/",
   "scope": "/internal/",
   "display": "standalone",
   "orientation": "portrait",
@@ -48,28 +48,28 @@
       "name": "Operations Hub",
       "short_name": "Hub",
       "description": "Staff operations overview and census",
-      "url": "/internal/?source=pwa",
+      "url": "/internal/",
       "icons": [{ "src": "/assets/staff/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Animal Census",
       "short_name": "Animals",
       "description": "Shelter census, kennel cards, PetPoint sync",
-      "url": "/internal/pets/?source=pwa",
+      "url": "/internal/pets/",
       "icons": [{ "src": "/assets/staff/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Board Financials",
       "short_name": "Finance",
       "description": "Checking, statements, and board packet",
-      "url": "/internal/board/?source=pwa",
+      "url": "/internal/board/",
       "icons": [{ "src": "/assets/staff/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Grants Pipeline",
       "short_name": "Grants",
       "description": "Open and awarded grants",
-      "url": "/internal/grants/?source=pwa",
+      "url": "/internal/grants/",
       "icons": [{ "src": "/assets/staff/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

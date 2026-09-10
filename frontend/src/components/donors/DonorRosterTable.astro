@@ -1042,16 +1042,14 @@ const { donors = [] } = Astro.props;
   window.setHSMCDonors = setDonors;
   window.initMCHSDonorTable = initDonorRosterTable;
 
-  window.addEventListener('donors-hydrated', (e) => {
-    if (e?.detail?.donors) {
-      setDonors(e.detail.donors);
-    }
-  });
+  if (!(window as any).__HSMC_DONORS_HYDRATED_BOUND__) {
+    window.__HSMC_DONORS_HYDRATED_BOUND__ = true;
+    window.addEventListener('donors-hydrated', (e) => {
+      if (e?.detail?.donors) {
+        setDonors(e.detail.donors);
+      }
+    });
+  }
 
   document.addEventListener('astro:page-load', initDonorRosterTable);
-  if (document.readyState !== 'loading') {
-    initDonorRosterTable();
-  } else {
-    document.addEventListener('DOMContentLoaded', initDonorRosterTable);
-  }
 </script>

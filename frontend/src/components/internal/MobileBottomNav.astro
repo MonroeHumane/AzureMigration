@@ -91,12 +91,16 @@ const { activeTab = 'overview' } = Astro.props;
     <button
       type="button"
       id="bottom-dock-more-btn"
+      data-open-more-sheet
       class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
         activeTab === 'content' || activeTab === 'donors' || activeTab === 'newsletter'
           ? 'text-white font-bold bg-teal-800/50 border border-teal-600/50 shadow-inner'
           : 'text-slate-400 hover:text-white hover:bg-white/5'
       }`}
       aria-label="Open portal utilities menu"
+      aria-haspopup="dialog"
+      aria-controls="mobile-more-sheet"
+      aria-expanded="false"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="1"></circle>
@@ -107,24 +111,3 @@ const { activeTab = 'overview' } = Astro.props;
     </button>
   </div>
 </nav>
-
-<script>
-  function setupBottomDock() {
-    const moreBtn = document.getElementById('bottom-dock-more-btn');
-    if (moreBtn && moreBtn.dataset.bound !== '1') {
-      moreBtn.dataset.bound = '1';
-      moreBtn.addEventListener('click', () => {
-        if (typeof (window as any).openMobileMoreSheet === 'function') {
-          (window as any).openMobileMoreSheet();
-        }
-      });
-    }
-  }
-
-  document.addEventListener('astro:page-load', setupBottomDock);
-  if (document.readyState !== 'loading') {
-    setupBottomDock();
-  } else {
-    document.addEventListener('DOMContentLoaded', setupBottomDock);
-  }
-</script>

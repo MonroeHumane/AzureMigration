@@ -214,7 +214,96 @@ def patch_purchase(base, headers, spec, targets):
     }
 
 
+def patch_bill(base, headers, spec, targets):
+    data = qbo_get(f"{base}bill/{spec['id']}", headers)
+    bill = data["Bill"]
+    lines = bill.get("Line") or []
+    changed = 0
+    skipped = 0
+    for line_spec in spec["lines"]:
+        dest = target_ref(targets, line_spec["target"])
+        want_id = str(line_spec["lineId"])
+        want_amt = round(float(line_spec["amount"]), 2)
+        line = None
+        for ln in lines:
+            if str(ln.get("Id") or "") == want_id and abs(line_amount(ln) - want_amt) < 0.02:
+                line = ln
+                break
+        if line is None:
+            for ln in lines:
+                desc = (ln.get("Description") or "").lower()
+                if abs(line_amount(ln) - want_amt) < 0.02 and "woof lodge" in desc:
+                    line = ln
+                    break
+        if line is None or not line.get("AccountBasedExpenseLineDetail"):
+            return {"ok": False, "note": spec["reason"], "id": spec["id"], "error": f"line {line_spec} not found"}
+        current = account_id(line, "AccountBasedExpenseLineDetail")
+        if current == dest["value"]:
+            skipped += 1
+            continue
+        line["AccountBasedExpenseLineDetail"]["AccountRef"] = dest
+        changed += 1
+    if changed == 0:
+        return {"ok": True, "skipped": True, "note": spec["reason"], "id": spec["id"], "changed": 0, "already": skipped}
+
+    cleaned = []
+    for line in lines:
+        detail = line.get("AccountBasedExpenseLineDetail")
+        if not detail:
+            continue
+        new_detail = {"AccountRef": detail.get("AccountRef")}
+        if detail.get("CustomerRef"):
+            new_detail["CustomerRef"] = detail["CustomerRef"]
+        if detail.get("ClassRef"):
+            new_detail["ClassRef"] = detail["ClassRef"]
+        if detail.get("TaxCodeRef"):
+            new_detail["TaxCodeRef"] = detail["TaxCodeRef"]
+        cleaned.append(
+            {
+                "Id": line.get("Id"),
+                "Amount": line.get("Amount"),
+                "DetailType": line.get("DetailType") or "AccountBasedExpenseLineDetail",
+                "Description": line.get("Description") or "",
+                "AccountBasedExpenseLineDetail": new_detail,
+            }
+        )
+    payload = {
+        "Id": bill["Id"],
+        "SyncToken": bill["SyncToken"],
+        "TxnDate": bill.get("TxnDate"),
+        "VendorRef": bill.get("VendorRef"),
+        "PrivateNote": bill.get("PrivateNote") or "",
+        "Line": cleaned,
+    }
+    if bill.get("CurrencyRef"):
+        payload["CurrencyRef"] = bill["CurrencyRef"]
+    if bill.get("APAccountRef"):
+        payload["APAccountRef"] = bill["APAccountRef"]
+    r = qbo_post(f"{base}bill?operation=update", headers, payload)
+    if r.status_code >= 400:
+        r = qbo_post(f"{base}bill", headers, payload)
+    if r.status_code >= 400:
+        return {"ok": False, "note": spec["reason"], "id": spec["id"], "error": f"{r.status_code} {r.text[:400]}"}
+    created = r.json().get("Bill") or {}
+    return {
+        "ok": True,
+        "note": spec["reason"],
+        "id": spec["id"],
+        "changed": changed,
+        "already": skipped,
+        "syncToken": created.get("SyncToken"),
+        "total": created.get("TotalAmt"),
+    }
+
+
 def main():
+    import sys
+
+    only = None
+    for arg in sys.argv[1:]:
+        if arg.startswith("--only="):
+            only = arg.split("=", 1)[1].strip()
+
     mapping = json.load(open(os.path.abspath(MAP_PATH), encoding="utf-8"))
     targets = mapping["targets"]
     headers, realm = auth_headers()
@@ -222,25 +311,38 @@ def main():
     print(f"Company realm ends with ...{str(realm)[-4:]}")
     results = []
 
-    for spec in mapping["deposits"]:
-        try:
-            res = patch_deposit(base, headers, spec, targets)
-        except Exception as e:
-            res = {"ok": False, "id": spec["id"], "note": spec["reason"], "error": str(e)[:400]}
-        results.append({"kind": "Deposit", **res})
-        status = "SKIP" if res.get("skipped") else ("OK" if res.get("ok") else "FAIL")
-        print(f"  {status} Deposit {spec['id']} {spec['date']} {spec['reason']}" + (f" :: {res.get('error')}" if not res.get("ok") else ""))
-        time.sleep(0.25)
+    if only in (None, "deposits"):
+        for spec in mapping.get("deposits") or []:
+            try:
+                res = patch_deposit(base, headers, spec, targets)
+            except Exception as e:
+                res = {"ok": False, "id": spec["id"], "note": spec["reason"], "error": str(e)[:400]}
+            results.append({"kind": "Deposit", **res})
+            status = "SKIP" if res.get("skipped") else ("OK" if res.get("ok") else "FAIL")
+            print(f"  {status} Deposit {spec['id']} {spec['date']} {spec['reason']}" + (f" :: {res.get('error')}" if not res.get("ok") else ""))
+            time.sleep(0.25)
 
-    for spec in mapping["purchases"]:
-        try:
-            res = patch_purchase(base, headers, spec, targets)
-        except Exception as e:
-            res = {"ok": False, "id": spec["id"], "note": spec["reason"], "error": str(e)[:400]}
-        results.append({"kind": "Purchase", **res})
-        status = "SKIP" if res.get("skipped") else ("OK" if res.get("ok") else "FAIL")
-        print(f"  {status} Purchase {spec['id']} {spec['date']} {spec['reason']}" + (f" :: {res.get('error')}" if not res.get("ok") else ""))
-        time.sleep(0.25)
+    if only in (None, "purchases"):
+        for spec in mapping.get("purchases") or []:
+            try:
+                res = patch_purchase(base, headers, spec, targets)
+            except Exception as e:
+                res = {"ok": False, "id": spec["id"], "note": spec["reason"], "error": str(e)[:400]}
+            results.append({"kind": "Purchase", **res})
+            status = "SKIP" if res.get("skipped") else ("OK" if res.get("ok") else "FAIL")
+            print(f"  {status} Purchase {spec['id']} {spec['date']} {spec['reason']}" + (f" :: {res.get('error')}" if not res.get("ok") else ""))
+            time.sleep(0.25)
+
+    if only in (None, "bills"):
+        for spec in mapping.get("bills") or []:
+            try:
+                res = patch_bill(base, headers, spec, targets)
+            except Exception as e:
+                res = {"ok": False, "id": spec["id"], "note": spec["reason"], "error": str(e)[:400]}
+            results.append({"kind": "Bill", **res})
+            status = "SKIP" if res.get("skipped") else ("OK" if res.get("ok") else "FAIL")
+            print(f"  {status} Bill {spec['id']} {spec['date']} {spec['reason']}" + (f" :: {res.get('error')}" if not res.get("ok") else ""))
+            time.sleep(0.25)
 
     ok = sum(1 for r in results if r.get("ok"))
     fail = sum(1 for r in results if not r.get("ok"))

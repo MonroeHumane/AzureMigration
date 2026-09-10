@@ -38,16 +38,14 @@ const extraJsonLd = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE.url);
 
-// The site ships two separate installable PWA identities: the internal staff
-// ops portal (manifest.webmanifest) and the public adopt experience
-// (manifest-adopt.webmanifest). Branch here so every page keeps calling
-// <BaseLayout> unchanged.
-const isAdoptRoute = Astro.url.pathname.startsWith('/adopt');
+// The site ships two installable PWA identities: the internal staff
+// ops portal (manifest.webmanifest, starts at /internal/) and the public
+// site (manifest-adopt.webmanifest, starts at the homepage).
 const isInternalRoute = Astro.url.pathname.startsWith('/internal');
 const manifestHref = isInternalRoute
   ? '/manifest.webmanifest'
   : '/manifest-adopt.webmanifest';
-const appleWebAppTitle = isInternalRoute ? 'HSMC Ops' : (isAdoptRoute ? 'MCHS Adopt' : SITE.shortName);
+const appleWebAppTitle = isInternalRoute ? 'HSMC Ops' : SITE.shortName;
 
 const schemaOrg = {
   '@context': 'https://schema.org',
@@ -271,7 +269,6 @@ const schemaOrg = {
     </script>
     <script>
       import { initErrorReporter } from '../lib/error-reporter';
-      initErrorReporter();
       document.addEventListener('astro:page-load', initErrorReporter);
     </script>
 

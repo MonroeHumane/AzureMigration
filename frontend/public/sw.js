@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'hsmc-shell-cache-v9';
+const SHELL_CACHE = 'hsmc-shell-cache-v10';
 const PET_DATA_CACHE = 'hsmc-pet-data-cache-v4';
 const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v4';
 const KNOWN_CACHES = [SHELL_CACHE, PET_DATA_CACHE, PET_PHOTO_CACHE];

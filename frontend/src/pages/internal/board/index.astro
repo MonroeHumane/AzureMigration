@@ -145,10 +145,5 @@ const subNavItems = [
     }
 
     document.addEventListener('astro:page-load', runInit);
-    if (document.readyState !== 'loading') {
-      runInit();
-    } else {
-      document.addEventListener('DOMContentLoaded', runInit);
-    }
   </script>
 </StaffPortalLayout>

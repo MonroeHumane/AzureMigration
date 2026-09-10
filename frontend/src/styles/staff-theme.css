@@ -665,7 +665,8 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   color: #64748b !important;
 }
 :root:not([data-staff-theme="dark"]) #mobile-bottom-nav-dock a.bg-teal-800\/50,
-:root:not([data-staff-theme="dark"]) #mobile-bottom-nav-dock button.bg-teal-800\/50 {
+:root:not([data-staff-theme="dark"]) #mobile-bottom-nav-dock button.bg-teal-800\/50,
+:root:not([data-staff-theme="dark"]) #mobile-bottom-nav-dock button.is-more-open {
   background-color: #f0fdfa !important;
   color: #0f766e !important;
   border-color: #ccfbf1 !important;
@@ -682,7 +683,8 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   color: #94a3b8 !important;
 }
 :root[data-staff-theme="dark"] #mobile-bottom-nav-dock a.bg-teal-800\/50,
-:root[data-staff-theme="dark"] #mobile-bottom-nav-dock button.bg-teal-800\/50 {
+:root[data-staff-theme="dark"] #mobile-bottom-nav-dock button.bg-teal-800\/50,
+:root[data-staff-theme="dark"] #mobile-bottom-nav-dock button.is-more-open {
   background-color: rgba(17, 94, 89, 0.5) !important;
   color: #ffffff !important;
   border-color: rgba(13, 148, 136, 0.5) !important;

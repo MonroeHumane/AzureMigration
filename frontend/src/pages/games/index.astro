@@ -718,6 +718,8 @@ const MASCOTS = [
   function initHumaneArcade() {
     const root = document.querySelector<HTMLElement>('[data-monroe-humane-games-root]');
     if (!root) return;
+    if (root.dataset.arcadeReady === '1') return;
+    root.dataset.arcadeReady = '1';
 
     const audio = new ArcadeSoundEngine();
 
@@ -929,13 +931,19 @@ const MASCOTS = [
       });
     });
 
-    document.addEventListener('click', (e) => {
-      if (mascotPopover && !mascotPopover.classList.contains('hidden')) {
-        if (!mascotPopover.contains(e.target as Node) && e.target !== mascotBtn) {
-          mascotPopover.classList.add('hidden');
+    if (!(window as any).__hsmcArcadeOutsideClick) {
+      (window as any).__hsmcArcadeOutsideClick = true;
+      document.addEventListener('click', (e) => {
+        const popover = document.getElementById('mascot-chooser-popover');
+        const picker = document.getElementById('btn-mascot-picker');
+        const target = e.target as Node;
+        if (popover && !popover.classList.contains('hidden')) {
+          if (!popover.contains(target) && target !== picker && !picker?.contains(target)) {
+            popover.classList.add('hidden');
+          }
         }
-      }
-    });
+      });
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Sound & CRT State Controls
@@ -1093,11 +1101,16 @@ const MASCOTS = [
 
     closeBtn?.addEventListener('click', closeCabinet);
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && cabinetModal && !cabinetModal.classList.contains('hidden')) {
-        closeCabinet();
-      }
-    });
+    if (!(window as any).__hsmcArcadeCabinetEsc) {
+      (window as any).__hsmcArcadeCabinetEsc = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const live = document.getElementById('game-cabinet-modal');
+        if (live && !live.classList.contains('hidden')) {
+          document.getElementById('cabinet-close-btn')?.click();
+        }
+      });
+    }
 
     fullscreenBtn?.addEventListener('click', () => {
       audio.playBlip();
@@ -1148,7 +1161,9 @@ const MASCOTS = [
     // ─────────────────────────────────────────────────────────────────────────
     // Cross-Frame Message Bridge (Pack Awards, Unlocks & Scores)
     // ─────────────────────────────────────────────────────────────────────────
-    window.addEventListener('message', (event) => {
+    const prevArcadeMessage = (window as any).__hsmcArcadeMessageHandler as ((event: MessageEvent) => void) | undefined;
+    if (prevArcadeMessage) window.removeEventListener('message', prevArcadeMessage);
+    const onArcadeMessage = (event: MessageEvent) => {
       const data = event.data;
       if (!data || typeof data !== 'object') return;
 
@@ -1229,13 +1244,10 @@ const MASCOTS = [
           setTimeout(() => awardToast.classList.add('hidden'), 4000);
         }
       }
-    });
+    };
+    (window as any).__hsmcArcadeMessageHandler = onArcadeMessage;
+    window.addEventListener('message', onArcadeMessage);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHumaneArcade);
-  } else {
-    initHumaneArcade();
-  }
   document.addEventListener('astro:page-load', initHumaneArcade);
 </script>

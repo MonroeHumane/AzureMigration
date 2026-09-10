@@ -454,10 +454,10 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
 
     <!-- Mobile Bottom Thumb-Navigation Dock -->
     <MobileBottomNav activeTab="overview" />
-
-    <!-- Mobile Slide-Up More Tools Sheet -->
-    <MobileMoreSheet />
   </div>
+
+  <!-- Keep the More sheet outside the auth-gated display:none wrapper -->
+  <MobileMoreSheet />
 </BaseLayout>
 
 <style>
@@ -1170,11 +1170,6 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initStaffPortal);
-  } else {
-    initStaffPortal();
-  }
   document.addEventListener('astro:page-load', initStaffPortal);
 </script>
 </BaseLayout>

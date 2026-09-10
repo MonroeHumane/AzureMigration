@@ -199,6 +199,13 @@ def main():
 
     set_month_why(data)
 
+    jul = month(data, "month_2026_6")
+    if item(jul.get("exp_items") or [], "Contract Labor") is None:
+        take(jul["exp_items"], "Building Repairs", 100.0)
+        add_or_bump(jul["exp_items"], "Contract Labor", "Personnel & Staffing", 100.0)
+        sort_items(jul["exp_items"])
+        print("Moved $100 Robert Monteer woof lodge labor onto Contract Labor in Jul 2026.")
+
     kpis = data["headline_kpis"]
     bridge = data["bridge_composition"]
     if abs(money(kpis["qbo_operating_net"] + bridge["net_bridge_total"]) - money(kpis["all_in_net"])) > 0.02:

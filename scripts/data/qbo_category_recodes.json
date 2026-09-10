@@ -1,5 +1,5 @@
 {
-  "note": "Line-level QBO account recodes from the all-year category review. Apply with scratch/apply_qbo_category_recodes.py. Compiler (scripts/qbo_category_rules.cjs) applies the same map by txn Id + amount so the GL explorer matches live books even when the Gemini GL export is stale. Does not delete the two Thrivent $375.14 lines on Deposit 5100.",
+  "note": "Line-level QBO account recodes from the all-year category review. Apply with scratch/apply_qbo_category_recodes.py. Compiler (scripts/qbo_category_rules.cjs) applies the same map by txn Id + amount so the GL explorer matches live books even when the Gemini GL export is stale. Does not delete the two Thrivent $375.14 lines on Deposit 5100. Bill 6455 line 13 ($100 woof lodge labor) moves from Building Repairs onto Personnel & Staffing:Contract Labor.",
   "keepBoth": [
     {
       "id": "5100",
@@ -49,7 +49,8 @@
     "kroger_rebates": { "id": "1150040043", "name": "Retail Partner Rebates" },
     "laundry": { "id": "1150040018", "name": "Shelter Operations & Facilities:Laundry & Sanitation Services" },
     "merchant_fees": { "id": "68", "name": "Office expenses:Merchant Account Fees" },
-    "software": { "id": "72", "name": "Office expenses:Software & Apps" }
+    "software": { "id": "72", "name": "Office expenses:Software & Apps" },
+    "contract_labor": { "id": "1150040049", "name": "Personnel & Staffing:Contract Labor" }
   },
   "deposits": [
     {
@@ -248,6 +249,21 @@
       "amount": 72.98,
       "payee": "Canva",
       "target": "software"
+    }
+  ],
+  "bills": [
+    {
+      "id": "6455",
+      "date": "2026-07-22",
+      "reason": "Robert Monteer woof lodge 6 hours @ $20 is contract labor, not building repairs",
+      "payee": "Robert Monteer",
+      "lines": [
+        {
+          "lineId": "13",
+          "amount": 100.0,
+          "target": "contract_labor"
+        }
+      ]
     }
   ]
 }

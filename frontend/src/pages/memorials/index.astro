@@ -394,6 +394,8 @@ const availableLetters = letterGroups.map((g) => g.letter);
     function initMemorialWall() {
       const root = document.querySelector('[data-tribute-root]');
       if (!root) return;
+      if (root.dataset.bound === '1') return;
+      root.dataset.bound = '1';
 
       // Ingest any staff portal local storage preview tributes
       try {
@@ -615,6 +617,5 @@ const availableLetters = letterGroups.map((g) => g.letter);
     }
 
     document.addEventListener('astro:page-load', initMemorialWall);
-    if (!document.startViewTransition) initMemorialWall();
   </script>
 </BaseLayout>

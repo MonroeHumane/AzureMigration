@@ -1077,7 +1077,8 @@ const sideNavSections = [
     hydrateHomeNewsletter();
     const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
     const fpwExpand = document.getElementById('fpwExpandBtn');
-    if (fpwDialog && fpwExpand) {
+    if (fpwDialog && fpwExpand && fpwExpand.dataset.bound !== '1') {
+      fpwExpand.dataset.bound = '1';
       fpwExpand.addEventListener('click', () => {
         const mount = fpwDialog.querySelector('#fpw-fs-longest');
         // Pull cards from the primary strip only — `#longestRow` also
@@ -1096,7 +1097,8 @@ const sideNavSections = [
 
     // Newsletter lightbox.
     const newsSection = document.querySelector<HTMLElement>('[data-hs-lightbox]');
-    if (newsSection) {
+    if (newsSection && newsSection.dataset.bound !== '1') {
+      newsSection.dataset.bound = '1';
       const lb = newsSection.querySelector<HTMLElement>('.hs-lightbox');
       const lbImg = lb?.querySelector<HTMLImageElement>('[data-hs-lb-img]');
       const thumbs = Array.from(newsSection.querySelectorAll<HTMLElement>('[data-hs-lb-src]'));
@@ -1120,17 +1122,32 @@ const sideNavSections = [
       lb?.querySelector('.hs-lb-close')?.addEventListener('click', () => lb.setAttribute('aria-hidden', 'true'));
       lb?.querySelector('.hs-lb-prev')?.addEventListener('click', () => show(current - 1));
       lb?.querySelector('.hs-lb-next')?.addEventListener('click', () => show(current + 1));
+    }
+
+    if (!(window as any).__hsmcHomeLightboxKeys) {
+      (window as any).__hsmcHomeLightboxKeys = true;
       document.addEventListener('keydown', (e) => {
-        if (lb?.getAttribute('aria-hidden') === 'true') return;
-        if (e.key === 'Escape') lb?.setAttribute('aria-hidden', 'true');
-        if (e.key === 'ArrowLeft') show(current - 1);
-        if (e.key === 'ArrowRight') show(current + 1);
+        const lb = document.querySelector<HTMLElement>('[data-hs-lightbox] .hs-lightbox');
+        if (!lb || lb.getAttribute('aria-hidden') === 'true') return;
+        const thumbs = Array.from(document.querySelectorAll<HTMLElement>('[data-hs-lightbox] [data-hs-lb-src]'));
+        const img = lb.querySelector<HTMLImageElement>('[data-hs-lb-img]');
+        const currentSrc = img?.getAttribute('src') || '';
+        let current = Math.max(0, thumbs.findIndex((t) => t.dataset.hsLbSrc === currentSrc));
+        if (e.key === 'Escape') lb.setAttribute('aria-hidden', 'true');
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          current = e.key === 'ArrowLeft'
+            ? (current - 1 + thumbs.length) % thumbs.length
+            : (current + 1) % thumbs.length;
+          const src = thumbs[current]?.dataset.hsLbSrc;
+          if (img && src) img.src = src;
+        }
       });
     }
 
     // Accomplishments tabs.
     const accWidget = document.querySelector<HTMLElement>('[data-monroe-accomplishments-widget]');
-    if (accWidget) {
+    if (accWidget && accWidget.dataset.bound !== '1') {
+      accWidget.dataset.bound = '1';
       // Check for staff portal live outcomes override
       try {
         const rawStored = localStorage.getItem('mchs_site_content_v2');
@@ -1202,7 +1219,11 @@ const sideNavSections = [
           requestAnimationFrame(step);
         });
       }, { threshold: 0.4 });
-      countEls.forEach((el) => countIO.observe(el));
+      countEls.forEach((el) => {
+        if (el.dataset.ioBound === '1') return;
+        el.dataset.ioBound = '1';
+        countIO.observe(el);
+      });
     }
 
     // Scroll-reveal for below-the-fold sections. Anything already visible on
@@ -1218,6 +1239,8 @@ const sideNavSections = [
         });
       }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
       document.querySelectorAll<HTMLElement>('.home-editable-section').forEach((section) => {
+        if (section.dataset.revealBound === '1') return;
+        section.dataset.revealBound = '1';
         const rect = section.getBoundingClientRect();
         if (rect.top < window.innerHeight * 0.85) return;
         section.classList.add('reveal-pending');
@@ -1310,7 +1333,8 @@ const sideNavSections = [
       const toggleBtn = hero.querySelector<HTMLButtonElement>('[data-hero-video-toggle]');
       const toggleLabel = hero.querySelector<HTMLElement>('[data-hero-video-toggle-label]');
 
-      if (video && toggleBtn) {
+      if (video && toggleBtn && toggleBtn.dataset.bound !== '1') {
+        toggleBtn.dataset.bound = '1';
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const prefersReducedData = window.matchMedia('(prefers-reduced-data: reduce)').matches;
         const saveData = !!(navigator as any).connection?.saveData;

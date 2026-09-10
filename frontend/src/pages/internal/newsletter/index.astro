@@ -999,10 +999,5 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
     loadNewslettersFromApi();
   }
 
-  if (document.readyState !== 'loading') {
-    initNewsletterEditor();
-  } else {
-    document.addEventListener('DOMContentLoaded', initNewsletterEditor);
-  }
   document.addEventListener('astro:page-load', initNewsletterEditor);
 </script>

@@ -537,24 +537,18 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       document.body.style.overflow = '';
     };
 
-    root.addEventListener('click', (e) => {
-      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pet-quickview-btn]');
-      if (!btn) return;
-      e.preventDefault();
-      e.stopPropagation();
-      const card = btn.closest<HTMLElement>('[data-pet-card]');
-      if (card) openDrawer(card);
-    });
-
-    // astro:page-load can fire more than once for a single client-side
-    // transition (observed when navigating to a pet detail page and back via
-    // the smart-back link), which would otherwise attach duplicate listeners
-    // to the same persisted root/drawer nodes and make toggleFavorite()
-    // cancel itself out on a single click. Guard with a one-time marker so
-    // repeat initAdoptGrid() calls for the same DOM nodes are no-ops here.
     if (!root.dataset.favoritesWired) {
       root.dataset.favoritesWired = 'true';
       root.addEventListener('click', (e) => {
+        const quickBtn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pet-quickview-btn]');
+        if (quickBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const card = quickBtn.closest<HTMLElement>('[data-pet-card]');
+          if (card) openDrawer(card);
+          return;
+        }
+
         const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pet-favorite-btn]');
         if (!btn) return;
         e.preventDefault();

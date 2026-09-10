@@ -43,6 +43,7 @@ const EXCLUDE_TOP = new Set([
 const ACCOUNT_NORMALIZATION = {
   'Salaries & Wages-1': { name: 'Caregiver Salaries & Wages', group: 'Personnel & Staffing' },
   'Salaries & Wages': { name: 'Caregiver Salaries & Wages', group: 'Personnel & Staffing' },
+  'Contract Labor': { name: 'Contract Labor', group: 'Personnel & Staffing' },
   'Payroll Taxes': { name: 'Payroll Taxes', group: 'Personnel & Staffing' },
   'Workplace Injury & Medical Care': { name: 'Workplace Injury Care', group: 'Personnel & Staffing' },
   'Staff & Volunteer Appreciation Meals': { name: 'Staff & Volunteer Meals', group: 'Personnel & Staffing' },

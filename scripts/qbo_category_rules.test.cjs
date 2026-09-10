@@ -33,7 +33,9 @@ test('recode map indexes county / kroger / thrivent / unv ids', () => {
   assert.ok(recodeIndex.get(`5497:${cents(901.99)}`));
   assert.ok(recodeIndex.get(`5100:${cents(375.14)}`));
   assert.ok(recodeIndex.get(`6742:${cents(482)}`));
+  assert.ok(recodeIndex.get(`6455:${cents(100)}`));
   assert.strictEqual(recodeIndex.get(`5319:${cents(12555.48)}`).target, 'government_grants');
+  assert.strictEqual(recodeIndex.get(`6455:${cents(100)}`).target, 'contract_labor');
 });
 
 test('county endowment GL row remaps by deposit id even with blank payee', () => {
@@ -96,6 +98,29 @@ test('Thrivent 5100 keeps named memo payee and maps both $375.14 lines', () => {
   assert.strictEqual(a.payee, 'BARBARA BOSSE');
   assert.strictEqual(b.meta.name, 'Foundation Grants');
   assert.strictEqual(mapping.keepBoth && mapping.keepBoth[0].id, '5100');
+});
+
+test('Robert Monteer woof lodge $100 remaps to Contract Labor by bill id', () => {
+  const repairs = { name: 'Building Repairs & Maintenance', group: 'Shelter Operations' };
+  const ACCOUNT_NORMALIZATION_LABOR = {
+    ...ACCOUNT_NORMALIZATION,
+    'Contract Labor': { name: 'Contract Labor', group: 'Personnel & Staffing' },
+  };
+  const out = applyCategoryRules({
+    meta: repairs,
+    isRev: false,
+    memo: 'woof lodge  6 hours   20.00 per hour with tools',
+    payee: 'Robert Monteer',
+    txnId: '6455',
+    amount: 100,
+    accountNormalization: ACCOUNT_NORMALIZATION_LABOR,
+    recodeIndex,
+  });
+  assert.strictEqual(out.meta.name, 'Contract Labor');
+  assert.strictEqual(out.meta.group, 'Personnel & Staffing');
+  assert.strictEqual(out.isRev, false);
+  assert.strictEqual(out.payee, 'Robert Monteer');
+  assert.strictEqual(out.recode, 'contract_labor');
 });
 
 test('memo fallback still catches THRIVENTGRANT / UNV / AUTHNET without id', () => {

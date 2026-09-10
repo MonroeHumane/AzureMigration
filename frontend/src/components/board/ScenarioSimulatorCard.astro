@@ -614,9 +614,4 @@ function initScenarioSimulator() {
 
 window.initScenarioSimulator = initScenarioSimulator;
 document.addEventListener('astro:page-load', initScenarioSimulator);
-if (document.readyState !== 'loading') {
-  initScenarioSimulator();
-} else {
-  document.addEventListener('DOMContentLoaded', initScenarioSimulator);
-}
 </script>

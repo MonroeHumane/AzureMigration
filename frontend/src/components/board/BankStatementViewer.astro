@@ -596,9 +596,4 @@
   }
 
   document.addEventListener('astro:page-load', initBankStatementViewer);
-  if (document.readyState !== 'loading') {
-    initBankStatementViewer();
-  } else {
-    document.addEventListener('DOMContentLoaded', initBankStatementViewer);
-  }
 </script>

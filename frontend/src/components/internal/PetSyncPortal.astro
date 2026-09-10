@@ -1391,10 +1391,5 @@ const getUrgencyBadge = (days: number | null) => {
     revalidateLivePetSync();
   }
 
-  if (document.readyState !== 'loading') {
-    initPetSyncPortal();
-  } else {
-    document.addEventListener('DOMContentLoaded', initPetSyncPortal);
-  }
   document.addEventListener('astro:page-load', initPetSyncPortal);
 </script>

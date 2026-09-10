@@ -806,37 +806,37 @@ const filterCategories = [
         }
       }
 
-      function setupCalendarControls() {
+      function setupCalendarControls(signal) {
         document.getElementById('cal-prev-month')?.addEventListener('click', () => {
           currentCalDate.setMonth(currentCalDate.getMonth() - 1);
           renderCalendar();
-        });
+        }, { signal });
 
         document.getElementById('cal-next-month')?.addEventListener('click', () => {
           currentCalDate.setMonth(currentCalDate.getMonth() + 1);
           renderCalendar();
-        });
+        }, { signal });
 
         document.getElementById('cal-today-btn')?.addEventListener('click', () => {
           currentCalDate = new Date();
           renderCalendar();
-        });
+        }, { signal });
 
         document.getElementById('btn-clear-date-filter')?.addEventListener('click', () => {
           selectedFilterDate = null;
           updateDateFilterBanner();
           renderCalendar();
           applyCardFilters();
-        });
+        }, { signal });
 
         document.getElementById('staff-reload-sync-btn')?.addEventListener('click', () => {
           syncStaffFlyers();
           renderCalendar();
           applyCardFilters();
-        });
+        }, { signal });
       }
 
-      function setupToolbarFilters() {
+      function setupToolbarFilters(signal) {
         const searchInput = document.getElementById('event-search-input');
         const pillButtons = document.querySelectorAll('[data-cat-filter]');
         const resetBtn = document.getElementById('btn-reset-filters');
@@ -857,13 +857,13 @@ const filterCategories = [
             btn.setAttribute('aria-selected', 'true');
 
             applyCardFilters();
-          });
+          }, { signal });
         });
 
         searchInput?.addEventListener('input', (e) => {
           searchQuery = e.target.value;
           applyCardFilters();
-        });
+        }, { signal });
 
         resetBtn?.addEventListener('click', () => {
           if (searchInput) searchInput.value = '';
@@ -874,10 +874,10 @@ const filterCategories = [
           const allPill = document.querySelector('[data-cat-filter="all"]');
           allPill?.click();
           renderCalendar();
-        });
+        }, { signal });
       }
 
-      function setupModal() {
+      function setupModal(signal) {
         const modal = document.getElementById('calendar-sync-modal');
         const openBtn = document.getElementById('btn-open-sync-modal');
         const closeBtn = document.getElementById('btn-close-sync-modal');
@@ -890,16 +890,16 @@ const filterCategories = [
           feedInput.value = `${window.location.origin}/events.ics`;
         }
 
-        openBtn?.addEventListener('click', () => modal.showModal());
-        closeBtn?.addEventListener('click', () => modal.close());
-        dismissBtn?.addEventListener('click', () => modal.close());
+        openBtn?.addEventListener('click', () => modal.showModal(), { signal });
+        closeBtn?.addEventListener('click', () => modal.close(), { signal });
+        dismissBtn?.addEventListener('click', () => modal.close(), { signal });
 
         modal.addEventListener('click', (e) => {
           const rect = modal.getBoundingClientRect();
           const inDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
             rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
           if (!inDialog) modal.close();
-        });
+        }, { signal });
 
         copyBtn?.addEventListener('click', async () => {
           if (!feedInput) return;
@@ -915,18 +915,24 @@ const filterCategories = [
           } catch {
             feedInput.select();
           }
-        });
+        }, { signal });
       }
 
       function init() {
+        const eventsRoot = document.getElementById('EventsList');
+        if (!eventsRoot) return;
+
+        window.__hsmcEventsAc?.abort();
+        window.__hsmcEventsAc = new AbortController();
+        const { signal } = window.__hsmcEventsAc;
+
         checkStaffAuth();
-        setupCalendarControls();
-        setupToolbarFilters();
-        setupModal();
+        setupCalendarControls(signal);
+        setupToolbarFilters(signal);
+        setupModal(signal);
         renderCalendar();
       }
 
-      init();
       document.addEventListener('astro:page-load', init);
     })();
   </script>

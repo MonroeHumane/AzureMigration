@@ -12,6 +12,7 @@ const TARGET_TO_ACCOUNT = {
   laundry: 'Laundry & Sanitation Services',
   merchant_fees: 'Merchant Account Fees',
   software: 'Software & Apps',
+  contract_labor: 'Contract Labor',
 };
 
 const REVENUE_TARGETS = new Set(['government_grants', 'foundation_grants', 'kroger_rebates']);
@@ -50,6 +51,18 @@ function indexRecodeMap(mapping) {
       txnId: String(pur.id),
       amount: pur.amount,
     });
+  }
+  for (const bill of mapping.bills || []) {
+    for (const line of bill.lines || []) {
+      const key = `${bill.id}:${cents(line.amount)}`;
+      byTxnAmount.set(key, {
+        target: line.target,
+        payee: bill.payee || line.payee || '',
+        reason: bill.reason,
+        txnId: String(bill.id),
+        amount: line.amount,
+      });
+    }
   }
   return byTxnAmount;
 }

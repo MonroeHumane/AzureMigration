@@ -75,6 +75,7 @@ const commands = [
 
 <script>
   import { logoutStaff } from '../../lib/staff-auth';
+  import { onAstroPageLoad } from '../../lib/astro-page-init';
 
   function initCommandPalette() {
     const dialog = document.getElementById('cmd-k-dialog') as HTMLDialogElement | null;
@@ -83,8 +84,10 @@ const commands = [
     const emptyMsg = document.getElementById('cmd-k-empty');
     const closeBtn = document.getElementById('cmd-k-close-btn');
 
-    if (!dialog || !input || dialog.dataset.bound === '1') return;
-    dialog.dataset.bound = '1';
+    if (!dialog || !input) return;
+
+    const ac = new AbortController();
+    const { signal } = ac;
 
     let selectedIndex = 0;
     let visibleItems = items;
@@ -152,14 +155,14 @@ const commands = [
     // Keyboard shortcut (Cmd+K or Ctrl+K)
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault(); // Prevent browser search box
+        e.preventDefault();
         if (dialog.open) closePalette();
         else openPalette();
       }
-    });
+    }, { signal });
 
     // Handle inputs inside dialog
-    input.addEventListener('input', filterItems);
+    input.addEventListener('input', filterItems, { signal });
 
     input.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown') {
@@ -176,9 +179,8 @@ const commands = [
           visibleItems[selectedIndex].click();
         }
       }
-    });
+    }, { signal });
 
-    // Mouse interactions
     items.forEach((item) => {
       item.addEventListener('mouseenter', () => {
         const newIndex = visibleItems.indexOf(item);
@@ -186,8 +188,8 @@ const commands = [
           selectedIndex = newIndex;
           updateSelection();
         }
-      });
-      
+      }, { signal });
+
       item.addEventListener('click', async (e) => {
         const action = item.getAttribute('data-action');
         if (action === 'logout') {
@@ -196,38 +198,21 @@ const commands = [
           await logoutStaff();
           return;
         }
-        
-        // Let natural links work, but close palette
         if (!item.getAttribute('target')) {
-           // Normal internal navigation
-           setTimeout(closePalette, 100);
+          setTimeout(closePalette, 100);
         } else {
-          // External tab - keep state or close
           closePalette();
         }
-      });
+      }, { signal });
     });
 
-    // Close buttons and click outside
-    closeBtn?.addEventListener('click', closePalette);
+    closeBtn?.addEventListener('click', closePalette, { signal });
     dialog.addEventListener('click', (e) => {
-      const rect = dialog.getBoundingClientRect();
-      const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
-        rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
-      if (!isInDialog) {
-        closePalette();
-      }
-    });
-    
-    // Listen for custom trigger from sidebar
-    // Already handled globally by the Cmd+K keyboard listener above, since sidebar dispatches keydown event.
+      if (e.target === dialog) closePalette();
+    }, { signal });
+
+    return () => ac.abort();
   }
 
-  // Astro page-load hydration
-  document.addEventListener('astro:page-load', initCommandPalette);
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCommandPalette);
-  } else {
-    initCommandPalette();
-  }
+  onAstroPageLoad(initCommandPalette);
 </script>

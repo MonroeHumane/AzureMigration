@@ -189,6 +189,8 @@ const isCurrent = (item: NavItem) => {
     const header = document.querySelector<HTMLElement>('[data-monroe-global-nav]');
     if (!header) return;
 
+    const ac = new AbortController();
+    const { signal } = ac;
     const root = document.documentElement;
     const toggle = header.querySelector<HTMLButtonElement>('.monroe-global-nav__menu-toggle');
     const backdrop = document.querySelector<HTMLButtonElement>('.monroe-global-nav__backdrop');
@@ -252,9 +254,9 @@ const isCurrent = (item: NavItem) => {
       } else {
         closeDrawer();
       }
-    });
+    }, { signal });
 
-    backdrop?.addEventListener('click', closeDrawer);
+    backdrop?.addEventListener('click', closeDrawer, { signal });
 
     // Touch Physics: Swipe UP on drawer panel to dismiss
     if (panel) {
@@ -266,7 +268,7 @@ const isCurrent = (item: NavItem) => {
           drawerTouchStartY = e.touches[0].clientY;
           drawerTouchStartX = e.touches[0].clientX;
         }
-      }, { passive: true });
+      }, { passive: true, signal });
 
       panel.addEventListener('touchend', (e) => {
         if (e.changedTouches.length > 0) {
@@ -280,7 +282,7 @@ const isCurrent = (item: NavItem) => {
             closeDrawer();
           }
         }
-      }, { passive: true });
+      }, { passive: true, signal });
     }
 
     // Close on Escape or click outside
@@ -292,13 +294,13 @@ const isCurrent = (item: NavItem) => {
           toggle?.focus();
         }
       }
-    });
+    }, { signal });
 
     document.addEventListener('click', (e) => {
       if (!header.contains(e.target as Node)) {
         closeAllDropdowns();
       }
-    });
+    }, { signal });
 
     // Dropdown items: clean hover and click handlers
     header.querySelectorAll<HTMLElement>('.monroe-global-nav__item.has-children').forEach((item) => {
@@ -310,7 +312,7 @@ const isCurrent = (item: NavItem) => {
           item.classList.remove('is-open');
           trigger?.setAttribute('aria-expanded', 'false');
         }
-      });
+      }, { signal });
 
       // Mouseenter on another item closes adjacent open ones
       item.addEventListener('mouseenter', () => {
@@ -322,7 +324,7 @@ const isCurrent = (item: NavItem) => {
             }
           });
         }
-      });
+      }, { signal });
 
       trigger?.addEventListener('click', () => {
         const wasOpen = item.classList.contains('is-open');
@@ -336,7 +338,7 @@ const isCurrent = (item: NavItem) => {
         item.classList.toggle('is-open', !wasOpen);
         trigger.setAttribute('aria-expanded', String(!wasOpen));
         syncInert();
-      });
+      }, { signal });
     });
 
     // Leaving drawer territory closes it.
@@ -345,7 +347,7 @@ const isCurrent = (item: NavItem) => {
       measure();
       syncInert();
       root.classList.remove('monroe-nav-hidden');
-    });
+    }, { signal });
 
     // Scroll-Aware Screen Maximizing: Hide on scroll down, Reveal on scroll up
     let lastScrollY = window.scrollY;
@@ -394,10 +396,10 @@ const isCurrent = (item: NavItem) => {
     const onScrollClose = () => closeDropdownsOnScroll();
     const onScrollAware = () => handleScrollAwareNav();
 
-    window.addEventListener('resize', onResize, { passive: true });
-    window.addEventListener('scroll', onScrollCondensed, { passive: true });
-    window.addEventListener('scroll', onScrollClose, { passive: true });
-    window.addEventListener('scroll', onScrollAware, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true, signal });
+    window.addEventListener('scroll', onScrollCondensed, { passive: true, signal });
+    window.addEventListener('scroll', onScrollClose, { passive: true, signal });
+    window.addEventListener('scroll', onScrollAware, { passive: true, signal });
 
     let ro: ResizeObserver | null = null;
     if ('ResizeObserver' in window) {
@@ -406,10 +408,7 @@ const isCurrent = (item: NavItem) => {
     }
 
     cleanupHeaderListeners = () => {
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('scroll', onScrollCondensed);
-      window.removeEventListener('scroll', onScrollClose);
-      window.removeEventListener('scroll', onScrollAware);
+      ac.abort();
       if (ro) {
         ro.disconnect();
         ro = null;
@@ -425,7 +424,6 @@ const isCurrent = (item: NavItem) => {
     }
   });
 
-  initHeader();
   document.addEventListener('astro:page-load', initHeader);
 </script>
 

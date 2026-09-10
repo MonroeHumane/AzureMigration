@@ -263,11 +263,20 @@
       if (e.target === modal) closeModal();
     });
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
-        closeModal();
-      }
-    });
+    if (!(window as any).__hsmcArcadeLbEsc) {
+      (window as any).__hsmcArcadeLbEsc = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const live = document.getElementById('arcade-leaderboard-modal');
+        if (live && !live.classList.contains('hidden')) {
+          live.classList.add('opacity-0');
+          setTimeout(() => {
+            live.classList.add('hidden');
+            document.body.style.overflow = '';
+          }, 200);
+        }
+      });
+    }
 
     gameTabs.forEach((tab) => {
       tab.addEventListener('click', () => {
@@ -291,8 +300,15 @@
       });
     });
 
-    // Global trigger
-    window.addEventListener('arcade:open_leaderboard', (e: any) => {
+    if (!(window as any).__hsmcArcadeLbOpen) {
+      (window as any).__hsmcArcadeLbOpen = true;
+      window.addEventListener('arcade:open_leaderboard', (e: any) => {
+        document.getElementById('arcade-leaderboard-modal')?.dispatchEvent(
+          new CustomEvent('hsmc:open-leaderboard', { detail: e.detail })
+        );
+      });
+    }
+    modal.addEventListener('hsmc:open-leaderboard', (e: any) => {
       if (e.detail?.gameId) activeGame = e.detail.gameId;
       openModal();
     });
@@ -306,10 +322,5 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLeaderboard);
-  } else {
-    initLeaderboard();
-  }
   document.addEventListener('astro:page-load', initLeaderboard);
 </script>

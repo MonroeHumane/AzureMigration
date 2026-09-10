@@ -127,10 +127,5 @@ const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initContactForm);
-  } else {
-    initContactForm();
-  }
   document.addEventListener('astro:page-load', initContactForm);
 </script>

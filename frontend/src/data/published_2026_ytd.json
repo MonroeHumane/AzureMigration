@@ -6,11 +6,11 @@
     "has_partial_cutoff": false,
     "published_by": "Jeffery Howard, Director's Assistant",
     "published_at": "2026-09-04T21:15:00Z",
-    "sha256_checksum": "338bec511c6a71ab0a7d9cfa9af8bad0bafdfa19ac56fa29ca2424b449bfd390",
+    "sha256_checksum": "06d00a99f7414aa834fc212c1e09e6ee4278c125d888349b391e74bb94016b98",
     "basis": "Accrual",
     "governance_level": "Board-Confidential",
     "organization_name": "Humane Society of Monroe County",
-    "extended_payload_sha256": "648b6683022997c206a009a1e3a441ce85abf5c01fcb90b74478cfe5b9fa7a21",
+    "extended_payload_sha256": "cb6bf2fc47d6ad0332b77fc2c002e345c34dee6032d10bc1117ed8cfa3cdf038",
     "restated_at": "2026-09-09T20:00:00Z",
     "restatement_note": "2026-09-09 restatement to live QBO recodes: county off endowment, Kroger off Corporate, Thrivent Choice onto Foundation Grants. Deposit 5100 keeps both $375.14 Thrivent lines."
   },
@@ -1170,7 +1170,7 @@
         {
           "name": "Building Repairs",
           "group": "Repairs and Maintenance",
-          "amount": 1421.92
+          "amount": 1321.92
         },
         {
           "name": "Medications & Vaccines",
@@ -1226,6 +1226,11 @@
           "name": "General Shelter Supplies",
           "group": "Shelter Operations & Facilities",
           "amount": 106.91
+        },
+        {
+          "name": "Contract Labor",
+          "group": "Personnel & Staffing",
+          "amount": 100.0
         },
         {
           "name": "General Administrative & Office",
