@@ -1,0 +1,144 @@
+---
+/**
+ * Native Astro homepage newsletter band (Phase 3 first surface).
+ * Visual parity with the former `.home-nl` / monroe-news-band WP mirror.
+ * Client hydrate still targets [data-newsletter-home] + data-nl-* hooks.
+ */
+import type { NewsletterIssue } from '../../lib/directus';
+import home from '../../data/homepage.json';
+
+interface Props {
+  issue: NewsletterIssue | null;
+}
+
+const { issue } = Astro.props;
+const fallback = home.newsletter;
+
+const formatDate = (value: string | undefined, fallbackDate = '') => {
+  if (!value) return fallbackDate;
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T12:00:00`) : new Date(value);
+  return Number.isNaN(d.getTime())
+    ? fallbackDate
+    : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+};
+
+const label = issue?.title || fallback.label;
+const masthead = issue?.newsletter_title || fallback.title;
+const intro = fallback.intro;
+const heroSrc = issue?.hero_image || fallback.hero_image;
+const heroAlt = issue?.title || 'Latest newsletter';
+const kicker = issue?.top_line || fallback.eyebrow;
+const dateText = issue ? formatDate(issue.issue_date, '') : '';
+const title = issue?.title || fallback.title;
+const byline = issue?.byline || fallback.byline;
+const excerpt = issue?.excerpt || 'No published newsletter yet.';
+const readHref = issue?.slug ? `/newsletter/issue/${issue.slug}` : '/newsletter';
+const readLabel = issue ? 'Read the letter' : 'View archive';
+const pdfUrl = issue?.pdf_url || '';
+---
+
+<section
+  class="w-full min-w-0"
+  aria-label="Newsletter"
+>
+  <div
+    id="Newsletter"
+    class="flex flex-col items-stretch overflow-visible rounded-[28px] px-[clamp(1.25rem,3vw,2.25rem)] py-[clamp(1.25rem,3vw,2.25rem)] text-white bg-[linear-gradient(135deg,#1f4c49,#2f736c)]"
+  >
+    <p
+      id="newsletter-section-label"
+      data-nl-label
+      class="m-0 mb-3 font-['Jost','Segoe_UI',sans-serif] text-[0.8rem] font-bold uppercase leading-tight tracking-[0.16em] text-[#ffd27b]"
+    >
+      {label}
+    </p>
+    <h2
+      data-nl-masthead
+      class="m-0 font-serif text-[clamp(2rem,4vw,3.6rem)] font-normal leading-none text-white"
+    >
+      {masthead}
+    </h2>
+    <p
+      class="mt-0 mb-1 max-w-xl font-['Questrial','Segoe_UI',sans-serif] text-[1.05rem] font-normal leading-[1.7] text-white/90"
+    >
+      {intro}
+    </p>
+
+    <article
+      class="mt-6 grid grid-cols-1 overflow-hidden rounded-[22px] border border-white/15 bg-[#fffdf8] text-[#153635] shadow-[0_22px_48px_rgba(8,28,27,0.28)] min-[801px]:grid-cols-[minmax(0,1.08fr)_minmax(18rem,1fr)]"
+      data-newsletter-home
+      aria-labelledby="hs-news-featured-title"
+    >
+      <div class="min-h-0 bg-[#d7e4df] aspect-video min-[801px]:aspect-auto min-[801px]:min-h-full">
+        <img
+          data-nl-hero
+          src={heroSrc}
+          alt={heroAlt}
+          width="1168"
+          height="514"
+          decoding="async"
+          loading="lazy"
+          class="block h-full w-full object-cover object-[center_28%]"
+        />
+      </div>
+      <div class="flex min-w-0 flex-col p-[clamp(1.2rem,3vw,2.15rem)]">
+        <p
+          data-nl-topline
+          class="m-0 mb-[0.3rem] font-['Jost','Segoe_UI',sans-serif] text-[0.72rem] font-bold uppercase leading-tight tracking-[0.16em] text-teal-700"
+        >
+          {kicker}
+        </p>
+        <p
+          data-nl-date
+          class="m-0 mb-[0.7rem] font-['Jost','Segoe_UI',sans-serif] text-[0.92rem] font-medium leading-snug text-[#5b6f6e] empty:hidden"
+        >{dateText}</p>
+        <h3
+          id="hs-news-featured-title"
+          data-nl-title
+          class="m-0 mb-[0.35rem] font-serif text-[clamp(1.75rem,3.2vw,2.55rem)] font-normal leading-[1.05] tracking-[0.01em] text-[#153635]"
+        >
+          {title}
+        </h3>
+        <p
+          data-nl-byline
+          class="m-0 mb-4 font-['Questrial','Segoe_UI',sans-serif] text-base font-medium italic leading-snug text-[#405757]"
+        >
+          {byline}
+        </p>
+        <p
+          data-nl-excerpt
+          class="m-0 mb-[1.35rem] font-['Questrial','Segoe_UI',sans-serif] text-[1.05rem] font-normal leading-[1.75] text-[#3d4f4e]"
+        >
+          {excerpt}
+        </p>
+        <div class="mt-auto flex flex-wrap gap-[0.55rem]">
+          <a
+            data-nl-link
+            href={readHref}
+            class="inline-flex min-h-[2.6rem] items-center justify-center rounded-full border-[1.5px] border-[#1f4c49] bg-[#1f4c49] px-[1.1rem] py-[0.55rem] font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.04em] text-white no-underline transition-colors hover:border-[#163a38] hover:bg-[#163a38] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf]"
+          >
+            {readLabel}
+          </a>
+          <a
+            data-nl-pdf
+            class:list={[
+              "inline-flex min-h-[2.6rem] items-center justify-center rounded-full border-[1.5px] border-[rgba(31,76,73,0.28)] bg-white px-[1.1rem] py-[0.55rem] font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.04em] text-[#1f4c49] no-underline transition-colors hover:border-[#1f4c49] hover:bg-[#f3faf7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf]",
+              !pdfUrl && 'home-nl__btn--off hidden',
+            ]}
+            href={pdfUrl || '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Download PDF
+          </a>
+          <a
+            href="/newsletter"
+            class="inline-flex min-h-[2.6rem] items-center justify-center rounded-full border-[1.5px] border-[rgba(31,76,73,0.28)] bg-white px-[1.1rem] py-[0.55rem] font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.04em] text-[#1f4c49] no-underline transition-colors hover:border-[#1f4c49] hover:bg-[#f3faf7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf]"
+          >
+            All issues
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

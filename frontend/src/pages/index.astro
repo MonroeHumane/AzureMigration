@@ -6,6 +6,7 @@ import home from '../data/homepage.json';
 import sponsors from '../data/sponsors.json';
 import reviewsData from '../data/reviews.json';
 import MobileTOC from '../components/MobileTOC.astro';
+import HomeNewsletterSection from '../components/home/HomeNewsletterSection.astro';
 
 import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
@@ -53,16 +54,6 @@ if (home.accomplishments.years['2025']) {
 const accomplishmentYears = Object.keys(home.accomplishments.years).sort((a, b) => Number(b) - Number(a));
 const defaultAccomplishmentYear = accomplishmentYears[0];
 
-const formatDate = (value: string | undefined, fallback: string) => {
-  if (!value) return fallback;
-  // Parsing a bare "YYYY-MM-DD" string gives UTC midnight, which a
-  // behind-UTC timezone then displays as the previous day — parse at
-  // noon instead so the calendar date can't shift across the boundary.
-  const d = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T12:00:00`) : new Date(value);
-  return Number.isNaN(d.getTime())
-    ? fallback
-    : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-};
 
 const petChips = (p: (typeof pets)[number]) => [
   p.species_label || p.type || 'Pet',
@@ -841,50 +832,8 @@ const sideNavSections = [
       </div>
     </div>
 
-    <!-- 14. Newsletter: featured published issue -->
-    <div class="wp-block-group alignwide home-editable-section home-editable-newsletter-section is-layout-constrained">
-      <div class="wp-block-group home-editable-news-card home-editable-runtime-card is-style-monroe-news-band is-layout-constrained" id="Newsletter">
-        <p class="home-editable-section-label wp-block-paragraph" id="newsletter-section-label" data-nl-label>{latestNewsletter?.title || home.newsletter.label}</p>
-        <h2 class="wp-block-heading" data-nl-masthead>{latestNewsletter?.newsletter_title || home.newsletter.title}</h2>
-        <p class="wp-block-paragraph home-nl-band-intro">{home.newsletter.intro}</p>
-
-        <article class="home-nl" data-newsletter-home aria-labelledby="hs-news-featured-title">
-          <div class="home-nl__photo">
-            <img
-              data-nl-hero
-              src={latestNewsletter?.hero_image || home.newsletter.hero_image}
-              alt={latestNewsletter?.title || 'Latest newsletter'}
-              width="1168"
-              height="514"
-              decoding="async"
-              loading="lazy"
-            />
-          </div>
-          <div class="home-nl__letter">
-            <p class="home-nl__kicker" data-nl-topline>{latestNewsletter?.top_line || home.newsletter.eyebrow}</p>
-            <p class="home-nl__date" data-nl-date>{latestNewsletter ? formatDate(latestNewsletter.issue_date, '') : ''}</p>
-            <h3 id="hs-news-featured-title" class="home-nl__title" data-nl-title>{latestNewsletter?.title || home.newsletter.title}</h3>
-            <p class="home-nl__byline" data-nl-byline>{latestNewsletter?.byline || home.newsletter.byline}</p>
-            <p class="home-nl__excerpt" data-nl-excerpt>{latestNewsletter?.excerpt || 'No published newsletter yet.'}</p>
-            <div class="home-nl__actions">
-              <a
-                data-nl-link
-                class="home-nl__btn home-nl__btn--primary"
-                href={latestNewsletter?.slug ? `/newsletter/issue/${latestNewsletter.slug}` : '/newsletter'}
-              >{latestNewsletter ? 'Read the letter' : 'View archive'}</a>
-              <a
-                data-nl-pdf
-                class:list={['home-nl__btn', 'home-nl__btn--ghost', !latestNewsletter?.pdf_url && 'home-nl__btn--off']}
-                href={latestNewsletter?.pdf_url || '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-              >Download PDF</a>
-              <a class="home-nl__btn home-nl__btn--ghost" href="/newsletter">All issues</a>
-            </div>
-          </div>
-        </article>
-      </div>
-    </div>
+    <!-- 14. Newsletter: native Astro component (Phase 3) -->
+    <HomeNewsletterSection issue={latestNewsletter} />
 
     <!-- 15. FAQ -->
     <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
