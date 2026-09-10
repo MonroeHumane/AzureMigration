@@ -600,8 +600,8 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
 </style>
 
 <script>
-  import { staffClient, DIRECTUS_URL, isStaffAuthenticated, ensureDirectusSession, getStaffToken } from '../../lib/staff-auth';
-  import { readItems, createItem, updateItem, deleteItem } from '@directus/sdk';
+  import { staffClient, DIRECTUS_URL, isStaffAuthenticated, getStaffToken } from '../../lib/staff-auth';
+  import { createItem, updateItem, deleteItem } from '@directus/sdk';
 
   // Standardized representations of the user's raw grant records
   interface StandardizedGrantProfile {
@@ -825,6 +825,7 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
     if (!token) throw new Error('No staff session');
     return fetch(path, {
       ...options,
+      signal: options.signal || AbortSignal.timeout(12000),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -1272,36 +1273,27 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
     }
 
     async function fetchGrantsFromDirectus(): Promise<any[]> {
+      let res: Response;
       try {
-        const res = await staffApi('/api/grants');
-        if (res.ok) {
-          const payload = await res.json();
-          if (Array.isArray(payload?.data)) return payload.data;
+        res = await staffApi('/api/grants');
+      } catch (err: any) {
+        const name = String(err?.name || '');
+        if (name === 'TimeoutError' || name === 'AbortError') {
+          throw new Error('GRANTS_TIMEOUT');
         }
-      } catch (err) {
-        console.warn('[Grants] /api/grants unavailable, trying Directus SDK', err);
+        throw err instanceof Error ? err : new Error('Could not load grants');
       }
-
-      const cmsReady = await ensureDirectusSession();
-      if (!cmsReady) {
+      if (res.status === 401 || res.status === 403) {
         throw new Error('CMS_SESSION_MISSING');
       }
-
-      const attempts: Array<Record<string, unknown>> = [
-        { limit: -1, sort: ['-date_created'] },
-        { limit: -1, sort: ['-date_updated'] },
-        { limit: -1 },
-      ];
-      let lastError: unknown = null;
-      for (const query of attempts) {
-        try {
-          const grants = await staffClient.request(readItems('grants', query));
-          return Array.isArray(grants) ? grants : [];
-        } catch (err) {
-          lastError = err;
-        }
+      if (!res.ok) {
+        throw new Error(`Could not load grants (${res.status})`);
       }
-      throw lastError || new Error('Could not load grants');
+      const payload = await res.json();
+      if (!Array.isArray(payload?.data)) {
+        throw new Error('Could not load grants');
+      }
+      return payload.data;
     }
 
     async function loadGrants() {
@@ -1527,15 +1519,23 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
         applyFilterAndSearch();
       } catch (error: any) {
         console.error('Error loading grants:', error);
-        const sessionMissing = String(error?.message || '') === 'CMS_SESSION_MISSING';
-        setGrantSyncState('error', sessionMissing ? 'Sign in again to load the pipeline' : 'Could not reach grant records');
+        const message = String(error?.message || '');
+        const sessionMissing = message === 'CMS_SESSION_MISSING';
+        const timedOut = message === 'GRANTS_TIMEOUT';
+        setGrantSyncState('error', sessionMissing ? 'Sign in again to load the pipeline' : timedOut ? 'Request timed out' : 'Could not reach grant records');
 
         if (!grantsContainer) return;
+        const heading = sessionMissing ? 'Staff session needs a refresh' : timedOut ? 'Grants pipeline timed out' : 'Could not load grants pipeline';
+        const detail = sessionMissing
+          ? 'Your portal login is still open, but the grants service could not authorize this request. Sign in once more, then return here.'
+          : timedOut
+            ? 'The staff API did not respond in time. Retry in a moment, or open CMS Admin if records still do not appear.'
+            : 'The grants tracker talks to Directus through the staff API. Retry in a moment, or open CMS Admin if records still do not appear.';
         grantsContainer.innerHTML = `
           <div class="empty-state py-14 px-6 text-center text-slate-500 dark:text-slate-400">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto mb-3 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <h3 class="text-base font-bold text-slate-800 dark:text-white mb-1">${sessionMissing ? 'Staff session needs a refresh' : 'Could not load grants pipeline'}</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">${sessionMissing ? 'Your portal login is still open, but the grants service could not authorize this request. Sign in once more, then return here.' : 'The grants tracker talks to Directus through the staff API. Retry in a moment, or open CMS Admin if records still do not appear.'}</p>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white mb-1">${heading}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">${detail}</p>
             <div class="mt-4 flex items-center justify-center gap-2">
               <button type="button" id="retry-grants-btn" class="btn-success text-xs font-semibold px-3.5 py-2 rounded-lg">Retry</button>
               ${sessionMissing ? `<a href="/internal/?reauth=1&redirect=${encodeURIComponent('/internal/grants/')}" class="btn-outline text-xs font-semibold px-3.5 py-2 rounded-lg inline-flex">Sign in again</a>` : `<a href="${DIRECTUS_URL}/admin/content/grants" target="_blank" rel="noopener noreferrer" class="btn-outline text-xs font-semibold px-3.5 py-2 rounded-lg inline-flex">Open Directus ↗</a>`}

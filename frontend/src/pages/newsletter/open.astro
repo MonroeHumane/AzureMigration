@@ -4,12 +4,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <BaseLayout title="Newsletter | 734-243-3669" description="Monroe Humane Society Newsletter issue.">
   <div class="pb-24 px-4 max-w-7xl mx-auto mt-12" data-newsletter-issue data-newsletter-runtime>
-    <div id="nl-missing" class="hidden max-w-xl mx-auto text-center py-24">
-      <h1 class="text-3xl font-serif text-teal-900 mb-4">Issue not found</h1>
-      <p class="text-gray-600 mb-8">That newsletter is not published, or the link is out of date.</p>
-      <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:text-emerald-600" href="/newsletter">Back to archive</a>
-    </div>
-
     <div id="nl-shell" class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
       <div class="relative h-64 sm:h-80 md:h-96 w-full">
         <div class="absolute inset-0 bg-teal-900/40 mix-blend-multiply z-10"></div>
@@ -46,17 +40,31 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <script>
   import { hydrateIssuePage, slugFromPath } from '../../scripts/newsletter-hydrate';
 
+  function showMissingIssue() {
+    const root = document.querySelector('[data-newsletter-issue]');
+    const shell = document.getElementById('nl-shell');
+    if (!root || document.getElementById('nl-missing')) {
+      shell?.classList.add('hidden');
+      return;
+    }
+    shell?.classList.add('hidden');
+    const missing = document.createElement('div');
+    missing.id = 'nl-missing';
+    missing.className = 'max-w-xl mx-auto text-center py-24';
+    missing.innerHTML = `
+      <h1 class="text-3xl font-serif text-teal-900 mb-4">Issue not found</h1>
+      <p class="text-gray-600 mb-8">That newsletter is not published, or the link is out of date.</p>
+      <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:text-emerald-600" href="/newsletter">Back to archive</a>
+    `;
+    root.prepend(missing);
+  }
+
   let started = false;
   async function init() {
     if (started) return;
     started = true;
     const ok = await hydrateIssuePage(slugFromPath());
-    const missing = document.getElementById('nl-missing');
-    const shell = document.getElementById('nl-shell');
-    if (!ok) {
-      shell?.classList.add('hidden');
-      missing?.classList.remove('hidden');
-    }
+    if (!ok) showMissingIssue();
   }
   document.addEventListener('astro:page-load', init);
 </script>

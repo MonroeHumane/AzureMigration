@@ -490,6 +490,92 @@ async function requireStaff(request) {
   return { staff };
 }
 
+// Authenticated shelter census. Staff pages hydrate after getStaffToken()
+// so unauthenticated HTML never embeds pet names.
+app.http('staffPets', {
+  methods: ['GET', 'OPTIONS'],
+  authLevel: 'anonymous',
+  route: 'staff-pets',
+  handler: async (request) => {
+    if (request.method === 'OPTIONS') {
+      return corsPreflight(request, 'GET, OPTIONS');
+    }
+
+    const auth = await requireStaff(request);
+    if (auth.errorResponse) return auth.errorResponse;
+
+    const serviceToken = await getDirectusServiceToken();
+    if (!serviceToken) {
+      return jsonResponse(request, 503, {
+        error: 'Pet census service is not configured.',
+        code: 'DIRECTUS_SERVICE_UNAVAILABLE',
+      }, { 'Cache-Control': 'no-store, private' });
+    }
+
+    try {
+      const result = await directusJson(
+        '/items/pets?limit=-1&sort=-last_seen_at',
+        { method: 'GET', signal: AbortSignal.timeout(15000) },
+        serviceToken
+      );
+      if (!result.ok || !result.json || !Array.isArray(result.json.data)) {
+        return jsonResponse(request, result.status || 502, {
+          error: 'Could not load shelter census.',
+        }, { 'Cache-Control': 'no-store, private' });
+      }
+
+      const pets = result.json.data.map((p) => ({
+        id: p.id,
+        name: p.name,
+        type: p.type,
+        species_label: p.species_label,
+        breed: p.breed,
+        age: p.age,
+        age_display: p.age_display,
+        size: p.size,
+        color: p.color,
+        gender: p.gender,
+        location: p.location,
+        image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg',
+        url: p.url,
+        description: p.description,
+        intake_date: p.intake_date,
+        first_seen_at: p.first_seen_at,
+        last_seen_at: p.last_seen_at,
+        archived_at: p.archived_at || null,
+        stage: p.stage,
+        declawed: p.declawed,
+        housetrained: p.housetrained,
+      }));
+
+      const activeCount = pets.filter((p) => !p.archived_at).length;
+      const archivedCount = pets.filter((p) => !!p.archived_at).length;
+      const lastSyncTimestamp = pets.reduce((latest, p) => {
+        const t = p.last_seen_at;
+        if (!t) return latest;
+        if (!latest) return t;
+        return new Date(t) > new Date(latest) ? t : latest;
+      }, null);
+
+      return jsonResponse(request, 200, {
+        ok: true,
+        data: {
+          lastSyncTimestamp,
+          activeCount,
+          archivedCount,
+          totalCount: pets.length,
+          pets,
+        },
+      }, { 'Cache-Control': 'no-store, private' });
+    } catch (err) {
+      console.error('Error in /api/staff-pets:', err);
+      return jsonResponse(request, 500, {
+        error: 'Internal census error.',
+      }, { 'Cache-Control': 'no-store, private' });
+    }
+  },
+});
+
 // HMAC-authenticated grants pipeline proxy. Staff portal HMAC lasts ~30 days;
 // Directus JWTs expire in minutes, so the tracker cannot depend on them.
 app.http('grants', {

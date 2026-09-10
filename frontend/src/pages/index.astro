@@ -50,6 +50,9 @@ if (home.accomplishments.years['2025']) {
   home.accomplishments.years['2025'][2].display = settings.intakes_count.toLocaleString();
 }
 
+const accomplishmentYears = Object.keys(home.accomplishments.years).sort((a, b) => Number(b) - Number(a));
+const defaultAccomplishmentYear = accomplishmentYears[0];
+
 const formatDate = (value: string | undefined, fallback: string) => {
   if (!value) return fallback;
   // Parsing a bare "YYYY-MM-DD" string gives UTC midnight, which a
@@ -204,6 +207,11 @@ const sideNavSections = [
               <p class="hs-body">{p}</p>
             ))}
             <p class="hs-note">{home.events_feature.note}</p>
+            {home.events_feature.letter_href && (
+              <p class="hs-body">
+                <a href={home.events_feature.letter_href}>{home.events_feature.letter_label || 'Read the letter'}</a>
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -909,13 +917,13 @@ const sideNavSections = [
 
         <div class="monroe-accomplishments-widget home-editable-accomplishments-grid" data-monroe-accomplishments-widget>
           <div class="monroe-accomplishments-widget__tabs" role="tablist" aria-label="Shelter outcome years">
-            {Object.keys(home.accomplishments.years).map((year, i) => (
+            {accomplishmentYears.map((year) => (
               <button
                 type="button"
-                class:list={['monroe-accomplishments-widget__tab', { 'is-active': i === 0 }]}
+                class:list={['monroe-accomplishments-widget__tab', { 'is-active': year === defaultAccomplishmentYear }]}
                 role="tab"
                 id={`monroe-accomplishments-tab-${year}`}
-                aria-selected={i === 0 ? 'true' : 'false'}
+                aria-selected={year === defaultAccomplishmentYear ? 'true' : 'false'}
                 aria-controls={`monroe-accomplishments-panel-${year}`}
                 data-accomplishments-year={year}
               >
@@ -923,14 +931,16 @@ const sideNavSections = [
               </button>
             ))}
           </div>
-          {Object.entries(home.accomplishments.years).map(([year, stats], i) => (
+          {accomplishmentYears.map((year) => {
+            const stats = home.accomplishments.years[year as keyof typeof home.accomplishments.years];
+            return (
             <div
-              class:list={['monroe-accomplishments-widget__panel', { 'is-active': i === 0 }]}
+              class:list={['monroe-accomplishments-widget__panel', { 'is-active': year === defaultAccomplishmentYear }]}
               role="tabpanel"
               id={`monroe-accomplishments-panel-${year}`}
               aria-labelledby={`monroe-accomplishments-tab-${year}`}
               data-accomplishments-panel={year}
-              hidden={i !== 0}
+              hidden={year !== defaultAccomplishmentYear}
             >
               <div class="monroe-accomplishments-widget__stats">
                 {stats.map((s) => (
@@ -941,7 +951,8 @@ const sideNavSections = [
                 ))}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

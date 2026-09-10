@@ -185,8 +185,9 @@ const faqs: FaqItem[] = [
                   : 'bg-slate-100 hover:bg-slate-200/80 text-slate-600 hover:text-slate-900'
               }`}
               data-cat-id={cat.id}
+              aria-label={cat.label}
             >
-              <span>{cat.icon}</span>
+              <span aria-hidden="true">{cat.icon}</span>
               <span>{cat.label}</span>
             </button>
           ))}
@@ -212,7 +213,7 @@ const faqs: FaqItem[] = [
           return (
             <section class="faq-category-group" data-cat-group={cat.id}>
               <div class="flex items-center gap-2.5 pb-3 border-b border-slate-200/80 mb-3">
-                <span class="text-xl">{cat.icon}</span>
+                <span class="text-xl" aria-hidden="true">{cat.icon}</span>
                 <h2 class="text-lg sm:text-xl font-serif font-bold text-teal-950">
                   {cat.label}
                 </h2>

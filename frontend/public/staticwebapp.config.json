@@ -230,10 +230,6 @@
       }
     },
     {
-      "route": "/newsletter/issue/*",
-      "rewrite": "/newsletter/open/index.html"
-    },
-    {
       "route": "/news/*",
       "redirect": "/newsletter",
       "statusCode": 301
@@ -314,23 +310,6 @@
       "statusCode": 301
     }
   ],
-  "navigationFallback": {
-    "rewrite": "/404.html",
-    "exclude": [
-      "/api/*",
-      "/arcade-api/*",
-      "/_astro/*",
-      "/assets/*",
-      "/favicon.ico",
-      "/robots.txt",
-      "/sitemap-*.xml",
-      "/*.png",
-      "/*.webp",
-      "/*.jpg",
-      "/*.svg",
-      "/*.json"
-    ]
-  },
   "responseOverrides": {
     "404": {
       "rewrite": "/404.html",

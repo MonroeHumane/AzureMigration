@@ -26,7 +26,7 @@ interface Props {
 const { currentPath = '/' } = Astro.props;
 
 const LOGO_SRC = SITE.assets.logo;
-const DONATE_URL = SITE.integrations.betterUnite.generalDonation;
+const DONATE_URL = '/donate';
 
 const NAV: NavItem[] = [
   { label: 'Home', href: '/' },
@@ -60,7 +60,7 @@ const NAV: NavItem[] = [
       { label: 'Newsletter archive', href: '/newsletter' },
       { label: 'Latest newsletter', href: '/#Newsletter' },
       { label: 'Community Reviews', href: '/#Testimonials' },
-      { label: 'Fundraisers', href: DONATE_URL, external: true },
+      { label: 'Fundraisers', href: DONATE_URL },
       { label: 'Volunteer', href: '/volunteer-form' },
     ],
   },
@@ -103,7 +103,7 @@ const isCurrent = (item: NavItem) => {
     <div class="monroe-global-nav__bar">
       <div class="monroe-global-nav__bar-cta">
         <a class="monroe-global-nav__bar-adopt" href="/adopt">Adopt</a>
-        <a class="monroe-global-nav__bar-donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+        <a class="monroe-global-nav__bar-donate" href={DONATE_URL}>Donate</a>
       </div>
       <a class="monroe-global-nav__brand" href="/" aria-label={`${SITE.name}, home`}>
         <img src={LOGO_SRC} alt="Monroe Humane Logo" loading="eager" fetchpriority="high" decoding="async" width="320" height="120" style="max-width: 200px;" />
@@ -168,7 +168,7 @@ const isCurrent = (item: NavItem) => {
       </ul>
       <div class="monroe-global-nav__cta-row">
         <a class="monroe-global-nav__member" href="/membership">Membership</a>
-        <a class="monroe-global-nav__donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer">Donate</a>
+        <a class="monroe-global-nav__donate" href={DONATE_URL}>Donate</a>
         <a class="monroe-global-nav__call" href={SITE.contact.phoneTel}>Call Us</a>
         <a class="monroe-global-nav__application" href="/adoptions">Application</a>
       </div>

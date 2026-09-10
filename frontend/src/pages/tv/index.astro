@@ -225,6 +225,18 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       max-width: 62vw;
     }
 
+    .tv-page-title {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     .tv-card__name {
       font-family: var(--tv-font-display);
       font-size: clamp(3rem, 6vw, 5.25rem);
@@ -338,6 +350,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
   </style>
 </head>
 <body>
+  <h1 class="tv-page-title">HSMC TV — Adoptable Pets</h1>
   <!-- Backdrop: same photo as the featured pet, blurred + scaled to
        fill the whole screen so there's never dead space next to an
        uncropped photo of any shape. -->
@@ -368,7 +381,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
   <!-- Name + facts, overlaid on the darkened bottom of the backdrop -->
   <div class="tv-caption">
-    <h1 class="tv-card__name" id="petName">&nbsp;</h1>
+    <p class="tv-card__name" id="petName">Adoptable pets</p>
     <div class="tv-card__pills">
       <span class="tv-pill tv-pill--gold" id="petAge">Age</span>
       <span class="tv-pill tv-pill--accent" id="petGender">Gender</span>

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE } from "../config/site";
 ---
 
 <BaseLayout
@@ -130,7 +131,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           </div>
           <div>
             <div class="font-bold text-teal-950 text-sm group-hover:text-teal-700 transition">Location &amp; Hours</div>
-            <div class="text-xs text-gray-500">833 N Telegraph Rd, Monroe, MI</div>
+            <div class="text-xs text-gray-500">{SITE.contact.address.street}, {SITE.contact.address.city}, {SITE.contact.address.state}</div>
           </div>
         </a>
 

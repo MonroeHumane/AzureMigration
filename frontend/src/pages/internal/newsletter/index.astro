@@ -127,7 +127,7 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none text-slate-900 dark:text-white font-mono transition"
                   placeholder="2025-in-review"
                 />
-                <p id="issue-slug-hint" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Public URL: /newsletter/issue/…</p>
+                <p id="issue-slug-hint" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Public URL: /newsletter/issue/… — live on the public site after the next frontend deploy.</p>
               </div>
 
               <div>
@@ -495,7 +495,7 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
     });
     issueSlugInput?.addEventListener('input', () => {
       const hint = document.getElementById('issue-slug-hint');
-      if (hint) hint.textContent = 'Public URL: /newsletter/issue/' + slugifyClient(issueSlugInput.value);
+      if (hint) hint.textContent = 'Public URL: /newsletter/issue/' + slugifyClient(issueSlugInput.value) + ' — live on the public site after the next frontend deploy.';
     });
 
     document.getElementById('issue-hero-file')?.addEventListener('change', async (e) => {
@@ -743,7 +743,7 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
       if (issueSeoDescInput) issueSeoDescInput.value = row.seo_description || '';
       if (issuePublishAtInput) issuePublishAtInput.value = toLocalDatetimeValue(row.publish_at);
       const hint = document.getElementById('issue-slug-hint');
-      if (hint) hint.textContent = 'Public URL: /newsletter/issue/' + (row.slug || '…');
+      if (hint) hint.textContent = 'Public URL: /newsletter/issue/' + (row.slug || '…') + ' — live on the public site after the next frontend deploy.';
       updateHeroThumb(row.hero_image || '');
       renderStoryBlocks(row.blocks || []);
       syncActionButtons(row);
@@ -800,10 +800,13 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
           if (nlFilter === 'published') return status === 'published';
           return status !== 'archived';
         });
-        selectedIssueIdx = firstVisible >= 0 ? firstVisible : 0;
+        const featuredIdx = (nlFilter === 'draft' || nlFilter === 'archived')
+          ? -1
+          : issues.findIndex((iss) => iss.featured && (iss.status || '') !== 'archived');
+        selectedIssueIdx = featuredIdx >= 0 ? featuredIdx : (firstVisible >= 0 ? firstVisible : 0);
         updateConnectionStatus('ok');
         renderIssuesList(searchIssuesInput?.value || '');
-        if (issues.length && firstVisible >= 0) await loadIssueForm(selectedIssueIdx);
+        if (issues.length && selectedIssueIdx >= 0) await loadIssueForm(selectedIssueIdx);
       } catch (err) {
         updateConnectionStatus('error', err && err.message);
       }

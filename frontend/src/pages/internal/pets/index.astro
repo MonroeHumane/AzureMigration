@@ -1,9 +1,6 @@
 ---
 import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
 import PetSyncPortal from '../../../components/internal/PetSyncPortal.astro';
-import { getStaffPetSyncData } from '../../../lib/directus';
-
-const petSyncData = await getStaffPetSyncData();
 ---
 
 <StaffPortalLayout
@@ -18,13 +15,13 @@ const petSyncData = await getStaffPetSyncData();
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">Shelter Animal Census &amp; PetSync</h1>
       </div>
       <p class="text-xs text-slate-600 dark:text-teal-300/80">
-        <span class="font-bold text-teal-800 dark:text-amber-300 text-sm">{petSyncData.activeCount}</span> animals currently in shelter care
+        <span id="pets-page-active-count" class="font-bold text-teal-800 dark:text-amber-300 text-sm">--</span> animals currently in shelter care
       </p>
     </div>
 
     <!-- Embedded PetSync Portal Component with search, copy ID, and kennel card printing -->
     <section id="section-petsync-main">
-      <PetSyncPortal syncData={petSyncData} />
+      <PetSyncPortal />
     </section>
   </main>
 </StaffPortalLayout>
