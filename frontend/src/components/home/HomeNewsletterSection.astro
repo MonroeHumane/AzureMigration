@@ -25,7 +25,7 @@ const formatDate = (value: string | undefined, fallbackDate = '') => {
 const label = issue?.title || fallback.label;
 const masthead = issue?.newsletter_title || fallback.title;
 const intro = fallback.intro;
-const heroSrc = issue?.hero_image || fallback.hero_image;
+const heroSrc = issue?.hero_image || fallback.hero_image || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/assets/78654ea7-9572-4fe4-8f30-ac71319b44bd';
 const heroAlt = issue?.title || 'Latest newsletter';
 const kicker = issue?.top_line || fallback.eyebrow;
 const dateText = issue ? formatDate(issue.issue_date, '') : '';
@@ -67,11 +67,11 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
     </p>
 
     <article
-      class="mt-6 grid grid-cols-1 overflow-hidden rounded-[22px] border border-white/15 bg-[#fffdf8] text-[#153635] shadow-[0_22px_48px_rgba(8,28,27,0.28)] min-[801px]:grid-cols-[minmax(0,1.08fr)_minmax(18rem,1fr)]"
+      class="mt-6 grid grid-cols-1 overflow-hidden rounded-[22px] border border-white/15 bg-[#fffdf8] text-[#153635] shadow-[0_22px_48px_rgba(8,28,27,0.28)] min-[901px]:grid-cols-[minmax(0,1.25fr)_minmax(17rem,0.9fr)]"
       data-newsletter-home
       aria-labelledby="hs-news-featured-title"
     >
-      <div class="min-h-0 bg-[#d7e4df] aspect-video min-[801px]:aspect-auto min-[801px]:min-h-full">
+      <div class="relative min-h-0 bg-[#e7f0ec] aspect-[1168/514] min-[901px]:aspect-auto min-[901px]:min-h-[22rem] min-[1100px]:min-h-[26rem]">
         <img
           data-nl-hero
           src={heroSrc}
@@ -80,7 +80,7 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
           height="514"
           decoding="async"
           loading="lazy"
-          class="block h-full w-full object-cover object-[center_28%]"
+          class="absolute inset-0 block h-full w-full object-contain object-center p-2 sm:p-3"
         />
       </div>
       <div class="flex min-w-0 flex-col p-[clamp(1.2rem,3vw,2.15rem)]">
