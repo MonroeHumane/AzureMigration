@@ -1461,6 +1461,149 @@ body.home .sponsor-widget-shell .sponsor-card {
   align-items: stretch;
 }
 
+.home-editable-news-card.is-style-monroe-news-band > .home-nl-band-intro {
+  max-width: 40rem;
+  margin: 0 0 0.25rem;
+  color: rgba(255, 255, 255, 0.88);
+  font: 400 1.05rem/1.7 "Questrial", "Segoe UI", sans-serif;
+}
+
+.home-nl {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 1fr);
+  margin-top: 1.5rem;
+  background: #fffdf8;
+  color: #153635;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 22px 48px rgba(8, 28, 27, 0.28);
+}
+
+.home-nl__photo {
+  min-height: 100%;
+  background: #d7e4df;
+}
+
+.home-nl__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  display: block;
+}
+
+.home-nl__letter {
+  padding: clamp(1.2rem, 3vw, 2.15rem);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.home-nl__kicker {
+  margin: 0 0 0.3rem;
+  color: #0f766e;
+  font: 700 0.72rem/1.2 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.home-nl__date {
+  margin: 0 0 0.7rem;
+  color: #5b6f6e;
+  font: 500 0.92rem/1.3 "Jost", "Segoe UI", sans-serif;
+}
+
+.home-nl__date:empty {
+  display: none;
+}
+
+.home-nl__title {
+  margin: 0 0 0.35rem;
+  color: #153635;
+  font-family: "Abril Fatface", Georgia, serif;
+  font-size: clamp(1.75rem, 3.2vw, 2.55rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+
+.home-nl__byline {
+  margin: 0 0 1rem;
+  color: #405757;
+  font: italic 500 1rem/1.4 "Questrial", "Segoe UI", sans-serif;
+}
+
+.home-nl__excerpt {
+  margin: 0 0 1.35rem;
+  color: #3d4f4e;
+  font: 400 1.05rem/1.75 "Questrial", "Segoe UI", sans-serif;
+}
+
+.home-nl__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: auto;
+}
+
+.home-nl__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font: 800 0.82rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.home-nl__btn--primary {
+  background: #1f4c49;
+  color: #fff;
+  border: 1.5px solid #1f4c49;
+}
+
+.home-nl__btn--primary:hover,
+.home-nl__btn--primary:focus-visible {
+  background: #163a38;
+  border-color: #163a38;
+}
+
+.home-nl__btn--ghost {
+  background: #fff;
+  color: #1f4c49;
+  border: 1.5px solid rgba(31, 76, 73, 0.28);
+}
+
+.home-nl__btn--ghost:hover,
+.home-nl__btn--ghost:focus-visible {
+  border-color: #1f4c49;
+  background: #f3faf7;
+}
+
+.home-nl__btn--off {
+  display: none !important;
+}
+
+.home-nl__btn:focus-visible {
+  outline: 2px solid #2dd4bf;
+  outline-offset: 3px;
+}
+
+@media (max-width: 800px) {
+  .home-nl {
+    grid-template-columns: 1fr;
+  }
+
+  .home-nl__photo {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+}
+
 .home-editable-newsletter-section .monroe-readmore-toggle {
   align-self: center;
 }

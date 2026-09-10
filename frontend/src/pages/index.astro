@@ -836,67 +836,45 @@ const sideNavSections = [
     <!-- 14. Newsletter: featured published issue -->
     <div class="wp-block-group alignwide home-editable-section home-editable-newsletter-section is-layout-constrained">
       <div class="wp-block-group home-editable-news-card home-editable-runtime-card is-style-monroe-news-band is-layout-constrained" id="Newsletter">
-        <p class="home-editable-section-label wp-block-paragraph" id="newsletter-section-label">{latestNewsletter?.title || home.newsletter.label}</p>
-        <h2 class="wp-block-heading">{home.newsletter.title}</h2>
-        <p class="wp-block-paragraph">{home.newsletter.intro}</p>
+        <p class="home-editable-section-label wp-block-paragraph" id="newsletter-section-label" data-nl-label>{latestNewsletter?.title || home.newsletter.label}</p>
+        <h2 class="wp-block-heading" data-nl-masthead>{latestNewsletter?.newsletter_title || home.newsletter.title}</h2>
+        <p class="wp-block-paragraph home-nl-band-intro">{home.newsletter.intro}</p>
 
-        <div class="monroe-home-newsletter-slot">
-          <section id="hs-news-featured" class="hs-news-section" aria-labelledby="hs-news-featured-title" data-hs-lightbox="hsLb-181" data-newsletter-home>
-            <div class="hs-wrap">
-              <div class="hs-card" role="region" aria-label="Latest newsletter">
-                <div class="hs-hero">
-                    <img data-nl-hero src={latestNewsletter ? latestNewsletter.hero_image : home.newsletter.hero_image} alt={latestNewsletter ? latestNewsletter.title : "Latest newsletter"} width="1200" height="400" decoding="async" loading="lazy" />
-                    <div class="hs-hero-overlay"></div>
-                    <div class="hs-hero-text">
-                      <div class="hs-eyebrow">{home.newsletter.eyebrow}</div>
-                      <h3 class="hs-hero-title">{latestNewsletter ? "Latest Newsletter" : home.newsletter.label}</h3>
-                    </div>
-                  </div>
-                  <div class="hs-head">
-                    <div>
-                      <h3 id="hs-news-featured-title" class="hs-title" data-nl-title>{latestNewsletter ? latestNewsletter.title : home.newsletter.title}</h3>
-                      <div class="hs-sub" data-nl-byline>{latestNewsletter ? formatDate(latestNewsletter.issue_date, home.newsletter.byline) : home.newsletter.byline}</div>
-                    </div>
-                    <div class="hs-actions" role="group" aria-label="Quick pet filters">
-                      {latestNewsletter && latestNewsletter.pdf_url && (
-                        <a href={latestNewsletter.pdf_url} class="hs-btn ghost" target="_blank" rel="noopener noreferrer">Download PDF</a>
-                      )}
-                      {home.newsletter.filters.map((f) => (
-                        <a href={f.href} class:list={['hs-btn', { ghost: f.variant === 'ghost' }]}>{f.label}</a>
-                      ))}
-                      <a href="/newsletter" class="hs-btn">All Issues</a>
-                    </div>
-                  </div>
-                </div>
-                <div class="hs-body">
-                    <div class="hs-grid">
-                      {latestNewsletter ? (
-                        <div class="hs-box" style="grid-column: 1 / -1;">
-                          <div class="hs-letter">
-                            <p data-nl-excerpt>{latestNewsletter.excerpt}</p>
-                            <a data-nl-link href={`/newsletter/issue/${latestNewsletter.slug}`} style="font-weight:bold; color:#0f766e; margin-top:1rem; display:inline-block;">Read Full Issue &rarr;</a>
-                          </div>
-                        </div>
-                      ) : (
-                        <div class="hs-box" style="grid-column: 1 / -1;">
-                          <p data-nl-excerpt>No published newsletter yet.</p>
-                          <a data-nl-link href="/newsletter" style="font-weight:bold; color:#0f766e; margin-top:1rem; display:inline-block;">View archive &rarr;</a>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-              <div class="hs-lightbox" id="hsLb-181" aria-hidden="true">
-                <div class="hs-lightbox-inner" role="dialog" aria-modal="true" aria-label="Expanded image">
-                  <button class="hs-lb-btn hs-lb-close" type="button" aria-label="Close image">✕</button>
-                  <button class="hs-lb-btn hs-lb-prev" type="button" aria-label="Previous image">‹</button>
-                  <button class="hs-lb-btn hs-lb-next" type="button" aria-label="Next image">›</button>
-                  <img loading="lazy" decoding="async" alt="" data-hs-lb-img />
-                  <div class="hs-lb-caption"><span data-hs-lb-cap-l></span><span data-hs-lb-cap-r></span></div>
-                </div>
-              </div>
+        <article class="home-nl" data-newsletter-home aria-labelledby="hs-news-featured-title">
+          <div class="home-nl__photo">
+            <img
+              data-nl-hero
+              src={latestNewsletter?.hero_image || home.newsletter.hero_image}
+              alt={latestNewsletter?.title || 'Latest newsletter'}
+              width="1168"
+              height="514"
+              decoding="async"
+              loading="lazy"
+            />
+          </div>
+          <div class="home-nl__letter">
+            <p class="home-nl__kicker" data-nl-topline>{latestNewsletter?.top_line || home.newsletter.eyebrow}</p>
+            <p class="home-nl__date" data-nl-date>{latestNewsletter ? formatDate(latestNewsletter.issue_date, '') : ''}</p>
+            <h3 id="hs-news-featured-title" class="home-nl__title" data-nl-title>{latestNewsletter?.title || home.newsletter.title}</h3>
+            <p class="home-nl__byline" data-nl-byline>{latestNewsletter?.byline || home.newsletter.byline}</p>
+            <p class="home-nl__excerpt" data-nl-excerpt>{latestNewsletter?.excerpt || 'No published newsletter yet.'}</p>
+            <div class="home-nl__actions">
+              <a
+                data-nl-link
+                class="home-nl__btn home-nl__btn--primary"
+                href={latestNewsletter?.slug ? `/newsletter/issue/${latestNewsletter.slug}` : '/newsletter'}
+              >{latestNewsletter ? 'Read the letter' : 'View archive'}</a>
+              <a
+                data-nl-pdf
+                class:list={['home-nl__btn', 'home-nl__btn--ghost', !latestNewsletter?.pdf_url && 'home-nl__btn--off']}
+                href={latestNewsletter?.pdf_url || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+              >Download PDF</a>
+              <a class="home-nl__btn home-nl__btn--ghost" href="/newsletter">All issues</a>
             </div>
-          </section>
-        </div>
+          </div>
+        </article>
       </div>
     </div>
 
@@ -1093,55 +1071,6 @@ const sideNavSections = [
         fpwDialog.showModal();
       });
       fpwDialog.querySelector('.fpw-fs-close, .fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
-    }
-
-    // Newsletter lightbox.
-    const newsSection = document.querySelector<HTMLElement>('[data-hs-lightbox]');
-    if (newsSection && newsSection.dataset.bound !== '1') {
-      newsSection.dataset.bound = '1';
-      const lb = newsSection.querySelector<HTMLElement>('.hs-lightbox');
-      const lbImg = lb?.querySelector<HTMLImageElement>('[data-hs-lb-img]');
-      const thumbs = Array.from(newsSection.querySelectorAll<HTMLElement>('[data-hs-lb-src]'));
-      let current = 0;
-      const show = (i: number) => {
-        current = (i + thumbs.length) % thumbs.length;
-        const src = thumbs[current].dataset.hsLbSrc;
-        if (lbImg && src) lbImg.src = src;
-        lb?.setAttribute('aria-hidden', 'false');
-      };
-      thumbs.forEach((thumb, i) => {
-        const open = () => show(i);
-        thumb.addEventListener('click', open);
-        thumb.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            open();
-          }
-        });
-      });
-      lb?.querySelector('.hs-lb-close')?.addEventListener('click', () => lb.setAttribute('aria-hidden', 'true'));
-      lb?.querySelector('.hs-lb-prev')?.addEventListener('click', () => show(current - 1));
-      lb?.querySelector('.hs-lb-next')?.addEventListener('click', () => show(current + 1));
-    }
-
-    if (!(window as any).__hsmcHomeLightboxKeys) {
-      (window as any).__hsmcHomeLightboxKeys = true;
-      document.addEventListener('keydown', (e) => {
-        const lb = document.querySelector<HTMLElement>('[data-hs-lightbox] .hs-lightbox');
-        if (!lb || lb.getAttribute('aria-hidden') === 'true') return;
-        const thumbs = Array.from(document.querySelectorAll<HTMLElement>('[data-hs-lightbox] [data-hs-lb-src]'));
-        const img = lb.querySelector<HTMLImageElement>('[data-hs-lb-img]');
-        const currentSrc = img?.getAttribute('src') || '';
-        let current = Math.max(0, thumbs.findIndex((t) => t.dataset.hsLbSrc === currentSrc));
-        if (e.key === 'Escape') lb.setAttribute('aria-hidden', 'true');
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-          current = e.key === 'ArrowLeft'
-            ? (current - 1 + thumbs.length) % thumbs.length
-            : (current + 1) % thumbs.length;
-          const src = thumbs[current]?.dataset.hsLbSrc;
-          if (img && src) img.src = src;
-        }
-      });
     }
 
     // Accomplishments tabs.
