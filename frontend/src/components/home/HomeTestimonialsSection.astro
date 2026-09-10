@@ -1,0 +1,158 @@
+---
+/**
+ * Native Astro homepage testimonials / Community Voices (Phase 3).
+ * Visual parity with `.monroe-testimonials` + Google rating summary header.
+ * Preserves `#Testimonials` for Header / side-dock deep links.
+ */
+import home from '../../data/homepage.json';
+
+export interface HomeReview {
+  author: string;
+  rating?: number;
+  time?: number;
+  text: string;
+}
+
+interface Props {
+  reviews: HomeReview[];
+  label?: string;
+  title?: string;
+  intro?: string;
+  limit?: number;
+}
+
+const {
+  reviews,
+  label = home.testimonials.label,
+  title = home.testimonials.title,
+  intro = home.testimonials.intro,
+  limit = 6,
+} = Astro.props;
+
+const shown = reviews.slice(0, limit);
+const GOOGLE_MAPS_REVIEW =
+  'https://maps.google.com/?q=911+S+Raisinville+Rd+Monroe+MI+48161';
+---
+
+<div
+  class="wp-block-group alignwide home-editable-section is-layout-constrained scroll-mt-[calc(var(--monroe-nav-height,96px)+var(--monroe-sticky-wayfinding-offset,0px)+var(--monroe-scroll-anchor-gap,12px))]"
+  id="Testimonials"
+>
+  <div
+    class="rounded-[28px] border border-teal-900/12 bg-[linear-gradient(140deg,rgba(255,255,255,0.98),rgba(249,246,239,0.96))] p-[clamp(1.5rem,3.5vw,2.5rem)] shadow-[0_28px_60px_rgba(31,53,51,0.1)]"
+  >
+    <p
+      class="m-0 mb-3 font-['Jost','Segoe_UI',sans-serif] text-[0.8rem] font-bold uppercase leading-tight tracking-[0.16em] text-teal-700"
+    >
+      {label}
+    </p>
+    <h2
+      class="m-0 mb-3 font-serif text-[clamp(2rem,4vw,3.6rem)] font-normal leading-none text-[#153635]"
+    >
+      {title}
+    </h2>
+    <p
+      class="m-0 max-w-3xl font-['Questrial','Segoe_UI',sans-serif] text-[1.02rem] font-normal leading-[1.8] text-[#405757]"
+    >
+      {intro}
+    </p>
+
+    <!-- Google Reviews Rating Summary Header -->
+    <div
+      class="mt-4 mb-6 flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-xs"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="#4285F4"
+              d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+            ></path>
+            <path
+              fill="#34A853"
+              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+            ></path>
+            <path
+              fill="#FBBC05"
+              d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+            ></path>
+            <path
+              fill="#EA4335"
+              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+            ></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <strong class="text-sm font-bold text-slate-900">4.9 Star Rating</strong>
+            <span class="text-xs tracking-wider text-amber-500" aria-hidden="true"
+              >&#9733;&#9733;&#9733;&#9733;&#9733;</span
+            >
+          </div>
+          <p class="text-xs text-slate-500">
+            Verified Google Reviews from Monroe County adopters and volunteers
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a
+          href={GOOGLE_MAPS_REVIEW}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-teal-800 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-teal-700"
+        >
+          <span>Review Us on Google</span>
+          <svg
+            class="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+            ></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    {
+      shown.length === 0 ? (
+        <p class="m-0 rounded-2xl border border-dashed border-teal-900/20 bg-white/70 px-4 py-8 text-center text-sm text-slate-500">
+          Community reviews will appear here soon.
+        </p>
+      ) : (
+        <div class="mt-5 grid grid-cols-1 gap-[1.1rem] min-[601px]:grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
+          {shown.map((review) => (
+            <figure
+              class="m-0 flex flex-col gap-[0.85rem] rounded-2xl border border-slate-200 bg-white px-[1.4rem] py-6 shadow-[0_10px_28px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(15,118,110,0.16)] focus-within:-translate-y-1 focus-within:shadow-[0_16px_36px_rgba(15,118,110,0.16)] min-[601px]:px-[1.4rem]"
+            >
+              <blockquote class="relative m-0 p-0 text-[1.02rem] leading-[1.6] text-gray-800">
+                <span
+                  class="mb-[0.35rem] block text-[2.4rem] leading-[0.6] text-[#f2bd45]"
+                  aria-hidden="true"
+                >
+                  &ldquo;
+                </span>
+                {review.text}
+              </blockquote>
+              <figcaption class="mt-auto flex flex-col gap-[0.1rem]">
+                <span class="font-extrabold text-slate-900">{review.author}</span>
+                <span class="text-[0.85rem] font-semibold uppercase tracking-[0.04em] text-teal-700">
+                  Google review
+                  {review.rating ? ` • ${'★'.repeat(review.rating)}` : ''}
+                </span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</div>
