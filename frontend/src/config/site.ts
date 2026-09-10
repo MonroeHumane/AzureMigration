@@ -69,8 +69,8 @@ export const SITE = {
   },
 
   assets: {
-    logo: '/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt/a93f9c_be31971351e8408cb8178224c57b9477-mv2-b3da8eac-1920w.webp',
-    defaultOgImage: '/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt/a93f9c_be31971351e8408cb8178224c57b9477-mv2-b3da8eac-1920w.webp',
+    logo: '/assets/brand/hsmc-wordmark.webp',
+    defaultOgImage: '/assets/brand/hsmc-wordmark.webp',
   },
 
   ui: {

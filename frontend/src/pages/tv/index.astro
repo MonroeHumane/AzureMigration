@@ -102,9 +102,6 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       position: fixed;
       top: 40px;
       left: 48px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
       z-index: 3;
     }
 
@@ -113,13 +110,6 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       width: auto;
       object-fit: contain;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
-    }
-
-    .tv-brand-corner span {
-      font-family: var(--tv-font-display);
-      font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-      color: var(--tv-text);
-      letter-spacing: 0.01em;
     }
 
     .tv-clock-corner {
@@ -156,7 +146,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 6.5rem 3rem 11rem;
+      padding: 6rem 1.5rem 3.5rem;
     }
 
     .tv-card { transition: opacity 0.45s ease; }
@@ -178,10 +168,10 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
        flat dead space. */
     .tv-card__photo-wrap {
       position: relative;
-      width: min(56vw, calc(100vw - 18rem));
-      height: calc(100vh - 17.5rem);
-      max-width: min(56vw, calc(100vw - 18rem));
-      max-height: calc(100vh - 17.5rem);
+      width: min(78vw, calc(100vw - 12rem));
+      height: calc(100vh - 9.5rem);
+      max-width: min(78vw, calc(100vw - 12rem));
+      max-height: calc(100vh - 9.5rem);
       border-radius: 18px;
       overflow: hidden;
       border: 3px solid rgba(255, 255, 255, 0.16);
@@ -201,32 +191,13 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
     .tv-card__photo.zooming { transform: scale(1.05); }
 
-    .tv-card__species-badge {
-      position: absolute;
-      top: 1.25rem;
-      left: 1.25rem;
-      padding: 0.4rem 0.9rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 9999px;
-      background: rgba(6, 24, 22, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(45, 212, 191, 0.4);
-      font-size: 0.85rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #5eead4;
-    }
-
     /* ---------------- Bottom caption bar: name + facts, over the scrim ---------------- */
     .tv-caption {
       position: fixed;
       left: 48px;
       bottom: 40px;
       z-index: 3;
-      max-width: calc(100vw - 20rem);
+      max-width: calc(100vw - 26rem);
     }
 
     .tv-page-title {
@@ -304,18 +275,18 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     .tv-apply-qr__label {
       text-align: right;
       font-family: var(--tv-font-display);
-      font-size: 20px;
+      font-size: 24px;
       color: #ffffff;
       text-shadow: 0 3px 16px rgba(0, 0, 0, 0.5);
       line-height: 1.15;
-      padding-bottom: 6px;
+      padding-bottom: 8px;
     }
 
     .tv-apply-qr__ring {
       position: relative;
       flex-shrink: 0;
-      padding: 10px;
-      border-radius: 22px;
+      padding: 12px;
+      border-radius: 26px;
       overflow: hidden;
       background: linear-gradient(135deg, var(--tv-teal), var(--tv-gold));
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
@@ -328,11 +299,11 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     }
 
     .tv-apply-qr__code {
-      width: 168px;
-      height: 168px;
+      width: 240px;
+      height: 240px;
       background: #ffffff;
-      border-radius: 14px;
-      padding: 10px;
+      border-radius: 16px;
+      padding: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -341,16 +312,16 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     }
 
     /* The generated SVG is already sized to exactly fill this box's
-       148px content area (see the QRCodeStyling call below) — no
+       216px content area (see the QRCodeStyling call below) — no
        width/height: 100% override needed, which is what silently
        stretched and off-centered it before (a percentage-height-on-
        SVG quirk that resolved width but not height). */
     .tv-apply-qr__code svg { display: block; }
 
     @media (max-width: 900px) {
-      .tv-caption { max-width: calc(100vw - 8rem); left: 24px; bottom: 24px; }
+      .tv-caption { max-width: calc(100vw - 10rem); left: 24px; bottom: 24px; }
       .tv-apply-qr { right: 24px; bottom: 24px; flex-direction: column-reverse; align-items: flex-end; gap: 8px; }
-      .tv-apply-qr__label { text-align: right; font-size: 16px; padding-bottom: 0; }
+      .tv-apply-qr__label { text-align: right; font-size: 18px; padding-bottom: 0; }
       .tv-brand-corner, .tv-clock-corner { top: 24px; }
       .tv-brand-corner { left: 24px; }
       .tv-clock-corner { right: 24px; }
@@ -367,8 +338,7 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
   <!-- Logo -->
   <div class="tv-brand-corner">
-    <img src={SITE.assets.logo} alt="Monroe Humane" />
-    <span>Monroe Humane</span>
+    <img src={SITE.assets.logo} alt="Humane Society of Monroe County" width="2456" height="1031" />
   </div>
 
   <!-- Time -->
@@ -382,7 +352,6 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     <div class="tv-card" id="petCard">
       <div class="tv-card__photo-wrap">
         <img id="petPhoto" class="tv-card__photo zooming" src="" alt="" />
-        <span class="tv-card__species-badge" id="petSpeciesBadge">DOG</span>
       </div>
     </div>
   </div>
@@ -429,7 +398,6 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
 
     const petPhoto = $<HTMLImageElement>('petPhoto');
     const petBackdrop = $<HTMLImageElement>('petBackdrop');
-    const petSpeciesBadge = $('petSpeciesBadge');
     const petName = $('petName');
     const petAge = $('petAge');
     const petGender = $('petGender');
@@ -439,14 +407,23 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     const clockDate = $('clockDate');
     const photoWrap = petPhoto.closest('.tv-card__photo-wrap') as HTMLElement | null;
     const stageEl = document.querySelector('.tv-stage') as HTMLElement | null;
+    const applyQrEl = document.querySelector('.tv-apply-qr') as HTMLElement | null;
 
     // Size the frame to the photo's aspect ratio so the border hugs the
-    // image instead of letterboxing a 94vw box around it.
+    // image instead of letterboxing a wide box around it. Keep the
+    // right/bottom clear of the QR so a landscape shot can't slide
+    // under the code.
     function fitPhotoFrame() {
       if (!photoWrap || !stageEl || !petPhoto.naturalWidth || !petPhoto.naturalHeight) return;
       const cs = getComputedStyle(stageEl);
-      const maxW = stageEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-      const maxH = stageEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      let maxW = stageEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      let maxH = stageEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (applyQrEl) {
+        const qr = applyQrEl.getBoundingClientRect();
+        const gap = 24;
+        const qrClearance = window.innerWidth - qr.left + gap;
+        maxW = Math.min(maxW, window.innerWidth - qrClearance * 2);
+      }
       if (maxW < 80 || maxH < 80) return;
       const ratio = petPhoto.naturalWidth / petPhoto.naturalHeight;
       let height = maxH;
@@ -457,6 +434,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       }
       photoWrap.style.width = `${Math.round(width)}px`;
       photoWrap.style.height = `${Math.round(height)}px`;
+      photoWrap.style.maxWidth = `${Math.round(width)}px`;
+      photoWrap.style.maxHeight = `${Math.round(height)}px`;
     }
     petPhoto.addEventListener('load', fitPhotoFrame);
     window.addEventListener('resize', fitPhotoFrame);
@@ -475,8 +454,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     const APPLICATION_FORM_URL =
       'https://docs.google.com/forms/d/e/1FAIpQLSfA70kSNxQZQBbC0Jq9gHfmgHiAs4k5ytci3t4IhOMzfrSjhQ/viewform';
 
-    // Sized to exactly match the container's content box (168px box,
-    // 10px padding -> 148px) instead of relying on a CSS width/height:
+    // Sized to exactly match the container's content box (240px box,
+    // 12px padding -> 216px) instead of relying on a CSS width/height:
     // 100% override on the generated <svg>. That override silently
     // failed for height only (a percentage-height-on-SVG quirk — width
     // resolved to the container's 100%, height stayed at the library's
@@ -499,8 +478,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     // own, only that specific pairing breaks finder-pattern detection.
     // Leaving the eye as the library's plain default fixes it.
     const applyQrCode = new QRCodeStyling({
-      width: 148,
-      height: 148,
+      width: 216,
+      height: 216,
       type: 'svg',
       data: APPLICATION_FORM_URL,
       margin: 8,
@@ -562,7 +541,6 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
         petAge.textContent = pet.age_display || pet.age || 'Unknown age';
         petGender.textContent = (pet.gender || 'Unknown').replace(/^\w/, (c) => c.toUpperCase());
         petBreed.textContent = pet.breed || 'Shelter pet';
-        petSpeciesBadge.textContent = pet.type === 'cat' ? 'CAT' : pet.type === 'dog' ? 'DOG' : 'PET';
       };
 
       if (document.startViewTransition) {
