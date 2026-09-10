@@ -1042,7 +1042,7 @@ const { donors = [] } = Astro.props;
   window.setHSMCDonors = setDonors;
   window.initMCHSDonorTable = initDonorRosterTable;
 
-  if (!(window as any).__HSMC_DONORS_HYDRATED_BOUND__) {
+  if (!window.__HSMC_DONORS_HYDRATED_BOUND__) {
     window.__HSMC_DONORS_HYDRATED_BOUND__ = true;
     window.addEventListener('donors-hydrated', (e) => {
       if (e?.detail?.donors) {
