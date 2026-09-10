@@ -10,6 +10,8 @@ import HomeNewsletterSection from '../components/home/HomeNewsletterSection.astr
 import HomeFeaturedPets from '../components/home/HomeFeaturedPets.astro';
 import HomeEventsSection from '../components/home/HomeEventsSection.astro';
 import HomeTestimonialsSection from '../components/home/HomeTestimonialsSection.astro';
+import HomeAccomplishmentsSection from '../components/home/HomeAccomplishmentsSection.astro';
+import HomeDonationsSection from '../components/home/HomeDonationsSection.astro';
 
 import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
@@ -405,58 +407,8 @@ const sideNavSections = [
       </section>
     </div>
 
-    <!-- 12. Donations -->
-    <div class="wp-block-group alignwide home-editable-section is-layout-constrained">
-      <div class="wp-block-group home-editable-donate-card home-editable-runtime-card is-layout-constrained" id="Donations">
-        <p class="home-editable-section-label wp-block-paragraph">{home.donations.label}</p>
-        <h2 class="wp-block-heading">{home.donations.title}</h2>
-        <p class="wp-block-paragraph">{home.donations.intro}</p>
-
-        <div class="home-editable-paypal-giving home-editable-paypal-giving--split">
-          <div class="home-editable-paypal-giving-split">
-            <div class="home-editable-paypal-giving-split__col">
-              <div class="pp-giving-wrapper">
-                <iframe src={home.donations.cat_room.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Donate to the Cat Room"></iframe>
-              </div>
-            </div>
-            <div class="home-editable-paypal-giving-split__col">
-              <div class="pp-giving-wrapper">
-                <iframe src={home.donations.general.href} style="width:100%; height:550px; border:1px solid rgba(15,118,110,0.15); border-radius:1rem; box-shadow:0 20px 48px rgba(17,41,41,0.12); background:#fff;" title="Make a Difference"></iframe>
-              </div>
-            </div>
-          </div>
-          <div class="offline-donations" style="margin-top:2rem;">
-            <div class="offline-donations-header">
-              <h4>{home.donations.offline.title}</h4>
-              <p>{home.donations.offline.label}</p>
-            </div>
-            <div class="offline-donations-body">
-              <div class="offline-donations-amount">{home.donations.offline.amount}</div>
-              <div class="offline-donations-label">{home.donations.offline.caption}</div>
-            </div>
-          </div>
-        </div>
-          <div class="wp-block-columns home-editable-give-grid is-layout-flex">
-          {home.donations.tiles.map((tile) => (
-            <div class="wp-block-column is-layout-flow">
-              <div class="wp-block-group home-editable-give-tile is-layout-constrained" id={tile.title === 'Volunteer' ? 'Volunteer' : undefined}>
-                <h3 class="wp-block-heading">{tile.title}</h3>
-                <p class="wp-block-paragraph">{tile.copy}</p>
-                <div class:list={['wp-block-button', { 'is-style-outline': tile.variant === 'outline' }]}>
-                  <a
-                    class:list={['wp-block-button__link wp-element-button', { 'has-base-color has-contrast-background-color has-text-color has-background': tile.variant !== 'outline' }]}
-                    href={tile.href}
-                    {...(tile.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
-                  >
-                    {tile.button}
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    <!-- 12. Donations: native Astro component (Phase 3) -->
+    <HomeDonationsSection />
 
     <!-- 13. Social: live Facebook Page Plugin. The `.home-editable-social-embed__*`
          classes below already existed in monroe-home.css (a chrome/viewport/iframe/
@@ -626,54 +578,12 @@ const sideNavSections = [
       </div>
     </div>
 
-    <!-- 16. Accomplishments -->
-    <div id="Accomplishments" class="wp-block-group alignwide home-editable-section home-editable-accomplishments-band is-layout-constrained">
-      <div class="wp-block-group home-editable-accomplishments-card is-layout-constrained">
-        <p class="has-text-align-center home-editable-pill wp-block-paragraph">{home.accomplishments.pill}</p>
-        <h2 class="wp-block-heading has-text-align-center home-editable-heading-impact">{home.accomplishments.title}</h2>
-        <p class="has-text-align-center wp-block-paragraph">{home.accomplishments.intro}</p>
-
-        <div class="monroe-accomplishments-widget home-editable-accomplishments-grid" data-monroe-accomplishments-widget>
-          <div class="monroe-accomplishments-widget__tabs" role="tablist" aria-label="Shelter outcome years">
-            {accomplishmentYears.map((year) => (
-              <button
-                type="button"
-                class:list={['monroe-accomplishments-widget__tab', { 'is-active': year === defaultAccomplishmentYear }]}
-                role="tab"
-                id={`monroe-accomplishments-tab-${year}`}
-                aria-selected={year === defaultAccomplishmentYear ? 'true' : 'false'}
-                aria-controls={`monroe-accomplishments-panel-${year}`}
-                data-accomplishments-year={year}
-              >
-                {year}
-              </button>
-            ))}
-          </div>
-          {accomplishmentYears.map((year) => {
-            const stats = home.accomplishments.years[year as keyof typeof home.accomplishments.years];
-            return (
-            <div
-              class:list={['monroe-accomplishments-widget__panel', { 'is-active': year === defaultAccomplishmentYear }]}
-              role="tabpanel"
-              id={`monroe-accomplishments-panel-${year}`}
-              aria-labelledby={`monroe-accomplishments-tab-${year}`}
-              data-accomplishments-panel={year}
-              hidden={year !== defaultAccomplishmentYear}
-            >
-              <div class="monroe-accomplishments-widget__stats">
-                {stats.map((s) => (
-                  <div class:list={['monroe-accomplishments-stat', 'is-tile', { 'is-accent': s.accent }]}>
-                    <span class="monroe-accomplishments-stat__value" data-count={s.value}>{s.display}</span>
-                    <span class="monroe-accomplishments-stat__label">{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+    <!-- 16. Accomplishments: native Astro component (Phase 3) -->
+    <HomeAccomplishmentsSection
+      years={home.accomplishments.years}
+      yearOrder={accomplishmentYears}
+      defaultYear={defaultAccomplishmentYear}
+    />
 
     <!-- 17. Games -->
     <div id="Games" class="wp-block-group alignwide home-editable-section home-editable-games-band is-layout-flow">
@@ -800,88 +710,6 @@ const sideNavSections = [
         fpwDialog.showModal();
       });
       fpwDialog.querySelector('.fpw-fs-close, .fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
-    }
-
-    // Accomplishments tabs.
-    const accWidget = document.querySelector<HTMLElement>('[data-monroe-accomplishments-widget]');
-    if (accWidget && accWidget.dataset.bound !== '1') {
-      accWidget.dataset.bound = '1';
-      // Check for staff portal live outcomes override
-      try {
-        const rawStored = localStorage.getItem('mchs_site_content_v2');
-        if (rawStored) {
-          const stored = JSON.parse(rawStored);
-          if (stored && stored.outcomes) {
-            Object.entries(stored.outcomes).forEach(([year, stats]: [string, any]) => {
-              const panel = accWidget.querySelector(`[data-accomplishments-panel="${year}"]`);
-              if (panel && Array.isArray(stats)) {
-                stats.forEach((s: any) => {
-                  const statTile = Array.from(panel.querySelectorAll('.monroe-accomplishments-stat')).find(
-                    t => t.querySelector('.monroe-accomplishments-stat__label')?.textContent?.trim().toLowerCase() === s.label?.toLowerCase()
-                  );
-                  if (statTile) {
-                    const valEl = statTile.querySelector('.monroe-accomplishments-stat__value') as HTMLElement;
-                    if (valEl) {
-                      valEl.dataset.count = String(s.value);
-                      valEl.textContent = s.display || String(s.value);
-                    }
-                  }
-                });
-              }
-            });
-          }
-        }
-      } catch (e) {}
-
-      accWidget.querySelectorAll<HTMLButtonElement>('.monroe-accomplishments-widget__tab').forEach((tab) => {
-        tab.addEventListener('click', () => {
-          const year = tab.dataset.accomplishmentsYear;
-          accWidget.querySelectorAll('.monroe-accomplishments-widget__tab').forEach((t) => {
-            const active = t === tab;
-            t.classList.toggle('is-active', active);
-            t.setAttribute('aria-selected', String(active));
-          });
-          accWidget.querySelectorAll<HTMLElement>('.monroe-accomplishments-widget__panel').forEach((panel) => {
-            const active = panel.dataset.accomplishmentsPanel === year;
-            panel.classList.toggle('is-active', active);
-            panel.hidden = !active;
-          });
-        });
-      });
-    }
-
-    // Accomplishments stat counters — count up from 0 the first time each
-    // tile scrolls into view. data-count has been sitting on these tiles
-    // unused; this is what it was for.
-    const countEls = document.querySelectorAll<HTMLElement>('.monroe-accomplishments-stat__value[data-count]');
-    if (countEls.length && 'IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const countIO = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const el = entry.target as HTMLElement;
-          countIO.unobserve(el);
-          const target = Number(el.dataset.count);
-          if (!Number.isFinite(target)) return;
-          const original = el.textContent ?? '';
-          const prefix = original.match(/^\D*/)?.[0] ?? '';
-          const suffix = original.match(/\D*$/)?.[0] ?? '';
-          const duration = 1200;
-          const start = performance.now();
-          const step = (now: number) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            el.textContent = `${prefix}${Math.round(target * eased).toLocaleString()}${suffix}`;
-            if (progress < 1) requestAnimationFrame(step);
-            else el.textContent = original;
-          };
-          requestAnimationFrame(step);
-        });
-      }, { threshold: 0.4 });
-      countEls.forEach((el) => {
-        if (el.dataset.ioBound === '1') return;
-        el.dataset.ioBound = '1';
-        countIO.observe(el);
-      });
     }
 
     // Scroll-reveal for below-the-fold sections. Anything already visible on
