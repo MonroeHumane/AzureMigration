@@ -1,70 +1,197 @@
 /**
  * Staff Portal Theme Styles (Monroe Humane Brand Light by default, Dark Ops toggleable)
+ *
+ * Phase 6: native CSS variable foundation. Prefer var(--sp-*) for bg/text/border.
+ * Toggle: document.documentElement[data-staff-theme] + .dark (see staff-theme.ts / BaseLayout).
+ * Public site CSS is intentionally untouched.
  */
 
 :root,
 :root[data-staff-theme="light"] {
+  /* Core surfaces — Tailwind-friendly aliases noted in STAFF_THEME_NOTES.md */
   --sp-bg: #f4f7f5;
+  --sp-surface: #ffffff;
+  --sp-surface-muted: #f8fafc;
+  --sp-surface-subtle: #f1f5f9;
   --sp-header-bg: rgba(255, 255, 255, 0.98);
   --sp-header-border: #cbd5e1;
+  --sp-header-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   --sp-sidebar-bg: rgba(255, 255, 255, 0.98);
-  --sp-sidebar-border: #cbd5e1;
+  --sp-sidebar-border: #e2e8f0;
+  --sp-sidebar-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   --sp-card-bg: #ffffff;
   --sp-card-border: #cbd5e1;
   --sp-card-hover-border: #0d9488;
   --sp-card-hover-bg: #ffffff;
   --sp-card-shadow: 0 2px 8px -2px rgba(23, 58, 57, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
   --sp-card-hover-shadow: 0 12px 24px -4px rgba(23, 58, 57, 0.12);
+
+  /* Text */
+  --sp-text-body: #1e293b;
   --sp-text-primary: #173a39;
   --sp-text-secondary: #334155;
   --sp-text-muted: #475569;
+  --sp-text-ink: #0f172a;
+  --sp-text-faint: #64748b;
   --sp-metric: #173a39;
+  --sp-on-accent: #ffffff;
+
+  /* Accent / brand (maps roughly to teal-700 / brand #173a39) */
+  --sp-accent: #0f766e;
+  --sp-accent-hover: #0d9488;
+  --sp-accent-strong: #115e59;
+  --sp-brand: #173a39;
+  --sp-link: #0f766e;
+  --sp-link-hover: #115e59;
+
+  /* Soft accent / icon chips */
   --sp-icon-box-bg: #e6f4f1;
   --sp-icon-box-border: #b2dfdb;
   --sp-icon-box-text: #0f766e;
+
+  /* Tabs / nav */
   --sp-tab-bg: #ffffff;
   --sp-tab-text: #1e293b;
   --sp-tab-border: #cbd5e1;
+  --sp-tab-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --sp-tab-hover-bg: #f8fafc;
+  --sp-tab-hover-text: #0f172a;
+  --sp-tab-hover-border: #0d9488;
   --sp-tab-active-bg: #173a39;
   --sp-tab-active-text: #ffffff;
   --sp-tab-active-border: #173a39;
+  --sp-tab-active-shadow: 0 2px 4px rgba(23, 58, 57, 0.2);
+  --sp-tab-active-icon: #5eead4;
+
+  /* Badges / LIVE status */
   --sp-badge-bg: #ecfdf5;
   --sp-badge-text: #065f46;
   --sp-badge-border: #a7f3d0;
+  --sp-status-bg: #f0fdf4;
+  --sp-status-border: #bbf7d0;
+  --sp-status-text: #166534;
+  --sp-status-strong: #14532d;
+
+  /* Borders */
+  --sp-border: #cbd5e1;
+  --sp-border-subtle: #e2e8f0;
   --sp-divider: #e2e8f0;
+
+  /* Danger / logout */
+  --sp-danger-bg: #fee2e2;
+  --sp-danger-text: #991b1b;
+  --sp-danger-border: #f87171;
+
+  /* Sidebar nav (light) */
+  --sp-sidebar-nav: #475569;
+  --sp-sidebar-nav-hover-bg: #f1f5f9;
+  --sp-sidebar-nav-hover-text: #0f172a;
+  --sp-sidebar-nav-active-bg: #f0fdfa;
+  --sp-sidebar-nav-active-text: #0f766e;
+  --sp-sidebar-nav-active-border: #5eead4;
+  --sp-sidebar-footer-bg: #f8fafc;
+  --sp-sidebar-active-icon-bg: #0f766e;
+
+  /* Hero / gradient card */
+  --sp-hero-gradient: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+
   --sp-ambient-opacity: 0.04;
+
+  /* Aliases for Tailwind-oriented naming in future utilities */
+  --color-staff-bg: var(--sp-bg);
+  --color-staff-surface: var(--sp-surface);
+  --color-staff-border: var(--sp-border);
+  --color-staff-text: var(--sp-text-primary);
+  --color-staff-muted: var(--sp-text-muted);
+  --color-staff-accent: var(--sp-accent);
 }
 
 :root[data-staff-theme="dark"] {
   --sp-bg: #071a17;
+  --sp-surface: rgba(11, 36, 32, 0.85);
+  --sp-surface-muted: rgba(11, 36, 32, 0.85);
+  --sp-surface-subtle: #0e2c28;
   --sp-header-bg: rgba(6, 24, 21, 0.95);
   --sp-header-border: rgba(19, 78, 74, 0.8);
+  --sp-header-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   --sp-sidebar-bg: rgba(5, 19, 17, 0.95);
   --sp-sidebar-border: rgba(19, 78, 74, 0.8);
+  --sp-sidebar-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
   --sp-card-bg: rgba(11, 36, 32, 0.85);
   --sp-card-border: rgba(19, 78, 74, 0.7);
   --sp-card-hover-border: rgba(20, 184, 166, 0.4);
   --sp-card-hover-bg: #0d2a25;
   --sp-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   --sp-card-hover-shadow: 0 12px 24px -4px rgba(4, 18, 15, 0.5);
+
+  --sp-text-body: #ffffff;
   --sp-text-primary: #ffffff;
   --sp-text-secondary: #94a3b8;
   --sp-text-muted: #64748b;
+  --sp-text-ink: #ffffff;
+  --sp-text-faint: #64748b;
   --sp-metric: #ffffff;
+  --sp-on-accent: #ffffff;
+
+  --sp-accent: #5eead4;
+  --sp-accent-hover: #2dd4bf;
+  --sp-accent-strong: #5eead4;
+  --sp-brand: #ffffff;
+  --sp-link: #2dd4bf;
+  --sp-link-hover: #5eead4;
+
   --sp-icon-box-bg: rgba(4, 47, 46, 0.8);
   --sp-icon-box-border: rgba(19, 78, 74, 0.8);
   --sp-icon-box-text: #5eead4;
+
   --sp-tab-bg: rgba(4, 47, 46, 0.6);
   --sp-tab-text: #cbd5e1;
   --sp-tab-border: rgba(19, 78, 74, 0.7);
+  --sp-tab-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --sp-tab-hover-bg: rgba(13, 42, 37, 0.6);
+  --sp-tab-hover-text: #ffffff;
+  --sp-tab-hover-border: rgba(20, 184, 166, 0.5);
   --sp-tab-active-bg: rgba(17, 94, 89, 0.6);
   --sp-tab-active-text: #ffffff;
   --sp-tab-active-border: rgba(13, 148, 136, 0.6);
+  --sp-tab-active-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  --sp-tab-active-icon: #5eead4;
+
   --sp-badge-bg: rgba(17, 94, 89, 0.6);
   --sp-badge-text: #5eead4;
   --sp-badge-border: rgba(13, 148, 136, 0.6);
+  --sp-status-bg: rgba(17, 94, 89, 0.5);
+  --sp-status-border: rgba(13, 148, 136, 0.5);
+  --sp-status-text: #5eead4;
+  --sp-status-strong: #99f6e4;
+
+  --sp-border: rgba(19, 78, 74, 0.8);
+  --sp-border-subtle: rgba(19, 78, 74, 0.6);
   --sp-divider: rgba(19, 78, 74, 0.6);
+
+  --sp-danger-bg: rgba(76, 5, 25, 0.3);
+  --sp-danger-text: #fca5a5;
+  --sp-danger-border: rgba(159, 18, 57, 0.4);
+
+  --sp-sidebar-nav: #cbd5e1;
+  --sp-sidebar-nav-hover-bg: rgba(13, 42, 37, 0.4);
+  --sp-sidebar-nav-hover-text: #ffffff;
+  --sp-sidebar-nav-active-bg: rgba(13, 148, 136, 0.25);
+  --sp-sidebar-nav-active-text: #ffffff;
+  --sp-sidebar-nav-active-border: rgba(20, 184, 166, 0.4);
+  --sp-sidebar-footer-bg: rgba(4, 14, 12, 0.8);
+  --sp-sidebar-active-icon-bg: rgba(15, 118, 110, 0.6);
+
+  --sp-hero-gradient: linear-gradient(135deg, rgba(11, 36, 32, 0.95) 0%, rgba(4, 47, 46, 0.9) 100%);
+
   --sp-ambient-opacity: 0.10;
+
+  --color-staff-bg: var(--sp-bg);
+  --color-staff-surface: var(--sp-surface);
+  --color-staff-border: var(--sp-border);
+  --color-staff-text: var(--sp-text-primary);
+  --color-staff-muted: var(--sp-text-muted);
+  --color-staff-accent: var(--sp-accent);
 }
 
 /* Base Body Enforcements */
@@ -75,227 +202,244 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   margin-top: 0 !important;
   background-color: var(--sp-bg) !important;
   background-image: none !important;
-  color: var(--sp-text-primary) !important;
+  color: var(--sp-text-body) !important;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+/* ==========================================================================
+   SHARED THEME SHELL (var-driven; works for light + dark via data-staff-theme)
+   First batch: header chrome, brand chip, primary surfaces. Prefer these over
+   duplicating light/dark hex pairs going forward.
+   ========================================================================== */
+
+.staff-portal-header {
+  background-color: var(--sp-header-bg) !important;
+  border-color: var(--sp-header-border) !important;
+  color: var(--sp-text-body) !important;
+  box-shadow: var(--sp-header-shadow) !important;
+}
+
+.staff-portal-header .staff-brand-text {
+  color: var(--sp-text-primary) !important;
+}
+
+.staff-portal-header .staff-brand-icon {
+  background-color: var(--sp-icon-box-bg) !important;
+  border-color: var(--sp-icon-box-border) !important;
+  color: var(--sp-icon-box-text) !important;
+}
+
+.staff-portal-header .staff-portal-pill {
+  background-color: var(--sp-badge-bg) !important;
+  color: var(--sp-badge-text) !important;
+  border-color: var(--sp-badge-border) !important;
+}
+
+.sidebar-root {
+  background-color: var(--sp-sidebar-bg) !important;
+  border-color: var(--sp-sidebar-border) !important;
+  box-shadow: var(--sp-sidebar-shadow) !important;
+}
+
+/* Staff page titles follow data-staff-theme (not OS prefers-color-scheme).
+   Scoped to the portal so public dark-hero titles stay white. */
+body.staff-portal-body h1.text-white,
+body.staff-portal-body h2.text-white,
+body.staff-portal-body h3.text-white,
+body.staff-portal-body h1.dark\:text-white,
+body.staff-portal-body h2.dark\:text-white,
+body.staff-portal-body h3.dark\:text-white,
+body.staff-portal-body h4.dark\:text-white {
+  color: var(--sp-text-primary) !important;
+}
+
 
 /* ==========================================================================
    LIGHT THEME OVERRIDES (Default)
    Applied whenever data-staff-theme is NOT "dark"
    ========================================================================== */
 
-:root:not([data-staff-theme="dark"]) body.staff-portal-body {
-  color: #1e293b !important;
-}
 
-/* Header in Light Mode */
-:root:not([data-staff-theme="dark"]) .staff-portal-header {
-  background-color: var(--sp-header-bg) !important;
-  border-color: var(--sp-header-border) !important;
-  color: #1e293b !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
-}
-
-:root:not([data-staff-theme="dark"]) .staff-portal-header .staff-brand-text {
-  color: #173a39 !important;
-}
-
-:root:not([data-staff-theme="dark"]) .staff-portal-header .staff-brand-icon {
-  background-color: #e6f4f1 !important;
-  border-color: #b2dfdb !important;
-  color: #0f766e !important;
-}
-
-:root:not([data-staff-theme="dark"]) .staff-portal-header .staff-portal-pill {
-  background-color: #ecfdf5 !important;
-  color: #065f46 !important;
-  border-color: #a7f3d0 !important;
-}
+/* Header shell + brand → SHARED THEME SHELL (var-driven) */
 
 /* Header Live Status / Controls in Light Mode */
 :root:not([data-staff-theme="dark"]) .staff-portal-header .bg-teal-950\/80,
 :root:not([data-staff-theme="dark"]) .staff-portal-header .bg-teal-950\/60 {
-  background-color: #f0fdf4 !important;
-  border-color: #bbf7d0 !important;
-  color: #166534 !important;
+  background-color: var(--sp-status-bg) !important;
+  border-color: var(--sp-status-border) !important;
+  color: var(--sp-status-text) !important;
   font-weight: 600 !important;
 }
 :root:not([data-staff-theme="dark"]) .staff-portal-header .bg-teal-950\/80 strong,
 :root:not([data-staff-theme="dark"]) .staff-portal-header .bg-teal-950\/60 strong {
-  color: #14532d !important;
+  color: var(--sp-status-strong) !important;
   font-weight: 700 !important;
 }
 
 :root:not([data-staff-theme="dark"]) .staff-portal-header a[title="Return to Public Website"] {
-  background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  color: #173a39 !important;
+  background-color: var(--sp-surface) !important;
+  border-color: var(--sp-border) !important;
+  color: var(--sp-text-primary) !important;
   font-weight: 600 !important;
 }
 :root:not([data-staff-theme="dark"]) .staff-portal-header a[title="Return to Public Website"]:hover {
-  background-color: #f8fafc !important;
-  border-color: #0d9488 !important;
+  background-color: var(--sp-surface-muted) !important;
+  border-color: var(--sp-accent-hover) !important;
 }
 
 :root:not([data-staff-theme="dark"]) .staff-portal-header #global-staff-logout-btn {
-  background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  color: #334155 !important;
+  background-color: var(--sp-surface) !important;
+  border-color: var(--sp-border) !important;
+  color: var(--sp-text-secondary) !important;
   font-weight: 600 !important;
 }
 :root:not([data-staff-theme="dark"]) .staff-portal-header #global-staff-logout-btn:hover {
-  background-color: #fee2e2 !important;
-  color: #991b1b !important;
-  border-color: #f87171 !important;
+  background-color: var(--sp-danger-bg) !important;
+  color: var(--sp-danger-text) !important;
+  border-color: var(--sp-danger-border) !important;
 }
 
 :root:not([data-staff-theme="dark"]) .staff-portal-header #nav-user-email {
-  color: #1e293b !important;
+  color: var(--sp-text-body) !important;
   font-weight: 600 !important;
 }
 
 /* Nav Tabs in Light Mode */
 :root:not([data-staff-theme="dark"]) .staff-nav-btn {
-  background-color: #ffffff !important;
-  color: #1e293b !important;
+  background-color: var(--sp-tab-bg) !important;
+  color: var(--sp-tab-text) !important;
   font-weight: 600 !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  border-color: var(--sp-tab-border) !important;
+  box-shadow: var(--sp-tab-shadow) !important;
 }
 :root:not([data-staff-theme="dark"]) .staff-nav-btn:hover {
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
-  border-color: #0d9488 !important;
+  background-color: var(--sp-tab-hover-bg) !important;
+  color: var(--sp-tab-hover-text) !important;
+  border-color: var(--sp-tab-hover-border) !important;
 }
 :root:not([data-staff-theme="dark"]) .staff-nav-btn svg {
-  color: #0f766e !important;
+  color: var(--sp-accent) !important;
 }
 :root:not([data-staff-theme="dark"]) .staff-nav-btn.font-bold,
 :root:not([data-staff-theme="dark"]) .staff-nav-btn[class*="border-teal-600"] {
-  background-color: #173a39 !important;
-  color: #ffffff !important;
-  border-color: #173a39 !important;
-  box-shadow: 0 2px 4px rgba(23, 58, 57, 0.2) !important;
+  background-color: var(--sp-tab-active-bg) !important;
+  color: var(--sp-tab-active-text) !important;
+  border-color: var(--sp-tab-active-border) !important;
+  box-shadow: var(--sp-tab-active-shadow) !important;
 }
 :root:not([data-staff-theme="dark"]) .staff-nav-btn.font-bold svg,
 :root:not([data-staff-theme="dark"]) .staff-nav-btn[class*="border-teal-600"] svg {
-  color: #5eead4 !important;
+  color: var(--sp-tab-active-icon) !important;
 }
 
 :root:not([data-staff-theme="dark"]) a[href*="directus"]:not(.btn-success),
 :root:not([data-staff-theme="dark"]) a[href*="directusAdminUrl"] {
-  background-color: #ffffff !important;
-  color: #173a39 !important;
-  border-color: #cbd5e1 !important;
+  background-color: var(--sp-surface) !important;
+  color: var(--sp-text-primary) !important;
+  border-color: var(--sp-border) !important;
   font-weight: 600 !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: var(--sp-tab-shadow) !important;
 }
 :root:not([data-staff-theme="dark"]) a[href*="directus"]:hover {
-  background-color: #f8fafc !important;
-  border-color: #0d9488 !important;
+  background-color: var(--sp-surface-muted) !important;
+  border-color: var(--sp-accent-hover) !important;
 }
 
-/* Desktop Sidebar in Light Mode */
-:root:not([data-staff-theme="dark"]) aside,
-:root:not([data-staff-theme="dark"]) .sidebar-root {
-  background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+/* Desktop Sidebar in Light Mode (shell bg → SHARED .sidebar-root) */
+.sidebar-header {
+  border-color: var(--sp-sidebar-border) !important;
 }
-:root:not([data-staff-theme="dark"]) aside .sidebar-header {
-  border-color: #e2e8f0 !important;
+.sidebar-brand-icon {
+  background-color: var(--sp-icon-box-bg) !important;
+  border-color: var(--sp-icon-box-border) !important;
+  color: var(--sp-icon-box-text) !important;
 }
-:root:not([data-staff-theme="dark"]) aside .sidebar-brand-icon {
-  background-color: #ecfdf5 !important;
-  border-color: #a7f3d0 !important;
-  color: #065f46 !important;
+.sidebar-brand-title {
+  color: var(--sp-text-ink) !important;
 }
-:root:not([data-staff-theme="dark"]) aside .sidebar-brand-title {
-  color: #0f172a !important;
-}
-:root:not([data-staff-theme="dark"]) aside .sidebar-brand-subtitle {
-  color: #0f766e !important;
+.sidebar-brand-subtitle {
+  color: var(--sp-link) !important;
   font-weight: 700 !important;
 }
 :root:not([data-staff-theme="dark"]) aside #sidebar-cmd-k-btn,
 :root:not([data-staff-theme="dark"]) aside .sidebar-cmd-btn {
-  background-color: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  color: #475569 !important;
+  background-color: var(--sp-surface-muted) !important;
+  border: 1px solid var(--sp-border-subtle) !important;
+  color: var(--sp-text-muted) !important;
 }
 :root:not([data-staff-theme="dark"]) aside #sidebar-cmd-k-btn:hover,
 :root:not([data-staff-theme="dark"]) aside .sidebar-cmd-btn:hover {
-  background-color: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
-  color: #0f172a !important;
+  background-color: var(--sp-surface-subtle) !important;
+  border-color: var(--sp-border) !important;
+  color: var(--sp-text-ink) !important;
 }
 :root:not([data-staff-theme="dark"]) aside #sidebar-cmd-k-btn svg,
 :root:not([data-staff-theme="dark"]) aside .sidebar-cmd-btn svg {
-  color: #64748b !important;
+  color: var(--sp-text-faint) !important;
 }
 :root:not([data-staff-theme="dark"]) aside .sidebar-cmd-kbd {
-  background-color: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #475569 !important;
+  background-color: var(--sp-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  color: var(--sp-text-muted) !important;
 }
 :root:not([data-staff-theme="dark"]) aside .sidebar-section-heading {
-  color: #475569 !important;
+  color: var(--sp-text-muted) !important;
   font-weight: 700 !important;
   letter-spacing: 0.06em !important;
 }
 :root:not([data-staff-theme="dark"]) aside .border-teal-800\/60,
 :root:not([data-staff-theme="dark"]) aside .border-teal-800\/80 {
-  border-color: #e2e8f0 !important;
+  border-color: var(--sp-border-subtle) !important;
 }
 :root:not([data-staff-theme="dark"]) aside span.text-white {
-  color: #173a39 !important;
+  color: var(--sp-text-primary) !important;
 }
 :root:not([data-staff-theme="dark"]) aside a {
-  color: #475569 !important;
+  color: var(--sp-sidebar-nav) !important;
 }
 :root:not([data-staff-theme="dark"]) aside a:hover {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
+  background-color: var(--sp-sidebar-nav-hover-bg) !important;
+  color: var(--sp-sidebar-nav-hover-text) !important;
 }
 :root:not([data-staff-theme="dark"]) aside a.active,
 :root:not([data-staff-theme="dark"]) aside a.font-bold,
 :root:not([data-staff-theme="dark"]) aside a[class*="border-teal-600"] {
-  background-color: #f0fdfa !important;
-  color: #0f766e !important;
-  border-color: #5eead4 !important;
+  background-color: var(--sp-sidebar-nav-active-bg) !important;
+  color: var(--sp-sidebar-nav-active-text) !important;
+  border-color: var(--sp-sidebar-nav-active-border) !important;
   font-weight: 700 !important;
 }
 :root:not([data-staff-theme="dark"]) aside a.active .sidebar-nav-icon {
-  background-color: #0f766e !important;
-  border-color: #0f766e !important;
-  color: #ffffff !important;
+  background-color: var(--sp-sidebar-active-icon-bg) !important;
+  border-color: var(--sp-sidebar-active-icon-bg) !important;
+  color: var(--sp-on-accent) !important;
 }
 :root:not([data-staff-theme="dark"]) aside a:not(.active) .sidebar-nav-icon {
-  background-color: #f1f5f9 !important;
-  border: 1px solid #e2e8f0 !important;
-  color: #0f766e !important;
+  background-color: var(--sp-surface-subtle) !important;
+  border: 1px solid var(--sp-border-subtle) !important;
+  color: var(--sp-accent) !important;
 }
 :root:not([data-staff-theme="dark"]) aside a:not(.active):hover .sidebar-nav-icon {
-  background-color: #ecfdf5 !important;
-  border-color: #a7f3d0 !important;
-  color: #047857 !important;
+  background-color: var(--sp-badge-bg) !important;
+  border-color: var(--sp-badge-border) !important;
+  color: var(--sp-badge-text) !important;
 }
 :root:not([data-staff-theme="dark"]) aside .sidebar-footer {
-  background-color: #f8fafc !important;
-  border-top: 1px solid #e2e8f0 !important;
+  background-color: var(--sp-sidebar-footer-bg) !important;
+  border-top: 1px solid var(--sp-border-subtle) !important;
 }
 :root:not([data-staff-theme="dark"]) aside #sidebar-user-avatar,
 :root:not([data-staff-theme="dark"]) aside .sidebar-user-avatar {
-  background-color: #0f766e !important;
-  color: #ffffff !important;
+  background-color: var(--sp-accent) !important;
+  color: var(--sp-on-accent) !important;
 }
 :root:not([data-staff-theme="dark"]) aside .sidebar-user-label {
-  color: #64748b !important;
+  color: var(--sp-text-faint) !important;
   font-weight: 700 !important;
 }
 :root:not([data-staff-theme="dark"]) aside #sidebar-user-email,
 :root:not([data-staff-theme="dark"]) aside .sidebar-user-email {
-  color: #0f172a !important;
+  color: var(--sp-text-ink) !important;
   font-weight: 600 !important;
 }
 :root:not([data-staff-theme="dark"]) aside #sidebar-logout-btn,
@@ -333,31 +477,31 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 :root:not([data-staff-theme="dark"]) .bg-\[\#0b2420\],
 :root:not([data-staff-theme="dark"]) .bg-\[\#0c2824\],
 :root:not([data-staff-theme="dark"]) .bg-\[\#0a2723\] {
-  background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 2px 8px -2px rgba(23, 58, 57, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-  color: #0f172a !important;
+  background-color: var(--sp-card-bg) !important;
+  border-color: var(--sp-card-border) !important;
+  box-shadow: var(--sp-card-shadow) !important;
+  color: var(--sp-text-ink) !important;
 }
 
 :root:not([data-staff-theme="dark"]) a.bg-\[\#0b2420\]\/85:hover,
 :root:not([data-staff-theme="dark"]) a.bg-\[\#0b2420\]:hover {
-  background-color: #ffffff !important;
-  border-color: #0d9488 !important;
-  box-shadow: 0 12px 24px -4px rgba(23, 58, 57, 0.12) !important;
+  background-color: var(--sp-card-hover-bg) !important;
+  border-color: var(--sp-card-hover-border) !important;
+  box-shadow: var(--sp-card-hover-shadow) !important;
   transform: translateY(-1px);
 }
 
 /* Gradients in Light Mode */
 :root:not([data-staff-theme="dark"]) .from-\[\#0b2b25\] {
-  background-image: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%) !important;
-  border-color: #cbd5e1 !important;
+  background-image: var(--sp-hero-gradient) !important;
+  border-color: var(--sp-card-border) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 :root:not([data-staff-theme="dark"]) .from-\[\#0b2b25\] h1 {
-  color: #173a39 !important;
+  color: var(--sp-text-primary) !important;
 }
 :root:not([data-staff-theme="dark"]) .from-\[\#0b2b25\] p {
-  color: #334155 !important;
+  color: var(--sp-text-secondary) !important;
 }
 
 :root:not([data-staff-theme="dark"]) {
@@ -367,27 +511,7 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   color-scheme: dark;
 }
 
-/* Staff page titles follow the staff theme, not OS prefers-color-scheme.
-   Scoped to the portal so public dark-hero titles (FAQ, Donate, etc.) stay white. */
-:root:not([data-staff-theme="dark"]) body.staff-portal-body h1.text-white,
-:root:not([data-staff-theme="dark"]) body.staff-portal-body h2.text-white,
-:root:not([data-staff-theme="dark"]) body.staff-portal-body h3.text-white,
-:root:not([data-staff-theme="dark"]) body.staff-portal-body h1.dark\:text-white,
-:root:not([data-staff-theme="dark"]) body.staff-portal-body h2.dark\:text-white,
-:root:not([data-staff-theme="dark"]) body.staff-portal-body h3.dark\:text-white,
-:root:not([data-staff-theme="dark"]) body.staff-portal-body h4.dark\:text-white {
-  color: #173a39 !important;
-}
-
-:root[data-staff-theme="dark"] body.staff-portal-body h1.text-white,
-:root[data-staff-theme="dark"] body.staff-portal-body h2.text-white,
-:root[data-staff-theme="dark"] body.staff-portal-body h3.text-white,
-:root[data-staff-theme="dark"] body.staff-portal-body h1.dark\:text-white,
-:root[data-staff-theme="dark"] body.staff-portal-body h2.dark\:text-white,
-:root[data-staff-theme="dark"] body.staff-portal-body h3.dark\:text-white,
-:root[data-staff-theme="dark"] body.staff-portal-body h4.dark\:text-white {
-  color: #ffffff !important;
-}
+/* Staff page titles → SHARED THEME SHELL (var(--sp-text-primary)) */
 
 /* Ensure buttons and badges with .text-white retain crisp white text in Light Mode */
 :root:not([data-staff-theme="dark"]) button.text-white,
@@ -417,7 +541,7 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 :root:not([data-staff-theme="dark"]) #donor-kpi-active,
 :root:not([data-staff-theme="dark"]) #grant-stat-total,
 :root:not([data-staff-theme="dark"]) .font-mono.font-bold.text-white:not(.drill-flow-total) {
-  color: #173a39 !important;
+  color: var(--sp-metric) !important;
 }
 
 /* Card Kicker Titles & Section Headings */
@@ -425,7 +549,7 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 :root:not([data-staff-theme="dark"]) div.text-slate-400.uppercase,
 :root:not([data-staff-theme="dark"]) h2.text-slate-400.uppercase,
 :root:not([data-staff-theme="dark"]) h2.text-slate-400 {
-  color: #0f766e !important;
+  color: var(--sp-accent) !important;
   font-weight: 700 !important;
   letter-spacing: 0.06em !important;
 }
@@ -433,16 +557,16 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 /* Card Labels & Secondary Meta in Light Mode */
 :root:not([data-staff-theme="dark"]) .text-slate-400,
 :root:not([data-staff-theme="dark"]) .text-slate-300 {
-  color: #334155 !important;
+  color: var(--sp-text-secondary) !important;
 }
 
 :root:not([data-staff-theme="dark"]) #staff-user-email {
-  color: #173a39 !important;
+  color: var(--sp-text-primary) !important;
   font-weight: 700 !important;
 }
 :root:not([data-staff-theme="dark"]) #hub-status-financials,
 :root:not([data-staff-theme="dark"]) #hub-status-petsync {
-  color: #334155 !important;
+  color: var(--sp-text-secondary) !important;
   font-weight: 500 !important;
 }
 
@@ -453,29 +577,29 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
 :root:not([data-staff-theme="dark"]) #metric-donor-counts,
 :root:not([data-staff-theme="dark"]) #metric-donor-active,
 :root:not([data-staff-theme="dark"]) #hub-grants-detail {
-  color: #334155 !important;
+  color: var(--sp-text-secondary) !important;
   font-weight: 500 !important;
 }
 
 /* LIVE Status Badge */
 :root:not([data-staff-theme="dark"]) .bg-teal-900\/60,
 :root:not([data-staff-theme="dark"]) .staff-live-badge {
-  background-color: #ecfdf5 !important;
-  color: #065f46 !important;
-  border-color: #a7f3d0 !important;
+  background-color: var(--sp-badge-bg) !important;
+  color: var(--sp-badge-text) !important;
+  border-color: var(--sp-badge-border) !important;
   font-weight: 700 !important;
 }
 
 /* Card Bottom Action Footer & Divider */
 :root:not([data-staff-theme="dark"]) .border-teal-900\/80 {
-  border-color: #e2e8f0 !important;
+  border-color: var(--sp-divider) !important;
 }
 :root:not([data-staff-theme="dark"]) .border-t.border-teal-900\/80 {
-  color: #475569 !important;
+  color: var(--sp-text-muted) !important;
   font-weight: 600 !important;
 }
 :root:not([data-staff-theme="dark"]) a:hover .border-t.border-teal-900\/80 {
-  color: #0f766e !important;
+  color: var(--sp-accent) !important;
 }
 :root:not([data-staff-theme="dark"]) .text-teal-400 {
   color: #0d9488 !important;
@@ -599,21 +723,13 @@ body.monroe-rebuild-theme.monroe-inner-page.staff-portal-body {
   color: #ffffff !important;
 }
 
-/* Universal Return to Hub Links */
-:root:not([data-staff-theme="dark"]) .staff-portal-body a[href="/internal/"]:not(.staff-portal-brand):not(.staff-nav-btn) {
-  color: #0f766e !important;
+/* Universal Return to Hub Links (var-driven) */
+.staff-portal-body a[href="/internal/"]:not(.staff-portal-brand):not(.staff-nav-btn) {
+  color: var(--sp-link) !important;
   font-weight: 600 !important;
 }
-:root:not([data-staff-theme="dark"]) .staff-portal-body a[href="/internal/"]:not(.staff-portal-brand):not(.staff-nav-btn):hover {
-  color: #115e59 !important;
-  text-decoration: underline !important;
-}
-:root[data-staff-theme="dark"] .staff-portal-body a[href="/internal/"]:not(.staff-portal-brand):not(.staff-nav-btn) {
-  color: #2dd4bf !important;
-  font-weight: 600 !important;
-}
-:root[data-staff-theme="dark"] .staff-portal-body a[href="/internal/"]:not(.staff-portal-brand):not(.staff-nav-btn):hover {
-  color: #5eead4 !important;
+.staff-portal-body a[href="/internal/"]:not(.staff-portal-brand):not(.staff-nav-btn):hover {
+  color: var(--sp-link-hover) !important;
   text-decoration: underline !important;
 }
 
@@ -1566,7 +1682,7 @@ html[data-pwa="standalone"] #pwa-install-container {
 }
 
 
-/* Theme Toggle Button Component */
+/* Theme Toggle Button Component (var-driven; do not break dark toggle) */
 .staff-theme-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -1578,29 +1694,21 @@ html[data-pwa="standalone"] #pwa-install-container {
   cursor: pointer;
   user-select: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--sp-tab-shadow);
+  background-color: var(--sp-surface-muted);
+  color: var(--sp-text-secondary);
+  border-color: var(--sp-border);
 }
-
-:root:not([data-staff-theme="dark"]) .staff-theme-toggle-btn {
-  background-color: #f8fafc;
-  color: #334155;
-  border-color: #cbd5e1;
+.staff-theme-toggle-btn:hover {
+  background-color: var(--sp-surface-subtle);
+  border-color: var(--sp-tab-hover-border);
+  color: var(--sp-text-ink);
 }
-:root:not([data-staff-theme="dark"]) .staff-theme-toggle-btn:hover {
-  background-color: #f1f5f9;
-  border-color: #94a3b8;
-  color: #0f172a;
-}
-
 :root[data-staff-theme="dark"] .staff-theme-toggle-btn {
-  background-color: rgba(11, 36, 32, 0.85);
-  color: #5eead4;
-  border-color: rgba(19, 78, 74, 0.8);
+  color: var(--sp-accent);
 }
 :root[data-staff-theme="dark"] .staff-theme-toggle-btn:hover {
-  background-color: #0e2c28;
-  border-color: rgba(20, 184, 166, 0.5);
-  color: #ffffff;
+  color: var(--sp-on-accent);
 }
 
 /*
