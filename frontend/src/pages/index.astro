@@ -7,6 +7,7 @@ import sponsors from '../data/sponsors.json';
 import reviewsData from '../data/reviews.json';
 import MobileTOC from '../components/MobileTOC.astro';
 import HomeNewsletterSection from '../components/home/HomeNewsletterSection.astro';
+import HomeFeaturedPets from '../components/home/HomeFeaturedPets.astro';
 
 import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
@@ -55,12 +56,6 @@ const accomplishmentYears = Object.keys(home.accomplishments.years).sort((a, b) 
 const defaultAccomplishmentYear = accomplishmentYears[0];
 
 
-const petChips = (p: (typeof pets)[number]) => [
-  p.species_label || p.type || 'Pet',
-  p.gender || 'Unknown',
-  p.age_display || 'Age N/A',
-  p.location || 'Location',
-];
 const TEL = SITE.contact.phoneTel;
 
 const sideNavSections = [
@@ -301,113 +296,8 @@ const sideNavSections = [
       </div>
     </div>
 
-    <!-- 4. Featured pets ("Find your next best friend") -->
-    <div class="wp-block-group alignwide home-editable-section is-layout-constrained" id="FeaturedPets">
-      <div class="home-featured-pets-card">
-        <div class="home-featured-pets-header">
-          <div class="home-featured-pets-header__copy">
-            <span class="home-featured-pets-badge">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-              Longest Residents
-            </span>
-            <h2 class="home-featured-pets-title">{home.featured_pets.title}</h2>
-            <p class="home-featured-pets-intro">{home.featured_pets.copy}</p>
-          </div>
-          <div class="home-featured-pets-header__actions">
-            <a class="home-featured-pets-btn-primary" href="/adopt">
-              <span>Search All Adoptable Pets</span>
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </a>
-            <button id="fpwExpandBtn" type="button" class="home-featured-pets-btn-secondary fpw-expand-btn" aria-controls="featuredPetsFsDialog">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <polyline points="9 21 3 21 3 15"></polyline>
-                <line x1="21" y1="3" x2="14" y2="10"></line>
-                <line x1="3" y1="21" x2="10" y2="14"></line>
-              </svg>
-              <span>Full Screen Gallery</span>
-            </button>
-          </div>
-        </div>
-
-        <dialog id="featuredPetsFsDialog" class="fpw-fs-dialog">
-          <div class="fpw-fs-header fpw-fs-dialog__head">
-            <h2>Adoptable Pets — Longest Residents</h2>
-            <button type="button" class="fpw-fs-close fpw-fs-dialog__close" aria-label="Close">Close</button>
-          </div>
-          <div class="widget-section">
-            <div id="fpw-fs-longest" class="widget-grid"></div>
-          </div>
-        </dialog>
-
-        <div id="featuredPetsWidget" data-monroe-static class="home-featured-pets-slider-wrap">
-          <div class="widget-grid" id="longestRow">
-            <div class="scroll-viewport">
-              <div class="scroll-track">
-                <div class="scroll-strip scroll-strip--primary">
-                  {pets.map((pet) => (
-                    <div class="pet-card-widget home-pet-card-elevated">
-                      <div class="photo-shell">
-                        <span class="home-pet-card-tag">Waiting for You</span>
-                        <div class="photo-frame">
-                          <img class="pet-photo-widget" src={pet.image} alt={pet.name} loading="lazy" decoding="async" />
-                        </div>
-                      </div>
-                      <div class="pet-details-widget">
-                        <div class="pet-name-widget">{pet.name}</div>
-                        <div class="pet-breed">{pet.breed}</div>
-                        <div class="chip-row">
-                          {petChips(pet).map((chip) => <span class="chip">{chip}</span>)}
-                        </div>
-                        <div class="view-profile-widget">
-                          <a href={pet.url || `/adopt/${pet.id}`} class="home-pet-card-link">
-                            <span>Meet {pet.name}</span>
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                              <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div class="scroll-strip scroll-strip--clone" aria-hidden="true">
-                  {pets.map((pet) => (
-                    <div class="pet-card-widget home-pet-card-elevated">
-                      <div class="photo-shell">
-                        <span class="home-pet-card-tag">Waiting for You</span>
-                        <div class="photo-frame">
-                          <img class="pet-photo-widget" src={pet.image} alt={pet.name} loading="lazy" decoding="async" />
-                        </div>
-                      </div>
-                      <div class="pet-details-widget">
-                        <div class="pet-name-widget">{pet.name}</div>
-                        <div class="pet-breed">{pet.breed}</div>
-                        <div class="chip-row">
-                          {petChips(pet).map((chip) => <span class="chip">{chip}</span>)}
-                        </div>
-                        <div class="view-profile-widget">
-                          <a href={pet.url || `/adopt/${pet.id}`} class="home-pet-card-link">
-                            <span>Meet {pet.name}</span>
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                              <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 4. Featured pets: native Astro component (Phase 3) -->
+    <HomeFeaturedPets pets={pets} />
 
     <!-- 5. Hero Fence -->
     <div class="wp-block-group alignwide home-editable-section is-layout-constrained">

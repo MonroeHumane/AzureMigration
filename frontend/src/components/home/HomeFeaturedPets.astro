@@ -1,0 +1,268 @@
+---
+/**
+ * Native Astro homepage featured pets band (Phase 3).
+ * Visual parity with the elevated `.home-featured-pets-*` card + widget marquee.
+ * Preserves `#FeaturedPets`, fullscreen dialog / expand hooks, and marquee clone strip.
+ */
+import type { Pet } from '../../lib/directus';
+import home from '../../data/homepage.json';
+
+interface Props {
+  pets: Pet[];
+  title?: string;
+  copy?: string;
+}
+
+const { pets, title = home.featured_pets.title, copy = home.featured_pets.copy } = Astro.props;
+
+const petChips = (p: Pet) => [
+  p.species_label || p.type || 'Pet',
+  p.gender || 'Unknown',
+  p.age_display || 'Age N/A',
+  p.location || 'Location',
+];
+---
+
+<div
+  class="wp-block-group alignwide home-editable-section is-layout-constrained"
+  id="FeaturedPets"
+>
+  <div
+    class="flex flex-col gap-7 rounded-[28px] border border-teal-700/14 bg-white p-[clamp(1.5rem,3.5vw,2.5rem)] shadow-[0_16px_40px_rgba(15,30,29,0.05)]"
+  >
+    <header class="flex flex-wrap items-end justify-between gap-6 border-b border-teal-700/10 pb-6">
+      <div class="min-w-0 flex-[1_1_500px]">
+        <span
+          class="mb-3 inline-flex items-center gap-1.5 rounded-full bg-teal-700/8 px-[0.85rem] py-[0.35rem] text-[0.78rem] font-bold uppercase tracking-[0.08em] text-teal-700"
+        >
+          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          Longest Residents
+        </span>
+        <h2
+          class="m-0 mb-[0.6rem] font-serif text-[clamp(1.85rem,3.2vw,2.65rem)] font-bold leading-[1.15] tracking-[-0.015em] text-[#112d2c]"
+        >
+          {title}
+        </h2>
+        <p class="m-0 max-w-3xl text-[clamp(0.95rem,1.2vw,1.1rem)] leading-relaxed text-[#47565f]">
+          {copy}
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          href="/adopt"
+          class="inline-flex items-center gap-2 rounded-full bg-teal-700 px-[1.4rem] py-3 text-[0.88rem] font-bold text-white no-underline shadow-[0_8px_20px_rgba(15,118,110,0.25)] transition hover:-translate-y-px hover:bg-teal-800 hover:shadow-[0_12px_26px_rgba(15,118,110,0.32)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+        >
+          <span>Search All Adoptable Pets</span>
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+        <button
+          id="fpwExpandBtn"
+          type="button"
+          class="fpw-expand-btn inline-flex items-center gap-[0.45rem] rounded-full border-[1.5px] border-teal-700/35 bg-[#fffaf2] px-5 py-3 text-[0.85rem] font-semibold text-teal-700 transition hover:-translate-y-px hover:border-teal-700 hover:bg-teal-700/8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+          aria-controls="featuredPetsFsDialog"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+          <span>Full Screen Gallery</span>
+        </button>
+      </div>
+    </header>
+
+    {/* Keep id for legacy hooks; .home-fpw-native resets orphaned widget shell CSS */}
+    <div id="featuredPetsWidget" data-monroe-static class="home-fpw-native relative w-full max-w-full overflow-hidden">
+      <dialog
+        id="featuredPetsFsDialog"
+        class="fpw-fs-dialog m-0 h-[100dvh] max-h-[100dvh] w-screen max-w-[100vw] border-0 bg-slate-50 p-0 text-slate-900 open:flex open:flex-col"
+      >
+        <div class="fpw-fs-header fpw-fs-dialog__head flex shrink-0 items-center justify-between gap-4 bg-[linear-gradient(120deg,#0ea5e9,#14b8a6)] px-4 py-[0.85rem] text-white shadow-[0_6px_20px_rgba(14,165,233,0.25)]">
+          <h2 class="m-0 text-[1.15rem] font-extrabold tracking-[-0.02em]">Adoptable Pets — Longest Residents</h2>
+          <button
+            type="button"
+            class="fpw-fs-close fpw-fs-dialog__close shrink-0 cursor-pointer rounded-full border-0 bg-white/20 px-4 py-2 text-[0.85rem] font-extrabold text-white hover:bg-white/32 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            aria-label="Close"
+          >
+            Close
+          </button>
+        </div>
+        <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4 pb-6 [-webkit-overflow-scrolling:touch]">
+          <div id="fpw-fs-longest" class="home-fpw-fs-grid"></div>
+        </div>
+      </dialog>
+
+      {pets.length === 0 ? (
+        <div class="rounded-2xl border border-dashed border-teal-700/25 bg-teal-50/40 px-5 py-8 text-center">
+          <p class="m-0 mb-3 text-[0.95rem] text-slate-600">No featured pets are available right now.</p>
+          <a href="/adopt" class="font-bold text-teal-700 underline-offset-2 hover:underline">Browse all adoptable pets</a>
+        </div>
+      ) : (
+        <div class="home-fpw-slider" id="longestRow">
+          <div class="home-fpw-viewport overflow-hidden w-full">
+            <div class="home-fpw-track flex w-max flex-nowrap will-change-transform">
+              <div class="home-fpw-strip scroll-strip--primary flex flex-nowrap gap-[1.1em] pr-[1.1em]">
+                {pets.map((pet) => (
+                  <article class="home-fpw-card group relative flex w-[280px] shrink-0 flex-col overflow-hidden rounded-[20px] border border-teal-700/14 bg-white shadow-[0_8px_24px_rgba(15,30,29,0.06)] transition duration-[220ms] hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(15,30,29,0.12)] max-[700px]:w-[240px]">
+                    <div class="relative flex items-center justify-center bg-[linear-gradient(160deg,#e0f2fe,#e8fff7)] p-2">
+                      <span class="absolute left-3 top-3 z-[2] rounded-full bg-[rgba(15,30,29,0.75)] px-[0.65rem] py-1 text-[0.72rem] font-bold tracking-[0.04em] text-white backdrop-blur-[4px]">
+                        Waiting for You
+                      </span>
+                      <div class="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-slate-200">
+                        <img
+                          class="home-fpw-photo block h-full w-full object-cover object-[center_top] transition duration-200 group-hover:scale-[1.03]"
+                          src={pet.image || pet.image_url || '/assets/recovered/images/placeholder.svg'}
+                          alt={pet.name}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                    </div>
+                    <div class="flex flex-1 flex-col bg-[#f7fbfd] px-4 pb-4 pt-[0.85em]">
+                      <div class="mb-[0.2em] truncate text-[1.05em] font-extrabold text-slate-900">{pet.name}</div>
+                      <div class="mb-[0.45em] text-[0.9em] font-semibold text-slate-600">{pet.breed}</div>
+                      <div class="mb-2 flex flex-wrap gap-[0.35em]">
+                        {petChips(pet).map((chip) => (
+                          <span class="rounded-full border border-blue-500/12 bg-[#e6f2fb] px-[0.65em] py-[0.3em] text-[0.85em] font-bold text-slate-900">
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+                      <div class="mt-auto border-t border-sky-100 pt-[0.6em] text-center">
+                        <a
+                          href={pet.url || `/adopt/${pet.id}`}
+                          class="inline-flex items-center gap-[0.4rem] rounded-full bg-teal-700/10 px-[1.1rem] py-[0.55rem] text-[0.82rem] font-bold text-teal-700 no-underline transition hover:-translate-y-px hover:bg-teal-700 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500"
+                        >
+                          <span>Meet {pet.name}</span>
+                          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </a>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div class="home-fpw-strip scroll-strip--clone flex flex-nowrap gap-[1.1em] pr-[1.1em]" aria-hidden="true">
+                {pets.map((pet) => (
+                  <article class="home-fpw-card group relative flex w-[280px] shrink-0 flex-col overflow-hidden rounded-[20px] border border-teal-700/14 bg-white shadow-[0_8px_24px_rgba(15,30,29,0.06)] transition duration-[220ms] max-[700px]:w-[240px]">
+                    <div class="relative flex items-center justify-center bg-[linear-gradient(160deg,#e0f2fe,#e8fff7)] p-2">
+                      <span class="absolute left-3 top-3 z-[2] rounded-full bg-[rgba(15,30,29,0.75)] px-[0.65rem] py-1 text-[0.72rem] font-bold tracking-[0.04em] text-white backdrop-blur-[4px]">
+                        Waiting for You
+                      </span>
+                      <div class="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-slate-200">
+                        <img
+                          class="home-fpw-photo block h-full w-full object-cover object-[center_top]"
+                          src={pet.image || pet.image_url || '/assets/recovered/images/placeholder.svg'}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                    </div>
+                    <div class="flex flex-1 flex-col bg-[#f7fbfd] px-4 pb-4 pt-[0.85em]">
+                      <div class="mb-[0.2em] truncate text-[1.05em] font-extrabold text-slate-900">{pet.name}</div>
+                      <div class="mb-[0.45em] text-[0.9em] font-semibold text-slate-600">{pet.breed}</div>
+                      <div class="mb-2 flex flex-wrap gap-[0.35em]">
+                        {petChips(pet).map((chip) => (
+                          <span class="rounded-full border border-blue-500/12 bg-[#e6f2fb] px-[0.65em] py-[0.3em] text-[0.85em] font-bold text-slate-900">
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+                      <div class="mt-auto border-t border-sky-100 pt-[0.6em] text-center">
+                        <a
+                          href={pet.url || `/adopt/${pet.id}`}
+                          tabindex="-1"
+                          class="inline-flex items-center gap-[0.4rem] rounded-full bg-teal-700/10 px-[1.1rem] py-[0.55rem] text-[0.82rem] font-bold text-teal-700 no-underline"
+                        >
+                          <span>Meet {pet.name}</span>
+                          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </a>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* Neutralize orphaned #featuredPetsWidget shell from monroe-home-widgets.css */
+  #featuredPetsWidget.home-fpw-native {
+    margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    font-family: inherit;
+    overflow: hidden;
+  }
+
+  #featuredPetsWidget.home-fpw-native .home-fpw-track {
+    animation: home-fpw-marquee 38s linear infinite;
+  }
+
+  #featuredPetsWidget.home-fpw-native .home-fpw-viewport:hover .home-fpw-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes home-fpw-marquee {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #featuredPetsWidget.home-fpw-native .home-fpw-track {
+      animation: none !important;
+      transform: none !important;
+    }
+    #featuredPetsWidget.home-fpw-native .home-fpw-viewport {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+    }
+    #featuredPetsWidget.home-fpw-native .home-fpw-card {
+      scroll-snap-align: start;
+    }
+    #featuredPetsWidget.home-fpw-native .scroll-strip--clone {
+      display: none;
+    }
+  }
+
+  #featuredPetsWidget.home-fpw-native dialog.fpw-fs-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.72);
+  }
+
+  #featuredPetsWidget.home-fpw-native .home-fpw-fs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  #featuredPetsWidget.home-fpw-native .home-fpw-fs-grid .home-fpw-card {
+    width: auto;
+    max-width: none;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    #featuredPetsWidget.home-fpw-native .home-fpw-card:hover {
+      transform: none;
+    }
+    #featuredPetsWidget.home-fpw-native .home-fpw-card:hover .home-fpw-photo {
+      transform: none;
+    }
+  }
+</style>
