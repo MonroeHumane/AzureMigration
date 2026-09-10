@@ -35,12 +35,6 @@ export const SITE = {
   },
 
   integrations: {
-    betterUnite: {
-      generalDonation: 'https://www.zeffy.com/en-US/donation-form/donate-to-change-lives-22422',
-      membership: 'https://www.zeffy.com/ticketing/humane-society-of-monroe-membership-shirt-contest',
-      memorialPlaque: '/memorials/give#GiveOnline',
-      memorialGiving: 'https://www.zeffy.com/en-US/donation-form/gifts-in-memory',
-    },
     payPal: {
       catRoomFund: 'https://www.paypal.com/US/fundraiser/charity/N9S3JQGK3HCTW',
       catRoomFundId: 'N9S3JQGK3HCTW',
