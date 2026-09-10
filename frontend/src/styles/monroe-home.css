@@ -1420,41 +1420,6 @@ body.home .sponsor-widget-shell .sponsor-card {
   color: #153635;
 }
 
-.monroe-home-newsletter-slot .hs-news-section,
-.monroe-home-newsletter-slot .hs-news-section {
-  overflow-wrap: anywhere;
-}
-
-.monroe-home-newsletter-slot .hs-news-section .hs-card,
-.monroe-home-newsletter-slot .hs-news-section .hs-body,
-.monroe-home-newsletter-slot .hs-news-section .hs-grid,
-.monroe-home-newsletter-slot .hs-news-section .hs-grid > *,
-.monroe-home-newsletter-slot .hs-news-section .hs-box,
-.monroe-home-newsletter-slot .hs-news-section .hs-card,
-.monroe-home-newsletter-slot .hs-news-section .hs-body,
-.monroe-home-newsletter-slot .hs-news-section .hs-grid,
-.monroe-home-newsletter-slot .hs-news-section .hs-grid > *,
-.monroe-home-newsletter-slot .hs-news-section .hs-box {
-  min-width: 0;
-}
-
-.home-editable-news-card .monroe-home-newsletter-slot .hs-news-section,
-.home-editable-news-card .monroe-home-newsletter-slot #hs-news-2025review,
-.home-editable-news-card .wp-block-shortcode .hs-news-section,
-.home-editable-news-card .wp-block-shortcode #hs-news-2025review,
-.home-editable-news-card .monroe-home-newsletter-slot .hs-news-section,
-.home-editable-news-card .monroe-home-newsletter-slot #hs-news-2025review {
-  width: 100%;
-  max-width: none;
-  box-sizing: border-box;
-  position: relative !important;
-  inset: auto !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
-  overflow: visible;
-}
-
 .home-editable-newsletter-section .home-editable-news-card {
   display: flex;
   flex-direction: column;
@@ -1608,54 +1573,10 @@ body.home .sponsor-widget-shell .sponsor-card {
   align-self: center;
 }
 
-.home-editable-news-card .hs-news-section .hs-lightbox,
-.home-editable-news-card #hs-news-2025review .hs-lightbox,
-.home-editable-news-card .hs-news-section .hs-lightbox {
-  position: fixed !important;
-  inset: 0;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.home-editable-news-card .hs-news-section .hs-lightbox.active,
-.home-editable-news-card #hs-news-2025review .hs-lightbox.active,
-.home-editable-news-card .hs-news-section .hs-lightbox.active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
 .home-editable-news-card .hs-lightbox [data-hs-lb-img]:not([src]),
 .home-editable-news-card .hs-lightbox:not(.active) [data-hs-lb-img],
 .home-editable-news-card .hs-lightbox [data-hs-lb-img]:not([src]) {
   display: none !important;
-}
-
-.home-editable-news-card #hs-news-2025review .hs-letter,
-.home-editable-news-card #hs-news-2025review .hs-letter p,
-.home-editable-news-card #hs-news-2025review .hs-improvements li,
-.home-editable-news-card .hs-news-section .hs-letter,
-.home-editable-news-card .hs-news-section .hs-letter p,
-.home-editable-news-card .hs-news-section .hs-improvements li,
-.home-editable-news-card #hs-news-2025review .hs-letter,
-.home-editable-news-card #hs-news-2025review .hs-letter p,
-.home-editable-news-card #hs-news-2025review .hs-improvements li,
-.home-editable-news-card .hs-news-section .hs-letter,
-.home-editable-news-card .hs-news-section .hs-letter p,
-.home-editable-news-card .hs-news-section .hs-improvements li {
-  color: var(--hs-muted, #475569);
-}
-
-.home-editable-news-card #hs-news-2025review .hs-head .hs-title,
-.home-editable-news-card #hs-news-2025review .hs-section-title,
-.home-editable-news-card .hs-news-section .hs-head .hs-title,
-.home-editable-news-card .hs-news-section .hs-section-title,
-.home-editable-news-card #hs-news-2025review .hs-head .hs-title,
-.home-editable-news-card #hs-news-2025review .hs-section-title,
-.home-editable-news-card .hs-news-section .hs-head .hs-title,
-.home-editable-news-card .hs-news-section .hs-section-title {
-  color: var(--hs-teal, #0f766e);
 }
 
 .home-editable-sponsors {
@@ -3691,8 +3612,6 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   outline-offset: 2px;
 }
 
-
-
 .monroe-newsletter-details summary {
   cursor: pointer;
   color: #0f766e;
@@ -4198,4 +4117,3 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
   font-size: 0.76rem;
   color: #64748b;
 }
-
