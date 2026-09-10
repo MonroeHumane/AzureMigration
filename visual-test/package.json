@@ -1,10 +1,11 @@
 {
   "name": "visual-test",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backstop visual regression. Default backstop.json compares Azure SWA (url) against monroe-humane.org WordPress (referenceUrl) — NOT SWA-vs-SWA. Do not point both url and referenceUrl at the same live SWA host (false-green trap).",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node -e \"console.error('visual-test: disabled as a default CI gate (Phase 0). Use backstop reference/test intentionally after confirming url != referenceUrl.'); process.exit(1);\"",
+    "backstop:check-config": "node -e \"const c=require('./backstop.json'); for (const s of c.scenarios||[]) { const u=(s.url||'').replace(/\\/$/,''); const r=(s.referenceUrl||'').replace(/\\/$/,''); if (u && r && u===r) { console.error('CIRCULAR visual-test scenario:', s.label); process.exit(1);} } console.log('ok: no circular scenarios');\""
   },
   "keywords": [],
   "author": "",
