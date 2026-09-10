@@ -1,0 +1,52 @@
+---
+/**
+ * Native Astro homepage feature card band (Phase 3).
+ * Post–hero-fence chrome; keeps `home-editable-feature-card` / media / copy BEM
+ * so monroe-home.css feature layout + button chrome stay pixel-parity.
+ * Hybrid extract — Tailwind port deferred with CSS purge after visual soak.
+ */
+import home from '../../data/homepage.json';
+
+interface Props {
+  label?: string;
+  title?: string;
+  copy?: string;
+  buttons?: typeof home.feature_card.buttons;
+  image?: string;
+  imageAlt?: string;
+}
+
+const {
+  label = home.feature_card.label,
+  title = home.feature_card.title,
+  copy = home.feature_card.copy,
+  buttons = home.feature_card.buttons,
+  image = home.feature_card.image,
+  imageAlt = home.feature_card.image_alt,
+} = Astro.props;
+---
+
+<div class="wp-block-group alignwide home-editable-section is-layout-constrained">
+  <div class="wp-block-group home-editable-feature-card is-layout-constrained">
+    <div class="wp-block-columns are-vertically-aligned-stretch is-layout-flex">
+      <div class="wp-block-column is-vertically-aligned-stretch home-editable-feature-media is-layout-flow" style="flex-basis:45%">
+        <figure class="wp-block-image size-full">
+          <img loading="lazy" decoding="async" src={image} alt={imageAlt} />
+        </figure>
+      </div>
+      <div class="wp-block-column is-vertically-aligned-center home-editable-feature-copy is-layout-flow" style="flex-basis:55%">
+        <p class="home-editable-section-label wp-block-paragraph">{label}</p>
+        <h2 class="wp-block-heading">{title}</h2>
+        <p class="wp-block-paragraph">{copy}</p>
+        <div class="wp-block-buttons is-layout-flex">
+          <div class="wp-block-button">
+            <a class="wp-block-button__link has-base-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href="/adoptions">{buttons[0].label}</a>
+          </div>
+          <div class="wp-block-button is-style-outline">
+            <a class="wp-block-button__link wp-element-button" href="/dog-and-cat-shelter">{buttons[1].label}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
