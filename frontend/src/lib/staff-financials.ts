@@ -47,10 +47,11 @@ export function setStaffDataStatus(
   }
 
   el.classList.remove('hidden');
-  el.className =
-    state === 'loading'
-      ? 'rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-950 flex items-center justify-between gap-3'
-      : 'rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 flex items-center justify-between gap-3';
+  el.className = [
+    'staff-data-status',
+    state === 'loading' ? 'staff-data-status--loading' : 'staff-data-status--error',
+    'rounded-xl px-4 py-3 text-sm flex items-center justify-between gap-3',
+  ].join(' ');
 
   const text = document.createElement('span');
   text.textContent =
@@ -63,8 +64,7 @@ export function setStaffDataStatus(
   if (state === 'error' && onRetry) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className =
-      'shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-amber-300 text-amber-950 hover:bg-amber-100';
+    btn.className = 'staff-data-status__retry';
     btn.textContent = 'Retry';
     btn.addEventListener('click', onRetry);
     el.appendChild(btn);

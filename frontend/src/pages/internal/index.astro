@@ -287,9 +287,9 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
           <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
             <span id="staff-user-email" class="font-medium text-slate-800 dark:text-slate-200"></span>
             <span class="text-slate-400 dark:text-slate-500">·</span>
-            <span id="hub-status-financials" class="text-slate-600 dark:text-slate-300">Financials</span>
+            <span id="hub-status-financials" class="hub-review-status text-slate-600 dark:text-slate-300" data-review="loading">Financials</span>
             <span class="text-slate-400 dark:text-slate-500">·</span>
-            <span id="hub-status-petsync" class="text-slate-600 dark:text-slate-300">Census · {petSyncData.activeCount} in care · {petSyncLabel}</span>
+            <span id="hub-status-petsync" class="hub-review-status text-slate-600 dark:text-slate-300" data-review="live">Census · {petSyncData.activeCount} in care · {petSyncLabel}</span>
           </p>
         </div>
 
@@ -343,8 +343,8 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
               <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m10 15 5-3-5-3v6Z"></path></svg>
             </div>
           </div>
-          <div id="hub-census-count" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-slate-900 dark:text-white transition">{petSyncData.activeCount}</div>
-          <div id="hub-census-sync" class="mt-1 text-xs text-slate-500 dark:text-slate-400">{petSyncLabel}</div>
+          <div id="hub-census-count" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-slate-900 dark:text-white transition" data-last-seen={petSyncData.lastSyncTimestamp || ''}>{petSyncData.activeCount}</div>
+          <div id="hub-census-sync" class="hub-review-status mt-1 text-xs text-slate-500 dark:text-slate-400" data-review="live">{petSyncLabel}</div>
           <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-teal-900/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition">
             <span>Kennel cards &amp; PetPoint sync</span>
             <span class="text-teal-700 dark:text-teal-400 group-hover:translate-x-0.5 transition">&rarr;</span>
@@ -650,7 +650,10 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     }
 
     const finPill = document.getElementById('hub-status-financials');
-    if (finPill) finPill.textContent = publishedLabel(data);
+    if (finPill) {
+      finPill.setAttribute('data-review', 'live');
+      finPill.textContent = publishedLabel(data);
+    }
 
     const donorMeta = data.donor_meta || data.donor_database?.meta || data.donors?.meta;
     if (donorMeta) applyDonorMeta(donorMeta);
@@ -658,6 +661,8 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
   }
 
   async function loadFinancialMetrics() {
+    const finPill = document.getElementById('hub-status-financials');
+    if (finPill) finPill.setAttribute('data-review', 'loading');
     setStaffDataStatus('hub-data-status', 'loading');
     const cached = await fetchStaffFinancials();
     if (cached.ok) applyMetrics(cached.data);
@@ -665,8 +670,10 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     const fresh = await refreshStaffFinancials();
     if (!fresh.ok) {
       if (fresh.status === 401 || fresh.status === 403) return;
-      const finPill = document.getElementById('hub-status-financials');
-      if (finPill) finPill.textContent = 'Financials unavailable';
+      if (finPill) {
+        finPill.setAttribute('data-review', cached.ok ? 'stale' : 'error');
+        finPill.textContent = cached.ok ? `${publishedLabel(cached.data)} · cached` : 'Financials unavailable';
+      }
       setStaffDataStatus('hub-data-status', 'error', fresh.error, () => {
         void loadFinancialMetrics();
       });
@@ -683,17 +690,74 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
 
-  function applyCensusSnapshot(activeCount: number, lastSeen: string | null) {
+  const CENSUS_CACHE_KEY = 'hsmc_ops_census_v1';
+
+  function readCensusCache(): { activeCount: number; lastSeen: string | null; savedAt: number } | null {
+    try {
+      const raw = localStorage.getItem(CENSUS_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { activeCount?: number; lastSeen?: string | null; savedAt?: number };
+      if (typeof parsed?.activeCount !== 'number') return null;
+      return {
+        activeCount: parsed.activeCount,
+        lastSeen: parsed.lastSeen || null,
+        savedAt: parsed.savedAt || 0,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  function writeCensusCache(activeCount: number, lastSeen: string | null) {
+    try {
+      localStorage.setItem(CENSUS_CACHE_KEY, JSON.stringify({
+        activeCount,
+        lastSeen,
+        savedAt: Date.now(),
+      }));
+    } catch {
+      /* private mode */
+    }
+  }
+
+  function seedCensusCacheFromDom() {
+    const countEl = document.getElementById('hub-census-count');
+    if (!countEl || readCensusCache()) return;
+    const count = Number(countEl.textContent);
+    if (!Number.isFinite(count)) return;
+    writeCensusCache(count, countEl.getAttribute('data-last-seen') || null);
+  }
+
+  function applyCensusSnapshot(activeCount: number, lastSeen: string | null, source: 'live' | 'offline' = 'live') {
     const label = formatSyncLabel(lastSeen);
     const staleMs = lastSeen ? Date.now() - new Date(lastSeen).getTime() : Number.POSITIVE_INFINITY;
     const stale = !lastSeen || Number.isNaN(staleMs) || staleMs > 90 * 60 * 1000;
+    const review = source === 'offline' ? 'offline' : stale ? 'stale' : 'live';
 
     const countEl = document.getElementById('hub-census-count');
     if (countEl) countEl.textContent = String(activeCount);
+
     const syncEl = document.getElementById('hub-census-sync');
-    if (syncEl) syncEl.textContent = stale ? `${label} · stale` : label;
+    if (syncEl) {
+      syncEl.setAttribute('data-review', review);
+      if (source === 'offline') {
+        syncEl.textContent = lastSeen ? `Offline · ${label}` : 'Offline · last known count';
+      } else {
+        syncEl.textContent = stale ? `${label} · stale` : `${label} · live`;
+      }
+    }
+
     const pill = document.getElementById('hub-status-petsync');
-    if (pill) pill.textContent = `Census · ${activeCount} · ${label}`;
+    if (pill) {
+      pill.setAttribute('data-review', review);
+      if (source === 'offline') {
+        pill.textContent = `Census · ${activeCount} · Offline`;
+      } else if (stale) {
+        pill.textContent = `Census · ${activeCount} · stale`;
+      } else {
+        pill.textContent = `Census · ${activeCount} · ${label}`;
+      }
+    }
   }
 
   async function loadCensusSnapshot() {
@@ -701,14 +765,28 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
       const res = await fetch(
         `${DIRECTUS_URL}/items/pets?filter[archived_at][_null]=true&limit=1&sort=-last_seen_at&fields=id,last_seen_at&meta=filter_count`
       );
-      if (!res.ok) return;
+      if (!res.ok) throw new Error('census');
       const json = await res.json();
       const activeCount = Number(json?.meta?.filter_count ?? json?.data?.length ?? 0);
       const lastSeen = json?.data?.[0]?.last_seen_at || null;
-      applyCensusSnapshot(activeCount, lastSeen);
+      writeCensusCache(activeCount, lastSeen);
+      applyCensusSnapshot(activeCount, lastSeen, 'live');
     } catch {
+      const cached = readCensusCache();
+      if (cached) {
+        applyCensusSnapshot(cached.activeCount, cached.lastSeen, 'offline');
+        return;
+      }
       const pill = document.getElementById('hub-status-petsync');
-      if (pill) pill.textContent = 'PetSync: could not refresh census';
+      if (pill) {
+        pill.setAttribute('data-review', 'error');
+        pill.textContent = 'Census · could not refresh';
+      }
+      const syncEl = document.getElementById('hub-census-sync');
+      if (syncEl) {
+        syncEl.setAttribute('data-review', 'error');
+        syncEl.textContent = navigator.onLine === false ? 'Offline · no saved census' : 'Could not refresh';
+      }
     }
   }
 
@@ -743,6 +821,7 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     loginForm.dataset.portalReady = '1';
 
     initStaffThemeToggle();
+    seedCensusCacheFromDom();
     const emailInput = document.getElementById('unified-email') as HTMLInputElement | null;
     const passwordInput = document.getElementById('unified-password') as HTMLInputElement | null;
     const rememberMeInput = document.getElementById('unified-remember-me') as HTMLInputElement | null;
@@ -781,9 +860,16 @@ const petSyncLabel = petSyncData.lastSyncTimestamp
     }
 
     // Network connectivity detection
-    const updateOnlineStatus = () => {
+    const updateOnlineStatus = (ev?: Event) => {
       if (offlineAlert) {
         offlineAlert.classList.toggle('hidden', navigator.onLine);
+      }
+      if (!isStaffAuthenticated()) return;
+      if (ev?.type === 'online') {
+        void loadCensusSnapshot();
+      } else if (ev?.type === 'offline') {
+        const cached = readCensusCache();
+        if (cached) applyCensusSnapshot(cached.activeCount, cached.lastSeen, 'offline');
       }
     };
     window.addEventListener('online', updateOnlineStatus);

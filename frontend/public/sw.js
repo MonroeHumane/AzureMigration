@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'hsmc-shell-cache-v6';
+const SHELL_CACHE = 'hsmc-shell-cache-v9';
 const PET_DATA_CACHE = 'hsmc-pet-data-cache-v4';
 const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v4';
 const KNOWN_CACHES = [SHELL_CACHE, PET_DATA_CACHE, PET_PHOTO_CACHE];
@@ -18,7 +18,9 @@ const ASSETS_TO_CACHE = [
   '/adopt/cats/',
   '/manifest.webmanifest',
   '/manifest-adopt.webmanifest',
-  '/assets/brand-mark-paw-circle.png',
+  '/assets/staff/icons/icon-192.png',
+  '/assets/staff/icons/icon-512.png',
+  '/assets/staff/icons/apple-touch-icon.png',
   '/placeholder.svg',
   '/tv/',
   '/games/',

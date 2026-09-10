@@ -100,7 +100,7 @@
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       // Sync radio selection with current preference before opening
-      const currentPref = localStorage.getItem('monroe-nav-pref') || 'hamburger';
+      const currentPref = localStorage.getItem('monroe-nav-pref') || 'bottom-bar';
       const activeRadio = dialog.querySelector<HTMLInputElement>(`input[value="${currentPref}"]`);
       if (activeRadio) activeRadio.checked = true;
       dialog.showModal();

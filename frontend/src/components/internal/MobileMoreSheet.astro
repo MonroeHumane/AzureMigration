@@ -49,7 +49,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <div class="p-3 bg-slate-50 dark:bg-[#0b2420] rounded-2xl border border-slate-200 dark:border-teal-800/80 shadow-md">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-teal-800 dark:text-teal-200">Mobile Navigation Mode</span>
-            <span id="sheet-nav-mode-indicator" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
+            <span id="sheet-nav-mode-indicator" class="sheet-mode-chip text-[10px] font-bold uppercase px-2 py-0.5 rounded">
               Bottom Dock
             </span>
           </div>
@@ -57,16 +57,20 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             <button
               type="button"
               id="sheet-set-bottom-bar-btn"
-              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-emerald-600 text-slate-950 shadow-xs"
+              data-nav-choice="bottom-bar"
+              data-active="true"
+              class="sheet-choice-btn py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>📱 Bottom Bar</span>
+              <span>Bottom Bar</span>
             </button>
             <button
               type="button"
               id="sheet-set-hamburger-btn"
-              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-slate-200 text-slate-700 border border-slate-300 dark:bg-teal-950 dark:text-teal-200 dark:border-teal-800 hover:bg-slate-300 dark:hover:bg-teal-900 dark:hover:text-white"
+              data-nav-choice="hamburger"
+              data-active="false"
+              class="sheet-choice-btn py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>🍔 Hamburger</span>
+              <span>Hamburger</span>
             </button>
           </div>
         </div>
@@ -75,7 +79,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <div class="p-3 bg-slate-50 dark:bg-[#0b2420] rounded-2xl border border-slate-200 dark:border-teal-800/80 shadow-md">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-teal-800 dark:text-teal-200">Portal Theme</span>
-            <span id="sheet-theme-indicator" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
+            <span id="sheet-theme-indicator" class="sheet-mode-chip text-[10px] font-bold uppercase px-2 py-0.5 rounded">
               Light Monroe
             </span>
           </div>
@@ -83,16 +87,20 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             <button
               type="button"
               id="sheet-set-light-theme-btn"
-              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-emerald-600 text-slate-950 shadow-xs"
+              data-theme-choice="light"
+              data-active="true"
+              class="sheet-choice-btn py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>☀️ Light Monroe</span>
+              <span>Light Monroe</span>
             </button>
             <button
               type="button"
               id="sheet-set-dark-theme-btn"
-              class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer bg-slate-200 text-slate-700 border border-slate-300 dark:bg-teal-950 dark:text-teal-200 dark:border-teal-800 hover:bg-slate-300 dark:hover:bg-teal-900 dark:hover:text-white"
+              data-theme-choice="dark"
+              data-active="false"
+              class="sheet-choice-btn py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>🌙 Dark Ops</span>
+              <span>Dark Ops</span>
             </button>
           </div>
         </div>
@@ -100,20 +108,20 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <!-- PWA Install Action Card -->
         <div
           id="pwa-install-container"
-          class="p-3 rounded-2xl bg-teal-800 dark:bg-gradient-to-r dark:from-teal-950 dark:via-[#0a2723] dark:to-teal-950 text-white border border-teal-700/80 shadow-md flex items-center justify-between"
+          class="pwa-install-card p-3 rounded-2xl flex items-center justify-between gap-3"
         >
-          <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="pwa-install-icon w-9 h-9 rounded-xl flex items-center justify-center shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect>
                 <path d="M12 18h.01"></path>
               </svg>
             </div>
-            <div>
-              <div class="font-bold text-white text-xs">
+            <div class="min-w-0">
+              <div class="pwa-install-title font-bold text-xs">
                 Install HSMC Ops App
               </div>
-              <div class="text-[11px] text-teal-200/80" id="pwa-install-desc">
+              <div class="pwa-install-desc text-[11px] leading-snug" id="pwa-install-desc">
                 Home screen icon &amp; offline census
               </div>
             </div>
@@ -121,7 +129,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <button
             type="button"
             id="pwa-install-btn"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition cursor-pointer shrink-0 shadow-xs"
+            class="pwa-install-btn px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
           >
             Install
           </button>
@@ -350,6 +358,13 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 <script>
   import { getStaffTheme, setStaffTheme } from '../../lib/staff-theme';
   import { logoutStaff } from '../../lib/staff-auth';
+  import {
+    forgetPwaInstalled,
+    isStandaloneDisplay,
+    markPwaDisplay,
+    rememberPwaInstalled,
+    shouldHideInstallCard,
+  } from '../../lib/staff-pwa';
 
   function setupMobileMoreSheet() {
     const sheetDialog = document.getElementById('mobile-more-sheet') as HTMLDialogElement | null;
@@ -372,17 +387,8 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       if (modeIndicator) {
         modeIndicator.textContent = current === 'bottom-bar' ? 'Bottom Dock' : 'Hamburger';
       }
-      if (current === 'bottom-bar') {
-        bottomBarBtn?.classList.remove('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
-        bottomBarBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        hamburgerBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        hamburgerBtn?.classList.add('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
-      } else {
-        hamburgerBtn?.classList.remove('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
-        hamburgerBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        bottomBarBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        bottomBarBtn?.classList.add('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
-      }
+      bottomBarBtn?.setAttribute('data-active', current === 'bottom-bar' ? 'true' : 'false');
+      hamburgerBtn?.setAttribute('data-active', current === 'hamburger' ? 'true' : 'false');
     }
 
     // Theme switch controls inside sheet
@@ -395,17 +401,8 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       if (themeIndicator) {
         themeIndicator.textContent = current === 'light' ? 'Light Monroe' : 'Dark Ops';
       }
-      if (current === 'light') {
-        lightThemeBtn?.classList.remove('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
-        lightThemeBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        darkThemeBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        darkThemeBtn?.classList.add('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
-      } else {
-        darkThemeBtn?.classList.remove('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
-        darkThemeBtn?.classList.add('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        lightThemeBtn?.classList.remove('bg-emerald-600', 'text-slate-950', 'shadow-xs');
-        lightThemeBtn?.classList.add('bg-slate-200', 'text-slate-700', 'border', 'border-slate-300', 'dark:bg-teal-950', 'dark:text-teal-200', 'dark:border-teal-800');
-      }
+      lightThemeBtn?.setAttribute('data-active', current === 'light' ? 'true' : 'false');
+      darkThemeBtn?.setAttribute('data-active', current === 'dark' ? 'true' : 'false');
     }
 
     if (lightThemeBtn && lightThemeBtn.dataset.bound !== '1') {
@@ -446,6 +443,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       if (!sheetDialog || !panel) return;
       syncNavModeUI();
       syncThemeModeUI();
+      void syncInstallCard();
       sheetDialog.showModal();
       requestAnimationFrame(() => {
         panel.classList.remove('translate-y-full');
@@ -523,39 +521,93 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       });
     }
 
-    // PWA Install prompt handling
-    let deferredPrompt: any = (window as any).__pwaInstallPrompt || null;
-    const installContainer = document.getElementById('pwa-install-container');
-    const installBtn = document.getElementById('pwa-install-btn');
-    const installDesc = document.getElementById('pwa-install-desc');
-
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
-    if (isStandalone && installContainer) {
-      installContainer.classList.add('hidden');
+    function getDeferredPrompt(): any {
+      return (window as any).__pwaInstallPrompt || null;
     }
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      if (!installContainer || isStandalone) return;
-      e.preventDefault();
-      deferredPrompt = e;
-      (window as any).__pwaInstallPrompt = e;
+    function setDeferredPrompt(value: any) {
+      (window as any).__pwaInstallPrompt = value;
+    }
+
+    function isIos(): boolean {
+      const ua = navigator.userAgent || '';
+      return /iPad|iPhone|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    async function syncInstallCard() {
+      const installContainer = document.getElementById('pwa-install-container');
+      const installBtn = document.getElementById('pwa-install-btn');
+      const installDesc = document.getElementById('pwa-install-desc');
+      if (!installContainer) return;
+      markPwaDisplay();
+      const hide = await shouldHideInstallCard();
+      if (hide) {
+        installContainer.classList.add('hidden');
+        installContainer.setAttribute('data-pwa-state', isStandaloneDisplay() ? 'standalone' : 'installed');
+        return;
+      }
       installContainer.classList.remove('hidden');
-    });
+      if (isIos()) {
+        installContainer.setAttribute('data-pwa-state', 'ios');
+        if (installDesc) installDesc.textContent = 'iPhone: Share → Add to Home Screen';
+        if (installBtn) installBtn.textContent = 'How';
+      } else if (getDeferredPrompt()) {
+        installContainer.setAttribute('data-pwa-state', 'ready');
+        if (installDesc) installDesc.textContent = 'Home screen icon & offline census';
+        if (installBtn) installBtn.textContent = 'Install';
+      } else {
+        installContainer.setAttribute('data-pwa-state', 'hint');
+        if (installDesc) installDesc.textContent = 'Home screen icon & offline census';
+        if (installBtn) installBtn.textContent = 'Install';
+      }
+    }
+
+    void syncInstallCard();
+
+    const installBtn = document.getElementById('pwa-install-btn');
+
+    if (!(window as any).__hsmcPwaListenersBound) {
+      (window as any).__hsmcPwaListenersBound = true;
+      ['standalone', 'fullscreen', 'minimal-ui', 'window-controls-overlay'].forEach((mode) => {
+        const mq = window.matchMedia(`(display-mode: ${mode})`);
+        const onChange = () => { void syncInstallCard(); };
+        if (typeof mq.addEventListener === 'function') mq.addEventListener('change', onChange);
+        else (mq as any).addListener?.(onChange);
+      });
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        forgetPwaInstalled();
+        setDeferredPrompt(e);
+        void syncInstallCard();
+      });
+
+      window.addEventListener('appinstalled', () => {
+        rememberPwaInstalled();
+        setDeferredPrompt(null);
+        void syncInstallCard();
+      });
+    }
 
     if (installBtn && installBtn.dataset.bound !== '1') {
       installBtn.dataset.bound = '1';
       installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          const choice = await deferredPrompt.userChoice;
+        const promptEvent = getDeferredPrompt();
+        if (promptEvent) {
+          promptEvent.prompt();
+          const choice = await promptEvent.userChoice;
           if (choice.outcome === 'accepted') {
-            installContainer?.classList.add('hidden');
+            rememberPwaInstalled();
+            document.getElementById('pwa-install-container')?.classList.add('hidden');
           }
-          deferredPrompt = null;
-        } else {
-          if (installDesc) {
-            installDesc.textContent = 'Safari: Tap Share [↑] then "Add to Home Screen"';
-          }
+          setDeferredPrompt(null);
+          return;
+        }
+        const installDesc = document.getElementById('pwa-install-desc');
+        if (installDesc) {
+          installDesc.textContent = isIos()
+            ? 'Tap Share, then Add to Home Screen'
+            : 'Browser menu → Install app (Chrome or Edge)';
         }
       });
     }

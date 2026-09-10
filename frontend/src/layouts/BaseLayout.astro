@@ -43,8 +43,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE.url);
 // (manifest-adopt.webmanifest). Branch here so every page keeps calling
 // <BaseLayout> unchanged.
 const isAdoptRoute = Astro.url.pathname.startsWith('/adopt');
-const manifestHref = isAdoptRoute ? '/manifest-adopt.webmanifest' : '/manifest.webmanifest';
-const appleWebAppTitle = isAdoptRoute ? 'MCHS Adopt' : 'HSMC Ops';
+const isInternalRoute = Astro.url.pathname.startsWith('/internal');
+const manifestHref = isInternalRoute
+  ? '/manifest.webmanifest'
+  : '/manifest-adopt.webmanifest';
+const appleWebAppTitle = isInternalRoute ? 'HSMC Ops' : (isAdoptRoute ? 'MCHS Adopt' : SITE.shortName);
 
 const schemaOrg = {
   '@context': 'https://schema.org',
@@ -97,7 +100,7 @@ const schemaOrg = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0f766e" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/staff/icons/icon-192.png" />
     <meta name="generator" content={Astro.generator} />
     <ClientRouter />
 
@@ -107,7 +110,7 @@ const schemaOrg = {
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content={appleWebAppTitle} />
     <link rel="manifest" href={manifestHref} />
-    <link rel="apple-touch-icon" href="/assets/brand-mark-paw-circle.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/staff/icons/apple-touch-icon.png" />
 
     <!-- SEO Meta -->
     <title>{title}</title>
@@ -211,21 +214,43 @@ const schemaOrg = {
       (function() {
         function syncNav() {
           try {
-            var saved = localStorage.getItem('monroe-nav-pref') || 'hamburger';
+            var saved = localStorage.getItem('monroe-nav-pref') || 'bottom-bar';
             document.documentElement.setAttribute('data-nav-style', saved);
           } catch (e) {}
         }
         syncNav();
         document.addEventListener('astro:before-swap', function(e) {
           try {
-            var saved = localStorage.getItem('monroe-nav-pref') || 'hamburger';
+            var saved = localStorage.getItem('monroe-nav-pref') || 'bottom-bar';
             e.newDocument.documentElement.setAttribute('data-nav-style', saved);
           } catch (err) {}
         });
       })();
     </script>
 
-    <!-- Early zero-flicker staff portal theme & auth check (Default: Light Monroe Mode) -->
+    <!-- Early PWA standalone detection (hide install UI without a flash) -->
+    <script is:inline>
+      (function() {
+        function isStandalone(win) {
+          try {
+            var modes = ['standalone', 'fullscreen', 'minimal-ui', 'window-controls-overlay'];
+            for (var i = 0; i < modes.length; i++) {
+              if (win.matchMedia('(display-mode: ' + modes[i] + ')').matches) return true;
+            }
+            if (win.navigator.standalone === true) return true;
+            if (new URLSearchParams(win.location.search).get('source') === 'pwa') return true;
+          } catch (e) {}
+          return false;
+        }
+        function syncPwa(target, win) {
+          target.setAttribute('data-pwa', isStandalone(win) ? 'standalone' : 'browser');
+        }
+        syncPwa(document.documentElement, window);
+        document.addEventListener('astro:before-swap', function(e) {
+          syncPwa(e.newDocument.documentElement, window);
+        });
+      })();
+    </script>
     <script is:inline>
       (function() {
         function syncStaffState(targetEl) {
@@ -234,6 +259,8 @@ const schemaOrg = {
             targetEl.setAttribute('data-staff-theme', savedTheme);
             targetEl.classList.toggle('dark', savedTheme === 'dark');
             targetEl.style.colorScheme = savedTheme === 'dark' ? 'dark' : 'light';
+            var colorMeta = (targetEl.ownerDocument || document).querySelector('meta[name="theme-color"]');
+            if (colorMeta) colorMeta.setAttribute('content', savedTheme === 'dark' ? '#071a17' : '#0f766e');
           } catch (e) {}
         }
         syncStaffState(document.documentElement);

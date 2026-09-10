@@ -22,6 +22,9 @@ function applyThemeToRoot(target: HTMLElement, theme: StaffTheme): void {
   target.setAttribute('data-staff-theme', theme);
   target.classList.toggle('dark', theme === 'dark');
   target.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+  const themeColor = theme === 'dark' ? '#071a17' : '#0f766e';
+  const meta = target.ownerDocument?.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', themeColor);
 }
 
 export function setStaffTheme(theme: StaffTheme): void {
