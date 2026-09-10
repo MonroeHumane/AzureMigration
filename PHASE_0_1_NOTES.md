@@ -42,3 +42,9 @@ cd frontend && python tools/verify-parity.py http://localhost:4321
 - Bulk of `monroe-home.css` / `monroe-home-widgets.css` (dead-newsletter delete skipped; see above)
 - `monroe-wp-compat.css`, `monroe-theme.css`
 - Redesign / visual restyle of public chrome
+
+## Follow-up completed: dead newsletter CSS
+
+- Removed 7 CSS rule blocks referencing `#hs-news-2025review`, `.monroe-home-newsletter-slot`, and related `wp-block-shortcode` leftovers from `frontend/src/styles/monroe-home.css`.
+- Kept all `.home-nl` rules (current homepage newsletter card).
+- Commit: `a7a92d8`.
