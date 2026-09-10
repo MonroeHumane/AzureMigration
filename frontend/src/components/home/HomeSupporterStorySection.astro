@@ -1,0 +1,71 @@
+---
+/**
+ * Native Astro homepage Carmen & Greg supporter story (Phase 3).
+ * Preserves `#SupporterStory` + `#hs-carmen-greg-story-title`.
+ * Keeps `hs-feature-widget` / gallery BEM so monroe-home-widgets.css story chrome applies.
+ */
+import home from '../../data/homepage.json';
+
+interface Props {
+  kicker?: string;
+  title?: string;
+  body?: string;
+  quoteParagraphs?: string[];
+  quoteAuthor?: string;
+  note?: string;
+  gallery?: typeof home.supporter_story.gallery;
+}
+
+const {
+  kicker = home.supporter_story.kicker,
+  title = home.supporter_story.title,
+  body = home.supporter_story.body,
+  quoteParagraphs = home.supporter_story.quote_paragraphs,
+  quoteAuthor = home.supporter_story.quote_author,
+  note = home.supporter_story.note,
+  gallery = home.supporter_story.gallery,
+} = Astro.props;
+---
+
+<div
+  class="wp-block-group alignwide home-editable-section is-layout-constrained mx-auto w-full min-w-0 max-w-[var(--monroe-home-content-max)] box-border scroll-mt-[calc(var(--monroe-nav-height,96px)+var(--monroe-sticky-wayfinding-offset,0px)+var(--monroe-scroll-anchor-gap,12px))]"
+  id="SupporterStory"
+>
+  <section class="hs-feature-widget home-editable-carmen-greg-story" aria-labelledby="hs-carmen-greg-story-title">
+    <div class="hs-wrap">
+      <div class="hs-copy">
+        <p class="hs-kicker">{kicker}</p>
+        <h2 id="hs-carmen-greg-story-title">{title}</h2>
+        <p class="hs-body">{body}</p>
+        <blockquote class="hs-story-quote">
+          {quoteParagraphs.map((p) => (
+            <p>{p}</p>
+          ))}
+          <cite>{quoteAuthor}</cite>
+        </blockquote>
+        <p class="hs-note">{note}</p>
+      </div>
+      <div class="home-editable-feature-media--gallery">
+        <figure>
+          <img
+            src={gallery.main.src}
+            alt={gallery.main.alt}
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>{gallery.main.caption}</figcaption>
+        </figure>
+        <div class="home-editable-feature-media__pair">
+          {gallery.pair.map((img) => (
+            <img
+              src={img.src}
+              alt={img.alt}
+              loading="lazy"
+              decoding="async"
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,89 @@
+---
+/**
+ * Native Astro homepage Humane Games CTA band (Phase 3).
+ * Preserves `#Games` + `#home-games-heading` for side-dock / deep links.
+ */
+import home from '../../data/homepage.json';
+
+type Teaser = { icon: string; title: string; desc: string };
+
+interface Props {
+  pill?: string;
+  title?: string;
+  intro?: string;
+  teasers?: Teaser[];
+  cta?: string;
+}
+
+const {
+  pill = home.games.pill,
+  title = home.games.title,
+  intro = home.games.intro,
+  teasers = home.games.teasers as Teaser[],
+  cta = home.games.cta,
+} = Astro.props;
+---
+
+<div
+  id="Games"
+  class="wp-block-group alignwide home-editable-section home-editable-games-band is-layout-flow mx-auto w-full min-w-0 max-w-[var(--monroe-home-content-max)] box-border scroll-mt-[calc(var(--monroe-nav-height,96px)+var(--monroe-sticky-wayfinding-offset,0px)+var(--monroe-scroll-anchor-gap,12px))]"
+>
+  <div class="home-games-card overflow-visible rounded-[28px] border border-[rgba(36,72,67,0.12)] text-center shadow-[0_28px_60px_rgba(31,53,51,0.1)]">
+    <p class="home-games-pill mx-auto mb-4 inline-flex items-center rounded-full px-[0.7rem] py-[0.35rem] font-['Jost','Segoe_UI',sans-serif] text-[0.76rem] font-bold uppercase tracking-[0.12em] text-teal-700">
+      {pill}
+    </p>
+    <div class="mb-6">
+      <h2
+        id="home-games-heading"
+        class="m-0 mb-3 font-serif text-[clamp(2rem,4vw,3.4rem)] font-normal leading-none text-[#153635]"
+      >
+        {title}
+      </h2>
+      <p class="mx-auto m-0 max-w-2xl font-['Questrial','Segoe_UI',sans-serif] text-[1.02rem] leading-[1.8] text-[#405757]">
+        {intro}
+      </p>
+    </div>
+    <ul class="home-games-teasers m-0 mb-6 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 lg:grid-cols-4" role="list">
+      {
+        teasers.map((t) => (
+          <li class="min-w-0">
+            <a
+              class="home-games-teaser-link flex h-full flex-col items-center rounded-[18px] border border-[rgba(36,72,67,0.11)] px-4 py-5 no-underline transition-transform hover:-translate-y-0.5"
+              href="/games"
+            >
+              <span class="mb-2 text-[1.75rem]" aria-hidden="true">{t.icon}</span>
+              <span class="mb-1 font-['Jost','Segoe_UI',sans-serif] text-[0.95rem] font-semibold text-[#153635]">{t.title}</span>
+              <span class="font-['Questrial','Segoe_UI',sans-serif] text-[0.88rem] leading-[1.45] text-[#3d5555]">{t.desc}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="flex justify-center">
+      <a
+        class="home-games-cta inline-flex items-center justify-center rounded-full px-6 py-[0.7rem] font-['Jost','Segoe_UI',sans-serif] text-[0.95rem] font-semibold text-white no-underline transition-opacity hover:opacity-90"
+        href="/games"
+      >
+        {cta}
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .home-games-card {
+    padding: var(--monroe-home-card-pad, clamp(1.5rem, 3.5vw, 2.5rem));
+    background: linear-gradient(140deg, rgba(255, 255, 255, 0.98), rgba(249, 246, 239, 0.96));
+  }
+  .home-games-pill {
+    background: rgba(15, 118, 110, 0.12);
+  }
+  .home-games-teaser-link {
+    background: linear-gradient(168deg, #fff 0%, rgba(252, 250, 246, 0.98) 100%);
+    box-shadow: 0 12px 32px rgba(17, 41, 41, 0.07);
+    color: inherit;
+  }
+  .home-games-cta {
+    background: #173a39;
+  }
+</style>

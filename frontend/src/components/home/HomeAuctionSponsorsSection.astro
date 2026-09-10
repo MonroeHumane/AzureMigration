@@ -1,0 +1,63 @@
+---
+/**
+ * Native Astro homepage Furry Friends Auction Sponsors (Phase 3).
+ * Preserves `#furry-friends-auction-sponsors` for side-dock / deep links.
+ * Keeps `sponsor-widget-shell--auction-five` BEM so the 3+2 centred grid
+ * (nth-child rules in monroe-home-widgets.css) stays pixel-parity.
+ */
+import home from '../../data/homepage.json';
+import sponsors from '../../data/sponsors.json';
+
+type AuctionSponsor = {
+  name: string;
+  link: string;
+  image: string;
+  alt: string;
+};
+
+interface Props {
+  subtitle?: string;
+  sponsorsList?: AuctionSponsor[];
+}
+
+const {
+  subtitle = home.auction_sponsors.subtitle,
+  sponsorsList = sponsors.auction_sponsors as AuctionSponsor[],
+} = Astro.props;
+---
+
+<div class="wp-block-group alignwide home-editable-section is-layout-constrained mx-auto w-full min-w-0 max-w-[var(--monroe-home-content-max)] box-border scroll-mt-[calc(var(--monroe-nav-height,96px)+var(--monroe-sticky-wayfinding-offset,0px)+var(--monroe-scroll-anchor-gap,12px))]">
+  <div class="home-editable-auction-sponsors">
+    <div id="furry-friends-auction-sponsors" class="sponsor-widget-shell sponsor-widget-shell--auction-five">
+      <section class="sponsor-widget" aria-labelledby="furry-friends-auction-sponsors-title">
+        <div class="sponsor-widget__header">
+          <h3 id="furry-friends-auction-sponsors-title" class="sponsor-widget__title">
+            Furry Friends Auction Sponsors
+          </h3>
+          <p class="sponsor-widget__subtitle">{subtitle}</p>
+        </div>
+        <div class="sponsor-grid">
+          {
+            sponsorsList.map((s) => (
+              <div class="sponsor-card">
+                <div class="sponsor-card__logo">
+                  <img src={s.image} alt={s.alt} loading="lazy" decoding="async" />
+                </div>
+                <figcaption>{s.name}</figcaption>
+                <a
+                  class="sponsor-card__cta"
+                  href={s.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit ${s.name} website`}
+                >
+                  {s.name.includes('Pavlov') ? 'Visit Facebook' : 'Visit website'}
+                </a>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

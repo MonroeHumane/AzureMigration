@@ -1,0 +1,90 @@
+---
+/**
+ * Native Astro homepage Shelter FAQ band (Phase 3).
+ * Preserves `#FAQ` for Header / side-dock deep links.
+ * Tailwind + scoped styles for tile grid parity with `.home-editable-faq-*`.
+ */
+import home from '../../data/homepage.json';
+
+type FaqTile = {
+  title: string;
+  copy: string;
+  button: string;
+  href: string;
+  external?: boolean;
+};
+
+interface Props {
+  label?: string;
+  title?: string;
+  intro?: string;
+  tiles?: FaqTile[];
+}
+
+const {
+  label = home.faq.label,
+  title = home.faq.title,
+  intro = home.faq.intro,
+  tiles = home.faq.tiles as FaqTile[],
+} = Astro.props;
+---
+
+<div class="wp-block-group alignwide home-editable-section is-layout-constrained mx-auto w-full min-w-0 max-w-[var(--monroe-home-content-max)] box-border scroll-mt-[calc(var(--monroe-nav-height,96px)+var(--monroe-sticky-wayfinding-offset,0px)+var(--monroe-scroll-anchor-gap,12px))]">
+  <div
+    id="FAQ"
+    class="home-faq-card home-editable-runtime-card overflow-visible rounded-[28px] border border-[rgba(36,72,67,0.12)] shadow-[0_28px_60px_rgba(31,53,51,0.1)]"
+  >
+    <p class="m-0 mb-3 font-['Jost','Segoe_UI',sans-serif] text-[0.8rem] font-bold uppercase tracking-[0.16em] text-teal-700">
+      {label}
+    </p>
+    <h2 class="m-0 mb-3 font-serif text-[clamp(2rem,4vw,3.4rem)] font-normal leading-none text-[#153635]">
+      {title}
+    </h2>
+    <p class="m-0 max-w-3xl font-['Questrial','Segoe_UI',sans-serif] text-[1.02rem] leading-[1.8] text-[#405757]">
+      {intro}
+    </p>
+
+    <div class="home-faq-grid mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+      {
+        tiles.map((tile) => (
+          <div class="home-faq-tile flex min-w-0 flex-col">
+            <h3 class="m-0 mb-2 border-b-2 border-teal-700/20 pb-2 font-serif text-[clamp(1.15rem,2.2vw,1.4rem)] font-normal leading-[1.2] text-[#153635]">
+              {tile.title}
+            </h3>
+            <p class="mb-4 flex-1 font-['Questrial','Segoe_UI',sans-serif] text-[0.97rem] leading-[1.62] text-[#3d5555]">
+              {tile.copy}
+            </p>
+            <div class="mt-auto">
+              <a
+                class="home-faq-btn inline-flex w-full box-border items-center justify-center rounded-full px-4 py-[0.65rem] text-center font-['Jost','Segoe_UI',sans-serif] text-[0.92rem] font-semibold text-white no-underline transition-opacity hover:opacity-90"
+                href={tile.href}
+                {...(tile.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
+              >
+                {tile.button}
+              </a>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .home-faq-card {
+    padding: var(--monroe-home-card-pad, clamp(1.5rem, 3.5vw, 2.5rem));
+    background: linear-gradient(140deg, rgba(255, 255, 255, 0.98), rgba(249, 246, 239, 0.96));
+  }
+  .home-faq-tile {
+    margin: 0;
+    padding: clamp(1.2rem, 2.8vw, 1.55rem);
+    border-radius: 20px;
+    border: 1px solid rgba(36, 72, 67, 0.11);
+    background: linear-gradient(168deg, #fff 0%, rgba(252, 250, 246, 0.98) 55%, rgba(245, 250, 248, 0.92) 100%);
+    box-shadow: 0 12px 32px rgba(17, 41, 41, 0.07);
+  }
+  .home-faq-btn {
+    background: #173a39;
+    border: 0;
+  }
+</style>
