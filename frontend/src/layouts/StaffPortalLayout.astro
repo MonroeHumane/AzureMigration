@@ -46,7 +46,7 @@ const {
             localStorage.removeItem('mchs_staff_token');
             sessionStorage.removeItem('mchs_staff_token');
           } catch (purge) {}
-          window.location.replace('/internal/?redirect=' + encodeURICode(window.location.pathname + window.location.search));
+          window.location.replace('/internal/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
         } else {
           document.documentElement.classList.add('staff-authenticated');
         }
