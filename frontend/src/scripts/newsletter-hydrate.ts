@@ -107,6 +107,33 @@ export async function hydrateHomeNewsletter(): Promise<void> {
   if (byline) byline.textContent = issue.byline || 'by, Jacqueline Monteer';
   const excerpt = root.querySelector('[data-nl-excerpt]');
   if (excerpt) excerpt.textContent = issueExcerpt(issue) || excerpt.textContent;
+  const fullBody = root.querySelector('[data-nl-fullbody]');
+  const readAll = root.querySelector<HTMLDetailsElement>('[data-nl-readall]');
+  if (fullBody) {
+    const blocks = storyBlocks(issue);
+    if (blocks.length) {
+      fullBody.innerHTML = blocks
+        .map((block) => {
+          const title = block.title
+            ? `<h4 class="m-0 mb-2 font-serif text-lg text-[#153635]">${escapeHtml(block.title)}</h4>`
+            : '';
+          const paras = String(block.body || '')
+            .split('\n')
+            .filter(Boolean)
+            .map(
+              (para) =>
+                `<p class="m-0 mb-3 font-['Questrial','Segoe_UI',sans-serif] text-[1.02rem] leading-[1.75] text-[#3d4f4e] last:mb-0">${escapeHtml(para)}</p>`,
+            )
+            .join('');
+          return `<div class="mb-4 last:mb-0">${title}${paras}</div>`;
+        })
+        .join('');
+      readAll?.classList.remove('hidden');
+    } else if (readAll) {
+      readAll.classList.add('hidden');
+      readAll.open = false;
+    }
+  }
   const link = root.querySelector<HTMLAnchorElement>('[data-nl-link]');
   if (link && issue.slug) {
     link.href = `/newsletter/issue/${issue.slug}`;
