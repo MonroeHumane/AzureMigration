@@ -114,10 +114,12 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
           {excerpt}
         </p>
 
-        {hasFullLetter ? (
-          <details
+        <details
             data-nl-readall
-            class="group mb-4 rounded-2xl border border-[rgba(31,76,73,0.14)] bg-[#f7fbf9] open:bg-white open:shadow-[inset_0_0_0_1px_rgba(31,76,73,0.08)]"
+            class:list={[
+              'group mb-4 rounded-2xl border border-[rgba(31,76,73,0.14)] bg-[#f7fbf9] open:bg-white open:shadow-[inset_0_0_0_1px_rgba(31,76,73,0.08)]',
+              !hasFullLetter && 'hidden',
+            ]}
           >
             <summary
               class="cursor-pointer list-none px-4 py-3 font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.06em] text-[#1f4c49] marker:content-none flex items-center justify-between gap-3 select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2dd4bf] rounded-2xl"
@@ -146,7 +148,6 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
               ))}
             </div>
           </details>
-        ) : null}
 
         <div class="mt-auto flex flex-wrap gap-[0.55rem]">
           <a
