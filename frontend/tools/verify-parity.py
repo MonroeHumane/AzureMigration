@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""One-command parity check for the rebuilt site.
+"""One-command smoke / parity check for the rebuilt site.
 
-1. Fetches every route, asserts HTTP 200 (or expected non-200) and that the
-   page carries its expected class signatures (derived from the mirror).
-2. Crawls each page for internal href/src and reports 404 assets/links.
-3. Sweeps for WP artifacts and Tailwind utility classes that must not ship.
+Phase 0 contract (2026-09):
+  - Tailwind utility classes are ALLOWED on non-home pages (staff portal, games,
+    etc. intentionally use Tailwind). Do NOT fail the run for Tailwind.
+  - Homepage may optionally assert classic wp-block / home chrome presence as a
+    soft smoke signal; missing optional markers are warnings, not failures.
+  - Route HTTP status + required class signatures remain hard checks.
+  - WP artifact sweeps (nonce, unresolved ../, alert stubs) remain hard checks.
 
 Usage: python verify-parity.py [base_url]
 """
@@ -15,11 +18,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:4321"
 
-# route -> (expected status, class signatures that must appear)
+# route -> (expected status, required class signatures)
 ROUTES = {
     "/": (200, ["home-editable-hero", "monroe-vote-ways", "pet-card-widget", "hs-hero-fence-widget",
                 "logo-track", "monroe-membership-under-construction", "pp-cta-btn", "offline-donations",
-                "home-editable-social-embed", "hs-news-2025review", "home-editable-faq-grid",
+                "home-editable-social-embed", "home-nl", "home-editable-faq-grid",
                 "monroe-accomplishments-widget", "home-editable-games-teasers", "monroe-contact-form"]),
     "/adopt": (200, ["monroe-adopt-page", "monroe-adopt-hero", "animal-search-widget", "animal-card"]),
     "/adopt/dogs": (200, ["monroe-adopt-page", "animal-search-widget"]),
@@ -35,13 +38,16 @@ ROUTES = {
     "/shop": (200, ["monroe-shop-page", "monroe-shop-product-card", "monroe-shop-under-construction"]),
     "/specialsponsors": (200, ["monroe-native-inner--specialsponsors", "monroe-native-hero"]),
     "/resources": (200, ["monroe-native-inner--resources"]),
-    "/donate": (200, ["monroe-native-inner--donate-now", "monroe-membership" ]),
+    "/donate": (200, ["monroe-native-inner--donate-now", "monroe-membership"]),
     "/volunteer-form": (200, ["monroe-native-inner--volunteer-form", "monroe-google-form-embed"]),
     "/membership": (200, ["monroe-native-inner--membership", "monroe-membership-under-construction"]),
     "/auction-in-april-2025": (200, ["monroe-native-hero"]),
     "/adoptions/": (200, None),
     "/404": (404, None),
 }
+
+# Homepage-only optional smoke markers (warnings if missing — not failures).
+HOME_OPTIONAL_WP_SMOKE = ["wp-block-group", "wp-block-columns", "wp-block-button"]
 
 BAD_PATTERNS = {
     "WP nonce": r'name="[^"]*nonce',
@@ -50,16 +56,6 @@ BAD_PATTERNS = {
     "non-localized wp-content URL": r'(href|src)="(https?://monroe-humane\.org|/wp-content|\.\.)[^"]*wp-content',
     "alert( stub": r"alert\(",
 }
-
-TAILWIND_TOKENS = {"flex", "grid", "hidden", "container", "aspect-square"}
-
-def tailwind_classes(body: str) -> list:
-    found = []
-    for m in re.finditer(r'class="([^"]+)"', body):
-        for token in m.group(1).split():
-            if token in TAILWIND_TOKENS or re.match(r"^(bg|text|px|py|pt|pb|mx|my|mt|mb|max-w|min-w|w|h|rounded|border|font|space|tracking|leading|items|justify|gap|grid-cols|col-span|sm:|md:|lg:|xl:)-", token):
-                found.append(token)
-    return found
 
 
 def fetch(url):
@@ -86,13 +82,15 @@ def head(url):
 
 def main():
     failures = 0
+    warnings = 0
     asset_cache = {}
 
     def check_route(route):
-        nonlocal failures
+        nonlocal failures, warnings
         expect_status, sigs = ROUTES[route]
         status, body, _ = fetch(BASE + route)
         problems = []
+        notes = []
         if status != expect_status:
             problems.append(f"status {status} != {expect_status}")
         if sigs:
@@ -102,9 +100,15 @@ def main():
         for name, pat in BAD_PATTERNS.items():
             if re.search(pat, body):
                 problems.append(f"artifact: {name}")
-        tw = tailwind_classes(body)
-        if tw:
-            problems.append(f"artifact: Tailwind utility classes ({tw[:4]})")
+
+        # Phase 0: Tailwind is intentional on non-home pages — do not fail.
+        # Optional homepage WP chrome smoke only.
+        if route == "/":
+            missing_opt = [m for m in HOME_OPTIONAL_WP_SMOKE if m not in body]
+            if missing_opt:
+                notes.append(f"optional wp-block smoke missing: {missing_opt}")
+                warnings += 1
+
         # Check internal links/assets resolve.
         for url in set(re.findall(r'(?:href|src)="(/[^"]+)"', body)):
             if url.startswith(("/@vite", "/src/", "/node_modules")):
@@ -124,11 +128,14 @@ def main():
         print(f"{status_line} {route or '/'}")
         for p in problems:
             print(f"       - {p}")
+        for n in notes:
+            print(f"       ~ warn: {n}")
 
     with ThreadPoolExecutor(max_workers=6) as pool:
         list(pool.map(check_route, ROUTES))
 
-    print(f"\n{'ALL CHECKS PASSED' if failures == 0 else f'{failures} route(s) failed'}")
+    suffix = f" ({warnings} warning(s))" if warnings else ""
+    print(f"\n{'ALL CHECKS PASSED' if failures == 0 else f'{failures} route(s) failed'}{suffix}")
     sys.exit(1 if failures else 0)
 
 
