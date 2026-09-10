@@ -1,0 +1,40 @@
+---
+/**
+ * Native Astro homepage Membership CTA (Phase 3).
+ * Preserves `#Membership`. Under-construction notice only (tiers not live yet).
+ */
+import home from '../../data/homepage.json';
+
+interface Props {
+  label?: string;
+  title?: string;
+  underConstruction?: string;
+}
+
+const {
+  label = home.membership_home.label,
+  title = home.membership_home.title,
+  underConstruction = home.membership_home.under_construction,
+} = Astro.props;
+---
+
+<div class="wp-block-group alignwide home-editable-section is-layout-constrained mx-auto w-full min-w-0 max-w-[var(--monroe-home-content-max)] box-border scroll-mt-[calc(var(--monroe-nav-height,96px)+var(--monroe-sticky-wayfinding-offset,0px)+var(--monroe-scroll-anchor-gap,12px))]">
+  <div class="home-editable-donate-card overflow-visible rounded-[28px] border border-[rgba(36,72,67,0.12)] shadow-[0_28px_60px_rgba(31,53,51,0.1)]">
+    <div
+      id="Membership"
+      class="monroe-membership-plans-shared monroe-membership-plans-shared--under-construction"
+    >
+      <div class="home-editable-membership-intro">
+        <p class="home-editable-section-label m-0 mb-3 font-['Jost','Segoe_UI',sans-serif] text-[0.8rem] font-bold uppercase tracking-[0.16em] text-teal-700">
+          {label}
+        </p>
+        <h2 class="wp-block-heading m-0 font-serif text-[clamp(2rem,4vw,3.2rem)] font-normal leading-none text-[#153635]">
+          {title}
+        </h2>
+      </div>
+      <div class="monroe-membership-under-construction" role="status">
+        <p>{underConstruction}</p>
+      </div>
+    </div>
+  </div>
+</div>

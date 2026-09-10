@@ -1,0 +1,49 @@
+---
+/**
+ * Native Astro homepage community partners logo marquee (Phase 3).
+ * Preserves `#sponsorMarqueeWidget` + `.logo-slider` / `.logo-track` / `.logo-set`
+ * clone strip so monroe-home.css marquee animation + edge fades still apply.
+ */
+import home from '../../data/homepage.json';
+import sponsors from '../../data/sponsors.json';
+
+type Partner = { name: string; image: string };
+
+interface Props {
+  title?: string;
+  intro?: string;
+  partners?: Partner[];
+}
+
+const {
+  title = home.community_partners.title,
+  intro = home.community_partners.intro,
+  partners = sponsors.community_partners as Partner[],
+} = Astro.props;
+---
+
+<div class="wp-block-group alignfull home-editable-sponsors">
+  <div class="wp-block-group__inner-container is-layout-constrained">
+    <h2 class="wp-block-heading has-text-align-center m-0 mb-3 font-serif text-[clamp(1.75rem,3.2vw,2.6rem)] text-[#173a39]">
+      {title}
+    </h2>
+    <p class="has-text-align-center wp-block-paragraph mx-auto mb-6 max-w-[46rem] text-[#475569]">
+      {intro}
+    </p>
+    <section id="sponsorMarqueeWidget" class="sponsor-marquee" aria-label="Community partners">
+      <div class="logo-slider">
+        <div class="logo-track">
+          {
+            [false, true].map((clone) => (
+              <div class="logo-set" aria-hidden={clone ? 'true' : undefined}>
+                {partners.map((p) => (
+                  <img src={p.image} alt={p.name} loading="lazy" decoding="async" />
+                ))}
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
