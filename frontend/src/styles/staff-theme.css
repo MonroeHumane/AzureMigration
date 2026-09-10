@@ -158,6 +158,44 @@
   --sp-review-live: #0f766e;
   --sp-review-error: #be123c;
 
+
+  /* Semantic pill / pastel families (batch 4) */
+  --sp-pill-emerald-bg: #ecfdf5;
+  --sp-pill-emerald-text: #065f46;
+  --sp-pill-emerald-border: #a7f3d0;
+  --sp-pill-teal-bg: #f0fdfa;
+  --sp-pill-teal-text: #0f766e;
+  --sp-pill-teal-border: #99f6e4;
+  --sp-pill-amber-bg: #fffbeb;
+  --sp-pill-amber-text: #92400e;
+  --sp-pill-amber-border: #fde68a;
+  --sp-pill-rose-bg: #fff1f2;
+  --sp-pill-rose-text: #9f1239;
+  --sp-pill-rose-border: #fecdd3;
+  --sp-pill-purple-bg: #faf5ff;
+  --sp-pill-purple-text: #6b21a8;
+  --sp-pill-purple-border: #e9d5ff;
+  --sp-pill-blue-bg: #eff6ff;
+  --sp-pill-blue-text: #1e40af;
+  --sp-pill-blue-border: #bfdbfe;
+  --sp-pill-slate-bg: #f1f5f9;
+  --sp-pill-slate-text: #475569;
+  --sp-pill-slate-border: #cbd5e1;
+  --sp-pill-sky-bg: #f0f9ff;
+  --sp-pill-sky-text: #0369a1;
+  --sp-pill-sky-border: #bae6fd;
+  --sp-pill-pink-bg: #fdf2f8;
+  --sp-pill-pink-text: #9d174d;
+  --sp-pill-pink-border: #fbcfe8;
+  --sp-pill-success-bg: #d1fae5;
+  --sp-pill-success-text: #047857;
+  --sp-pill-success-border: #6ee7b7;
+
+  /* Grants / tool brand-tint links */
+  --sp-tool-zeffy: #7e22ce;
+  --sp-tool-grantable: #065f46;
+  --sp-tool-aawa: #9a3412;
+
   --sp-ambient-opacity: 0.04;
 
   /* Aliases for Tailwind-oriented naming in future utilities */
@@ -309,6 +347,44 @@
   --sp-warn-text: #fbbf24;
   --sp-review-live: #5eead4;
   --sp-review-error: #fda4af;
+
+
+  /* Semantic pill / pastel families (batch 4) */
+  --sp-pill-emerald-bg: rgba(6, 78, 59, 0.45);
+  --sp-pill-emerald-text: #6ee7b7;
+  --sp-pill-emerald-border: rgba(16, 185, 129, 0.35);
+  --sp-pill-teal-bg: rgba(17, 94, 89, 0.45);
+  --sp-pill-teal-text: #5eead4;
+  --sp-pill-teal-border: rgba(20, 184, 166, 0.35);
+  --sp-pill-amber-bg: rgba(120, 53, 15, 0.4);
+  --sp-pill-amber-text: #fcd34d;
+  --sp-pill-amber-border: rgba(245, 158, 11, 0.35);
+  --sp-pill-rose-bg: rgba(136, 19, 55, 0.4);
+  --sp-pill-rose-text: #fda4af;
+  --sp-pill-rose-border: rgba(244, 63, 94, 0.35);
+  --sp-pill-purple-bg: rgba(88, 28, 135, 0.4);
+  --sp-pill-purple-text: #d8b4fe;
+  --sp-pill-purple-border: rgba(168, 85, 247, 0.35);
+  --sp-pill-blue-bg: rgba(30, 58, 138, 0.4);
+  --sp-pill-blue-text: #93c5fd;
+  --sp-pill-blue-border: rgba(59, 130, 246, 0.35);
+  --sp-pill-slate-bg: rgba(51, 65, 85, 0.45);
+  --sp-pill-slate-text: #94a3b8;
+  --sp-pill-slate-border: rgba(100, 116, 139, 0.4);
+  --sp-pill-sky-bg: rgba(3, 105, 161, 0.4);
+  --sp-pill-sky-text: #7dd3fc;
+  --sp-pill-sky-border: rgba(56, 189, 248, 0.4);
+  --sp-pill-pink-bg: rgba(157, 23, 77, 0.4);
+  --sp-pill-pink-text: #f472b6;
+  --sp-pill-pink-border: rgba(244, 114, 182, 0.4);
+  --sp-pill-success-bg: rgba(6, 78, 59, 0.55);
+  --sp-pill-success-text: #34d399;
+  --sp-pill-success-border: rgba(52, 211, 153, 0.45);
+
+  /* Grants / tool brand-tint links */
+  --sp-tool-zeffy: #d8b4fe;
+  --sp-tool-grantable: #6ee7b7;
+  --sp-tool-aawa: #fdba74;
 
   --sp-ambient-opacity: 0.10;
 
@@ -706,7 +782,7 @@ body.staff-portal-body h4.dark\:text-white {
 :root:not([data-staff-theme="dark"]) .from-\[\#0b2b25\] {
   background-image: var(--sp-hero-gradient) !important;
   border-color: var(--sp-card-border) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: var(--sp-tab-shadow) !important;
 }
 :root:not([data-staff-theme="dark"]) .from-\[\#0b2b25\] h1 {
   color: var(--sp-text-primary) !important;
@@ -737,7 +813,7 @@ body.staff-portal-body h4.dark\:text-white {
 :root:not([data-staff-theme="dark"]) [class*="bg-teal-700"].text-white,
 :root:not([data-staff-theme="dark"]) [class*="bg-emerald-600"].text-white,
 :root:not([data-staff-theme="dark"]) .sidebar-user-avatar {
-  color: #ffffff !important;
+  color: var(--sp-on-accent) !important;
 }
 
 /* Metric Big Numbers in Light Mode */
@@ -813,35 +889,35 @@ body.staff-portal-body h4.dark\:text-white {
   color: var(--sp-accent) !important;
 }
 :root:not([data-staff-theme="dark"]) .text-teal-400 {
-  color: #0d9488 !important;
+  color: var(--sp-accent-hover) !important;
   font-weight: 700 !important;
 }
 
-/* Hero Action Buttons in Light Mode */
+/* Hero Action Buttons in Light Mode → surface/brand/accent tokens */
 :root:not([data-staff-theme="dark"]) a[href*="/internal/board/print/"] {
-  background-color: #ffffff !important;
-  color: #173a39 !important;
-  border-color: #cbd5e1 !important;
+  background-color: var(--sp-surface) !important;
+  color: var(--sp-brand) !important;
+  border-color: var(--sp-border) !important;
   font-weight: 600 !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: var(--sp-tab-shadow) !important;
 }
 :root:not([data-staff-theme="dark"]) a[href*="/internal/board/print/"]:hover {
-  background-color: #f8fafc !important;
-  border-color: #0d9488 !important;
+  background-color: var(--sp-surface-muted) !important;
+  border-color: var(--sp-accent-hover) !important;
 }
 :root:not([data-staff-theme="dark"]) a[href*="/internal/board/print/"] svg {
-  color: #0f766e !important;
+  color: var(--sp-accent) !important;
 }
 :root:not([data-staff-theme="dark"]) a[href*="mchs-directus"].bg-teal-700 {
-  background-color: #173a39 !important;
-  color: #ffffff !important;
-  border-color: #173a39 !important;
+  background-color: var(--sp-brand) !important;
+  color: var(--sp-on-accent) !important;
+  border-color: var(--sp-brand) !important;
 }
 :root:not([data-staff-theme="dark"]) a[href*="mchs-directus"].bg-teal-700:hover {
-  background-color: #112c2b !important;
+  background-color: var(--sp-brand-hover) !important;
 }
 
-/* High Contrast Accent Colors in Light Mode */
+/* High Contrast Accent Colors in Light Mode → pill / accent / body tokens */
 :root:not([data-staff-theme="dark"]) .text-teal-200,
 :root:not([data-staff-theme="dark"]) .text-teal-300,
 :root:not([data-staff-theme="dark"]) .text-teal-400,
@@ -854,7 +930,7 @@ body.staff-portal-body h4.dark\:text-white {
 :root:not([data-staff-theme="dark"]) [class*="text-teal-200"],
 :root:not([data-staff-theme="dark"]) [class*="text-teal-300"],
 :root:not([data-staff-theme="dark"]) [class*="text-teal-400"] {
-  color: #0f766e !important;
+  color: var(--sp-pill-teal-text) !important;
 }
 :root:not([data-staff-theme="dark"]) .text-emerald-200,
 :root:not([data-staff-theme="dark"]) .text-emerald-300,
@@ -865,7 +941,7 @@ body.staff-portal-body h4.dark\:text-white {
 :root:not([data-staff-theme="dark"]) [class*="text-emerald-200"],
 :root:not([data-staff-theme="dark"]) [class*="text-emerald-300"],
 :root:not([data-staff-theme="dark"]) [class*="text-emerald-400"] {
-  color: #065f46 !important;
+  color: var(--sp-pill-emerald-text) !important;
 }
 :root:not([data-staff-theme="dark"]) .text-rose-200,
 :root:not([data-staff-theme="dark"]) .text-rose-300,
@@ -873,7 +949,7 @@ body.staff-portal-body h4.dark\:text-white {
 :root:not([data-staff-theme="dark"]) [class*="text-rose-200"],
 :root:not([data-staff-theme="dark"]) [class*="text-rose-300"],
 :root:not([data-staff-theme="dark"]) [class*="text-rose-400"] {
-  color: #9f1239 !important;
+  color: var(--sp-pill-rose-text) !important;
 }
 :root:not([data-staff-theme="dark"]) .text-amber-200,
 :root:not([data-staff-theme="dark"]) .text-amber-300,
@@ -881,7 +957,7 @@ body.staff-portal-body h4.dark\:text-white {
 :root:not([data-staff-theme="dark"]) [class*="text-amber-200"],
 :root:not([data-staff-theme="dark"]) [class*="text-amber-300"],
 :root:not([data-staff-theme="dark"]) [class*="text-amber-400"] {
-  color: #92400e !important;
+  color: var(--sp-pill-amber-text) !important;
 }
 :root:not([data-staff-theme="dark"]) .text-purple-200,
 :root:not([data-staff-theme="dark"]) .text-purple-300,
@@ -889,7 +965,7 @@ body.staff-portal-body h4.dark\:text-white {
 :root:not([data-staff-theme="dark"]) [class*="text-purple-200"],
 :root:not([data-staff-theme="dark"]) [class*="text-purple-300"],
 :root:not([data-staff-theme="dark"]) [class*="text-purple-400"] {
-  color: #6b21a8 !important;
+  color: var(--sp-pill-purple-text) !important;
 }
 :root:not([data-staff-theme="dark"]) .text-blue-200,
 :root:not([data-staff-theme="dark"]) .text-blue-300,
@@ -903,13 +979,13 @@ body.staff-portal-body h4.dark\:text-white {
 :root:not([data-staff-theme="dark"]) [class*="text-sky-200"],
 :root:not([data-staff-theme="dark"]) [class*="text-sky-300"],
 :root:not([data-staff-theme="dark"]) [class*="text-sky-400"] {
-  color: #1e40af !important;
+  color: var(--sp-pill-blue-text) !important;
 }
 :root:not([data-staff-theme="dark"]) .text-slate-100,
 :root:not([data-staff-theme="dark"]) .text-slate-200,
 :root:not([data-staff-theme="dark"]) [class*="text-slate-100"],
 :root:not([data-staff-theme="dark"]) [class*="text-slate-200"] {
-  color: #1e293b !important;
+  color: var(--sp-text-body) !important;
 }
 
 /* Monthly drilldown flow headers sit on dark bars. Keep titles and total chips
@@ -944,41 +1020,41 @@ body.staff-portal-body h4.dark\:text-white {
   text-decoration: underline !important;
 }
 
-/* Card Icon Badges in Light Mode */
+/* Card Icon Badges in Light Mode → icon-box / brand tokens */
 :root:not([data-staff-theme="dark"]) .bg-teal-950\/80,
 :root:not([data-staff-theme="dark"]) .bg-teal-950 {
-  background-color: #e6f4f1 !important;
-  border-color: #b2dfdb !important;
-  color: #173a39 !important;
+  background-color: var(--sp-icon-box-bg) !important;
+  border-color: var(--sp-icon-box-border) !important;
+  color: var(--sp-brand) !important;
 }
 :root:not([data-staff-theme="dark"]) .bg-teal-950\/80 svg,
 :root:not([data-staff-theme="dark"]) .bg-teal-950 svg {
-  color: #0f766e !important;
+  color: var(--sp-icon-box-text) !important;
 }
 
 :root:not([data-staff-theme="dark"]) .border-teal-800\/60,
 :root:not([data-staff-theme="dark"]) .border-teal-800\/70,
 :root:not([data-staff-theme="dark"]) .border-teal-800\/80,
 :root:not([data-staff-theme="dark"]) .border-teal-900\/80 {
-  border-color: #cbd5e1 !important;
+  border-color: var(--sp-border) !important;
 }
 
-/* Staff Sub Navigation in Light Mode */
+/* Staff Sub Navigation in Light Mode → surface / brand tokens */
 :root:not([data-staff-theme="dark"]) .subnav-pill {
-  background-color: #f1f5f9 !important;
-  color: #475569 !important;
-  border-color: #e2e8f0 !important;
+  background-color: var(--sp-surface-subtle) !important;
+  color: var(--sp-text-muted) !important;
+  border-color: var(--sp-border-subtle) !important;
 }
 :root:not([data-staff-theme="dark"]) .subnav-pill:hover {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
+  background-color: var(--sp-border-subtle) !important;
+  color: var(--sp-text-ink) !important;
 }
 :root:not([data-staff-theme="dark"]) .subnav-pill.font-bold,
 :root:not([data-staff-theme="dark"]) .subnav-pill[class*="bg-emerald-500"],
 :root:not([data-staff-theme="dark"]) .subnav-pill.bg-\[\#173a39\] {
-  background-color: #173a39 !important;
-  color: #ffffff !important;
-  border-color: #173a39 !important;
+  background-color: var(--sp-brand) !important;
+  color: var(--sp-on-accent) !important;
+  border-color: var(--sp-brand) !important;
 }
 
 /* Mobile Bottom Nav — shared dock tokens (light + Dark Ops) */
@@ -1353,15 +1429,15 @@ html[data-pwa="standalone"] #pwa-install-container {
 }
 :root:not([data-staff-theme="dark"]) .tool-zeffy h3,
 :root:not([data-staff-theme="dark"]) .tool-zeffy .tool-link {
-  color: #7e22ce !important;
+  color: var(--sp-tool-zeffy) !important;
 }
 :root:not([data-staff-theme="dark"]) .tool-grantable h3,
 :root:not([data-staff-theme="dark"]) .tool-grantable .tool-link {
-  color: #065f46 !important;
+  color: var(--sp-tool-grantable) !important;
 }
 :root:not([data-staff-theme="dark"]) .tool-aawa h3,
 :root:not([data-staff-theme="dark"]) .tool-aawa .tool-link {
-  color: #9a3412 !important;
+  color: var(--sp-tool-aawa) !important;
 }
 
 /* PetSync Summary Cards in Light Mode → card/text tokens */
@@ -1509,13 +1585,13 @@ html[data-pwa="standalone"] #pwa-install-container {
   color: var(--sp-text-secondary) !important;
 }
 :root[data-staff-theme="dark"] .tool-zeffy .tool-link {
-  color: #d8b4fe !important;
+  color: var(--sp-tool-zeffy) !important;
 }
 :root[data-staff-theme="dark"] .tool-grantable .tool-link {
-  color: #6ee7b7 !important;
+  color: var(--sp-tool-grantable) !important;
 }
 :root[data-staff-theme="dark"] .tool-aawa .tool-link {
-  color: #fdba74 !important;
+  color: var(--sp-tool-aawa) !important;
 }
 :root[data-staff-theme="dark"] .section-header h2 {
   color: var(--sp-text-primary) !important;
@@ -1560,69 +1636,69 @@ html[data-pwa="standalone"] #pwa-install-container {
   color: var(--sp-text-primary) !important;
 }
 
-/* Dark Mode Pill & Badge Adaptations (Prevent harsh white/pastel badges) */
+/* Dark Mode Pill & Badge Adaptations → --sp-pill-* families */
 :root[data-staff-theme="dark"] [class*="bg-emerald-50"],
 :root[data-staff-theme="dark"] [class*="bg-emerald-100"],
 :root[data-staff-theme="dark"] [class*="bg-emerald-200"] {
-  background-color: rgba(6, 78, 59, 0.45) !important;
-  color: #6ee7b7 !important;
-  border-color: rgba(16, 185, 129, 0.35) !important;
+  background-color: var(--sp-pill-emerald-bg) !important;
+  color: var(--sp-pill-emerald-text) !important;
+  border-color: var(--sp-pill-emerald-border) !important;
 }
 :root[data-staff-theme="dark"] [class*="text-emerald-700"],
 :root[data-staff-theme="dark"] [class*="text-emerald-800"],
 :root[data-staff-theme="dark"] [class*="text-emerald-900"],
 :root[data-staff-theme="dark"] [class*="text-emerald-950"] {
-  color: #6ee7b7 !important;
+  color: var(--sp-pill-emerald-text) !important;
 }
 
 :root[data-staff-theme="dark"] [class*="bg-teal-50"],
 :root[data-staff-theme="dark"] [class*="bg-teal-100"] {
-  background-color: rgba(17, 94, 89, 0.45) !important;
-  color: #5eead4 !important;
-  border-color: rgba(20, 184, 166, 0.35) !important;
+  background-color: var(--sp-pill-teal-bg) !important;
+  color: var(--sp-pill-teal-text) !important;
+  border-color: var(--sp-pill-teal-border) !important;
 }
 :root[data-staff-theme="dark"] [class*="text-teal-700"],
 :root[data-staff-theme="dark"] [class*="text-teal-800"],
 :root[data-staff-theme="dark"] [class*="text-teal-900"],
 :root[data-staff-theme="dark"] [class*="text-teal-950"] {
-  color: #5eead4 !important;
+  color: var(--sp-pill-teal-text) !important;
 }
 
 :root[data-staff-theme="dark"] [class*="bg-amber-50"],
 :root[data-staff-theme="dark"] [class*="bg-amber-100"],
 :root[data-staff-theme="dark"] [class*="bg-amber-200"] {
-  background-color: rgba(120, 53, 15, 0.4) !important;
-  color: #fcd34d !important;
-  border-color: rgba(245, 158, 11, 0.35) !important;
+  background-color: var(--sp-pill-amber-bg) !important;
+  color: var(--sp-pill-amber-text) !important;
+  border-color: var(--sp-pill-amber-border) !important;
 }
 :root[data-staff-theme="dark"] [class*="text-amber-700"],
 :root[data-staff-theme="dark"] [class*="text-amber-800"],
 :root[data-staff-theme="dark"] [class*="text-amber-900"] {
-  color: #fcd34d !important;
+  color: var(--sp-pill-amber-text) !important;
 }
 
 :root[data-staff-theme="dark"] [class*="bg-rose-50"],
 :root[data-staff-theme="dark"] [class*="bg-rose-100"] {
-  background-color: rgba(136, 19, 55, 0.4) !important;
-  color: #fda4af !important;
-  border-color: rgba(244, 63, 94, 0.35) !important;
+  background-color: var(--sp-pill-rose-bg) !important;
+  color: var(--sp-pill-rose-text) !important;
+  border-color: var(--sp-pill-rose-border) !important;
 }
 :root[data-staff-theme="dark"] [class*="text-rose-700"],
 :root[data-staff-theme="dark"] [class*="text-rose-800"],
 :root[data-staff-theme="dark"] [class*="text-rose-900"] {
-  color: #fda4af !important;
+  color: var(--sp-pill-rose-text) !important;
 }
 
 :root[data-staff-theme="dark"] [class*="bg-purple-50"],
 :root[data-staff-theme="dark"] [class*="bg-purple-100"] {
-  background-color: rgba(88, 28, 135, 0.4) !important;
-  color: #d8b4fe !important;
-  border-color: rgba(168, 85, 247, 0.35) !important;
+  background-color: var(--sp-pill-purple-bg) !important;
+  color: var(--sp-pill-purple-text) !important;
+  border-color: var(--sp-pill-purple-border) !important;
 }
 :root[data-staff-theme="dark"] [class*="text-purple-700"],
 :root[data-staff-theme="dark"] [class*="text-purple-800"],
 :root[data-staff-theme="dark"] [class*="text-purple-900"] {
-  color: #d8b4fe !important;
+  color: var(--sp-pill-purple-text) !important;
 }
 
 :root[data-staff-theme="dark"] [class*="bg-blue-50"],
@@ -1631,51 +1707,51 @@ html[data-pwa="standalone"] #pwa-install-container {
 :root[data-staff-theme="dark"] [class*="bg-indigo-100"],
 :root[data-staff-theme="dark"] [class*="bg-sky-50"],
 :root[data-staff-theme="dark"] [class*="bg-sky-100"] {
-  background-color: rgba(30, 58, 138, 0.4) !important;
-  color: #93c5fd !important;
-  border-color: rgba(59, 130, 246, 0.35) !important;
+  background-color: var(--sp-pill-blue-bg) !important;
+  color: var(--sp-pill-blue-text) !important;
+  border-color: var(--sp-pill-blue-border) !important;
 }
 :root[data-staff-theme="dark"] [class*="text-blue-700"],
 :root[data-staff-theme="dark"] [class*="text-blue-800"],
 :root[data-staff-theme="dark"] [class*="text-indigo-700"],
 :root[data-staff-theme="dark"] [class*="text-indigo-800"] {
-  color: #93c5fd !important;
+  color: var(--sp-pill-blue-text) !important;
 }
 
-/* Grants Status & Source Badges in Dark Ops */
+/* Grants Status & Source Badges in Dark Ops → pill families */
 :root[data-staff-theme="dark"] .badge-status.open {
-  background: rgba(6, 78, 59, 0.45) !important;
-  color: #6ee7b7 !important;
-  border-color: rgba(16, 185, 129, 0.4) !important;
+  background: var(--sp-pill-emerald-bg) !important;
+  color: var(--sp-pill-emerald-text) !important;
+  border-color: var(--sp-pill-emerald-border) !important;
 }
 :root[data-staff-theme="dark"] .badge-status.awarded,
 :root[data-staff-theme="dark"] .badge-status.won {
-  background: rgba(6, 78, 59, 0.55) !important;
-  color: #34d399 !important;
-  border-color: rgba(52, 211, 153, 0.45) !important;
+  background: var(--sp-pill-success-bg) !important;
+  color: var(--sp-pill-success-text) !important;
+  border-color: var(--sp-pill-success-border) !important;
 }
 :root[data-staff-theme="dark"] .badge-status.applied,
 :root[data-staff-theme="dark"] .badge-status.submitted {
-  background: rgba(30, 58, 138, 0.45) !important;
-  color: #93c5fd !important;
-  border-color: rgba(96, 165, 250, 0.4) !important;
+  background: var(--sp-pill-blue-bg) !important;
+  color: var(--sp-pill-blue-text) !important;
+  border-color: var(--sp-pill-blue-border) !important;
 }
 :root[data-staff-theme="dark"] .badge-status.watch {
-  background: rgba(120, 53, 15, 0.45) !important;
-  color: #fcd34d !important;
-  border-color: rgba(245, 158, 11, 0.4) !important;
+  background: var(--sp-pill-amber-bg) !important;
+  color: var(--sp-pill-amber-text) !important;
+  border-color: var(--sp-pill-amber-border) !important;
 }
 :root[data-staff-theme="dark"] .badge-status.skipped {
-  background: rgba(51, 65, 85, 0.45) !important;
-  color: #94a3b8 !important;
-  border-color: rgba(100, 116, 139, 0.4) !important;
+  background: var(--sp-pill-slate-bg) !important;
+  color: var(--sp-pill-slate-text) !important;
+  border-color: var(--sp-pill-slate-border) !important;
 }
 
-:root[data-staff-theme="dark"] .badge-source.corporate { background: rgba(88, 28, 135, 0.4) !important; color: #d8b4fe !important; border-color: rgba(168, 85, 247, 0.4) !important; }
-:root[data-staff-theme="dark"] .badge-source.technology { background: rgba(3, 105, 161, 0.4) !important; color: #7dd3fc !important; border-color: rgba(56, 189, 248, 0.4) !important; }
-:root[data-staff-theme="dark"] .badge-source.foundation { background: rgba(120, 53, 15, 0.4) !important; color: #fcd34d !important; border-color: rgba(245, 158, 11, 0.4) !important; }
-:root[data-staff-theme="dark"] .badge-source.donor { background: rgba(157, 23, 77, 0.4) !important; color: #f472b6 !important; border-color: rgba(244, 114, 182, 0.4) !important; }
-:root[data-staff-theme="dark"] .badge-source.manual { background: rgba(51, 65, 85, 0.4) !important; color: #cbd5e1 !important; border-color: rgba(100, 116, 139, 0.4) !important; }
+:root[data-staff-theme="dark"] .badge-source.corporate { background: var(--sp-pill-purple-bg) !important; color: var(--sp-pill-purple-text) !important; border-color: var(--sp-pill-purple-border) !important; }
+:root[data-staff-theme="dark"] .badge-source.technology { background: var(--sp-pill-sky-bg) !important; color: var(--sp-pill-sky-text) !important; border-color: var(--sp-pill-sky-border) !important; }
+:root[data-staff-theme="dark"] .badge-source.foundation { background: var(--sp-pill-amber-bg) !important; color: var(--sp-pill-amber-text) !important; border-color: var(--sp-pill-amber-border) !important; }
+:root[data-staff-theme="dark"] .badge-source.donor { background: var(--sp-pill-pink-bg) !important; color: var(--sp-pill-pink-text) !important; border-color: var(--sp-pill-pink-border) !important; }
+:root[data-staff-theme="dark"] .badge-source.manual { background: var(--sp-pill-slate-bg) !important; color: var(--sp-text-secondary) !important; border-color: var(--sp-pill-slate-border) !important; }
 
 /* Filter Pills, Chips & Tabs in Dark Ops → tab tokens */
 :root[data-staff-theme="dark"] .ee-filter-chip:not(.active),
