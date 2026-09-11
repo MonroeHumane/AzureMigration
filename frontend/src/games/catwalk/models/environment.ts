@@ -1,4 +1,4 @@
-import { PALETTE } from '../rendering/palette';
+import { type ShiftPalette, getShiftPalette } from '../rendering/palette';
 import { line, polyline, resetGlow, wire } from '../rendering/primitives';
 
 export const BOARD_WIDTH = 720;
@@ -7,15 +7,42 @@ export const PLAY_TOP_Y = 52;
 export const PLAY_BOTTOM_Y = 832;
 export const CELL_SIZE = 60;
 
-export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: number): void {
+export function drawEnvironment(
+  context: CanvasRenderingContext2D,
+  elapsed: number,
+  shift?: ShiftPalette,
+): void {
+  const mood = shift ?? getShiftPalette('night');
   resetGlow(context);
 
-  // 1. Solid deep background
-  context.fillStyle = PALETTE.background;
+  // 1. Solid deep background (shift-aware)
+  context.fillStyle = mood.background;
   context.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 
+  // Soft mood wash + sky vignette (late night blue / dawn amber)
+  if (mood.moodWash !== 'rgba(4, 18, 12, 0)') {
+    context.fillStyle = mood.moodWash;
+    context.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+  }
+  const skyGrad = context.createLinearGradient(0, PLAY_TOP_Y, 0, PLAY_TOP_Y + CELL_SIZE * 3);
+  skyGrad.addColorStop(0, mood.skyAccent);
+  skyGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  context.fillStyle = skyGrad;
+  context.fillRect(0, PLAY_TOP_Y, BOARD_WIDTH, CELL_SIZE * 3);
+
+  // Faint drifting atmosphere motes (very subtle, shift-tinted)
+  const moteColor = mood.id === 'dawn' ? 'rgba(255,180,90,0.12)' : mood.id === 'lateNight' ? 'rgba(120,160,255,0.10)' : 'rgba(77,250,139,0.08)';
+  context.fillStyle = moteColor;
+  for (let i = 0; i < 8; i++) {
+    const mx = ((elapsed * (8 + i * 3) + i * 97) % (BOARD_WIDTH + 40)) - 20;
+    const my = PLAY_TOP_Y + 20 + ((i * 73 + elapsed * 4) % (PLAY_BOTTOM_Y - PLAY_TOP_Y - 40));
+    context.beginPath();
+    context.arc(mx, my, 1.1 + (i % 3) * 0.4, 0, Math.PI * 2);
+    context.fill();
+  }
+
   // 2. Faint coordinate grid (calm, stable arcade grid)
-  wire(context, PALETTE.grid, 0.75, 0.35);
+  wire(context, mood.grid, 0.75, 0.35);
   for (let column = 0; column <= BOARD_WIDTH; column += CELL_SIZE) {
     line(context, { x: column + 0.5, y: PLAY_TOP_Y }, { x: column + 0.5, y: PLAY_BOTTOM_Y });
   }
@@ -32,21 +59,20 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
   const riverHeight = 5 * CELL_SIZE; // 300
   const riverBottomY = riverTopY + riverHeight; // 412
 
-  // A. Rich aquatic gradient
+  // A. Rich aquatic gradient (shift-aware)
   const riverGrad = context.createLinearGradient(0, riverTopY, 0, riverBottomY);
-  riverGrad.addColorStop(0, '#04161f');
-  riverGrad.addColorStop(0.5, '#072430');
-  riverGrad.addColorStop(1, '#051b24');
+  riverGrad.addColorStop(0, mood.riverTop);
+  riverGrad.addColorStop(0.5, mood.riverMid);
+  riverGrad.addColorStop(1, mood.riverBottom);
   context.fillStyle = riverGrad;
   context.fillRect(0, riverTopY, BOARD_WIDTH, riverHeight);
 
   // B. Clean riverbank boundary lines
-  wire(context, PALETTE.water, 1.5, 0.7);
+  wire(context, mood.water, 1.5, 0.7);
   line(context, { x: 0, y: riverTopY + 0.5 }, { x: BOARD_WIDTH, y: riverTopY + 0.5 });
   line(context, { x: 0, y: riverBottomY - 0.5 }, { x: BOARD_WIDTH, y: riverBottomY - 0.5 });
 
   // C. Gentle, continuous streamline waves per lane
-  // (Smooth continuous curves, no flashing bubbles, no disjointed arcs)
   const laneSpeeds = [
     { row: 1, dir: 1, speed: 28, waveLen: 120, amp: 2.5 },
     { row: 2, dir: -1, speed: 32, waveLen: 140, amp: 2.8 },
@@ -60,7 +86,7 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
     const centerY = rowY + CELL_SIZE / 2;
 
     // 1. Smooth harmonic streamline
-    wire(context, PALETTE.waterSoft, 1.1, 0.45);
+    wire(context, mood.waterSoft, 1.1, 0.45);
     context.beginPath();
     for (let x = 0; x <= BOARD_WIDTH; x += 15) {
       const wavePhase = (x - elapsed * c.speed * c.dir) / (c.waveLen * 0.16);
@@ -71,7 +97,7 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
     context.stroke();
 
     // 2. Faint second harmonic ripple line for liquid depth
-    wire(context, PALETTE.waterSoft, 0.8, 0.25);
+    wire(context, mood.waterSoft, 0.8, 0.25);
     context.beginPath();
     for (let x = 0; x <= BOARD_WIDTH; x += 15) {
       const wavePhase = (x - elapsed * c.speed * c.dir * 0.85 + 40) / (c.waveLen * 0.2);
@@ -82,7 +108,7 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
     context.stroke();
 
     // 3. Lane boundary water thread
-    wire(context, '#0e3a46', 0.8, 0.35);
+    wire(context, mood.id === 'lateNight' ? '#0e2840' : mood.id === 'dawn' ? '#1a3030' : '#0e3a46', 0.8, 0.35);
     line(context, { x: 0, y: rowY + 0.5 }, { x: BOARD_WIDTH, y: rowY + 0.5 });
   });
 
@@ -95,16 +121,16 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
   const roadBottomY = roadTopY + roadHeight; // 772
 
   // A. Asphalt background bed
-  context.fillStyle = '#05110c';
+  context.fillStyle = mood.roadBed;
   context.fillRect(0, roadTopY, BOARD_WIDTH, roadHeight);
 
   // B. Clean road curb boundaries
-  wire(context, '#25583f', 1.6, 0.85);
+  wire(context, mood.id === 'lateNight' ? '#254858' : mood.id === 'dawn' ? '#3a5830' : '#25583f', 1.6, 0.85);
   line(context, { x: 0, y: roadTopY + 0.5 }, { x: BOARD_WIDTH, y: roadTopY + 0.5 });
   line(context, { x: 0, y: roadBottomY - 0.5 }, { x: BOARD_WIDTH, y: roadBottomY - 0.5 });
 
   // C. Clean dashed lane dividers
-  wire(context, PALETTE.gridStrong, 1.2, 0.65);
+  wire(context, mood.gridStrong, 1.2, 0.65);
   context.setLineDash([16, 16]);
   for (let row = 8; row <= 11; row += 1) {
     line(context, { x: 0, y: PLAY_TOP_Y + row * CELL_SIZE + 0.5 }, { x: BOARD_WIDTH, y: PLAY_TOP_Y + row * CELL_SIZE + 0.5 });
@@ -122,12 +148,12 @@ export function drawEnvironment(context: CanvasRenderingContext2D, elapsed: numb
     const railY2 = PLAY_TOP_Y + safeRow * CELL_SIZE + 40;
 
     // Horizontal rails
-    wire(context, PALETTE.fence, 1.4, 0.8);
+    wire(context, mood.fence, 1.4, 0.8);
     line(context, { x: 8, y: railY1 + 0.5 }, { x: BOARD_WIDTH - 8, y: railY1 + 0.5 });
     line(context, { x: 8, y: railY2 + 0.5 }, { x: BOARD_WIDTH - 8, y: railY2 + 0.5 });
 
     // Pickets with pointed tops
-    wire(context, PALETTE.fencePost, 1.2, 0.7);
+    wire(context, mood.fencePost, 1.2, 0.7);
     for (let picketX = 20; picketX < BOARD_WIDTH; picketX += 24) {
       polyline(context, [
         { x: picketX - 3, y: bottomY },

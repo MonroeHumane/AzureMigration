@@ -1,5 +1,5 @@
 import { CatwalkAudio } from './audio';
-import { CatwalkEngine, getStageConfig } from './engine/game';
+import { CatwalkEngine, getDogLanesForStage, getStageConfig, positionsForLane } from './engine/game';
 import { bindInput } from './input';
 import { BOARD_HEIGHT, BOARD_WIDTH, CELL_SIZE, PLAY_TOP_Y } from './models/environment';
 import { ParticleSystem } from './rendering/particles';
@@ -17,6 +17,7 @@ if (root && canvas && context) {
   const reducedMotion = (() => {
     try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
   })();
+  particles.setReducedMotion(reducedMotion);
 
   const triggerHomeSuccessFlash = () => {
     const bezel = root.querySelector<HTMLElement>('.catwalk-bezel') || root;
@@ -163,8 +164,11 @@ if (root && canvas && context) {
         const catRow = Math.floor((engine.state.cat.y - PLAY_TOP_Y) / CELL_SIZE);
         const onWater = catRow >= 1 && catRow <= 5;
         particles.spawnHop(engine.state.cat.x, engine.state.cat.y, onWater);
-        if (!reducedMotion) {
-          particles.spawnTrail(engine.state.cat.x, engine.state.cat.y, engine.state.cat.direction);
+        // Denser afterimages when hopping quickly (short action window = rapid inputs)
+        const fastHop = engine.state.cat.actionTime > 0.12;
+        particles.spawnTrail(engine.state.cat.x, engine.state.cat.y, engine.state.cat.direction, fastHop);
+        if (onWater) {
+          particles.spawnFishboneSparkle(engine.state.cat.x, engine.state.cat.y);
         }
       }
       if (event === 'home') {
@@ -283,6 +287,27 @@ if (root && canvas && context) {
 
     if (engine.state.score > engine.state.best) {
       localStorage.setItem('humane-catwalk-best', String(engine.state.best));
+    }
+
+    // Dog-near warning dust (throttled via particle life; skip under reduced motion)
+    if (engine.state.status === 'playing') {
+      const catRow = Math.floor((engine.state.cat.y - PLAY_TOP_Y) / CELL_SIZE);
+      if (catRow >= 7 && catRow <= 11) {
+        const lane = getDogLanesForStage(engine.state.level).find((l) => l.row === catRow);
+        if (lane) {
+          const nearest = positionsForLane(lane, engine.state).reduce((best, center) => {
+            const d = Math.abs(center - engine.state.cat.x);
+            return d < best.d ? { d, center } : best;
+          }, { d: Infinity, center: 0 });
+          if (nearest.d < 145) {
+            const intensity = Math.max(0.35, 1 - nearest.d / 145);
+            // Spawn sparingly (~every ~180ms worth of frames via elapsed phase)
+            if (Math.floor(engine.state.elapsed * 5.5) !== Math.floor((engine.state.elapsed - delta) * 5.5)) {
+              particles.spawnDogWarning(nearest.center, engine.state.cat.y, intensity);
+            }
+          }
+        }
+      }
     }
 
     renderGame(context, engine.state, !audioEnabled, debug, hoveredControl, particles);

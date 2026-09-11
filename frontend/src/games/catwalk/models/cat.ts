@@ -27,28 +27,28 @@ export function drawCat(context: CanvasRenderingContext2D, pose: CatPose): void 
   const hopArc = isHopping ? Math.sin(hopProgress * Math.PI) : 0;
 
   // Parabolic vertical lift during hop
-  const hopLift = hopArc * 9;
+  const hopLift = hopArc * 12;
 
-  // Squash & Stretch along the leap axis:
-  // Launch (0..0.25): squash down & compress
-  // Mid-flight (0.25..0.75): athletic stretch forward
-  // Landing (0.75..1.0): squash impact absorption
+  // Squash & Stretch along the leap axis (amplified for readable hop juice):
+  // Launch (0..0.22): deep squash
+  // Mid-flight (0.22..0.78): athletic stretch forward
+  // Landing (0.78..1.0): impact squash absorption
   let stretchY = 1.0;
   let stretchX = 1.0;
   if (isHopping) {
-    if (hopProgress < 0.25) {
-      const t = hopProgress / 0.25;
-      stretchY = 0.88 + t * 0.12;
-      stretchX = 1.14 - t * 0.14;
-    } else if (hopProgress < 0.75) {
-      const t = (hopProgress - 0.25) / 0.5;
+    if (hopProgress < 0.22) {
+      const t = hopProgress / 0.22;
+      stretchY = 0.78 + t * 0.22; // launch compress
+      stretchX = 1.26 - t * 0.26;
+    } else if (hopProgress < 0.78) {
+      const t = (hopProgress - 0.22) / 0.56;
       const stretchFactor = Math.sin(t * Math.PI);
-      stretchY = 1.0 + stretchFactor * 0.24; // Elongate along leap direction
-      stretchX = 1.0 - stretchFactor * 0.15; // Streamline width
+      stretchY = 1.0 + stretchFactor * 0.36; // Elongate along leap direction
+      stretchX = 1.0 - stretchFactor * 0.22; // Streamline width
     } else {
-      const t = (hopProgress - 0.75) / 0.25;
-      stretchY = 1.0 - Math.sin(t * Math.PI) * 0.12;
-      stretchX = 1.0 + Math.sin(t * Math.PI) * 0.14;
+      const t = (hopProgress - 0.78) / 0.22;
+      stretchY = 1.0 - Math.sin(t * Math.PI) * 0.2;
+      stretchX = 1.0 + Math.sin(t * Math.PI) * 0.22;
     }
   } else if (isRiding) {
     // Alert low crouching balance stance on moving fishbone
