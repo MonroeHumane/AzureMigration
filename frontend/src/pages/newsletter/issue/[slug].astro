@@ -78,9 +78,9 @@ const newsArticle = {
   <div class="pb-24 px-4 max-w-7xl mx-auto mt-12" data-newsletter-issue>
     <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
       
-      {/* Merch collage — full image, no overlays, no max-height clipping into the title. */}
-      <div class="w-full bg-[#e7f0ec] px-3 pt-3 sm:px-4 sm:pt-4">
-        <div class="relative w-full overflow-hidden rounded-2xl bg-[#dce8e3] aspect-[1168/514]">
+      {/* Merch collage — native aspect, edge-to-edge on mobile, no overlays/title clip */}
+      <div class="w-full bg-[#e7f0ec] px-1.5 pt-1.5 sm:px-4 sm:pt-4">
+        <div class="relative w-full overflow-hidden rounded-xl sm:rounded-2xl bg-[#dce8e3] aspect-[1168/514]">
           <img
             data-nl-hero
             src={issue.hero_image}
@@ -93,8 +93,8 @@ const newsArticle = {
       </div>
 
       {/* Title masthead — clear, unclipped, always shows 2026 issue label */}
-      <header class="px-6 sm:px-10 pt-7 pb-8 bg-gradient-to-b from-[#f7fbf9] to-white border-b border-teal-900/10">
-        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <header class="px-4 sm:px-10 pt-5 pb-6 sm:pt-7 sm:pb-8 bg-gradient-to-b from-[#f7fbf9] to-white border-b border-teal-900/10">
+        <div class="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div class="min-w-0 max-w-3xl">
             <p
               class="m-0 mb-3 inline-flex items-center rounded-full bg-teal-800/10 px-3 py-1 font-['Jost','Segoe_UI',sans-serif] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-teal-800"
@@ -119,17 +119,17 @@ const newsArticle = {
               {issue.byline || 'by, Jacqueline Monteer'}
             </p>
           </div>
-          <div class="flex flex-wrap gap-2.5 lg:justify-end" role="group" aria-label="Newsletter actions">
+          <div class="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 lg:flex lg:w-auto lg:flex-wrap lg:justify-end" role="group" aria-label="Newsletter actions">
             <a
               data-nl-pdf
               href={issue.pdf_url || '#'}
-              class:list={['inline-flex min-h-[2.75rem] items-center justify-center rounded-full border-2 border-teal-800 bg-white px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-teal-800 transition hover:bg-teal-50', !issue.pdf_url && 'hidden']}
+              class:list={['inline-flex min-h-11 w-full items-center justify-center rounded-full border-2 border-teal-800 bg-white px-4 py-2.5 text-sm font-bold uppercase tracking-wider text-teal-800 transition hover:bg-teal-50 sm:min-h-[2.75rem] lg:w-auto lg:px-5', !issue.pdf_url && 'hidden']}
               target="_blank"
               rel="noopener noreferrer"
             >Download PDF</a>
-            <a href="/adopt/dogs" class="inline-flex min-h-[2.75rem] items-center justify-center rounded-full bg-teal-800 px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-teal-950">See Adoptable Dogs</a>
-            <a href="/adopt/cats" class="inline-flex min-h-[2.75rem] items-center justify-center rounded-full bg-teal-800 px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-teal-950">See Adoptable Cats</a>
-            <a href="/adopt" class="inline-flex min-h-[2.75rem] items-center justify-center rounded-full border-2 border-teal-800 bg-white px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-teal-800 transition hover:bg-teal-50">See All Pets</a>
+            <a href="/adopt/dogs" class="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-teal-800 px-4 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-teal-950 sm:min-h-[2.75rem] lg:w-auto lg:px-5">See Adoptable Dogs</a>
+            <a href="/adopt/cats" class="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-teal-800 px-4 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-teal-950 sm:min-h-[2.75rem] lg:w-auto lg:px-5">See Adoptable Cats</a>
+            <a href="/adopt" class="inline-flex min-h-11 w-full items-center justify-center rounded-full border-2 border-teal-800 bg-white px-4 py-2.5 text-sm font-bold uppercase tracking-wider text-teal-800 transition hover:bg-teal-50 sm:min-h-[2.75rem] lg:w-auto lg:px-5 sm:col-span-2 lg:col-span-1">See All Pets</a>
           </div>
         </div>
       </header>
