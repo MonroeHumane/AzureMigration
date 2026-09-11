@@ -205,17 +205,19 @@ html.sr-standalone-chrome .sr-chrome-exit {
   position: absolute;
   inset: 0;
   opacity: 0;
+  /* Chase-cam: lines radiate from horizon toward camera */
   background:
     repeating-linear-gradient(
-      90deg,
+      180deg,
       transparent 0,
-      transparent 14px,
-      rgba(255, 250, 243, 0.045) 15px,
-      rgba(255, 250, 243, 0.045) 17px
+      transparent 18px,
+      rgba(255, 250, 243, 0.05) 19px,
+      rgba(255, 250, 243, 0.05) 21px
     );
-  mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 70%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 70%, transparent 100%);
-  transform: translateX(0);
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 28%, transparent 0%, #000 42%, #000 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 28%, transparent 0%, #000 42%, #000 100%);
+  transform: translateY(0) scaleY(1);
+  transform-origin: 50% 20%;
   will-change: transform, opacity;
 }
 
@@ -225,8 +227,8 @@ html.sr-running .sr-fx-speedlines.is-active {
 }
 
 @keyframes srSpeedScroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-64px); }
+  from { transform: translateY(-24px) scaleY(1.05); }
+  to { transform: translateY(40px) scaleY(1.2); }
 }
 
 .sr-fx-hurt {

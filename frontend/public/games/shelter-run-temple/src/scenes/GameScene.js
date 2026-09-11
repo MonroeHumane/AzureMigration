@@ -1,4 +1,4 @@
-/* ─── GameScene — pseudo-3D 3-lane chase loop ───────────────────────────── */
+/* ─── GameScene — pseudo-3D 3-lane chase loop (+ visual juice pass) ───── */
 
 class GameScene extends Phaser.Scene {
   constructor() { super('Game'); }
@@ -9,7 +9,9 @@ class GameScene extends Phaser.Scene {
 
   create() {
     this.layout = Perspective.layout(this.scale.width, this.scale.height);
-    this.cameras.main.setBackgroundColor('#0a1f2e');
+    this._biome = srBiomeAtMeters(0);
+    this.cameras.main.setBackgroundColor(this._biome.camBg || '#0a1f2e');
+    Perspective.setBiomeColors(this._biome.colors);
 
     this.worldGfx = this.add.graphics().setDepth(1);
     this.fxGfx = this.add.graphics().setDepth(15);
@@ -25,12 +27,22 @@ class GameScene extends Phaser.Scene {
     this.collectibles = [];
     this.isGameOver = false;
     this.debug = new URLSearchParams(window.location.search).get('debug') === '1';
+    this._lastBiomeId = this._biome.id;
+    this._camNudgeX = 0;
 
     this.availablePets = (typeof ShelterRunPets !== 'undefined') ? ShelterRunPets.drawForRun(30) : [];
     this.collectedPetIds = [];
     this.collectedPets = [];
 
+    this.fx = SrFx.create(this);
+    SrFx.setReduced(this.fx, this._fxReduced());
+
+    this._rockPool = [];
+    this._initRockPool();
+
     this.player = new Player(this, CFG.COMPANIONS[this.companionIndex].tint);
+    this.player.onLaneChange = (dir) => this._onLaneChangeJuice(dir);
+    this.player.onJumpLand = () => this._onJumpLandJuice();
 
     this._setupInput();
     this._buildHud();
@@ -39,12 +51,30 @@ class GameScene extends Phaser.Scene {
     this.scale.on('resize', this._onResize, this);
     this.events.once('shutdown', () => {
       this.scale.off('resize', this._onResize, this);
+      SrFx.destroy(this.fx);
+      this._hideRockPool();
       try {
         document.documentElement.classList.remove('sr-running');
         const lines = document.getElementById('srSpeedLines');
         if (lines) lines.classList.remove('is-active');
       } catch (e) {}
     });
+  }
+
+  _initRockPool() {
+    const keys = ['sr-rock', 'sr-rock-grass', 'sr-rock-ice', 'sr-rock-snow'];
+    const have = keys.some((k) => this.textures.exists(k));
+    if (!have) return;
+    for (let i = 0; i < 12; i++) {
+      const img = this.add.image(0, 0, 'sr-rock').setDepth(12).setVisible(false).setOrigin(0.5, 1);
+      this._rockPool.push(img);
+    }
+  }
+
+  _hideRockPool() {
+    for (let i = 0; i < this._rockPool.length; i++) {
+      if (this._rockPool[i]) this._rockPool[i].setVisible(false);
+    }
   }
 
   _onResize() {
@@ -88,6 +118,7 @@ class GameScene extends Phaser.Scene {
     this.livesText = srUiText(this, 0, 0, '❤ 2', { fontSize: '20px', color: '#ff8a8a' }).setDepth(31);
     this._hudHint = srUiText(this, 0, 0, '', { fontSize: '13px', color: '#9ec4b8' }).setDepth(31).setAlpha(0.95);
     this._toastText = srUiText(this, 0, 0, '', { fontSize: '16px', color: '#ffd166' }).setDepth(32).setAlpha(0);
+    this._biomeText = srUiText(this, 0, 0, '', { fontSize: '12px', color: '#9ec4b8' }).setDepth(31).setAlpha(0);
     this._layoutHud();
 
     const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
@@ -118,6 +149,7 @@ class GameScene extends Phaser.Scene {
     if (this._hudBgPets) this._hudBgPets.setPosition(W - padX - 40, padY).setSize(96, 34);
     if (this._hudBgLives) this._hudBgLives.setPosition(W / 2, padY).setSize(88, 34);
     if (this._toastText) this._toastText.setPosition(W / 2, padY + 48);
+    if (this._biomeText) this._biomeText.setPosition(W / 2, padY + 72);
     const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     if (this._hudHint) {
       if (coarse) {
@@ -158,6 +190,47 @@ class GameScene extends Phaser.Scene {
     lines.classList.toggle('is-active', !this.isGameOver && t > 0.02);
   }
 
+  _onLaneChangeJuice(dir) {
+    if (this._fxReduced()) return;
+    const L = this.layout;
+    const px = this.player.g.x;
+    const py = this.player.g.y;
+    const dust = (this._biome && this._biome.colors && this._biome.colors.particle) || 0xd4c4a0;
+    SrFx.dust(this.fx, px, py + 8, dust);
+    // Brief camera nudge opposite to lean (chase cam feel)
+    this._camNudgeX = dir * 10;
+    this.cameras.main.scrollX = -this._camNudgeX;
+    this.tweens.add({
+      targets: this.cameras.main,
+      scrollX: 0,
+      duration: 140,
+      ease: 'Quad.easeOut',
+    });
+  }
+
+  _onJumpLandJuice() {
+    if (this._fxReduced()) return;
+    const px = this.player.g.x;
+    const py = this.player.g.y;
+    const spark = (this._biome && this._biome.colors && this._biome.colors.collect) || 0xfff6c2;
+    SrFx.sparks(this.fx, px, py + 6, spark);
+  }
+
+  _updateBiome(meters) {
+    const b = srBiomeAtMeters(meters);
+    this._biome = b;
+    Perspective.setBiomeColors(b.colors);
+    if (b.camBg) this.cameras.main.setBackgroundColor(b.camBg);
+    if (b.id !== this._lastBiomeId) {
+      this._lastBiomeId = b.id;
+      if (this._biomeText) {
+        this._biomeText.setText(b.label || b.id).setAlpha(1);
+        this.tweens.killTweensOf(this._biomeText);
+        this.tweens.add({ targets: this._biomeText, alpha: 0, delay: 1200, duration: 500 });
+      }
+    }
+  }
+
   update(time, delta) {
     if (this.isGameOver) return;
     const dtMs = Math.min(50, delta);
@@ -174,11 +247,27 @@ class GameScene extends Phaser.Scene {
     this.distanceText.setText(Math.floor(meters) + ' m');
     this.livesText.setText('❤ ' + this.player.lives);
 
+    this._updateBiome(meters);
     this._spawnAhead(meters);
     this._checkCollisions();
     this._prune();
     this._renderWorld();
     this._syncSpeedFx();
+
+    // Slide trail + canvas speed lines
+    if (!this._fxReduced()) {
+      if (this.player.isSliding) {
+        const dust = (this._biome && this._biome.colors && this._biome.colors.particle) || 0xc8b890;
+        if ((this.frameCount % 2) === 0) {
+          SrFx.slideTrail(this.fx, this.player.g.x, this.player.g.y, dust);
+        }
+      }
+      const t = Math.max(0, Math.min(1, (this.speed - CFG.INITIAL_SPEED) / (CFG.MAX_SPEED - CFG.INITIAL_SPEED || 1)));
+      if (t > 0.35 && (this.frameCount % 3) === 0) {
+        SrFx.speedLines(this.fx, this.layout.W, this.layout.H, t);
+      }
+    }
+    SrFx.update(this.fx, dtMs);
   }
 
   _readInput() {
@@ -277,6 +366,13 @@ class GameScene extends Phaser.Scene {
     this.collectibles = this.collectibles.filter((c) => !c.collected && c.worldZ > minZ);
   }
 
+  _rockKeyForBiome() {
+    const k = (this._biome && this._biome.rockKey) || 'sr-rock';
+    if (this.textures.exists(k)) return k;
+    if (this.textures.exists('sr-rock')) return 'sr-rock';
+    return null;
+  }
+
   _renderWorld() {
     const L = this.layout;
     const g = this.worldGfx;
@@ -297,10 +393,36 @@ class GameScene extends Phaser.Scene {
       if (d > L.nearZ && d < L.farZ) drawList.push({ kind: 'col', z: c.worldZ, c: c, d: d });
     }
     drawList.sort((a, b) => b.z - a.z);
+
+    // Reset rock pool each frame; assign to near lane_blocks that opt in
+    let rockIdx = 0;
+    const rockKey = this._rockKeyForBiome();
+    for (let i = 0; i < this._rockPool.length; i++) this._rockPool[i].setVisible(false);
+
     for (let i = 0; i < drawList.length; i++) {
       const item = drawList[i];
-      if (item.kind === 'obs') Perspective.drawObstacle(g, L, item.o, item.d);
-      else Perspective.drawCollectible(g, L, item.c, item.d, this.frameCount);
+      if (item.kind === 'obs') {
+        const o = item.o;
+        const useSprite = rockKey && o.useRock && o.type === SR_OBSTACLE_TYPES.LANE_BLOCK &&
+          rockIdx < this._rockPool.length && item.d < L.farZ * 0.85;
+        if (useSprite) {
+          const box = Perspective.obstacleScreenBox(L, o, item.d);
+          const img = this._rockPool[rockIdx++];
+          img.setTexture(rockKey);
+          img.setPosition(box.cx, box.groundY);
+          // Fit Kenney rock (108×239) into lane wall AABB without changing collision
+          const targetH = box.h * 1.05;
+          const s = targetH / 239;
+          img.setScale(s);
+          img.setAlpha(Math.min(1, 0.35 + (1 - item.d / L.farZ) * 0.75));
+          img.setVisible(true);
+          img.setDepth(10 + Math.floor((1 - item.d / L.farZ) * 8));
+        } else {
+          Perspective.drawObstacle(g, L, o, item.d);
+        }
+      } else {
+        Perspective.drawCollectible(g, L, item.c, item.d, this.frameCount);
+      }
     }
 
     this.fxGfx.clear();

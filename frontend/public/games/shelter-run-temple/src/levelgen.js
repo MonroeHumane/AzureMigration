@@ -55,6 +55,11 @@ function srNextGap(rand, meters, lastWasHard) {
   return base + (lastWasHard ? CFG.REACTION_GAP : 0) + rand() * 160;
 }
 
+function srPickVariant(rand, type) {
+  var list = (typeof SR_OBS_VARIANTS !== 'undefined' && SR_OBS_VARIANTS[type]) || [0, 1, 2];
+  return list[Math.floor(rand() * list.length)];
+}
+
 function srSpawnCluster(rand, atZ, meters, idCounter) {
   var out = { obstacles: [], collectibles: [], idCounter: idCounter, hard: false };
   if (rand() < CFG.COLLECTIBLE_CHANCE) {
@@ -74,8 +79,13 @@ function srSpawnCluster(rand, atZ, meters, idCounter) {
   var jitter = (rand() - 0.5) * 40;
   for (var j = 0; j < pattern.length; j++) {
     out.obstacles.push({
-      id: ++out.idCounter, type: pattern[j].type, lane: pattern[j].lane,
-      worldZ: atZ + jitter, passed: false,
+      id: ++out.idCounter,
+      type: pattern[j].type,
+      lane: pattern[j].lane,
+      worldZ: atZ + jitter,
+      passed: false,
+      variant: srPickVariant(rand, pattern[j].type),
+      useRock: pattern[j].type === SR_OBSTACLE_TYPES.LANE_BLOCK && rand() < 0.55,
     });
   }
   out.hard = srIsHardCluster(out.obstacles);
