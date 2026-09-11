@@ -11,6 +11,7 @@ import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
 
 import { getSiteSettings, getEventFlyers, getNewsletterIssues, getFeaturedNewsletterIssue } from '../lib/directus';
+import { hasLetterBody, renderLetterHtml } from '../scripts/newsletter-hydrate';
 const pets = (await getPets()).slice(0, 6);
 const settings = await getSiteSettings();
 const events = await getEventFlyers();
@@ -25,6 +26,8 @@ const latestEvent = events
   .filter((e) => e.event_date && new Date(e.event_date) >= now)
   .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime())[0];
 const latestNewsletter = featuredNewsletter || newsletters[0] || null;
+const latestLetterHtml = renderLetterHtml(latestNewsletter);
+const showHomeLetter = hasLetterBody(latestNewsletter);
 
 // "Next event" widget: spotlight the soonest upcoming event from event flyers if present,
 // falling back to home.next_event.
@@ -849,39 +852,63 @@ const sideNavSections = [
         <p class="wp-block-paragraph home-nl-band-intro">{home.newsletter.intro}</p>
 
         <article class="home-nl" data-newsletter-home aria-labelledby="hs-news-featured-title">
-          <div class="home-nl__photo">
-            <img
-              data-nl-hero
-              src={latestNewsletter?.hero_image || home.newsletter.hero_image}
-              alt={latestNewsletter?.title || 'Latest newsletter'}
-              width="1168"
-              height="514"
-              decoding="async"
-              loading="lazy"
-            />
-          </div>
-          <div class="home-nl__letter">
-            <p class="home-nl__kicker" data-nl-topline>{latestNewsletter?.top_line || home.newsletter.eyebrow}</p>
-            <p class="home-nl__date" data-nl-date>{latestNewsletter ? formatDate(latestNewsletter.issue_date, '') : ''}</p>
-            <h3 id="hs-news-featured-title" class="home-nl__title" data-nl-title>{latestNewsletter?.title || home.newsletter.title}</h3>
-            <p class="home-nl__byline" data-nl-byline>{latestNewsletter?.byline || home.newsletter.byline}</p>
-            <p class="home-nl__excerpt" data-nl-excerpt>{latestNewsletter?.excerpt || 'No published newsletter yet.'}</p>
-            <div class="home-nl__actions">
-              <a
-                data-nl-link
-                class="home-nl__btn home-nl__btn--primary"
-                href={latestNewsletter?.slug ? `/newsletter/issue/${latestNewsletter.slug}` : '/newsletter'}
-              >{latestNewsletter ? 'Read the letter' : 'View archive'}</a>
-              <a
-                data-nl-pdf
-                class:list={['home-nl__btn', 'home-nl__btn--ghost', !latestNewsletter?.pdf_url && 'home-nl__btn--off']}
-                href={latestNewsletter?.pdf_url || '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-              >Download PDF</a>
-              <a class="home-nl__btn home-nl__btn--ghost" href="/newsletter">All issues</a>
+          <div class="home-nl__layout">
+            <div class="home-nl__photo">
+              <img
+                data-nl-hero
+                src={latestNewsletter?.hero_image || home.newsletter.hero_image}
+                alt={latestNewsletter?.title || 'Latest newsletter'}
+                width="1168"
+                height="514"
+                decoding="async"
+                loading="lazy"
+              />
+            </div>
+            <div class="home-nl__letter">
+              <p class="home-nl__kicker" data-nl-topline>{latestNewsletter?.top_line || home.newsletter.eyebrow}</p>
+              <p class="home-nl__date" data-nl-date>{latestNewsletter ? formatDate(latestNewsletter.issue_date, '') : ''}</p>
+              <h3 id="hs-news-featured-title" class="home-nl__title" data-nl-title>{latestNewsletter?.title || home.newsletter.title}</h3>
+              <p class="home-nl__byline" data-nl-byline>{latestNewsletter?.byline || home.newsletter.byline}</p>
+              <p class="home-nl__excerpt" data-nl-excerpt>{latestNewsletter?.excerpt || 'No published newsletter yet.'}</p>
+              <div class="home-nl__actions">
+                <a
+                  data-nl-link
+                  class="home-nl__btn home-nl__btn--primary"
+                  href={latestNewsletter?.slug ? `/newsletter/issue/${latestNewsletter.slug}` : '/newsletter'}
+                >{latestNewsletter ? 'Read the letter' : 'View archive'}</a>
+                <a
+                  data-nl-pdf
+                  class:list={['home-nl__btn', 'home-nl__btn--ghost', !latestNewsletter?.pdf_url && 'home-nl__btn--off']}
+                  href={latestNewsletter?.pdf_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Download PDF</a>
+                <a class="home-nl__btn home-nl__btn--ghost" href="/newsletter">All issues</a>
+              </div>
             </div>
           </div>
+
+          <details class="home-nl-read" hidden={!showHomeLetter}>
+            <summary class="home-nl-read__toggle">
+              <span class="home-nl-read__toggle-copy">
+                <span class="home-nl-read__toggle-open">Read the full letter</span>
+                <span class="home-nl-read__toggle-close">Close letter</span>
+              </span>
+              <span class="home-nl-read__chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="home-nl-read__panel">
+              <div class="home-nl-read__paper">
+                <header class="home-nl-read__head">
+                  <p class="home-nl-read__kicker" data-nl-topline-letter>{latestNewsletter?.top_line || home.newsletter.eyebrow}</p>
+                  <p class="home-nl-read__date" data-nl-date-letter>{latestNewsletter ? formatDate(latestNewsletter.issue_date, '') : ''}</p>
+                  <h4 class="home-nl-read__title">{latestNewsletter?.title || home.newsletter.title}</h4>
+                  <p class="home-nl-read__byline">{latestNewsletter?.byline || home.newsletter.byline}</p>
+                </header>
+                <div class="home-nl-read__body" data-nl-full-letter set:html={latestLetterHtml}></div>
+                <button type="button" class="home-nl-read__done" data-nl-letter-close>Close letter</button>
+              </div>
+            </div>
+          </details>
         </article>
       </div>
     </div>

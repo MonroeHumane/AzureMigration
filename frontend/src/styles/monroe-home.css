@@ -1469,8 +1469,8 @@ body.home .sponsor-widget-shell .sponsor-card {
 }
 
 .home-nl {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 1fr);
+  display: flex !important;
+  flex-direction: column;
   margin-top: 1.5rem;
   background: #fffdf8;
   color: #153635;
@@ -1480,12 +1480,21 @@ body.home .sponsor-widget-shell .sponsor-card {
   box-shadow: 0 22px 48px rgba(8, 28, 27, 0.28);
 }
 
+.home-nl__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 1fr);
+}
+
 .home-nl__photo {
+  position: relative;
   min-height: 100%;
+  min-height: 18rem;
   background: #d7e4df;
 }
 
 .home-nl__photo img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1594,13 +1603,23 @@ body.home .sponsor-widget-shell .sponsor-card {
 }
 
 @media (max-width: 800px) {
-  .home-nl {
+  .home-nl__layout {
     grid-template-columns: 1fr;
   }
 
   .home-nl__photo {
     min-height: 0;
     aspect-ratio: 16 / 9;
+  }
+
+  .home-nl-read__body p,
+  .home-nl-read__body li {
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+
+  .home-nl-read__panel {
+    padding: 1.15rem 1rem 1.75rem;
   }
 }
 
@@ -3692,6 +3711,189 @@ body.home-editable-has-flyers-rail .home-editable-flyers-rail {
 }
 
 
+
+.home-nl-read {
+  border-top: 1px solid rgba(21, 54, 53, 0.1);
+  background:
+    linear-gradient(180deg, rgba(247, 243, 234, 0.45) 0%, #f4efe4 100%);
+}
+
+.home-nl-read[hidden] {
+  display: none;
+}
+
+.home-nl-read__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  width: 100%;
+  margin: 0;
+  padding: 1.05rem 1.25rem;
+  cursor: pointer;
+  list-style: none;
+  color: #1f4c49;
+  font: 800 0.78rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.home-nl-read__toggle::-webkit-details-marker,
+.home-nl-read__toggle::marker {
+  display: none;
+  content: "";
+}
+
+.home-nl-read__toggle:focus-visible {
+  outline: 2px solid #2dd4bf;
+  outline-offset: -4px;
+}
+
+.home-nl-read__toggle-close {
+  display: none;
+}
+
+.home-nl-read[open] .home-nl-read__toggle {
+  border-bottom: 1px solid rgba(21, 54, 53, 0.08);
+  background: rgba(255, 253, 248, 0.55);
+}
+
+.home-nl-read[open] .home-nl-read__toggle-open {
+  display: none;
+}
+
+.home-nl-read[open] .home-nl-read__toggle-close {
+  display: inline;
+}
+
+.home-nl-read__chevron {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.home-nl-read[open] .home-nl-read__chevron {
+  transform: translateY(2px) rotate(-135deg);
+}
+
+.home-nl-read__panel {
+  scroll-margin-top: 5.75rem;
+  padding: clamp(1.4rem, 4.2vw, 2.8rem) clamp(1.1rem, 5vw, 2.5rem) clamp(1.8rem, 4.5vw, 3rem);
+  animation: monroe-fade-in 0.35s ease-out;
+}
+
+.home-nl-read__paper {
+  max-width: 40.5rem;
+  margin: 0 auto;
+}
+
+.home-nl-read__head {
+  text-align: center;
+  margin: 0 0 1.6rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid rgba(21, 54, 53, 0.12);
+}
+
+.home-nl-read__kicker {
+  margin: 0 0 0.3rem;
+  color: #0f766e;
+  font: 700 0.72rem/1.2 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.home-nl-read__date {
+  margin: 0 0 0.55rem;
+  color: #5b6f6e;
+  font: 500 0.92rem/1.3 "Jost", "Segoe UI", sans-serif;
+}
+
+.home-nl-read__date:empty {
+  display: none;
+}
+
+.home-nl-read__title {
+  margin: 0 0 0.4rem;
+  color: #153635;
+  font-family: "Abril Fatface", Georgia, serif;
+  font-size: clamp(1.7rem, 3vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.home-nl-read__byline {
+  margin: 0;
+  color: #405757;
+  font: italic 500 1rem/1.4 "Questrial", "Segoe UI", sans-serif;
+}
+
+.home-nl-read__body {
+  text-align: left;
+}
+
+.home-nl-read__section + .home-nl-read__section {
+  margin-top: 1.75rem;
+}
+
+.home-nl-read__heading {
+  margin: 0 0 0.85rem;
+  color: #153635;
+  font-family: "Abril Fatface", Georgia, serif;
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.home-nl-read__body p {
+  margin: 0 0 1.15rem;
+  color: #243e3d;
+  font: 400 1.125rem/1.85 "Questrial", "Segoe UI", sans-serif;
+}
+
+.home-nl-read__body p:last-child {
+  margin-bottom: 0;
+}
+
+.home-nl-read__body ol,
+.home-nl-read__list {
+  margin: 0 0 1.25rem;
+  padding-left: 1.3rem;
+  color: #243e3d;
+  font: 400 1.08rem/1.75 "Questrial", "Segoe UI", sans-serif;
+}
+
+.home-nl-read__body li {
+  margin: 0 0 0.7rem;
+  padding-left: 0.2rem;
+}
+
+.home-nl-read__done {
+  display: block;
+  margin: 1.75rem auto 0;
+  padding: 0.7rem 1.3rem;
+  border: 1.5px solid rgba(31, 76, 73, 0.28);
+  border-radius: 999px;
+  background: #fff;
+  color: #1f4c49;
+  cursor: pointer;
+  font: 800 0.78rem/1 "Jost", "Segoe UI", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-nl-read__done:hover,
+.home-nl-read__done:focus-visible {
+  border-color: #1f4c49;
+  background: #f3faf7;
+}
+
+.home-nl-read__done:focus-visible {
+  outline: 2px solid #2dd4bf;
+  outline-offset: 3px;
+}
 
 .monroe-newsletter-details summary {
   cursor: pointer;

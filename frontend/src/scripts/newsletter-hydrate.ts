@@ -86,44 +86,73 @@ export async function hydrateHomeNewsletter(): Promise<void> {
   const root = document.querySelector<HTMLElement>('[data-newsletter-home]');
   if (!root) return;
   const issue = await fetchFeaturedIssue();
-  if (!issue) return;
-
-  const hero = root.querySelector<HTMLImageElement>('[data-nl-hero]');
-  if (hero && issue.hero_image) {
-    hero.src = issue.hero_image;
-    hero.alt = issue.title || 'Latest newsletter';
-  }
-  const label = document.querySelector('[data-nl-label]');
-  if (label && issue.title) label.textContent = issue.title;
-  const masthead = document.querySelector('[data-nl-masthead]');
-  if (masthead) masthead.textContent = issue.newsletter_title || 'Monroe Humane Society Newsletter';
-  const top = root.querySelector('[data-nl-topline]');
-  if (top) top.textContent = issue.top_line || 'PO Box 1457 • Monroe, MI';
-  const date = root.querySelector('[data-nl-date]');
-  if (date) date.textContent = formatIssueDate(issue.issue_date, '');
-  const title = root.querySelector('[data-nl-title]');
-  if (title) title.textContent = issue.title || title.textContent;
-  const byline = root.querySelector('[data-nl-byline]');
-  if (byline) byline.textContent = issue.byline || 'by, Jacqueline Monteer';
-  const excerpt = root.querySelector('[data-nl-excerpt]');
-  if (excerpt) excerpt.textContent = issueExcerpt(issue) || excerpt.textContent;
-  const link = root.querySelector<HTMLAnchorElement>('[data-nl-link]');
-  if (link && issue.slug) {
-    link.href = `/newsletter/issue/${issue.slug}`;
-    link.textContent = 'Read the letter';
-  }
-  const pdf = root.querySelector<HTMLAnchorElement>('[data-nl-pdf]');
-  if (pdf) {
-    if (issue.pdf_url) {
-      pdf.href = issue.pdf_url;
-      pdf.classList.remove('home-nl__btn--off', 'hidden');
-    } else {
-      pdf.removeAttribute('href');
-      pdf.classList.add('home-nl__btn--off');
+  if (issue) {
+    const hero = root.querySelector<HTMLImageElement>('[data-nl-hero]');
+    if (hero && issue.hero_image) {
+      hero.src = issue.hero_image;
+      hero.alt = issue.title || 'Latest newsletter';
     }
+    const label = document.querySelector('[data-nl-label]');
+    if (label && issue.title) label.textContent = issue.title;
+    const masthead = document.querySelector('[data-nl-masthead]');
+    if (masthead) masthead.textContent = issue.newsletter_title || 'Monroe Humane Society Newsletter';
+    const top = root.querySelector('[data-nl-topline]');
+    if (top) top.textContent = issue.top_line || 'PO Box 1457 • Monroe, MI';
+    const date = root.querySelector('[data-nl-date]');
+    if (date) date.textContent = formatIssueDate(issue.issue_date, '');
+    const title = root.querySelector('[data-nl-title]');
+    if (title) title.textContent = issue.title || title.textContent;
+    const byline = root.querySelector('[data-nl-byline]');
+    if (byline) byline.textContent = issue.byline || 'by, Jacqueline Monteer';
+    const excerpt = root.querySelector('[data-nl-excerpt]');
+    if (excerpt) excerpt.textContent = issueExcerpt(issue) || excerpt.textContent;
+    const link = root.querySelector<HTMLAnchorElement>('[data-nl-link]');
+    if (link && issue.slug) {
+      link.href = `/newsletter/issue/${issue.slug}`;
+    }
+    const pdf = root.querySelector<HTMLAnchorElement>('[data-nl-pdf]');
+    if (pdf) {
+      if (issue.pdf_url) {
+        pdf.href = issue.pdf_url;
+        pdf.classList.remove('home-nl__btn--off', 'hidden');
+      } else {
+        pdf.removeAttribute('href');
+        pdf.classList.add('home-nl__btn--off');
+      }
+    }
+    const letterBody = root.querySelector('[data-nl-full-letter]');
+    const letterFold = root.querySelector<HTMLDetailsElement>('.home-nl-read');
+    const html = renderLetterHtml(issue);
+    if (letterBody && html) letterBody.innerHTML = html;
+    if (letterFold) letterFold.hidden = !html;
+    const letterTitle = root.querySelector('.home-nl-read__title');
+    if (letterTitle && issue.title) letterTitle.textContent = issue.title;
+    const letterByline = root.querySelector('.home-nl-read__byline');
+    if (letterByline) letterByline.textContent = issue.byline || 'by, Jacqueline Monteer';
+    const letterDate = root.querySelector('[data-nl-date-letter]');
+    if (letterDate) letterDate.textContent = formatIssueDate(issue.issue_date, '');
+    const letterKicker = root.querySelector('[data-nl-topline-letter]');
+    if (letterKicker) letterKicker.textContent = issue.top_line || 'PO Box 1457 • Monroe, MI';
+    const navLabel = document.querySelector('[data-dock-target="Newsletter"] .home-side-dock__text');
+    if (navLabel && issue.title) navLabel.textContent = issue.title;
   }
-  const navLabel = document.querySelector('[data-dock-target="Newsletter"] .home-side-dock__text');
-  if (navLabel && issue.title) navLabel.textContent = issue.title;
+  bindHomeLetterFold(root);
+}
+
+function bindHomeLetterFold(root: HTMLElement) {
+  const fold = root.querySelector<HTMLDetailsElement>('.home-nl-read');
+  if (!fold || fold.dataset.bound === '1') return;
+  fold.dataset.bound = '1';
+  fold.addEventListener('toggle', () => {
+    if (!fold.open) return;
+    const panel = fold.querySelector<HTMLElement>('.home-nl-read__panel');
+    requestAnimationFrame(() => {
+      panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  fold.querySelector('[data-nl-letter-close]')?.addEventListener('click', () => {
+    fold.open = false;
+  });
 }
 
 export async function hydrateNewsletterArchive(): Promise<void> {
@@ -163,8 +192,43 @@ export async function hydrateNewsletterArchive(): Promise<void> {
     .join('');
 }
 
-function storyBlocks(issue: LiveNewsletterIssue) {
-  return (issue.blocks || []).filter((block) => !block.type || block.type === 'story');
+function storyBlocks(issue: Pick<LiveNewsletterIssue, 'blocks'> | null | undefined) {
+  return (issue?.blocks || []).filter((block) => !block.type || block.type === 'story');
+}
+
+function paragraphsFromBody(body: string) {
+  return String(body || '')
+    .replace(/\r\n/g, '\n')
+    .split(/\n\s*\n/)
+    .map((para) => para.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+function letterBlockHtml(title: string, body: string, classPrefix = 'home-nl-read') {
+  const heading = title.trim()
+    ? `<h3 class="${classPrefix}__heading">${escapeHtml(title.trim())}</h3>`
+    : '';
+  const paras = paragraphsFromBody(body)
+    .map((para) => `<p>${escapeHtml(para)}</p>`)
+    .join('');
+  if (!heading && !paras) return '';
+  return `<section class="${classPrefix}__section">${heading}${paras}</section>`;
+}
+
+export function hasLetterBody(issue: Pick<LiveNewsletterIssue, 'blocks' | 'lead' | 'excerpt'> | null | undefined) {
+  if (!issue) return false;
+  if (storyBlocks(issue).some((block) => String(block.body || '').trim() || String(block.title || '').trim())) {
+    return true;
+  }
+  return Boolean(String(issue.lead || issue.excerpt || '').trim());
+}
+
+export function renderLetterHtml(issue: Pick<LiveNewsletterIssue, 'blocks' | 'lead' | 'excerpt'> | null | undefined) {
+  const blocks = storyBlocks(issue);
+  const fromBlocks = blocks.map((block) => letterBlockHtml(String(block.title || ''), String(block.body || ''))).join('');
+  if (fromBlocks.trim()) return fromBlocks;
+  const fallback = String(issue?.lead || issue?.excerpt || '').trim();
+  return fallback ? letterBlockHtml('', fallback) : '';
 }
 
 function useTwoColumnIssueLayout(issue: LiveNewsletterIssue) {
@@ -204,9 +268,7 @@ export function renderIssueInto(root: HTMLElement, issue: LiveNewsletterIssue): 
       : 'grid grid-cols-1 gap-8 max-w-3xl mx-auto';
     body.innerHTML = blocks
       .map((block) => {
-        const paras = String(block.body || '')
-          .split('\n')
-          .filter(Boolean)
+        const paras = paragraphsFromBody(String(block.body || ''))
           .map((para) => `<p class="text-gray-700 leading-relaxed mb-4">${escapeHtml(para)}</p>`)
           .join('');
         const heading = block.title
