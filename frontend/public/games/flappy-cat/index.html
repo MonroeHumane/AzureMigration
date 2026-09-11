@@ -105,5 +105,22 @@
     })();
   </script>
 
+
+  <script>
+    (function () {
+      var iframe = document.getElementById('game-iframe');
+      if (!iframe) return;
+      try {
+        var src = new URL(iframe.getAttribute('src'), window.location.href);
+        var parentParams = new URLSearchParams(window.location.search);
+        ['dex_user', 'dex_api', 'dex_display', 'user', 'api', 'embed'].forEach(function (k) {
+          var v = parentParams.get(k);
+          if (v && !src.searchParams.get(k)) src.searchParams.set(k, v);
+        });
+        if (!src.searchParams.get('embed')) src.searchParams.set('embed', '1');
+        iframe.src = src.pathname + src.search + src.hash;
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>

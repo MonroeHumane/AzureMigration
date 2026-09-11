@@ -54,6 +54,22 @@ class AdoptedexController
             'score_1500' => ['packs' => 1, 'coins' => 5],
             'score_3000' => ['packs' => 1, 'coins' => 10],
         ],
+        // Album / hub shared systems (client triggers; server caps + unique keys dedup)
+        'dex' => [
+            'daily_streak' => ['packs' => 1, 'coins' => 5],
+            'species_scout_cat_3'  => ['packs' => 1, 'coins' => 3],
+            'species_scout_dog_3'  => ['packs' => 1, 'coins' => 3],
+            'species_scout_cat_10' => ['packs' => 1, 'coins' => 8],
+            'species_scout_dog_10' => ['packs' => 1, 'coins' => 8],
+        ],
+        'hub' => [
+            'daily_streak' => ['packs' => 1, 'coins' => 5],
+        ],
+    ];
+
+    /** Coin shop catalog: spend reason => fixed cost + packs granted. */
+    private const COIN_SPEND_CATALOG = [
+        'buy_pack' => ['cost' => 25, 'packs' => 1],
     ];
 
     private const SHELTER_PET_POOL = [
@@ -210,6 +226,13 @@ class AdoptedexController
             return ['ok' => false, 'message' => 'Unknown reward'];
         }
 
+        // Daily streak is once per UTC calendar day: look up config by
+        // logical key, but store a date-scoped key so tomorrow can claim again.
+        $storedRewardKey = $rewardKey;
+        if ($rewardKey === 'daily_streak' && ($gameId === 'dex' || $gameId === 'hub')) {
+            $storedRewardKey = 'daily_streak_' . gmdate('Y-m-d');
+        }
+
         $packsAwarded = min(self::MAX_PACKS_PER_REWARD, max(0, (int)$reward['packs']));
         $coinsAwarded = min(self::MAX_COINS_PER_REWARD, max(0, (int)$reward['coins']));
 
@@ -224,7 +247,7 @@ class AdoptedexController
         $this->db->beginTransaction();
         try {
             $ins = $this->db->prepare("INSERT IGNORE INTO dex_claimed_rewards (profile_id, game_id, reward_key, created_at) VALUES (?, ?, ?, NOW())");
-            $ins->execute([(int)$profileId, $gameId, $rewardKey]);
+            $ins->execute([(int)$profileId, $gameId, $storedRewardKey]);
 
             if ($ins->rowCount() === 0) {
                 $this->db->rollBack();
@@ -251,6 +274,8 @@ class AdoptedexController
                 'claimed'       => true,
                 'packsAwarded'  => $packsAwarded,
                 'coinsAwarded'  => $coinsAwarded,
+                'reward_key'    => $storedRewardKey,
+                'game_id'       => $gameId,
             ];
         } catch (Exception $e) {
             $this->db->rollBack();
@@ -402,11 +427,18 @@ class AdoptedexController
 
     public function spendCoins(string $userSlug, int $amount, string $reason = 'game_spend'): array
     {
+        $packsFromShop = 0;
+        if (isset(self::COIN_SPEND_CATALOG[$reason])) {
+            // Server-authoritative shop price — ignore client amount.
+            $amount = (int)self::COIN_SPEND_CATALOG[$reason]['cost'];
+            $packsFromShop = min(self::MAX_PACKS_PER_REWARD, max(0, (int)self::COIN_SPEND_CATALOG[$reason]['packs']));
+        }
+
         if ($amount <= 0 || $amount > 50) {
             return ['ok' => false, 'message' => 'Invalid amount'];
         }
 
-        $profStmt = $this->db->prepare("SELECT id, coin_balance FROM dex_profiles WHERE username_slug = ?");
+        $profStmt = $this->db->prepare("SELECT id, coin_balance, unopened_packs FROM dex_profiles WHERE username_slug = ?");
         $profStmt->execute([$userSlug]);
         $profile = $profStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -429,8 +461,24 @@ class AdoptedexController
             $ins = $this->db->prepare("INSERT INTO dex_coin_transactions (profile_id, delta, reason, created_at) VALUES (?, ?, ?, NOW())");
             $ins->execute([$profileId, -$amount, $reason]);
 
+            if ($packsFromShop > 0) {
+                $packUpd = $this->db->prepare("UPDATE dex_profiles SET unopened_packs = unopened_packs + ? WHERE id = ?");
+                $packUpd->execute([$packsFromShop, $profileId]);
+            }
+
+            $balStmt = $this->db->prepare("SELECT coin_balance, unopened_packs FROM dex_profiles WHERE id = ?");
+            $balStmt->execute([$profileId]);
+            $updated = $balStmt->fetch(PDO::FETCH_ASSOC) ?: ['coin_balance' => 0, 'unopened_packs' => 0];
+
             $this->db->commit();
-            return ['ok' => true, 'spent' => $amount];
+            return [
+                'ok'             => true,
+                'spent'          => $amount,
+                'packsAwarded'   => $packsFromShop,
+                'coin_balance'   => (int)$updated['coin_balance'],
+                'unopened_packs' => (int)$updated['unopened_packs'],
+                'reason'         => $reason,
+            ];
         } catch (Exception $e) {
             $this->db->rollBack();
             throw $e;

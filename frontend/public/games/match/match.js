@@ -1245,6 +1245,39 @@
 		window.setTimeout(run, 180);
 	}
 
+
+	function offerMeetThePetDiscover() {
+		try {
+			if (typeof MonroeAdoptedex === 'undefined' || typeof MonroeAdoptedex.meetRandomPet !== 'function') return;
+			const user = getDexUser();
+			if (!user) return;
+			const restBase = getDexRestBase();
+			const pets = (typeof petPool !== 'undefined' && petPool && petPool.images) ? petPool.images
+				: (typeof allPets !== 'undefined' ? allPets : roundPets);
+			const metSet = {};
+			(roundPets || []).forEach((p) => { if (p && p.id) metSet[p.id] = true; });
+			// Prefer discovering a pet from this round that isn't already in album —
+			// fall back to random unmet from pool.
+			MonroeAdoptedex.fetchDex(restBase, user).then((data) => {
+				const serverMet = {};
+				(data.met_ids || []).forEach((id) => { serverMet[id] = true; });
+				const unmetRound = (roundPets || []).filter((p) => p && p.id && !serverMet[p.id]);
+				if (unmetRound.length) {
+					const pick = unmetRound[Math.floor(Math.random() * unmetRound.length)];
+					return MonroeAdoptedex.discoverPet(restBase, user, pick.id, 'match_meet').then(() => {
+						MonroeAdoptedex.showFlipCardOverlay(pick, {
+							title: 'Meet ' + (pick.name || 'a shelter friend') + '!',
+							message: 'Matched in this round — flip the card and visit their shelter profile.',
+							foil: MonroeAdoptedex.foilFromRarity(pick.rarity),
+							rarity: pick.rarity || '',
+						});
+					});
+				}
+				return MonroeAdoptedex.meetRandomPet(restBase, user, pets, serverMet, 'match_meet');
+			}).catch(() => {});
+		} catch (e) {}
+	}
+
 	function renderMeetThePets() {
 		if (!els.winMeet || !els.winMeetGrid) {
 			return;
@@ -1483,6 +1516,7 @@
 			els.winPraise.textContent = praiseForStars(stars);
 		}
 		renderMeetThePets();
+		offerMeetThePetDiscover();
 
 		// Award a pack only at milestone levels (see LEVEL_MILESTONES). The
 		// local claimedLevelWins check below is just to skip a pointless
@@ -1550,6 +1584,15 @@
 							// monroeDexPacks on offline fallback). Do not post again.
 							awardMilestonePack(false);
 							showPackRewardIfWinModalGone();
+							if (typeof MonroeAdoptedex.showRewardToast === 'function') {
+								MonroeAdoptedex.showRewardToast({
+									title: milestone.title || 'Match pack unlocked!',
+									message: milestone.message || 'A foil pack is ready in your album.',
+									game: 'Pet Match',
+									tier: milestone.tier,
+									rare: currentLevel >= 10,
+								});
+							}
 						}
 					}).catch((e) => {
 						console.warn('[Pet Match] Reward claim failed, falling back to local award:', e);
