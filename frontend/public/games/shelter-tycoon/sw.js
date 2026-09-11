@@ -45,10 +45,6 @@ const PRECACHE_URLS = [
   './src/ui/analytics-panel.js',
   './src/ui/strategy-panel.js',
   './src/ui/loan.js',
-  './assets/office-bgm.mp3',
-  './assets/jazz-bgm.mp3',
-  './assets/chill-lobby-bgm.mp3',
-  './assets/transport-bgm.mp3',
 ];
 
 const isLocalhost = self.location.hostname === 'localhost' ||

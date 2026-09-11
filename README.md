@@ -96,7 +96,7 @@ node test-site-integrity.cjs
 
 * **Unified Adoption Hub (`/adopt`)**: Real-time 0ms client-side filtering by Species, Gender, Size, and Age, with deep query linking (`/adopt?pet=...`) and SWR Directus live hydration.
 * **Lobby Kiosk & TV Display (`/tv`)**: 100vw × 100vh full-bleed kiosk mode with Screen WakeLock API, in-memory prefetching, and dynamically generated QR codes for shelter lobby smart TVs.
-* **Humane Arcade & Adoptédex (`/games`)**: Cabinet hub featuring *Pet Booster Packs*, *Pet Match Memory*, *Flappy Cat*, *Catwalk Night Patrol*, and *Shelter Run*, plus Adoptédex album dock. Legacy deep links (Pet Snake, Shelter Tycoon) remain listed under Legacy on the hub — not primary featured cards.
+* **Humane Arcade & Adoptédex (`/games`)**: Cabinet hub featuring *Pet Booster Packs*, *Pet Match Memory*, *Flappy Cat*, *Catwalk Night Patrol*, and *Shelter Run*, plus Adoptédex album dock. Legacy deep links (Pet Snake, Shelter Tycoon) remain listed under Archived experiments on the hub — not primary featured cards. Orphan trees (`found/`, `shelter-pit/`, `shelter-tycoon-main/`) and unused tycoon BGM were removed in the games weight cleanup.
 * **Unified Staff & Board Portal (`/internal`)**:
   * **PetSync Operations (`/internal/pets`)**: Live census, PetPoint synchronization health, and instant printable kennel cards.
   * **Board Financials (`/internal/board`)**: Executive KPIs, monthly operating statements, balance sheets, and cash runway simulator.
