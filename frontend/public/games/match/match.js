@@ -248,6 +248,34 @@
 		return reducedMotionCached;
 	}
 
+
+	function hashStr(str) {
+		let h = 2166136261;
+		const s = String(str || '');
+		for (let i = 0; i < s.length; i += 1) {
+			h ^= s.charCodeAt(i);
+			h = Math.imul(h, 16777619);
+		}
+		return h >>> 0;
+	}
+
+	/** Visual juice tier only — uses API rarity when present, else stable id hash. */
+	function rarityForPet(pet) {
+		const raw = String((pet && (pet.rarity || pet.rarity_key || pet.tier)) || '').toLowerCase().trim();
+		if (raw) {
+			if (/alumni|golden|legendary|mythic|holo|prism|cosmos|aurora/.test(raw)) return raw.includes('alumni') ? 'alumni' : (raw.includes('golden') ? 'golden_senior' : 'legendary');
+			if (/longtimer|champion/.test(raw)) return 'longtimer';
+			if (/tiny|wonder/.test(raw)) return 'tiny_wonder';
+			if (/rare|deluxe/.test(raw)) return 'rare';
+			if (/uncommon|duo/.test(raw)) return 'uncommon';
+			if (/common|standard/.test(raw)) return 'common';
+			return raw.replace(/\s+/g, '_');
+		}
+		const tiers = ['common', 'common', 'common', 'uncommon', 'uncommon', 'rare', 'legendary'];
+		return tiers[hashStr(pet && (pet.id || pet.name || pet.file)) % tiers.length];
+	}
+
+
 	function applyTimingCssVars() {
 		if (!els.app) {
 			return;
@@ -898,7 +926,8 @@
 							type: p.type || 'companion',
 							file: file,
 							alt: `${name} (${breed})`,
-							url: p.url || ('/adopt/' + encodeURIComponent(p.id))
+							url: p.url || ('/adopt/' + encodeURIComponent(p.id)),
+							rarity: p.rarity || p.rarity_key || p.tier || ''
 						};
 					}).filter(p => !!p.file);
 					if (mapped.length >= 4) {
@@ -926,7 +955,8 @@
 						type: p.type || 'companion',
 						file: p.image || p.image_url || p.photo || p.file || '',
 						alt: `${p.name} (${p.breed || 'Companion'})`,
-						url: p.url || ('/adopt/' + encodeURIComponent(p.id))
+						url: p.url || ('/adopt/' + encodeURIComponent(p.id)),
+						rarity: p.rarity || p.rarity_key || p.tier || ''
 					})).filter(p => !!p.file);
 					if (mappedFallback.length >= 4) {
 						const playable = await ensurePlayablePool(mappedFallback);
@@ -1102,6 +1132,7 @@
 			button.type = 'button';
 			button.className = 'pet-match-card';
 			button.dataset.index = String(index);
+			button.dataset.rarity = rarityForPet(card.image);
 			button.setAttribute('role', 'gridcell');
 			button.setAttribute('aria-label', cardLabel(card, index, true));
 
@@ -1310,6 +1341,15 @@
 		}
 		if (chip) {
 			chip.textContent = streak >= 3 ? `COMBO x${streak}` : 'COMBO';
+			chip.classList.toggle('is-hot', streak >= 4);
+			if (hot) {
+				chip.classList.remove('is-bump');
+				// force reflow for replayable bump when matching quickly
+				void chip.offsetWidth;
+				chip.classList.add('is-bump');
+			} else {
+				chip.classList.remove('is-bump', 'is-hot');
+			}
 		}
 	}
 
@@ -1321,13 +1361,17 @@
 		if (!button) {
 			return;
 		}
-		const angles = [20, 70, 120, 170, 220, 270, 320, 350];
+		const rarity = button.dataset.rarity || 'common';
+		const rich = /rare|legendary|alumni|golden|longtimer|tiny|uncommon/.test(rarity);
+		const angles = rich
+			? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+			: [20, 70, 120, 170, 220, 270, 320, 350];
 		angles.forEach((deg, i) => {
 			const spark = document.createElement('span');
 			spark.className = 'pet-match-spark';
 			spark.setAttribute('aria-hidden', 'true');
 			const rad = (deg * Math.PI) / 180;
-			const dist = 28 + (i % 3) * 10;
+			const dist = 28 + (i % 3) * 10 + (rich ? 6 : 0);
 			spark.style.setProperty('--sx', `${Math.cos(rad) * dist}px`);
 			spark.style.setProperty('--sy', `${Math.sin(rad) * dist}px`);
 			button.appendChild(spark);
