@@ -19,11 +19,11 @@ interface GameItem {
 }
 
 
-/** Legacy / experimental HTML games kept for deep links; not in primary cabinet. */
+/** Archived experiments kept for deep links; not in primary cabinet. */
 const LEGACY_GAMES: { title: string; href: string; note: string }[] = [
-  { title: 'Pet Snake', href: '/games/petsnake.html', note: 'Classic arcade (legacy)' },
-  { title: 'Pet Snake Adventure', href: '/games/petsnakerouguelike.html', note: 'Roguelike (legacy)' },
-  { title: 'Shelter Tycoon', href: '/games/shelter-tycoon/index.html', note: 'Management sim (legacy)' },
+  { title: 'Pet Snake', href: '/games/petsnake.html', note: 'Archived experiment' },
+  { title: 'Pet Snake Adventure', href: '/games/petsnakerouguelike.html', note: 'Archived experiment' },
+  { title: 'Shelter Tycoon', href: '/games/shelter-tycoon/index.html', note: 'Archived experiment' },
 ];
 
 const GAMES: GameItem[] = [
@@ -583,10 +583,10 @@ const MASCOTS = [
 
   <!-- Global Arcade Leaderboard Modal -->
   
-    <section class="mt-10 mb-6 rounded-2xl border border-white/10 bg-slate-950/40 p-5 sm:p-6" aria-label="Legacy games">
-      <h2 class="text-lg font-bold text-white mb-1">Legacy games</h2>
+    <section class="mt-10 mb-6 rounded-2xl border border-white/10 bg-slate-950/40 p-5 sm:p-6" aria-label="Archived experiments">
+      <h2 class="text-lg font-bold text-white mb-1">Archived experiments</h2>
       <p class="text-sm text-slate-300 mb-4">
-        Older experimental titles kept for bookmarks. Prefer the cabinet above for the supported set.
+        Older prototypes kept for bookmarks and deep links. Prefer the cabinet above for the supported set.
       </p>
       <ul class="flex flex-wrap gap-3">
         {LEGACY_GAMES.map((game) => (
