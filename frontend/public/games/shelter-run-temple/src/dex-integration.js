@@ -283,7 +283,20 @@ var ShelterRunDex = (function () {
       if (e.target === overlay) dismissOverlay();
     });
 
-    // Stack above any prior celebration briefly
+    // Do not dismiss an active discovery flip mid-celebration — queue instead.
+    if (activeOverlay && activeOverlay.getAttribute('aria-label') === 'Pet discovered') {
+      var pendingMilestone = milestone;
+      var pendingOptions = options;
+      var wait = setInterval(function () {
+        if (!activeOverlay || activeOverlay.getAttribute('aria-label') !== 'Pet discovered') {
+          clearInterval(wait);
+          celebrateMilestone(pendingMilestone, pendingOptions);
+        }
+      }, 120);
+      setTimeout(function () { clearInterval(wait); }, 8000);
+      return null;
+    }
+
     dismissOverlay();
     hostEl().appendChild(overlay);
     activeOverlay = overlay;

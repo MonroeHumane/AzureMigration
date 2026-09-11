@@ -15,6 +15,9 @@ class RoundOverScene extends Phaser.Scene {
     this.distanceMeters = (data && data.distanceMeters) || 0;
     this.collectedPetIds = (data && data.collectedPetIds) || [];
     this.collectedPets = (data && data.collectedPets) || [];
+    this.rescuedCount = (data && typeof data.rescuedCount === 'number')
+      ? data.rescuedCount
+      : (this.collectedPetIds.length || 0);
     this.companionIndex = (data && typeof data.companionIndex === 'number') ? data.companionIndex : 0;
   }
 
@@ -25,23 +28,36 @@ class RoundOverScene extends Phaser.Scene {
 
     this._title = srUiText(this, 0, 0, 'Run Complete!', { fontSize: '48px', color: '#ffffff' }).setDepth(5);
     this._distanceText = srUiText(this, 0, 0, this.distanceMeters + ' meters', { fontSize: '32px', color: '#ffd166' }).setDepth(5);
-    this._petsText = srUiText(this, 0, 0, '🐾 ' + this.collectedPetIds.length + ' pet' + (this.collectedPetIds.length === 1 ? '' : 's') + ' rescued along the way', {
+    const nRescued = this.rescuedCount || this.collectedPetIds.length;
+    this._petsText = srUiText(this, 0, 0, '🐾 ' + nRescued + ' pet' + (nRescued === 1 ? '' : 's') + ' rescued along the way', {
       fontSize: '20px', color: '#a9c4d6', align: 'center', wordWrap: { width: 400 },
     }).setDepth(5);
 
     this.rewardBanner = null; // built lazily once/if the server confirms a claim
 
     const petsForDex = this.collectedPets.slice();
+    const claimAfterDiscovery = () => {
+      if (this._milestonesClaimed) return;
+      this._milestonesClaimed = true;
+      ShelterRunDex.claimMilestones(this.distanceMeters, (milestone) => this._onMilestoneClaimed(milestone));
+    };
     ShelterRunDex.reportDiscoveries(this.collectedPetIds).then(() => {
-      // End-of-run gallery: flip the first rescued pet (milestones may follow).
+      // End-of-run gallery first; milestones wait so they don't dismiss the flip.
       if (petsForDex.length && ShelterRunDex.celebrateDiscovery) {
         const star = petsForDex[0];
         if (star && star.photo) {
-          ShelterRunDex.celebrateDiscovery(star, { durationMs: 3000, autoFlipMs: 500 });
+          ShelterRunDex.celebrateDiscovery(star, {
+            durationMs: 3000,
+            autoFlipMs: 500,
+            onClose: claimAfterDiscovery,
+          });
+          // Fallback if overlay auto-dismisses without onClose edge cases.
+          this.time.delayedCall(3200, claimAfterDiscovery);
+          return;
         }
       }
-    });
-    ShelterRunDex.claimMilestones(this.distanceMeters, (milestone) => this._onMilestoneClaimed(milestone));
+      claimAfterDiscovery();
+    }).catch(claimAfterDiscovery);
 
     // Submit distance score to Arcade Leaderboard and notify Cabinet shell
     if (this.distanceMeters > 0) {
