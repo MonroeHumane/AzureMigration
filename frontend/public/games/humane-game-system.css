@@ -1,0 +1,441 @@
+/* Humane Games — Unified Desktop + Mobile System
+   ==========================================================================
+   Import from shared-styles.css or link directly from a game:
+     <link rel="stylesheet" href="/games/humane-game-system.css">
+   Pair with shared.js HumaneGameSystem helpers and embed.js (?embed=1).
+   Tokens stay teal/cream/fur parity with shared-styles.css.
+   ========================================================================== */
+
+:root {
+	/* Core palette (mirrors shared-styles; safe to redefine) */
+	--fur: #fef6ea;
+	--treat: #ffb347;
+	--treat-deep: #ff7a3c;
+	--ink: #2c1c19;
+	--mint: #6bc4a6;
+	--cream: #fffaf3;
+	--teal: #1a4f4b;
+	--teal-deep: #133c39;
+	--shadow: 0 16px 36px rgba(44, 28, 25, 0.18);
+
+	/* System tokens */
+	--hg-radius: 16px;
+	--hg-radius-pill: 999px;
+	--hg-focus-ring: 3px solid rgba(28, 61, 53, 0.65);
+	--hg-focus-offset: 3px;
+	--hg-touch-min: 44px;
+	--hg-hud-gap: 8px;
+	--hg-hud-pad-y: 6px;
+	--hg-hud-pad-x: 12px;
+	--hg-chip-bg: rgba(255, 250, 243, 0.92);
+	--hg-chip-border: rgba(44, 28, 25, 0.12);
+	--hg-overlay-scrim: rgba(20, 12, 10, 0.55);
+	--hg-safe-top: env(safe-area-inset-top, 0px);
+	--hg-safe-right: env(safe-area-inset-right, 0px);
+	--hg-safe-bottom: env(safe-area-inset-bottom, 0px);
+	--hg-safe-left: env(safe-area-inset-left, 0px);
+	--hg-thumb-zone: max(72px, calc(56px + var(--hg-safe-bottom)));
+	--hg-playfield-max: min(100vw, 1200px);
+	--hg-kbd-hint-size: 0.72rem;
+}
+
+/* --------------------------------------------------------------------------
+   Viewport / input mode classes (set by HumaneGameSystem.applyViewportClasses)
+   -------------------------------------------------------------------------- */
+html.hg-coarse,
+html.hg-mobile {
+	--hg-hud-gap: 10px;
+	--hg-hud-pad-y: 8px;
+	--hg-hud-pad-x: 14px;
+}
+
+html.hg-desktop {
+	--hg-playfield-max: min(100vw, 1280px);
+}
+
+/* --------------------------------------------------------------------------
+   Base game shell helpers
+   -------------------------------------------------------------------------- */
+.hg-game-root {
+	min-height: 100%;
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	color: var(--ink);
+	background: var(--cream);
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
+	overscroll-behavior: none;
+}
+
+.hg-playfield {
+	flex: 1 1 auto;
+	width: 100%;
+	max-width: var(--hg-playfield-max);
+	margin-inline: auto;
+	position: relative;
+	touch-action: none; /* games own gestures; chrome stays manipulation */
+}
+
+html.hg-desktop .hg-playfield {
+	width: min(100%, var(--hg-playfield-max));
+}
+
+/* --------------------------------------------------------------------------
+   Focus rings (never rely on hover alone)
+   -------------------------------------------------------------------------- */
+.hg-btn:focus-visible,
+.hg-chip:focus-visible,
+.hg-control:focus-visible,
+[data-hg-action]:focus-visible {
+	outline: var(--hg-focus-ring);
+	outline-offset: var(--hg-focus-offset);
+}
+
+/* --------------------------------------------------------------------------
+   Primary / secondary buttons
+   -------------------------------------------------------------------------- */
+.hg-btn {
+	appearance: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: var(--hg-touch-min);
+	min-width: var(--hg-touch-min);
+	padding: 10px 18px;
+	border-radius: var(--hg-radius-pill);
+	border: 1px solid transparent;
+	font-weight: 700;
+	font-size: 1rem;
+	line-height: 1.2;
+	cursor: pointer;
+	text-decoration: none;
+	color: var(--ink);
+	transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+	touch-action: manipulation;
+	user-select: none;
+}
+
+.hg-btn--primary {
+	background: linear-gradient(140deg, #ffd39f, var(--treat));
+	box-shadow: 0 10px 20px rgba(255, 138, 101, 0.28);
+	border-color: rgba(255, 122, 60, 0.25);
+}
+
+.hg-btn--secondary {
+	background: rgba(255, 255, 255, 0.88);
+	border-color: rgba(44, 28, 25, 0.14);
+	box-shadow: 0 6px 14px rgba(44, 28, 25, 0.08);
+}
+
+.hg-btn--ghost {
+	background: rgba(255, 250, 243, 0.55);
+	border-color: rgba(44, 28, 25, 0.1);
+}
+
+.hg-btn--teal {
+	background: linear-gradient(140deg, #2a6b66, var(--teal-deep));
+	color: #fffaf3;
+	box-shadow: 0 10px 20px rgba(19, 60, 57, 0.28);
+}
+
+html.hg-desktop .hg-btn:hover {
+	transform: translateY(-1px);
+}
+
+html.hg-desktop .hg-btn--primary:hover {
+	box-shadow: 0 14px 26px rgba(255, 138, 101, 0.34);
+}
+
+.hg-btn:active {
+	transform: translateY(1px) scale(0.98);
+}
+
+/* --------------------------------------------------------------------------
+   HUD / score chips
+   -------------------------------------------------------------------------- */
+.hg-hud {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--hg-hud-gap);
+	padding: var(--hg-hud-pad-y) var(--hg-hud-pad-x);
+	pointer-events: none;
+}
+
+.hg-hud > * {
+	pointer-events: auto;
+}
+
+.hg-hud--dense {
+	gap: 6px;
+	padding: 4px 8px;
+}
+
+html.hg-desktop .hg-hud {
+	gap: 6px;
+	padding: 4px 10px;
+}
+
+.hg-chip,
+.hg-score-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 32px;
+	padding: 4px 12px;
+	border-radius: var(--hg-radius-pill);
+	background: var(--hg-chip-bg);
+	border: 1px solid var(--hg-chip-border);
+	box-shadow: 0 4px 12px rgba(44, 28, 25, 0.08);
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink);
+	backdrop-filter: blur(6px);
+}
+
+html.hg-mobile .hg-chip,
+html.hg-mobile .hg-score-chip,
+html.hg-coarse .hg-chip,
+html.hg-coarse .hg-score-chip {
+	min-height: var(--hg-touch-min);
+	padding: 8px 14px;
+}
+
+.hg-chip__label {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	opacity: 0.7;
+}
+
+.hg-chip__value {
+	font-size: 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   Pause / modal overlay
+   -------------------------------------------------------------------------- */
+.hg-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	display: grid;
+	place-items: center;
+	padding:
+		max(16px, var(--hg-safe-top))
+		max(16px, var(--hg-safe-right))
+		max(16px, var(--hg-safe-bottom))
+		max(16px, var(--hg-safe-left));
+	background: var(--hg-overlay-scrim);
+	backdrop-filter: blur(6px);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 180ms ease;
+}
+
+.hg-overlay.is-open,
+.hg-overlay[data-open="true"] {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.hg-overlay__panel {
+	width: min(92vw, 420px);
+	max-height: min(88dvh, 640px);
+	overflow: auto;
+	overscroll-behavior: contain;
+	background: rgba(255, 250, 243, 0.98);
+	border: 1px solid rgba(44, 28, 25, 0.12);
+	border-radius: 24px;
+	padding: clamp(18px, 4vw, 28px);
+	box-shadow: 0 30px 60px rgba(44, 28, 25, 0.35);
+	color: var(--ink);
+}
+
+.hg-overlay__title {
+	margin: 0 0 8px;
+	font-size: 1.45rem;
+}
+
+.hg-overlay__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Desktop keyboard hints vs mobile touch controls
+   -------------------------------------------------------------------------- */
+[data-hg-desktop-controls],
+.hg-desktop-controls {
+	display: none;
+}
+
+[data-hg-mobile-controls],
+.hg-mobile-controls {
+	display: none;
+}
+
+html.hg-desktop [data-hg-desktop-controls],
+html.hg-desktop .hg-desktop-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+html.hg-mobile [data-hg-mobile-controls],
+html.hg-mobile .hg-mobile-controls,
+html.hg-coarse [data-hg-mobile-controls],
+html.hg-coarse .hg-mobile-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+/* Prefer coarse pointer over hover capability when both apply */
+html.hg-desktop.hg-coarse [data-hg-desktop-controls],
+html.hg-desktop.hg-coarse .hg-desktop-controls {
+	display: none;
+}
+
+html.hg-desktop.hg-coarse [data-hg-mobile-controls],
+html.hg-desktop.hg-coarse .hg-mobile-controls {
+	display: flex;
+}
+
+.hg-kbd {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.6em;
+	padding: 2px 7px;
+	border-radius: 8px;
+	border: 1px solid rgba(44, 28, 25, 0.18);
+	background: rgba(255, 255, 255, 0.9);
+	box-shadow: 0 2px 0 rgba(44, 28, 25, 0.12);
+	font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+	font-size: var(--hg-kbd-hint-size);
+	font-weight: 700;
+	color: var(--ink);
+}
+
+.hg-kbd-hint {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.85rem;
+	opacity: 0.85;
+}
+
+/* Thumb-zone primary actions (mobile) */
+.hg-thumb-actions {
+	position: sticky;
+	bottom: 0;
+	z-index: 30;
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+	padding:
+		10px
+		max(12px, var(--hg-safe-right))
+		max(12px, var(--hg-safe-bottom))
+		max(12px, var(--hg-safe-left));
+	min-height: var(--hg-thumb-zone);
+	background: linear-gradient(180deg, transparent, rgba(253, 241, 227, 0.92) 28%);
+}
+
+html.hg-desktop .hg-thumb-actions {
+	display: none;
+}
+
+.hg-control {
+	appearance: none;
+	min-width: var(--hg-touch-min);
+	min-height: var(--hg-touch-min);
+	border-radius: 16px;
+	border: 1px solid rgba(44, 28, 25, 0.14);
+	background: rgba(255, 250, 243, 0.95);
+	color: var(--ink);
+	font-weight: 800;
+	cursor: pointer;
+	touch-action: manipulation;
+	user-select: none;
+}
+
+.hg-control--pad {
+	width: 56px;
+	height: 56px;
+	border-radius: 18px;
+	font-size: 1.25rem;
+}
+
+/* --------------------------------------------------------------------------
+   Hover-only UI must not be required on touch
+   -------------------------------------------------------------------------- */
+.hg-hover-only {
+	display: none;
+}
+
+html.hg-desktop:not(.hg-coarse) .hg-hover-only {
+	display: initial;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	html:not(.hg-coarse) .hg-hover-only-mq {
+		display: initial;
+	}
+}
+
+/* --------------------------------------------------------------------------
+   Safe-area utility pads
+   -------------------------------------------------------------------------- */
+.hg-safe-pad {
+	padding-top: var(--hg-safe-top);
+	padding-right: var(--hg-safe-right);
+	padding-bottom: var(--hg-safe-bottom);
+	padding-left: var(--hg-safe-left);
+}
+
+.hg-safe-pad-x {
+	padding-right: var(--hg-safe-right);
+	padding-left: var(--hg-safe-left);
+}
+
+.hg-safe-pad-bottom {
+	padding-bottom: var(--hg-safe-bottom);
+}
+
+/* --------------------------------------------------------------------------
+   Embed-aware helpers (html.humane-embed set by embed.js)
+   -------------------------------------------------------------------------- */
+html.humane-embed .hg-game-root {
+	min-height: 100%;
+	min-height: 100dvh;
+	background: transparent;
+}
+
+html.humane-embed .hg-hide-in-embed {
+	display: none !important;
+}
+
+html.humane-embed .hg-overlay {
+	/* Nested iframe: keep overlay inside game frame */
+	position: absolute;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+	.hg-btn,
+	.hg-overlay,
+	.hg-control {
+		transition: none !important;
+	}
+}
