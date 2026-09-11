@@ -10,6 +10,8 @@ var ShelterRunPets = (function () {
   var petList = [];
   var lastFetchTime = 0;
   var CACHE_TTL_MS = 10 * 60 * 1000;
+  var fetchPromise = null;
+  var fetchSettled = false;
 
   function getApiBase() {
     var params = new URLSearchParams(window.location.search);
@@ -53,25 +55,51 @@ var ShelterRunPets = (function () {
 
   async function fetchPets(force) {
     if (!force && petList.length && Date.now() - lastFetchTime < CACHE_TTL_MS) {
+      fetchSettled = true;
       return petList;
     }
+    if (!force && fetchPromise) return fetchPromise;
+
+    fetchSettled = false;
+    fetchPromise = (async function () {
+      try {
+        var apiUrl = getPetsApiUrl();
+        var response = await fetch(apiUrl + (apiUrl.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now(), {
+          credentials: 'same-origin',
+          cache: 'no-store',
+        });
+        if (!response.ok) throw new Error('pets fetch failed');
+        var payload = await response.json();
+        var images = payload.images || payload.pets || [];
+        petList = images.map(normalizePet).filter(function (p) {
+          return p.id && isRealPhoto(p.photo);
+        });
+        lastFetchTime = Date.now();
+      } catch (_) {
+        /* keep prior list on soft failure if we already had pets */
+        if (!petList.length) petList = [];
+      } finally {
+        fetchSettled = true;
+      }
+      return petList;
+    })();
+
     try {
-      var apiUrl = getPetsApiUrl();
-      var response = await fetch(apiUrl + (apiUrl.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now(), {
-        credentials: 'same-origin',
-        cache: 'no-store',
-      });
-      if (!response.ok) throw new Error('pets fetch failed');
-      var payload = await response.json();
-      var images = payload.images || payload.pets || [];
-      petList = images.map(normalizePet).filter(function (p) {
-        return p.id && isRealPhoto(p.photo);
-      });
-      lastFetchTime = Date.now();
-    } catch (_) {
-      petList = [];
+      return await fetchPromise;
+    } finally {
+      if (force) fetchPromise = null;
     }
-    return petList;
+  }
+
+  /** Resolves when the latest fetchPets attempt has settled (success or empty). */
+  function whenReady() {
+    if (fetchSettled) return Promise.resolve(petList);
+    if (fetchPromise) return fetchPromise;
+    return fetchPets(false);
+  }
+
+  function isReady() {
+    return fetchSettled;
   }
 
   /** Draws up to `count` pets without repeats within a single run. */
@@ -89,6 +117,8 @@ var ShelterRunPets = (function () {
 
   return {
     fetchPets: fetchPets,
+    whenReady: whenReady,
+    isReady: isReady,
     drawForRun: drawForRun,
     getList: function () { return petList; },
     isRealPhoto: isRealPhoto,

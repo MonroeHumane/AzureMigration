@@ -30,15 +30,19 @@ class GameScene extends Phaser.Scene {
     this._lastBiomeId = this._biome.id;
     this._camNudgeX = 0;
 
-    this.availablePets = (typeof ShelterRunPets !== 'undefined') ? ShelterRunPets.drawForRun(30) : [];
+    this.availablePets = [];
     this.collectedPetIds = [];
     this.collectedPets = [];
+    this.rescuedCount = 0; // HUD count including empty-pool pickups
+    this._initPetPool();
 
     this.fx = SrFx.create(this);
     SrFx.setReduced(this.fx, this._fxReduced());
 
     this._rockPool = [];
+    this._itemGfxPool = [];
     this._initRockPool();
+    this._initItemGfxPool();
 
     this.player = new Player(this, CFG.COMPANIONS[this.companionIndex].tint);
     this.player.onLaneChange = (dir) => this._onLaneChangeJuice(dir);
@@ -53,6 +57,7 @@ class GameScene extends Phaser.Scene {
       this.scale.off('resize', this._onResize, this);
       SrFx.destroy(this.fx);
       this._hideRockPool();
+      this._hideItemGfxPool();
       try {
         document.documentElement.classList.remove('sr-running');
         const lines = document.getElementById('srSpeedLines');
@@ -75,6 +80,55 @@ class GameScene extends Phaser.Scene {
     for (let i = 0; i < this._rockPool.length; i++) {
       if (this._rockPool[i]) this._rockPool[i].setVisible(false);
     }
+  }
+
+  _initItemGfxPool() {
+    // Per-item graphics so Kenney rocks and procedural obs share one Z depth sort.
+    for (let i = 0; i < 28; i++) {
+      this._itemGfxPool.push(this.add.graphics().setDepth(2).setVisible(false));
+    }
+  }
+
+  _hideItemGfxPool() {
+    for (let i = 0; i < this._itemGfxPool.length; i++) {
+      const g = this._itemGfxPool[i];
+      if (!g) continue;
+      g.clear();
+      g.setVisible(false);
+    }
+  }
+
+  /** Snapshot run pet pool; refresh if fetch settles after an empty first draw. */
+  _initPetPool() {
+    if (typeof ShelterRunPets === 'undefined') {
+      this.availablePets = [];
+      return;
+    }
+    const draw = () => ShelterRunPets.drawForRun(30);
+    this.availablePets = draw();
+    const tryRefresh = () => {
+      if (this.isGameOver) return;
+      if (!this.sys || !this.scene || !this.scene.isActive('Game')) return;
+      // Only replace if we still have no pets and haven't rescued named ones yet.
+      if (this.availablePets.length > 0) return;
+      if (this.collectedPets.length > 0) return;
+      const next = draw();
+      if (next.length) this.availablePets = next;
+    };
+    if (this.availablePets.length) return;
+    if (typeof ShelterRunPets.whenReady === 'function') {
+      ShelterRunPets.whenReady().then(tryRefresh).catch(tryRefresh);
+    }
+    // Short delayed redraw covers late API without blocking create().
+    this.time.delayedCall(400, tryRefresh);
+    this.time.delayedCall(1200, tryRefresh);
+  }
+
+  /** Nearer world items (smaller d) get higher depth; stay below fx/player/HUD. */
+  _worldItemDepth(d) {
+    const far = (this.layout && this.layout.farZ) || 1200;
+    const t = 1 - Math.max(0, Math.min(1, d / far));
+    return 2 + Math.floor(t * 12); // 2..14
   }
 
   _onResize() {
@@ -330,7 +384,8 @@ class GameScene extends Phaser.Scene {
       let hit = false;
       if (obs.type === SR_OBSTACLE_TYPES.LANE_BLOCK) hit = true;
       else if (obs.type === SR_OBSTACLE_TYPES.LOW) hit = p.worldY < CFG.LOW_WALL_HEIGHT * 0.85;
-      else if (obs.type === SR_OBSTACLE_TYPES.HIGH) hit = !p.isSliding && p.worldY < CFG.PLAYER_WORLD_HEIGHT * 0.55;
+      // HIGH = slide-only. Jump apex must NOT clear (Temple Run verb mapping).
+      else if (obs.type === SR_OBSTACLE_TYPES.HIGH) hit = !p.isSliding;
 
       if (hit) {
         obs.passed = true;
@@ -343,6 +398,7 @@ class GameScene extends Phaser.Scene {
 
   _collectPet() {
     const pet = this.availablePets.length ? this.availablePets.pop() : null;
+    this.rescuedCount = (this.rescuedCount || 0) + 1;
     if (pet) {
       this.collectedPetIds.push(pet.id);
       this.collectedPets.push(pet);
@@ -350,7 +406,7 @@ class GameScene extends Phaser.Scene {
     } else {
       this._softToast('🐾 Rescued!');
     }
-    this.petsText.setText('🐾 ' + this.collectedPetIds.length);
+    this.petsText.setText('🐾 ' + this.rescuedCount);
   }
 
   _onHit() {
@@ -392,15 +448,19 @@ class GameScene extends Phaser.Scene {
       const d = c.worldZ - this.cameraZ;
       if (d > L.nearZ && d < L.farZ) drawList.push({ kind: 'col', z: c.worldZ, c: c, d: d });
     }
+    // Far → near so later (nearer) items paint above when depths tie.
     drawList.sort((a, b) => b.z - a.z);
 
-    // Reset rock pool each frame; assign to near lane_blocks that opt in
+    // Reset rock + per-item gfx pools; share one depth-sorted corridor pipeline.
     let rockIdx = 0;
+    let gfxIdx = 0;
     const rockKey = this._rockKeyForBiome();
     for (let i = 0; i < this._rockPool.length; i++) this._rockPool[i].setVisible(false);
+    this._hideItemGfxPool();
 
     for (let i = 0; i < drawList.length; i++) {
       const item = drawList[i];
+      const depth = this._worldItemDepth(item.d);
       if (item.kind === 'obs') {
         const o = item.o;
         const useSprite = rockKey && o.useRock && o.type === SR_OBSTACLE_TYPES.LANE_BLOCK &&
@@ -415,11 +475,23 @@ class GameScene extends Phaser.Scene {
           const s = targetH / 239;
           img.setScale(s);
           img.setAlpha(Math.min(1, 0.35 + (1 - item.d / L.farZ) * 0.75));
+          img.setDepth(depth);
           img.setVisible(true);
-          img.setDepth(10 + Math.floor((1 - item.d / L.farZ) * 8));
+        } else if (gfxIdx < this._itemGfxPool.length) {
+          const ig = this._itemGfxPool[gfxIdx++];
+          ig.clear();
+          ig.setDepth(depth);
+          ig.setVisible(true);
+          Perspective.drawObstacle(ig, L, o, item.d);
         } else {
           Perspective.drawObstacle(g, L, o, item.d);
         }
+      } else if (gfxIdx < this._itemGfxPool.length) {
+        const ig = this._itemGfxPool[gfxIdx++];
+        ig.clear();
+        ig.setDepth(depth);
+        ig.setVisible(true);
+        Perspective.drawCollectible(ig, L, item.c, item.d, this.frameCount);
       } else {
         Perspective.drawCollectible(g, L, item.c, item.d, this.frameCount);
       }
@@ -442,6 +514,7 @@ class GameScene extends Phaser.Scene {
       distanceMeters: finalMeters,
       collectedPetIds: this.collectedPetIds,
       collectedPets: this.collectedPets,
+      rescuedCount: this.rescuedCount || this.collectedPetIds.length,
       companionIndex: this.companionIndex,
     };
     const delay = this._fxReduced() ? 60 : 220;

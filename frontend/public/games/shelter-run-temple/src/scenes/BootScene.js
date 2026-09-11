@@ -35,16 +35,25 @@ class BootScene extends Phaser.Scene {
       }
     });
     this.cameras.main.setRoundPixels(true);
-    if (typeof ShelterRunPets !== 'undefined') ShelterRunPets.fetchPets();
+    // Kick pet fetch early so GameScene can snapshot a real pool (guest-empty OK).
+    if (typeof ShelterRunPets !== 'undefined') {
+      ShelterRunPets.fetchPets().catch(function () {});
+    }
 
     const go = () => this.scene.start('MainMenu');
     let started = false;
     const once = () => { if (started) return; started = true; go(); };
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(once).catch(once);
-      this.time.delayedCall(1200, once);
-    } else {
-      once();
-    }
+    // Prefer fonts ready, but also give pets a short head-start before menu.
+    const petsGate = (typeof ShelterRunPets !== 'undefined' && ShelterRunPets.whenReady)
+      ? Promise.race([
+          ShelterRunPets.whenReady(),
+          new Promise((resolve) => this.time.delayedCall(900, resolve)),
+        ])
+      : Promise.resolve();
+    const fontsGate = (document.fonts && document.fonts.ready)
+      ? document.fonts.ready.catch(() => {})
+      : Promise.resolve();
+    Promise.all([fontsGate, petsGate]).then(once).catch(once);
+    this.time.delayedCall(1400, once);
   }
 }
