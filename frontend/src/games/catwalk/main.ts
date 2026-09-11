@@ -14,6 +14,17 @@ if (root && canvas && context) {
   const engine = new CatwalkEngine(Number.isFinite(best) ? best : 0);
   const audio = new CatwalkAudio();
   const particles = new ParticleSystem();
+  const reducedMotion = (() => {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
+  })();
+
+  const triggerHomeSuccessFlash = () => {
+    const bezel = root.querySelector<HTMLElement>('.catwalk-bezel') || root;
+    bezel.classList.remove('catwalk-home-flash');
+    void bezel.offsetWidth;
+    bezel.classList.add('catwalk-home-flash');
+    window.setTimeout(() => bezel.classList.remove('catwalk-home-flash'), reducedMotion ? 180 : 420);
+  };
   const overlay = root.querySelector<HTMLElement>('[data-overlay]');
   const overlayTitle = root.querySelector<HTMLElement>('[data-overlay-title]');
   const overlayCopy = root.querySelector<HTMLElement>('[data-overlay-copy]');
@@ -152,9 +163,13 @@ if (root && canvas && context) {
         const catRow = Math.floor((engine.state.cat.y - PLAY_TOP_Y) / CELL_SIZE);
         const onWater = catRow >= 1 && catRow <= 5;
         particles.spawnHop(engine.state.cat.x, engine.state.cat.y, onWater);
+        if (!reducedMotion) {
+          particles.spawnTrail(engine.state.cat.x, engine.state.cat.y, engine.state.cat.direction);
+        }
       }
       if (event === 'home') {
         particles.spawnHome(engine.state.cat.x, PLAY_TOP_Y + 31);
+        triggerHomeSuccessFlash();
       }
       if (event === 'caught' || event === 'splash') {
         particles.spawnDefeat(engine.state.cat.x, engine.state.cat.y);

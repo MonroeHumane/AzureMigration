@@ -155,6 +155,103 @@
       html.fc-embed .fc-flap-btn { display: inline-flex; }
       html.fc-embed .fc-hints { display: none !important; }
     }
+
+    /* In-play visual juice overlays (DOM; packed canvas engine already has some FX) */
+    .fc-fx-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+      overflow: hidden;
+      border-radius: inherit;
+    }
+    .fc-fx-vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 42%, transparent 42%, rgba(20, 40, 48, 0.22) 100%);
+      opacity: 0.55;
+      transition: opacity 0.4s ease;
+    }
+    html.fc-playing .fc-fx-vignette { opacity: 0.7; }
+    .fc-fx-parallax {
+      position: absolute;
+      inset: -8% -12%;
+      background:
+        radial-gradient(circle at 18% 28%, rgba(255,255,255,0.12) 0%, transparent 42%),
+        radial-gradient(circle at 78% 18%, rgba(255,179,71,0.14) 0%, transparent 38%);
+      opacity: 0.35;
+      transform: translate3d(0,0,0);
+      will-change: transform;
+    }
+    html.fc-playing .fc-fx-parallax {
+      animation: fcParallaxDrift 7s ease-in-out infinite alternate;
+    }
+    @keyframes fcParallaxDrift {
+      from { transform: translate3d(-1.2%, 0.6%, 0) scale(1.02); }
+      to   { transform: translate3d(1.4%, -0.8%, 0) scale(1.04); }
+    }
+    .fc-fx-flash {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .fc-fx-flash.is-on {
+      animation: fcDeathFlash 0.38s ease-out;
+    }
+    @keyframes fcDeathFlash {
+      0% { opacity: 0.55; }
+      100% { opacity: 0; }
+    }
+    .fc-fx-pops {
+      position: absolute;
+      inset: 0;
+    }
+    .fc-score-pop {
+      position: absolute;
+      left: 50%;
+      top: 28%;
+      transform: translate(-50%, 0);
+      font: 800 22px/1 system-ui, -apple-system, sans-serif;
+      color: #ffd166;
+      text-shadow: 0 2px 0 rgba(44,28,25,0.45), 0 0 12px rgba(255,179,71,0.55);
+      animation: fcScorePop 0.7s ease-out forwards;
+      will-change: transform, opacity;
+    }
+    @keyframes fcScorePop {
+      0% { opacity: 0; transform: translate(-50%, 8px) scale(0.7); }
+      18% { opacity: 1; transform: translate(-50%, -4px) scale(1.15); }
+      100% { opacity: 0; transform: translate(-50%, -42px) scale(1); }
+    }
+    #game-shell.fc-nudge {
+      animation: fcNudge 0.16s ease-out;
+    }
+    @keyframes fcNudge {
+      0% { transform: translateY(0) scale(1); }
+      35% { transform: translateY(3px) scale(1.012, 0.985); }
+      100% { transform: translateY(0) scale(1); }
+    }
+    #game-shell.fc-shake {
+      animation: fcShake 0.42s cubic-bezier(.36,.07,.19,.97);
+    }
+    @keyframes fcShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-5px, 2px); }
+      40% { transform: translate(5px, -3px); }
+      60% { transform: translate(-4px, -1px); }
+      80% { transform: translate(3px, 2px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fc-fx-parallax,
+      html.fc-playing .fc-fx-parallax { animation: none !important; opacity: 0.2; }
+      #game-shell.fc-nudge,
+      #game-shell.fc-shake { animation: none !important; }
+      .fc-score-pop { animation: none !important; opacity: 0.9; transform: translate(-50%, -12px); }
+      .fc-fx-flash.is-on { animation: none !important; opacity: 0.25; transition: opacity 0.2s ease; }
+    }
+
     @media (orientation: landscape) and (max-height: 520px) {
       .fc-flap-btn {
         min-width: 64px;
@@ -188,6 +285,12 @@
     <div class="fc-hints" id="fc-hints" aria-hidden="true">
       <span class="fc-chip"><kbd>Space</kbd> / click to flap</span>
       <span class="fc-chip"><kbd>M</kbd> mute · <kbd>C</kbd> / <kbd>Tab</kbd> companion</span>
+    </div>
+    <div class="fc-fx-layer" id="fc-fx" aria-hidden="true">
+      <div class="fc-fx-parallax" id="fc-fx-parallax"></div>
+      <div class="fc-fx-vignette"></div>
+      <div class="fc-fx-flash" id="fc-fx-flash"></div>
+      <div class="fc-fx-pops" id="fc-fx-pops"></div>
     </div>
     <button type="button" class="fc-flap-btn" id="fc-flap" aria-label="Tap to flap">Flap</button>
   </div>
@@ -370,6 +473,93 @@
           e.stopPropagation();
         });
       }
+
+
+      // DOM overlay juice — amplifies packed canvas FX without editing the bundle.
+      (function installVisualJuice() {
+        var reduced = false;
+        try {
+          reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        } catch (e) {}
+        var shell = document.getElementById('game-shell');
+        var flashEl = document.getElementById('fc-fx-flash');
+        var pops = document.getElementById('fc-fx-pops');
+        var lastScore = 0;
+        var lastState = '';
+        var nudgeTimer = null;
+        var shakeTimer = null;
+
+        function nudge() {
+          if (!shell || reduced) return;
+          shell.classList.remove('fc-nudge');
+          void shell.offsetWidth;
+          shell.classList.add('fc-nudge');
+          clearTimeout(nudgeTimer);
+          nudgeTimer = setTimeout(function () { shell.classList.remove('fc-nudge'); }, 180);
+        }
+
+        function shakeAndFlash() {
+          if (!shell) return;
+          if (!reduced) {
+            shell.classList.remove('fc-shake');
+            void shell.offsetWidth;
+            shell.classList.add('fc-shake');
+            clearTimeout(shakeTimer);
+            shakeTimer = setTimeout(function () { shell.classList.remove('fc-shake'); }, 450);
+          }
+          if (flashEl) {
+            flashEl.classList.remove('is-on');
+            void flashEl.offsetWidth;
+            flashEl.classList.add('is-on');
+            setTimeout(function () { flashEl.classList.remove('is-on'); }, reduced ? 220 : 400);
+          }
+        }
+
+        function scorePop() {
+          if (!pops) return;
+          var el = document.createElement('div');
+          el.className = 'fc-score-pop';
+          el.textContent = '+1';
+          pops.appendChild(el);
+          setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, reduced ? 500 : 750);
+        }
+
+        // Flap: canvas pointer + mobile flap button + Space/ArrowUp
+        function onFlapIntent() {
+          var model = window.gameInstance && window.gameInstance.model;
+          var st = model && model.state;
+          if (st === 'PLAYING' || st === 'READY') nudge();
+        }
+        if (canvas) {
+          canvas.addEventListener('pointerdown', onFlapIntent, { passive: true });
+        }
+        if (flapBtn) {
+          flapBtn.addEventListener('pointerdown', onFlapIntent, { passive: true });
+        }
+        window.addEventListener('keydown', function (e) {
+          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') onFlapIntent();
+        });
+
+        function tickJuice() {
+          var model = window.gameInstance && window.gameInstance.model;
+          if (!model) return;
+          var score = model.score || 0;
+          var state = model.state || '';
+          if (score > lastScore && state === 'PLAYING') scorePop();
+          lastScore = score;
+          if ((state === 'DYING' || state === 'GAME_OVER') && lastState !== 'DYING' && lastState !== 'GAME_OVER') {
+            shakeAndFlash();
+          }
+          if (state === 'READY' || state === 'PLAYING') {
+            // reset death edge when a new round starts
+          }
+          if (state === 'READY' && (lastState === 'GAME_OVER' || lastState === 'DYING')) {
+            lastScore = 0;
+          }
+          lastState = state;
+        }
+        setInterval(tickJuice, 50);
+      })();
 
       // Reduce double-tap zoom / gesture annoyances inside the iframe.
       ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {

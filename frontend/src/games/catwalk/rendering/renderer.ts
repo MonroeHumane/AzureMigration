@@ -27,8 +27,23 @@ export function renderGame(
   drawEnvironment(context, state.elapsed);
 
   // 2. Sanctuary Houses (Goals)
+  const onHomeRow = state.cat.y <= PLAY_TOP_Y + CELL_SIZE * 0.85;
   HOME_POSITIONS.forEach((homeX, index) => {
-    drawHouse(context, { x: homeX, y: PLAY_TOP_Y + 31, index, occupied: state.homes[index], phase: state.elapsed });
+    let approach = 0;
+    if (!state.homes[index] && onHomeRow && state.status === 'playing') {
+      const dx = Math.abs(state.cat.x - homeX);
+      // Glow ramps in within ~110px laterally on the home row
+      approach = Math.max(0, 1 - dx / 110);
+      approach = approach * approach; // ease-in
+    }
+    drawHouse(context, {
+      x: homeX,
+      y: PLAY_TOP_Y + 31,
+      index,
+      occupied: state.homes[index],
+      phase: state.elapsed,
+      approach,
+    });
   });
 
   // 3. Fishbone River Platforms (Scaled dynamically per stage)

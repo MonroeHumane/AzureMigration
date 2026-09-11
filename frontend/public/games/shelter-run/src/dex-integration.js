@@ -225,9 +225,22 @@ var ShelterRunDex = (function () {
   /**
    * Milestone pack banner — only call after claimReward resolved claimed:true.
    */
+
+  function pulseCelebrateFlash() {
+    var el = document.getElementById('srCelebrateFlash');
+    if (!el) return;
+    var reduced = false;
+    try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    el.classList.remove('is-on');
+    void el.offsetWidth;
+    el.classList.add('is-on');
+    setTimeout(function () { el.classList.remove('is-on'); }, reduced ? 220 : 720);
+  }
+
   function celebrateMilestone(milestone, options) {
     options = options || {};
     ensureStyles();
+    pulseCelebrateFlash();
 
     var tierLabel = ({ standard: 'Standard', duo: 'Duo', deluxe: 'Deluxe' })[milestone.tier] || milestone.tier;
     var overlay = document.createElement('div');

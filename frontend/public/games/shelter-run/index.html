@@ -27,6 +27,11 @@
 <body>
   <div id="game-container" role="main" aria-label="Shelter Run – endless runner game">
     <button type="button" class="sr-chrome-exit" id="srExitBtn" aria-label="Exit to games hub">← Exit</button>
+    <div class="sr-fx-layer" id="srFx" aria-hidden="true">
+      <div class="sr-fx-speedlines" id="srSpeedLines"></div>
+      <div class="sr-fx-hurt" id="srHurtFlash"></div>
+      <div class="sr-fx-celebrate" id="srCelebrateFlash"></div>
+    </div>
     <div class="sr-key-hints" id="srKeyHints" aria-hidden="true">
       <span class="sr-key-hints__item"><kbd>←</kbd><kbd>→</kbd> dodge</span>
       <span class="sr-key-hints__item"><kbd>↑</kbd>/<kbd>Space</kbd> jump</span>
