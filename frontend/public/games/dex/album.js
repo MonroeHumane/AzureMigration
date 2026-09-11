@@ -153,12 +153,8 @@
 		progressCounts: document.getElementById('progressCounts'),
 		search: document.getElementById('binderSearch'),
 		searchClear: document.getElementById('binderSearchClear'),
-		sortSelect: document.getElementById('binderSortSelect'),
 		speciesChips: document.querySelectorAll('[data-filter-species]'),
-		rarityChips: document.querySelectorAll('[data-filter-rarity]'),
-		filtersToggle: document.getElementById('binderFiltersToggle'),
-		filtersPanel: document.getElementById('binderFiltersPanel'),
-		filtersBadge: document.getElementById('binderFiltersBadge'),
+		themeToggle: document.getElementById('binderThemeToggle'),
 		shopToggle: document.getElementById('binderShopToggle'),
 		shopRow: document.getElementById('binderShopRow'),
 		shopWrap: document.getElementById('binderShopWrap'),
@@ -216,29 +212,8 @@
 	function countActiveFilters() {
 		var n = 0;
 		if (state.filterSpecies !== 'all') n++;
-		if (state.filterRarity !== 'all') n++;
-		if (state.sortMode !== 'dex_asc') n++;
 		if (state.searchQuery) n++;
 		return n;
-	}
-
-	function updateFiltersBadge() {
-		var n = countActiveFilters();
-		if (!els.filtersBadge) return;
-		if (n > 0) {
-			els.filtersBadge.hidden = false;
-			els.filtersBadge.textContent = String(n);
-		} else {
-			els.filtersBadge.hidden = true;
-			els.filtersBadge.textContent = '0';
-		}
-	}
-
-	function setFiltersExpanded(expanded) {
-		if (!els.filtersPanel || !els.filtersToggle) return;
-		els.filtersPanel.classList.toggle('is-collapsed', !expanded);
-		els.filtersToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-		els.filtersToggle.classList.toggle('is-open', !!expanded);
 	}
 
 	function setShopExpanded(expanded) {
@@ -252,13 +227,16 @@
 
 	function syncChromeCollapse() {
 		var compact = isCompactChrome();
-		if (compact) {
-			setFiltersExpanded(false);
-			setShopExpanded(false);
-		} else {
-			setFiltersExpanded(true);
-			setShopExpanded(true);
-		}
+		setShopExpanded(!compact);
+	}
+
+	function wireThemeToggle() {
+		if (!els.themeToggle) return;
+		var api = window.HumaneGamesTheme;
+		if (!api) return;
+		if (typeof api.init === 'function') api.init({ button: els.themeToggle });
+		if (typeof api.initThemeToggle === 'function') api.initThemeToggle(els.themeToggle);
+		else if (typeof api.bindToggle === 'function') api.bindToggle(els.themeToggle);
 	}
 
 	function kickShine(el, ms) {
@@ -267,6 +245,95 @@
 		window.setTimeout(function () { el.classList.remove('is-shine-kick'); }, ms || 950);
 	}
 
+	function escapeHtml(value) {
+		return String(value == null ? '' : value)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
+	function formatGenderLabel(gender) {
+		var g = String(gender || '').trim().toLowerCase();
+		if (!g || g === 'unknown') return '';
+		if (g === 'male' || g === 'm') return '♂ Male';
+		if (g === 'female' || g === 'f') return '♀ Female';
+		return String(gender);
+	}
+
+	function speciesEmoji(card) {
+		if (card.species === 'dog') return '🐕';
+		if (card.species === 'cat') return '🐱';
+		return '🐾';
+	}
+
+	function foilClassForCard(card) {
+		if (!card || card.foil === 'none') return '';
+		var flex = (card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos' || card.foil === 'aurora')
+			? ' binder-card--foil-flex'
+			: '';
+		return 'foil-' + card.foil + flex;
+	}
+
+	function buildBinderCardHtml(card, opts) {
+		opts = opts || {};
+		var inspector = !!opts.inspector;
+		var foilClass = foilClassForCard(card);
+		var genderLabel = formatGenderLabel(card.gender);
+		var statusLabel = card.isAdopted ? 'Adopted' : 'Available';
+		var statusMod = card.isAdopted ? 'is-adopted' : 'is-available';
+		var typeLabel = card.species === 'dog' ? 'Dog' : (card.species === 'cat' ? 'Cat' : 'Pet');
+		var adoptedBadge = card.isAdopted
+			? '<span class="binder-card__adopted-badge">Adopted</span>'
+			: '';
+		var metaChips = '';
+		if (card.ageDisplay) {
+			metaChips += '<span class="binder-card__chip">' + escapeHtml(card.ageDisplay) + '</span>';
+		}
+		if (genderLabel) {
+			metaChips += '<span class="binder-card__chip">' + escapeHtml(genderLabel) + '</span>';
+		}
+		metaChips += '<span class="binder-card__chip">' + escapeHtml(typeLabel) + '</span>';
+		metaChips += '<span class="binder-card__chip binder-card__chip--status ' + statusMod + '">' + statusLabel + '</span>';
+
+		var nameTag = inspector
+			? '<h2 class="binder-card__name" id="inspectorPetName">' + escapeHtml(card.name) + '</h2>'
+			: '<span class="binder-card__name">' + escapeHtml(card.name) + '</span>';
+		var speciesLabel = inspector ? escapeHtml(card.speciesLabel) : speciesEmoji(card);
+		var moveInner = inspector
+			? ('<div><strong>' + escapeHtml(card.signatureMove.icon + ' ' + card.signatureMove.name) + '</strong>' +
+				'<p class="binder-card__move-effect">' + escapeHtml(card.signatureMove.effect) + '</p></div>')
+			: ('<span>' + escapeHtml(card.signatureMove.icon + ' ' + card.signatureMove.name) + '</span>');
+		var cardClass = 'binder-card' + (card.isAdopted ? ' binder-card--adopted' : '') + (inspector ? ' binder-card--inspector' : '');
+		var outerOpen = inspector
+			? ('<div class="inspector-face inspector-face--front ' + foilClass + '"><div class="' + cardClass + '">')
+			: ('<div class="' + cardClass + ' ' + foilClass + '">');
+		var outerClose = inspector ? '</div></div>' : '</div>';
+
+		return outerOpen +
+			'<div class="binder-card__foil"></div>' +
+			'<div class="binder-card__header">' +
+				'<span class="binder-card__dex">' + escapeHtml(card.dexNumber) + '</span>' +
+				nameTag +
+				'<span class="binder-card__species" aria-hidden="true">' + speciesLabel + '</span>' +
+			'</div>' +
+			'<div class="binder-card__photo-window">' +
+				'<img class="binder-card__photo" src="' + escapeHtml(card.photoUrl) + '" alt="' + escapeHtml(card.name) + '"' + (inspector ? '' : ' loading="lazy"') + '>' +
+				adoptedBadge +
+				'<span class="binder-card__rarity-badge">' + escapeHtml(card.rarityLabel) + '</span>' +
+			'</div>' +
+			'<div class="binder-card__body">' +
+				'<div class="binder-card__meta">' + metaChips + '</div>' +
+				'<span class="binder-card__breed">' + escapeHtml(card.breed) + '</span>' +
+				'<div class="binder-card__move">' + moveInner + '</div>' +
+				'<div class="binder-card__stats">' +
+					'<span class="binder-card__stat-item" title="Energy"><span class="binder-card__stat-ico" aria-hidden="true">⚡</span><span class="binder-card__stat-val">' + card.stats.energy + '</span><span class="binder-card__stat-lbl">Energy</span></span>' +
+					'<span class="binder-card__stat-item" title="Cuddle"><span class="binder-card__stat-ico" aria-hidden="true">💖</span><span class="binder-card__stat-val">' + card.stats.cuddle + '</span><span class="binder-card__stat-lbl">Cuddle</span></span>' +
+					'<span class="binder-card__stat-item" title="Loyalty"><span class="binder-card__stat-ico" aria-hidden="true">⭐</span><span class="binder-card__stat-val">' + card.stats.loyalty + '</span><span class="binder-card__stat-lbl">Loyalty</span></span>' +
+				'</div>' +
+			'</div>' +
+			outerClose;
+	}
 
 	function determinePocketsPerSheet() {
 		return window.innerWidth <= 900 ? 4 : 9;
@@ -546,14 +613,7 @@
 			});
 		}
 
-		// 2. Filter by rarity
-		if (state.filterRarity !== 'all') {
-			list = list.filter(function (c) {
-				return c.rarity === state.filterRarity;
-			});
-		}
-
-		// 3. Search query
+		// 2. Search query
 		if (state.searchQuery) {
 			var q = state.searchQuery.toLowerCase();
 			list = list.filter(function (c) {
@@ -562,7 +622,7 @@
 			});
 		}
 
-		// 4. Sort
+		// 3. Sort
 		list.sort(function (a, b) {
 			if (state.sortMode === 'name_asc') {
 				return a.name.localeCompare(b.name);
@@ -611,7 +671,7 @@
 				els.emptyDesc.textContent = collectionEmpty
 					? 'Open booster packs or claim a Daily Pack to discover shelter companions.'
 					: (filtersOn
-						? 'No cards match your active filters. Reset filters, or open packs to discover more companions.'
+						? 'No cards match this filter. Try All, or open packs to discover more companions.'
 						: 'No cards to show right now.');
 			}
 			if (els.btnResetFilters) els.btnResetFilters.hidden = collectionEmpty || !filtersOn;
@@ -620,7 +680,6 @@
 			if (els.binderPocketsGrid) els.binderPocketsGrid.style.display = '';
 			if (els.binderShowcaseGrid) els.binderShowcaseGrid.style.display = '';
 		}
-		updateFiltersBadge();
 	}
 
 	function renderBinderSheet() {
@@ -652,32 +711,7 @@
 					})(pocketCell, card.id);
 				}
 
-				var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos' || card.foil === 'aurora') ? ' binder-card--foil-flex' : '')) : '';
-
-				pocketCell.innerHTML =
-					'<div class="binder-card ' + foilClass + '">' +
-						'<div class="binder-card__foil"></div>' +
-						'<div class="binder-card__header">' +
-							'<span class="binder-card__dex">' + card.dexNumber + '</span>' +
-							'<span class="binder-card__name">' + card.name + '</span>' +
-							'<span class="binder-card__species">' + card.speciesLabel.slice(0, 2) + '</span>' +
-						'</div>' +
-						'<div class="binder-card__photo-window">' +
-							'<img class="binder-card__photo" src="' + card.photoUrl + '" alt="' + card.name + '" loading="lazy">' +
-							'<span class="binder-card__rarity-badge">' + card.rarityLabel + '</span>' +
-						'</div>' +
-						'<div class="binder-card__body">' +
-							'<span class="binder-card__breed">' + card.breed + '</span>' +
-							'<div class="binder-card__move">' +
-								'<span>' + card.signatureMove.icon + ' ' + card.signatureMove.name + '</span>' +
-							'</div>' +
-							'<div class="binder-card__stats">' +
-								'<span class="binder-card__stat-item">⚡ ' + card.stats.energy + '</span>' +
-								'<span class="binder-card__stat-item">💖 ' + card.stats.cuddle + '</span>' +
-								'<span class="binder-card__stat-item">⭐ ' + card.stats.loyalty + '</span>' +
-							'</div>' +
-						'</div>' +
-					'</div>';
+				pocketCell.innerHTML = buildBinderCardHtml(card);
 
 				(function (c, globalIdx) {
 					bindPocketActivate(pocketCell, globalIdx, c.name);
@@ -738,32 +772,7 @@
 			pocketCell.setAttribute('data-card-id', card.id);
 			pocketCell.setAttribute('title', 'Click to inspect ' + card.name + ' in 3D');
 
-			var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos' || card.foil === 'aurora') ? ' binder-card--foil-flex' : '')) : '';
-
-			pocketCell.innerHTML =
-				'<div class="binder-card ' + foilClass + '">' +
-					'<div class="binder-card__foil"></div>' +
-					'<div class="binder-card__header">' +
-						'<span class="binder-card__dex">' + card.dexNumber + '</span>' +
-						'<span class="binder-card__name">' + card.name + '</span>' +
-						'<span class="binder-card__species">' + card.speciesLabel.slice(0, 2) + '</span>' +
-					'</div>' +
-					'<div class="binder-card__photo-window">' +
-						'<img class="binder-card__photo" src="' + card.photoUrl + '" alt="' + card.name + '" loading="lazy">' +
-						'<span class="binder-card__rarity-badge">' + card.rarityLabel + '</span>' +
-					'</div>' +
-					'<div class="binder-card__body">' +
-						'<span class="binder-card__breed">' + card.breed + '</span>' +
-						'<div class="binder-card__move">' +
-							'<span>' + card.signatureMove.icon + ' ' + card.signatureMove.name + '</span>' +
-						'</div>' +
-						'<div class="binder-card__stats">' +
-							'<span class="binder-card__stat-item">⚡ ' + card.stats.energy + '</span>' +
-							'<span class="binder-card__stat-item">💖 ' + card.stats.cuddle + '</span>' +
-							'<span class="binder-card__stat-item">⭐ ' + card.stats.loyalty + '</span>' +
-						'</div>' +
-					'</div>' +
-				'</div>';
+			pocketCell.innerHTML = buildBinderCardHtml(card);
 
 			bindPocketActivate(pocketCell, idx, card.name);
 
@@ -930,40 +939,11 @@
 		var card = state.filteredCards[state.inspectorIndex];
 		if (!card || !els.inspectorCardHost) return;
 
-		var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos' || card.foil === 'aurora') ? ' binder-card--foil-flex' : '')) : '';
-
 		els.inspectorCardHost.className = 'inspector-card-host' + (state.isInspectorFlipped ? ' is-flipped' : '');
 
 		els.inspectorCardHost.innerHTML =
 			'<!-- FRONT FACE -->' +
-			'<div class="inspector-face inspector-face--front ' + foilClass + '">' +
-				'<div class="binder-card" style="padding: 10px;">' +
-					'<div class="binder-card__foil"></div>' +
-					'<div class="binder-card__header">' +
-						'<span class="binder-card__dex" style="font-size:0.85rem; padding: 2px 6px;">' + card.dexNumber + '</span>' +
-						'<h2 class="binder-card__name" id="inspectorPetName" style="font-size:1.25rem;">' + card.name + '</h2>' +
-						'<span class="binder-card__species" style="font-size:1rem;">' + card.speciesLabel + '</span>' +
-					'</div>' +
-					'<div class="binder-card__photo-window" style="aspect-ratio: 1.3 / 1;">' +
-						'<img class="binder-card__photo" src="' + card.photoUrl + '" alt="' + card.name + '">' +
-						'<span class="binder-card__rarity-badge" style="font-size:0.75rem; padding: 3px 8px;">' + card.rarityLabel + '</span>' +
-					'</div>' +
-					'<div class="binder-card__body" style="padding: 8px 4px;">' +
-						'<span class="binder-card__breed" style="font-size:0.85rem;">🧬 ' + card.breed + ' · 🎂 ' + card.ageDisplay + '</span>' +
-						'<div class="binder-card__move" style="padding: 6px 10px; font-size:0.82rem; margin: 4px 0;">' +
-							'<div>' +
-								'<strong>' + card.signatureMove.icon + ' ' + card.signatureMove.name + '</strong>' +
-								'<p style="margin: 2px 0 0; font-size: 0.72rem; font-weight: 500; color: #475569;">' + card.signatureMove.effect + '</p>' +
-							'</div>' +
-						'</div>' +
-						'<div class="binder-card__stats" style="padding: 6px; font-size: 0.8rem;">' +
-							'<span>⚡ Energy: ' + card.stats.energy + '</span>' +
-							'<span>💖 Cuddle: ' + card.stats.cuddle + '</span>' +
-							'<span>⭐ Loyalty: ' + card.stats.loyalty + '</span>' +
-						'</div>' +
-					'</div>' +
-				'</div>' +
-			'</div>' +
+			buildBinderCardHtml(card, { inspector: true }) +
 
 			'<!-- BACK FACE (Full Rescue Bio & Medallion) -->' +
 			'<div class="inspector-face inspector-face--back">' +
@@ -979,7 +959,7 @@
 				'<div class="inspector-back-traits">' +
 					'<span class="trait-tag">🏠 ' + card.location + '</span>' +
 					'<span class="trait-tag">📅 Intake: ' + card.intakeDate + '</span>' +
-					'<span class="trait-tag">' + (card.isAdopted ? '💖 Adopted Alumni' : '✨ Seeking Forever Home') + '</span>' +
+					'<span class="trait-tag">' + (card.isAdopted ? '🏠 Adopted' : '✨ Available') + '</span>' +
 				'</div>' +
 				'<div class="inspector-back-footer">' +
 					'<span>Official Monroe Collector Card</span>' +
@@ -1253,7 +1233,7 @@
 			});
 		}
 
-		// Species chips
+		// Species chips (All | Dogs | Cats)
 		els.speciesChips.forEach(function (chip) {
 			chip.addEventListener('click', function () {
 				els.speciesChips.forEach(function (c) { c.classList.remove('is-active'); });
@@ -1263,31 +1243,9 @@
 			});
 		});
 
-		// Rarity chips
-		els.rarityChips.forEach(function (chip) {
-			chip.addEventListener('click', function () {
-				els.rarityChips.forEach(function (c) { c.classList.remove('is-active'); });
-				chip.classList.add('is-active');
-				state.filterRarity = chip.getAttribute('data-filter-rarity') || 'all';
-				applyFilterAndSort();
-			});
-		});
+		wireThemeToggle();
 
-		// Sort select
-		if (els.sortSelect) {
-			els.sortSelect.addEventListener('change', function () {
-				state.sortMode = els.sortSelect.value;
-				applyFilterAndSort();
-			});
-		}
-
-		// Filters drawer + shop compaction
-		if (els.filtersToggle) {
-			els.filtersToggle.addEventListener('click', function () {
-				var open = els.filtersToggle.getAttribute('aria-expanded') !== 'true';
-				setFiltersExpanded(open);
-			});
-		}
+		// Shop compaction
 		if (els.shopToggle) {
 			els.shopToggle.addEventListener('click', function () {
 				var open = els.shopToggle.getAttribute('aria-expanded') !== 'true';
@@ -1302,7 +1260,6 @@
 			if (chromeMq.addEventListener) chromeMq.addEventListener('change', onChromeChange);
 			else if (chromeMq.addListener) chromeMq.addListener(onChromeChange);
 		} catch (eMq) {}
-		updateFiltersBadge();
 
 		// Sheet navigation
 		if (els.btnSheetPrev) {
@@ -1322,11 +1279,10 @@
 				state.filterSpecies = 'all';
 				state.filterRarity = 'all';
 				state.searchQuery = '';
+				state.sortMode = 'dex_asc';
 				if (els.search) els.search.value = '';
 				if (els.searchClear) els.searchClear.hidden = true;
 				els.speciesChips.forEach(function (c, i) { c.classList.toggle('is-active', i === 0); });
-				els.rarityChips.forEach(function (c, i) { c.classList.toggle('is-active', i === 0); });
-				if (els.sortSelect) { els.sortSelect.value = 'dex_asc'; state.sortMode = 'dex_asc'; }
 				applyFilterAndSort();
 			});
 		}
