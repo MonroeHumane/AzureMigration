@@ -14,7 +14,7 @@
 
 | Service / Layer | Deployment Host | Production URL |
 | :--- | :--- | :--- |
-| **Primary Domain** | Azure Custom Domain | [https://monroe-humane.org](https://monroe-humane.org) |
+| **Primary Domain** | DNS cutover pending | [https://monroe-humane.org](https://monroe-humane.org) — still Hostinger WP until cutover; Astro is live on the SWA host below. See `docs/SMOKE_CHECKLIST.md`. |
 | **Edge Frontend (SWA)** | Azure Static Web Apps | [https://delightful-dune-0d730f70f.7.azurestaticapps.net](https://delightful-dune-0d730f70f.7.azurestaticapps.net) |
 | **Headless CMS API** | Azure Container Apps | `https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io` |
 | **Arcade & Adoptédex API** | Azure Container Apps | `https://mchs-arcade-api.livelyfield-d0a70609.eastus.azurecontainerapps.io` |
@@ -22,6 +22,8 @@
 | **Object Storage** | Azure Blob Storage | `mchsstorage2urwob6xh6j6s` (Pet Photos & PDF Flyers) |
 
 ---
+
+> **Azure resource names:** Prefer [`.env.example`](./.env.example) as the repo source of truth for storage account and related placeholders, then **verify in the Azure portal** before changing infra or docs. CSP `frame-src` allows **Zeffy** (not BetterUnite) — see `frontend/public/staticwebapp.config.json`.
 
 ## 📁 Repository Directory Structure
 
@@ -94,7 +96,7 @@ node test-site-integrity.cjs
 
 * **Unified Adoption Hub (`/adopt`)**: Real-time 0ms client-side filtering by Species, Gender, Size, and Age, with deep query linking (`/adopt?pet=...`) and SWR Directus live hydration.
 * **Lobby Kiosk & TV Display (`/tv`)**: 100vw × 100vh full-bleed kiosk mode with Screen WakeLock API, in-memory prefetching, and dynamically generated QR codes for shelter lobby smart TVs.
-* **Humane Arcade & Adoptédex (`/games`)**: Interactive browser games featuring real shelter pets (*Pet Snake*, *Catwalk*, *Found*, *Shelter Tycoon*) with cloud card album saves.
+* **Humane Arcade & Adoptédex (`/games`)**: Cabinet hub featuring *Pet Booster Packs*, *Pet Match Memory*, *Flappy Cat*, *Catwalk Night Patrol*, and *Shelter Run*, plus Adoptédex album dock. Legacy deep links (Pet Snake, Shelter Tycoon) remain listed under Legacy on the hub — not primary featured cards.
 * **Unified Staff & Board Portal (`/internal`)**:
   * **PetSync Operations (`/internal/pets`)**: Live census, PetPoint synchronization health, and instant printable kennel cards.
   * **Board Financials (`/internal/board`)**: Executive KPIs, monthly operating statements, balance sheets, and cash runway simulator.
@@ -108,3 +110,7 @@ node test-site-integrity.cjs
 For detailed architecture diagrams, disaster recovery procedures, Directus field schemas, staff runbooks, and Bicep infrastructure configuration, refer to:
 
 👉 **[HSMC Platform Master Architecture & Operations Manual (v2.5)](./HSMC_PLATFORM_MASTER_DOCUMENTATION.md)**
+
+👉 **[Post-cutover smoke checklist](./docs/SMOKE_CHECKLIST.md)** — manual checks after custom-domain DNS flip.
+
+Staff donor JSON is **not** in git; see [`api/data/README.md`](./api/data/README.md) for private local restore notes.

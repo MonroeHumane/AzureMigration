@@ -173,7 +173,7 @@ Managed declaratively via `infra/main.bicep`:
   * Directus Container App (`mchs-directus`)
   * Arcade API Container App (`mchs-arcade-api`)
   * MySQL Flexible Server (`mchs-mysql-2urwob6xh6j6s`)
-  * Storage Account (`mchsstorage2urwob6xh6j6s`) with Blob CORS enabled.
+  * Storage Account (`mchsstorage2urwob6xh6j6s`) with Blob CORS enabled. (Repo placeholder source of truth: `.env.example` `AZURE_STORAGE_ACCOUNT` — verify the live name in the Azure portal before changing IaC or docs.)
 
 ---
 

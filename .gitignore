@@ -18,10 +18,16 @@ frontend/.astro/
 frontend/src/data/donor_database.json
 
 # Operational PII / financial dumps — keep out of new commits.
-# api/data/donor_database.json remains deferred for removal from tracking:
-# /api/financials still loadJsonOptional()s it at runtime in production deploys.
-# Do not force-push history rewrite; migrate to private artifact store first.
+# api/data/donor_database.json is untracked; restore locally for staff financials
+# (api/src/index.js loadJsonOptional). Do not force-push a history rewrite from
+# this PR — git history still contains the former blob until a separate purge.
 api/data/donor_database.json
+
+# Scratch probe dumps / newsletter page proofs (not build inputs)
 scratch/qbo_named_gifts*.json
 scratch/*donor*.json
-
+scratch/qbo_*_audit.json
+scratch/qbo_alignment_inspect.json
+scratch/qbo_data_inventory.json
+scratch/qbo_category_recode_results.json
+scratch/newsletter-2026-p*.png
