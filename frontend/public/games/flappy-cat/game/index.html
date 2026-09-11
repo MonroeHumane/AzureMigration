@@ -243,13 +243,133 @@
       60% { transform: translate(-4px, -1px); }
       80% { transform: translate(3px, 2px); }
     }
+
+    /* Score-gated sky / biome (DOM shell; canvas engine has its own gradient) */
+    html.fc-biome-dawn {
+      --sky: #9ad4e0;
+      --biome-glow: rgba(255, 214, 170, 0.22);
+      --biome-tint: rgba(255, 183, 120, 0.12);
+    }
+    html.fc-biome-day {
+      --sky: #71c5cf;
+      --biome-glow: rgba(255, 255, 255, 0.14);
+      --biome-tint: rgba(125, 211, 252, 0.08);
+    }
+    html.fc-biome-dusk {
+      --sky: #e08a5c;
+      --biome-glow: rgba(255, 179, 71, 0.28);
+      --biome-tint: rgba(231, 111, 81, 0.18);
+    }
+    html.fc-biome-night {
+      --sky: #1b263b;
+      --biome-glow: rgba(128, 222, 234, 0.12);
+      --biome-tint: rgba(13, 27, 42, 0.35);
+    }
+    html.fc-biome-dawn #game-shell,
+    html.fc-biome-day #game-shell,
+    html.fc-biome-dusk #game-shell,
+    html.fc-biome-night #game-shell {
+      background:
+        radial-gradient(ellipse at 50% 0%, var(--biome-glow), transparent 55%),
+        linear-gradient(180deg, var(--biome-tint), transparent 40%),
+        var(--sky);
+      transition: background-color 0.8s ease;
+    }
+    html.fc-biome-dusk .fc-fx-parallax {
+      background:
+        radial-gradient(circle at 22% 30%, rgba(255,200,120,0.22) 0%, transparent 44%),
+        radial-gradient(circle at 78% 16%, rgba(231,111,81,0.2) 0%, transparent 40%);
+    }
+    html.fc-biome-night .fc-fx-parallax {
+      background:
+        radial-gradient(circle at 18% 24%, rgba(128,222,234,0.1) 0%, transparent 40%),
+        radial-gradient(circle at 82% 18%, rgba(99,102,241,0.12) 0%, transparent 38%);
+      opacity: 0.5;
+    }
+    html.fc-biome-dawn .fc-fx-parallax {
+      background:
+        radial-gradient(circle at 20% 32%, rgba(255,230,180,0.2) 0%, transparent 42%),
+        radial-gradient(circle at 75% 18%, rgba(255,179,71,0.16) 0%, transparent 38%);
+    }
+    .fc-fx-vignette.is-near-death {
+      background:
+        radial-gradient(ellipse at 50% 42%, transparent 28%, rgba(180, 40, 40, 0.28) 72%, rgba(90, 10, 10, 0.45) 100%);
+      opacity: 1;
+      animation: fcNearDeathPulse 0.7s ease-in-out infinite alternate;
+    }
+    @keyframes fcNearDeathPulse {
+      from { opacity: 0.55; }
+      to   { opacity: 0.95; }
+    }
+    .fc-combo-pop {
+      position: absolute;
+      left: 50%;
+      top: 36%;
+      transform: translate(-50%, 0);
+      font: 900 18px/1 system-ui, -apple-system, sans-serif;
+      letter-spacing: 0.06em;
+      color: #fff7ed;
+      text-shadow: 0 2px 0 rgba(44,28,25,0.5), 0 0 16px rgba(245,158,11,0.7);
+      animation: fcComboPop 0.85s ease-out forwards;
+      will-change: transform, opacity;
+      z-index: 2;
+    }
+    .fc-combo-pop.is-hot {
+      color: #fef08a;
+      font-size: 22px;
+      text-shadow: 0 2px 0 rgba(44,28,25,0.55), 0 0 20px rgba(249,115,22,0.85);
+    }
+    @keyframes fcComboPop {
+      0% { opacity: 0; transform: translate(-50%, 10px) scale(0.6); }
+      20% { opacity: 1; transform: translate(-50%, -6px) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -48px) scale(1); }
+    }
+    .fc-streak-chip {
+      position: absolute;
+      top: max(10px, calc(var(--safe-t) + 10px));
+      left: 50%;
+      transform: translateX(-50%) scale(0.92);
+      z-index: 5;
+      font: 800 12px/1 system-ui, -apple-system, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #451a03;
+      background: linear-gradient(135deg, #fef08a, #f59e0b 60%, #ea580c);
+      border-radius: 999px;
+      padding: 7px 14px;
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .fc-streak-chip.is-on {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+    .fc-streak-chip.is-bump {
+      animation: fcStreakBump 0.35s ease-out;
+    }
+    @keyframes fcStreakBump {
+      0% { transform: translateX(-50%) scale(0.85); }
+      40% { transform: translateX(-50%) scale(1.12); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .fc-fx-parallax,
       html.fc-playing .fc-fx-parallax { animation: none !important; opacity: 0.2; }
       #game-shell.fc-nudge,
       #game-shell.fc-shake { animation: none !important; }
-      .fc-score-pop { animation: none !important; opacity: 0.9; transform: translate(-50%, -12px); }
+      .fc-score-pop,
+      .fc-combo-pop { animation: none !important; opacity: 0.9; transform: translate(-50%, -12px); }
       .fc-fx-flash.is-on { animation: none !important; opacity: 0.25; transition: opacity 0.2s ease; }
+      .fc-fx-vignette.is-near-death { animation: none !important; opacity: 0.7; }
+      .fc-streak-chip { transition: none; }
+      .fc-streak-chip.is-bump { animation: none !important; }
+      html.fc-biome-dawn #game-shell,
+      html.fc-biome-day #game-shell,
+      html.fc-biome-dusk #game-shell,
+      html.fc-biome-night #game-shell { transition: none; }
     }
 
     @media (orientation: landscape) and (max-height: 520px) {
@@ -288,10 +408,11 @@
     </div>
     <div class="fc-fx-layer" id="fc-fx" aria-hidden="true">
       <div class="fc-fx-parallax" id="fc-fx-parallax"></div>
-      <div class="fc-fx-vignette"></div>
+      <div class="fc-fx-vignette" id="fc-fx-vignette"></div>
       <div class="fc-fx-flash" id="fc-fx-flash"></div>
       <div class="fc-fx-pops" id="fc-fx-pops"></div>
     </div>
+    <div class="fc-streak-chip" id="fc-streak-chip" aria-hidden="true">Combo</div>
     <button type="button" class="fc-flap-btn" id="fc-flap" aria-label="Tap to flap">Flap</button>
   </div>
 
@@ -484,10 +605,33 @@
         var shell = document.getElementById('game-shell');
         var flashEl = document.getElementById('fc-fx-flash');
         var pops = document.getElementById('fc-fx-pops');
+        var vignette = document.getElementById('fc-fx-vignette');
+        var streakChip = document.getElementById('fc-streak-chip');
         var lastScore = 0;
         var lastState = '';
+        var lastScoreAt = 0;
+        var streak = 0;
         var nudgeTimer = null;
         var shakeTimer = null;
+        var biomeClass = '';
+        var BIOMES = ['fc-biome-dawn', 'fc-biome-day', 'fc-biome-dusk', 'fc-biome-night'];
+
+        function biomeForScore(score) {
+          if (score >= 25) return 'fc-biome-night';
+          if (score >= 15) return 'fc-biome-dusk';
+          if (score >= 5) return 'fc-biome-day';
+          return 'fc-biome-dawn';
+        }
+
+        function applyBiome(score) {
+          var next = biomeForScore(score || 0);
+          if (next === biomeClass) return;
+          BIOMES.forEach(function (c) { document.documentElement.classList.remove(c); });
+          if (shell) BIOMES.forEach(function (c) { shell.classList.remove(c); });
+          document.documentElement.classList.add(next);
+          if (shell) shell.classList.add(next);
+          biomeClass = next;
+        }
 
         function nudge() {
           if (!shell || reduced) return;
@@ -524,7 +668,53 @@
           setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, reduced ? 500 : 750);
         }
 
-        // Flap: canvas pointer + mobile flap button + Space/ArrowUp
+        function comboPop(n) {
+          if (!pops || n < 2) return;
+          var el = document.createElement('div');
+          el.className = 'fc-combo-pop' + (n >= 4 ? ' is-hot' : '');
+          el.textContent = n >= 4 ? ('STREAK x' + n) : ('COMBO x' + n);
+          pops.appendChild(el);
+          setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, reduced ? 500 : 900);
+        }
+
+        function setStreakChip(n) {
+          if (!streakChip) return;
+          if (n >= 2) {
+            streakChip.textContent = n >= 3 ? ('Combo x' + n) : 'Combo';
+            streakChip.classList.add('is-on');
+            if (!reduced) {
+              streakChip.classList.remove('is-bump');
+              void streakChip.offsetWidth;
+              streakChip.classList.add('is-bump');
+            }
+          } else {
+            streakChip.classList.remove('is-on', 'is-bump');
+          }
+        }
+
+        // Near-death: cat overlapping a pipe horizontally and close to gap edge.
+        function nearDeathFromModel(model) {
+          if (!model || model.state !== 'PLAYING' || !Array.isArray(model.pipes)) return false;
+          var catX = model.CAT_X;
+          var catY = model.catY;
+          var r = model.CAT_RADIUS || 15;
+          var pw = model.PIPE_WIDTH || 50;
+          var danger = 18;
+          for (var i = 0; i < model.pipes.length; i++) {
+            var p = model.pipes[i];
+            if (!p || !p.active) continue;
+            var left = p.x;
+            var right = p.x + pw;
+            if (catX + r < left || catX - r > right) continue;
+            var gapTop = p.topHeight;
+            var gapBot = p.topHeight + p.gapHeight;
+            var distTop = (catY - r) - gapTop;
+            var distBot = gapBot - (catY + r);
+            if (distTop < danger || distBot < danger) return true;
+          }
+          return false;
+        }
+
         function onFlapIntent() {
           var model = window.gameInstance && window.gameInstance.model;
           var st = model && model.state;
@@ -545,19 +735,45 @@
           if (!model) return;
           var score = model.score || 0;
           var state = model.state || '';
-          if (score > lastScore && state === 'PLAYING') scorePop();
+          applyBiome(score);
+
+          if (score > lastScore && state === 'PLAYING') {
+            var now = Date.now();
+            if (now - lastScoreAt < 2200) {
+              streak += 1;
+            } else {
+              streak = 1;
+            }
+            lastScoreAt = now;
+            scorePop();
+            if (streak >= 2) {
+              comboPop(streak);
+              setStreakChip(streak);
+            }
+          }
           lastScore = score;
+
+          if (vignette) {
+            var near = nearDeathFromModel(model);
+            vignette.classList.toggle('is-near-death', !!near && !reduced);
+          }
+
           if ((state === 'DYING' || state === 'GAME_OVER') && lastState !== 'DYING' && lastState !== 'GAME_OVER') {
             shakeAndFlash();
-          }
-          if (state === 'READY' || state === 'PLAYING') {
-            // reset death edge when a new round starts
+            streak = 0;
+            setStreakChip(0);
+            if (vignette) vignette.classList.remove('is-near-death');
           }
           if (state === 'READY' && (lastState === 'GAME_OVER' || lastState === 'DYING')) {
             lastScore = 0;
+            streak = 0;
+            lastScoreAt = 0;
+            setStreakChip(0);
+            applyBiome(0);
           }
           lastState = state;
         }
+        applyBiome(0);
         setInterval(tickJuice, 50);
       })();
 
@@ -573,5 +789,6 @@
       }, { passive: false });
     })();
   </script>
+  <script src="./fc-asset-variants.js"></script>
 </body>
 </html>

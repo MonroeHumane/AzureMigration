@@ -17,6 +17,12 @@
 	--hg-safe-right: env(safe-area-inset-right, 0px);
 	--hg-safe-bottom: env(safe-area-inset-bottom, 0px);
 	--hg-safe-left: env(safe-area-inset-left, 0px);
+	/* Match-burst defaults (overridden per-card by rarity) */
+	--pm-burst-a: rgba(107, 196, 166, 0.9);
+	--pm-burst-b: rgba(255, 179, 71, 0.85);
+	--pm-burst-spark: #fef08a;
+	--pm-burst-spark-mid: #fb923c;
+	--pm-burst-glow: rgba(45, 212, 191, 0.55);
 }
 
 *,
@@ -368,6 +374,47 @@ body {
 	pointer-events: none;
 }
 
+
+/* Rarity-aware burst palette (live pet photos keep their face; juice only) */
+.pet-match-card[data-rarity="common"] {
+	--pm-burst-a: rgba(107, 196, 166, 0.92);
+	--pm-burst-b: rgba(125, 211, 252, 0.8);
+	--pm-burst-spark: #bbf7d0;
+	--pm-burst-spark-mid: #6bc4a6;
+	--pm-burst-glow: rgba(107, 196, 166, 0.55);
+}
+.pet-match-card[data-rarity="uncommon"] {
+	--pm-burst-a: rgba(56, 189, 248, 0.95);
+	--pm-burst-b: rgba(167, 139, 250, 0.85);
+	--pm-burst-spark: #e0f2fe;
+	--pm-burst-spark-mid: #38bdf8;
+	--pm-burst-glow: rgba(56, 189, 248, 0.6);
+}
+.pet-match-card[data-rarity="rare"] {
+	--pm-burst-a: rgba(251, 191, 36, 0.95);
+	--pm-burst-b: rgba(249, 115, 22, 0.9);
+	--pm-burst-spark: #fef08a;
+	--pm-burst-spark-mid: #f59e0b;
+	--pm-burst-glow: rgba(245, 158, 11, 0.65);
+}
+.pet-match-card[data-rarity="legendary"],
+.pet-match-card[data-rarity="alumni"],
+.pet-match-card[data-rarity="golden_senior"] {
+	--pm-burst-a: rgba(244, 114, 182, 0.95);
+	--pm-burst-b: rgba(168, 85, 247, 0.9);
+	--pm-burst-spark: #fce7f3;
+	--pm-burst-spark-mid: #e879f9;
+	--pm-burst-glow: rgba(232, 121, 249, 0.7);
+}
+.pet-match-card[data-rarity="longtimer"],
+.pet-match-card[data-rarity="tiny_wonder"] {
+	--pm-burst-a: rgba(52, 211, 153, 0.95);
+	--pm-burst-b: rgba(45, 212, 191, 0.9);
+	--pm-burst-spark: #ccfbf1;
+	--pm-burst-spark-mid: #2dd4bf;
+	--pm-burst-glow: rgba(45, 212, 191, 0.65);
+}
+
 .pet-match-card.is-match-pop {
 	z-index: 4;
 }
@@ -382,14 +429,15 @@ body {
 	position: absolute;
 	inset: 8%;
 	border-radius: 50%;
-	border: 2px solid rgba(107, 196, 166, 0.85);
+	border: 2px solid var(--pm-burst-a);
+	box-shadow: 0 0 18px var(--pm-burst-glow);
 	pointer-events: none;
 	z-index: 6;
 	animation: pmBurstRing 0.55s ease-out forwards;
 }
 
 .pet-match-card.is-match-pop::after {
-	border-color: rgba(255, 179, 71, 0.75);
+	border-color: var(--pm-burst-b);
 	animation-delay: 0.06s;
 	inset: 2%;
 }
@@ -432,9 +480,10 @@ body {
 	left: 50%;
 	top: 50%;
 	margin: -3.5px 0 0 -3.5px;
-	background: radial-gradient(circle, #fef08a 0%, #fb923c 55%, transparent 75%);
+	background: radial-gradient(circle, var(--pm-burst-spark) 0%, var(--pm-burst-spark-mid) 55%, transparent 75%);
 	animation: pmSparkBurst 0.55s ease-out forwards;
 	mix-blend-mode: screen;
+	box-shadow: 0 0 10px var(--pm-burst-glow);
 }
 
 .pet-match-combo-chip {
@@ -442,23 +491,38 @@ body {
 	left: 50%;
 	top: 0.15rem;
 	transform: translateX(-50%) scale(0.9);
-	padding: 0.18rem 0.6rem;
+	padding: 0.22rem 0.72rem;
 	border-radius: 999px;
-	background: linear-gradient(135deg, #fef08a, #f59e0b);
+	background: linear-gradient(135deg, #fef08a, #f59e0b 55%, #ea580c);
 	color: #451a03;
-	font-size: 0.72rem;
+	font-size: 0.75rem;
 	font-weight: 900;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.05em;
 	opacity: 0;
 	pointer-events: none;
 	z-index: 9;
-	box-shadow: 0 4px 12px rgba(245, 158, 11, 0.45);
+	box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5);
 	transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .pet-match-board-wrap.is-combo-visible .pet-match-combo-chip {
 	opacity: 1;
 	transform: translateX(-50%) scale(1);
+}
+
+.pet-match-combo-chip.is-bump {
+	animation: pmComboChipBump 0.42s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+
+.pet-match-combo-chip.is-hot {
+	background: linear-gradient(135deg, #fde68a, #f97316 50%, #db2777);
+	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35), 0 6px 18px rgba(219, 39, 119, 0.45);
+}
+
+@keyframes pmComboChipBump {
+	0% { transform: translateX(-50%) scale(0.75) rotate(-2deg); }
+	45% { transform: translateX(-50%) scale(1.18) rotate(2deg); }
+	100% { transform: translateX(-50%) scale(1) rotate(0deg); }
 }
 
 @keyframes pmMatchPop {
@@ -469,8 +533,8 @@ body {
 	35% {
 		transform: rotateY(180deg) scale(1.14) translateZ(18px);
 		box-shadow:
-			0 0 0 4px rgba(107, 196, 166, 0.7),
-			0 0 28px rgba(45, 212, 191, 0.55),
+			0 0 0 4px var(--pm-burst-a),
+			0 0 28px var(--pm-burst-glow),
 			0 14px 28px rgba(44, 28, 25, 0.22);
 	}
 	70% {
@@ -601,6 +665,10 @@ body {
 
 	.pet-match-board.is-combo-hot {
 		filter: none;
+	}
+
+	.pet-match-combo-chip.is-bump {
+		animation: none !important;
 	}
 
 	.pet-match-progress__bar {
