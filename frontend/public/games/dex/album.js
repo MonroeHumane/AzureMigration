@@ -167,6 +167,19 @@
 		btnInspectorShare: document.getElementById('btnInspectorShare'),
 		errorToast: document.getElementById('binderErrorToast'),
 		live: document.getElementById('binderLive'),
+		loadingState: document.getElementById('binderLoadingState'),
+		binderMain: document.getElementById('binderMain'),
+		swipeHint: document.getElementById('binderSwipeHint'),
+		emptyDesc: document.getElementById('emptyDesc'),
+		packModal: document.getElementById('binderPackModal'),
+		packBackdrop: document.getElementById('binderPackBackdrop'),
+		packClose: document.getElementById('binderPackClose'),
+		packTitle: document.getElementById('binderPackTitle'),
+		packStatus: document.getElementById('binderPackStatus'),
+		packCards: document.getElementById('binderPackCards'),
+		packAgain: document.getElementById('binderPackAgain'),
+		packDone: document.getElementById('binderPackDone'),
+		packBoosterLink: document.getElementById('binderPackBoosterLink'),
 	};
 
 	function showError(msg) {
@@ -174,6 +187,11 @@
 		els.errorToast.textContent = msg;
 		els.errorToast.hidden = false;
 		setTimeout(function () { els.errorToast.hidden = true; }, 4000);
+	}
+
+	function setLoading(isLoading) {
+		if (els.loadingState) els.loadingState.hidden = !isLoading;
+		if (els.binderMain) els.binderMain.hidden = !!isLoading;
 	}
 
 	function determinePocketsPerSheet() {
@@ -269,6 +287,7 @@
 	// Data Loader: Local + Backend + Catalog
 	// ──────────────────────────────────────────────────────────────────────────
 	async function loadAllData() {
+		setLoading(true);
 		// Read local state
 		var localPacks = localStorage.getItem('monroeDexPacks');
 		state.unopenedPacks = localPacks !== null ? Math.max(0, parseInt(localPacks, 10)) : 1;
@@ -361,6 +380,7 @@
 
 		updateHeaderStats();
 		applyFilterAndSort();
+		setLoading(false);
 	}
 
 	function getRankBadge(cardsCount) {
@@ -420,14 +440,16 @@
 		if (els.packPill && els.packCount && els.openPacksBtn) {
 			if (state.unopenedPacks > 0) {
 				els.packCount.textContent = state.unopenedPacks + (state.unopenedPacks === 1 ? ' Pack Ready' : ' Packs Ready');
-				var boosterUrl = '../booster/index.html?embed=' + (window.location.search.includes('embed=1') ? '1' : '0')
-					+ '&dex_user=' + encodeURIComponent(params.dexUser)
-					+ '&dex_api=' + encodeURIComponent(params.dexApi);
-				els.openPacksBtn.href = boosterUrl;
 				els.packPill.hidden = false;
 			} else {
 				els.packPill.hidden = true;
 			}
+		}
+		if (els.packBoosterLink) {
+			var boosterUrl = '../booster/index.html?embed=' + (window.location.search.includes('embed=1') ? '1' : '0')
+				+ '&dex_user=' + encodeURIComponent(params.dexUser || '')
+				+ '&dex_api=' + encodeURIComponent(params.dexApi || '');
+			els.packBoosterLink.href = boosterUrl;
 		}
 	}
 
@@ -495,15 +517,34 @@
 			renderShowcaseGrid();
 		}
 
-		// Empty state
+		// Empty state (filter miss vs brand-new collection)
 		if (state.filteredCards.length === 0) {
 			if (els.emptyState) els.emptyState.hidden = false;
 			if (els.binderPocketsGrid) els.binderPocketsGrid.style.display = 'none';
 			if (els.binderShowcaseGrid) els.binderShowcaseGrid.style.display = 'none';
+			if (els.emptyDesc) {
+				var hasFilters = state.filterSpecies !== 'all' || state.filterRarity !== 'all' || !!state.searchQuery;
+				if (!state.activeCards.length) {
+					els.emptyDesc.textContent = 'Your binder is empty. Play arcade games or open booster packs to discover real shelter companions!';
+				} else if (hasFilters) {
+					els.emptyDesc.textContent = 'No cards match your active filters. Reset filters, or open booster packs to discover new shelter companions.';
+				} else {
+					els.emptyDesc.textContent = 'No cards to show right now. Try opening booster packs to fill more pockets!';
+				}
+			}
+			if (els.binderBookStage) els.binderBookStage.hidden = true;
+			if (els.binderGridStage) els.binderGridStage.hidden = true;
 		} else {
 			if (els.emptyState) els.emptyState.hidden = true;
 			if (els.binderPocketsGrid) els.binderPocketsGrid.style.display = '';
 			if (els.binderShowcaseGrid) els.binderShowcaseGrid.style.display = '';
+			if (state.viewMode === 'binder') {
+				if (els.binderBookStage) els.binderBookStage.hidden = false;
+				if (els.binderGridStage) els.binderGridStage.hidden = true;
+			} else {
+				if (els.binderBookStage) els.binderBookStage.hidden = true;
+				if (els.binderGridStage) els.binderGridStage.hidden = false;
+			}
 		}
 	}
 
@@ -803,6 +844,190 @@
 	// ──────────────────────────────────────────────────────────────────────────
 	// Event Listeners & Binding
 	// ──────────────────────────────────────────────────────────────────────────
+
+	function boosterUrl() {
+		return '../booster/index.html?embed=' + (window.location.search.indexOf('embed=1') >= 0 ? '1' : '0')
+			+ '&dex_user=' + encodeURIComponent(params.dexUser || '')
+			+ '&dex_api=' + encodeURIComponent(params.dexApi || '');
+	}
+
+	function petFromPackCard(raw) {
+		if (!raw) return null;
+		var file = raw.file || raw.photo || raw.image || raw.image_url || '';
+		// Enrich from shelter catalog when possible
+		var known = null;
+		for (var i = 0; i < state.allShelterPets.length; i++) {
+			if (String(state.allShelterPets[i].id) === String(raw.id)) {
+				known = state.allShelterPets[i];
+				break;
+			}
+		}
+		if (known) {
+			file = file || known.file || known.photo || known.image || '';
+		}
+		return {
+			id: String(raw.id || (known && known.id) || ''),
+			name: raw.name || (known && known.name) || 'Shelter friend',
+			file: file,
+			type: raw.type || (known && (known.type || known.species_label)) || 'Companion',
+			breed: raw.breed || (known && known.breed) || '',
+			age: raw.age || raw.age_display || (known && (known.age_display || known.age)) || '',
+			gender: raw.gender || (known && known.gender) || '',
+			url: raw.url || (known && known.url) || ('/adopt/' + encodeURIComponent(raw.id || '')),
+			archived: !!(raw.archived || (known && known.archived)),
+		};
+	}
+
+	function closePackModal() {
+		if (!els.packModal) return;
+		els.packModal.hidden = true;
+		document.body.style.overflow = '';
+		if (els.packCards) els.packCards.innerHTML = '';
+	}
+
+	function openPackModalShell() {
+		if (!els.packModal) return;
+		els.packModal.hidden = false;
+		document.body.style.overflow = 'hidden';
+		if (els.packTitle) els.packTitle.textContent = 'Opening pack…';
+		if (els.packStatus) els.packStatus.textContent = 'Asking the shelter for your new companions…';
+		if (els.packCards) els.packCards.innerHTML = '';
+		if (els.packAgain) els.packAgain.hidden = true;
+		if (els.packBoosterLink) els.packBoosterLink.href = boosterUrl();
+	}
+
+	function renderPackCards(cards) {
+		if (!els.packCards) return;
+		els.packCards.innerHTML = '';
+		if (!cards || !cards.length) {
+			if (els.packStatus) els.packStatus.textContent = 'No new cards this time — try the full booster ceremony.';
+			return;
+		}
+		cards.forEach(function (raw, idx) {
+			var pet = petFromPackCard(raw);
+			if (!pet || !pet.id) return;
+			if (typeof Dex.createFlipCard === 'function') {
+				var li = Dex.createFlipCard(pet, {
+					met: true,
+					mode: 'collection',
+					readOnly: true,
+					dexNumber: state.dexNumbers[pet.id] || (idx + 1),
+					highlight: true,
+				});
+				els.packCards.appendChild(li);
+				// Stagger auto-flip so players can tap to flip earlier cards
+				setTimeout(function () {
+					var card = li.querySelector('.adoptedex-card');
+					if (card && !card.classList.contains('is-flipped')) {
+						card.classList.add('is-flipped');
+						SoundEngine.playFoilShimmer();
+					}
+				}, 550 + idx * 420);
+			}
+		});
+		if (els.packStatus) {
+			els.packStatus.textContent = 'Tap a card to flip · ' + cards.length + ' companion' + (cards.length === 1 ? '' : 's') + ' added to your binder';
+		}
+	}
+
+	function offlineDrawCards(tier) {
+		var count = tier === 'deluxe' ? 3 : (tier === 'duo' ? 2 : 1);
+		var pool = (state.allShelterPets || []).slice();
+		if (!pool.length) return [];
+		for (var i = pool.length - 1; i > 0; i--) {
+			var j = Math.floor(Math.random() * (i + 1));
+			var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+		}
+		return pool.slice(0, count).map(function (p) {
+			return {
+				id: p.id,
+				name: p.name,
+				file: p.file || p.photo || p.image,
+				type: p.type || p.species_label,
+				breed: p.breed,
+				age: p.age_display || p.age,
+				gender: p.gender,
+				url: p.url,
+				archived: !!p.archived,
+			};
+		});
+	}
+
+	async function runOpenPack(tier) {
+		tier = tier || 'standard';
+		openPackModalShell();
+		SoundEngine.playCardWhoosh();
+
+		if (state.unopenedPacks <= 0) {
+			if (els.packTitle) els.packTitle.textContent = 'No packs ready';
+			if (els.packStatus) els.packStatus.textContent = 'Earn packs by playing Shelter Run, Match, or Flappy Cat milestones.';
+			return;
+		}
+
+		var data = null;
+		try {
+			if (params.dexUser && params.dexApi && typeof Dex.openPack === 'function') {
+				data = await Dex.openPack(params.dexApi, params.dexUser, tier);
+			}
+		} catch (err) {
+			console.warn('[Album] openPack failed, offline draw:', err);
+		}
+
+		var cards = (data && Array.isArray(data.cards)) ? data.cards : offlineDrawCards(tier);
+		var remaining = (data && typeof data.unopened_packs === 'number')
+			? data.unopened_packs
+			: Math.max(0, state.unopenedPacks - 1);
+
+		state.unopenedPacks = remaining;
+		try { localStorage.setItem('monroeDexPacks', String(remaining)); } catch (e) {}
+
+		if (data && typeof data.coin_balance === 'number') {
+			state.coinBalance = data.coin_balance;
+			try { localStorage.setItem('monroeDexCoins', String(state.coinBalance)); } catch (e) {}
+		}
+
+		// Persist discoveries locally for binder refresh
+		cards.forEach(function (c) {
+			if (!c || !c.id) return;
+			state.metIdsSet[String(c.id)] = true;
+		});
+		try {
+			localStorage.setItem('monroe_discovered_pets', JSON.stringify(Object.keys(state.metIdsSet)));
+		} catch (e) {}
+
+		if (els.packTitle) {
+			var tierLabel = ({ standard: 'Standard', duo: 'Duo', deluxe: 'Deluxe' })[tier] || tier;
+			els.packTitle.textContent = (data && data.ok ? '✨ ' : '📦 ') + tierLabel + ' pack opened';
+		}
+		renderPackCards(cards);
+		if (els.packAgain) els.packAgain.hidden = remaining <= 0;
+
+		try {
+			if (window.parent && window.parent !== window) {
+				window.parent.postMessage({ type: 'adoptedex:pack_opened', tier: tier, remaining: remaining }, '*');
+			}
+		} catch (e) {}
+
+		// Rebuild binder from updated met set (keep modal open)
+		await loadAllDataQuiet();
+	}
+
+	async function loadAllDataQuiet() {
+		// Same as loadAllData but without the full-page loading veil (pack modal stays up)
+		var prevLoading = els.loadingState;
+		var prevMain = els.binderMain;
+		els.loadingState = null;
+		els.binderMain = null;
+		try {
+			await loadAllData();
+		} finally {
+			els.loadingState = prevLoading;
+			els.binderMain = prevMain;
+			if (els.loadingState) els.loadingState.hidden = true;
+			if (els.binderMain) els.binderMain.hidden = false;
+		}
+	}
+
 	function bindEvents() {
 		// View mode toggles
 		if (els.btnViewBinder && els.btnViewGrid) {
@@ -941,6 +1166,54 @@
 			});
 		}
 
+		// Pack pill → MonroeAdoptedex.openPack + createFlipCard reveal
+		if (els.openPacksBtn) {
+			els.openPacksBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				runOpenPack('standard');
+			});
+		}
+		if (els.packBackdrop) els.packBackdrop.addEventListener('click', closePackModal);
+		if (els.packClose) els.packClose.addEventListener('click', closePackModal);
+		if (els.packDone) els.packDone.addEventListener('click', closePackModal);
+		if (els.packAgain) {
+			els.packAgain.addEventListener('click', function () {
+				runOpenPack('standard');
+			});
+		}
+
+		// Deep-link from Shelter Run / hub: #open-pack or ?pack=
+		var hashOpen = (window.location.hash || '').indexOf('open-pack') >= 0;
+		var packTier = new URLSearchParams(window.location.search).get('pack');
+		if (hashOpen || packTier) {
+			setTimeout(function () { runOpenPack(packTier || 'standard'); }, 400);
+		}
+
+		// Touch swipe: turn binder sheets (ignore when inspector open / horizontal filter scroll)
+		(function bindSheetSwipe() {
+			var stage = els.binderBookStage || document.getElementById('binderBookStage');
+			if (!stage) return;
+			var startX = 0, startY = 0, tracking = false;
+			stage.addEventListener('touchstart', function (e) {
+				if (!els.inspectorModal || !els.inspectorModal.hidden) return;
+				if (state.viewMode !== 'binder') return;
+				if (!e.changedTouches || !e.changedTouches.length) return;
+				startX = e.changedTouches[0].clientX;
+				startY = e.changedTouches[0].clientY;
+				tracking = true;
+			}, { passive: true });
+			stage.addEventListener('touchend', function (e) {
+				if (!tracking) return;
+				tracking = false;
+				if (!e.changedTouches || !e.changedTouches.length) return;
+				var dx = e.changedTouches[0].clientX - startX;
+				var dy = e.changedTouches[0].clientY - startY;
+				if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+				if (dx < 0) goToSheet(state.currentSheet + 1);
+				else goToSheet(state.currentSheet - 1);
+			}, { passive: true });
+		})();
+
 		// Keyboard controls
 		window.addEventListener('keydown', function (e) {
 			if (!els.inspectorModal || els.inspectorModal.hidden) {
@@ -955,6 +1228,10 @@
 
 			// Modal is open
 			if (e.key === 'Escape') {
+				if (els.packModal && !els.packModal.hidden) {
+					closePackModal();
+					return;
+				}
 				closeInspector();
 			} else if (e.key === ' ' || e.key === 'Enter') {
 				toggleInspectorFlip();
@@ -991,7 +1268,17 @@
 	// Bootstrap
 	async function init() {
 		bindEvents();
-		await loadAllData();
+		var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+		if (els.swipeHint && fine) els.swipeHint.hidden = true;
+		try {
+			await loadAllData();
+		} catch (err) {
+			console.warn('[Album] load failed', err);
+			setLoading(false);
+			if (els.binderMain) els.binderMain.hidden = false;
+			showError('Could not load collection. Showing offline starter cards if available.');
+			try { applyFilterAndSort(); } catch (e2) {}
+		}
 	}
 
 	if (document.readyState === 'loading') {

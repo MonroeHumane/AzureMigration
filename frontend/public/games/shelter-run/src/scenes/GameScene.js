@@ -33,6 +33,7 @@ class GameScene extends Phaser.Scene {
 
     this.availablePets = (typeof ShelterRunPets !== 'undefined') ? ShelterRunPets.drawForRun(30) : [];
     this.collectedPetIds = [];
+    this.collectedPets = [];
     this.distancePx = 0;
     this.scrollSpeed = CFG.BASE_SCROLL_SPEED;
     this.isGameOver = false;
@@ -52,7 +53,7 @@ class GameScene extends Phaser.Scene {
     this.groundY = this.scale.height * CFG.GROUND_Y_RATIO;
     this._drawGround();
     if (this.player) this.player.groundY = this.groundY;
-    if (this.petsText) this.petsText.setX(this.scale.width - 130);
+    this._layoutHud();
   }
 
   _drawGround() {
@@ -78,13 +79,83 @@ class GameScene extends Phaser.Scene {
       space: Phaser.Input.Keyboard.KeyCodes.SPACE,
       down: Phaser.Input.Keyboard.KeyCodes.DOWN,
       s: Phaser.Input.Keyboard.KeyCodes.S,
+      r: Phaser.Input.Keyboard.KeyCodes.R,
+      esc: Phaser.Input.Keyboard.KeyCodes.ESC,
     });
     this.touch = new TouchControls(this);
+
+    if (kb) {
+      kb.on('keydown-R', () => {
+        if (this.isGameOver) return;
+        this.scene.start('Game', { companionIndex: this.companionIndex });
+      });
+      kb.on('keydown-ESC', () => {
+        if (this.isGameOver) return;
+        this.scene.start('MainMenu');
+      });
+    }
   }
 
   _buildHud() {
-    this.distanceText = srUiText(this, 130, 40, '0 m', { fontSize: '28px', color: '#ffffff' });
-    this.petsText = srUiText(this, this.scale.width - 130, 40, '🐾 0', { fontSize: '28px', color: '#ffffff' });
+    // Compact HUD bars sit in the top safe band so they do not cover the run lane.
+    this._hudBg = this.add.rectangle(0, 0, 120, 36, 0x0b1a16, 0.55).setScrollFactor(0).setDepth(19);
+    this._hudBgPets = this.add.rectangle(0, 0, 100, 36, 0x0b1a16, 0.55).setScrollFactor(0).setDepth(19);
+    this.distanceText = srUiText(this, 0, 0, '0 m', { fontSize: '22px', color: '#ffffff' }).setDepth(20);
+    this.petsText = srUiText(this, 0, 0, '🐾 0', { fontSize: '22px', color: '#ffd166' }).setDepth(20);
+    this._hudHint = srUiText(this, 0, 0, '', { fontSize: '13px', color: '#9ec4b8' }).setDepth(20).setAlpha(0.9);
+    this._layoutHud();
+
+    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    const hints = document.getElementById('srKeyHints');
+    if (hints) {
+      if (coarse) {
+        hints.style.display = 'none';
+      } else {
+        hints.style.display = '';
+        hints.innerHTML =
+          '<span class="sr-key-hints__item"><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> dodge</span>' +
+          '<span class="sr-key-hints__item"><kbd>↑</kbd>/<kbd>Space</kbd> jump</span>' +
+          '<span class="sr-key-hints__item"><kbd>↓</kbd> duck</span>' +
+          '<span class="sr-key-hints__item"><kbd>R</kbd> restart · <kbd>Esc</kbd> menu</span>';
+      }
+    }
+    this.events.once('shutdown', () => {
+      if (hints) hints.style.display = 'none';
+    });
+  }
+
+  _layoutHud() {
+    const W = this.scale.width;
+    const padX = Math.max(16, Math.min(28, W * 0.04));
+    const padY = Math.max(18, Math.min(36, this.scale.height * 0.045));
+    const fontSize = W < 420 ? '18px' : '22px';
+
+    this.distanceText.setFontSize(fontSize);
+    this.petsText.setFontSize(fontSize);
+    this.distanceText.setPosition(padX + 48, padY);
+    this.petsText.setPosition(W - padX - 40, padY);
+
+    if (this._hudBg) {
+      this._hudBg.setPosition(padX + 48, padY);
+      this._hudBg.setSize(110, 34);
+    }
+    if (this._hudBgPets) {
+      this._hudBgPets.setPosition(W - padX - 40, padY);
+      this._hudBgPets.setSize(96, 34);
+    }
+
+    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    if (this._hudHint) {
+      if (coarse) {
+        this._hudHint.setText('Swipe or use pads · jump ↑ · duck ↓');
+        this._hudHint.setPosition(W / 2, padY + 28);
+        this._hudHint.setFontSize(W < 420 ? '11px' : '13px');
+        // Fade after a few seconds so playfield stays clear
+        this.tweens.add({ targets: this._hudHint, alpha: 0, delay: 3500, duration: 600 });
+      } else {
+        this._hudHint.setText('');
+      }
+    }
   }
 
   update(time, delta) {
@@ -212,12 +283,22 @@ class GameScene extends Phaser.Scene {
     const pet = this.availablePets.length ? this.availablePets.pop() : null;
     if (pet) {
       this.collectedPetIds.push(pet.id);
+      this.collectedPets.push(pet);
       this._showPetReveal(pet);
     }
     this.petsText.setText('🐾 ' + this.collectedPetIds.length);
   }
 
   _showPetReveal(pet) {
+    // Prefer full createFlipCard celebration via ShelterRunDex; fall back to corner thumb.
+    if (typeof ShelterRunDex !== 'undefined' && typeof ShelterRunDex.celebrateDiscovery === 'function') {
+      ShelterRunDex.celebrateDiscovery(pet, { durationMs: 2600, autoFlipMs: 650 });
+      this.events.once('shutdown', () => {
+        if (ShelterRunDex.dismissOverlay) ShelterRunDex.dismissOverlay();
+      });
+      return;
+    }
+
     const container = document.getElementById('game-container');
     if (!container || !pet.photo || !ShelterRunPets.isRealPhoto(pet.photo)) return;
 
@@ -225,9 +306,10 @@ class GameScene extends Phaser.Scene {
     img.src = pet.photo;
     img.alt = pet.alt || pet.name;
     img.id = 'sr-pet-photo';
-    img.style.cssText = 'position:absolute;right:16px;top:16px;width:72px;height:72px;'
+    img.style.cssText = 'position:absolute;right:max(12px, env(safe-area-inset-right, 0px));'
+      + 'top:max(56px, calc(env(safe-area-inset-top, 0px) + 48px));width:64px;height:64px;'
       + 'object-fit:cover;border-radius:12px;border:3px solid #ffd166;z-index:20;pointer-events:none;'
-      + 'opacity:0;transition:opacity 0.2s ease;';
+      + 'opacity:0;transition:opacity 0.2s ease;box-shadow:0 4px 16px rgba(0,0,0,0.45);';
     container.appendChild(img);
     requestAnimationFrame(() => { img.style.opacity = '1'; });
 
@@ -249,6 +331,7 @@ class GameScene extends Phaser.Scene {
     this.scene.start('RoundOver', {
       distanceMeters: finalMeters,
       collectedPetIds: this.collectedPetIds,
+      collectedPets: this.collectedPets,
       companionIndex: this.companionIndex,
     });
   }
