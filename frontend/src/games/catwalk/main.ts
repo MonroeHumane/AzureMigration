@@ -18,6 +18,8 @@ if (root && canvas && context) {
   const overlayTitle = root.querySelector<HTMLElement>('[data-overlay-title]');
   const overlayCopy = root.querySelector<HTMLElement>('[data-overlay-copy]');
   const startButton = root.querySelector<HTMLButtonElement>('[data-start]');
+  const touchMute = root.querySelector<HTMLButtonElement>('[data-touch-mute]');
+  const touchPause = root.querySelector<HTMLButtonElement>('[data-touch-pause]');
   const debug = new URLSearchParams(window.location.search).get('debug') === '1';
 
   let audioEnabled = false;
@@ -61,6 +63,23 @@ if (root && canvas && context) {
     hideOverlay();
   });
 
+  touchMute?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    void toggleSound();
+  });
+  touchPause?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    togglePause();
+  });
+
+  // Larger HUD hit targets on coarse pointers (canvas icons are ~30px).
+  const hudHitPad = () =>
+    window.matchMedia('(pointer: coarse)').matches || document.documentElement.classList.contains('catwalk-touch')
+      ? 10
+      : 0;
+
   // Mouse hover tracking for vector controls in top HUD
   canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -68,11 +87,12 @@ if (root && canvas && context) {
     const scaleY = BOARD_HEIGHT / rect.height;
     const canvasX = (event.clientX - rect.left) * scaleX;
     const canvasY = (event.clientY - rect.top) * scaleY;
+    const pad = hudHitPad();
 
     let nextHover: 'sound' | 'pause' | null = null;
-    if (canvasY >= 10 && canvasY <= 44) {
-      if (canvasX >= 644 && canvasX <= 674) nextHover = 'sound';
-      else if (canvasX >= 680 && canvasX <= 710) nextHover = 'pause';
+    if (canvasY >= 10 - pad && canvasY <= 44 + pad) {
+      if (canvasX >= 644 - pad && canvasX <= 674 + pad) nextHover = 'sound';
+      else if (canvasX >= 680 - pad && canvasX <= 710 + pad) nextHover = 'pause';
     }
 
     if (nextHover !== hoveredControl) {
@@ -95,11 +115,12 @@ if (root && canvas && context) {
     const scaleY = BOARD_HEIGHT / rect.height;
     const canvasX = (event.clientX - rect.left) * scaleX;
     const canvasY = (event.clientY - rect.top) * scaleY;
+    const pad = hudHitPad();
 
-    if (canvasY >= 10 && canvasY <= 44) {
-      if (canvasX >= 644 && canvasX <= 674) {
-        toggleSound();
-      } else if (canvasX >= 680 && canvasX <= 710) {
+    if (canvasY >= 10 - pad && canvasY <= 44 + pad) {
+      if (canvasX >= 644 - pad && canvasX <= 674 + pad) {
+        void toggleSound();
+      } else if (canvasX >= 680 - pad && canvasX <= 710 + pad) {
         togglePause();
       }
     }

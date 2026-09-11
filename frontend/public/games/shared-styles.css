@@ -1029,3 +1029,20 @@ body.is-about-open {
 		transition: none !important;
 	}
 }
+
+
+/* Game cabinet: viewport-safe touch chrome */
+.game-touch-target {
+	min-width: 44px;
+	min-height: 44px;
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.game-safe-pad {
+	padding-top: max(8px, env(safe-area-inset-top, 0px));
+	padding-right: max(8px, env(safe-area-inset-right, 0px));
+	padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+	padding-left: max(8px, env(safe-area-inset-left, 0px));
+}
+

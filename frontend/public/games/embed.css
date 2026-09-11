@@ -73,3 +73,10 @@ html.humane-embed .hg-safe-pad {
 	padding-top: 0;
 	padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
 }
+
+/* Alias classes used by Flappy/Catwalk cabinet pages (additive to #25 full-bleed rules). */
+html.humane-embed.game-embed-fill,
+html.humane-embed.is-embedded {
+	touch-action: manipulation;
+}
+
