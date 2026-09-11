@@ -191,6 +191,37 @@
   --sp-pill-success-text: #047857;
   --sp-pill-success-border: #6ee7b7;
 
+
+  /* Status banners / PWA / share tracks / FAB / tab chip (batch 5) */
+  --sp-banner-loading-bg: #f0fdfa;
+  --sp-banner-loading-border: #99f6e4;
+  --sp-banner-loading-text: #134e4a;
+  --sp-banner-error-bg: #fffbeb;
+  --sp-banner-error-border: #fde68a;
+  --sp-banner-error-text: #78350f;
+  --sp-banner-retry-bg: #ffffff;
+  --sp-banner-retry-border: #fcd34d;
+  --sp-banner-retry-text: #78350f;
+  --sp-pwa-card-bg: #f0fdfa;
+  --sp-pwa-card-border: #99f6e4;
+  --sp-pwa-title: #115e59;
+  --sp-pwa-desc: #0f766e;
+  --sp-pwa-icon-bg: #ccfbf1;
+  --sp-pwa-icon-text: #0f766e;
+  --sp-pwa-icon-border: #99f6e4;
+  --sp-pwa-btn-bg: #0f766e;
+  --sp-pwa-btn-text: #ffffff;
+  --sp-pwa-btn-border: #0f766e;
+  --sp-pwa-btn-hover: #115e59;
+  --sp-tab-active-chip-bg: rgba(255, 255, 255, 0.2);
+  --sp-share-track: #e2e8f0;
+  --sp-share-rev: #10b981;
+  --sp-share-exp: #94a3b8;
+  --sp-fab-btn-bg: #173a39;
+  --sp-fab-btn-text: #ffffff;
+  --sp-fab-btn-border: #115e59;
+  --sp-fab-btn-hover: #115e59;
+
   /* Grants / tool brand-tint links */
   --sp-tool-zeffy: #7e22ce;
   --sp-tool-grantable: #065f46;
@@ -380,6 +411,37 @@
   --sp-pill-success-bg: rgba(6, 78, 59, 0.55);
   --sp-pill-success-text: #34d399;
   --sp-pill-success-border: rgba(52, 211, 153, 0.45);
+
+
+  /* Status banners / PWA / share tracks / FAB / tab chip (batch 5) */
+  --sp-banner-loading-bg: rgba(19, 78, 74, 0.45);
+  --sp-banner-loading-border: rgba(45, 212, 191, 0.35);
+  --sp-banner-loading-text: #ccfbf1;
+  --sp-banner-error-bg: rgba(120, 53, 15, 0.4);
+  --sp-banner-error-border: rgba(251, 191, 36, 0.4);
+  --sp-banner-error-text: #fde68a;
+  --sp-banner-retry-bg: rgba(15, 23, 42, 0.4);
+  --sp-banner-retry-border: rgba(251, 191, 36, 0.45);
+  --sp-banner-retry-text: #fde68a;
+  --sp-pwa-card-bg: #134e4a;
+  --sp-pwa-card-border: #0f766e;
+  --sp-pwa-title: #f0fdfa;
+  --sp-pwa-desc: #99f6e4;
+  --sp-pwa-icon-bg: #115e59;
+  --sp-pwa-icon-text: #5eead4;
+  --sp-pwa-icon-border: #0d9488;
+  --sp-pwa-btn-bg: #2dd4bf;
+  --sp-pwa-btn-text: #042f2e;
+  --sp-pwa-btn-border: #2dd4bf;
+  --sp-pwa-btn-hover: #5eead4;
+  --sp-tab-active-chip-bg: rgba(255, 255, 255, 0.2);
+  --sp-share-track: rgba(19, 78, 74, 0.55);
+  --sp-share-rev: #34d399;
+  --sp-share-exp: #64748b;
+  --sp-fab-btn-bg: #10b981;
+  --sp-fab-btn-text: #ffffff;
+  --sp-fab-btn-border: #059669;
+  --sp-fab-btn-hover: #059669;
 
   /* Grants / tool brand-tint links */
   --sp-tool-zeffy: #d8b4fe;
@@ -1203,14 +1265,9 @@ body.staff-portal-body h4.dark\:text-white {
 }
 
 .sheet-mode-chip {
-  background-color: var(--sp-badge-bg);
-  color: var(--sp-badge-text);
-  border: 1px solid var(--sp-badge-border);
-}
-:root[data-staff-theme="dark"] .sheet-mode-chip {
-  background-color: rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
-  border-color: rgba(16, 185, 129, 0.3);
+  background-color: var(--sp-pill-emerald-bg);
+  color: var(--sp-pill-emerald-text);
+  border: 1px solid var(--sp-pill-emerald-border);
 }
 
 /* Hide install card when launched as the installed app (no JS wait) */
@@ -1226,52 +1283,29 @@ html[data-pwa="standalone"] #pwa-install-container {
   }
 }
 
-/* Install card: light Monroe teal, not dark-on-dark */
+/* Install card → --sp-pwa-* (light + Dark Ops via tokens) */
 .pwa-install-card {
-  background-color: #f0fdfa;
-  border: 1px solid #99f6e4;
+  background-color: var(--sp-pwa-card-bg);
+  border: 1px solid var(--sp-pwa-card-border);
 }
 .pwa-install-title {
-  color: #115e59;
+  color: var(--sp-pwa-title);
 }
 .pwa-install-desc {
-  color: #0f766e;
+  color: var(--sp-pwa-desc);
 }
 .pwa-install-icon {
-  background-color: #ccfbf1;
-  color: #0f766e;
-  border: 1px solid #99f6e4;
+  background-color: var(--sp-pwa-icon-bg);
+  color: var(--sp-pwa-icon-text);
+  border: 1px solid var(--sp-pwa-icon-border);
 }
 .pwa-install-btn {
-  background-color: #0f766e;
-  color: #ffffff;
-  border: 1px solid #0f766e;
+  background-color: var(--sp-pwa-btn-bg);
+  color: var(--sp-pwa-btn-text);
+  border: 1px solid var(--sp-pwa-btn-border);
 }
 .pwa-install-btn:hover {
-  background-color: #115e59;
-}
-:root[data-staff-theme="dark"] .pwa-install-card {
-  background-color: #134e4a;
-  border-color: #0f766e;
-}
-:root[data-staff-theme="dark"] .pwa-install-title {
-  color: #f0fdfa;
-}
-:root[data-staff-theme="dark"] .pwa-install-desc {
-  color: #99f6e4;
-}
-:root[data-staff-theme="dark"] .pwa-install-icon {
-  background-color: #115e59;
-  color: #5eead4;
-  border-color: #0d9488;
-}
-:root[data-staff-theme="dark"] .pwa-install-btn {
-  background-color: #2dd4bf;
-  color: #042f2e;
-  border-color: #2dd4bf;
-}
-:root[data-staff-theme="dark"] .pwa-install-btn:hover {
-  background-color: #5eead4;
+  background-color: var(--sp-pwa-btn-hover);
 }
 
 /* Hub review / sync status (census + financials) — IDs beat later text remaps */
@@ -1301,24 +1335,14 @@ html[data-pwa="standalone"] #pwa-install-container {
 }
 
 .staff-data-status--loading {
-  border: 1px solid #99f6e4;
-  background: #f0fdfa;
-  color: #134e4a;
+  border: 1px solid var(--sp-banner-loading-border);
+  background: var(--sp-banner-loading-bg);
+  color: var(--sp-banner-loading-text);
 }
 .staff-data-status--error {
-  border: 1px solid #fde68a;
-  background: #fffbeb;
-  color: #78350f;
-}
-:root[data-staff-theme="dark"] .staff-data-status--loading {
-  border-color: rgba(45, 212, 191, 0.35);
-  background: rgba(19, 78, 74, 0.45);
-  color: #ccfbf1;
-}
-:root[data-staff-theme="dark"] .staff-data-status--error {
-  border-color: rgba(251, 191, 36, 0.4);
-  background: rgba(120, 53, 15, 0.4);
-  color: #fde68a;
+  border: 1px solid var(--sp-banner-error-border);
+  background: var(--sp-banner-error-bg);
+  color: var(--sp-banner-error-text);
 }
 .staff-data-status__retry {
   flex-shrink: 0;
@@ -1326,14 +1350,9 @@ html[data-pwa="standalone"] #pwa-install-container {
   border-radius: 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
-  background: #ffffff;
-  border: 1px solid #fcd34d;
-  color: #78350f;
-}
-:root[data-staff-theme="dark"] .staff-data-status__retry {
-  background: rgba(15, 23, 42, 0.4);
-  border-color: rgba(251, 191, 36, 0.45);
-  color: #fde68a;
+  background: var(--sp-banner-retry-bg);
+  border: 1px solid var(--sp-banner-retry-border);
+  color: var(--sp-banner-retry-text);
 }
 
 /* CMS Content Manager Tabs — collapse to tab tokens (dedupe later dark/light pairs) */
@@ -1362,54 +1381,54 @@ html[data-pwa="standalone"] #pwa-install-container {
   background-color: var(--sp-border) !important;
   color: var(--sp-text-muted) !important;
 }
-:root:not([data-staff-theme="dark"]) .cms-tab-btn.active div {
-  background-color: rgba(255, 255, 255, 0.2) !important;
+.cms-tab-btn.active div {
+  background-color: var(--sp-tab-active-chip-bg) !important;
   color: var(--sp-on-accent) !important;
 }
 
-/* Command Palette (Cmd+K) in Light Mode */
-:root:not([data-staff-theme="dark"]) #cmd-k-container {
+/* Command Palette (Cmd+K) — shared surface/text tokens (light + Dark Ops) */
+#cmd-k-container {
   background-color: var(--sp-surface) !important;
   color: var(--sp-text-ink) !important;
   border-color: var(--sp-divider) !important;
   box-shadow: var(--sp-cmd-shadow) !important;
 }
-:root:not([data-staff-theme="dark"]) #cmd-k-container .bg-\[\#071a17\] {
+#cmd-k-container .bg-\[\#071a17\] {
   background-color: var(--sp-surface-muted) !important;
   border-color: var(--sp-divider) !important;
 }
-:root:not([data-staff-theme="dark"]) #cmd-k-input {
-  color: var(--sp-text-ink) !important;
+#cmd-k-input {
+  color: var(--sp-input-text) !important;
 }
-:root:not([data-staff-theme="dark"]) #cmd-k-input::placeholder {
-  color: var(--sp-text-faint) !important;
+#cmd-k-input::placeholder {
+  color: var(--sp-input-placeholder) !important;
 }
-:root:not([data-staff-theme="dark"]) .cmd-k-item {
+.cmd-k-item {
   color: var(--sp-text-secondary) !important;
 }
-:root:not([data-staff-theme="dark"]) .cmd-k-item:hover {
+.cmd-k-item:hover {
   background-color: var(--sp-surface-subtle) !important;
   color: var(--sp-text-ink) !important;
 }
-:root:not([data-staff-theme="dark"]) .cmd-k-item .bg-teal-950 {
+.cmd-k-item .bg-teal-950 {
   background-color: var(--sp-sidebar-nav-active-bg) !important;
   color: var(--sp-accent) !important;
 }
 
-/* Floating Action Menu (FAB) in Light Mode */
-:root:not([data-staff-theme="dark"]) #fab-container .bg-teal-950\/90 {
+/* Floating Action Menu (FAB) — shared dock / fab-btn tokens */
+#fab-container .bg-teal-950\/90 {
   background-color: var(--sp-dock-bg) !important;
   color: var(--sp-text-primary) !important;
   border-color: var(--sp-card-border) !important;
   box-shadow: var(--sp-fab-shadow) !important;
 }
-:root:not([data-staff-theme="dark"]) #fab-container button.bg-emerald-500 {
-  background-color: var(--sp-brand) !important;
-  color: var(--sp-on-accent) !important;
-  border-color: var(--sp-accent-strong) !important;
+#fab-container button.bg-emerald-500 {
+  background-color: var(--sp-fab-btn-bg) !important;
+  color: var(--sp-fab-btn-text) !important;
+  border-color: var(--sp-fab-btn-border) !important;
 }
-:root:not([data-staff-theme="dark"]) #fab-container button.bg-emerald-500:hover {
-  background-color: var(--sp-link-hover) !important;
+#fab-container button.bg-emerald-500:hover {
+  background-color: var(--sp-fab-btn-hover) !important;
 }
 
 /* Grants Portal & Tool Cards — shared card tokens */
@@ -1957,7 +1976,7 @@ html[data-pwa="standalone"] #pwa-install-container {
   color: #fda4af !important;
 }
 
-/* Month drawer: chevrons and share bars stay theme-stable */
+/* Month drawer: chevrons + share bars → --sp-share-* (flip with theme) */
 #monthly-statement-root .drawer-chevron,
 #monthly-statement-root .drawer-month-chevron {
   transition: transform 0.15s ease;
@@ -1970,7 +1989,7 @@ html[data-pwa="standalone"] #pwa-install-container {
 #monthly-statement-root .drawer-share-track {
   height: 4px;
   border-radius: 999px;
-  background: #e2e8f0;
+  background: var(--sp-share-track);
   overflow: hidden;
   margin-top: 6px;
 }
@@ -1979,10 +1998,10 @@ html[data-pwa="standalone"] #pwa-install-container {
   border-radius: 999px;
 }
 #monthly-statement-root .drawer-share-fill.is-rev {
-  background: #10b981;
+  background: var(--sp-share-rev);
 }
 #monthly-statement-root .drawer-share-fill.is-exp {
-  background: #94a3b8;
+  background: var(--sp-share-exp);
 }
 
 /* Print packet control sits on a dark chip in both themes */
