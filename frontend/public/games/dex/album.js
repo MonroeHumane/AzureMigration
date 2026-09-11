@@ -175,6 +175,11 @@
 		btnInspectorShare: document.getElementById('btnInspectorShare'),
 		errorToast: document.getElementById('binderErrorToast'),
 		live: document.getElementById('binderLive'),
+		loadingState: document.getElementById('binderLoadingState'),
+		binderMain: document.getElementById('binderMain'),
+		swipeHint: document.getElementById('binderSwipeHint'),
+		keyHints: document.getElementById('binderKeyHints'),
+		packRevealBooster: document.getElementById('binderPackRevealBooster'),
 	};
 
 	function showError(msg) {
@@ -182,6 +187,11 @@
 		els.errorToast.textContent = msg;
 		els.errorToast.hidden = false;
 		setTimeout(function () { els.errorToast.hidden = true; }, 4000);
+	}
+
+	function setLoading(isLoading) {
+		if (els.loadingState) els.loadingState.hidden = !isLoading;
+		if (els.binderMain) els.binderMain.hidden = !!isLoading;
 	}
 
 	function determinePocketsPerSheet() {
@@ -277,6 +287,7 @@
 	// Data Loader: Local + Backend + Catalog
 	// ──────────────────────────────────────────────────────────────────────────
 	async function loadAllData() {
+		setLoading(true);
 		// Read local state
 		var localPacks = localStorage.getItem('monroeDexPacks');
 		state.unopenedPacks = localPacks !== null ? Math.max(0, parseInt(localPacks, 10)) : 1;
@@ -369,6 +380,7 @@
 
 		updateHeaderStats();
 		applyFilterAndSort();
+		setLoading(false);
 	}
 
 	function getRankBadge(cardsCount) {
@@ -903,17 +915,52 @@
 		}
 	}
 
-	function quickOpenPack() {
-		if (!Dex || !params.dexUser) return;
+	function offlineDrawCards(tier) {
+		var count = tier === 'deluxe' ? 3 : (tier === 'duo' ? 2 : 1);
+		var pool = (state.allShelterPets || []).slice();
+		if (!pool.length) return [];
+		for (var i = pool.length - 1; i > 0; i--) {
+			var j = Math.floor(Math.random() * (i + 1));
+			var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+		}
+		return pool.slice(0, count).map(function (p) {
+			return {
+				id: p.id,
+				name: p.name,
+				file: p.file || p.photo || p.image,
+				type: p.type || p.species_label,
+				breed: p.breed,
+				age: p.age_display || p.age,
+				gender: p.gender,
+				url: p.url,
+				archived: !!p.archived,
+			};
+		});
+	}
+
+	function boosterUrl() {
+		return '../booster/index.html?embed=' + (window.location.search.indexOf('embed=1') >= 0 ? '1' : '0')
+			+ '&dex_user=' + encodeURIComponent(params.dexUser || '')
+			+ '&dex_api=' + encodeURIComponent(params.dexApi || '');
+	}
+
+	function quickOpenPack(tier) {
+		tier = tier || 'standard';
 		if ((state.unopenedPacks || 0) <= 0) {
 			showError('No packs to open — earn one in a game, claim Daily, or buy with coins.');
 			return;
 		}
 		if (els.quickOpenBtn) els.quickOpenBtn.disabled = true;
-		Dex.openPack(params.dexApi, params.dexUser, 'standard').then(function (data) {
+		if (els.packRevealBooster) els.packRevealBooster.href = boosterUrl();
+
+		var openPromise = (Dex && params.dexUser && typeof Dex.openPack === 'function')
+			? Dex.openPack(params.dexApi, params.dexUser, tier)
+			: Promise.reject(new Error('offline'));
+
+		openPromise.then(function (data) {
 			state.unopenedPacks = typeof data.unopened_packs === 'number' ? data.unopened_packs : Math.max(0, (state.unopenedPacks || 1) - 1);
 			if (typeof data.coin_balance === 'number') state.coinBalance = data.coin_balance;
-			Dex.syncLocalPacksFromProfile(data);
+			if (Dex && Dex.syncLocalPacksFromProfile) Dex.syncLocalPacksFromProfile(data);
 			updateHeaderStats();
 			showPackReveal(data);
 			loadAllData();
@@ -921,14 +968,28 @@
 				if (window.parent && window.parent !== window) {
 					window.parent.postMessage({
 						type: 'adoptedex:pack_opened',
-						tier: data.tier || 'standard',
+						tier: data.tier || tier,
 						packRarity: data.pack_rarity,
 						remainingPacks: data.unopened_packs
 					}, '*');
 				}
 			} catch (e) {}
 		}).catch(function (err) {
-			showError((err && err.message) || 'Could not open pack.');
+			console.warn('[Album] openPack failed, offline draw:', err);
+			var cards = offlineDrawCards(tier);
+			if (!cards.length) {
+				showError((err && err.message) || 'Could not open pack.');
+				return;
+			}
+			state.unopenedPacks = Math.max(0, (state.unopenedPacks || 1) - 1);
+			try { localStorage.setItem('monroeDexPacks', String(state.unopenedPacks)); } catch (e) {}
+			cards.forEach(function (c) {
+				if (c && c.id) state.metIdsSet[String(c.id)] = true;
+			});
+			try { localStorage.setItem('monroe_discovered_pets', JSON.stringify(Object.keys(state.metIdsSet))); } catch (e) {}
+			updateHeaderStats();
+			showPackReveal({ cards: cards, pack_rarity: 'common', pack_rarity_label: tier + ' pack (offline)', tier: tier, unopened_packs: state.unopenedPacks });
+			loadAllData();
 		}).then(function () {
 			if (els.quickOpenBtn) els.quickOpenBtn.disabled = false;
 		});
@@ -1130,6 +1191,38 @@
 			});
 		}
 
+		// Deep-link from Shelter Run / hub: #open-pack or ?pack=
+		var hashOpen = (window.location.hash || '').indexOf('open-pack') >= 0;
+		var packTier = new URLSearchParams(window.location.search).get('pack');
+		if (hashOpen || packTier) {
+			setTimeout(function () { quickOpenPack(packTier || 'standard'); }, 400);
+		}
+
+		// Touch swipe: turn binder sheets (ignore when inspector open)
+		(function bindSheetSwipe() {
+			var stage = els.binderBookStage || document.getElementById('binderBookStage');
+			if (!stage) return;
+			var startX = 0, startY = 0, tracking = false;
+			stage.addEventListener('touchstart', function (e) {
+				if (!els.inspectorModal || !els.inspectorModal.hidden) return;
+				if (state.viewMode !== 'binder') return;
+				if (!e.changedTouches || !e.changedTouches.length) return;
+				startX = e.changedTouches[0].clientX;
+				startY = e.changedTouches[0].clientY;
+				tracking = true;
+			}, { passive: true });
+			stage.addEventListener('touchend', function (e) {
+				if (!tracking) return;
+				tracking = false;
+				if (!e.changedTouches || !e.changedTouches.length) return;
+				var dx = e.changedTouches[0].clientX - startX;
+				var dy = e.changedTouches[0].clientY - startY;
+				if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+				if (dx < 0) goToSheet(state.currentSheet + 1);
+				else goToSheet(state.currentSheet - 1);
+			}, { passive: true });
+		})();
+
 		// Keyboard controls
 		window.addEventListener('keydown', function (e) {
 			if (!els.inspectorModal || els.inspectorModal.hidden) {
@@ -1144,6 +1237,10 @@
 
 			// Modal is open
 			if (e.key === 'Escape') {
+				if (els.packReveal && !els.packReveal.hidden) {
+					closePackReveal();
+					return;
+				}
 				closeInspector();
 			} else if (e.key === ' ' || e.key === 'Enter') {
 				toggleInspectorFlip();
@@ -1180,8 +1277,19 @@
 	// Bootstrap
 	async function init() {
 		bindEvents();
-		await loadAllData();
-		runAlbumGameplayHooks();
+		var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+		if (els.swipeHint && fine) els.swipeHint.hidden = true;
+		if (els.keyHints && !fine) els.keyHints.hidden = true;
+		try {
+			await loadAllData();
+			runAlbumGameplayHooks();
+		} catch (err) {
+			console.warn('[Album] load failed', err);
+			setLoading(false);
+			if (els.binderMain) els.binderMain.hidden = false;
+			showError('Could not load collection. Showing offline starter cards if available.');
+			try { applyFilterAndSort(); } catch (e2) {}
+		}
 	}
 
 	if (document.readyState === 'loading') {

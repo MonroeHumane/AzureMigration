@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Shelter Run - A Monroe Humane Society Game</title>
   <meta name="description" content="Dash, jump, duck, and dodge as your favorite shelter companion in this free endless runner, made for Monroe Humane Society. Rescue real shelter pets along the way!" />
   <meta name="keywords" content="endless runner, Monroe Humane, browser game, free game, cat game, pet game, shelter run" />
   <meta name="robots" content="index, follow" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏃</text></svg>" />
   <meta name="theme-color" content="#1a2430" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta property="og:site_name" content="Monroe Humane" />
   <meta property="og:title" content="Shelter Run – A Monroe Humane Society Game" />
   <meta property="og:description" content="Dash, jump, duck, and dodge to rescue real shelter pets in this free browser endless runner." />
@@ -23,7 +25,15 @@
   <script src="embed.js"></script>
 </head>
 <body>
-  <div id="game-container" role="main" aria-label="Shelter Run – endless runner game"></div>
+  <div id="game-container" role="main" aria-label="Shelter Run – endless runner game">
+    <button type="button" class="sr-chrome-exit" id="srExitBtn" aria-label="Exit to games hub">← Exit</button>
+    <div class="sr-key-hints" id="srKeyHints" aria-hidden="true">
+      <span class="sr-key-hints__item"><kbd>←</kbd><kbd>→</kbd> dodge</span>
+      <span class="sr-key-hints__item"><kbd>↑</kbd>/<kbd>Space</kbd> jump</span>
+      <span class="sr-key-hints__item"><kbd>↓</kbd> duck</span>
+      <span class="sr-key-hints__item"><kbd>R</kbd> restart · <kbd>Esc</kbd> menu</span>
+    </div>
+  </div>
 
   <script src="vendor/phaser.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/phaser@3.80.0/dist/phaser.min.js'"></script>
 
