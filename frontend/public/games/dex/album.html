@@ -5,8 +5,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 	<title>Pet Discovery Binder & Gallery - Monroe Humane Games</title>
 	<script src="../embed.js"></script>
-	<link rel="stylesheet" href="dex.css?v=5">
-	<link rel="stylesheet" href="embed.css?v=5">
+	<link rel="stylesheet" href="../shared-styles.css">
+	<link rel="stylesheet" href="../humane-game-system.css">
+	<link rel="stylesheet" href="dex.css?v=6">
+	<link rel="stylesheet" href="embed.css?v=6">
+	<link rel="stylesheet" href="reward-toast.css?v=6">
 </head>
 <body>
 	<div class="binder-app" id="binderApp">
@@ -30,7 +33,18 @@
 					<div class="binder-pack-pill" id="binderPackPill" hidden>
 						<span class="binder-pack-pill__icon">🎁</span>
 						<span class="binder-pack-pill__text" id="binderPackCount">1 Pack Ready</span>
-						<a class="binder-pack-pill__btn" id="binderOpenPacksBtn" href="../booster/index.html">Open ›</a>
+						<button type="button" class="binder-pack-pill__btn" id="binderQuickOpenBtn" title="Open one pack here">Quick Open</button>
+						<a class="binder-pack-pill__btn" id="binderOpenPacksBtn" href="../booster/index.html">Booster ›</a>
+					</div>
+
+					<!-- Coin Shop lite + Daily Streak -->
+					<div class="binder-shop-row" id="binderShopRow">
+						<button type="button" class="binder-shop-btn" id="binderDailyStreakBtn" title="Claim once per day">
+							<span aria-hidden="true">🔥</span><span>Daily Pack</span>
+						</button>
+						<button type="button" class="binder-shop-btn" id="binderBuyPackBtn" title="Spend 25 coins for 1 pack">
+							<span aria-hidden="true">🪙</span><span>Buy Pack · 25</span>
+						</button>
 					</div>
 
 					<!-- View Mode Toggle: 3-Ring Binder vs Grid Showcase -->
@@ -213,11 +227,22 @@
 			</div>
 		</div>
 
+		<!-- In-album pack reveal (createFlipCard showcase) -->
+		<div class="binder-pack-reveal" id="binderPackReveal" hidden>
+			<div class="binder-pack-reveal__panel" role="dialog" aria-modal="true" aria-labelledby="binderPackRevealTitle">
+				<p class="binder-pack-reveal__badge" id="binderPackRevealBadge">Pack opened</p>
+				<h2 id="binderPackRevealTitle">Your new friends</h2>
+				<p class="binder-pack-reveal__rarity" id="binderPackRevealRarity"></p>
+				<ul class="binder-pack-reveal__grid adoptedex-grid" id="binderPackRevealGrid"></ul>
+				<button type="button" class="binder-shop-btn binder-shop-btn--primary" id="binderPackRevealClose">Continue</button>
+			</div>
+		</div>
+
 		<!-- Error Toast -->
 		<div class="binder-error-toast" id="binderErrorToast" hidden role="alert"></div>
 	</div>
 
-	<script src="dex-shared.js?v=5"></script>
-	<script src="album.js?v=5" defer></script>
+	<script src="dex-shared.js?v=6"></script>
+	<script src="album.js?v=6" defer></script>
 </body>
 </html>

@@ -124,5 +124,72 @@
       });
     })();
   </script>
+
+  <script src="../dex/dex-shared.js?v=6"></script>
+  <script>
+    // dexSyncBridge: keep bundled booster openPack contract aligned with MonroeAdoptedex.
+    (function () {
+      var Dex = window.MonroeAdoptedex;
+      if (!Dex) return;
+
+      function syncFromServer() {
+        var p = Dex.getParams();
+        if (!p.dexUser) return;
+        Dex.fetchDex(p.dexApi, p.dexUser).then(function (data) {
+          Dex.syncLocalPacksFromProfile(data);
+          try {
+            if (data && data.stats && typeof data.stats.coin_balance !== 'undefined') {
+              localStorage.setItem('monroeDexCoins', String(data.stats.coin_balance));
+            }
+          } catch (e) {}
+          // One-time first_pack welcome if album is empty-handed.
+          Dex.claimReward(p.dexApi, p.dexUser, 'booster', 'first_pack', { tier: 'standard', count: 1 })
+            .then(function (res) {
+              if (res && res.claimed) {
+                Dex.syncLocalPacksFromProfile({ unopened_packs: (parseInt(localStorage.getItem('monroeDexPacks') || '0', 10) || 0) });
+                Dex.fetchDex(p.dexApi, p.dexUser).then(function (d2) { Dex.syncLocalPacksFromProfile(d2); });
+                if (Dex.showRewardToast) {
+                  Dex.showRewardToast({
+                    title: 'Welcome pack!',
+                    message: 'Your first Humane Booster pack is ready to tear open.',
+                    icon: '✨',
+                    game: 'Booster'
+                  });
+                }
+              }
+            })
+            .catch(function () {});
+        }).catch(function (err) {
+          console.warn('[Booster] Adoptédex sync failed:', err);
+        });
+      }
+
+      // After pack opens, re-sync remaining packs + foil toast for rare pulls.
+      window.addEventListener('monroe-adoptedex-updated', function (e) {
+        var detail = e && e.detail ? e.detail : {};
+        if (detail.packOpened && detail.packRarity && (detail.packRarity === 'rare' || detail.packRarity === 'uncommon')) {
+          if (Dex.showRewardToast) {
+            Dex.showRewardToast({
+              title: (detail.packRarityLabel || 'Foil pack') + '!',
+              message: 'Holographic pull — check your album binder for the foil flex.',
+              icon: '✨',
+              rare: true,
+              game: 'Booster'
+            });
+          }
+        }
+        if (typeof detail.remainingPacks === 'number') {
+          try { localStorage.setItem('monroeDexPacks', String(Math.max(0, detail.remainingPacks))); } catch (err) {}
+        }
+      });
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncFromServer);
+      } else {
+        syncFromServer();
+      }
+    })();
+  </script>
+
 </body>
 </html>

@@ -166,7 +166,8 @@ if (root && canvas && context) {
             })
           }).catch(() => {});
 
-          // Catwalk Milestone Rewards -> Pet Booster Packs
+          // Catwalk Milestone Rewards -> Adoptédex claimReward (server authoritative).
+          // Only toast / local mark after claimed:true — never pre-bump monroeDexPacks.
           const milestones = [
             { score: 500, key: 'score_500', tier: 'standard' },
             { score: 1500, key: 'score_1500', tier: 'duo' },
@@ -177,38 +178,63 @@ if (root && canvas && context) {
             claimedList = JSON.parse(localStorage.getItem('monroe_catwalk_claimed_milestones') || '[]');
           } catch (e) {}
 
+          const Dex = (window as any).MonroeAdoptedex;
+          const params = Dex && typeof Dex.getParams === 'function' ? Dex.getParams() : null;
+          const user = String((params && params.dexUser) || localStorage.getItem('monroeDexUser') || player || '')
+            .trim()
+            .toLowerCase();
+          const api = String((params && params.dexApi) || (window.location.origin + '/arcade-api/v1/')).replace(/\/?$/, '/');
+
           milestones.forEach((m) => {
-            if (finalScore >= m.score && !claimedList.includes(m.key)) {
-              claimedList.push(m.key);
+            if (finalScore < m.score || claimedList.includes(m.key)) return;
+
+            const onClaimed = () => {
+              if (!claimedList.includes(m.key)) claimedList.push(m.key);
               try {
                 localStorage.setItem('monroe_catwalk_claimed_milestones', JSON.stringify(claimedList));
-                const currentPacks = Math.max(0, parseInt(localStorage.getItem('monroeDexPacks') || '1', 10));
-                localStorage.setItem('monroeDexPacks', String(currentPacks + 1));
               } catch (e) {}
-
-              // Notify parent Arcade Pass to show celebration toast
-              if (window.parent && window.parent !== window) {
-                try {
-                  window.parent.postMessage({
-                    type: 'adoptedex:pack_awarded',
-                    action: 'pack_awarded',
-                    game: 'catwalk',
-                    milestone: m.key,
-                    tier: m.tier
-                  }, '*');
-                } catch (e) {}
+              if (Dex && typeof Dex.showRewardToast === 'function') {
+                Dex.showRewardToast({
+                  title: 'Catwalk pack unlocked!',
+                  message: `Reached ${m.score} points — ${m.tier} pack ready in your album.`,
+                  game: 'Catwalk',
+                  tier: m.tier,
+                  rare: m.key === 'score_3000',
+                });
               }
+            };
 
-              // Server-side deduplication claim
-              const user = (localStorage.getItem('monroeDexUser') || player).trim().toLowerCase();
-              fetch(`/arcade-api/v1/adoptedex/${encodeURIComponent(user)}/rewards/claim`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  game_id: 'catwalk',
-                  reward_key: m.key
+            if (Dex && typeof Dex.claimReward === 'function' && user) {
+              Dex.claimReward(api, user, 'catwalk', m.key, { tier: m.tier, count: 1 })
+                .then((result: any) => {
+                  if (result && result.claimed) onClaimed();
                 })
-              }).catch(() => {});
+                .catch((err: any) => console.warn('[Catwalk] claimReward failed:', err));
+            } else if (user) {
+              fetch(`${api}adoptedex/${encodeURIComponent(user)}/rewards/claim`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_id: 'catwalk', reward_key: m.key, tier: m.tier, count: 1 }),
+              })
+                .then((r) => r.json().catch(() => null))
+                .then((result) => {
+                  if (result && result.claimed) {
+                    onClaimed();
+                    if (window.parent && window.parent !== window) {
+                      try {
+                        window.parent.postMessage({
+                          type: 'adoptedex:pack_awarded',
+                          action: 'pack_awarded',
+                          game: 'catwalk',
+                          milestone: m.key,
+                          tier: m.tier,
+                        }, '*');
+                      } catch (e) {}
+                    }
+                  }
+                })
+                .catch(() => {});
             }
           });
         }

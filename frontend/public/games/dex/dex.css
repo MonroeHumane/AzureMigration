@@ -1232,3 +1232,18 @@ html, body {
 	transform: translateY(-2px);
 	box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
 }
+
+
+/* --- Adoptédex unify: shop + pack reveal + foil flex --- */
+.binder-shop-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.binder-shop-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:8px 14px;border-radius:999px;border:1.5px solid rgba(26,79,75,.25);background:rgba(255,250,243,.95);color:#2c1c19;font-weight:800;cursor:pointer;font-size:.88rem;touch-action:manipulation}
+.binder-shop-btn--primary{background:#1a4f4b;color:#fffaf3;border-color:transparent}
+.binder-pack-pill__btn{min-height:44px;min-width:44px;touch-action:manipulation}
+.binder-pack-reveal{position:fixed;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:rgba(8,20,16,.72);backdrop-filter:blur(4px)}
+.binder-pack-reveal[hidden]{display:none!important}
+.binder-pack-reveal__panel{background:linear-gradient(180deg,#fffaf3,#fef6ea);color:#2c1c19;border-radius:20px;max-width:min(96vw,520px);width:100%;padding:18px 16px 16px;box-shadow:0 24px 60px rgba(0,0,0,.4);border:2px solid rgba(26,79,75,.25);text-align:center}
+.binder-pack-reveal__grid{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.binder-pack-reveal__rarity.is-rare{color:#b45309;font-weight:800}
+.binder-card--foil-flex,.adoptedex-card-wrap--foil-flex .adoptedex-card{box-shadow:0 0 0 2px rgba(254,240,138,.55),0 12px 28px rgba(255,179,71,.28)}
+.adoptedex-card__foil-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.55) 45%,transparent 70%);animation:adxFoil 2.8s linear infinite;mix-blend-mode:screen;opacity:.75}
+@keyframes adxFoil{from{transform:translateX(-40%)}to{transform:translateX(40%)}}

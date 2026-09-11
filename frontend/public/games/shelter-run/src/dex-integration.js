@@ -86,6 +86,15 @@ var ShelterRunDex = (function () {
           if (typeof onClaimed === 'function') {
             onClaimed({ tier: milestone.tier, rewardKey: milestone.rewardKey, threshold: threshold });
           }
+          if (typeof MonroeAdoptedex !== 'undefined' && typeof MonroeAdoptedex.showRewardToast === 'function') {
+            MonroeAdoptedex.showRewardToast({
+              title: 'Shelter Run pack!',
+              message: 'Distance ' + threshold + 'm — ' + (milestone.tier || 'standard') + ' pack unlocked.',
+              game: 'Shelter Run',
+              tier: milestone.tier,
+              rare: threshold >= 3000,
+            });
+          }
         }
       }).catch(function (e) {
         console.warn('[Shelter Run] claim failed for ' + milestone.rewardKey + ':', e);

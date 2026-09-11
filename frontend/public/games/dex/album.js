@@ -136,6 +136,14 @@
 		packPill: document.getElementById('binderPackPill'),
 		packCount: document.getElementById('binderPackCount'),
 		openPacksBtn: document.getElementById('binderOpenPacksBtn'),
+		quickOpenBtn: document.getElementById('binderQuickOpenBtn'),
+		dailyStreakBtn: document.getElementById('binderDailyStreakBtn'),
+		buyPackBtn: document.getElementById('binderBuyPackBtn'),
+		packReveal: document.getElementById('binderPackReveal'),
+		packRevealGrid: document.getElementById('binderPackRevealGrid'),
+		packRevealBadge: document.getElementById('binderPackRevealBadge'),
+		packRevealRarity: document.getElementById('binderPackRevealRarity'),
+		packRevealClose: document.getElementById('binderPackRevealClose'),
 		btnViewBinder: document.getElementById('btnViewBinder'),
 		btnViewGrid: document.getElementById('btnViewGrid'),
 		progressFill: document.getElementById('progressFill'),
@@ -527,7 +535,7 @@
 				pocketCell.setAttribute('data-card-id', card.id);
 				pocketCell.setAttribute('title', 'Click to inspect ' + card.name + ' in 3D');
 
-				var foilClass = card.foil !== 'none' ? ('foil-' + card.foil) : '';
+				var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos') ? ' binder-card--foil-flex' : '')) : '';
 
 				pocketCell.innerHTML =
 					'<div class="binder-card ' + foilClass + '">' +
@@ -615,7 +623,7 @@
 			pocketCell.setAttribute('data-card-id', card.id);
 			pocketCell.setAttribute('title', 'Click to inspect ' + card.name + ' in 3D');
 
-			var foilClass = card.foil !== 'none' ? ('foil-' + card.foil) : '';
+			var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos') ? ' binder-card--foil-flex' : '')) : '';
 
 			pocketCell.innerHTML =
 				'<div class="binder-card ' + foilClass + '">' +
@@ -721,7 +729,7 @@
 		var card = state.filteredCards[state.inspectorIndex];
 		if (!card || !els.inspectorCardHost) return;
 
-		var foilClass = card.foil !== 'none' ? ('foil-' + card.foil) : '';
+		var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos') ? ' binder-card--foil-flex' : '')) : '';
 
 		els.inspectorCardHost.className = 'inspector-card-host' + (state.isInspectorFlipped ? ' is-flipped' : '');
 
@@ -803,6 +811,155 @@
 	// ──────────────────────────────────────────────────────────────────────────
 	// Event Listeners & Binding
 	// ──────────────────────────────────────────────────────────────────────────
+
+	function runAlbumGameplayHooks() {
+		if (!Dex || !params.dexUser) return;
+		var api = params.dexApi;
+		var user = params.dexUser;
+
+		Dex.claimDailyStreak(api, user, 'dex').then(function (res) {
+			if (res && res.claimed) {
+				state.unopenedPacks = (state.unopenedPacks || 0) + (res.packsAwarded || 1);
+				if (typeof res.coinsAwarded === 'number') {
+					state.coinBalance = (state.coinBalance || 0) + res.coinsAwarded;
+				}
+				updateHeaderStats();
+				Dex.fetchDex(api, user).then(function (d) {
+					if (d && d.stats) {
+						state.unopenedPacks = d.stats.unopened_packs || state.unopenedPacks;
+						state.coinBalance = typeof d.stats.coin_balance === 'number' ? d.stats.coin_balance : state.coinBalance;
+						Dex.syncLocalPacksFromProfile(d);
+						updateHeaderStats();
+					}
+				}).catch(function () {});
+			}
+			if (els.dailyStreakBtn) {
+				els.dailyStreakBtn.title = (res && res.claimed === false)
+					? 'Already claimed today — come back tomorrow!'
+					: (res && res.claimed ? 'Claimed! See you tomorrow.' : 'Claim your daily streak pack');
+			}
+		}).catch(function () {});
+
+		var catCount = 0, dogCount = 0;
+		(state.activeCards || []).forEach(function (c) {
+			var t = String(c.species || c.type || '').toLowerCase();
+			if (t.indexOf('cat') >= 0) catCount++;
+			else if (t.indexOf('dog') >= 0) dogCount++;
+		});
+		if (typeof Dex.claimSpeciesScout === 'function') {
+			Dex.claimSpeciesScout(api, user, 'cat', catCount).then(function (res) {
+				if (res && res.claimed) loadAllData();
+			}).catch(function () {});
+			Dex.claimSpeciesScout(api, user, 'dog', dogCount).then(function (res) {
+				if (res && res.claimed) loadAllData();
+			}).catch(function () {});
+		}
+	}
+
+	function closePackReveal() {
+		if (!els.packReveal) return;
+		els.packReveal.hidden = true;
+		if (els.packRevealGrid) els.packRevealGrid.innerHTML = '';
+	}
+
+	function showPackReveal(packData) {
+		if (!els.packReveal || !els.packRevealGrid || !Dex || !Dex.createFlipCard) return;
+		els.packRevealGrid.innerHTML = '';
+		var rarity = packData.pack_rarity || packData.packRarity || 'common';
+		var rarityLabel = packData.pack_rarity_label || packData.packRarityLabel || (rarity + ' pack');
+		if (els.packRevealBadge) els.packRevealBadge.textContent = '🎁 Pack opened';
+		if (els.packRevealRarity) {
+			els.packRevealRarity.textContent = rarityLabel + (packData.coins_awarded ? (' · +' + packData.coins_awarded + ' coins') : '');
+			els.packRevealRarity.classList.toggle('is-rare', rarity === 'rare' || rarity === 'uncommon');
+		}
+		(packData.cards || []).forEach(function (pet) {
+			var foil = Dex.foilFromRarity(pet.rarity || rarity);
+			var li = Dex.createFlipCard(pet, {
+				met: true,
+				mode: 'collection',
+				readOnly: true,
+				foil: foil,
+				rarity: pet.rarity || rarity,
+				highlight: rarity === 'rare' || foil !== 'none',
+				startFlipped: false,
+			});
+			if (rarity === 'rare' || foil !== 'none') {
+				li.classList.add('adoptedex-card-wrap--foil-flex');
+			}
+			els.packRevealGrid.appendChild(li);
+			var cardBtn = li.querySelector('.adoptedex-card');
+			if (cardBtn) {
+				setTimeout(function () { cardBtn.classList.add('is-flipped'); }, 400 + Math.random() * 400);
+			}
+		});
+		els.packReveal.hidden = false;
+		if ((rarity === 'rare' || rarity === 'uncommon') && Dex.showRewardToast) {
+			Dex.showRewardToast({
+				title: 'Foil flex!',
+				message: 'Holographic ' + rarityLabel + ' — your binder is looking shiny.',
+				icon: '✨',
+				rare: true,
+			});
+		}
+	}
+
+	function quickOpenPack() {
+		if (!Dex || !params.dexUser) return;
+		if ((state.unopenedPacks || 0) <= 0) {
+			showError('No packs to open — earn one in a game, claim Daily, or buy with coins.');
+			return;
+		}
+		if (els.quickOpenBtn) els.quickOpenBtn.disabled = true;
+		Dex.openPack(params.dexApi, params.dexUser, 'standard').then(function (data) {
+			state.unopenedPacks = typeof data.unopened_packs === 'number' ? data.unopened_packs : Math.max(0, (state.unopenedPacks || 1) - 1);
+			if (typeof data.coin_balance === 'number') state.coinBalance = data.coin_balance;
+			Dex.syncLocalPacksFromProfile(data);
+			updateHeaderStats();
+			showPackReveal(data);
+			loadAllData();
+			try {
+				if (window.parent && window.parent !== window) {
+					window.parent.postMessage({
+						type: 'adoptedex:pack_opened',
+						tier: data.tier || 'standard',
+						packRarity: data.pack_rarity,
+						remainingPacks: data.unopened_packs
+					}, '*');
+				}
+			} catch (e) {}
+		}).catch(function (err) {
+			showError((err && err.message) || 'Could not open pack.');
+		}).then(function () {
+			if (els.quickOpenBtn) els.quickOpenBtn.disabled = false;
+		});
+	}
+
+	function buyPackFromShop() {
+		if (!Dex || !params.dexUser) return;
+		if ((state.coinBalance || 0) < 25) {
+			showError('Need 25 coins to buy a pack. Play games to earn coins!');
+			return;
+		}
+		if (els.buyPackBtn) els.buyPackBtn.disabled = true;
+		Dex.buyPackWithCoins(params.dexApi, params.dexUser, 25).then(function (data) {
+			if (data && data.ok) {
+				if (typeof data.coin_balance === 'number') state.coinBalance = data.coin_balance;
+				else state.coinBalance = Math.max(0, (state.coinBalance || 0) - (data.spent || 25));
+				state.unopenedPacks = typeof data.unopened_packs === 'number'
+					? data.unopened_packs
+					: (state.unopenedPacks || 0) + (data.packsAwarded || 1);
+				Dex.syncLocalPacksFromProfile({ unopened_packs: state.unopenedPacks, stats: { unopened_packs: state.unopenedPacks, coin_balance: state.coinBalance } });
+				updateHeaderStats();
+			} else {
+				showError((data && data.message) || 'Could not buy pack.');
+			}
+		}).catch(function (err) {
+			showError((err && err.message) || 'Could not buy pack.');
+		}).then(function () {
+			if (els.buyPackBtn) els.buyPackBtn.disabled = false;
+		});
+	}
+
 	function bindEvents() {
 		// View mode toggles
 		if (els.btnViewBinder && els.btnViewGrid) {
@@ -941,6 +1098,38 @@
 			});
 		}
 
+
+		if (els.quickOpenBtn) {
+			els.quickOpenBtn.addEventListener('click', quickOpenPack);
+		}
+		if (els.packRevealClose) {
+			els.packRevealClose.addEventListener('click', closePackReveal);
+		}
+		if (els.packReveal) {
+			els.packReveal.addEventListener('click', function (e) {
+				if (e.target === els.packReveal) closePackReveal();
+			});
+		}
+		if (els.buyPackBtn) {
+			els.buyPackBtn.addEventListener('click', buyPackFromShop);
+		}
+		if (els.dailyStreakBtn) {
+			els.dailyStreakBtn.addEventListener('click', function () {
+				if (!Dex || !params.dexUser) return;
+				els.dailyStreakBtn.disabled = true;
+				Dex.claimDailyStreak(params.dexApi, params.dexUser, 'dex')
+					.then(function (res) {
+						if (res && res.claimed) {
+							loadAllData();
+						} else {
+							showError('Daily pack already claimed today. See you tomorrow!');
+						}
+					})
+					.catch(function (e) { showError((e && e.message) || 'Daily claim failed'); })
+					.then(function () { els.dailyStreakBtn.disabled = false; });
+			});
+		}
+
 		// Keyboard controls
 		window.addEventListener('keydown', function (e) {
 			if (!els.inspectorModal || els.inspectorModal.hidden) {
@@ -992,6 +1181,7 @@
 	async function init() {
 		bindEvents();
 		await loadAllData();
+		runAlbumGameplayHooks();
 	}
 
 	if (document.readyState === 'loading') {

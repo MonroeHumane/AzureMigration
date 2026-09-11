@@ -50,6 +50,8 @@
   <div id="loading" aria-hidden="true">Connecting to Humane Arcade...</div>
   <canvas id="game-canvas"></canvas>
 
+  <script src="../../dex/dex-shared.js?v=6"></script>
+
   <script>
     // Arcade Integration Bridge: mute, scores, and cabinet postMessage.
     // Runs on the inner game document only so host/cabinet never double-submit.
@@ -128,27 +130,52 @@
         window.gameInstance._arcadeMilestoneHooked = true;
         if (pendingMute !== null) applyMute(pendingMute);
 
-        var origClaim = window.gameInstance.claimReward;
-        window.gameInstance.claimReward = function (tier, key, toast) {
-          if (typeof origClaim === 'function') {
-            try { origClaim.apply(this, arguments); } catch (err) {}
+        // Seed user/api from shared Adoptédex client (URL + localStorage).
+        try {
+          if (typeof MonroeAdoptedex !== 'undefined') {
+            var p = MonroeAdoptedex.getParams();
+            if (p.dexUser && !window.gameInstance.userSlug) {
+              window.gameInstance.userSlug = p.dexUser;
+            }
+            if (p.dexApi) {
+              window.gameInstance.restBase = p.dexApi;
+            }
           }
-          try {
-            var currentPacks = Math.max(0, parseInt(localStorage.getItem('monroeDexPacks') || '1', 10));
-            localStorage.setItem('monroeDexPacks', String(currentPacks + 1));
-          } catch (e) {}
+        } catch (e) {}
 
-          if (window.parent && window.parent !== window) {
-            try {
-              window.parent.postMessage({
-                type: 'adoptedex:pack_awarded',
-                action: 'pack_awarded',
-                game: 'flappy_cat',
-                milestone: key,
-                tier: tier
-              }, '*');
-            } catch (err) {}
+        // Replace localStorage monkeypatch: server-authoritative claimReward only.
+        // Do NOT bump monroeDexPacks or postMessage unless claimed:true.
+        window.gameInstance.claimReward = function (tier, key, toastMsg) {
+          var Dex = window.MonroeAdoptedex;
+          var user = (window.gameInstance.userSlug || (Dex && Dex.getParams().dexUser) || '').trim().toLowerCase();
+          var api = (window.gameInstance.restBase || (Dex && Dex.getParams().dexApi) || '').replace(/\/?$/, '/');
+          if (!Dex || !user) {
+            console.warn('[Flappy] MonroeAdoptedex unavailable; skipping pack claim for', key);
+            return;
           }
+          Dex.claimReward(api, user, 'flappy_cat', key, { tier: tier || 'standard', count: 1 })
+            .then(function (result) {
+              if (!(result && result.claimed)) return;
+              try {
+                window.gameInstance.discoveryToast = { text: toastMsg || ('Pack unlocked: ' + key), timer: 5, alpha: 1 };
+                if (window.gameInstance.audio && typeof window.gameInstance.audio.playPoint === 'function') {
+                  window.gameInstance.audio.playPoint();
+                }
+              } catch (err) {}
+              if (typeof Dex.showRewardToast === 'function') {
+                Dex.showRewardToast({
+                  title: toastMsg || 'Flappy Cat pack!',
+                  message: 'Score milestone ' + key + ' claimed. Open it in your Adoptédex album.',
+                  game: 'Flappy Cat',
+                  tier: tier,
+                  rare: key === 'score_30' || key === 'score_50'
+                });
+              }
+              // claimReward already posts adoptedex:pack_awarded to parent.
+            })
+            .catch(function (err) {
+              console.warn('[Flappy] claimReward failed:', err);
+            });
         };
       }
 
