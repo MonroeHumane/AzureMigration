@@ -33,8 +33,8 @@ body {
 }
 
 /* Header: Dark glassmorphism when standalone, hidden when inside cabinet */
-.is-embedded .booster-header,
-iframe-parent .booster-header {
+html.is-embedded .booster-header,
+html.humane-embed .booster-header {
   display: none !important;
 }
 
@@ -86,16 +86,31 @@ iframe-parent .booster-header {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
-.btn-icon:hover {
-  background: #0f3d36 !important;
-  border-color: #2dd4bf !important;
-  transform: scale(1.08) !important;
+@media (hover: hover) and (pointer: fine) {
+  .btn-icon:hover {
+    background: #0f3d36 !important;
+    border-color: #2dd4bf !important;
+    transform: scale(1.08) !important;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Ergonomic Viewport Dimensions for 3D Pack & Cards
  * ────────────────────────────────────────────────────────────────────────── */
 :root {
+  /* Shared-aligned tokens (dark arcade overlay on Humane palette) */
+  --fur: #fef6ea;
+  --treat: #ffb347;
+  --ink: #f1f5f9;
+  --mint: #2dd4bf;
+  --cream: #fffaf3;
+  --teal: #0d9488;
+  --teal-deep: #134e4a;
+  --hg-touch-min: 44px;
+  --hg-safe-top: env(safe-area-inset-top, 0px);
+  --hg-safe-right: env(safe-area-inset-right, 0px);
+  --hg-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --hg-safe-left: env(safe-area-inset-left, 0px);
   --pack-w: clamp(230px, 66vw, 290px) !important;
   --pack-h: clamp(350px, 58vh, 435px) !important;
   --card-w: clamp(270px, 78vw, 325px) !important;
@@ -114,9 +129,11 @@ iframe-parent .booster-header {
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease !important;
 }
 
-.pack-wrapper-3d:hover {
-  transform: translateY(-8px) scale(1.03) !important;
-  filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 35px var(--pack-glow, rgba(45, 212, 191, 0.6))) brightness(1.08) !important;
+@media (hover: hover) and (pointer: fine) {
+  .pack-wrapper-3d:hover {
+    transform: translateY(-8px) scale(1.03) !important;
+    filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 35px var(--pack-glow, rgba(45, 212, 191, 0.6))) brightness(1.08) !important;
+  }
 }
 
 /* Metallic Crimped Ridges */
@@ -197,11 +214,13 @@ iframe-parent .booster-header {
   letter-spacing: 0.04em !important;
 }
 
-.tear-prompt-badge:hover {
-  transform: translate(-50%) scale(1.1) !important;
-  box-shadow:
-    0 6px 24px rgba(0, 0, 0, 0.7),
-    0 0 30px rgba(245, 158, 11, 0.9) !important;
+@media (hover: hover) and (pointer: fine) {
+  .tear-prompt-badge:hover {
+    transform: translate(-50%) scale(1.1) !important;
+    box-shadow:
+      0 6px 24px rgba(0, 0, 0, 0.7),
+      0 0 30px rgba(245, 158, 11, 0.9) !important;
+  }
 }
 
 /* Pack Artwork Content & Crest */
@@ -253,9 +272,11 @@ iframe-parent .booster-header {
   padding: 0.45rem 1.1rem !important;
 }
 
-.tier-pill-btn:hover:not(.active) {
-  color: #ffffff !important;
-  background: rgba(45, 212, 191, 0.1) !important;
+@media (hover: hover) and (pointer: fine) {
+  .tier-pill-btn:hover:not(.active) {
+    color: #ffffff !important;
+    background: rgba(45, 212, 191, 0.1) !important;
+  }
 }
 
 .tier-pill-btn.active {
@@ -530,4 +551,163 @@ iframe-parent .booster-header {
   pointer-events: none;
   z-index: 10001;
   border-radius: 2px;
+}
+
+
+/* --------------------------------------------------------------------------
+   Desktop / mobile responsive UX
+   -------------------------------------------------------------------------- */
+html, body, #app {
+  padding-top: var(--hg-safe-top);
+  padding-right: var(--hg-safe-right);
+  padding-bottom: var(--hg-safe-bottom);
+  padding-left: var(--hg-safe-left);
+}
+
+.booster-key-hints {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(4.75rem + var(--hg-safe-bottom));
+  transform: translateX(-50%);
+  z-index: 40;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.85rem;
+  justify-content: center;
+  max-width: min(92vw, 36rem);
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(6, 24, 21, 0.88);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  color: #99f6e4;
+  font-size: 0.75rem;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.booster-key-hints kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.1rem 0.35rem;
+  margin-right: 0.15rem;
+  border-radius: 5px;
+  border: 1px solid rgba(45, 212, 191, 0.4);
+  background: #0b2823;
+  color: #f1f5f9;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+  .booster-key-hints {
+    display: flex;
+  }
+
+  :root {
+    --pack-w: clamp(260px, 28vw, 340px) !important;
+    --pack-h: clamp(390px, 62vh, 510px) !important;
+    --card-w: clamp(300px, 32vw, 380px) !important;
+    --card-h: clamp(460px, 70vh, 560px) !important;
+  }
+
+  .booster-stage {
+    perspective: 1800px !important;
+  }
+}
+
+.btn-icon,
+.btn-nav,
+.tier-pill-btn,
+.tear-prompt-badge,
+.btn-action-main,
+.btn-secondary-link,
+.card-back-tap-pill {
+  min-height: var(--hg-touch-min) !important;
+  min-width: var(--hg-touch-min) !important;
+  touch-action: manipulation !important;
+}
+
+.tier-pill-btn {
+  padding: 0.55rem 1.15rem !important;
+  font-weight: 800 !important;
+}
+
+.tear-prompt-badge {
+  padding: 0.55rem 1.2rem !important;
+  font-size: 0.92rem !important;
+}
+
+@media (max-width: 680px) {
+  .booster-header {
+    top: var(--hg-safe-top) !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.55rem !important;
+    padding: 0.55rem 0.85rem !important;
+  }
+
+  .header-controls {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .booster-player-badge {
+    flex: 1 1 auto !important;
+    min-height: var(--hg-touch-min) !important;
+  }
+
+  .pack-selector-bar {
+    bottom: calc(0.75rem + var(--hg-safe-bottom)) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(96vw, 420px) !important;
+  }
+
+  .tier-pill-group {
+    width: 100% !important;
+    justify-content: space-between !important;
+    display: flex !important;
+  }
+
+  .tier-pill-btn {
+    flex: 1 1 0 !important;
+  }
+
+  .booster-key-hints {
+    display: none !important;
+  }
+
+  :root {
+    --pack-w: clamp(200px, 72vw, 280px) !important;
+    --pack-h: clamp(310px, 52vh, 420px) !important;
+    --card-w: clamp(220px, 84vw, 310px) !important;
+    --card-h: clamp(360px, 60vh, 480px) !important;
+  }
+
+  .booster-empty-inventory {
+    margin-top: 1rem;
+    max-width: min(22rem, 92vw);
+  }
+}
+
+.pack-wrapper-3d,
+.tear-canvas-layer,
+.card-stack-viewport,
+.card-3d-wrapper {
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+}
+
+html.is-embedded #app,
+html.humane-embed #app {
+  min-height: 100% !important;
+  height: 100% !important;
 }
