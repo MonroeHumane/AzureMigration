@@ -116,6 +116,8 @@
 		coinBalance: 0,
 		inspectorIndex: -1,
 		isInspectorFlipped: false,
+		freshIds: {},
+		seenIdsSnapshot: null,
 	};
 
 	// Mascot Map
@@ -367,10 +369,18 @@
 
 		// Add discovered pets
 		var discIds = Object.keys(state.metIdsSet);
+		var prevSeen = state.seenIdsSnapshot;
+		var fresh = {};
 		discIds.forEach(function (id, idx) {
 			var raw = petMap[id] || { id: id, name: 'Companion #' + id, type: 'dog' };
 			state.activeCards.push(computeCardAttributes(raw, idx));
+			if (prevSeen && !prevSeen[id]) {
+				fresh[id] = true;
+			}
 		});
+		state.freshIds = fresh;
+		state.seenIdsSnapshot = {};
+		discIds.forEach(function (id) { state.seenIdsSnapshot[id] = true; });
 
 		// Keep Pass card count and album collected list on the same source of truth
 		try {
@@ -546,8 +556,17 @@
 				pocketCell.classList.add('pocket-cell--occupied');
 				pocketCell.setAttribute('data-card-id', card.id);
 				pocketCell.setAttribute('title', 'Click to inspect ' + card.name + ' in 3D');
+				if (state.freshIds && state.freshIds[card.id]) {
+					pocketCell.classList.add('pocket-cell--inserting');
+					(function (cell, id) {
+						window.setTimeout(function () {
+							cell.classList.remove('pocket-cell--inserting');
+							if (state.freshIds) delete state.freshIds[id];
+						}, 700);
+					})(pocketCell, card.id);
+				}
 
-				var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos') ? ' binder-card--foil-flex' : '')) : '';
+				var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos' || card.foil === 'aurora') ? ' binder-card--foil-flex' : '')) : '';
 
 				pocketCell.innerHTML =
 					'<div class="binder-card ' + foilClass + '">' +
@@ -635,7 +654,7 @@
 			pocketCell.setAttribute('data-card-id', card.id);
 			pocketCell.setAttribute('title', 'Click to inspect ' + card.name + ' in 3D');
 
-			var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos') ? ' binder-card--foil-flex' : '')) : '';
+			var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos' || card.foil === 'aurora') ? ' binder-card--foil-flex' : '')) : '';
 
 			pocketCell.innerHTML =
 				'<div class="binder-card ' + foilClass + '">' +
@@ -693,24 +712,91 @@
 		}
 	}
 
+	function prefersAlbumReducedMotion() {
+		try {
+			return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		} catch (e) {
+			return false;
+		}
+	}
+
 	function bindPocketTilt(el) {
-		el.addEventListener('pointermove', function (e) {
+		function applyTilt(clientX, clientY) {
 			var rect = el.getBoundingClientRect();
-			var x = e.clientX - rect.left;
-			var y = e.clientY - rect.top;
+			var x = clientX - rect.left;
+			var y = clientY - rect.top;
 			var px = Math.min(1, Math.max(0, x / rect.width));
 			var py = Math.min(1, Math.max(0, y / rect.height));
 			var deg = Math.atan2(y - rect.height / 2, x - rect.width / 2) * 180 / Math.PI + 180;
 			el.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
 			el.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
 			el.style.setProperty('--pointer-deg', deg.toFixed(1) + 'deg');
-		});
+			if (!prefersAlbumReducedMotion()) {
+				var tiltY = ((px - 0.5) * 14).toFixed(2) + 'deg';
+				var tiltX = ((0.5 - py) * 10).toFixed(2) + 'deg';
+				el.style.setProperty('--tilt-x', tiltX);
+				el.style.setProperty('--tilt-y', tiltY);
+				el.classList.add('is-tilting');
+			}
+		}
 
-		el.addEventListener('pointerleave', function () {
+		function resetTilt() {
 			el.style.setProperty('--pointer-x', '50%');
 			el.style.setProperty('--pointer-y', '50%');
 			el.style.setProperty('--pointer-deg', '135deg');
+			el.style.setProperty('--tilt-x', '0deg');
+			el.style.setProperty('--tilt-y', '0deg');
+			el.classList.remove('is-tilting');
+		}
+
+		el.addEventListener('pointermove', function (e) {
+			applyTilt(e.clientX, e.clientY);
 		});
+
+		el.addEventListener('pointerdown', function (e) {
+			applyTilt(e.clientX, e.clientY);
+			el.classList.add('is-shine-kick');
+			window.setTimeout(function () { el.classList.remove('is-shine-kick'); }, 950);
+		});
+
+		el.addEventListener('pointerleave', resetTilt);
+		el.addEventListener('pointerup', function () {
+			window.setTimeout(resetTilt, 180);
+		});
+	}
+
+	function bindInspectorTilt() {
+		if (!els.inspectorCardHost || els.inspectorCardHost.dataset.tiltBound === '1') return;
+		els.inspectorCardHost.dataset.tiltBound = '1';
+		var host = els.inspectorCardHost;
+
+		function apply(clientX, clientY) {
+			if (prefersAlbumReducedMotion()) return;
+			var rect = host.getBoundingClientRect();
+			var px = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+			var py = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+			host.style.setProperty('--insp-tilt-y', ((px - 0.5) * 16).toFixed(2) + 'deg');
+			host.style.setProperty('--insp-tilt-x', ((0.5 - py) * 12).toFixed(2) + 'deg');
+			host.classList.add('is-tilting');
+			host.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
+			host.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
+			host.style.setProperty('--pointer-deg', (Math.atan2(py - 0.5, px - 0.5) * 180 / Math.PI + 180).toFixed(1) + 'deg');
+		}
+
+		function reset() {
+			host.style.setProperty('--insp-tilt-x', '0deg');
+			host.style.setProperty('--insp-tilt-y', '0deg');
+			host.classList.remove('is-tilting');
+		}
+
+		host.addEventListener('pointermove', function (e) { apply(e.clientX, e.clientY); });
+		host.addEventListener('pointerdown', function (e) {
+			apply(e.clientX, e.clientY);
+			host.classList.add('is-shine-kick');
+			window.setTimeout(function () { host.classList.remove('is-shine-kick'); }, 950);
+		});
+		host.addEventListener('pointerleave', reset);
+		host.addEventListener('pointerup', function () { window.setTimeout(reset, 160); });
 	}
 
 	// ──────────────────────────────────────────────────────────────────────────
@@ -723,6 +809,7 @@
 
 		SoundEngine.playCardWhoosh();
 		renderInspectorCard();
+		bindInspectorTilt();
 
 		if (els.inspectorModal) {
 			els.inspectorModal.hidden = false;
@@ -741,7 +828,7 @@
 		var card = state.filteredCards[state.inspectorIndex];
 		if (!card || !els.inspectorCardHost) return;
 
-		var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos') ? ' binder-card--foil-flex' : '')) : '';
+		var foilClass = card.foil !== 'none' ? ('foil-' + card.foil + ((card.foil === 'prism' || card.foil === 'gold' || card.foil === 'cosmos' || card.foil === 'aurora') ? ' binder-card--foil-flex' : '')) : '';
 
 		els.inspectorCardHost.className = 'inspector-card-host' + (state.isInspectorFlipped ? ' is-flipped' : '');
 

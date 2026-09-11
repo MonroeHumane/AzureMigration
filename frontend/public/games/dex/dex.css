@@ -765,6 +765,52 @@ html, body {
 	opacity: 0;
 	z-index: 5;
 	transition: opacity 0.3s ease;
+	overflow: hidden;
+}
+
+.binder-card__foil::after {
+	content: "";
+	position: absolute;
+	inset: -20%;
+	background: linear-gradient(
+		105deg,
+		transparent 35%,
+		rgba(255, 255, 255, 0.55) 48%,
+		rgba(254, 240, 138, 0.35) 52%,
+		transparent 65%
+	);
+	background-size: 220% 100%;
+	opacity: 0;
+	transform: translateX(-30%);
+	pointer-events: none;
+	mix-blend-mode: screen;
+}
+
+.foil-aurora .binder-card__foil::after,
+.foil-cosmos .binder-card__foil::after,
+.foil-gold .binder-card__foil::after,
+.foil-prism .binder-card__foil::after {
+	opacity: 0.85;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.pocket-cell--occupied:hover .binder-card__foil::after,
+	.inspector-face--front:hover .binder-card__foil::after {
+		animation: dexFoilShine 1.1s ease-out;
+	}
+}
+
+.pocket-cell--occupied.is-tilting .binder-card__foil::after,
+.pocket-cell--occupied.is-shine-kick .binder-card__foil::after,
+.inspector-card-host.is-tilting .binder-card__foil::after,
+.inspector-card-host.is-shine-kick .binder-card__foil::after {
+	animation: dexFoilShine 0.95s ease-out;
+}
+
+@keyframes dexFoilShine {
+	0% { transform: translateX(-55%); opacity: 0.2; }
+	35% { opacity: 0.95; }
+	100% { transform: translateX(55%); opacity: 0.15; }
 }
 
 /* Aurora: Pastel wave */
@@ -1887,5 +1933,158 @@ html, body {
 @media (max-width: 520px) {
 	.binder-pack-modal__cards .adoptedex-card-wrap {
 		width: min(148px, 44vw);
+	}
+}
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Album visual juice: pocket insert, foil shine, inspector tilt
+ * ────────────────────────────────────────────────────────────────────────── */
+.pocket-cell--inserting {
+	animation: dexPocketInsert 0.62s cubic-bezier(0.22, 1.15, 0.36, 1) both;
+	z-index: 3;
+}
+
+.pocket-cell--inserting .binder-card {
+	animation: dexCardDropIn 0.55s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+@keyframes dexPocketInsert {
+	0% {
+		transform: scale(0.92) translateY(-10px);
+		border-color: rgba(254, 240, 138, 0.85);
+		box-shadow: 0 0 0 2px rgba(254, 240, 138, 0.45), 0 10px 24px rgba(0, 0, 0, 0.45);
+	}
+	100% {
+		transform: none;
+	}
+}
+
+@keyframes dexCardDropIn {
+	0% {
+		opacity: 0.2;
+		transform: translateY(-18px) scale(0.9) rotateX(12deg);
+		filter: brightness(1.3);
+	}
+	100% {
+		opacity: 1;
+		transform: none;
+		filter: none;
+	}
+}
+
+.pocket-cell--occupied {
+	transform-style: preserve-3d;
+	perspective: 800px;
+}
+
+.pocket-cell--occupied .binder-card {
+	transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+	transition: transform 0.12s ease-out;
+	transform-style: preserve-3d;
+}
+
+.pocket-cell--occupied.is-tilting .binder-card {
+	transition: transform 0.05s linear;
+}
+
+/* Uncommon / rare holo rim (aurora+ treated as foil uncommon+) */
+.foil-aurora.binder-card,
+.foil-cosmos.binder-card,
+.foil-gold.binder-card,
+.foil-prism.binder-card,
+.binder-card.foil-aurora,
+.binder-card.foil-cosmos,
+.binder-card.foil-gold,
+.binder-card.foil-prism {
+	box-shadow:
+		0 0 0 2px rgba(254, 240, 138, 0.45),
+		0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.foil-aurora.binder-card::before,
+.foil-cosmos.binder-card::before,
+.foil-gold.binder-card::before,
+.foil-prism.binder-card::before,
+.binder-card.foil-aurora::before,
+.binder-card.foil-cosmos::before,
+.binder-card.foil-gold::before,
+.binder-card.foil-prism::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	z-index: 6;
+	background: linear-gradient(
+		120deg,
+		rgba(244, 114, 182, 0.35),
+		rgba(251, 191, 36, 0.45),
+		rgba(45, 212, 191, 0.4),
+		rgba(167, 139, 250, 0.35),
+		rgba(244, 114, 182, 0.35)
+	);
+	background-size: 280% 280%;
+	animation: dexHoloRim 3.4s linear infinite;
+	opacity: 0.55;
+	mix-blend-mode: color-dodge;
+}
+
+@keyframes dexHoloRim {
+	0% { background-position: 0% 50%; }
+	100% { background-position: 200% 50%; }
+}
+
+.inspector-card-host {
+	transform-style: preserve-3d;
+	perspective: 1400px;
+	transition:
+		transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1),
+		filter 0.2s ease;
+}
+
+.inspector-card-host.is-tilting:not(.is-flipped) {
+	transition: transform 0.08s linear;
+	transform:
+		rotateX(var(--insp-tilt-x, 0deg))
+		rotateY(var(--insp-tilt-y, 0deg));
+}
+
+.inspector-card-host.is-flipped.is-tilting {
+	transition: transform 0.08s linear;
+	transform:
+		rotateY(calc(180deg + var(--insp-tilt-y, 0deg)))
+		rotateX(var(--insp-tilt-x, 0deg));
+}
+
+.inspector-card-host.is-shine-kick .inspector-face--front {
+	filter: brightness(1.08) saturate(1.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.binder-card__foil::after,
+	.pocket-cell--inserting,
+	.pocket-cell--inserting .binder-card,
+	.foil-aurora.binder-card::before,
+	.foil-cosmos.binder-card::before,
+	.foil-gold.binder-card::before,
+	.foil-prism.binder-card::before,
+	.binder-card.foil-aurora::before,
+	.binder-card.foil-cosmos::before,
+	.binder-card.foil-gold::before,
+	.binder-card.foil-prism::before {
+		animation: none !important;
+	}
+
+	.pocket-cell--occupied .binder-card,
+	.inspector-card-host.is-tilting:not(.is-flipped),
+	.inspector-card-host.is-flipped.is-tilting {
+		transform: none !important;
+		transition: none !important;
+	}
+
+	.pocket-cell--inserting {
+		border-color: rgba(254, 240, 138, 0.7);
+		box-shadow: 0 0 0 2px rgba(254, 240, 138, 0.35);
 	}
 }

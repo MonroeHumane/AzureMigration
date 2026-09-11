@@ -316,6 +316,90 @@
         refreshPackCount: refreshPackCountFromDex
       };
 
+
+      // Visual juice bridge: pack punch / tear shimmer + staggered card cascade.
+      // Overlay-only — does not rewrite the Vite pack engine.
+      (function juiceBridge() {
+        var reduced = false;
+        try {
+          reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        } catch (err) {}
+
+        function punchPack(el) {
+          if (!el || reduced) return;
+          el.classList.add('is-pack-punch', 'is-tearing', 'is-tap-shimmer');
+          window.setTimeout(function () {
+            el.classList.remove('is-pack-punch', 'is-tearing', 'is-tap-shimmer');
+          }, 700);
+        }
+
+        function pulseTearBadge(el) {
+          if (!el || reduced) return;
+          el.classList.add('is-tear-pulse');
+          window.setTimeout(function () {
+            el.classList.remove('is-tear-pulse');
+          }, 480);
+        }
+
+        function markHolo(card) {
+          if (!card) return;
+          var rare = card.classList.contains('pack-rarity-rare')
+            || card.classList.contains('pack-rarity-uncommon')
+            || card.querySelector('.foil-gold, .foil-prism, .foil-cosmos, .foil-aurora, .pack-rarity-rare, .pack-rarity-uncommon, [data-rarity="rare"], [data-rarity="uncommon"]');
+          var text = (card.textContent || '').toLowerCase();
+          if (!rare && (text.indexOf('rare') >= 0 || text.indexOf('uncommon') >= 0 || text.indexOf('foil') >= 0 || text.indexOf('holo') >= 0)) {
+            rare = true;
+          }
+          if (rare) card.classList.add('is-holo-rare');
+        }
+
+        function cascadeCards(root) {
+          var cards = (root || document).querySelectorAll('.card-3d-wrapper');
+          cards.forEach(function (card, i) {
+            markHolo(card);
+            if (reduced) return;
+            if (card.dataset.cascadeApplied === '1') return;
+            card.dataset.cascadeApplied = '1';
+            card.style.setProperty('--cascade-i', String(i));
+            card.classList.add('is-cascade-in');
+            window.setTimeout(function () {
+              card.classList.remove('is-cascade-in');
+            }, 700 + i * 90);
+          });
+        }
+
+        document.addEventListener('pointerdown', function (e) {
+          var t = e.target;
+          if (!t || !t.closest) return;
+          var badge = t.closest('.tear-prompt-badge');
+          var pack = t.closest('.pack-wrapper-3d');
+          if (badge) pulseTearBadge(badge);
+          if (pack) punchPack(pack);
+        }, true);
+
+        window.addEventListener('monroe-adoptedex-updated', function (e) {
+          var detail = e && e.detail ? e.detail : {};
+          if (detail.packOpened) {
+            var pack = document.querySelector('.pack-wrapper-3d');
+            punchPack(pack);
+            window.setTimeout(function () { cascadeCards(document); }, 180);
+            window.setTimeout(function () { cascadeCards(document); }, 520);
+          }
+        });
+
+        var obs = new MutationObserver(function () {
+          cascadeCards(document);
+          document.querySelectorAll('.humane-card.pack-rarity-rare, .humane-card.pack-rarity-uncommon').forEach(function (el) {
+            var host = el.closest('.card-3d-wrapper') || el;
+            host.classList.add('is-holo-rare');
+          });
+        });
+        var app = document.getElementById('app') || document.body;
+        try {
+          obs.observe(app, { childList: true, subtree: true });
+        } catch (err) {}
+      })();
+
       syncNoPacksClass();
       refreshPackCountFromDex();
       maybeClaimFirstPack();

@@ -3,11 +3,11 @@
 
 	const HINT_KEY = 'monroePetMatch_hint';
 	const TIMING = {
-		flipMs: 220,
-		flipEase: 'cubic-bezier(0.33, 1, 0.68, 1)',
-		mismatchShakeMs: 450,
+		flipMs: 280,
+		flipEase: 'cubic-bezier(0.22, 1, 0.36, 1)',
+		mismatchShakeMs: 380,
 		mismatchHoldMs: 520,
-		matchPopMs: 350,
+		matchPopMs: 480,
 		previewRevealMs: 180,
 		previewHoldMs: 550,
 		previewWaveCapMs: 600,
@@ -82,6 +82,7 @@
 	let firstIndex = null;
 	let moves = 0;
 	let matchedPairs = 0;
+	let matchStreak = 0;
 	let inputLocked = false;
 	let currentLevel = 1;
 	let progress = freshProgress();
@@ -1128,6 +1129,85 @@
 		});
 	}
 
+	function ensureComboChip() {
+		const wrap = els.board && els.board.parentElement;
+		if (!wrap || wrap.querySelector('.pet-match-combo-chip')) {
+			return wrap;
+		}
+		const chip = document.createElement('div');
+		chip.className = 'pet-match-combo-chip';
+		chip.setAttribute('aria-hidden', 'true');
+		chip.textContent = 'COMBO';
+		wrap.appendChild(chip);
+		return wrap;
+	}
+
+	function setComboUi(streak) {
+		const wrap = ensureComboChip();
+		const chip = wrap && wrap.querySelector('.pet-match-combo-chip');
+		const hot = streak >= 2 && !prefersReducedMotion();
+		if (els.board) {
+			els.board.classList.toggle('is-combo-hot', hot);
+		}
+		if (wrap) {
+			wrap.classList.toggle('is-combo-visible', hot);
+		}
+		if (chip) {
+			chip.textContent = streak >= 3 ? `COMBO x${streak}` : 'COMBO';
+		}
+	}
+
+	function spawnMatchBurst(index) {
+		if (prefersReducedMotion()) {
+			return;
+		}
+		const button = cardButton(index);
+		if (!button) {
+			return;
+		}
+		const angles = [20, 70, 120, 170, 220, 270, 320, 350];
+		angles.forEach((deg, i) => {
+			const spark = document.createElement('span');
+			spark.className = 'pet-match-spark';
+			spark.setAttribute('aria-hidden', 'true');
+			const rad = (deg * Math.PI) / 180;
+			const dist = 28 + (i % 3) * 10;
+			spark.style.setProperty('--sx', `${Math.cos(rad) * dist}px`);
+			spark.style.setProperty('--sy', `${Math.sin(rad) * dist}px`);
+			button.appendChild(spark);
+			later(560, () => {
+				spark.remove();
+			});
+		});
+	}
+
+	function celebrateMatch(firstIdx, secondIdx) {
+		matchStreak += 1;
+		pulseCard(firstIdx, 'is-match-pop', TIMING.matchPopMs);
+		pulseCard(secondIdx, 'is-match-pop', TIMING.matchPopMs);
+		spawnMatchBurst(firstIdx);
+		spawnMatchBurst(secondIdx);
+		if (matchStreak >= 2) {
+			pulseCard(firstIdx, 'is-combo-glow', 700);
+			pulseCard(secondIdx, 'is-combo-glow', 700);
+		}
+		setComboUi(matchStreak);
+		if (matchStreak >= 2) {
+			setLiveMessage(matchStreak >= 3 ? `Combo x${matchStreak}!` : 'Combo!');
+		} else {
+			setLiveMessage('Match!');
+		}
+	}
+
+	function punishMismatch(firstIdx, secondIdx) {
+		matchStreak = 0;
+		setComboUi(0);
+		pulseCard(firstIdx, 'is-shake', TIMING.mismatchShakeMs);
+		pulseCard(secondIdx, 'is-shake', TIMING.mismatchShakeMs);
+		pulseCard(firstIdx, 'is-mismatch-flash', TIMING.mismatchShakeMs);
+		pulseCard(secondIdx, 'is-mismatch-flash', TIMING.mismatchShakeMs);
+	}
+
 	function lockBoard(locked) {
 		inputLocked = locked;
 		els.board.querySelectorAll('.pet-match-card').forEach((button) => {
@@ -1569,9 +1649,7 @@
 				refreshCardUi(index);
 				sounds.playMatch();
 				triggerHaptic(25);
-				pulseCard(firstIndex, 'is-match-pop', TIMING.matchPopMs);
-				pulseCard(index, 'is-match-pop', TIMING.matchPopMs);
-				setLiveMessage('Match!');
+				celebrateMatch(firstIndex, index);
 				state = 'idle';
 				firstIndex = null;
 				lockBoard(false);
@@ -1589,8 +1667,7 @@
 			}
 
 			sounds.playMismatch();
-			pulseCard(firstIndex, 'is-shake', TIMING.mismatchShakeMs);
-			pulseCard(index, 'is-shake', TIMING.mismatchShakeMs);
+			punishMismatch(firstIndex, index);
 			setLiveMessage('Not a match.');
 			later(TIMING.mismatchHoldMs, () => {
 				first.faceUp = false;
@@ -1789,6 +1866,8 @@
 		firstIndex = null;
 		moves = 0;
 		matchedPairs = 0;
+		matchStreak = 0;
+		setComboUi(0);
 		inputLocked = false;
 		setLiveMessage('');
 		updateHud();
