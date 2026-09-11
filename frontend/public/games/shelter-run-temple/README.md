@@ -23,3 +23,11 @@ Hub can point here for QA; final cutover either swaps folder contents or updates
 - Local: serve `frontend/public` and open `/games/shelter-run-temple/index.html`
 - Embed: `/games/shelter-run-temple/index.html?embed=1`
 - Debug hitbox: `?debug=1` · force pads: `?touch=1`
+
+## Visual pass (2026-09-11)
+
+- Distance-gated biomes: dawn / day / dusk / night sky + track palettes
+- Particles: lane-change dust, jump-land sparks, slide trail, high-speed lines (skipped under `prefers-reduced-motion`)
+- Richer runner silhouette (run-cycle legs, ear bob, squash/stretch)
+- Obstacle shape/tint variants + optional Kenney rock overlays (`assets/kenney/`)
+- Lane-change camera nudge + player squash
