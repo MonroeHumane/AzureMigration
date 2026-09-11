@@ -807,6 +807,38 @@ html, body {
 	animation: dexFoilShine 0.95s ease-out;
 }
 
+/* Photo-first: stronger foil only during interaction (foil tiers only) */
+.pocket-cell--occupied.is-tilting .foil-aurora .binder-card__foil,
+.pocket-cell--occupied.is-tilting .foil-cosmos .binder-card__foil,
+.pocket-cell--occupied.is-tilting .foil-gold .binder-card__foil,
+.pocket-cell--occupied.is-tilting .foil-prism .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-aurora .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-cosmos .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-gold .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-prism .binder-card__foil,
+.inspector-card-host.is-tilting .foil-aurora .binder-card__foil,
+.inspector-card-host.is-tilting .foil-cosmos .binder-card__foil,
+.inspector-card-host.is-tilting .foil-gold .binder-card__foil,
+.inspector-card-host.is-tilting .foil-prism .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-aurora .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-cosmos .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-gold .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-prism .binder-card__foil,
+.inspector-face--front.foil-aurora:hover .binder-card__foil,
+.inspector-face--front.foil-cosmos:hover .binder-card__foil,
+.inspector-face--front.foil-gold:hover .binder-card__foil,
+.inspector-face--front.foil-prism:hover .binder-card__foil {
+	opacity: 0.72;
+	transition: opacity 0.2s ease;
+}
+.pocket-cell--occupied.is-shine-kick .foil-prism .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-gold .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-prism .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-gold .binder-card__foil {
+	opacity: 0.82;
+}
+
+
 @keyframes dexFoilShine {
 	0% { transform: translateX(-55%); opacity: 0.2; }
 	35% { opacity: 0.95; }
@@ -815,7 +847,7 @@ html, body {
 
 /* Aurora: Pastel wave */
 .foil-aurora .binder-card__foil {
-	opacity: 0.75;
+	opacity: 0.32;
 	background: linear-gradient(
 		var(--pointer-deg, 135deg),
 		rgba(255, 183, 178, 0.45) 0%,
@@ -830,7 +862,7 @@ html, body {
 
 /* Cosmos: Nebula starlight */
 .foil-cosmos .binder-card__foil {
-	opacity: 0.8;
+	opacity: 0.34;
 	background:
 		radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(251, 146, 60, 0.65) 0%, transparent 60%),
 		linear-gradient(var(--pointer-deg, 135deg), rgba(99, 102, 241, 0.4) 0%, rgba(236, 72, 153, 0.4) 100%);
@@ -839,7 +871,7 @@ html, body {
 
 /* Gold: 24k mirror gold */
 .foil-gold .binder-card__foil {
-	opacity: 0.8;
+	opacity: 0.36;
 	background: linear-gradient(
 		var(--pointer-deg, 135deg),
 		rgba(217, 119, 6, 0.4) 0%,
@@ -852,7 +884,7 @@ html, body {
 
 /* Prism: Rainbow diffraction grating */
 .foil-prism .binder-card__foil {
-	opacity: 0.85;
+	opacity: 0.38;
 	background:
 		repeating-linear-gradient(
 			var(--pointer-deg, 45deg),
@@ -1294,7 +1326,7 @@ html, body {
 .binder-pack-reveal__grid{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .binder-pack-reveal__rarity.is-rare{color:#b45309;font-weight:800}
 .binder-card--foil-flex,.adoptedex-card-wrap--foil-flex .adoptedex-card{box-shadow:0 0 0 2px rgba(254,240,138,.55),0 12px 28px rgba(255,179,71,.28)}
-.adoptedex-card__foil-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.55) 45%,transparent 70%);animation:adxFoil 2.8s linear infinite;mix-blend-mode:screen;opacity:.75}
+.adoptedex-card__foil-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.45) 45%,transparent 70%);animation:adxFoil 3.6s linear infinite;mix-blend-mode:screen;opacity:.28}
 @keyframes adxFoil{from{transform:translateX(-40%)}to{transform:translateX(40%)}}
 
 /* ==========================================================================
@@ -1537,9 +1569,9 @@ html, body {
 	}
 
 	.binder-header {
-		padding: 0.85rem 0.9rem;
-		border-radius: 16px;
-		gap: 0.65rem;
+		padding: 0.55rem 0.7rem;
+		border-radius: 14px;
+		gap: 0.4rem;
 	}
 
 	.binder-header__title {
@@ -2086,5 +2118,164 @@ html, body {
 	.pocket-cell--inserting {
 		border-color: rgba(254, 240, 138, 0.7);
 		box-shadow: 0 0 0 2px rgba(254, 240, 138, 0.35);
+	}
+}
+
+
+/* ==========================================================================
+   Adoptedex binder polish (lean) — filters drawer, shop compact, rare pulse
+   ========================================================================== */
+
+.binder-toolbar__row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.binder-toolbar__row .binder-search-box {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.binder-filters-toggle,
+.binder-shop-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	min-height: 44px;
+	min-width: 44px;
+	padding: 0.45rem 0.75rem;
+	border-radius: 999px;
+	border: 1.5px solid rgba(45, 212, 191, 0.35);
+	background: rgba(6, 32, 26, 0.92);
+	color: #ecfdf5;
+	font-weight: 800;
+	font-size: 0.82rem;
+	cursor: pointer;
+	touch-action: manipulation;
+	position: relative;
+	flex: 0 0 auto;
+}
+
+.binder-filters-toggle.is-open,
+.binder-shop-toggle.is-open {
+	border-color: rgba(45, 212, 191, 0.7);
+	background: rgba(13, 74, 62, 0.95);
+}
+
+.binder-filters-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.15rem;
+	height: 1.15rem;
+	padding: 0 0.3rem;
+	border-radius: 999px;
+	background: #fbbf24;
+	color: #1a2e28;
+	font-size: 0.68rem;
+	font-weight: 900;
+	line-height: 1;
+}
+
+.binder-filters-badge[hidden] {
+	display: none !important;
+}
+
+.binder-filters-panel {
+	display: block;
+}
+
+.binder-filters-panel.is-collapsed {
+	display: none;
+}
+
+.binder-shop-wrap {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.45rem;
+}
+
+/* Desktop: shop always visible; toggle hidden */
+.binder-shop-toggle {
+	display: none;
+}
+
+.binder-shop-row {
+	margin-top: 0;
+}
+
+/* Tiny rare-pull pulse — pack reveal only */
+.adoptedex-card-wrap--rare-pulse {
+	animation: adxRarePulse 1.1s ease-out 1;
+}
+
+@keyframes adxRarePulse {
+	0% { transform: scale(0.96); filter: brightness(1); }
+	40% { transform: scale(1.04); filter: brightness(1.12) saturate(1.15); }
+	100% { transform: scale(1); filter: brightness(1); }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+	.binder-shop-toggle {
+		display: inline-flex;
+	}
+
+	.binder-shop-wrap:not(.is-open) .binder-shop-row {
+		display: none;
+	}
+
+	.binder-shop-wrap.is-open .binder-shop-row {
+		display: flex;
+		width: 100%;
+		margin-top: 0.15rem;
+	}
+
+	.binder-shop-btn {
+		flex: 1 1 auto;
+		padding: 0.45rem 0.7rem;
+		min-height: 40px;
+		font-size: 0.78rem;
+	}
+
+	.binder-header__top {
+		gap: 0.45rem;
+	}
+
+	.binder-header__actions {
+		gap: 0.4rem;
+	}
+
+	.binder-header__avatar {
+		width: 38px;
+		height: 38px;
+		font-size: 1.25rem;
+		border-radius: 12px;
+	}
+
+	.binder-progress-wrap {
+		margin: 0;
+	}
+
+	.binder-toolbar {
+		gap: 0.45rem;
+		padding-top: 0.5rem;
+	}
+
+	.binder-pack-pill {
+		padding: 0.28rem 0.55rem;
+		font-size: 0.74rem;
+	}
+
+	.view-btn {
+		padding: 0.4rem 0.55rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.adoptedex-card-wrap--rare-pulse {
+		animation: none !important;
 	}
 }

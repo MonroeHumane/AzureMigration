@@ -156,6 +156,14 @@
 		sortSelect: document.getElementById('binderSortSelect'),
 		speciesChips: document.querySelectorAll('[data-filter-species]'),
 		rarityChips: document.querySelectorAll('[data-filter-rarity]'),
+		filtersToggle: document.getElementById('binderFiltersToggle'),
+		filtersPanel: document.getElementById('binderFiltersPanel'),
+		filtersBadge: document.getElementById('binderFiltersBadge'),
+		shopToggle: document.getElementById('binderShopToggle'),
+		shopRow: document.getElementById('binderShopRow'),
+		shopWrap: document.getElementById('binderShopWrap'),
+		emptyTitle: document.getElementById('emptyTitle'),
+		emptyDesc: document.getElementById('emptyDesc'),
 		binderBookStage: document.getElementById('binderBookStage'),
 		binderGridStage: document.getElementById('binderGridStage'),
 		binderPocketsGrid: document.getElementById('binderPocketsGrid'),
@@ -195,6 +203,70 @@
 		if (els.loadingState) els.loadingState.hidden = !isLoading;
 		if (els.binderMain) els.binderMain.hidden = !!isLoading;
 	}
+
+
+	function isCompactChrome() {
+		try {
+			return window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+		} catch (e) {
+			return window.innerWidth <= 768;
+		}
+	}
+
+	function countActiveFilters() {
+		var n = 0;
+		if (state.filterSpecies !== 'all') n++;
+		if (state.filterRarity !== 'all') n++;
+		if (state.sortMode !== 'dex_asc') n++;
+		if (state.searchQuery) n++;
+		return n;
+	}
+
+	function updateFiltersBadge() {
+		var n = countActiveFilters();
+		if (!els.filtersBadge) return;
+		if (n > 0) {
+			els.filtersBadge.hidden = false;
+			els.filtersBadge.textContent = String(n);
+		} else {
+			els.filtersBadge.hidden = true;
+			els.filtersBadge.textContent = '0';
+		}
+	}
+
+	function setFiltersExpanded(expanded) {
+		if (!els.filtersPanel || !els.filtersToggle) return;
+		els.filtersPanel.classList.toggle('is-collapsed', !expanded);
+		els.filtersToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+		els.filtersToggle.classList.toggle('is-open', !!expanded);
+	}
+
+	function setShopExpanded(expanded) {
+		if (!els.shopWrap) return;
+		els.shopWrap.classList.toggle('is-open', !!expanded);
+		if (els.shopToggle) {
+			els.shopToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+			els.shopToggle.classList.toggle('is-open', !!expanded);
+		}
+	}
+
+	function syncChromeCollapse() {
+		var compact = isCompactChrome();
+		if (compact) {
+			setFiltersExpanded(false);
+			setShopExpanded(false);
+		} else {
+			setFiltersExpanded(true);
+			setShopExpanded(true);
+		}
+	}
+
+	function kickShine(el, ms) {
+		if (!el) return;
+		el.classList.add('is-shine-kick');
+		window.setTimeout(function () { el.classList.remove('is-shine-kick'); }, ms || 950);
+	}
+
 
 	function determinePocketsPerSheet() {
 		return window.innerWidth <= 900 ? 4 : 9;
@@ -525,16 +597,30 @@
 			renderShowcaseGrid();
 		}
 
-		// Empty state
+		// Empty state (collection empty vs filters empty)
 		if (state.filteredCards.length === 0) {
 			if (els.emptyState) els.emptyState.hidden = false;
 			if (els.binderPocketsGrid) els.binderPocketsGrid.style.display = 'none';
 			if (els.binderShowcaseGrid) els.binderShowcaseGrid.style.display = 'none';
+			var collectionEmpty = !state.activeCards || state.activeCards.length === 0;
+			var filtersOn = countActiveFilters() > 0;
+			if (els.emptyTitle) {
+				els.emptyTitle.textContent = collectionEmpty ? 'Your binder is empty' : 'No matching cards';
+			}
+			if (els.emptyDesc) {
+				els.emptyDesc.textContent = collectionEmpty
+					? 'Open booster packs or claim a Daily Pack to discover shelter companions.'
+					: (filtersOn
+						? 'No cards match your active filters. Reset filters, or open packs to discover more companions.'
+						: 'No cards to show right now.');
+			}
+			if (els.btnResetFilters) els.btnResetFilters.hidden = collectionEmpty || !filtersOn;
 		} else {
 			if (els.emptyState) els.emptyState.hidden = true;
 			if (els.binderPocketsGrid) els.binderPocketsGrid.style.display = '';
 			if (els.binderShowcaseGrid) els.binderShowcaseGrid.style.display = '';
 		}
+		updateFiltersBadge();
 	}
 
 	function renderBinderSheet() {
@@ -755,8 +841,7 @@
 
 		el.addEventListener('pointerdown', function (e) {
 			applyTilt(e.clientX, e.clientY);
-			el.classList.add('is-shine-kick');
-			window.setTimeout(function () { el.classList.remove('is-shine-kick'); }, 950);
+			kickShine(el, 950);
 		});
 
 		el.addEventListener('pointerleave', resetTilt);
@@ -792,8 +877,7 @@
 		host.addEventListener('pointermove', function (e) { apply(e.clientX, e.clientY); });
 		host.addEventListener('pointerdown', function (e) {
 			apply(e.clientX, e.clientY);
-			host.classList.add('is-shine-kick');
-			window.setTimeout(function () { host.classList.remove('is-shine-kick'); }, 950);
+			kickShine(host, 950);
 		});
 		host.addEventListener('pointerleave', reset);
 		host.addEventListener('pointerup', function () { window.setTimeout(reset, 160); });
@@ -810,6 +894,7 @@
 		SoundEngine.playCardWhoosh();
 		renderInspectorCard();
 		bindInspectorTilt();
+		kickShine(els.inspectorCardHost, 950);
 
 		if (els.inspectorModal) {
 			els.inspectorModal.hidden = false;
@@ -982,8 +1067,12 @@
 				highlight: rarity === 'rare' || foil !== 'none',
 				startFlipped: false,
 			});
+			var isRarePull = rarity === 'rare' || foil === 'prism' || foil === 'gold' || foil === 'cosmos';
 			if (rarity === 'rare' || foil !== 'none') {
 				li.classList.add('adoptedex-card-wrap--foil-flex');
+			}
+			if (isRarePull) {
+				li.classList.add('adoptedex-card-wrap--rare-pulse');
 			}
 			els.packRevealGrid.appendChild(li);
 			var cardBtn = li.querySelector('.adoptedex-card');
@@ -1175,6 +1264,29 @@
 			});
 		}
 
+		// Filters drawer + shop compaction
+		if (els.filtersToggle) {
+			els.filtersToggle.addEventListener('click', function () {
+				var open = els.filtersToggle.getAttribute('aria-expanded') !== 'true';
+				setFiltersExpanded(open);
+			});
+		}
+		if (els.shopToggle) {
+			els.shopToggle.addEventListener('click', function () {
+				var open = els.shopToggle.getAttribute('aria-expanded') !== 'true';
+				setShopExpanded(open);
+			});
+		}
+		syncChromeCollapse();
+		var chromeMq;
+		try {
+			chromeMq = window.matchMedia('(max-width: 768px), (pointer: coarse)');
+			var onChromeChange = function () { syncChromeCollapse(); };
+			if (chromeMq.addEventListener) chromeMq.addEventListener('change', onChromeChange);
+			else if (chromeMq.addListener) chromeMq.addListener(onChromeChange);
+		} catch (eMq) {}
+		updateFiltersBadge();
+
 		// Sheet navigation
 		if (els.btnSheetPrev) {
 			els.btnSheetPrev.addEventListener('click', function () {
@@ -1197,6 +1309,7 @@
 				if (els.searchClear) els.searchClear.hidden = true;
 				els.speciesChips.forEach(function (c, i) { c.classList.toggle('is-active', i === 0); });
 				els.rarityChips.forEach(function (c, i) { c.classList.toggle('is-active', i === 0); });
+				if (els.sortSelect) { els.sortSelect.value = 'dex_asc'; state.sortMode = 'dex_asc'; }
 				applyFilterAndSort();
 			});
 		}

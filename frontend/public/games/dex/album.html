@@ -7,9 +7,9 @@
 	<script src="../embed.js"></script>
 	<link rel="stylesheet" href="../shared-styles.css">
 	<link rel="stylesheet" href="../humane-game-system.css">
-	<link rel="stylesheet" href="dex.css?v=6">
-	<link rel="stylesheet" href="embed.css?v=6">
-	<link rel="stylesheet" href="reward-toast.css?v=6">
+	<link rel="stylesheet" href="dex.css?v=7">
+	<link rel="stylesheet" href="embed.css?v=7">
+	<link rel="stylesheet" href="reward-toast.css?v=7">
 </head>
 <body>
 	<div class="binder-app" id="binderApp">
@@ -37,14 +37,19 @@
 						<a class="binder-pack-pill__btn" id="binderOpenPacksBtn" href="../booster/index.html">Booster ›</a>
 					</div>
 
-					<!-- Coin Shop lite + Daily Streak -->
-					<div class="binder-shop-row" id="binderShopRow">
-						<button type="button" class="binder-shop-btn" id="binderDailyStreakBtn" title="Claim once per day">
-							<span aria-hidden="true">🔥</span><span>Daily Pack</span>
+					<!-- Coin Shop lite + Daily Streak (collapsible on small screens) -->
+					<div class="binder-shop-wrap" id="binderShopWrap">
+						<button type="button" class="binder-shop-toggle" id="binderShopToggle" aria-expanded="false" aria-controls="binderShopRow" title="Shop">
+							<span aria-hidden="true">🛒</span><span class="binder-shop-toggle__label">Shop</span>
 						</button>
-						<button type="button" class="binder-shop-btn" id="binderBuyPackBtn" title="Spend 25 coins for 1 pack">
-							<span aria-hidden="true">🪙</span><span>Buy Pack · 25</span>
-						</button>
+						<div class="binder-shop-row" id="binderShopRow">
+							<button type="button" class="binder-shop-btn" id="binderDailyStreakBtn" title="Claim once per day">
+								<span aria-hidden="true">🔥</span><span class="binder-shop-btn__label">Daily Pack</span>
+							</button>
+							<button type="button" class="binder-shop-btn" id="binderBuyPackBtn" title="Spend 25 coins for 1 pack">
+								<span aria-hidden="true">🪙</span><span class="binder-shop-btn__label">Buy · 25</span>
+							</button>
+						</div>
 					</div>
 
 					<!-- View Mode Toggle: 3-Ring Binder vs Grid Showcase -->
@@ -74,39 +79,48 @@
 
 			<!-- Search & Filter Controls Toolbar -->
 			<div class="binder-toolbar">
-				<div class="binder-search-box">
-					<span class="binder-search-icon">🔍</span>
-					<input type="search" class="binder-search-input" id="binderSearch" placeholder="Search by pet name, breed, personality, move…" aria-label="Search pet collection">
-					<button type="button" class="binder-search-clear" id="binderSearchClear" hidden aria-label="Clear search">&times;</button>
+				<div class="binder-toolbar__row">
+					<div class="binder-search-box">
+						<span class="binder-search-icon">🔍</span>
+						<input type="search" class="binder-search-input" id="binderSearch" placeholder="Search by pet name, breed, personality, move…" aria-label="Search pet collection">
+						<button type="button" class="binder-search-clear" id="binderSearchClear" hidden aria-label="Clear search">&times;</button>
+					</div>
+					<button type="button" class="binder-filters-toggle" id="binderFiltersToggle" aria-expanded="true" aria-controls="binderFiltersPanel">
+						<span aria-hidden="true">⚙️</span>
+						<span>Filters</span>
+						<span class="binder-filters-badge" id="binderFiltersBadge" hidden>0</span>
+					</button>
 				</div>
 
-				<div class="binder-filters-row">
-					<!-- Species Filter Chips -->
-					<div class="binder-chips-group" role="group" aria-label="Filter by Species">
-						<button type="button" class="chip is-active" data-filter-species="all">All Species</button>
-						<button type="button" class="chip" data-filter-species="dog">🐕 Dogs</button>
-						<button type="button" class="chip" data-filter-species="cat">🐱 Cats</button>
-						<button type="button" class="chip" data-filter-species="other">🐰 Small Pets</button>
-					</div>
+				<div class="binder-filters-panel" id="binderFiltersPanel">
+					<div class="binder-filters-row">
+						<!-- Species Filter Chips -->
+						<div class="binder-chips-group" role="group" aria-label="Filter by Species">
+							<button type="button" class="chip is-active" data-filter-species="all">All Species</button>
+							<button type="button" class="chip" data-filter-species="dog">🐕 Dogs</button>
+							<button type="button" class="chip" data-filter-species="cat">🐱 Cats</button>
+							<button type="button" class="chip" data-filter-species="other">🐰 Small Pets</button>
+						</div>
 
-					<!-- Rarity Filter Chips -->
-					<div class="binder-chips-group" role="group" aria-label="Filter by Rarity">
-						<button type="button" class="chip is-active" data-filter-rarity="all">All Rarities</button>
-						<button type="button" class="chip chip--aurora" data-filter-rarity="tiny_wonder">🍼 Aurora</button>
-						<button type="button" class="chip chip--cosmos" data-filter-rarity="longtimer">⭐ Cosmos</button>
-						<button type="button" class="chip chip--gold" data-filter-rarity="golden_senior">👑 Gold</button>
-						<button type="button" class="chip chip--prism" data-filter-rarity="alumni">💖 Prism Alumni</button>
-					</div>
+						<!-- Rarity Filter Chips -->
+						<div class="binder-chips-group" role="group" aria-label="Filter by Rarity">
+							<button type="button" class="chip is-active" data-filter-rarity="all">All Rarities</button>
+							<button type="button" class="chip chip--aurora" data-filter-rarity="tiny_wonder">🍼 Aurora</button>
+							<button type="button" class="chip chip--cosmos" data-filter-rarity="longtimer">⭐ Cosmos</button>
+							<button type="button" class="chip chip--gold" data-filter-rarity="golden_senior">👑 Gold</button>
+							<button type="button" class="chip chip--prism" data-filter-rarity="alumni">💖 Prism Alumni</button>
+						</div>
 
-					<!-- Sort Dropdown -->
-					<div class="binder-sort-wrap">
-						<label for="binderSortSelect" class="sr-only">Sort collection</label>
-						<select class="binder-sort-select" id="binderSortSelect" aria-label="Sort collection">
-							<option value="dex_asc"># Pokédex (001 → 087)</option>
-							<option value="name_asc">Name (A → Z)</option>
-							<option value="rarity_desc">Rarity (Highest First)</option>
-							<option value="type_asc">Species (Dogs, Cats)</option>
-						</select>
+						<!-- Sort Dropdown -->
+						<div class="binder-sort-wrap">
+							<label for="binderSortSelect" class="sr-only">Sort collection</label>
+							<select class="binder-sort-select" id="binderSortSelect" aria-label="Sort collection">
+								<option value="dex_asc"># Dex (001 → 087)</option>
+								<option value="name_asc">Name (A → Z)</option>
+								<option value="rarity_desc">Rarity (Highest First)</option>
+								<option value="type_asc">Species (Dogs, Cats)</option>
+							</select>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -193,7 +207,7 @@
 			<!-- Empty State Message -->
 			<div class="binder-empty-state" id="binderEmptyState" hidden>
 				<div class="empty-icon">🐾</div>
-				<h2 class="empty-title">No Cards Found</h2>
+				<h2 class="empty-title" id="emptyTitle">No Cards Found</h2>
 				<p class="empty-desc" id="emptyDesc">No cards match your active filters. Reset filters, or open booster packs to discover new shelter companions.</p>
 				<div class="empty-actions">
 					<button type="button" class="btn-empty-reset" id="btnResetFilters">Reset Filters</button>
@@ -260,7 +274,7 @@
 		<div class="binder-error-toast" id="binderErrorToast" hidden role="alert"></div>
 	</div>
 
-	<script src="dex-shared.js?v=6"></script>
-	<script src="album.js?v=6" defer></script>
+	<script src="dex-shared.js?v=7"></script>
+	<script src="album.js?v=7" defer></script>
 </body>
 </html>
