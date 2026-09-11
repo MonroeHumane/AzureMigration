@@ -1019,10 +1019,18 @@ body {
 }
 
 .pet-match-meet__grid[data-density="high"] .pet-match-meet__name {
-	font-size: 0.82rem;
+	font-size: 0.78rem;
+}
+
+.pet-match-meet__grid[data-density="high"] .pet-match-meet__meta {
+	font-size: 0.64rem;
 }
 
 .pet-match-meet__grid[data-density="high"] .pet-match-meet__cta {
+	font-size: 0.62rem;
+}
+
+.pet-match-meet__grid[data-density="medium"] .pet-match-meet__meta {
 	font-size: 0.68rem;
 }
 
@@ -1035,10 +1043,11 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 0.45rem;
+	gap: 0.28rem;
 	width: var(--meet-img-w, 8rem);
 	max-width: var(--meet-img-w, 8rem);
-	padding: 0.6rem 0.55rem 0.65rem;
+	box-sizing: border-box;
+	padding: 0.45rem 0.4rem 0.5rem;
 	border-radius: 16px;
 	background: rgba(255, 255, 255, 0.95);
 	border: 2px solid rgba(107, 196, 166, 0.32);
@@ -1055,14 +1064,27 @@ body {
 	outline: none;
 }
 
-.pet-match-meet__photo {
+.pet-match-meet__card {
 	width: var(--meet-img-w, 8rem);
-	height: var(--meet-img-h, 8rem);
+	max-width: var(--meet-img-w, 8rem);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.pet-match-meet__photo {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	height: auto;
 	flex-shrink: 0;
 	border-radius: 12px;
 	overflow: hidden;
 	background: #fff;
 	border: 3px solid rgba(44, 28, 25, 0.1);
+}
+
+.pet-match-meet__photo.is-awaiting {
+	background: linear-gradient(135deg, rgba(255, 247, 237, 0.9), rgba(107, 196, 166, 0.18));
 }
 
 .pet-match-meet__photo img {
@@ -1071,18 +1093,34 @@ body {
 	object-fit: cover;
 	object-position: center 20%;
 	display: block;
-	transform: scale(1.06);
 }
 
 .pet-match-meet__name {
-	font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+	font-size: clamp(0.9rem, 1.1vw, 1.05rem);
 	font-weight: 800;
 	line-height: 1.2;
 	text-align: center;
+	color: var(--ink);
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pet-match-meet__meta {
+	font-size: 0.72rem;
+	font-weight: 650;
+	line-height: 1.2;
+	text-align: center;
+	color: rgba(44, 28, 25, 0.62);
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .pet-match-meet__cta {
-	font-size: 0.78rem;
+	font-size: 0.72rem;
 	font-weight: 700;
 	letter-spacing: 0.05em;
 	text-transform: uppercase;
@@ -1593,3 +1631,355 @@ html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-stat strong {
 	background: rgba(231, 111, 81, 0.9);
 	transform: scale(1.05);
 }
+
+/* ===== Shared Humane games theme tokens (pm-theme-*) =====
+   Storage/API live in ../theme.js (localStorage.humaneGamesTheme).
+   Light = cream/fur standalone look. Dark = arcade embed palette. */
+
+html.pm-theme-light {
+	--fur: #fef6ea;
+	--cream: #fffaf3;
+	--ink: #2c1c19;
+	--mint: #6bc4a6;
+	--treat: #ffb347;
+	--treat-deep: #ff7a3c;
+	--teal: #1a4f4b;
+	--teal-deep: #133c39;
+	--pm-surface: rgba(255, 255, 255, 0.92);
+	--pm-surface-strong: #ffffff;
+	--pm-border: rgba(44, 28, 25, 0.14);
+	--pm-muted: rgba(44, 28, 25, 0.58);
+	--pm-hud-bg: rgba(255, 250, 243, 0.92);
+	--pm-board-bg: rgba(255, 255, 255, 0.55);
+	--pm-modal-bg: #fffaf3;
+	--pm-modal-ink: #2c1c19;
+	--pm-btn-ghost-bg: rgba(255, 255, 255, 0.72);
+	--pm-btn-ghost-border: rgba(44, 28, 25, 0.16);
+	--pm-btn-ghost-ink: #2c1c19;
+	--pm-meet-card-bg: rgba(255, 255, 255, 0.95);
+	--pm-meet-card-border: rgba(107, 196, 166, 0.32);
+	--pm-meet-meta: rgba(44, 28, 25, 0.62);
+	--pm-meet-cta: #1b5e4a;
+	--card-back: linear-gradient(145deg, #ffe8c8 0%, #ffd39f 55%, #ffb347 100%);
+	--card-shadow: 0 6px 18px rgba(44, 28, 25, 0.14);
+	color-scheme: light;
+}
+
+html.pm-theme-dark {
+	--fur: #061815;
+	--cream: #0b2823;
+	--ink: #f1f5f9;
+	--mint: #2dd4bf;
+	--treat: #fde047;
+	--treat-deep: #facc15;
+	--teal: #134e4a;
+	--teal-deep: #082620;
+	--pm-surface: rgba(5, 24, 20, 0.85);
+	--pm-surface-strong: #082620;
+	--pm-border: rgba(45, 212, 191, 0.25);
+	--pm-muted: #94a3b8;
+	--pm-hud-bg: rgba(5, 24, 20, 0.85);
+	--pm-board-bg: rgba(8, 38, 32, 0.55);
+	--pm-modal-bg: #082620;
+	--pm-modal-ink: #f1f5f9;
+	--pm-btn-ghost-bg: rgba(255, 255, 255, 0.08);
+	--pm-btn-ghost-border: rgba(255, 255, 255, 0.2);
+	--pm-btn-ghost-ink: #e2e8f0;
+	--pm-meet-card-bg: rgba(8, 38, 32, 0.95);
+	--pm-meet-card-border: rgba(45, 212, 191, 0.28);
+	--pm-meet-meta: #94a3b8;
+	--pm-meet-cta: #5eead4;
+	--card-back: linear-gradient(135deg, #0f3d35 0%, #082620 60%, #041613 100%);
+	--card-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6);
+	color-scheme: dark;
+}
+
+/* Light must beat embed dark baseline (higher specificity when both present). */
+html.humane-embed.pm-theme-light,
+html.pm-theme-light.humane-embed {
+	--fur: #fef6ea;
+	--cream: #fffaf3;
+	--ink: #2c1c19;
+	--mint: #6bc4a6;
+	--treat: #ffb347;
+	--treat-deep: #ff7a3c;
+	--teal: #1a4f4b;
+	--teal-deep: #133c39;
+	--pm-surface: rgba(255, 255, 255, 0.92);
+	--pm-surface-strong: #ffffff;
+	--pm-border: rgba(44, 28, 25, 0.14);
+	--pm-muted: rgba(44, 28, 25, 0.58);
+	--pm-hud-bg: rgba(255, 250, 243, 0.92);
+	--pm-board-bg: rgba(255, 255, 255, 0.55);
+	--pm-modal-bg: #fffaf3;
+	--pm-modal-ink: #2c1c19;
+	--pm-btn-ghost-bg: rgba(255, 255, 255, 0.72);
+	--pm-btn-ghost-border: rgba(44, 28, 25, 0.16);
+	--pm-btn-ghost-ink: #2c1c19;
+	--pm-meet-card-bg: rgba(255, 255, 255, 0.95);
+	--pm-meet-card-border: rgba(107, 196, 166, 0.32);
+	--pm-meet-meta: rgba(44, 28, 25, 0.62);
+	--pm-meet-cta: #1b5e4a;
+	--card-back: linear-gradient(145deg, #ffe8c8 0%, #ffd39f 55%, #ffb347 100%);
+	--card-shadow: 0 6px 18px rgba(44, 28, 25, 0.14);
+	color-scheme: light;
+}
+
+html.pm-theme-light body,
+html.humane-embed.pm-theme-light body {
+	background: var(--fur) !important;
+	color: var(--ink);
+}
+
+html.pm-theme-dark body {
+	background: var(--fur) !important;
+	color: var(--ink);
+}
+
+html.pm-theme-light .pet-match-app,
+html.humane-embed.pm-theme-light .pet-match-app {
+	background: radial-gradient(circle at 50% 12%, #fffaf3 0%, #fef6ea 55%, #f3ebe0 100%);
+	color: var(--ink);
+}
+
+html.pm-theme-dark .pet-match-app {
+	background: radial-gradient(circle at 50% 15%, #0d332b 0%, #061815 100%);
+	color: var(--ink);
+}
+
+html.pm-theme-light .pet-match-hud,
+html.humane-embed.pm-theme-light .pet-match-hud {
+	background: var(--pm-hud-bg);
+	border: 1px solid var(--pm-border);
+	box-shadow: 0 4px 14px rgba(44, 28, 25, 0.08);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+}
+
+html.pm-theme-dark .pet-match-hud {
+	background: var(--pm-hud-bg);
+	border: 1px solid var(--pm-border);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+}
+
+html.pm-theme-light .pet-match-hud__title,
+html.humane-embed.pm-theme-light .pet-match-hud__title {
+	color: #133a32;
+}
+
+html.pm-theme-dark .pet-match-hud__title {
+	color: #ecfeff;
+}
+
+html.pm-theme-light .pet-match-hud__stats,
+html.humane-embed.pm-theme-light .pet-match-hud__stats {
+	color: var(--ink);
+}
+
+html.pm-theme-dark .pet-match-hud__stats {
+	color: #94a3b8;
+}
+
+html.pm-theme-dark .pet-match-stat strong {
+	color: #5eead4;
+}
+
+html.pm-theme-dark .pet-match-stat--moves strong {
+	color: #fde047;
+}
+
+html.pm-theme-light .pet-match-quick-btn,
+html.humane-embed.pm-theme-light .pet-match-quick-btn {
+	background: #ffffff;
+	border-color: rgba(44, 28, 25, 0.15);
+	color: var(--ink);
+	box-shadow: 0 2px 8px rgba(44, 28, 25, 0.08);
+}
+
+html.pm-theme-dark .pet-match-quick-btn {
+	background: #092c25;
+	border-color: rgba(45, 212, 191, 0.3);
+	color: #e2e8f0;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+html.pm-theme-light .pet-match-board-wrap,
+html.humane-embed.pm-theme-light .pet-match-board-wrap {
+	background: var(--pm-board-bg);
+}
+
+html.pm-theme-dark .pet-match-board-wrap {
+	background: var(--pm-board-bg);
+}
+
+html.pm-theme-light .pet-match-card__back,
+html.humane-embed.pm-theme-light .pet-match-card__back {
+	background: var(--card-back);
+	border-color: rgba(255, 179, 71, 0.55);
+	box-shadow: var(--card-shadow);
+}
+
+html.pm-theme-dark .pet-match-card__back {
+	background: var(--card-back);
+	border: 1.5px solid rgba(45, 212, 191, 0.35);
+	box-shadow: inset 0 0 12px rgba(20, 184, 166, 0.15);
+}
+
+html.pm-theme-dark .pet-match-card__back::before {
+	color: #2dd4bf;
+	opacity: 0.85;
+	text-shadow: 0 0 8px rgba(45, 212, 191, 0.6);
+}
+
+html.pm-theme-light .pet-match-modal__panel,
+html.humane-embed.pm-theme-light .pet-match-modal__panel {
+	background: var(--pm-modal-bg);
+	color: var(--pm-modal-ink);
+	border-color: rgba(107, 196, 166, 0.28);
+	box-shadow: 0 24px 60px rgba(44, 28, 25, 0.22);
+}
+
+html.pm-theme-dark .pet-match-modal__panel {
+	background: var(--pm-modal-bg);
+	color: var(--pm-modal-ink);
+	border: 1.5px solid #134e4a;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(20, 184, 166, 0.2);
+}
+
+html.pm-theme-light .pet-match-modal__eyebrow,
+html.humane-embed.pm-theme-light .pet-match-modal__eyebrow {
+	color: #1b5e4a;
+}
+
+html.pm-theme-dark .pet-match-modal__eyebrow {
+	color: #5eead4;
+}
+
+html.pm-theme-light .pet-match-modal__hero h2,
+html.humane-embed.pm-theme-light .pet-match-modal__hero h2 {
+	color: var(--ink);
+}
+
+html.pm-theme-dark .pet-match-modal__hero h2 {
+	color: #ffffff;
+}
+
+html.pm-theme-light .pet-match-modal__message,
+html.humane-embed.pm-theme-light .pet-match-modal__message {
+	color: rgba(44, 28, 25, 0.78);
+}
+
+html.pm-theme-dark .pet-match-modal__message {
+	color: #cbd5e1;
+}
+
+html.pm-theme-dark .pet-match-win-praise {
+	color: #fde047;
+}
+
+html.pm-theme-light .pet-match-btn--ghost,
+html.humane-embed.pm-theme-light .pet-match-btn--ghost {
+	background: var(--pm-btn-ghost-bg);
+	border-color: var(--pm-btn-ghost-border);
+	color: var(--pm-btn-ghost-ink);
+}
+
+html.pm-theme-dark .pet-match-btn--ghost {
+	background: var(--pm-btn-ghost-bg);
+	border: 1px solid var(--pm-btn-ghost-border);
+	color: var(--pm-btn-ghost-ink);
+}
+
+html.pm-theme-dark .pet-match-btn--primary {
+	background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+	color: #ffffff;
+	border: none;
+	box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+}
+
+html.pm-theme-light .pet-match-meet h3,
+html.humane-embed.pm-theme-light .pet-match-meet h3 {
+	color: #1b5e4a;
+}
+
+html.pm-theme-dark .pet-match-meet h3 {
+	color: #99f6e4;
+}
+
+html.pm-theme-light .pet-match-meet__hint,
+html.humane-embed.pm-theme-light .pet-match-meet__hint {
+	color: var(--pm-muted);
+}
+
+html.pm-theme-dark .pet-match-meet__hint {
+	color: #94a3b8;
+}
+
+html.pm-theme-light .pet-match-meet__link,
+html.humane-embed.pm-theme-light .pet-match-meet__link {
+	background: var(--pm-meet-card-bg);
+	border-color: var(--pm-meet-card-border);
+	color: var(--ink);
+}
+
+html.pm-theme-dark .pet-match-meet__link {
+	background: var(--pm-meet-card-bg);
+	border-color: var(--pm-meet-card-border);
+	color: var(--ink);
+}
+
+html.pm-theme-light .pet-match-meet__meta,
+html.humane-embed.pm-theme-light .pet-match-meet__meta {
+	color: var(--pm-meet-meta);
+}
+
+html.pm-theme-dark .pet-match-meet__meta {
+	color: var(--pm-meet-meta);
+}
+
+html.pm-theme-light .pet-match-meet__cta,
+html.humane-embed.pm-theme-light .pet-match-meet__cta {
+	color: var(--pm-meet-cta);
+}
+
+html.pm-theme-dark .pet-match-meet__cta {
+	color: var(--pm-meet-cta);
+}
+
+html.pm-theme-dark .pet-match-modal__actions--win {
+	background: rgba(4, 22, 19, 0.55);
+}
+
+html.pm-theme-light .pet-match-modal__actions--win,
+html.humane-embed.pm-theme-light .pet-match-modal__actions--win {
+	background: rgba(255, 247, 237, 0.65);
+}
+
+html.pm-theme-dark .pet-match-progress {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+html.pm-theme-dark .pet-match-progress__bar {
+	background: linear-gradient(90deg, #14b8a6, #10b981);
+	box-shadow: 0 0 10px rgba(20, 184, 166, 0.6);
+}
+
+html.pm-theme-dark .pet-match-live {
+	color: #5eead4;
+}
+
+html.pm-theme-dark .pet-match-key-hints {
+	background: rgba(5, 24, 20, 0.75);
+	border-color: rgba(45, 212, 191, 0.25);
+	color: #99f6e4;
+}
+
+html.pm-theme-dark .pet-match-key-hints kbd {
+	background: #0b2823;
+	border-color: rgba(45, 212, 191, 0.35);
+	color: #f1f5f9;
+	box-shadow: none;
+}
+
