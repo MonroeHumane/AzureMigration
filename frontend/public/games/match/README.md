@@ -30,4 +30,4 @@ Progress is **session only** - each time you open Pet Match from `/games/`, it s
 
 ## Placeholders
 
-Shipped SVG placeholders (`pet01.svg`–`pet18.svg`) work out of the box. Replace with real shelter photos when ready - no code changes beyond `manifest.json`.
+Shipped illustrated SVG silhouettes (`pet01.svg`–`pet18.svg`) are the offline fallback when the live pet API / `shelter-pets.json` photos are unavailable. Live Azure pet photos are preferred at runtime.

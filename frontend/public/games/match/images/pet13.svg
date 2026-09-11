@@ -1,5 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" role="img" aria-label="Cuddly cat">
-  <rect width="400" height="400" fill="#CE93D8"/>
-  <circle cx="200" cy="200" r="150" fill="rgba(255,255,255,0.28)"/>
-  <text x="200" y="225" font-size="160" text-anchor="middle" dominant-baseline="middle">🐕</text>
+  <defs>
+    <radialGradient id="g" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.06"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" rx="28" fill="#FFE5F0"/>
+  <circle cx="200" cy="200" r="150" fill="url(#g)"/>
+  <!-- ears pointed -->
+  <path d="M95 175 L120 70 L175 155 Z" fill="#FFB6C1"/>
+  <path d="M110 165 L125 95 L160 150 Z" fill="#FFD0DC"/>
+  <path d="M305 175 L280 70 L225 155 Z" fill="#FFB6C1"/>
+  <path d="M290 165 L275 95 L240 150 Z" fill="#FFD0DC"/>
+  <!-- head -->
+  <ellipse cx="200" cy="210" rx="115" ry="105" fill="#FFB6C1"/>
+  <!-- muzzle -->
+  <ellipse cx="200" cy="245" rx="48" ry="32" fill="#FFD0DC"/>
+  <ellipse cx="200" cy="235" rx="12" ry="9" fill="#DB7093"/>
+  <!-- eyes almond -->
+  <ellipse cx="155" cy="195" rx="18" ry="22" fill="#2C1C19"/>
+  <ellipse cx="245" cy="195" rx="18" ry="22" fill="#2C1C19"/>
+  <ellipse cx="158" cy="188" rx="6" ry="7" fill="#7CFC00" opacity="0.85"/>
+  <ellipse cx="248" cy="188" rx="6" ry="7" fill="#7CFC00" opacity="0.85"/>
+  <!-- whiskers -->
+  <g stroke="#DB7093" stroke-width="3" stroke-linecap="round" opacity="0.7">
+    <line x1="95" y1="230" x2="155" y2="240"/>
+    <line x1="90" y1="250" x2="155" y2="250"/>
+    <line x1="95" y1="270" x2="155" y2="260"/>
+    <line x1="305" y1="230" x2="245" y2="240"/>
+    <line x1="310" y1="250" x2="245" y2="250"/>
+    <line x1="305" y1="270" x2="245" y2="260"/>
+  </g>
+  <!-- smile -->
+  <path d="M175 258 Q200 272 225 258" fill="none" stroke="#DB7093" stroke-width="4" stroke-linecap="round"/>
 </svg>

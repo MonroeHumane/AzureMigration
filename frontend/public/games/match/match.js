@@ -728,6 +728,153 @@
 		return data;
 	}
 
+
+	const MANIFEST_FALLBACK_LIMIT = 18;
+	const IMAGE_PROBE_MS = 5500;
+	const MAX_PAIRS_NEEDED = LEVELS.reduce((max, level) => Math.max(max, level.pairs), 0);
+
+	function isRemoteUrl(url) {
+		return typeof url === 'string' && (/^https?:\/\//i.test(url) || url.startsWith('//'));
+	}
+
+	function silhouetteFallback(pet) {
+		const type = String((pet && pet.type) || '').toLowerCase();
+		const breed = String((pet && pet.breed) || '').toLowerCase();
+		const isCat = type === 'cat' || breed.includes('cat') || breed.includes('kitten');
+		// Prefer illustrated silhouettes shipped with the game (never blank).
+		return isCat ? 'images/pet02.svg' : 'images/pet01.svg';
+	}
+
+	function probeImage(url) {
+		return new Promise((resolve) => {
+			if (!url) {
+				resolve(false);
+				return;
+			}
+			// Local / relative assets (SVG fallbacks) are always treated as loadable.
+			if (!isRemoteUrl(url)) {
+				resolve(true);
+				return;
+			}
+			const img = new Image();
+			let settled = false;
+			const finish = (ok) => {
+				if (settled) return;
+				settled = true;
+				window.clearTimeout(timer);
+				img.onload = null;
+				img.onerror = null;
+				resolve(ok);
+			};
+			const timer = window.setTimeout(() => finish(false), IMAGE_PROBE_MS);
+			img.referrerPolicy = 'no-referrer';
+			img.decoding = 'async';
+			img.onload = () => finish(true);
+			img.onerror = () => finish(false);
+			img.src = url;
+		});
+	}
+
+	async function filterLoadablePets(images) {
+		const pool = Array.isArray(images) ? images.slice() : [];
+		const kept = [];
+		const rejected = [];
+		// Probe in small batches so we do not open dozens of sockets at once.
+		const BATCH = 8;
+		for (let i = 0; i < pool.length && kept.length < Math.max(MAX_PAIRS_NEEDED + 4, 12); i += BATCH) {
+			const slice = pool.slice(i, i + BATCH);
+			const results = await Promise.all(slice.map(async (pet) => ({
+				pet,
+				ok: await probeImage(pet.file)
+			})));
+			results.forEach(({ pet, ok }) => {
+				if (ok) {
+					kept.push(pet);
+				} else {
+					rejected.push(pet);
+				}
+			});
+		}
+		if (rejected.length) {
+			console.warn('[Pet Match] Dropped pets with broken photos:', rejected.length);
+		}
+		return kept;
+	}
+
+	async function ensurePlayablePool(images) {
+		let kept = await filterLoadablePets(images);
+		if (kept.length >= MAX_PAIRS_NEEDED) {
+			return kept;
+		}
+		// Pad with illustrated SVG fallbacks so levels still start.
+		try {
+			const manifest = await loadManifestFallback();
+			const extras = (manifest.images || []).filter((img) => {
+				return !kept.some((k) => k.id === img.id || k.file === img.file);
+			}).slice(0, MANIFEST_FALLBACK_LIMIT);
+			kept = kept.concat(extras.map((img) => ({
+				id: img.id,
+				name: img.alt || img.id,
+				breed: 'Companion',
+				type: /cat|kitten/i.test(img.alt || '') ? 'cat' : 'dog',
+				file: img.file,
+				alt: img.alt,
+				url: '/adopt/'
+			})));
+		} catch (err) {
+			console.warn('[Pet Match] Could not pad with SVG fallbacks:', err);
+		}
+		return kept;
+	}
+
+	function wirePetPhoto(img, pet, options) {
+		const opts = options || {};
+		const primary = pet && pet.file ? pet.file : '';
+		const fallback = silhouetteFallback(pet);
+		const candidates = [];
+		if (primary) {
+			candidates.push(primary);
+		}
+		if (fallback && fallback !== primary) {
+			candidates.push(fallback);
+		}
+		// Ultimate local backups if type-based silhouette somehow fails.
+		candidates.push('images/pet18.svg', 'images/pet01.svg');
+
+		let attempt = 0;
+		img.classList.add('is-loading');
+		img.classList.remove('is-loaded', 'is-broken');
+		img.alt = (pet && (pet.alt || pet.name)) || img.alt || 'Shelter pet';
+		img.decoding = 'async';
+		img.loading = opts.loading || 'eager';
+		img.referrerPolicy = 'no-referrer';
+		const tryNext = () => {
+			if (attempt >= candidates.length) {
+				img.onload = null;
+				img.onerror = null;
+				img.removeAttribute('src');
+				img.classList.remove('is-loading');
+				img.classList.add('is-broken');
+				return;
+			}
+			const next = candidates[attempt];
+			attempt += 1;
+			img.src = next;
+		};
+
+		img.onload = () => {
+			img.classList.remove('is-loading', 'is-broken');
+			img.classList.add('is-loaded');
+		};
+		img.onerror = () => {
+			// Advance to next candidate (silhouette / local SVG) so cards never stay blank.
+			tryNext();
+		};
+		tryNext();
+		return img;
+	}
+
+
 	async function loadPetPool() {
 		// 1. Try Live WordPress REST feed
 		const apiUrl = getPetsApiUrl() || '/wp-json/monroe/v1/featured-pets';
@@ -755,7 +902,10 @@
 						};
 					}).filter(p => !!p.file);
 					if (mapped.length >= 4) {
-						return { images: mapped };
+						const playable = await ensurePlayablePool(mapped);
+						if (playable.length >= 4) {
+							return { images: playable };
+						}
 					}
 				}
 			}
@@ -779,7 +929,10 @@
 						url: p.url || ('/adopt/' + encodeURIComponent(p.id))
 					})).filter(p => !!p.file);
 					if (mappedFallback.length >= 4) {
-						return { images: mappedFallback };
+						const playable = await ensurePlayablePool(mappedFallback);
+						if (playable.length >= 4) {
+							return { images: playable };
+						}
 					}
 				}
 			}
@@ -787,8 +940,10 @@
 			console.warn('Fallback shelter-pets.json load failed:', err2);
 		}
 
-		// 3. Fallback to vector SVGs
-		return loadManifestFallback();
+		// 3. Fallback to illustrated SVG silhouettes
+		const manifest = await loadManifestFallback();
+		const playable = await ensurePlayablePool(manifest.images || []);
+		return { images: playable.length ? playable : (manifest.images || []) };
 	}
 
 	function buildDeck(level, images) {
@@ -816,6 +971,8 @@
 			}
 			seen.add(file);
 			const img = new Image();
+			img.referrerPolicy = 'no-referrer';
+			img.decoding = 'async';
 			img.src = file;
 		});
 	}
@@ -971,10 +1128,9 @@
 			const front = document.createElement('span');
 			front.className = 'pet-match-card__face pet-match-card__front';
 			const img = document.createElement('img');
-			img.src = card.image.file;
-			img.alt = card.image.alt;
-			img.loading = 'eager';
-			img.decoding = 'async';
+			front.classList.add('is-awaiting');
+			wirePetPhoto(img, card.image, { loading: 'eager' });
+			img.addEventListener('load', () => front.classList.remove('is-awaiting'), { once: true });
 			front.appendChild(img);
 
 			inner.appendChild(back);
@@ -1519,10 +1675,10 @@
 				photo.className = 'pet-match-meet__photo';
 
 				const img = document.createElement('img');
-				img.src = pet.file;
+				photo.classList.add('is-awaiting');
+				wirePetPhoto(img, pet, { loading: 'lazy' });
 				img.alt = '';
-				img.loading = 'lazy';
-				img.decoding = 'async';
+				img.addEventListener('load', () => photo.classList.remove('is-awaiting'), { once: true });
 
 				photo.appendChild(img);
 
