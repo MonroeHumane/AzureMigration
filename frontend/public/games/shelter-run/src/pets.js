@@ -85,10 +85,13 @@ var ShelterRunPets = (function () {
     return drawn;
   }
 
+  function getCached() { return petList.slice(); }
+
   return {
     fetchPets: fetchPets,
     drawForRun: drawForRun,
     getList: function () { return petList; },
     isRealPhoto: isRealPhoto,
+    getCached: getCached,
   };
 })();

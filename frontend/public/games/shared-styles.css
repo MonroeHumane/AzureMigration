@@ -17,6 +17,12 @@
 	--cell: 28px;
 	--gap: 3px;
 	--radius: 16px;
+	/* Games responsive primitives (Shelter Run, Dex album, Match, …) */
+	--touch-min: 44px;
+	--safe-top: env(safe-area-inset-top, 0px);
+	--safe-right: env(safe-area-inset-right, 0px);
+	--safe-bottom: env(safe-area-inset-bottom, 0px);
+	--safe-left: env(safe-area-inset-left, 0px);
 }
 
 /* Reset & Base */

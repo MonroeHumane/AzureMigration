@@ -46,14 +46,23 @@ class MainMenuScene extends Phaser.Scene {
       .setDepth(10)
       .setInteractive({ useHandCursor: true });
 
-    this._leftArrow.on('pointerdown', () => {
+    // Expand hit targets to ≥44px for touch
+    this._leftHit = this.add.circle(0, 0, 28, 0x000000, 0.001).setDepth(9).setInteractive({ useHandCursor: true });
+    this._rightHit = this.add.circle(0, 0, 28, 0x000000, 0.001).setDepth(9).setInteractive({ useHandCursor: true });
+
+    const cycleLeft = () => {
       this._index = (this._index - 1 + CFG.COMPANIONS.length) % CFG.COMPANIONS.length;
       this._refreshCompanion();
-    });
-    this._rightArrow.on('pointerdown', () => {
+    };
+    const cycleRight = () => {
       this._index = (this._index + 1) % CFG.COMPANIONS.length;
       this._refreshCompanion();
-    });
+    };
+
+    this._leftArrow.on('pointerdown', cycleLeft);
+    this._rightArrow.on('pointerdown', cycleRight);
+    this._leftHit.on('pointerdown', cycleLeft);
+    this._rightHit.on('pointerdown', cycleRight);
 
     // Visual fill + an explicit Zone so the hit target is the label/zone,
     // not a rectangle that can be covered or left at 0-size iframe coords.
@@ -69,20 +78,57 @@ class MainMenuScene extends Phaser.Scene {
     this._startZone.on('pointerdown', () => this._startRun());
     this._startLabel.on('pointerdown', () => this._startRun());
 
+    // Desktop key hints (in-canvas, hidden on coarse pointers)
+    this._isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    this._hintText = srUiText(this, 0, 0,
+      this._isCoarse
+        ? 'Tap arrows to pick · Tap Start Run'
+        : '← → pick companion · Enter / Space to start',
+      { fontSize: '16px', color: '#9ec4b8' }
+    ).setDepth(5);
+
     // Scene-level fallback: Phaser object hit-testing can miss after an
     // early 0-size iframe resize; still start if the pointer is in the zone.
     this.input.on('pointerdown', (pointer) => this._onScenePointer(pointer));
 
     if (this.input.keyboard) {
-      this.input.keyboard.on('keydown-LEFT', () => this._leftArrow.emit('pointerdown'));
-      this.input.keyboard.on('keydown-RIGHT', () => this._rightArrow.emit('pointerdown'));
+      this.input.keyboard.on('keydown-LEFT', () => cycleLeft());
+      this.input.keyboard.on('keydown-RIGHT', () => cycleRight());
       this.input.keyboard.on('keydown-ENTER', () => this._startRun());
       this.input.keyboard.on('keydown-SPACE', () => this._startRun());
+      this.input.keyboard.on('keydown-ESC', () => this._requestExit());
     }
 
+    this._setDomHints('menu');
     this._layout();
     this.scale.on('resize', this._layout, this);
-    this.events.once('shutdown', () => this.scale.off('resize', this._layout, this));
+    this.events.once('shutdown', () => {
+      this.scale.off('resize', this._layout, this);
+      this._setDomHints('hidden');
+    });
+  }
+
+  _setDomHints(mode) {
+    const el = document.getElementById('srKeyHints');
+    if (!el) return;
+    if (mode === 'hidden' || this._isCoarse) {
+      el.style.display = 'none';
+      return;
+    }
+    el.style.display = '';
+    if (mode === 'menu') {
+      el.innerHTML =
+        '<span class="sr-key-hints__item"><kbd>←</kbd><kbd>→</kbd> companion</span>' +
+        '<span class="sr-key-hints__item"><kbd>Enter</kbd>/<kbd>Space</kbd> start</span>';
+    }
+  }
+
+  _requestExit() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'arcade:exit', game: 'shelter_run' }, '*');
+      }
+    } catch (e) {}
   }
 
   _companion() {
@@ -111,7 +157,8 @@ class MainMenuScene extends Phaser.Scene {
     for (let i = 0; i < pts.length; i++) {
       const x = pts[i][0];
       const y = pts[i][1];
-      if (this._contains(this._leftArrow, x, y) || this._contains(this._rightArrow, x, y)) {
+      if (this._contains(this._leftArrow, x, y) || this._contains(this._rightArrow, x, y) ||
+          this._contains(this._leftHit, x, y) || this._contains(this._rightHit, x, y)) {
         return;
       }
       if (this._contains(this._startZone, x, y) || this._contains(this._startLabel, x, y) || this._contains(this._startFill, x, y)) {
@@ -163,24 +210,30 @@ class MainMenuScene extends Phaser.Scene {
     const arrowOffset = Math.min(220, W * 0.36);
     this._leftArrow.setPosition(W / 2 - arrowOffset, previewY - 60);
     this._rightArrow.setPosition(W / 2 + arrowOffset, previewY - 60);
+    this._leftHit.setPosition(W / 2 - arrowOffset, previewY - 60);
+    this._rightHit.setPosition(W / 2 + arrowOffset, previewY - 60);
 
-    const btnW = Math.max(180, Math.min(SR_START_BTN_W, W - 32));
-    const btnY = vy(560);
+    const btnW = Math.max(200, Math.min(SR_START_BTN_W, W - 32));
+    const btnH = Math.max(SR_START_BTN_H, 56);
+    const btnY = Math.min(vy(560), H - 72);
     this._startFill.setPosition(W / 2, btnY);
-    this._startFill.setSize(btnW, SR_START_BTN_H);
+    this._startFill.setSize(btnW, btnH);
     this._startFill.setInteractive({ useHandCursor: true });
     this._startZone.setPosition(W / 2, btnY);
     if (typeof this._startZone.setSize === 'function') {
-      this._startZone.setSize(btnW, SR_START_BTN_H, true);
+      this._startZone.setSize(btnW, btnH, true);
     }
     this._startZone.setInteractive({ useHandCursor: true });
     this._startLabel.setPosition(W / 2, btnY);
     this._startLabel.setInteractive({ useHandCursor: true });
 
+    this._hintText.setPosition(W / 2, Math.min(btnY + btnH / 2 + 28, H - 24));
+
     const titleSize = W < 420 ? '40px' : '56px';
     const subSize = W < 420 ? '16px' : '20px';
     this._title.setFontSize(titleSize);
     this._subtitle.setFontSize(subSize);
+    this._hintText.setFontSize(W < 420 ? '14px' : '16px');
   }
 
   _loadCompanionIndex() {
