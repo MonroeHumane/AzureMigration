@@ -9,11 +9,15 @@ html.humane-embed body {
 	height: 100%;
 	min-height: 100%;
 	overflow-y: auto;
-	background: #061815 !important;
-	color: #f1f5f9;
 	user-select: none;
 	-webkit-user-select: none;
 	-webkit-tap-highlight-color: transparent;
+}
+
+/* Colour rules below are dark-only; html.pm-theme-light takes over in dex.css. */
+html.humane-embed:not(.pm-theme-light) body {
+	background: #061815 !important;
+	color: #f1f5f9;
 }
 
 html.humane-embed .binder-app {
@@ -24,10 +28,13 @@ html.humane-embed .binder-app {
 		calc(0.75rem + env(safe-area-inset-right, 0px))
 		calc(1.5rem + env(safe-area-inset-bottom, 0px))
 		calc(0.75rem + env(safe-area-inset-left, 0px));
+}
+
+html.humane-embed:not(.pm-theme-light) .binder-app {
 	background: radial-gradient(circle at 50% 15%, #0c332a 0%, #061815 100%);
 }
 
-html.humane-embed .binder-header {
+html.humane-embed:not(.pm-theme-light) .binder-header {
 	background: rgba(5, 24, 20, 0.9);
 	backdrop-filter: blur(14px);
 	-webkit-backdrop-filter: blur(14px);

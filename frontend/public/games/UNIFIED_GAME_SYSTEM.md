@@ -10,8 +10,9 @@ Shared chrome, tokens, and input patterns for every embedded Humane Arcade game
 | `humane-game-system.css` | Design tokens, HUD chips, buttons, overlays, desktop/mobile control visibility, safe areas |
 | `shared-styles.css` | Site/game shell styles; **imports** `humane-game-system.css` |
 | `shared.js` | `HumaneAudio` + **`HumaneGameSystem`** input/viewport helpers |
-| `embed.js` / `embed.css` | `?embed=1` → `html.humane-embed` (no double chrome in hub iframe) |
-| Hub `frontend/src/pages/games/index.astro` | Cabinet iframe + dock; supplies outer chrome |
+| `embed.js` / `embed.css` | `?embed=1` → `html.humane-embed` (no double chrome in hub iframe); also first-paint `?theme=` |
+| `theme.js` | Arcade light/dark: `html.pm-theme-light` / `html.pm-theme-dark`, `window.HumaneGamesTheme` |
+| Hub `frontend/src/pages/games/index.astro` | Cabinet iframe + dock; supplies outer chrome and the Light/Dark button |
 
 Do **not** break embed detection (`embed=1` query → `html.humane-embed`).
 Do **not** delete legacy petsnake / tycoon.
@@ -28,6 +29,7 @@ Do **not** delete legacy petsnake / tycoon.
 2. **Load order** (typical standalone HTML game):
    ```html
    <script src="/games/embed.js"></script>
+   <script src="/games/theme.js"></script>   <!-- before any stylesheet -->
    <link rel="stylesheet" href="/games/shared-styles.css">
    <!-- or at minimum: -->
    <link rel="stylesheet" href="/games/humane-game-system.css">
@@ -112,11 +114,76 @@ Do **not** delete legacy petsnake / tycoon.
 - Fill `100dvh` without double top bars; keep bottom safe-area for home indicator when needed.
 - Optional: `HumaneGameSystem.pauseOnVisibilityChange` when the player switches dock games or backgrounds the tab.
 
+## Light / dark theming
+
+Every cabinet game shares one arcade preference. The cabinet header owns the
+control; games follow.
+
+**Preference:** `localStorage.humaneGamesTheme` = `light` | `dark` (legacy key
+`petMatchTheme` still reads). This is deliberately **separate** from the staff
+portal's `mchs_staff_theme` — flipping the arcade never changes the portal, and
+vice versa.
+
+**Resolution order** in `theme.js`: `?theme=` → saved preference → embed/standalone
+default. The URL param wins because the cabinet is authoritative while a game is
+framed.
+
+**How it reaches a game:**
+
+1. The hub appends `&theme=light|dark` to the iframe URL on open.
+2. `embed.js` sets `html.pm-theme-*` before the first stylesheet lands (no flash).
+3. `theme.js` re-applies the same value and takes over storage + events.
+4. Toggling mid-session posts `{ type: 'arcade:set_theme', theme }` into the
+   iframe — same pattern as `arcade:set_mute`.
+
+**Adopting a game:**
+
+- Load `theme.js` right after `embed.js`, **before** stylesheets.
+- Style off `--hg-theme-*` instead of hardcoded hex. Games built on `.hg-*`
+  classes flip for free.
+- Do **not** ship an in-frame Light/Dark button. The cabinet's top-right toggle
+  is the only theme control in the arcade; a second one would disagree with the
+  saved preference. `embed.css` hides `[data-hg-theme-toggle]` as a backstop.
+- Canvas games can't use CSS for the playfield, so listen instead:
+  ```js
+  window.addEventListener('humane-games-theme', (e) => retint(e.detail.theme));
+  retint(window.HumaneGamesTheme?.get?.());
+  ```
+
+**Where art flips and where it doesn't.** Photographic and illustrated assets —
+Booster foil packs, Shelter Run's temple trail — keep their designed palettes in
+both themes, because there is no light version of a photograph.
+
+Catwalk is the exception: its playfield is generated vector linework, so light
+mode repaints it. `src/games/catwalk/rendering/palette.ts` holds a night set and
+a day set for both the wire colors (`PALETTE`) and the cockpit HUD (`HUD`), and
+`setCatwalkTheme()` swaps them in place plus zeroes `glowScale` — the neon bloom
+is what makes the night version read as spooky. `resolveShift()` then runs the
+daylight → afternoon progression instead of night → late night → dawn.
+
+`window.HumaneGamesTheme`: `get()`, `apply(theme, opts)`, `toggle()`,
+`bindToggle(btn)`, `isEmbedded()`, `getUrlTheme()`, `getSaved()`, `resolve()`.
+
 ## Token reference (CSS)
 
 Core (parity with teal/cream Humane look): `--fur`, `--treat`, `--treat-deep`, `--ink`, `--mint`, `--cream`, `--teal`, `--teal-deep`, `--shadow`.
 
 System: `--hg-touch-min`, `--hg-safe-*`, `--hg-thumb-zone`, `--hg-focus-ring`, `--hg-chip-bg`, `--hg-overlay-scrim`, `--hg-playfield-max`.
+
+Theme (flip with `html.pm-theme-light` / `html.pm-theme-dark`, aligned to the staff
+portal's `--sp-*` palette): `--hg-theme-bg`, `--hg-theme-bg-elevated`,
+`--hg-theme-surface`, `--hg-theme-surface-soft`, `--hg-theme-text`,
+`--hg-theme-text-muted`, `--hg-theme-border`, `--hg-theme-border-soft`,
+`--hg-theme-accent`, `--hg-theme-accent-soft`, `--hg-theme-accent-contrast`,
+`--hg-theme-scrim`, `--hg-theme-shadow`.
+
+| | Light | Dark |
+|---|---|---|
+| bg | `#f4f7f5` | `#071a17` |
+| surface | `#ffffff` | `rgba(11,36,32,0.85)` |
+| text | `#173a39` | `#ffffff` |
+| border | `#cbd5e1` | `rgba(19,78,74,0.8)` |
+| accent | `#0f766e` | `#5eead4` |
 
 ## JS API (`window.HumaneGameSystem`)
 

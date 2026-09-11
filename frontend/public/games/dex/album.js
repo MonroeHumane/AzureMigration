@@ -154,7 +154,6 @@
 		search: document.getElementById('binderSearch'),
 		searchClear: document.getElementById('binderSearchClear'),
 		speciesChips: document.querySelectorAll('[data-filter-species]'),
-		themeToggle: document.getElementById('binderThemeToggle'),
 		shopToggle: document.getElementById('binderShopToggle'),
 		shopRow: document.getElementById('binderShopRow'),
 		shopWrap: document.getElementById('binderShopWrap'),
@@ -230,13 +229,11 @@
 		setShopExpanded(!compact);
 	}
 
+	// Light/dark is owned by the arcade cabinet's toggle; this only re-applies
+	// whatever theme.js already resolved.
 	function wireThemeToggle() {
-		if (!els.themeToggle) return;
 		var api = window.HumaneGamesTheme;
-		if (!api) return;
-		if (typeof api.init === 'function') api.init({ button: els.themeToggle });
-		if (typeof api.initThemeToggle === 'function') api.initThemeToggle(els.themeToggle);
-		else if (typeof api.bindToggle === 'function') api.bindToggle(els.themeToggle);
+		if (api && typeof api.init === 'function') api.init();
 	}
 
 	function kickShine(el, ms) {

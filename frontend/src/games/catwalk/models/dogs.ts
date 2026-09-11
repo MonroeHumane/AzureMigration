@@ -9,7 +9,8 @@ export interface DogProfile {
   bodyHeight: number;
   headRadius: number;
   collisionWidth: number;
-  color: string;
+  /** Getter, not a snapshot — PALETTE is mutated when the arcade theme flips. */
+  readonly color: string;
   earStyle: 'pricked' | 'floppy' | 'rose' | 'shepherd';
   snoutLength: number;
   snoutThickness: number;
@@ -25,7 +26,9 @@ export const DOG_PROFILES: Record<DogBreed, DogProfile> = {
     bodyHeight: 18,
     headRadius: 9,
     collisionWidth: 54,
-    color: PALETTE.dogAmber,
+    get color() {
+      return PALETTE.dogAmber;
+    },
     earStyle: 'pricked',
     snoutLength: 10,
     snoutThickness: 6,
@@ -39,7 +42,9 @@ export const DOG_PROFILES: Record<DogBreed, DogProfile> = {
     bodyHeight: 19,
     headRadius: 10,
     collisionWidth: 70,
-    color: PALETTE.dogRose,
+    get color() {
+      return PALETTE.dogRose;
+    },
     earStyle: 'floppy',
     snoutLength: 16,
     snoutThickness: 6.5,
@@ -53,7 +58,9 @@ export const DOG_PROFILES: Record<DogBreed, DogProfile> = {
     bodyHeight: 21,
     headRadius: 11,
     collisionWidth: 66,
-    color: PALETTE.dogCoral,
+    get color() {
+      return PALETTE.dogCoral;
+    },
     earStyle: 'shepherd',
     snoutLength: 14,
     snoutThickness: 7,
@@ -67,7 +74,9 @@ export const DOG_PROFILES: Record<DogBreed, DogProfile> = {
     bodyHeight: 22,
     headRadius: 12,
     collisionWidth: 58,
-    color: PALETTE.dogAmber,
+    get color() {
+      return PALETTE.dogAmber;
+    },
     earStyle: 'rose',
     snoutLength: 7,
     snoutThickness: 8.5,

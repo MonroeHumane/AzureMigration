@@ -1,9 +1,12 @@
 /**
- * Shared light/dark theme for Humane hub games (Match, Adoptedex, etc.).
+ * Shared light/dark theme for every Humane Arcade game.
  *
  * Storage: localStorage.humaneGamesTheme = 'light' | 'dark'
  * Classes: html.pm-theme-light | html.pm-theme-dark
- * Default: dark when html.humane-embed, else light (unless a preference is saved).
+ *
+ * Resolution order: ?theme= (cabinet is authoritative) -> saved -> embed/standalone default.
+ * The cabinet owns the preference when a game runs in its iframe, so the URL param
+ * and the arcade:set_theme message both outrank whatever this origin saved earlier.
  *
  * Usage:
  *   <script src="../embed.js"></script>
@@ -18,6 +21,7 @@
 	var LEGACY_KEYS = ['petMatchTheme'];
 	var LIGHT = 'light';
 	var DARK = 'dark';
+	var MESSAGE_TYPE = 'arcade:set_theme';
 
 	function rootEl() {
 		return global.document && global.document.documentElement;
@@ -56,12 +60,25 @@
 		return null;
 	}
 
+	function getUrlTheme() {
+		try {
+			var match = /(?:^|[?&])theme=(light|dark)(?:&|$)/.exec(global.location.search || '');
+			return match ? match[1] : null;
+		} catch (e) {
+			return null;
+		}
+	}
+
 	function getDefault() {
 		var root = rootEl();
 		if (root && root.classList.contains('humane-embed')) {
 			return DARK;
 		}
 		return LIGHT;
+	}
+
+	function resolve() {
+		return getUrlTheme() || getSaved() || getDefault();
 	}
 
 	function get() {
@@ -72,7 +89,12 @@
 			var data = root.getAttribute('data-pm-theme') || root.dataset && root.dataset.pmTheme;
 			if (data === LIGHT || data === DARK) return data;
 		}
-		return getSaved() || getDefault();
+		return resolve();
+	}
+
+	function isEmbedded() {
+		var root = rootEl();
+		return !!(root && root.classList.contains('humane-embed'));
 	}
 
 	function syncToggle(button, theme) {
@@ -107,8 +129,7 @@
 
 	function init(options) {
 		var opts = options || {};
-		var theme = getSaved() || getDefault();
-		return apply(theme, { persist: false, button: opts.button });
+		return apply(resolve(), { persist: false, button: opts.button });
 	}
 
 	function toggle(options) {
@@ -133,11 +154,15 @@
 
 	var api = {
 		KEY: KEY,
+		MESSAGE_TYPE: MESSAGE_TYPE,
 		LIGHT: LIGHT,
 		DARK: DARK,
 		getSaved: getSaved,
+		getUrlTheme: getUrlTheme,
 		getDefault: getDefault,
+		resolve: resolve,
 		get: get,
+		isEmbedded: isEmbedded,
 		apply: apply,
 		init: init,
 		toggle: toggle,
@@ -148,6 +173,17 @@
 	};
 
 	global.HumaneGamesTheme = api;
+
+	// Cabinet -> game. The parent owns the preference while we are framed, so it
+	// writes localStorage itself; persisting here too would just double-write.
+	try {
+		global.addEventListener('message', function (event) {
+			var data = event && event.data;
+			if (!data || data.type !== MESSAGE_TYPE) return;
+			if (data.theme !== LIGHT && data.theme !== DARK) return;
+			apply(data.theme, { persist: false });
+		});
+	} catch (e) { /* ignore */ }
 
 	// First-paint: apply as soon as this script runs (after embed.js when present).
 	try {

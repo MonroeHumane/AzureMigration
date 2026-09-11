@@ -2441,32 +2441,6 @@ html, body {
 	width: min(220px, 42vw);
 }
 
-.binder-theme-toggle {
-	width: 2.35rem;
-	height: 2.35rem;
-	border-radius: 12px;
-	border: 1.5px solid rgba(45, 212, 191, 0.35);
-	background: #06201a;
-	color: #f8fafc;
-	font-size: 1.05rem;
-	cursor: pointer;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	transition: border-color 0.2s, background 0.2s, transform 0.15s;
-}
-
-.binder-theme-toggle:hover {
-	border-color: var(--teal-400, #2dd4bf);
-	transform: translateY(-1px);
-}
-
-.binder-theme-toggle:focus-visible {
-	outline: 2px solid var(--teal-400, #2dd4bf);
-	outline-offset: 2px;
-}
-
 html.pm-theme-light .binder-header,
 html.pm-theme-light .binder-app {
 	background: #f4faf7;
@@ -2480,7 +2454,6 @@ html.pm-theme-light .binder-header__count {
 }
 
 html.pm-theme-light .binder-search-input,
-html.pm-theme-light .binder-theme-toggle,
 html.pm-theme-light .chip {
 	background: #ffffff;
 	color: #0f172a;
@@ -2493,9 +2466,127 @@ html.pm-theme-light .chip.is-active {
 	border-color: #0f3d32;
 }
 
-html.pm-theme-dark .binder-theme-toggle {
-	background: #06201a;
-	color: #f8fafc;
+/* Light mode, cabinet-grade. These carry !important because embed.css and the
+ * base sheet both paint the binder dark; light has to win in the iframe too. */
+html.pm-theme-light body,
+html.pm-theme-light.humane-embed body {
+	background: #f4f7f5 !important;
+	color: #173a39 !important;
+}
+
+html.pm-theme-light .binder-app,
+html.pm-theme-light.humane-embed .binder-app {
+	background: radial-gradient(circle at 50% 12%, #ffffff 0%, #eef4f2 100%) !important;
+	color: #173a39 !important;
+}
+
+html.pm-theme-light .binder-header,
+html.pm-theme-light.humane-embed .binder-header {
+	background: rgba(255, 255, 255, 0.94) !important;
+	border: 1px solid #cbd5e1 !important;
+	box-shadow: 0 4px 16px rgba(23, 58, 57, 0.12) !important;
+	color: #173a39 !important;
+}
+
+html.pm-theme-light .binder-header__sub,
+html.pm-theme-light .binder-footer,
+html.pm-theme-light .binder-card__stat-lbl {
+	color: #475569 !important;
+}
+
+html.pm-theme-light .binder-search-input::placeholder {
+	color: #94a3b8 !important;
+}
+
+/* The album is a physical object, so it keeps its leather-and-rings look — but
+ * in a lit room that leather is tan, not near-black, and the sheets inside are
+ * paper. */
+html.pm-theme-light .binder-leather-cover {
+	background: linear-gradient(160deg, #b5895f 0%, #8f6641 55%, #6f4d31 100%) !important;
+	border-color: #5c3f27 !important;
+	box-shadow: 0 18px 44px rgba(23, 58, 57, 0.28) !important;
+}
+
+html.pm-theme-light .binder-spine-margin {
+	background: linear-gradient(180deg, #6f4d31, #543a25) !important;
+}
+
+html.pm-theme-light .binder-sheet-surface,
+html.pm-theme-light .binder-grid-stage {
+	background: #fbfdfc !important;
+	border-color: #cbd5e1 !important;
+	color: #173a39 !important;
+}
+
+/* Named elements only — the sheet header and pockets also hold pill badges and
+ * full cards that own their own colours. */
+html.pm-theme-light .sheet-title,
+html.pm-theme-light .binder-sheet-footer,
+html.pm-theme-light .binder-swipe-hint,
+html.pm-theme-light .pocket-empty,
+html.pm-theme-light .pocket-empty__label,
+html.pm-theme-light .pocket-empty__hint {
+	color: #475569 !important;
+}
+
+html.pm-theme-light .sheet-page-indicator {
+	background: #f1f5f4 !important;
+	border-color: #cbd5e1 !important;
+	color: #475569 !important;
+}
+
+html.pm-theme-light .pocket-cell {
+	background: repeating-linear-gradient(45deg, #eef2f1 0 8px, #f6f8f7 8px 16px) !important;
+	border-color: #cbd5e1 !important;
+	color: #94a3b8 !important;
+}
+
+html.pm-theme-light .binder-card {
+	background: #ffffff !important;
+	border-color: #cbd5e1 !important;
+	color: #173a39 !important;
+}
+
+html.pm-theme-light .binder-card__name,
+html.pm-theme-light .binder-card__stat-val {
+	color: #173a39 !important;
+}
+
+html.pm-theme-light .binder-pack-pill {
+	background: #fffbeb !important;
+	border-color: #fcd34d !important;
+}
+
+html.pm-theme-light .binder-pack-pill__text {
+	color: #92400e !important;
+}
+
+html.pm-theme-light .binder-shop-btn,
+html.pm-theme-light .binder-shop-toggle,
+html.pm-theme-light .binder-view-toggle,
+html.pm-theme-light .binder-key-hints__item,
+html.pm-theme-light .binder-species-toggle {
+	background: #ffffff !important;
+	border-color: #cbd5e1 !important;
+	color: #0f766e !important;
+}
+
+html.pm-theme-light .binder-empty-state,
+html.pm-theme-light .binder-loading-state {
+	background: #ffffff !important;
+	border-color: #cbd5e1 !important;
+	color: #475569 !important;
+}
+
+html.pm-theme-light .binder-pack-reveal__panel {
+	background: #ffffff !important;
+	border-color: #cbd5e1 !important;
+	color: #173a39 !important;
+	box-shadow: 0 24px 60px rgba(23, 58, 57, 0.24) !important;
+}
+
+html.pm-theme-light .binder-pack-reveal {
+	background: rgba(226, 232, 240, 0.86) !important;
 }
 
 @media (max-width: 640px) {

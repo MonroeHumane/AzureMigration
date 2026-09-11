@@ -21,10 +21,15 @@ html.humane-embed .adventure-watermark {
 
 html.humane-embed body {
 	padding: 0;
-	background: #1c110c;
+	background: var(--hg-theme-bg, #1c110c);
 	overscroll-behavior: none;
 	touch-action: manipulation;
 	-webkit-text-size-adjust: 100%;
+}
+
+/* Legacy adventure games predate the theme tokens; keep their warm cabinet. */
+html.humane-embed:not(.pm-theme-light):not(.pm-theme-dark) body {
+	background: #1c110c;
 }
 
 /* Nothing above the game should reserve space. */
@@ -60,6 +65,12 @@ html.humane-embed .hg-game-root,
 html.humane-embed .site-shell {
 	min-height: 100%;
 	min-height: 100dvh;
+}
+
+/* The cabinet's Light/Dark button is the only theme control in the arcade.
+ * Games must not ship their own; this is a guard, not a feature. */
+[data-hg-theme-toggle] {
+	display: none !important;
 }
 
 /* Hide any in-game "back to arcade" that duplicates cabinet Close. */

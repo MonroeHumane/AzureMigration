@@ -1,3 +1,5 @@
+import { glowScale } from './palette';
+
 export interface Point {
   x: number;
   y: number;
@@ -9,9 +11,12 @@ export function wire(context: CanvasRenderingContext2D, color: string, width = 2
   context.globalAlpha = alpha;
   context.lineCap = 'round';
   context.lineJoin = 'round';
-  if (glow > 0) {
+  // Daylight zeroes the scale: the bloom is what makes the night look spooky,
+  // and on a pale sky it just smears the linework.
+  const blur = glow * glowScale.value;
+  if (blur > 0) {
     context.shadowColor = color;
-    context.shadowBlur = glow;
+    context.shadowBlur = blur;
   } else {
     context.shadowBlur = 0;
   }

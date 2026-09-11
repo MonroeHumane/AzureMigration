@@ -1,4 +1,4 @@
-import { PALETTE } from '../rendering/palette';
+import { HUD, PALETTE } from '../rendering/palette';
 import { circle, line, polyline, wire, withTransform } from '../rendering/primitives';
 
 export type HouseStyle = 'peaked' | 'dormer' | 'shed' | 'aframe' | 'turret';
@@ -221,7 +221,7 @@ export function drawHouse(context: CanvasRenderingContext2D, pose: HousePose): v
       circle(context, { x: 4, y: 22 }, 2.0);
     } else {
       const near = Math.max(0, Math.min(1, pose.approach ?? 0));
-      wire(context, near > 0.2 ? PALETTE.catSoft : '#1e4834', 1.0, 0.6 + near * 0.35);
+      wire(context, near > 0.2 ? PALETTE.catSoft : HUD.frame, 1.0, 0.6 + near * 0.35);
       line(context, { x: -8, y: 21 }, { x: 8, y: 21 });
       line(context, { x: -5, y: 18 }, { x: 5, y: 18 });
       if (near > 0.25) {

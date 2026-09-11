@@ -99,6 +99,35 @@ html.humane-embed #game-container {
   image-rendering: auto;
 }
 
+/* --------------------------------------------------------------------------
+   Arcade light/dark (theme.js). The temple trail itself is a dusk-lit run and
+   stays that way in both themes — only the bezel around the canvas and the DOM
+   chrome layered on top flip, so the runner never loses contrast.
+   -------------------------------------------------------------------------- */
+html.pm-theme-light {
+  --sr-bg: #f4f7f5;
+  --sr-embed-bg: #f4f7f5;
+}
+
+html.pm-theme-light .sr-key-hints kbd {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #173a39;
+  box-shadow: 0 2px 0 rgba(23, 58, 57, 0.18);
+}
+
+html.pm-theme-light .sr-key-hints__item {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #cbd5e1;
+  color: #173a39;
+}
+
+html.pm-theme-light .sr-chrome-exit {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f766e;
+}
+
 /* High-contrast key-hint chips (DOM overlay for desktop) */
 .sr-key-hints {
   position: absolute;

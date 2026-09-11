@@ -7,6 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#71c5cf">
   <title>Flappy Cat</title>
+  <script src="../../embed.js"></script>
+  <script src="../../theme.js?v=1"></script>
   <style>
     :root {
       --fur: #fef6ea;
@@ -265,6 +267,27 @@
       --biome-glow: rgba(128, 222, 234, 0.12);
       --biome-tint: rgba(13, 27, 42, 0.35);
     }
+    /* Arcade light/dark (theme.js). Flappy is a daytime game, so light is its
+       native look; dark pushes every biome toward evening and darkens the HUD
+       rather than swapping the art. */
+    html.pm-theme-dark {
+      --fur: #0b2420;
+      --ink: #e2f5f0;
+      --sky: #142a3d;
+    }
+    html.pm-theme-dark.fc-biome-dawn { --sky: #3b5670; }
+    html.pm-theme-dark.fc-biome-day { --sky: #2a5766; }
+    html.pm-theme-dark.fc-biome-dusk { --sky: #6b3d33; }
+    html.pm-theme-dark.fc-biome-night { --sky: #101a2c; }
+    html.pm-theme-dark #game-shell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: rgba(4, 16, 24, 0.28);
+      z-index: 1;
+    }
+
     html.fc-biome-dawn #game-shell,
     html.fc-biome-day #game-shell,
     html.fc-biome-dusk #game-shell,

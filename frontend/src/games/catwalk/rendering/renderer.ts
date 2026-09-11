@@ -11,7 +11,7 @@ import {
   positionsForLane,
   type GameState,
 } from '../engine/game';
-import { PALETTE, getShiftPaletteForState } from './palette';
+import { HUD, PALETTE, getShiftPaletteForState } from './palette';
 import type { ParticleSystem } from './particles';
 import { circle, line, polyline, resetGlow, wire } from './primitives';
 
@@ -129,16 +129,16 @@ function renderTopHud(
 
   // Backdrop cockpit panel with solid crisp gradient
   const bgGradient = context.createLinearGradient(0, 0, 0, 52);
-  bgGradient.addColorStop(0, '#07150e');
-  bgGradient.addColorStop(0.75, '#040d09');
-  bgGradient.addColorStop(1, '#020704');
+  bgGradient.addColorStop(0, HUD.panelTop);
+  bgGradient.addColorStop(0.75, HUD.panelMid);
+  bgGradient.addColorStop(1, HUD.panelBottom);
   context.fillStyle = bgGradient;
   context.fillRect(0, 0, BOARD_WIDTH, 52);
 
   // Bottom double separation line (crisp 1px lines on integer coordinates)
   wire(context, PALETTE.gridStrong, 1.2, 0.9);
   line(context, { x: 0, y: 51.5 }, { x: BOARD_WIDTH, y: 51.5 });
-  wire(context, '#102e20', 1.0, 0.6);
+  wire(context, HUD.rule, 1.0, 0.6);
   line(context, { x: 0, y: 48.5 }, { x: BOARD_WIDTH, y: 48.5 });
 
   // Neon corner bezel brackets
@@ -148,9 +148,9 @@ function renderTopHud(
 
   // Divider helper
   const drawDivider = (x: number) => {
-    wire(context, '#163828', 1, 0.7);
+    wire(context, HUD.divider, 1, 0.7);
     line(context, { x: x + 0.5, y: 10 }, { x: x + 0.5, y: 42 });
-    wire(context, '#2c6d4e', 1.5, 0.95);
+    wire(context, HUD.dividerNotch, 1.5, 0.95);
     line(context, { x: x + 0.5, y: 24 }, { x: x + 0.5, y: 28 }); // Center phosphor notch
   };
 
@@ -162,7 +162,7 @@ function renderTopHud(
   const emblemY = 25;
 
   // Outer shield badge
-  wire(context, '#1d4834', 1.0, 0.8);
+  wire(context, HUD.frame, 1.0, 0.8);
   polyline(context, [
     { x: emblemX - 12, y: emblemY - 10 },
     { x: emblemX + 12, y: emblemY - 10 },
@@ -197,7 +197,7 @@ function renderTopHud(
   context.fillText('CATWALK', 44, 25);
 
   context.font = 'bold 9.5px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = '#6ee7a8'; // Clean high-contrast emerald green
+  context.fillStyle = HUD.subtitle; // Clean high-contrast emerald green
   context.fillText('// NIGHT PATROL', 44, 38);
 
   drawDivider(136);
@@ -207,15 +207,15 @@ function renderTopHud(
   // ========================================================
   resetGlow(context);
   context.font = '9px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = '#78a890';
+  context.fillStyle = HUD.label;
   context.textAlign = 'center';
   context.fillText('1P SCORE', 185, 18);
 
   context.font = 'bold 17px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = '#e8ffef';
+  context.fillStyle = HUD.value;
   context.fillText(String(state.score).padStart(5, '0'), 185, 38);
 
-  wire(context, '#1b4532', 1, 0.7);
+  wire(context, HUD.underline, 1, 0.7);
   polyline(context, [
     { x: 156, y: 41 },
     { x: 156, y: 44 },
@@ -230,7 +230,7 @@ function renderTopHud(
   // ========================================================
   resetGlow(context);
   context.font = '9px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = '#caa652';
+  context.fillStyle = HUD.gold;
   context.textAlign = 'center';
   context.fillText('★ HI-SCORE', 284, 18);
 
@@ -238,7 +238,7 @@ function renderTopHud(
   context.fillStyle = PALETTE.warning;
   context.fillText(String(state.best).padStart(5, '0'), 284, 38);
 
-  wire(context, '#5c4618', 1, 0.7);
+  wire(context, HUD.goldUnderline, 1, 0.7);
   polyline(context, [
     { x: 256, y: 41 },
     { x: 256, y: 44 },
@@ -253,12 +253,12 @@ function renderTopHud(
   // ========================================================
   resetGlow(context);
   context.font = '9px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = '#78a890';
+  context.fillStyle = HUD.label;
   context.textAlign = 'center';
   context.fillText('ROUTE', 375, 18);
 
   // Chamfered sector badge
-  wire(context, '#276345', 1.3, 0.9);
+  wire(context, HUD.badge, 1.3, 0.9);
   polyline(context, [
     { x: 358, y: 27 },
     { x: 361, y: 24 },
@@ -284,7 +284,7 @@ function renderTopHud(
   const savedCount = state.homes.filter(Boolean).length;
   resetGlow(context);
   context.font = '9px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = '#78a890';
+  context.fillStyle = HUD.label;
   context.textAlign = 'center';
   context.fillText(`SANCTUARY [${savedCount}/5]`, 476, 18);
 
@@ -300,10 +300,10 @@ function renderTopHud(
       polyline(context, [{ x: hx - 5, y: hy - 1 }, { x: hx - 5, y: hy + 6 }, { x: hx + 5, y: hy + 6 }, { x: hx + 5, y: hy - 1 }]);
       circle(context, { x: hx, y: hy + 2 }, 2);
     } else {
-      wire(context, '#1e4432', 1, 0.7);
+      wire(context, HUD.frameFaint, 1, 0.7);
       polyline(context, [{ x: hx - 6, y: hy - 1 }, { x: hx, y: hy - 7 }, { x: hx + 6, y: hy - 1 }]);
       polyline(context, [{ x: hx - 5, y: hy - 1 }, { x: hx - 5, y: hy + 6 }, { x: hx + 5, y: hy + 6 }, { x: hx + 5, y: hy - 1 }]);
-      wire(context, '#142c20', 0.8, 0.6);
+      wire(context, HUD.frameFaintest, 0.8, 0.6);
       line(context, { x: hx - 2, y: hy + 6 }, { x: hx - 2, y: hy + 3 });
       line(context, { x: hx + 2, y: hy + 6 }, { x: hx + 2, y: hy + 3 });
       line(context, { x: hx - 2, y: hy + 3 }, { x: hx + 2, y: hy + 3 });
@@ -317,7 +317,7 @@ function renderTopHud(
   // ========================================================
   resetGlow(context);
   context.font = '9px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = '#78a890';
+  context.fillStyle = HUD.label;
   context.textAlign = 'center';
   context.fillText('LIVES', 586, 18);
 
@@ -341,7 +341,7 @@ function renderTopHud(
       line(context, { x: lx - 2.5, y: ly + 1 }, { x: lx - 1, y: ly + 1 });
       line(context, { x: lx + 1, y: ly + 1 }, { x: lx + 2.5, y: ly + 1 });
     } else {
-      wire(context, '#1c3e2b', 1, 0.5);
+      wire(context, HUD.frameFaint, 1, 0.5);
       line(context, { x: lx - 2.5, y: ly - 2.5 }, { x: lx + 2.5, y: ly + 2.5 });
       line(context, { x: lx + 2.5, y: ly - 2.5 }, { x: lx - 2.5, y: ly + 2.5 });
     }
@@ -355,13 +355,13 @@ function renderTopHud(
   const isSoundHovered = hoveredControl === 'sound';
   wire(
     context,
-    isSoundHovered ? PALETTE.water : '#204a36',
+    isSoundHovered ? PALETTE.water : HUD.controlIdle,
     isSoundHovered ? 1.6 : 1.2,
     isSoundHovered ? 1 : 0.85,
     isSoundHovered ? 4 : 0,
   );
   if (isSoundHovered) {
-    context.fillStyle = 'rgba(63, 224, 245, 0.09)';
+    context.fillStyle = HUD.soundHalo;
     context.fillRect(644, 11, 30, 30);
   }
   polyline(context, [
@@ -375,7 +375,7 @@ function renderTopHud(
     { x: 644, y: 37 },
   ], true);
 
-  wire(context, audioMuted ? PALETTE.homeDim : isSoundHovered ? PALETTE.water : '#a2e8f5', 1.4);
+  wire(context, audioMuted ? PALETTE.homeDim : isSoundHovered ? PALETTE.water : HUD.soundIcon, 1.4);
   polyline(context, [
     { x: 652, y: 23 },
     { x: 655, y: 23 },
@@ -386,7 +386,7 @@ function renderTopHud(
   ], true);
 
   if (!audioMuted) {
-    wire(context, isSoundHovered ? PALETTE.water : '#3fe0f5', 1.3, 0.95);
+    wire(context, isSoundHovered ? PALETTE.water : HUD.soundWave, 1.3, 0.95);
     context.beginPath();
     context.arc(660, 26, 4, -Math.PI * 0.35, Math.PI * 0.35);
     context.stroke();
@@ -401,13 +401,13 @@ function renderTopHud(
   const isPauseHovered = hoveredControl === 'pause';
   wire(
     context,
-    isPauseHovered ? PALETTE.cat : '#204a36',
+    isPauseHovered ? PALETTE.cat : HUD.controlIdle,
     isPauseHovered ? 1.6 : 1.2,
     isPauseHovered ? 1 : 0.85,
     isPauseHovered ? 4 : 0,
   );
   if (isPauseHovered) {
-    context.fillStyle = 'rgba(77, 250, 139, 0.09)';
+    context.fillStyle = HUD.pauseHalo;
     context.fillRect(680, 11, 30, 30);
   }
   polyline(context, [
@@ -429,7 +429,7 @@ function renderTopHud(
       { x: 691, y: 32 },
     ], true);
   } else {
-    wire(context, isPauseHovered ? PALETTE.cat : '#a2e8c2', 2, 0.95);
+    wire(context, isPauseHovered ? PALETTE.cat : HUD.pauseIcon, 2, 0.95);
     line(context, { x: 692, y: 20 }, { x: 692, y: 32 });
     line(context, { x: 697, y: 20 }, { x: 697, y: 32 });
   }
@@ -442,7 +442,7 @@ function renderBottomBar(context: CanvasRenderingContext2D, state: GameState): v
   const barY = 832;
   const stage = getStageConfig(state.level);
 
-  context.fillStyle = 'rgba(4, 11, 8, 0.96)';
+  context.fillStyle = HUD.scrim;
   context.fillRect(0, barY, BOARD_WIDTH, 32);
 
   wire(context, PALETTE.gridStrong, 1.2, 0.8);
@@ -454,7 +454,7 @@ function renderBottomBar(context: CanvasRenderingContext2D, state: GameState): v
 
   resetGlow(context);
   context.font = 'bold 11px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = remainingFraction < 0.25 ? PALETTE.warning : '#78a890';
+  context.fillStyle = remainingFraction < 0.25 ? PALETTE.warning : HUD.label;
   context.textAlign = 'left';
   context.fillText('TIME', 16, barY + 20);
 
@@ -481,7 +481,7 @@ function renderBottomBar(context: CanvasRenderingContext2D, state: GameState): v
   // Right-side stage name & status readout (crisp text, no blur)
   resetGlow(context);
   context.font = 'bold 11px "Share Tech Mono", Consolas, monospace';
-  context.fillStyle = '#78a890';
+  context.fillStyle = HUD.label;
   context.textAlign = 'right';
   context.fillText(`${stage.name.toUpperCase()} // ACTIVE`, BOARD_WIDTH - 16, barY + 20);
 }

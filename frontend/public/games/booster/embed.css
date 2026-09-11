@@ -909,3 +909,195 @@ html.humane-embed #app {
     background: linear-gradient(120deg, #fbbf24, #2dd4bf) !important;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Light theme (html.pm-theme-light, set by ../theme.js)
+ *
+ * Everything above is a dark arcade layer written with !important, so light
+ * mode has to answer in kind rather than be untangled. Only the room changes:
+ * the foil pack art, holo shaders and rarity auras are the product and stay
+ * exactly as designed in both themes.
+ * ────────────────────────────────────────────────────────────────────────── */
+html.pm-theme-light,
+html.pm-theme-light body {
+  background-color: #f4f7f5 !important;
+  color: #173a39 !important;
+}
+
+html.pm-theme-light #app {
+  background:
+    radial-gradient(circle at 50% 15%, rgba(15, 118, 110, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 15% 75%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #ffffff 0%, #f4f7f5 55%, #e6efec 100%) !important;
+}
+
+html.pm-theme-light .booster-header {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+html.pm-theme-light .booster-brand-title {
+  color: #173a39 !important;
+}
+
+html.pm-theme-light .booster-brand-subtitle {
+  color: #0f766e !important;
+}
+
+html.pm-theme-light .booster-player-badge {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #173a39 !important;
+  box-shadow: 0 4px 16px rgba(23, 58, 57, 0.12) !important;
+}
+
+html.pm-theme-light .booster-player-badge .player-name {
+  color: #0f766e !important;
+}
+
+html.pm-theme-light .booster-player-badge .pack-count-pill {
+  background: linear-gradient(135deg, #0f766e, #115e59) !important;
+  color: #fef9c3 !important;
+  border: 1px solid rgba(15, 118, 110, 0.5) !important;
+}
+
+html.pm-theme-light .btn-icon,
+html.pm-theme-light .btn-nav,
+html.pm-theme-light .btn-secondary-link {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f766e !important;
+  box-shadow: 0 4px 12px rgba(23, 58, 57, 0.1) !important;
+}
+
+html.pm-theme-light .btn-icon:hover,
+html.pm-theme-light .btn-nav:hover:not(:disabled),
+html.pm-theme-light .btn-secondary-link:hover {
+  background: #e6efec !important;
+  border-color: #0f766e !important;
+  color: #0b4f4a !important;
+}
+
+html.pm-theme-light .tier-pill-group {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 12px 32px rgba(23, 58, 57, 0.16) !important;
+}
+
+html.pm-theme-light .tier-pill-btn {
+  color: #475569 !important;
+}
+
+html.pm-theme-light .tier-pill-btn:hover:not(.active) {
+  color: #0f766e !important;
+  background: rgba(15, 118, 110, 0.08) !important;
+}
+
+html.pm-theme-light .tier-pill-btn.active {
+  background: linear-gradient(135deg, #0f766e, #115e59) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(15, 118, 110, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(15, 118, 110, 0.3) !important;
+}
+
+html.pm-theme-light .card-counter-badge {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #173a39 !important;
+  box-shadow: 0 4px 16px rgba(23, 58, 57, 0.12) !important;
+}
+
+html.pm-theme-light .page-dot {
+  background: rgba(15, 118, 110, 0.25) !important;
+}
+
+html.pm-theme-light .page-dot.active {
+  background: #0f766e !important;
+  box-shadow: 0 0 10px rgba(15, 118, 110, 0.5) !important;
+}
+
+html.pm-theme-light .btn-action-main {
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%) !important;
+  border: 1.5px solid rgba(15, 118, 110, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(23, 58, 57, 0.2) !important;
+}
+
+html.pm-theme-light .btn-action-main:hover {
+  background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%) !important;
+  box-shadow: 0 10px 28px rgba(23, 58, 57, 0.26) !important;
+}
+
+html.pm-theme-light .summary-modal-overlay {
+  background: rgba(226, 232, 240, 0.86) !important;
+}
+
+html.pm-theme-light .summary-modal-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f4f7f5 100%) !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #173a39 !important;
+  box-shadow: 0 24px 60px rgba(23, 58, 57, 0.24) !important;
+}
+
+html.pm-theme-light .summary-modal-header h2,
+html.pm-theme-light .summary-thumb-name {
+  color: #173a39 !important;
+}
+
+html.pm-theme-light .summary-modal-header p,
+html.pm-theme-light .summary-coins-balance {
+  color: #475569 !important;
+}
+
+html.pm-theme-light .summary-coins-awarded {
+  color: #b45309 !important;
+}
+
+html.pm-theme-light .summary-card-thumb {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 4px 14px rgba(23, 58, 57, 0.12) !important;
+}
+
+html.pm-theme-light .summary-thumb-rarity {
+  color: #b45309 !important;
+}
+
+html.pm-theme-light .booster-key-hints {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f766e !important;
+}
+
+html.pm-theme-light .booster-key-hints kbd {
+  background: #f1f5f4 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #173a39 !important;
+}
+
+html.pm-theme-light .booster-empty-inventory {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #173a39 !important;
+  box-shadow: 0 12px 32px rgba(23, 58, 57, 0.14) !important;
+}
+
+html.pm-theme-light .booster-empty-inventory p:first-child {
+  color: #b45309 !important;
+}
+
+html.pm-theme-light .booster-empty-inventory p + p {
+  color: #475569 !important;
+}
+
+/* Cards read as physical objects on a table — tone the black drop shadows down
+ * so they don't look like they're floating in a dark room. */
+html.pm-theme-light .pack-wrapper-3d {
+  filter: drop-shadow(0 20px 40px rgba(23, 58, 57, 0.3))
+          drop-shadow(0 0 25px var(--pack-glow, rgba(15, 118, 110, 0.2))) !important;
+}
+
+html.pm-theme-light .aura-common {
+  box-shadow: 0 18px 45px rgba(23, 58, 57, 0.28), 0 0 25px rgba(15, 118, 110, 0.22) !important;
+}

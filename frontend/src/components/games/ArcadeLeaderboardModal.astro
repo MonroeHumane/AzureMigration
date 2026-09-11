@@ -4,6 +4,7 @@
 
 <div
   id="arcade-leaderboard-modal"
+  data-pm-theme="dark"
   class="fixed inset-0 z-[10050] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 hidden opacity-0 transition-opacity duration-200"
   role="dialog"
   aria-modal="true"
@@ -70,7 +71,7 @@
     <!-- Timeframe Filter Pills -->
     <div class="px-5 py-2.5 bg-[#051714] flex items-center justify-between gap-2 text-xs border-b border-teal-950 shrink-0">
       <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Timeframe:</span>
-      <div class="inline-flex rounded-lg bg-[#08221d] p-0.5 border border-teal-900/80">
+      <div class="leaderboard-timeframe-group inline-flex rounded-lg bg-[#08221d] p-0.5 border border-teal-900/80">
         <button
           type="button"
           data-timeframe="all"
@@ -125,6 +126,110 @@
     </footer>
   </div>
 </div>
+
+<!-- Global because the score rows and game tabs are built in JS and never carry
+     Astro's scoping attribute. Every selector is anchored on the modal id. -->
+<style is:global>
+  /* Light mode for the Hall of Fame. Follows the arcade preference
+     (localStorage.humaneGamesTheme), which the games hub writes onto
+     data-pm-theme — the staff portal preference is untouched. */
+  #arcade-leaderboard-modal[data-pm-theme='light'] {
+    background: rgba(226, 232, 240, 0.9);
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] > div {
+    background: linear-gradient(to bottom, #ffffff, #f4f7f5);
+    border-color: #cbd5e1;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] header,
+  #arcade-leaderboard-modal[data-pm-theme='light'] footer,
+  #arcade-leaderboard-modal[data-pm-theme='light'] > div > div:not(#leaderboard-scores-container) {
+    background: #ffffff;
+    border-color: #cbd5e1;
+  }
+
+  /* Includes div because the JS-built score rows put player names in divs. */
+  #arcade-leaderboard-modal[data-pm-theme='light'] h2,
+  #arcade-leaderboard-modal[data-pm-theme='light'] p,
+  #arcade-leaderboard-modal[data-pm-theme='light'] span,
+  #arcade-leaderboard-modal[data-pm-theme='light'] div,
+  #arcade-leaderboard-modal[data-pm-theme='light'] button {
+    color: #173a39;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] [class*='text-slate-400'],
+  #arcade-leaderboard-modal[data-pm-theme='light'] [class*='text-[10px]'],
+  #arcade-leaderboard-modal[data-pm-theme='light'] [class*='text-[11px]'] {
+    color: #475569;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] .leaderboard-game-tab {
+    background: #f1f5f4;
+    border-color: #cbd5e1;
+    color: #334155;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] .leaderboard-game-tab:hover,
+  #arcade-leaderboard-modal[data-pm-theme='light'] .leaderboard-game-tab.is-active {
+    background: #0f766e;
+    border-color: #0f766e;
+    color: #ffffff;
+  }
+
+  /* Rank medals stay gold/silver/bronze; only the dark half of each gradient
+     and the plain rows become paper. */
+  #arcade-leaderboard-modal[data-pm-theme='light'] #leaderboard-rows > * {
+    background-image: none;
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+    color: #173a39;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] #leaderboard-rows > *:nth-child(1) {
+    background-color: #fffbeb;
+    border-color: #f59e0b;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] #leaderboard-rows > *:nth-child(2) {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] #leaderboard-rows > *:nth-child(3) {
+    background-color: #fef6ec;
+    border-color: #b45309;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] #leaderboard-rows [class*='text-amber'] {
+    color: #b45309;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] .leaderboard-timeframe-group {
+    background: #f1f5f4;
+    border-color: #cbd5e1;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] .leaderboard-timeframe-btn {
+    color: #334155;
+    background: transparent;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] .leaderboard-timeframe-btn.bg-teal-800 {
+    background: #0f766e;
+    color: #ffffff;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] #leaderboard-close-btn {
+    background: #f1f5f4;
+    border-color: #cbd5e1;
+    color: #334155;
+  }
+
+  #arcade-leaderboard-modal[data-pm-theme='light'] #leaderboard-loading {
+    color: #0f766e;
+  }
+</style>
 
 <script>
   function initLeaderboard() {

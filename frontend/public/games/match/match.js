@@ -71,7 +71,6 @@
 		boosterCloseBtn: document.getElementById('pmBoosterCloseBtn'),
 		quickRestart: document.getElementById('pmQuickRestart'),
 		toggleControls: document.getElementById('pmToggleControls'),
-		themeToggle: document.getElementById('pmThemeToggle'),
 		winMeetHint: document.getElementById('pmWinMeetHint'),
 		keyHints: document.getElementById('pmKeyHints'),
 		controls: document.querySelector('.pet-match-controls'),
@@ -2109,10 +2108,12 @@
 		console.error('[Pet Match]', message);
 	}
 
+	// Light/dark is owned by the arcade cabinet's toggle; this only re-applies
+	// whatever theme.js already resolved.
 	function initTheme() {
 		const api = window.HumaneGamesTheme;
 		if (!api) return;
-		api.init({ button: els.themeToggle });
+		api.init();
 	}
 
 	function bindControls() {
@@ -2126,9 +2127,6 @@
 			els.toggleControls.addEventListener('click', () => {
 				els.controls.classList.toggle('is-open');
 			});
-		}
-		if (els.themeToggle && window.HumaneGamesTheme && typeof window.HumaneGamesTheme.bindToggle === 'function') {
-			window.HumaneGamesTheme.bindToggle(els.themeToggle);
 		}
 		if (els.retry) {
 			els.retry.addEventListener('click', () => startLevel(currentLevel));

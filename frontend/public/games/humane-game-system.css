@@ -40,6 +40,114 @@
 }
 
 /* --------------------------------------------------------------------------
+   Theme tokens (html.pm-theme-light / html.pm-theme-dark, set by theme.js)
+   --------------------------------------------------------------------------
+   Palette parity with the staff portal's --sp-* tokens so the arcade and the
+   portal read as the same product, even though they save separate preferences
+   (games: localStorage.humaneGamesTheme, staff: localStorage.mchs_staff_theme).
+
+   Any game built on .hg-* classes flips for free. Games with their own CSS
+   should consume --hg-theme-* rather than re-hardcoding hex.
+   -------------------------------------------------------------------------- */
+:root,
+html.pm-theme-light {
+	--hg-theme-bg: #f4f7f5;
+	--hg-theme-bg-elevated: #ffffff;
+	--hg-theme-surface: #ffffff;
+	--hg-theme-surface-soft: rgba(255, 255, 255, 0.88);
+	--hg-theme-text: #173a39;
+	--hg-theme-text-muted: #475569;
+	--hg-theme-border: #cbd5e1;
+	--hg-theme-border-soft: rgba(23, 58, 57, 0.14);
+	--hg-theme-accent: #0f766e;
+	--hg-theme-accent-soft: rgba(15, 118, 110, 0.12);
+	--hg-theme-accent-contrast: #ffffff;
+	--hg-theme-scrim: rgba(20, 12, 10, 0.55);
+	--hg-theme-shadow: 0 16px 36px rgba(23, 58, 57, 0.16);
+	--hg-theme-kbd-bg: rgba(255, 255, 255, 0.9);
+}
+
+html.pm-theme-dark {
+	--hg-theme-bg: #071a17;
+	--hg-theme-bg-elevated: #0b2420;
+	--hg-theme-surface: rgba(11, 36, 32, 0.85);
+	--hg-theme-surface-soft: rgba(11, 36, 32, 0.6);
+	--hg-theme-text: #ffffff;
+	--hg-theme-text-muted: #94a3b8;
+	--hg-theme-border: rgba(19, 78, 74, 0.8);
+	--hg-theme-border-soft: rgba(94, 234, 212, 0.18);
+	--hg-theme-accent: #5eead4;
+	--hg-theme-accent-soft: rgba(94, 234, 212, 0.14);
+	--hg-theme-accent-contrast: #04211d;
+	--hg-theme-scrim: rgba(3, 14, 12, 0.72);
+	--hg-theme-shadow: 0 20px 44px rgba(0, 0, 0, 0.5);
+	--hg-theme-kbd-bg: rgba(8, 36, 31, 0.9);
+
+	/* Remap the cream-era aliases so older rules stop painting light-on-light. */
+	--ink: #e2f5f0;
+	--cream: #0b2420;
+	--fur: #0b2420;
+	--hg-chip-bg: rgba(11, 36, 32, 0.85);
+	--hg-chip-border: rgba(94, 234, 212, 0.22);
+	--hg-overlay-scrim: rgba(3, 14, 12, 0.72);
+	--hg-focus-ring: 3px solid rgba(94, 234, 212, 0.7);
+	--shadow: 0 20px 44px rgba(0, 0, 0, 0.5);
+}
+
+html.pm-theme-dark .hg-game-root {
+	background: var(--hg-theme-bg);
+	color: var(--hg-theme-text);
+}
+
+html.pm-theme-dark .hg-btn--secondary {
+	background: var(--hg-theme-surface);
+	border-color: var(--hg-theme-border);
+	color: var(--hg-theme-text);
+	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+html.pm-theme-dark .hg-btn--ghost {
+	background: var(--hg-theme-surface-soft);
+	border-color: var(--hg-theme-border-soft);
+	color: var(--hg-theme-text);
+}
+
+html.pm-theme-dark .hg-btn--teal {
+	background: linear-gradient(140deg, #14b8a6, #0f766e);
+	color: #04211d;
+}
+
+html.pm-theme-dark .hg-chip,
+html.pm-theme-dark .hg-score-chip {
+	color: var(--hg-theme-text);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+html.pm-theme-dark .hg-overlay__panel {
+	background: var(--hg-theme-bg-elevated);
+	border-color: var(--hg-theme-border);
+	color: var(--hg-theme-text);
+	box-shadow: var(--hg-theme-shadow);
+}
+
+html.pm-theme-dark .hg-kbd {
+	background: var(--hg-theme-kbd-bg);
+	border-color: var(--hg-theme-border);
+	color: var(--hg-theme-text);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+html.pm-theme-dark .hg-control {
+	background: var(--hg-theme-surface);
+	border-color: var(--hg-theme-border);
+	color: var(--hg-theme-text);
+}
+
+html.pm-theme-dark .hg-thumb-actions {
+	background: linear-gradient(180deg, transparent, rgba(7, 26, 23, 0.94) 28%);
+}
+
+/* --------------------------------------------------------------------------
    Viewport / input mode classes (set by HumaneGameSystem.applyViewportClasses)
    -------------------------------------------------------------------------- */
 html.hg-coarse,

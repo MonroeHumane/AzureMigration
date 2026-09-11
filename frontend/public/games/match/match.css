@@ -1983,3 +1983,35 @@ html.pm-theme-dark .pet-match-key-hints kbd {
 	box-shadow: none;
 }
 
+/* The side rail ships a hardcoded cream gradient, which reads as a lit panel
+   floating in an otherwise dark cabinet. */
+html.pm-theme-dark .pet-match-controls {
+	background: linear-gradient(165deg, rgba(11, 40, 35, 0.97) 0%, rgba(6, 30, 26, 0.94) 100%);
+	border-color: rgba(45, 212, 191, 0.25);
+	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+html.pm-theme-dark .pet-match-controls__title,
+html.pm-theme-dark .pet-match-controls__label {
+	color: #99f6e4;
+}
+
+html.pm-theme-dark .pet-match-level-chip {
+	background: rgba(5, 24, 20, 0.8);
+	border-color: rgba(45, 212, 191, 0.3);
+}
+
+html.pm-theme-dark .pet-match-level-chip__select {
+	color: #e2f5f0;
+}
+
+html.pm-theme-dark .pet-match-step-btn {
+	background: rgba(5, 24, 20, 0.8);
+	border-color: rgba(45, 212, 191, 0.3);
+	color: #99f6e4;
+}
+
+html.pm-theme-dark .pet-match-controls.is-open .pet-match-controls__panel {
+	background: #0b2823;
+}
+

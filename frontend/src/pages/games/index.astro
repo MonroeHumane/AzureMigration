@@ -387,20 +387,21 @@ const MASCOTS = [
   <!-- Fullscreen Arcade Cabinet Modal Player 2.0 -->
   <div
     id="game-cabinet-modal"
-    class="fixed inset-0 z-[9999] bg-slate-950/98 backdrop-blur-md flex flex-col hidden opacity-0 transition-opacity duration-200 select-none"
+    data-pm-theme="dark"
+    class="cabinet-shell fixed inset-0 z-[9999] backdrop-blur-md flex flex-col hidden opacity-0 transition-opacity duration-200 select-none"
     role="dialog"
     aria-modal="true"
     aria-labelledby="cabinet-game-title"
   >
     <!-- Cabinet Top Header Chrome -->
-    <header class="min-h-14 h-14 pt-[env(safe-area-inset-top,0px)] px-3 sm:px-6 bg-[#061815] border-b border-teal-800/80 flex items-center justify-between shrink-0 select-none z-30">
+    <header class="cabinet-chrome-bar min-h-14 h-14 pt-[env(safe-area-inset-top,0px)] px-3 sm:px-6 border-b flex items-center justify-between shrink-0 select-none z-30">
       <div class="flex items-center gap-2.5">
         <span id="cabinet-game-icon" class="text-2xl">🎮</span>
         <div>
-          <h3 id="cabinet-game-title" class="text-sm font-bold text-white tracking-wide leading-tight">
+          <h3 id="cabinet-game-title" class="cabinet-chrome-title text-sm font-bold tracking-wide leading-tight">
             Humane Arcade
           </h3>
-          <span class="text-[10px] text-teal-400 block font-mono">Monroe County Humane Society</span>
+          <span class="cabinet-chrome-sub text-[10px] block font-mono">Monroe County Humane Society</span>
         </div>
       </div>
 
@@ -409,18 +410,30 @@ const MASCOTS = [
         <button
           type="button"
           id="cabinet-sound-btn"
-          class="min-h-11 min-w-11 px-2.5 py-1.5 rounded-lg bg-teal-950 hover:bg-teal-900 text-slate-300 hover:text-white border border-teal-800 text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1 touch-manipulation"
+          class="cabinet-chrome-btn min-h-11 min-w-11 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1 touch-manipulation"
           title="Toggle Game Sound"
         >
           <span id="cabinet-sound-icon">🔊</span>
           <span class="hidden sm:inline" id="cabinet-sound-label">Sound</span>
         </button>
 
+        <!-- Light / Dark Theme Toggle (games preference, separate from staff portal) -->
+        <button
+          type="button"
+          id="cabinet-theme-btn"
+          class="cabinet-chrome-btn min-h-11 min-w-11 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1 touch-manipulation"
+          title="Switch arcade between light and dark"
+          aria-pressed="false"
+        >
+          <span id="cabinet-theme-icon">🌙</span>
+          <span class="hidden sm:inline" id="cabinet-theme-label">Dark</span>
+        </button>
+
         <!-- CRT Scanline Filter Toggle -->
         <button
           type="button"
           id="cabinet-crt-btn"
-          class="min-h-11 min-w-11 px-2.5 py-1.5 rounded-lg bg-teal-950 hover:bg-teal-900 text-slate-300 hover:text-white border border-teal-800 text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1 touch-manipulation"
+          class="cabinet-chrome-btn min-h-11 min-w-11 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1 touch-manipulation"
           title="Toggle Retro CRT Scanlines"
         >
           <span>📺</span>
@@ -431,7 +444,7 @@ const MASCOTS = [
         <button
           type="button"
           id="cabinet-fullscreen-btn"
-          class="min-h-11 px-2.5 py-1.5 rounded-lg bg-teal-950 hover:bg-teal-900 text-slate-300 hover:text-white border border-teal-800 text-xs font-semibold transition cursor-pointer hidden sm:inline-flex items-center gap-1.5 touch-manipulation"
+          class="cabinet-chrome-btn min-h-11 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer hidden sm:inline-flex items-center gap-1.5 touch-manipulation"
           title="Toggle Fullscreen"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
@@ -442,7 +455,7 @@ const MASCOTS = [
         <button
           type="button"
           id="cabinet-close-btn"
-          class="min-h-11 min-w-11 px-3 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-200 hover:text-white border border-rose-800/80 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 active:scale-95 touch-manipulation"
+          class="cabinet-close-btn min-h-11 min-w-11 px-3 py-1.5 rounded-lg border text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 active:scale-95 touch-manipulation"
           title="Exit Cabinet"
         >
           <span>Close</span>
@@ -452,11 +465,11 @@ const MASCOTS = [
     </header>
 
     <!-- Cabinet Screen Frame (contains Iframe & CRT overlay) -->
-    <div class="flex-1 w-full h-full relative bg-black flex items-center justify-center overflow-hidden">
+    <div class="cabinet-screen flex-1 w-full h-full relative flex items-center justify-center overflow-hidden">
       <!-- Loading Spinner -->
-      <div id="cabinet-loading-spinner" class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#071a17] z-10 transition-opacity">
-        <div class="w-9 h-9 border-3 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-xs text-teal-300 font-mono tracking-wider animate-pulse">BOOTING HUMANE ARCADE…</p>
+      <div id="cabinet-loading-spinner" class="cabinet-spinner absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 transition-opacity">
+        <div class="cabinet-spinner__ring w-9 h-9 border-3 border-t-transparent rounded-full animate-spin"></div>
+        <p class="cabinet-spinner__text text-xs font-mono tracking-wider animate-pulse">BOOTING HUMANE ARCADE…</p>
       </div>
 
       <!-- CRT Scanline & Phosphor Sheen Overlay -->
@@ -478,7 +491,7 @@ const MASCOTS = [
     <!-- Cabinet Bottom Quick-Switch Dock (Mobile-First Ergonomic Nav) -->
     <nav
       id="cabinet-quick-dock"
-      class="relative h-14 sm:h-15 px-1 sm:px-4 bg-[#061815]/95 backdrop-blur-md border-t border-teal-800/80 flex items-center justify-between sm:justify-center gap-0.5 sm:gap-2.5 shrink-0 select-none z-30 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-[max(0.25rem,env(safe-area-inset-bottom))]"
+      class="cabinet-chrome-bar relative h-14 sm:h-15 px-1 sm:px-4 backdrop-blur-md border-t flex items-center justify-between sm:justify-center gap-0.5 sm:gap-2.5 shrink-0 select-none z-30 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-[max(0.25rem,env(safe-area-inset-bottom))]"
       aria-label="Arcade Quick Switch Dock"
     >
       <button
@@ -487,7 +500,7 @@ const MASCOTS = [
         data-dock-url="/games/booster/index.html?embed=1"
         data-dock-title="Pet Booster Packs"
         data-dock-icon="✨"
-        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border border-transparent flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">✨</span>
         <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Packs</span>
@@ -499,7 +512,7 @@ const MASCOTS = [
         data-dock-url="/games/match/match.html?embed=1"
         data-dock-title="Pet Match Memory"
         data-dock-icon="🧩"
-        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border border-transparent flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">🧩</span>
         <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Match</span>
@@ -511,7 +524,7 @@ const MASCOTS = [
         data-dock-url="/games/flappy-cat/game/index.html?embed=1"
         data-dock-title="Flappy Cat"
         data-dock-icon="🐱"
-        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border border-transparent flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">🐱</span>
         <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Flappy</span>
@@ -523,7 +536,7 @@ const MASCOTS = [
         data-dock-url="/games/catwalk?embed=1"
         data-dock-title="Catwalk Night Patrol"
         data-dock-icon="🐾"
-        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border border-transparent flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">🐾</span>
         <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Catwalk</span>
@@ -535,7 +548,7 @@ const MASCOTS = [
         data-dock-url="/games/shelter-run-temple/index.html?embed=1"
         data-dock-title="Shelter Run"
         data-dock-icon="🏃"
-        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border border-transparent flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">🏃</span>
         <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Run</span>
@@ -549,7 +562,7 @@ const MASCOTS = [
         data-dock-url="/games/dex/album.html?embed=1"
         data-dock-title="Pet Discovery Binder"
         data-dock-icon="📖"
-        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-transparent hover:border-teal-700/60 hover:bg-teal-900/40 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border border-transparent flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
       >
         <span class="text-base sm:text-sm">📖</span>
         <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Binder</span>
@@ -559,7 +572,7 @@ const MASCOTS = [
         type="button"
         id="cabinet-dock-scores"
         data-open-leaderboard
-        class="flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl text-amber-300 hover:text-amber-200 border border-amber-500/40 bg-amber-950/40 hover:bg-amber-900/60 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+        class="cabinet-dock-scores flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
         title="Arcade Hall of Fame"
       >
         <span class="text-base sm:text-sm">🏆</span>
@@ -627,10 +640,150 @@ const MASCOTS = [
   }
 
   .cabinet-dock-btn.dock-active {
-    background: rgba(13, 148, 136, 0.25);
-    border-color: rgba(45, 212, 191, 0.7);
-    color: #5eead4;
-    box-shadow: 0 0 16px rgba(20, 184, 166, 0.35);
+    background: var(--cab-active-bg);
+    border-color: var(--cab-active-border);
+    color: var(--cab-active-text);
+    box-shadow: 0 0 16px var(--cab-active-glow);
+  }
+
+  /* ---------------------------------------------------------------------
+     Cabinet chrome theming. Mirrors the staff portal --sp-* palette but
+     reads from localStorage.humaneGamesTheme, so flipping the arcade never
+     touches the staff portal preference.
+     --------------------------------------------------------------------- */
+  #game-cabinet-modal[data-pm-theme='dark'] {
+    --cab-backdrop: rgba(2, 6, 23, 0.98);
+    --cab-bar: #061815;
+    --cab-bar-border: rgba(17, 94, 89, 0.8);
+    --cab-screen: #000000;
+    --cab-text: #ffffff;
+    --cab-text-muted: #94a3b8;
+    --cab-accent: #5eead4;
+    --cab-btn-bg: #042f2e;
+    --cab-btn-bg-hover: #134e4a;
+    --cab-btn-border: #115e59;
+    --cab-btn-text: #cbd5e1;
+    --cab-btn-text-hover: #ffffff;
+    --cab-active-bg: rgba(13, 148, 136, 0.25);
+    --cab-active-border: rgba(45, 212, 191, 0.7);
+    --cab-active-text: #5eead4;
+    --cab-active-glow: rgba(20, 184, 166, 0.35);
+    --cab-close-bg: rgba(76, 5, 25, 0.8);
+    --cab-close-bg-hover: #881337;
+    --cab-close-border: rgba(159, 18, 57, 0.8);
+    --cab-close-text: #fecdd3;
+    --cab-scores-bg: rgba(69, 26, 3, 0.4);
+    --cab-scores-border: rgba(245, 158, 11, 0.4);
+    --cab-scores-text: #fcd34d;
+  }
+
+  #game-cabinet-modal[data-pm-theme='light'] {
+    --cab-backdrop: rgba(244, 247, 245, 0.98);
+    --cab-bar: #ffffff;
+    --cab-bar-border: #cbd5e1;
+    --cab-screen: #e2e8f0;
+    --cab-text: #173a39;
+    --cab-text-muted: #475569;
+    --cab-accent: #0f766e;
+    --cab-btn-bg: #f1f5f4;
+    --cab-btn-bg-hover: #d9e6e3;
+    --cab-btn-border: #cbd5e1;
+    --cab-btn-text: #334155;
+    --cab-btn-text-hover: #0f766e;
+    --cab-active-bg: rgba(15, 118, 110, 0.14);
+    --cab-active-border: rgba(15, 118, 110, 0.55);
+    --cab-active-text: #0f766e;
+    --cab-active-glow: rgba(15, 118, 110, 0.18);
+    --cab-close-bg: #fff1f2;
+    --cab-close-bg-hover: #ffe4e6;
+    --cab-close-border: #fda4af;
+    --cab-close-text: #9f1239;
+    --cab-scores-bg: #fffbeb;
+    --cab-scores-border: #fcd34d;
+    --cab-scores-text: #92400e;
+  }
+
+  .cabinet-shell {
+    background: var(--cab-backdrop);
+  }
+
+  .cabinet-chrome-bar {
+    background: var(--cab-bar);
+    border-color: var(--cab-bar-border);
+  }
+
+  #cabinet-quick-dock.cabinet-chrome-bar {
+    background: color-mix(in srgb, var(--cab-bar) 95%, transparent);
+  }
+
+  .cabinet-chrome-title {
+    color: var(--cab-text);
+  }
+
+  .cabinet-chrome-sub {
+    color: var(--cab-accent);
+  }
+
+  .cabinet-screen {
+    background: var(--cab-screen);
+  }
+
+  .cabinet-spinner {
+    background: var(--cab-bar);
+  }
+
+  .cabinet-spinner__ring {
+    border-color: var(--cab-accent);
+    border-top-color: transparent;
+  }
+
+  .cabinet-spinner__text {
+    color: var(--cab-accent);
+  }
+
+  .cabinet-chrome-btn {
+    background: var(--cab-btn-bg);
+    border: 1px solid var(--cab-btn-border);
+    color: var(--cab-btn-text);
+  }
+
+  .cabinet-chrome-btn:hover {
+    background: var(--cab-btn-bg-hover);
+    color: var(--cab-btn-text-hover);
+  }
+
+  .cabinet-close-btn {
+    background: var(--cab-close-bg);
+    border-color: var(--cab-close-border);
+    color: var(--cab-close-text);
+  }
+
+  .cabinet-close-btn:hover {
+    background: var(--cab-close-bg-hover);
+  }
+
+  .cabinet-dock-btn {
+    color: var(--cab-btn-text);
+  }
+
+  .cabinet-dock-btn:hover {
+    color: var(--cab-btn-text-hover);
+    border-color: var(--cab-active-border);
+    background: var(--cab-active-bg);
+  }
+
+  .cabinet-dock-scores {
+    background: var(--cab-scores-bg);
+    border-color: var(--cab-scores-border);
+    color: var(--cab-scores-text);
+  }
+
+  /* CRT phosphor is a dark-room effect; soften it when the cabinet is light. */
+  #game-cabinet-modal[data-pm-theme='light'] .crt-effect {
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.14) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.015), rgba(0, 0, 255, 0.03));
+    background-size: 100% 3px, 4px 100%;
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.25);
   }
 
   /* Scrollbar hiding for horizontal touch track */
@@ -651,7 +804,7 @@ const MASCOTS = [
     align-self: stretch;
     margin-left: -1.75rem;
     pointer-events: none;
-    background: linear-gradient(to right, transparent, #061815);
+    background: linear-gradient(to right, transparent, var(--cab-bar));
     z-index: 2;
   }
 
@@ -788,6 +941,9 @@ const MASCOTS = [
     const soundIcon = document.getElementById('cabinet-sound-icon');
     const soundLabel = document.getElementById('cabinet-sound-label');
     const crtBtn = document.getElementById('cabinet-crt-btn');
+    const themeBtn = document.getElementById('cabinet-theme-btn');
+    const themeIcon = document.getElementById('cabinet-theme-icon');
+    const themeLabel = document.getElementById('cabinet-theme-label');
     const crtOverlay = document.getElementById('cabinet-crt-overlay');
     const dockButtons = document.querySelectorAll<HTMLElement>('.cabinet-dock-btn');
 
@@ -801,6 +957,8 @@ const MASCOTS = [
     const STORAGE_DISCOVERED_KEY = 'monroe_discovered_pets';
     const STORAGE_MASCOT_KEY = 'monroeArcadeMascot';
     const STORAGE_CRT_KEY = 'monroeArcadeCrt';
+    // Deliberately NOT mchs_staff_theme — the arcade keeps its own preference.
+    const STORAGE_THEME_KEY = 'humaneGamesTheme';
 
     const MASCOT_MAP: Record<string, { icon: string; name: string; desc: string }> = {
       smokey: { icon: '🐱', name: 'Smokey', desc: 'Curious Explorer' },
@@ -1009,6 +1167,50 @@ const MASCOTS = [
       }
     });
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Cabinet Light / Dark
+    // ─────────────────────────────────────────────────────────────────────────
+    let cabinetTheme: 'light' | 'dark' = 'dark';
+    try {
+      const saved = localStorage.getItem(STORAGE_THEME_KEY) || localStorage.getItem('petMatchTheme');
+      if (saved === 'light' || saved === 'dark') cabinetTheme = saved;
+    } catch (e) {}
+
+    function updateThemeUi() {
+      cabinetModal?.setAttribute('data-pm-theme', cabinetTheme);
+      document.getElementById('arcade-leaderboard-modal')?.setAttribute('data-pm-theme', cabinetTheme);
+      const isDark = cabinetTheme === 'dark';
+      if (themeIcon) themeIcon.textContent = isDark ? '🌙' : '☀️';
+      if (themeLabel) themeLabel.textContent = isDark ? 'Dark' : 'Light';
+      themeBtn?.setAttribute('aria-pressed', String(!isDark));
+      themeBtn?.setAttribute(
+        'title',
+        isDark ? 'Arcade is dark — switch to light' : 'Arcade is light — switch to dark'
+      );
+    }
+
+    function sendThemeToGame() {
+      try {
+        cabinetIframe?.contentWindow?.postMessage(
+          { type: 'arcade:set_theme', theme: cabinetTheme },
+          '*'
+        );
+      } catch (e) {}
+    }
+
+    themeBtn?.addEventListener('click', () => {
+      cabinetTheme = cabinetTheme === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem(STORAGE_THEME_KEY, cabinetTheme);
+      } catch (e) {}
+      audio.playBlip();
+      triggerHaptic(10);
+      updateThemeUi();
+      sendThemeToGame();
+    });
+
+    updateThemeUi();
+
     let crtEnabled = false;
     try {
       crtEnabled = localStorage.getItem(STORAGE_CRT_KEY) === 'true';
@@ -1086,6 +1288,7 @@ const MASCOTS = [
           parsed.searchParams.set('embed', '1');
         }
         parsed.searchParams.set('dex_api', apiUrl);
+        parsed.searchParams.set('theme', cabinetTheme);
         if (user) {
           parsed.searchParams.set('user', user);
           parsed.searchParams.set('dex_user', user);
@@ -1095,7 +1298,7 @@ const MASCOTS = [
       } catch (e) {
         const separator = url.includes('?') ? '&' : '?';
         const embedPart = /(?:\?|&)embed=/.test(url) ? '' : 'embed=1&';
-        finalUrl = `${url}${separator}${embedPart}dex_api=${encodeURIComponent(apiUrl)}`;
+        finalUrl = `${url}${separator}${embedPart}dex_api=${encodeURIComponent(apiUrl)}&theme=${cabinetTheme}`;
         if (user) {
           finalUrl += `&user=${encodeURIComponent(user)}&dex_user=${encodeURIComponent(user)}&dex_display=${encodeURIComponent(display)}`;
         }
@@ -1112,10 +1315,11 @@ const MASCOTS = [
           cabinetSpinner.classList.add('opacity-0');
           setTimeout(() => cabinetSpinner.classList.add('hidden'), 200);
         }
-        // Send initial mute state to loaded game
+        // Send initial mute + theme state to loaded game
         try {
           cabinetIframe?.contentWindow?.postMessage({ type: 'arcade:set_mute', muted: audio.muted }, '*');
         } catch (e) {}
+        sendThemeToGame();
       };
 
       cabinetIframe.src = finalUrl;

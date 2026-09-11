@@ -2,8 +2,21 @@ import { CatwalkAudio } from './audio';
 import { CatwalkEngine, getDogLanesForStage, getStageConfig, positionsForLane } from './engine/game';
 import { bindInput } from './input';
 import { BOARD_HEIGHT, BOARD_WIDTH, CELL_SIZE, PLAY_TOP_Y } from './models/environment';
+import { setCatwalkTheme } from './rendering/palette';
 import { ParticleSystem } from './rendering/particles';
 import { renderGame } from './rendering/renderer';
+
+// Arcade light/dark, owned by the cabinet's toggle. Light swaps the whole
+// playfield to a daytime palette and turns the neon bloom off; the next frame
+// picks it up, so there is nothing to redraw here.
+setCatwalkTheme(
+  (window as unknown as { HumaneGamesTheme?: { get?: () => string } }).HumaneGamesTheme?.get?.() === 'light'
+    ? 'light'
+    : 'dark',
+);
+window.addEventListener('humane-games-theme', (event) => {
+  setCatwalkTheme((event as CustomEvent<{ theme: string }>).detail?.theme === 'light' ? 'light' : 'dark');
+});
 
 const root = document.querySelector<HTMLElement>('[data-catwalk-root]');
 const canvas = root?.querySelector<HTMLCanvasElement>('[data-game-canvas]');

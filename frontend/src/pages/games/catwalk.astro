@@ -15,6 +15,8 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <script is:inline src="/games/embed.js"></script>
+    <script is:inline src="/games/theme.js?v=1"></script>
     <script is:inline src="/games/dex/dex-shared.js?v=6"></script>
   </head>
   <body>
@@ -66,7 +68,11 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
       const dpad = document.querySelector<HTMLElement>('.catwalk__touch-dpad');
       const touchHud = document.querySelector<HTMLElement>('.catwalk__touch-hud');
       const syncTouchChrome = () => {
-        const embedded = document.documentElement.classList.contains('is-embedded');
+        // embed.js sets humane-embed; the server-rendered is-embedded class does
+        // not survive on <html>, so trust either.
+        const embedded =
+          document.documentElement.classList.contains('is-embedded') ||
+          document.documentElement.classList.contains('humane-embed');
         const coarse = window.matchMedia('(pointer: coarse)').matches;
         const noHover = window.matchMedia('(hover: none)').matches;
         const narrow = window.matchMedia('(max-width: 900px)').matches;
@@ -75,6 +81,17 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
         if (touchHud) touchHud.style.display = show ? 'flex' : '';
         document.documentElement.classList.toggle('catwalk-touch', show);
       };
+      // Arcade light/dark. The bezel and HUD are CSS-driven; this only keeps the
+      // mobile browser chrome from staying black behind a light cabinet.
+      const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      const syncThemeColor = (theme?: string) => {
+        if (themeMeta) themeMeta.content = theme === 'light' ? '#f4f7f5' : '#040b08';
+      };
+      window.addEventListener('humane-games-theme', (e) => {
+        syncThemeColor((e as CustomEvent<{ theme: string }>).detail?.theme);
+      });
+      syncThemeColor((window as any).HumaneGamesTheme?.get?.());
+
       syncTouchChrome();
       window.addEventListener('resize', syncTouchChrome);
       window.matchMedia('(pointer: coarse)').addEventListener?.('change', syncTouchChrome);
@@ -134,6 +151,87 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     -webkit-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Arcade light/dark (/games/theme.js).
+     Dark is the night patrol: neon wireframe on black behind CRT glass.
+     Light is a daytime run — palette.ts repaints the playfield and drops the
+     glow, so the chrome here has to stop being a dark arcade cabinet too.
+     The scanline glass and inner vignette come off entirely; they are what
+     make the game read as spooky. */
+  :global(html.pm-theme-light) {
+    color: #173a39;
+    background: #f4f7f5;
+  }
+
+  :global(html.pm-theme-light body) {
+    background: radial-gradient(ellipse at center, #ffffff 0%, #eef4f2 70%, #dfe9e6 100%);
+  }
+
+  :global(html.pm-theme-light) .catwalk-bezel {
+    border-color: #94a3b8;
+    background: #dff1fb;
+    box-shadow:
+      0 0 0 1px #cbd5e1,
+      0 12px 40px rgba(23, 58, 57, 0.22);
+  }
+
+  :global(html.pm-theme-light) .catwalk-bezel::before {
+    box-shadow: none;
+    background: none;
+  }
+
+  :global(html.pm-theme-light) .catwalk__overlay {
+    background: rgba(223, 241, 251, 0.9);
+  }
+
+  :global(html.pm-theme-light) .catwalk__overlay-card {
+    border-color: #94a3b8;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 12px 32px rgba(23, 58, 57, 0.18);
+  }
+
+  :global(html.pm-theme-light) .catwalk__overlay-badge {
+    color: #15803d;
+  }
+
+  :global(html.pm-theme-light) .catwalk__overlay h2 {
+    color: #14532d;
+  }
+
+  :global(html.pm-theme-light) .catwalk__overlay p {
+    color: #3f6b55;
+  }
+
+  :global(html.pm-theme-light) .catwalk__overlay-hint {
+    color: #64748b !important;
+  }
+
+  :global(html.pm-theme-light) .catwalk__overlay-hint kbd {
+    border-color: #cbd5e1;
+    background: #f1f5f4;
+    color: #15803d;
+  }
+
+  :global(html.pm-theme-light) .btn-primary {
+    color: #ffffff;
+    background: #15803d;
+    border-color: #15803d;
+    box-shadow: 0 6px 18px rgba(21, 128, 61, 0.3);
+  }
+
+  :global(html.pm-theme-light) .btn-primary:hover,
+  :global(html.pm-theme-light) .btn-primary:focus-visible {
+    background: #166534;
+    border-color: #166534;
+    box-shadow: 0 8px 22px rgba(21, 128, 61, 0.42);
+  }
+
+  :global(html.pm-theme-light) .catwalk__touch-hud button,
+  :global(html.pm-theme-light) .catwalk__touch-dpad button {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: #cbd5e1;
+    color: #15803d;
   }
 
   /* Single self-contained arcade window */
@@ -395,7 +493,9 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
   /* Cabinet embed: real phones (coarse) and 390px / narrow iframes (fine pointer). */
   @media (pointer: coarse), (max-width: 900px) {
     :global(html.is-embedded) .catwalk__touch-dpad,
-    :global(html.is-embedded) .catwalk__touch-hud {
+    :global(html.is-embedded) .catwalk__touch-hud,
+    :global(html.humane-embed) .catwalk__touch-dpad,
+    :global(html.humane-embed) .catwalk__touch-hud {
       display: flex !important;
     }
   }
