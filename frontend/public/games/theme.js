@@ -174,14 +174,28 @@
 
 	global.HumaneGamesTheme = api;
 
-	// Cabinet -> game. The parent owns the preference while we are framed, so it
-	// writes localStorage itself; persisting here too would just double-write.
+	// Cabinet -> game.
+	//
+	// Also rewrite our own ?theme= param. It outranks the saved preference in
+	// resolve(), so leaving the open-time value in place means any later reload
+	// of this frame resurrects the theme the cabinet has since moved off of.
+	function syncUrlTheme(theme) {
+		try {
+			if (!global.history || !global.history.replaceState) return;
+			var url = new global.URL(global.location.href);
+			if (url.searchParams.get('theme') === theme) return;
+			url.searchParams.set('theme', theme);
+			global.history.replaceState(global.history.state, '', url.toString());
+		} catch (e) { /* ignore */ }
+	}
+
 	try {
 		global.addEventListener('message', function (event) {
 			var data = event && event.data;
 			if (!data || data.type !== MESSAGE_TYPE) return;
 			if (data.theme !== LIGHT && data.theme !== DARK) return;
 			apply(data.theme, { persist: false });
+			syncUrlTheme(data.theme);
 		});
 	} catch (e) { /* ignore */ }
 
