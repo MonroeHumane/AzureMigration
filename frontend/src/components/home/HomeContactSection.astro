@@ -1,0 +1,107 @@
+---
+/**
+ * Native Astro homepage Contact & Hours (Phase 3).
+ * Preserves `#Contact`, form field IDs, `data-monroe-contact-mailto`, and
+ * `data-hours-badge` / `data-hours-dot` / `data-hours-text` hooks used by
+ * the page script in index.astro.
+ */
+import home from '../../data/homepage.json';
+import { SITE } from '../../config/site';
+
+interface Props {
+  pill?: string;
+  title?: string;
+  intro?: string;
+  lead?: string;
+  submit?: string;
+  callButton?: string;
+  email?: string;
+  phoneTel?: string;
+}
+
+const {
+  pill = home.contact.pill,
+  title = home.contact.title,
+  intro = home.contact.intro,
+  lead = home.contact.lead,
+  submit = home.contact.submit,
+  callButton = home.contact.call_button,
+  email = home.contact.email,
+  phoneTel = SITE.contact.phoneTel,
+} = Astro.props;
+---
+
+<div class="wp-block-group alignwide home-editable-section is-layout-constrained mx-auto w-full min-w-0 max-w-[var(--monroe-home-content-max)] box-border scroll-mt-[calc(var(--monroe-nav-height,96px)+var(--monroe-sticky-wayfinding-offset,0px)+var(--monroe-scroll-anchor-gap,12px))]">
+  <div
+    class="wp-block-group home-editable-contact-card is-layout-constrained"
+    id="Contact"
+  >
+    <p class="home-editable-pill wp-block-paragraph">{pill}</p>
+    <h2 class="wp-block-heading home-editable-heading-impact">{title}</h2>
+    <p class="wp-block-paragraph">{intro}</p>
+
+    <div class="monroe-contact-form-wrap">
+      <div aria-live="polite" aria-atomic="true" class="monroe-contact-form__feedback"></div>
+      <p class="monroe-contact-form__lead">{lead}</p>
+      <form class="monroe-contact-form" data-monroe-contact-mailto data-email={email}>
+        <p class="monroe-contact-form__hp" aria-hidden="true">
+          <label for="monroe_contact_website">Website</label>
+          <input type="text" name="monroe_contact_website" id="monroe_contact_website" value="" tabindex="-1" autocomplete="off" />
+        </p>
+        <div class="monroe-contact-form__grid">
+          <p class="monroe-contact-form__field">
+            <label for="monroe_contact_name">Name{' '}<span class="required">*</span></label>
+            <input type="text" name="monroe_contact_name" id="monroe_contact_name" required autocomplete="name" placeholder="Name" value="" />
+          </p>
+          <p class="monroe-contact-form__field">
+            <label for="monroe_contact_phone">Phone</label>
+            <input type="tel" name="monroe_contact_phone" id="monroe_contact_phone" inputmode="tel" autocomplete="tel" placeholder="Phone" value="" />
+          </p>
+        </div>
+        <p class="monroe-contact-form__field">
+          <label for="monroe_contact_email">Email{' '}<span class="required">*</span></label>
+          <input type="email" name="monroe_contact_email" id="monroe_contact_email" required autocomplete="email" placeholder="Email" value="" />
+        </p>
+        <p class="monroe-contact-form__field">
+          <label for="monroe_contact_message">Message{' '}<span class="required">*</span></label>
+          <textarea name="monroe_contact_message" id="monroe_contact_message" rows="5" required placeholder="Message"></textarea>
+        </p>
+        <p class="monroe-contact-form__submit">
+          <button type="submit" class="wp-block-button__link wp-element-button monroe-contact-form__button">{submit}</button>
+        </p>
+      </form>
+    </div>
+
+    <div class="wp-block-buttons is-layout-flex">
+      <div class="wp-block-button">
+        <a class="wp-block-button__link has-base-color has-contrast-background-color has-text-color has-background wp-element-button" href={phoneTel}>{callButton}</a>
+      </div>
+    </div>
+
+    <div class="home-editable-contact-location">
+      <div class="home-editable-contact-location__map">
+        <iframe
+          src={`https://www.google.com/maps?q=${encodeURIComponent(SITE.contact.address.full)}&output=embed`}
+          width="100%"
+          height="280"
+          style="border:0;"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Map to Humane Society of Monroe County"
+        ></iframe>
+      </div>
+      <div class="home-editable-contact-location__details">
+        <p class="home-editable-contact-location__address">{SITE.contact.address.full}</p>
+        <p class="home-editable-contact-location__hours-badge" data-hours-badge>
+          <span class="home-editable-contact-location__hours-dot" data-hours-dot aria-hidden="true"></span>
+          <span data-hours-text>Checking hours…</span>
+        </p>
+        <ul class="home-editable-contact-location__hours-list">
+          <li><span>Tue – Fri</span><span>{SITE.contact.hours.tuesdayToFriday}</span></li>
+          <li><span>Saturday</span><span>{SITE.contact.hours.saturday}</span></li>
+          <li><span>Sun – Mon</span><span>{SITE.contact.hours.sundayMonday}</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

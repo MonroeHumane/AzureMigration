@@ -6,6 +6,8 @@
   <title>Humane Booster Packs | Monroe Humane Society</title>
   <meta name="description" content="Open adoptable pet booster packs, discover shelter companions, and build your Adoptédex album." />
   <link rel="icon" href="/assets/monroe-paw-print-tile.png" />
+  <script src="../embed.js"></script>
+  <script src="../dex/dex-shared.js?v=6"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BLWOQFaX.css">
   <link rel="stylesheet" href="./embed.css">
   <style>
@@ -43,49 +45,128 @@
 </head>
 <body>
   <div id="app"></div>
+  <div class="booster-key-hints" id="boosterKeyHints" aria-hidden="true">
+    <span><kbd>Space</kbd>/<kbd>Enter</kbd> open / flip</span>
+    <span><kbd>←</kbd><kbd>→</kbd> cards</span>
+    <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> tiers</span>
+    <span><kbd>M</kbd> mute</span>
+  </div>
 
   <script>
-    // Two-way Bridge between Booster Packs and Arcade Cabinet Shell
+    // Two-way Bridge between Booster Packs, Adoptédex shared API, and Arcade Cabinet
     (function () {
       var params = new URLSearchParams(window.location.search);
       if (params.get('embed') === '1' || (window.parent && window.parent !== window)) {
         document.documentElement.classList.add('is-embedded');
+        document.documentElement.classList.add('humane-embed');
       }
 
-      // Forward pet discovery & pack opened events to parent Arcade Pass
-      window.addEventListener('monroe-adoptedex-updated', function (e) {
-        if (window.parent && window.parent !== window) {
-          try {
-            if (e.detail && e.detail.packOpened) {
-              window.parent.postMessage({
-                type: 'adoptedex:pack_opened',
-                action: 'pack_opened',
-                tier: e.detail.tier || 'standard',
-                remainingPacks: e.detail.remainingPacks
-              }, '*');
-            }
-            window.parent.postMessage({
-              type: 'adoptedex:pet_discovered',
-              action: 'pet_discovered',
-              petIds: e.detail ? e.detail.petIds : []
-            }, '*');
-          } catch (err) {}
-        }
-      });
+      var cachedPackCount = null;
 
-      function getLocalPackCount() {
+      function getAdoptedex() {
+        return window.MonroeAdoptedex || null;
+      }
+
+      function getDexIdentity() {
+        var adoptedex = getAdoptedex();
+        if (adoptedex && typeof adoptedex.getParams === 'function') {
+          return adoptedex.getParams();
+        }
+        var user = params.get('dex_user') || params.get('user') || '';
+        try {
+          if (!user) user = localStorage.getItem('monroeDexUser') || '';
+        } catch (err) {}
+        var api = params.get('dex_api') || params.get('api') || (window.location.origin + '/arcade-api/v1/');
+        return {
+          dexUser: String(user || '').trim().toLowerCase(),
+          dexApi: String(api || '').replace(/\/?$/, '/')
+        };
+      }
+
+      function readMirroredPackCount() {
         try {
           var raw = localStorage.getItem('monroeDexPacks');
-          if (raw === null) return 1;
+          if (raw === null) return null;
           var n = parseInt(raw, 10);
-          return isNaN(n) ? 0 : Math.max(0, n);
+          return isNaN(n) ? null : Math.max(0, n);
         } catch (err) {
-          return 0;
+          return null;
         }
+      }
+
+      function getLocalPackCount() {
+        if (typeof cachedPackCount === 'number') return cachedPackCount;
+        var mirrored = readMirroredPackCount();
+        return mirrored === null ? 1 : mirrored;
       }
 
       function syncNoPacksClass() {
         document.documentElement.classList.toggle('booster-no-packs', getLocalPackCount() <= 0);
+      }
+
+      function setPackCount(n) {
+        if (typeof n !== 'number' || isNaN(n)) return;
+        cachedPackCount = Math.max(0, n);
+        try {
+          // Mirror only — authoritative grants/opens go through MonroeAdoptedex.
+          localStorage.setItem('monroeDexPacks', String(cachedPackCount));
+        } catch (err) {}
+        syncNoPacksClass();
+        var pill = document.querySelector('[data-unopened-count]');
+        if (pill) pill.textContent = String(cachedPackCount);
+      }
+
+      function refreshPackCountFromDex() {
+        var adoptedex = getAdoptedex();
+        var id = getDexIdentity();
+        if (!adoptedex || typeof adoptedex.fetchDex !== 'function' || !id.dexUser || id.dexUser === 'guest') {
+          syncNoPacksClass();
+          return;
+        }
+        adoptedex.fetchDex(id.dexApi, id.dexUser).then(function (data) {
+          if (adoptedex.syncLocalPacksFromProfile) {
+            adoptedex.syncLocalPacksFromProfile(data);
+          }
+          var stats = data && (data.stats || data);
+          var packs = stats && (stats.unopened_packs != null ? stats.unopened_packs : stats.unopenedPacks);
+          if (typeof packs === 'number') {
+            setPackCount(packs);
+          } else {
+            syncNoPacksClass();
+          }
+          try {
+            if (data && data.stats && typeof data.stats.coin_balance !== 'undefined') {
+              localStorage.setItem('monroeDexCoins', String(data.stats.coin_balance));
+            }
+          } catch (e) {}
+        }).catch(function (err) {
+          console.warn('[Booster] Adoptédex sync failed:', err);
+          syncNoPacksClass();
+        });
+      }
+
+      function maybeClaimFirstPack() {
+        var adoptedex = getAdoptedex();
+        var id = getDexIdentity();
+        if (!adoptedex || typeof adoptedex.claimReward !== 'function' || !id.dexUser || id.dexUser === 'guest') {
+          return;
+        }
+        // One-time first_pack welcome if album is empty-handed.
+        adoptedex.claimReward(id.dexApi, id.dexUser, 'booster', 'first_pack', { tier: 'standard', count: 1 })
+          .then(function (res) {
+            if (res && res.claimed) {
+              refreshPackCountFromDex();
+              if (adoptedex.showRewardToast) {
+                adoptedex.showRewardToast({
+                  title: 'Welcome pack!',
+                  message: 'Your first Humane Booster pack is ready to tear open.',
+                  icon: '✨',
+                  game: 'Booster'
+                });
+              }
+            }
+          })
+          .catch(function () {});
       }
 
       function blockTearWhenEmpty(e) {
@@ -99,18 +180,94 @@
         }
       }
 
-      syncNoPacksClass();
+      // Forward pet discovery & pack opened events to parent Arcade Pass.
+      // Prefer MonroeAdoptedex for discoveries when available.
+      window.addEventListener('monroe-adoptedex-updated', function (e) {
+        var detail = e && e.detail ? e.detail : {};
+        if (typeof detail.remainingPacks === 'number') {
+          setPackCount(detail.remainingPacks);
+        } else if (!detail.synced) {
+          refreshPackCountFromDex();
+        }
+
+        var adoptedex = getAdoptedex();
+        var id = getDexIdentity();
+        var petIds = detail.petIds || detail.pet_ids || [];
+        if (detail.packOpened && adoptedex && typeof adoptedex.discoverBulk === 'function' && id.dexUser && petIds.length) {
+          // Server openPack already discovers; this is a best-effort sync for offline/local paths.
+          adoptedex.discoverBulk(id.dexApi, id.dexUser, petIds, 'booster').catch(function () {});
+        }
+
+        // Foil toast for rare/uncommon pulls (from #28 Adoptédex unify).
+        if (detail.packOpened && detail.packRarity && (detail.packRarity === 'rare' || detail.packRarity === 'uncommon')) {
+          if (adoptedex && adoptedex.showRewardToast) {
+            adoptedex.showRewardToast({
+              title: (detail.packRarityLabel || 'Foil pack') + '!',
+              message: 'Holographic pull — check your album binder for the foil flex.',
+              icon: '✨',
+              rare: true,
+              game: 'Booster'
+            });
+          }
+        }
+
+        if (window.parent && window.parent !== window) {
+          try {
+            if (detail.packOpened) {
+              window.parent.postMessage({
+                type: 'adoptedex:pack_opened',
+                action: 'pack_opened',
+                tier: detail.tier || 'standard',
+                remainingPacks: typeof detail.remainingPacks === 'number' ? detail.remainingPacks : getLocalPackCount()
+              }, '*');
+            }
+            window.parent.postMessage({
+              type: 'adoptedex:pet_discovered',
+              action: 'pet_discovered',
+              petIds: petIds
+            }, '*');
+          } catch (err) {}
+        }
+      });
+
+      // Keep empty-state in sync if the Vite app mirrors packs to localStorage.
       try {
         var nativeSetItem = localStorage.setItem.bind(localStorage);
         localStorage.setItem = function (key, value) {
           nativeSetItem(key, value);
-          if (key === 'monroeDexPacks') syncNoPacksClass();
+          if (key === 'monroeDexPacks') {
+            var n = parseInt(value, 10);
+            if (!isNaN(n)) cachedPackCount = Math.max(0, n);
+            syncNoPacksClass();
+          }
         };
       } catch (err) {}
-      window.addEventListener('storage', syncNoPacksClass);
+
+      window.addEventListener('storage', function (e) {
+        if (!e || e.key === 'monroeDexPacks' || e.key == null) {
+          var mirrored = readMirroredPackCount();
+          if (mirrored !== null) cachedPackCount = mirrored;
+          syncNoPacksClass();
+        }
+      });
       document.addEventListener('pointerdown', blockTearWhenEmpty, true);
       document.addEventListener('click', blockTearWhenEmpty, true);
-      window.addEventListener('monroe-adoptedex-updated', syncNoPacksClass);
+
+      // Keyboard: ensure tear badge is activatable; Esc closes summary if present.
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          var closeBtn = document.querySelector('.summary-modal-overlay .btn-secondary-link, .summary-modal-overlay button');
+          if (closeBtn) closeBtn.click();
+          return;
+        }
+        if (e.key === 'Enter' || e.key === ' ') {
+          var active = document.activeElement;
+          if (active && active.classList && active.classList.contains('tear-prompt-badge')) {
+            e.preventDefault();
+            active.click();
+          }
+        }
+      }, true);
 
       // Handle arcade sound mute state
       window.addEventListener('message', function (e) {
@@ -121,7 +278,131 @@
             localStorage.setItem('monroeArcadeMuted', String(e.data.muted));
           } catch (err) {}
         }
+        if (e.data.type === 'adoptedex:pack_awarded') {
+          refreshPackCountFromDex();
+        }
       });
+
+      // Expose a thin helper so other shells can grant packs via shared claimReward.
+      window.HumaneBoosterBridge = {
+        claimReward: function (gameId, rewardKey, extra) {
+          var adoptedex = getAdoptedex();
+          var id = getDexIdentity();
+          if (!adoptedex || typeof adoptedex.claimReward !== 'function' || !id.dexUser) {
+            return Promise.reject(new Error('MonroeAdoptedex.claimReward unavailable'));
+          }
+          return adoptedex.claimReward(id.dexApi, id.dexUser, gameId, rewardKey, extra || {}).then(function (result) {
+            refreshPackCountFromDex();
+            return result;
+          });
+        },
+        openPack: function (tier) {
+          var adoptedex = getAdoptedex();
+          var id = getDexIdentity();
+          if (!adoptedex || typeof adoptedex.openPack !== 'function' || !id.dexUser) {
+            return Promise.reject(new Error('MonroeAdoptedex.openPack unavailable'));
+          }
+          return adoptedex.openPack(id.dexApi, id.dexUser, tier || 'standard').then(function (result) {
+            if (result && typeof result.unopened_packs === 'number') {
+              setPackCount(result.unopened_packs);
+            } else if (result && typeof result.nextUnopenedPacks === 'number') {
+              setPackCount(result.nextUnopenedPacks);
+            } else {
+              refreshPackCountFromDex();
+            }
+            return result;
+          });
+        },
+        refreshPackCount: refreshPackCountFromDex
+      };
+
+
+      // Visual juice bridge: pack punch / tear shimmer + staggered card cascade.
+      // Overlay-only — does not rewrite the Vite pack engine.
+      (function juiceBridge() {
+        var reduced = false;
+        try {
+          reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        } catch (err) {}
+
+        function punchPack(el) {
+          if (!el || reduced) return;
+          el.classList.add('is-pack-punch', 'is-tearing', 'is-tap-shimmer');
+          window.setTimeout(function () {
+            el.classList.remove('is-pack-punch', 'is-tearing', 'is-tap-shimmer');
+          }, 700);
+        }
+
+        function pulseTearBadge(el) {
+          if (!el || reduced) return;
+          el.classList.add('is-tear-pulse');
+          window.setTimeout(function () {
+            el.classList.remove('is-tear-pulse');
+          }, 480);
+        }
+
+        function markHolo(card) {
+          if (!card) return;
+          var rare = card.classList.contains('pack-rarity-rare')
+            || card.classList.contains('pack-rarity-uncommon')
+            || card.querySelector('.foil-gold, .foil-prism, .foil-cosmos, .foil-aurora, .pack-rarity-rare, .pack-rarity-uncommon, [data-rarity="rare"], [data-rarity="uncommon"]');
+          var text = (card.textContent || '').toLowerCase();
+          if (!rare && (text.indexOf('rare') >= 0 || text.indexOf('uncommon') >= 0 || text.indexOf('foil') >= 0 || text.indexOf('holo') >= 0)) {
+            rare = true;
+          }
+          if (rare) card.classList.add('is-holo-rare');
+        }
+
+        function cascadeCards(root) {
+          var cards = (root || document).querySelectorAll('.card-3d-wrapper');
+          cards.forEach(function (card, i) {
+            markHolo(card);
+            if (reduced) return;
+            if (card.dataset.cascadeApplied === '1') return;
+            card.dataset.cascadeApplied = '1';
+            card.style.setProperty('--cascade-i', String(i));
+            card.classList.add('is-cascade-in');
+            window.setTimeout(function () {
+              card.classList.remove('is-cascade-in');
+            }, 700 + i * 90);
+          });
+        }
+
+        document.addEventListener('pointerdown', function (e) {
+          var t = e.target;
+          if (!t || !t.closest) return;
+          var badge = t.closest('.tear-prompt-badge');
+          var pack = t.closest('.pack-wrapper-3d');
+          if (badge) pulseTearBadge(badge);
+          if (pack) punchPack(pack);
+        }, true);
+
+        window.addEventListener('monroe-adoptedex-updated', function (e) {
+          var detail = e && e.detail ? e.detail : {};
+          if (detail.packOpened) {
+            var pack = document.querySelector('.pack-wrapper-3d');
+            punchPack(pack);
+            window.setTimeout(function () { cascadeCards(document); }, 180);
+            window.setTimeout(function () { cascadeCards(document); }, 520);
+          }
+        });
+
+        var obs = new MutationObserver(function () {
+          cascadeCards(document);
+          document.querySelectorAll('.humane-card.pack-rarity-rare, .humane-card.pack-rarity-uncommon').forEach(function (el) {
+            var host = el.closest('.card-3d-wrapper') || el;
+            host.classList.add('is-holo-rare');
+          });
+        });
+        var app = document.getElementById('app') || document.body;
+        try {
+          obs.observe(app, { childList: true, subtree: true });
+        } catch (err) {}
+      })();
+
+      syncNoPacksClass();
+      refreshPackCountFromDex();
+      maybeClaimFirstPack();
     })();
   </script>
 </body>

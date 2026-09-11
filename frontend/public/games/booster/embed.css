@@ -33,8 +33,8 @@ body {
 }
 
 /* Header: Dark glassmorphism when standalone, hidden when inside cabinet */
-.is-embedded .booster-header,
-iframe-parent .booster-header {
+html.is-embedded .booster-header,
+html.humane-embed .booster-header {
   display: none !important;
 }
 
@@ -86,16 +86,31 @@ iframe-parent .booster-header {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
-.btn-icon:hover {
-  background: #0f3d36 !important;
-  border-color: #2dd4bf !important;
-  transform: scale(1.08) !important;
+@media (hover: hover) and (pointer: fine) {
+  .btn-icon:hover {
+    background: #0f3d36 !important;
+    border-color: #2dd4bf !important;
+    transform: scale(1.08) !important;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Ergonomic Viewport Dimensions for 3D Pack & Cards
  * ────────────────────────────────────────────────────────────────────────── */
 :root {
+  /* Shared-aligned tokens (dark arcade overlay on Humane palette) */
+  --fur: #fef6ea;
+  --treat: #ffb347;
+  --ink: #f1f5f9;
+  --mint: #2dd4bf;
+  --cream: #fffaf3;
+  --teal: #0d9488;
+  --teal-deep: #134e4a;
+  --hg-touch-min: 44px;
+  --hg-safe-top: env(safe-area-inset-top, 0px);
+  --hg-safe-right: env(safe-area-inset-right, 0px);
+  --hg-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --hg-safe-left: env(safe-area-inset-left, 0px);
   --pack-w: clamp(230px, 66vw, 290px) !important;
   --pack-h: clamp(350px, 58vh, 435px) !important;
   --card-w: clamp(270px, 78vw, 325px) !important;
@@ -114,9 +129,11 @@ iframe-parent .booster-header {
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease !important;
 }
 
-.pack-wrapper-3d:hover {
-  transform: translateY(-8px) scale(1.03) !important;
-  filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 35px var(--pack-glow, rgba(45, 212, 191, 0.6))) brightness(1.08) !important;
+@media (hover: hover) and (pointer: fine) {
+  .pack-wrapper-3d:hover {
+    transform: translateY(-8px) scale(1.03) !important;
+    filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 35px var(--pack-glow, rgba(45, 212, 191, 0.6))) brightness(1.08) !important;
+  }
 }
 
 /* Metallic Crimped Ridges */
@@ -146,23 +163,47 @@ iframe-parent .booster-header {
 .foil-sheen {
   background: linear-gradient(
     115deg,
-    transparent 15%,
-    rgba(255, 255, 255, 0.15) 30%,
-    rgba(45, 212, 191, 0.5) 42%,
-    rgba(254, 240, 138, 0.65) 50%,
-    rgba(244, 114, 182, 0.5) 58%,
-    rgba(255, 255, 255, 0.25) 70%,
-    transparent 85%
+    transparent 12%,
+    rgba(255, 255, 255, 0.22) 28%,
+    rgba(45, 212, 191, 0.65) 40%,
+    rgba(254, 240, 138, 0.85) 50%,
+    rgba(244, 114, 182, 0.6) 60%,
+    rgba(255, 255, 255, 0.35) 72%,
+    transparent 88%
   ) !important;
-  background-size: 250% 250% !important;
-  animation: foilShimmerSweep 4.5s ease-in-out infinite !important;
+  background-size: 280% 280% !important;
+  animation: foilShimmerSweep 3.2s ease-in-out infinite !important;
   mix-blend-mode: overlay !important;
+  opacity: 0.95 !important;
+}
+
+.foil-sheen::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: -10% !important;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.55) 48%,
+    rgba(254, 240, 138, 0.35) 52%,
+    transparent 65%
+  ) !important;
+  background-size: 220% 100% !important;
+  animation: foilLightSweep 2.4s linear infinite !important;
+  mix-blend-mode: soft-light !important;
+  pointer-events: none !important;
 }
 
 @keyframes foilShimmerSweep {
-  0% { background-position: -120% -120%; opacity: 0.4; }
-  50% { background-position: 120% 120%; opacity: 0.85; }
-  100% { background-position: -120% -120%; opacity: 0.4; }
+  0% { background-position: -130% -130%; opacity: 0.45; }
+  45% { background-position: 120% 120%; opacity: 1; }
+  100% { background-position: -130% -130%; opacity: 0.45; }
+}
+
+@keyframes foilLightSweep {
+  0% { background-position: 140% 0; opacity: 0.35; }
+  40% { opacity: 0.9; }
+  100% { background-position: -140% 0; opacity: 0.35; }
 }
 
 /* Glowing Tear Perforation */
@@ -197,11 +238,13 @@ iframe-parent .booster-header {
   letter-spacing: 0.04em !important;
 }
 
-.tear-prompt-badge:hover {
-  transform: translate(-50%) scale(1.1) !important;
-  box-shadow:
-    0 6px 24px rgba(0, 0, 0, 0.7),
-    0 0 30px rgba(245, 158, 11, 0.9) !important;
+@media (hover: hover) and (pointer: fine) {
+  .tear-prompt-badge:hover {
+    transform: translate(-50%) scale(1.1) !important;
+    box-shadow:
+      0 6px 24px rgba(0, 0, 0, 0.7),
+      0 0 30px rgba(245, 158, 11, 0.9) !important;
+  }
 }
 
 /* Pack Artwork Content & Crest */
@@ -253,9 +296,11 @@ iframe-parent .booster-header {
   padding: 0.45rem 1.1rem !important;
 }
 
-.tier-pill-btn:hover:not(.active) {
-  color: #ffffff !important;
-  background: rgba(45, 212, 191, 0.1) !important;
+@media (hover: hover) and (pointer: fine) {
+  .tier-pill-btn:hover:not(.active) {
+    color: #ffffff !important;
+    background: rgba(45, 212, 191, 0.1) !important;
+  }
 }
 
 .tier-pill-btn.active {
@@ -530,4 +575,337 @@ iframe-parent .booster-header {
   pointer-events: none;
   z-index: 10001;
   border-radius: 2px;
+}
+
+
+/* --------------------------------------------------------------------------
+   Desktop / mobile responsive UX
+   -------------------------------------------------------------------------- */
+html, body, #app {
+  padding-top: var(--hg-safe-top);
+  padding-right: var(--hg-safe-right);
+  padding-bottom: var(--hg-safe-bottom);
+  padding-left: var(--hg-safe-left);
+}
+
+.booster-key-hints {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(4.75rem + var(--hg-safe-bottom));
+  transform: translateX(-50%);
+  z-index: 40;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.85rem;
+  justify-content: center;
+  max-width: min(92vw, 36rem);
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(6, 24, 21, 0.88);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  color: #99f6e4;
+  font-size: 0.75rem;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.booster-key-hints kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.1rem 0.35rem;
+  margin-right: 0.15rem;
+  border-radius: 5px;
+  border: 1px solid rgba(45, 212, 191, 0.4);
+  background: #0b2823;
+  color: #f1f5f9;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+  .booster-key-hints {
+    display: flex;
+  }
+
+  :root {
+    --pack-w: clamp(260px, 28vw, 340px) !important;
+    --pack-h: clamp(390px, 62vh, 510px) !important;
+    --card-w: clamp(300px, 32vw, 380px) !important;
+    --card-h: clamp(460px, 70vh, 560px) !important;
+  }
+
+  .booster-stage {
+    perspective: 1800px !important;
+  }
+}
+
+.btn-icon,
+.btn-nav,
+.tier-pill-btn,
+.tear-prompt-badge,
+.btn-action-main,
+.btn-secondary-link,
+.card-back-tap-pill {
+  min-height: var(--hg-touch-min) !important;
+  min-width: var(--hg-touch-min) !important;
+  touch-action: manipulation !important;
+}
+
+.tier-pill-btn {
+  padding: 0.55rem 1.15rem !important;
+  font-weight: 800 !important;
+}
+
+.tear-prompt-badge {
+  padding: 0.55rem 1.2rem !important;
+  font-size: 0.92rem !important;
+}
+
+@media (max-width: 680px) {
+  .booster-header {
+    top: var(--hg-safe-top) !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.55rem !important;
+    padding: 0.55rem 0.85rem !important;
+  }
+
+  .header-controls {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .booster-player-badge {
+    flex: 1 1 auto !important;
+    min-height: var(--hg-touch-min) !important;
+  }
+
+  .pack-selector-bar {
+    bottom: calc(0.75rem + var(--hg-safe-bottom)) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(96vw, 420px) !important;
+  }
+
+  .tier-pill-group {
+    width: 100% !important;
+    justify-content: space-between !important;
+    display: flex !important;
+  }
+
+  .tier-pill-btn {
+    flex: 1 1 0 !important;
+  }
+
+  .booster-key-hints {
+    display: none !important;
+  }
+
+  :root {
+    --pack-w: clamp(200px, 72vw, 280px) !important;
+    --pack-h: clamp(310px, 52vh, 420px) !important;
+    --card-w: clamp(220px, 84vw, 310px) !important;
+    --card-h: clamp(360px, 60vh, 480px) !important;
+  }
+
+  .booster-empty-inventory {
+    margin-top: 1rem;
+    max-width: min(22rem, 92vw);
+  }
+}
+
+.pack-wrapper-3d,
+.tear-canvas-layer,
+.card-stack-viewport,
+.card-3d-wrapper {
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+}
+
+html.is-embedded #app,
+html.humane-embed #app {
+  min-height: 100% !important;
+  height: 100% !important;
+}
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Visual juice overlay (pack tear + card reveal) — CSS only, no bundle rewrite
+ * ────────────────────────────────────────────────────────────────────────── */
+.pack-wrapper-3d {
+  position: relative !important;
+}
+
+.pack-wrapper-3d.is-pack-punch {
+  animation: boosterPackPunch 0.55s cubic-bezier(0.22, 1.4, 0.36, 1) !important;
+}
+
+.pack-wrapper-3d.is-tearing .foil-sheen,
+.pack-wrapper-3d.is-pack-punch .foil-sheen {
+  animation-duration: 1.1s !important;
+  filter: brightness(1.25) saturate(1.2) !important;
+}
+
+.pack-wrapper-3d.is-tearing::before,
+.pack-wrapper-3d.is-pack-punch::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -8% !important;
+  border-radius: 22px !important;
+  pointer-events: none !important;
+  z-index: 30 !important;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.55) 48%,
+    rgba(254, 240, 138, 0.4) 52%,
+    transparent 70%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: foilLightSweep 0.7s ease-out forwards !important;
+  mix-blend-mode: screen !important;
+}
+
+.tear-prompt-badge.is-tear-pulse {
+  animation: boosterTearPulse 0.45s ease !important;
+}
+
+@keyframes boosterPackPunch {
+  0% { transform: scale(1) translateY(0); filter: brightness(1); }
+  35% { transform: scale(1.08) translateY(-10px); filter: brightness(1.18) saturate(1.15); }
+  70% { transform: scale(0.98) translateY(2px); }
+  100% { transform: scale(1) translateY(0); filter: brightness(1); }
+}
+
+@keyframes boosterTearPulse {
+  0% { transform: translate(-50%) scale(1); }
+  40% { transform: translate(-50%) scale(1.14); }
+  100% { transform: translate(-50%) scale(1); }
+}
+
+/* Staggered card reveal cascade */
+.card-3d-wrapper.is-cascade-in {
+  animation: boosterCardCascade 0.55s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation-delay: calc(var(--cascade-i, 0) * 90ms) !important;
+}
+
+@keyframes boosterCardCascade {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.88) rotateX(12deg);
+    filter: brightness(1.25);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotateX(0deg);
+    filter: brightness(1);
+  }
+}
+
+/* Holographic rare/uncommon card polish (animated gradient border + shine) */
+.card-3d-wrapper.is-holo-rare,
+.humane-card.pack-rarity-rare,
+.humane-card.pack-rarity-uncommon,
+.card-rarity-floating-pill[data-rarity="rare"],
+.card-foil-layer.foil-gold,
+.card-foil-layer.foil-prism,
+.card-foil-layer.foil-cosmos,
+.foil-gold .card-foil-layer,
+.foil-prism .card-foil-layer,
+.foil-cosmos .card-foil-layer,
+.foil-aurora .card-foil-layer {
+  position: relative;
+}
+
+.card-3d-wrapper.is-holo-rare::after,
+.humane-card.pack-rarity-rare::after,
+.humane-card.pack-rarity-uncommon::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: -3px !important;
+  border-radius: 24px !important;
+  pointer-events: none !important;
+  z-index: 25 !important;
+  background: linear-gradient(
+    120deg,
+    #f472b6,
+    #fbbf24,
+    #2dd4bf,
+    #a78bfa,
+    #f472b6
+  ) !important;
+  background-size: 300% 300% !important;
+  animation: boosterHoloBorder 2.8s linear infinite !important;
+  opacity: 0.9 !important;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 3px !important;
+}
+
+.card-3d-wrapper.is-holo-rare .card-glare,
+.card-3d-wrapper.is-holo-rare .card-foil-layer,
+.humane-card.pack-rarity-rare .card-glare,
+.humane-card.pack-rarity-uncommon .card-glare {
+  opacity: 0.95 !important;
+  animation: boosterHoloShine 2.2s ease-in-out infinite !important;
+}
+
+@keyframes boosterHoloBorder {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes boosterHoloShine {
+  0%, 100% { filter: brightness(1) saturate(1); }
+  50% { filter: brightness(1.25) saturate(1.35); }
+}
+
+/* Tap-friendly shimmer kick (also used without hover) */
+.pack-wrapper-3d.is-tap-shimmer .foil-sheen {
+  animation-duration: 1.2s !important;
+  filter: brightness(1.2) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .foil-sheen,
+  .foil-sheen::after,
+  .pack-wrapper-3d.is-pack-punch,
+  .pack-wrapper-3d.is-tearing::before,
+  .pack-wrapper-3d.is-pack-punch::before,
+  .tear-prompt-badge.is-tear-pulse,
+  .card-3d-wrapper.is-cascade-in,
+  .card-3d-wrapper.is-holo-rare::after,
+  .humane-card.pack-rarity-rare::after,
+  .humane-card.pack-rarity-uncommon::after,
+  .card-3d-wrapper.is-holo-rare .card-glare,
+  .card-3d-wrapper.is-holo-rare .card-foil-layer {
+    animation: none !important;
+  }
+
+  .card-3d-wrapper.is-cascade-in {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .card-3d-wrapper.is-holo-rare::after,
+  .humane-card.pack-rarity-rare::after,
+  .humane-card.pack-rarity-uncommon::after {
+    opacity: 0.7 !important;
+    background: linear-gradient(120deg, #fbbf24, #2dd4bf) !important;
+  }
 }

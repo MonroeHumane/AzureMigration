@@ -86,11 +86,67 @@ export async function hydrateHomeNewsletter(): Promise<void> {
   const root = document.querySelector<HTMLElement>('[data-newsletter-home]');
   if (!root) return;
   const issue = await fetchFeaturedIssue();
-  if (issue) {
-    const hero = root.querySelector<HTMLImageElement>('[data-nl-hero]');
-    if (hero && issue.hero_image) {
-      hero.src = issue.hero_image;
-      hero.alt = issue.title || 'Latest newsletter';
+  if (!issue) return;
+
+  const hero = root.querySelector<HTMLImageElement>('[data-nl-hero]');
+  if (hero && issue.hero_image) {
+    hero.src = issue.hero_image;
+    hero.alt = issue.title || 'Latest newsletter';
+  }
+  const label = document.querySelector('[data-nl-label]');
+  if (label && issue.title) label.textContent = issue.title;
+  const masthead = document.querySelector('[data-nl-masthead]');
+  if (masthead) masthead.textContent = issue.newsletter_title || 'Monroe Humane Society Newsletter';
+  const top = root.querySelector('[data-nl-topline]');
+  if (top) top.textContent = issue.top_line || 'PO Box 1457 • Monroe, MI';
+  const date = root.querySelector('[data-nl-date]');
+  if (date) date.textContent = formatIssueDate(issue.issue_date, '');
+  const title = root.querySelector('[data-nl-title]');
+  if (title) title.textContent = issue.title || title.textContent;
+  const byline = root.querySelector('[data-nl-byline]');
+  if (byline) byline.textContent = issue.byline || 'by, Jacqueline Monteer';
+  const excerpt = root.querySelector('[data-nl-excerpt]');
+  if (excerpt) excerpt.textContent = issueExcerpt(issue) || excerpt.textContent;
+  const fullBody = root.querySelector('[data-nl-fullbody]');
+  const readAll = root.querySelector<HTMLDetailsElement>('[data-nl-readall]');
+  if (fullBody) {
+    const blocks = storyBlocks(issue);
+    if (blocks.length) {
+      fullBody.innerHTML = blocks
+        .map((block) => {
+          const title = block.title
+            ? `<h4 class="m-0 mb-2 font-serif text-lg text-[#153635]">${escapeHtml(block.title)}</h4>`
+            : '';
+          const paras = String(block.body || '')
+            .split('\n')
+            .filter(Boolean)
+            .map(
+              (para) =>
+                `<p class="m-0 mb-3 font-['Questrial','Segoe_UI',sans-serif] text-[1.02rem] leading-[1.75] text-[#3d4f4e] last:mb-0">${escapeHtml(para)}</p>`,
+            )
+            .join('');
+          return `<div class="mb-4 last:mb-0">${title}${paras}</div>`;
+        })
+        .join('');
+      readAll?.classList.remove('hidden');
+    } else if (readAll) {
+      readAll.classList.add('hidden');
+      readAll.open = false;
+    }
+  }
+  const link = root.querySelector<HTMLAnchorElement>('[data-nl-link]');
+  if (link && issue.slug) {
+    link.href = `/newsletter/issue/${issue.slug}`;
+    link.textContent = 'Read the letter';
+  }
+  const pdf = root.querySelector<HTMLAnchorElement>('[data-nl-pdf]');
+  if (pdf) {
+    if (issue.pdf_url) {
+      pdf.href = issue.pdf_url;
+      pdf.classList.remove('home-nl__btn--off', 'hidden');
+    } else {
+      pdf.removeAttribute('href');
+      pdf.classList.add('home-nl__btn--off');
     }
     const label = document.querySelector('[data-nl-label]');
     if (label && issue.title) label.textContent = issue.title;

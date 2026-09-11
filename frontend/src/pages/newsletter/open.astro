@@ -5,26 +5,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <BaseLayout title="Newsletter | 734-243-3669" description="Monroe Humane Society Newsletter issue.">
   <div class="pb-24 px-4 max-w-7xl mx-auto mt-12" data-newsletter-issue data-newsletter-runtime>
     <div id="nl-shell" class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
-      <div class="relative h-64 sm:h-80 md:h-96 w-full">
-        <div class="absolute inset-0 bg-teal-900/40 mix-blend-multiply z-10"></div>
-        <img data-nl-hero src="/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png" alt="" class="absolute inset-0 w-full h-full object-cover z-0" loading="eager" decoding="async" />
-        <div class="absolute inset-0 p-8 flex flex-col justify-end z-20 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
-          <p class="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-2" data-nl-topline>PO Box 1457 • Monroe, MI</p>
-          <h1 class="text-3xl sm:text-5xl font-serif text-white" data-nl-headline>Loading…</h1>
+      <div class="w-full bg-[#e7f0ec] px-3 pt-3 sm:px-4 sm:pt-4">
+        <div class="relative w-full overflow-hidden rounded-2xl bg-[#dce8e3] aspect-[1168/514]">
+          <img data-nl-hero src="https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/assets/78654ea7-9572-4fe4-8f30-ac71319b44bd" alt="" class="absolute inset-0 h-full w-full object-contain object-center" loading="eager" decoding="async" />
         </div>
       </div>
-      <div class="p-8 sm:p-12 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50">
-        <div>
-          <h2 class="text-2xl font-bold text-teal-900 mb-1" data-nl-masthead>Monroe Humane Society Newsletter</h2>
-          <div class="text-gray-500 font-medium" data-nl-byline></div>
+      <header class="px-4 sm:px-10 pt-5 pb-6 sm:pt-7 sm:pb-8 bg-gradient-to-b from-[#f7fbf9] to-white border-b border-teal-900/10">
+        <div class="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div class="min-w-0 max-w-3xl">
+            <p class="m-0 mb-3 inline-flex items-center rounded-full bg-teal-800/10 px-3 py-1 font-['Jost','Segoe_UI',sans-serif] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-teal-800" data-nl-topline>PO Box 1457 • Monroe, MI</p>
+            <h1 class="m-0 font-serif text-[clamp(2.25rem,5vw,3.75rem)] font-normal leading-[1.08] tracking-[0.01em] text-[#143534]" data-nl-headline>Loading…</h1>
+            <h2 class="m-0 mt-3 text-lg sm:text-xl font-semibold text-teal-900/90" data-nl-masthead>Monroe Humane Society Newsletter</h2>
+            <p class="m-0 mt-2 text-base text-[#5b6f6e]" data-nl-byline></p>
+          </div>
+          <div class="flex flex-wrap gap-2.5 lg:justify-end" role="group" aria-label="Newsletter actions">
+            <a data-nl-pdf href="#" class="hidden inline-flex min-h-[2.75rem] items-center justify-center rounded-full border-2 border-teal-800 bg-white px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-teal-800 transition hover:bg-teal-50" target="_blank" rel="noopener noreferrer">Download PDF</a>
+            <a href="/adopt/dogs" class="inline-flex min-h-[2.75rem] items-center justify-center rounded-full bg-teal-800 px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-teal-950">See Adoptable Dogs</a>
+            <a href="/adopt/cats" class="inline-flex min-h-[2.75rem] items-center justify-center rounded-full bg-teal-800 px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-teal-950">See Adoptable Cats</a>
+            <a href="/adopt" class="inline-flex min-h-[2.75rem] items-center justify-center rounded-full border-2 border-teal-800 bg-white px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-teal-800 transition hover:bg-teal-50">See All Pets</a>
+          </div>
         </div>
-        <div class="flex flex-wrap gap-4" role="group" aria-label="Quick pet filters">
-          <a data-nl-pdf href="#" class="hidden inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 border-2 border-teal-700 text-teal-700 hover:bg-teal-50 text-sm" target="_blank" rel="noopener noreferrer">Download PDF</a>
-          <a href="/adopt/dogs" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900 text-sm">See Adoptable Dogs</a>
-          <a href="/adopt/cats" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-md hover:-translate-y-1 bg-teal-700 text-white hover:bg-teal-900 text-sm">See Adoptable Cats</a>
-          <a href="/adopt" class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all border-2 border-teal-700 text-teal-700 hover:-translate-y-1 hover:bg-teal-50 text-sm">See All Pets</a>
-        </div>
-      </div>
+      </header>
       <div class="p-8 sm:p-12 bg-white">
         <div class="grid grid-cols-1 gap-8 max-w-3xl mx-auto" data-nl-blocks></div>
       </div>

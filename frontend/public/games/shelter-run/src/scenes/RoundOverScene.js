@@ -14,6 +14,7 @@ class RoundOverScene extends Phaser.Scene {
   init(data) {
     this.distanceMeters = (data && data.distanceMeters) || 0;
     this.collectedPetIds = (data && data.collectedPetIds) || [];
+    this.collectedPets = (data && data.collectedPets) || [];
     this.companionIndex = (data && typeof data.companionIndex === 'number') ? data.companionIndex : 0;
   }
 
@@ -30,7 +31,16 @@ class RoundOverScene extends Phaser.Scene {
 
     this.rewardBanner = null; // built lazily once/if the server confirms a claim
 
-    ShelterRunDex.reportDiscoveries(this.collectedPetIds);
+    const petsForDex = this.collectedPets.slice();
+    ShelterRunDex.reportDiscoveries(this.collectedPetIds).then(() => {
+      // End-of-run gallery: flip the first rescued pet (milestones may follow).
+      if (petsForDex.length && ShelterRunDex.celebrateDiscovery) {
+        const star = petsForDex[0];
+        if (star && star.photo) {
+          ShelterRunDex.celebrateDiscovery(star, { durationMs: 3000, autoFlipMs: 500 });
+        }
+      }
+    });
     ShelterRunDex.claimMilestones(this.distanceMeters, (milestone) => this._onMilestoneClaimed(milestone));
 
     // Submit distance score to Arcade Leaderboard and notify Cabinet shell
@@ -70,22 +80,60 @@ class RoundOverScene extends Phaser.Scene {
     this._retryFill.setInteractive({ useHandCursor: true }).on('pointerdown', () => this._runAgain());
     this._retryZone.on('pointerdown', () => this._runAgain());
     this._retryLabel.on('pointerdown', () => this._runAgain());
+
+    // Secondary: return to companion menu (clear exit/restart choice)
+    this._menuFill = this.add.rectangle(0, 0, SR_RETRY_BTN_W, 56, 0x1e3a34).setDepth(20)
+      .setStrokeStyle(2, 0x6bc4a6);
+    this._menuZone = this.add.zone(0, 0, SR_RETRY_BTN_W, 56).setDepth(21).setInteractive({ useHandCursor: true });
+    this._menuLabel = srUiText(this, 0, 0, 'Back to Menu', { fontSize: '22px', color: '#e8f4ef' })
+      .setDepth(22).setInteractive({ useHandCursor: true });
+    this._menuFill.setInteractive({ useHandCursor: true }).on('pointerdown', () => this._toMenu());
+    this._menuZone.on('pointerdown', () => this._toMenu());
+    this._menuLabel.on('pointerdown', () => this._toMenu());
+
+    this._hintText = srUiText(this, 0, 0, 'Enter / Space · run again   ·   Esc · menu', {
+      fontSize: '14px', color: '#9ec4b8',
+    }).setDepth(5);
+
     this.input.on('pointerdown', (pointer) => this._onScenePointer(pointer));
 
     if (this.input.keyboard) {
       this.input.keyboard.on('keydown-ENTER', () => this._runAgain());
       this.input.keyboard.on('keydown-SPACE', () => this._runAgain());
+      this.input.keyboard.on('keydown-R', () => this._runAgain());
+      this.input.keyboard.on('keydown-ESC', () => this._toMenu());
+    }
+
+    const hints = document.getElementById('srKeyHints');
+    if (hints) {
+      const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      if (coarse) hints.style.display = 'none';
+      else {
+        hints.style.display = '';
+        hints.innerHTML =
+          '<span class="sr-key-hints__item"><kbd>Enter</kbd>/<kbd>R</kbd> run again</span>' +
+          '<span class="sr-key-hints__item"><kbd>Esc</kbd> menu</span>';
+      }
     }
 
     this._layout();
     this.scale.on('resize', this._layout, this);
-    this.events.once('shutdown', () => this.scale.off('resize', this._layout, this));
+    this.events.once('shutdown', () => {
+      this.scale.off('resize', this._layout, this);
+      if (hints) hints.style.display = 'none';
+    });
   }
 
   _runAgain() {
     if (this._started) return;
     this._started = true;
     this.scene.start('Game', { companionIndex: this.companionIndex });
+  }
+
+  _toMenu() {
+    if (this._started) return;
+    this._started = true;
+    this.scene.start('MainMenu');
   }
 
   _onScenePointer(pointer) {
@@ -99,6 +147,10 @@ class RoundOverScene extends Phaser.Scene {
       const y = pts[i][1];
       if (this._contains(this._retryZone, x, y) || this._contains(this._retryLabel, x, y) || this._contains(this._retryFill, x, y)) {
         this._runAgain();
+        return;
+      }
+      if (this._contains(this._menuZone, x, y) || this._contains(this._menuLabel, x, y) || this._contains(this._menuFill, x, y)) {
+        this._toMenu();
         return;
       }
     }
@@ -141,18 +193,40 @@ class RoundOverScene extends Phaser.Scene {
       this._petsText.setWordWrapWidth(wrapW, true);
     }
 
-    const btnW = Math.max(180, Math.min(SR_RETRY_BTN_W, W - 32));
-    const btnY = vy(560);
+    const btnW = Math.max(200, Math.min(SR_RETRY_BTN_W, W - 32));
+    const btnH = Math.max(SR_RETRY_BTN_H, 56);
+    const menuH = Math.max(52, 48);
+    const btnY = Math.min(vy(500), H - btnH - menuH - 48);
     this._retryFill.setPosition(W / 2, btnY);
-    this._retryFill.setSize(btnW, SR_RETRY_BTN_H);
+    this._retryFill.setSize(btnW, btnH);
     this._retryFill.setInteractive({ useHandCursor: true });
     this._retryZone.setPosition(W / 2, btnY);
     if (typeof this._retryZone.setSize === 'function') {
-      this._retryZone.setSize(btnW, SR_RETRY_BTN_H, true);
+      this._retryZone.setSize(btnW, btnH, true);
     }
     this._retryZone.setInteractive({ useHandCursor: true });
     this._retryLabel.setPosition(W / 2, btnY);
     this._retryLabel.setInteractive({ useHandCursor: true });
+
+    const menuY = btnY + btnH / 2 + menuH / 2 + 14;
+    if (this._menuFill) {
+      this._menuFill.setPosition(W / 2, menuY);
+      this._menuFill.setSize(btnW, menuH);
+      this._menuFill.setInteractive({ useHandCursor: true });
+      this._menuZone.setPosition(W / 2, menuY);
+      if (typeof this._menuZone.setSize === 'function') {
+        this._menuZone.setSize(btnW, menuH, true);
+      }
+      this._menuZone.setInteractive({ useHandCursor: true });
+      this._menuLabel.setPosition(W / 2, menuY);
+      this._menuLabel.setInteractive({ useHandCursor: true });
+    }
+    if (this._hintText) {
+      const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      this._hintText.setVisible(!coarse);
+      this._hintText.setPosition(W / 2, Math.min(menuY + menuH / 2 + 22, H - 16));
+      this._hintText.setFontSize(W < 420 ? '12px' : '14px');
+    }
 
     (this._banners || []).forEach((banner, i) => {
       const y = vy(300) + i * 46;

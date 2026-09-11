@@ -585,6 +585,17 @@ html, body {
 		0 0 20px rgba(45, 212, 191, 0.35);
 }
 
+.pocket-cell--occupied:focus {
+	outline: none;
+}
+
+.pocket-cell--occupied:focus-visible {
+	border-color: var(--teal-300);
+	box-shadow:
+		0 0 0 3px rgba(45, 212, 191, 0.55),
+		0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
 /* Empty Pocket Placeholder */
 .pocket-empty {
 	display: flex;
@@ -719,9 +730,15 @@ html, body {
 	font-size: 0.65rem;
 	font-weight: 700;
 	color: #475569;
-	white-space: nowrap;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: normal;
+	line-height: 1.25;
+	max-height: 2.5em;
 }
 
 .binder-card__move {
@@ -765,11 +782,89 @@ html, body {
 	opacity: 0;
 	z-index: 5;
 	transition: opacity 0.3s ease;
+	overflow: hidden;
+}
+
+.binder-card__foil::after {
+	content: "";
+	position: absolute;
+	inset: -20%;
+	background: linear-gradient(
+		105deg,
+		transparent 35%,
+		rgba(255, 255, 255, 0.55) 48%,
+		rgba(254, 240, 138, 0.35) 52%,
+		transparent 65%
+	);
+	background-size: 220% 100%;
+	opacity: 0;
+	transform: translateX(-30%);
+	pointer-events: none;
+	mix-blend-mode: screen;
+}
+
+.foil-aurora .binder-card__foil::after,
+.foil-cosmos .binder-card__foil::after,
+.foil-gold .binder-card__foil::after,
+.foil-prism .binder-card__foil::after {
+	opacity: 0.85;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.pocket-cell--occupied:hover .binder-card__foil::after,
+	.inspector-face--front:hover .binder-card__foil::after {
+		animation: dexFoilShine 1.1s ease-out;
+	}
+}
+
+.pocket-cell--occupied.is-tilting .binder-card__foil::after,
+.pocket-cell--occupied.is-shine-kick .binder-card__foil::after,
+.inspector-card-host.is-tilting .binder-card__foil::after,
+.inspector-card-host.is-shine-kick .binder-card__foil::after {
+	animation: dexFoilShine 0.95s ease-out;
+}
+
+/* Photo-first: stronger foil only during interaction (foil tiers only) */
+.pocket-cell--occupied.is-tilting .foil-aurora .binder-card__foil,
+.pocket-cell--occupied.is-tilting .foil-cosmos .binder-card__foil,
+.pocket-cell--occupied.is-tilting .foil-gold .binder-card__foil,
+.pocket-cell--occupied.is-tilting .foil-prism .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-aurora .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-cosmos .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-gold .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-prism .binder-card__foil,
+.inspector-card-host.is-tilting .foil-aurora .binder-card__foil,
+.inspector-card-host.is-tilting .foil-cosmos .binder-card__foil,
+.inspector-card-host.is-tilting .foil-gold .binder-card__foil,
+.inspector-card-host.is-tilting .foil-prism .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-aurora .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-cosmos .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-gold .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-prism .binder-card__foil,
+.inspector-face--front.foil-aurora:hover .binder-card__foil,
+.inspector-face--front.foil-cosmos:hover .binder-card__foil,
+.inspector-face--front.foil-gold:hover .binder-card__foil,
+.inspector-face--front.foil-prism:hover .binder-card__foil {
+	opacity: 0.72;
+	transition: opacity 0.2s ease;
+}
+.pocket-cell--occupied.is-shine-kick .foil-prism .binder-card__foil,
+.pocket-cell--occupied.is-shine-kick .foil-gold .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-prism .binder-card__foil,
+.inspector-card-host.is-shine-kick .foil-gold .binder-card__foil {
+	opacity: 0.72;
+}
+
+
+@keyframes dexFoilShine {
+	0% { transform: translateX(-55%); opacity: 0.2; }
+	35% { opacity: 0.95; }
+	100% { transform: translateX(55%); opacity: 0.15; }
 }
 
 /* Aurora: Pastel wave */
 .foil-aurora .binder-card__foil {
-	opacity: 0.75;
+	opacity: 0.24;
 	background: linear-gradient(
 		var(--pointer-deg, 135deg),
 		rgba(255, 183, 178, 0.45) 0%,
@@ -784,7 +879,7 @@ html, body {
 
 /* Cosmos: Nebula starlight */
 .foil-cosmos .binder-card__foil {
-	opacity: 0.8;
+	opacity: 0.26;
 	background:
 		radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(251, 146, 60, 0.65) 0%, transparent 60%),
 		linear-gradient(var(--pointer-deg, 135deg), rgba(99, 102, 241, 0.4) 0%, rgba(236, 72, 153, 0.4) 100%);
@@ -793,7 +888,7 @@ html, body {
 
 /* Gold: 24k mirror gold */
 .foil-gold .binder-card__foil {
-	opacity: 0.8;
+	opacity: 0.26;
 	background: linear-gradient(
 		var(--pointer-deg, 135deg),
 		rgba(217, 119, 6, 0.4) 0%,
@@ -806,7 +901,7 @@ html, body {
 
 /* Prism: Rainbow diffraction grating */
 .foil-prism .binder-card__foil {
-	opacity: 0.85;
+	opacity: 0.26;
 	background:
 		repeating-linear-gradient(
 			var(--pointer-deg, 45deg),
@@ -988,6 +1083,12 @@ html, body {
 	align-items: center;
 	justify-content: center;
 	perspective: 1800px;
+}
+
+/* HTML [hidden] must win over display:flex (same fix as .binder-pack-reveal[hidden]) */
+.card-inspector-modal[hidden] {
+	display: none !important;
+	pointer-events: none !important;
 }
 
 .inspector-backdrop {
@@ -1231,4 +1332,971 @@ html, body {
 .btn-share:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
+}
+
+
+/* --- Adoptédex unify: shop + pack reveal + foil flex --- */
+.binder-shop-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.binder-shop-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:8px 14px;border-radius:999px;border:1.5px solid rgba(26,79,75,.25);background:rgba(255,250,243,.95);color:#2c1c19;font-weight:800;cursor:pointer;font-size:.88rem;touch-action:manipulation}
+.binder-shop-btn--primary{background:#1a4f4b;color:#fffaf3;border-color:transparent}
+.binder-pack-pill__btn{min-height:44px;min-width:44px;touch-action:manipulation}
+.binder-pack-reveal{position:fixed;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:rgba(8,20,16,.72);backdrop-filter:blur(4px)}
+.binder-pack-reveal[hidden]{display:none!important}
+.binder-pack-reveal__actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.binder-pack-reveal__actions .binder-shop-btn{text-decoration:none}
+
+.binder-pack-reveal__panel{background:linear-gradient(180deg,#fffaf3,#fef6ea);color:#2c1c19;border-radius:20px;max-width:min(96vw,520px);width:100%;padding:18px 16px 16px;box-shadow:0 24px 60px rgba(0,0,0,.4);border:2px solid rgba(26,79,75,.25);text-align:center}
+.binder-pack-reveal__grid{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.binder-pack-reveal__rarity.is-rare{color:#b45309;font-weight:800}
+.binder-card--foil-flex,.adoptedex-card-wrap--foil-flex .adoptedex-card{box-shadow:0 0 0 2px rgba(254,240,138,.55),0 12px 28px rgba(255,179,71,.28)}
+.adoptedex-card__foil-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.45) 45%,transparent 70%);animation:adxFoil 3.6s linear infinite;mix-blend-mode:screen;opacity:.28}
+@keyframes adxFoil{from{transform:translateX(-40%)}to{transform:translateX(40%)}}
+
+/* ==========================================================================
+   Responsive UX polish — desktop density + mobile touch / safe-area
+   (incremental; keeps existing binder aesthetic)
+   ========================================================================== */
+
+:root {
+	--touch-min: 44px;
+	--safe-top: env(safe-area-inset-top, 0px);
+	--safe-right: env(safe-area-inset-right, 0px);
+	--safe-bottom: env(safe-area-inset-bottom, 0px);
+	--safe-left: env(safe-area-inset-left, 0px);
+	/* Shared Humane Games tokens (shared-styles.css) */
+	--mint: #6bc4a6;
+	--treat: #ffb347;
+	--cream: #fffaf3;
+	--ink: #2c1c19;
+	--radius: 16px;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.binder-app {
+	padding-top: calc(1rem + var(--safe-top));
+	padding-left: calc(1rem + var(--safe-left));
+	padding-right: calc(1rem + var(--safe-right));
+	padding-bottom: calc(3rem + var(--safe-bottom));
+}
+
+/* Desktop denser showcase grid */
+@media (min-width: 1100px) {
+	.binder-showcase-grid {
+		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		gap: 0.9rem;
+	}
+
+	.binder-pockets-grid {
+		gap: 0.85rem;
+	}
+}
+
+@media (min-width: 1400px) {
+	.binder-showcase-grid {
+		grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+		gap: 0.75rem;
+	}
+}
+
+/* Desktop keyboard hints */
+.binder-key-hints {
+	display: none;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	justify-content: center;
+	margin: 0.15rem 0 0.35rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.binder-key-hints {
+		display: flex;
+	}
+}
+
+.binder-key-hints__item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.25rem 0.6rem;
+	border-radius: 999px;
+	background: rgba(6, 32, 26, 0.9);
+	border: 1px solid rgba(45, 212, 191, 0.35);
+	color: #e2e8f0;
+	font-size: 0.72rem;
+	font-weight: 600;
+}
+
+.binder-key-hints kbd {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.4em;
+	padding: 0.1em 0.35em;
+	border-radius: 5px;
+	border: 1px solid rgba(241, 245, 249, 0.4);
+	background: rgba(15, 61, 50, 0.95);
+	color: var(--cream);
+	font-size: 0.7rem;
+	font-weight: 700;
+}
+
+/* Loading state */
+.binder-loading-state {
+	text-align: center;
+	padding: 2.5rem 1.25rem;
+	background: rgba(8, 36, 30, 0.72);
+	border: 1.5px solid rgba(45, 212, 191, 0.3);
+	border-radius: 20px;
+	max-width: 420px;
+	margin: 1.5rem auto;
+}
+
+.binder-loading-state[hidden] {
+	display: none !important;
+}
+
+.binder-loading-state__spinner {
+	width: 42px;
+	height: 42px;
+	margin: 0 auto 1rem;
+	border-radius: 50%;
+	border: 3px solid rgba(45, 212, 191, 0.25);
+	border-top-color: var(--teal-400);
+	animation: binderSpin 0.8s linear infinite;
+}
+
+@keyframes binderSpin {
+	to { transform: rotate(360deg); }
+}
+
+.binder-loading-state__title {
+	margin: 0 0 0.35rem;
+	font-size: 1.15rem;
+	font-weight: 800;
+	color: #ffffff;
+}
+
+.binder-loading-state__desc {
+	margin: 0;
+	font-size: 0.88rem;
+	color: #94a3b8;
+}
+
+.binder-main[hidden] {
+	display: none !important;
+}
+
+.binder-error-toast {
+	position: fixed;
+	left: 50%;
+	bottom: calc(1.25rem + var(--safe-bottom));
+	transform: translateX(-50%);
+	z-index: 12000;
+	max-width: min(92vw, 420px);
+	padding: 0.75rem 1rem;
+	border-radius: 12px;
+	background: rgba(127, 29, 29, 0.95);
+	border: 1.5px solid #f87171;
+	color: #fff;
+	font-size: 0.85rem;
+	font-weight: 700;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.binder-error-toast[hidden] {
+	display: none !important;
+}
+
+.binder-swipe-hint {
+	display: none;
+	text-align: center;
+	margin: 0.55rem 0 0;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #64748b;
+}
+
+/* Touch targets ≥44px */
+.view-btn {
+	min-height: var(--touch-min);
+	padding: 0.55rem 0.85rem;
+}
+
+.chip {
+	min-height: var(--touch-min);
+	padding: 0.45rem 0.85rem;
+	display: inline-flex;
+	align-items: center;
+}
+
+.binder-search-input {
+	min-height: var(--touch-min);
+	font-size: 16px; /* avoid iOS zoom */
+}
+
+.binder-sort-select {
+	min-height: var(--touch-min);
+	font-size: 16px;
+}
+
+.btn-sheet-nav {
+	min-height: var(--touch-min);
+	min-width: var(--touch-min);
+	padding: 0.65rem 1rem;
+}
+
+.sheet-dot {
+	width: 12px;
+	height: 12px;
+	/* expand hit area without visual bloat */
+	box-shadow: 0 0 0 10px transparent;
+}
+
+.btn-empty-reset,
+.btn-empty-packs,
+.inspector-action-btn {
+	min-height: var(--touch-min);
+}
+
+.binder-pack-pill__btn {
+	min-height: 32px;
+	display: inline-flex;
+	align-items: center;
+}
+
+.binder-search-clear {
+	min-width: var(--touch-min);
+	min-height: var(--touch-min);
+	right: 0.15rem;
+}
+
+/* Mobile / coarse pointer */
+@media (max-width: 768px), (pointer: coarse) {
+	.binder-key-hints {
+		display: none !important;
+	}
+
+	.binder-swipe-hint {
+		display: block;
+	}
+
+	.binder-header {
+		padding: 0.55rem 0.7rem;
+		border-radius: 14px;
+		gap: 0.4rem;
+	}
+
+	.binder-header__title {
+		font-size: 1.15rem;
+	}
+
+	.binder-filters-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.binder-chips-group {
+		width: 100%;
+		overflow-x: auto;
+		flex-wrap: nowrap;
+		-webkit-overflow-scrolling: touch;
+		padding-bottom: 0.2rem;
+		padding-inline-end: 1.25rem; /* Prism Alumni etc. fully scroll into view */
+		scrollbar-width: thin;
+	}
+
+	.binder-chips-group .chip {
+		flex: 0 0 auto;
+	}
+
+	.binder-sort-wrap {
+		width: 100%;
+	}
+
+	.binder-sort-select {
+		width: 100%;
+	}
+
+	/* Thumb-friendly sticky sheet nav */
+	.binder-sheet-footer {
+		position: sticky;
+		bottom: calc(0.35rem + var(--safe-bottom));
+		z-index: 5;
+		background: rgba(5, 24, 20, 0.94);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		border: 1px solid rgba(45, 212, 191, 0.25);
+		border-radius: 14px;
+		padding: 0.55rem 0.65rem;
+		margin-top: 0.75rem;
+		gap: 0.35rem;
+	}
+
+	.btn-sheet-nav__label {
+		display: none;
+	}
+
+	.btn-sheet-nav {
+		padding: 0.65rem 0.85rem;
+		font-size: 1.35rem;
+		line-height: 1;
+	}
+
+	.binder-leather-cover {
+		min-height: 0;
+		padding: 0.75rem 0.65rem 0.75rem 2.1rem;
+	}
+
+	.binder-showcase-grid {
+		grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+		gap: 0.7rem;
+	}
+
+	.inspector-toolbar {
+		padding-bottom: var(--safe-bottom);
+		gap: 0.5rem;
+	}
+
+	.inspector-action-btn {
+		padding: 0.7rem 1rem;
+		font-size: 0.8rem;
+	}
+
+	.inspector-nav-btn {
+		width: var(--touch-min);
+		height: var(--touch-min);
+		font-size: 1.6rem;
+	}
+
+	.pocket-cell--occupied:hover {
+		transform: none; /* avoid sticky hover on touch */
+	}
+
+	.pocket-empty__hint {
+		display: none; /* denser empty pockets on small screens */
+	}
+}
+
+@media (max-width: 420px) {
+	.binder-showcase-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.view-btn__label {
+		display: none;
+	}
+
+	.binder-header__actions {
+		width: 100%;
+		justify-content: space-between;
+	}
+}
+
+/* Contrast: ensure muted meta text stays readable on dark teal */
+.binder-header__meta,
+.binder-progress-labels,
+.empty-desc,
+.binder-footer {
+	color: #cbd5e1;
+}
+
+#progressPercent {
+	color: #5eead4;
+}
+
+.pocket-empty__label {
+	color: #99f6e4;
+	opacity: 0.75;
+}
+
+/* ==========================================================================
+   Pack-open modal + MonroeAdoptedex.createFlipCard faces
+   ========================================================================== */
+
+.binder-pack-pill__btn {
+	appearance: none;
+	border: none;
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.binder-pack-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 11000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding:
+		calc(0.75rem + env(safe-area-inset-top, 0px))
+		calc(0.75rem + env(safe-area-inset-right, 0px))
+		calc(0.75rem + env(safe-area-inset-bottom, 0px))
+		calc(0.75rem + env(safe-area-inset-left, 0px));
+}
+
+.binder-pack-modal[hidden] {
+	display: none !important;
+}
+
+.binder-pack-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(4, 15, 12, 0.88);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+}
+
+.binder-pack-modal__panel {
+	position: relative;
+	z-index: 2;
+	width: min(920px, 100%);
+	max-height: 100%;
+	overflow: auto;
+	background: linear-gradient(160deg, #0c332a, #061815);
+	border: 1.5px solid rgba(45, 212, 191, 0.35);
+	border-radius: 20px;
+	padding: 1.25rem 1.1rem 1.4rem;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+	text-align: center;
+}
+
+.binder-pack-modal__close {
+	position: absolute;
+	top: 0.65rem;
+	right: 0.65rem;
+	width: var(--touch-min, 44px);
+	height: var(--touch-min, 44px);
+	border-radius: 50%;
+	border: 1.5px solid rgba(45, 212, 191, 0.4);
+	background: #082d25;
+	color: #fff;
+	font-size: 1.6rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.binder-pack-modal__eyebrow {
+	margin: 0;
+	font-size: 0.78rem;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #fbbf24;
+}
+
+.binder-pack-modal__title {
+	margin: 0.35rem 0 0.4rem;
+	font-size: clamp(1.2rem, 3vw, 1.55rem);
+	color: #ffffff;
+}
+
+.binder-pack-modal__status {
+	margin: 0 0 1rem;
+	color: #94a3b8;
+	font-size: 0.9rem;
+}
+
+.binder-pack-modal__cards {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.85rem;
+	justify-content: center;
+	perspective: 1200px;
+}
+
+.binder-pack-modal__cards .adoptedex-card-wrap {
+	width: min(180px, 42vw);
+	margin: 0;
+	padding: 0;
+}
+
+.binder-pack-modal__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.65rem;
+	justify-content: center;
+	margin-top: 1.15rem;
+}
+
+.binder-pack-modal__actions .btn-empty-reset,
+.binder-pack-modal__actions .btn-empty-packs {
+	min-height: var(--touch-min, 44px);
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+}
+
+/* Shared createFlipCard faces (used by pack modal + optional inspector) */
+.adoptedex-card {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 3 / 4.2;
+	border: 0;
+	padding: 0;
+	background: transparent;
+	cursor: pointer;
+	transform-style: preserve-3d;
+	transition: transform 0.55s ease;
+	border-radius: 16px;
+	font-family: inherit;
+}
+
+.adoptedex-card.is-flipped {
+	transform: rotateY(180deg);
+}
+
+.adoptedex-card__face {
+	position: absolute;
+	inset: 0;
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	border-radius: 16px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	padding: 10px;
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+	border: 2px solid rgba(45, 212, 191, 0.35);
+}
+
+.adoptedex-card__face--front {
+	background: linear-gradient(160deg, #fffaf3, #ffe8c7);
+	color: #2c1c19;
+}
+
+.adoptedex-card__face--back {
+	background: linear-gradient(160deg, #0c332a, #071a17);
+	color: #f1f5f9;
+	transform: rotateY(180deg);
+	justify-content: space-between;
+}
+
+.adoptedex-card__art {
+	flex: 1;
+	border-radius: 12px;
+	overflow: hidden;
+	background: #0b1a16;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	min-height: 96px;
+}
+
+.adoptedex-card__photo {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.adoptedex-card__name {
+	font-weight: 800;
+	font-size: 0.95rem;
+	margin-top: 6px;
+}
+
+.adoptedex-card__num {
+	font-size: 0.7rem;
+	font-weight: 700;
+	color: #115e59;
+	align-self: flex-start;
+}
+
+.adoptedex-card__type {
+	font-size: 0.7rem;
+	font-weight: 700;
+	align-self: flex-start;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: rgba(107, 196, 166, 0.25);
+	margin-top: 4px;
+}
+
+.adoptedex-card__back-title {
+	font-weight: 800;
+	font-size: 1rem;
+}
+
+.adoptedex-card__stats {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 2px 10px;
+	font-size: 0.75rem;
+	text-align: left;
+	margin: 8px 0;
+}
+
+.adoptedex-card__stats dt { opacity: 0.7; }
+.adoptedex-card__stats dd { margin: 0; font-weight: 700; }
+
+.adoptedex-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	justify-content: center;
+}
+
+.adoptedex-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 40px;
+	padding: 6px 12px;
+	border-radius: 999px;
+	font-weight: 800;
+	font-size: 0.75rem;
+	text-decoration: none;
+	border: 1.5px solid rgba(45, 212, 191, 0.45);
+	background: #08332a;
+	color: #5eead4;
+	cursor: pointer;
+}
+
+.adoptedex-btn--primary {
+	background: linear-gradient(140deg, #ffd39f, #ffb347);
+	color: #2c1c19;
+	border-color: #fbbf24;
+}
+
+.adoptedex-card-wrap--highlight .adoptedex-card {
+	box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.55);
+}
+
+.adoptedex-card__silhouette {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	opacity: 0.55;
+	color: #94a3b8;
+	font-size: 1.6rem;
+}
+
+@media (max-width: 520px) {
+	.binder-pack-modal__cards .adoptedex-card-wrap {
+		width: min(148px, 44vw);
+	}
+}
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Album visual juice: pocket insert, foil shine, inspector tilt
+ * ────────────────────────────────────────────────────────────────────────── */
+.pocket-cell--inserting {
+	animation: dexPocketInsert 0.62s cubic-bezier(0.22, 1.15, 0.36, 1) both;
+	z-index: 3;
+}
+
+.pocket-cell--inserting .binder-card {
+	animation: dexCardDropIn 0.55s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+@keyframes dexPocketInsert {
+	0% {
+		transform: scale(0.92) translateY(-10px);
+		border-color: rgba(254, 240, 138, 0.85);
+		box-shadow: 0 0 0 2px rgba(254, 240, 138, 0.45), 0 10px 24px rgba(0, 0, 0, 0.45);
+	}
+	100% {
+		transform: none;
+	}
+}
+
+@keyframes dexCardDropIn {
+	0% {
+		opacity: 0.2;
+		transform: translateY(-18px) scale(0.9) rotateX(12deg);
+		filter: brightness(1.3);
+	}
+	100% {
+		opacity: 1;
+		transform: none;
+		filter: none;
+	}
+}
+
+.pocket-cell--occupied {
+	transform-style: preserve-3d;
+	perspective: 800px;
+}
+
+.pocket-cell--occupied .binder-card {
+	transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+	transition: transform 0.12s ease-out;
+	transform-style: preserve-3d;
+}
+
+.pocket-cell--occupied.is-tilting .binder-card {
+	transition: transform 0.05s linear;
+}
+
+/* Uncommon / rare holo rim (aurora+ treated as foil uncommon+) */
+.foil-aurora.binder-card,
+.foil-cosmos.binder-card,
+.foil-gold.binder-card,
+.foil-prism.binder-card,
+.binder-card.foil-aurora,
+.binder-card.foil-cosmos,
+.binder-card.foil-gold,
+.binder-card.foil-prism {
+	box-shadow:
+		0 0 0 2px rgba(254, 240, 138, 0.45),
+		0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.foil-aurora.binder-card::before,
+.foil-cosmos.binder-card::before,
+.foil-gold.binder-card::before,
+.foil-prism.binder-card::before,
+.binder-card.foil-aurora::before,
+.binder-card.foil-cosmos::before,
+.binder-card.foil-gold::before,
+.binder-card.foil-prism::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	z-index: 6;
+	background: linear-gradient(
+		120deg,
+		rgba(244, 114, 182, 0.35),
+		rgba(251, 191, 36, 0.45),
+		rgba(45, 212, 191, 0.4),
+		rgba(167, 139, 250, 0.35),
+		rgba(244, 114, 182, 0.35)
+	);
+	background-size: 280% 280%;
+	animation: dexHoloRim 3.4s linear infinite;
+	opacity: 0.28;
+	mix-blend-mode: soft-light;
+}
+
+@keyframes dexHoloRim {
+	0% { background-position: 0% 50%; }
+	100% { background-position: 200% 50%; }
+}
+
+.inspector-card-host {
+	transform-style: preserve-3d;
+	perspective: 1400px;
+	transition:
+		transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1),
+		filter 0.2s ease;
+}
+
+.inspector-card-host.is-tilting:not(.is-flipped) {
+	transition: transform 0.08s linear;
+	transform:
+		rotateX(var(--insp-tilt-x, 0deg))
+		rotateY(var(--insp-tilt-y, 0deg));
+}
+
+.inspector-card-host.is-flipped.is-tilting {
+	transition: transform 0.08s linear;
+	transform:
+		rotateY(calc(180deg + var(--insp-tilt-y, 0deg)))
+		rotateX(var(--insp-tilt-x, 0deg));
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+	.binder-card__foil::after,
+	.pocket-cell--inserting,
+	.pocket-cell--inserting .binder-card,
+	.foil-aurora.binder-card::before,
+	.foil-cosmos.binder-card::before,
+	.foil-gold.binder-card::before,
+	.foil-prism.binder-card::before,
+	.binder-card.foil-aurora::before,
+	.binder-card.foil-cosmos::before,
+	.binder-card.foil-gold::before,
+	.binder-card.foil-prism::before {
+		animation: none !important;
+	}
+
+	.pocket-cell--occupied .binder-card,
+	.inspector-card-host.is-tilting:not(.is-flipped),
+	.inspector-card-host.is-flipped.is-tilting {
+		transform: none !important;
+		transition: none !important;
+	}
+
+	.pocket-cell--inserting {
+		border-color: rgba(254, 240, 138, 0.7);
+		box-shadow: 0 0 0 2px rgba(254, 240, 138, 0.35);
+	}
+}
+
+
+/* ==========================================================================
+   Adoptedex binder polish (lean) — filters drawer, shop compact, rare pulse
+   ========================================================================== */
+
+.binder-toolbar__row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.binder-toolbar__row .binder-search-box {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.binder-filters-toggle,
+.binder-shop-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	min-height: 44px;
+	min-width: 44px;
+	padding: 0.45rem 0.75rem;
+	border-radius: 999px;
+	border: 1.5px solid rgba(45, 212, 191, 0.35);
+	background: rgba(6, 32, 26, 0.92);
+	color: #ecfdf5;
+	font-weight: 800;
+	font-size: 0.82rem;
+	cursor: pointer;
+	touch-action: manipulation;
+	position: relative;
+	flex: 0 0 auto;
+}
+
+.binder-filters-toggle.is-open,
+.binder-shop-toggle.is-open {
+	border-color: rgba(45, 212, 191, 0.7);
+	background: rgba(13, 74, 62, 0.95);
+}
+
+.binder-filters-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.15rem;
+	height: 1.15rem;
+	padding: 0 0.3rem;
+	border-radius: 999px;
+	background: #fbbf24;
+	color: #1a2e28;
+	font-size: 0.68rem;
+	font-weight: 900;
+	line-height: 1;
+}
+
+.binder-filters-badge[hidden] {
+	display: none !important;
+}
+
+.binder-filters-panel {
+	display: block;
+}
+
+.binder-filters-panel.is-collapsed {
+	display: none;
+}
+
+.binder-shop-wrap {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.45rem;
+}
+
+/* Desktop: shop always visible; toggle hidden */
+.binder-shop-toggle {
+	display: none;
+}
+
+.binder-shop-row {
+	margin-top: 0;
+}
+
+/* Tiny rare-pull pulse — pack reveal only */
+.adoptedex-card-wrap--rare-pulse {
+	animation: adxRarePulse 1.1s ease-out 1;
+}
+
+@keyframes adxRarePulse {
+	0% { transform: scale(0.96); filter: brightness(1); }
+	40% { transform: scale(1.04); filter: brightness(1.12) saturate(1.15); }
+	100% { transform: scale(1); filter: brightness(1); }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+	.binder-shop-toggle {
+		display: inline-flex;
+	}
+
+	.binder-shop-wrap:not(.is-open) .binder-shop-row {
+		display: none;
+	}
+
+	.binder-shop-wrap.is-open .binder-shop-row {
+		display: flex;
+		width: 100%;
+		margin-top: 0.15rem;
+	}
+
+	.binder-shop-btn {
+		flex: 1 1 auto;
+		padding: 0.45rem 0.7rem;
+		min-height: 40px;
+		font-size: 0.78rem;
+	}
+
+	.binder-header__top {
+		gap: 0.45rem;
+	}
+
+	.binder-header__actions {
+		gap: 0.4rem;
+	}
+
+	.binder-header__avatar {
+		width: 38px;
+		height: 38px;
+		font-size: 1.25rem;
+		border-radius: 12px;
+	}
+
+	.binder-progress-wrap {
+		margin: 0;
+	}
+
+	.binder-toolbar {
+		gap: 0.45rem;
+		padding-top: 0.5rem;
+	}
+
+	.binder-pack-pill {
+		padding: 0.28rem 0.55rem;
+		font-size: 0.74rem;
+	}
+
+	.view-btn {
+		padding: 0.4rem 0.55rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.adoptedex-card-wrap--rare-pulse {
+		animation: none !important;
+	}
 }

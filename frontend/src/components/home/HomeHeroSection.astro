@@ -1,0 +1,100 @@
+---
+/**
+ * Native Astro homepage hero / cover (Phase 3 — last / highest risk).
+ * Parity-preserving extract: keeps `wp-block-cover` + `home-editable-hero` BEM,
+ * cover-dim ladder (`has-background-dim-40` / global-styles dim rules), video
+ * poster + play/pause hooks (`#Top`, `data-hero-video*`), and CTA/stats chrome.
+ * Hybrid by design — prior pure-Tailwind homepage rewrite was reverted (`33768e1`)
+ * for visual breakage. Class cleanup / Tailwind port after visual soak + CSS purge.
+ */
+import home from '../../data/homepage.json';
+
+interface Props {
+  display?: string;
+  title?: string;
+  copy?: string;
+  videoPoster?: string;
+  videoSrc?: string;
+  buttons?: typeof home.hero.buttons;
+  stats?: typeof home.hero.stats;
+}
+
+const {
+  display = home.hero.display,
+  title = home.hero.title,
+  copy = home.hero.copy,
+  videoPoster = home.hero.video_poster,
+  videoSrc = home.hero.video_src,
+  buttons = home.hero.buttons,
+  stats = home.hero.stats,
+} = Astro.props;
+---
+
+<div class="wp-block-cover has-custom-content-position is-position-center-center home-editable-hero" id="Top">
+  <span aria-hidden="true" class="wp-block-cover__background has-contrast-background-color has-background-dim-40 has-background-dim"></span>
+  <div class="home-hero-poster-backdrop" aria-hidden="true">
+    <img
+      src={videoPoster}
+      alt=""
+      loading="eager"
+      decoding="async"
+      class="home-hero-poster-img"
+    />
+  </div>
+  <video
+    class="wp-block-cover__video-background intrinsic-ignore"
+    muted
+    loop
+    playsinline
+    autoplay
+    poster={videoPoster}
+    src={videoSrc}
+    data-hero-video></video>
+  <button
+    type="button"
+    class="home-hero-video-toggle"
+    data-hero-video-toggle
+    aria-label="Pause background video"
+    title="Pause background motion"
+  >
+    <svg class="home-hero-toggle-icon home-hero-toggle-icon--pause" viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
+      <rect x="5" y="4" width="4" height="16" rx="1.5"></rect>
+      <rect x="15" y="4" width="4" height="16" rx="1.5"></rect>
+    </svg>
+    <svg class="home-hero-toggle-icon home-hero-toggle-icon--play" viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
+      <polygon points="6 4 20 12 6 20 6 4"></polygon>
+    </svg>
+    <span class="home-hero-toggle-label" data-hero-video-toggle-label>Pause</span>
+  </button>
+  <div class="wp-block-cover__inner-container is-layout-flow">
+    <div class="wp-block-group home-editable-hero-panel is-layout-constrained">
+      <p class="home-editable-hero-display wp-block-paragraph">{display}</p>
+      <h1 class="wp-block-heading home-editable-hero-title">{title}</h1>
+      <p class="home-editable-hero-copy wp-block-paragraph">{copy}</p>
+
+      <div class="wp-block-buttons aligncenter is-layout-flex">
+        <div class="wp-block-button">
+          <a class="wp-block-button__link has-base-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href="/adopt">{buttons[0].label}</a>
+        </div>
+        <div class="wp-block-button home-editable-hero-btn--orange">
+          <a class="wp-block-button__link wp-element-button" href="/adoptions">{buttons[1].label}</a>
+        </div>
+        <div class="wp-block-button is-style-outline">
+          <a class="wp-block-button__link wp-element-button" href={buttons[2].href} target="_blank" rel="noreferrer noopener">{buttons[2].label}</a>
+        </div>
+      </div>
+
+      <div class="home-editable-hero-stats" aria-label="Shelter highlights">
+        <div class="home-editable-stat-grid home-editable-stat-grid--hero">
+          {stats.map((s) => (
+            <div class:list={['home-editable-stat', { 'is-accent': s.accent }]}>
+              <strong>{s.kicker}</strong>
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

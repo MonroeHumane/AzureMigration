@@ -1,0 +1,317 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Shared Humane Games tokens (aligned with shared-styles.css) */
+  --sr-ink: #2c1c19;
+  --sr-mint: #6bc4a6;
+  --sr-treat: #ffb347;
+  --sr-cream: #fffaf3;
+  --sr-bg: #1a2430;
+  --sr-embed-bg: #071a17;
+  --sr-touch-min: 44px;
+  --sr-safe-top: env(safe-area-inset-top, 0px);
+  --sr-safe-right: env(safe-area-inset-right, 0px);
+  --sr-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --sr-safe-left: env(safe-area-inset-left, 0px);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: var(--sr-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: "Fredoka", "Segoe UI", system-ui, sans-serif;
+  touch-action: none;
+  overscroll-behavior: none;
+  color: var(--sr-cream);
+  -webkit-tap-highlight-color: transparent;
+  padding:
+    var(--sr-safe-top)
+    var(--sr-safe-right)
+    var(--sr-safe-bottom)
+    var(--sr-safe-left);
+}
+
+html.humane-embed body {
+  background: var(--sr-embed-bg);
+  padding: 0;
+}
+
+/* shelter-run-temple portrait */
+#game-container {
+  width: min(480px, 100vw);
+  height: min(850px, 100vh);
+  max-width: 520px;
+  max-height: 920px;
+  aspect-ratio: 9 / 16;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  background: #1a1a2e;
+}
+
+/* Portrait / narrow phones: fill viewport instead of a tiny 16:9 strip */
+@media (max-width: 900px), (pointer: coarse) {
+  #game-container {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    aspect-ratio: auto;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  body {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+}
+
+html.humane-embed #game-container {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+#game-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
+  image-rendering: auto;
+}
+
+/* High-contrast key-hint chips (DOM overlay for desktop) */
+.sr-key-hints {
+  position: absolute;
+  left: 50%;
+  bottom: calc(10px + var(--sr-safe-bottom));
+  transform: translateX(-50%);
+  display: none;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  z-index: 8;
+  pointer-events: none;
+  max-width: min(96%, 640px);
+  padding: 0 8px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html:not(.sr-touch) .sr-key-hints {
+    display: flex;
+  }
+}
+
+.sr-key-hints kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6em;
+  padding: 0.15em 0.45em;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 250, 243, 0.45);
+  background: rgba(7, 26, 23, 0.82);
+  color: #fffaf3;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.sr-key-hints__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(26, 36, 48, 0.78);
+  border: 1px solid rgba(107, 196, 166, 0.35);
+  color: #e8f4ef;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Exit / menu affordance for embed + standalone (top-right clears distance HUD) */
+.sr-chrome-exit {
+  position: absolute;
+  top: calc(8px + var(--sr-safe-top));
+  right: calc(8px + var(--sr-safe-right));
+  left: auto;
+  z-index: 12;
+  min-width: var(--sr-touch-min);
+  min-height: var(--sr-touch-min);
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(107, 196, 166, 0.45);
+  background: rgba(7, 26, 23, 0.82);
+  color: #fffaf3;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html.humane-embed .sr-chrome-exit,
+html.sr-standalone-chrome .sr-chrome-exit {
+  display: inline-flex;
+}
+
+.sr-chrome-exit:hover,
+.sr-chrome-exit:focus-visible {
+  border-color: var(--sr-mint);
+  background: rgba(14, 48, 42, 0.95);
+  outline: none;
+}
+
+.sr-chrome-exit:focus-visible {
+  box-shadow: 0 0 0 3px rgba(107, 196, 166, 0.45);
+}
+
+
+/* ── In-play visual juice overlays ─────────────────────────────────────── */
+.sr-fx-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  overflow: hidden;
+}
+
+.sr-fx-speedlines {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  /* Chase-cam: lines radiate from horizon toward camera */
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 18px,
+      rgba(255, 250, 243, 0.05) 19px,
+      rgba(255, 250, 243, 0.05) 21px
+    );
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 28%, transparent 0%, #000 42%, #000 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 28%, transparent 0%, #000 42%, #000 100%);
+  transform: translateY(0) scaleY(1);
+  transform-origin: 50% 20%;
+  will-change: transform, opacity;
+}
+
+html.sr-running .sr-fx-speedlines.is-active {
+  opacity: var(--sr-speed-opacity, 0.35);
+  animation: srSpeedScroll var(--sr-speed-duration, 0.55s) linear infinite;
+}
+
+@keyframes srSpeedScroll {
+  from { transform: translateY(-24px) scaleY(1.05); }
+  to { transform: translateY(40px) scaleY(1.2); }
+}
+
+.sr-fx-hurt {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 35% 55%, rgba(255, 80, 80, 0.55), rgba(180, 20, 40, 0.25) 45%, transparent 70%);
+  opacity: 0;
+}
+
+.sr-fx-hurt.is-on {
+  animation: srHurtFlash 0.45s ease-out;
+}
+
+@keyframes srHurtFlash {
+  0% { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+.sr-fx-pickup-pop {
+  position: absolute;
+  font: 800 18px/1 "Fredoka", system-ui, sans-serif;
+  color: #ffd166;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.45), 0 0 10px rgba(255,209,102,0.55);
+  animation: srPickupPop 0.7s ease-out forwards;
+  will-change: transform, opacity;
+  z-index: 10;
+}
+
+@keyframes srPickupPop {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
+  20% { opacity: 1; transform: translate(-50%, -10px) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -48px) scale(1); }
+}
+
+.sr-fx-spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: #fff6c2;
+  box-shadow: 0 0 10px 3px rgba(255, 209, 102, 0.8);
+  animation: srSpark 0.55s ease-out forwards;
+  z-index: 10;
+}
+
+@keyframes srSpark {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--sx, 12px), var(--sy, -28px)) scale(0.2); }
+}
+
+.sr-fx-celebrate {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 209, 102, 0.45), rgba(107, 196, 166, 0.18) 40%, transparent 68%);
+  opacity: 0;
+}
+
+.sr-fx-celebrate.is-on {
+  animation: srCelebrate 0.7s ease-out;
+}
+
+@keyframes srCelebrate {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.sr-running .sr-fx-speedlines.is-active {
+    animation: none !important;
+    opacity: 0.18;
+  }
+  .sr-fx-hurt.is-on,
+  .sr-fx-celebrate.is-on {
+    animation: none !important;
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+  }
+  .sr-fx-pickup-pop,
+  .sr-fx-spark {
+    animation: none !important;
+    opacity: 0.85;
+  }
+}

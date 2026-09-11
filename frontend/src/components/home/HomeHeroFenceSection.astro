@@ -1,0 +1,48 @@
+---
+/**
+ * Native Astro homepage Hero Fence widget (Phase 3).
+ * Preserves `#hs-hero-fence-widget` + `#hs-hero-fence-title` for side-dock / nav.
+ * Keeps `hs-feature-widget` BEM so monroe-home-widgets.css feature chrome applies
+ * (shared with events winner + supporter story). Hybrid; class cleanup after soak.
+ */
+import home from '../../data/homepage.json';
+
+interface Props {
+  kicker?: string;
+  title?: string;
+  body?: string[];
+  note?: string;
+  cta?: typeof home.hero_fence.cta;
+  image?: string;
+  imageAlt?: string;
+}
+
+const {
+  kicker = home.hero_fence.kicker,
+  title = home.hero_fence.title,
+  body = home.hero_fence.body,
+  note = home.hero_fence.note,
+  cta = home.hero_fence.cta,
+  image = home.hero_fence.image,
+  imageAlt = home.hero_fence.image_alt,
+} = Astro.props;
+---
+
+<div class="wp-block-group alignwide home-editable-section is-layout-constrained">
+  <section id="hs-hero-fence-widget" class="hs-feature-widget" aria-labelledby="hs-hero-fence-title">
+    <div class="hs-wrap">
+      <div class="hs-copy">
+        <p class="hs-kicker">{kicker}</p>
+        <h2 id="hs-hero-fence-title">{title}</h2>
+        {body.map((p) => <p class="hs-body">{p}</p>)}
+        <div class="hs-note">{note}</div>
+        <div class="hs-actions">
+          <a class="hs-btn" href={cta.href}>{cta.label}</a>
+        </div>
+      </div>
+      <div class="hs-media" aria-hidden="true">
+        <img decoding="async" src={image} alt={imageAlt} loading="lazy" />
+      </div>
+    </div>
+  </section>
+</div>

@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#071a17">
   <title>Flappy Cat Host | Humane Arcade</title>
   <style>
+    :root {
+      --mint: #6bc4a6;
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-l: env(safe-area-inset-left, 0px);
+      --safe-r: env(safe-area-inset-right, 0px);
+    }
     html, body {
       margin: 0;
       padding: 0;
@@ -19,12 +27,19 @@
       flex-direction: column;
       overscroll-behavior: none;
       touch-action: manipulation;
+      -webkit-text-size-adjust: 100%;
     }
     #game-container {
       flex: 1;
       width: 100%;
       height: 100%;
       position: relative;
+      padding:
+        max(0px, var(--safe-t))
+        max(0px, var(--safe-r))
+        max(0px, var(--safe-b))
+        max(0px, var(--safe-l));
+      box-sizing: border-box;
     }
     iframe {
       border: none;
@@ -33,13 +48,14 @@
       opacity: 1;
       transition: opacity 0.4s ease-in-out;
       display: block;
+      background: #71c5cf;
     }
     /* Dev/support tool, not player-facing UI - hidden unless ?debug=1 */
     #diagnostics {
       display: none;
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: max(10px, calc(var(--safe-t) + 10px));
+      right: max(10px, calc(var(--safe-r) + 10px));
       background: rgba(0, 0, 0, 0.85);
       border: 1px solid #134e4a;
       border-radius: 8px;
@@ -54,10 +70,12 @@
     button {
       background: #0f3d32;
       color: #fff;
-      border: 1px solid #2dd4bf;
-      padding: 4px 8px;
+      border: 1px solid var(--mint);
+      padding: 8px 12px;
+      min-height: 44px;
       cursor: pointer;
       border-radius: 4px;
+      touch-action: manipulation;
     }
     button:hover { background: #134e4a; }
   </style>
@@ -66,7 +84,7 @@
 <body>
 
   <div id="game-container">
-    <iframe id="game-iframe" src="./game/index.html?embed=1" sandbox="allow-scripts allow-same-origin"></iframe>
+    <iframe id="game-iframe" src="./game/index.html?embed=1" sandbox="allow-scripts allow-same-origin" title="Flappy Cat"></iframe>
   </div>
 
   <div id="diagnostics">
@@ -105,5 +123,22 @@
     })();
   </script>
 
+
+  <script>
+    (function () {
+      var iframe = document.getElementById('game-iframe');
+      if (!iframe) return;
+      try {
+        var src = new URL(iframe.getAttribute('src'), window.location.href);
+        var parentParams = new URLSearchParams(window.location.search);
+        ['dex_user', 'dex_api', 'dex_display', 'user', 'api', 'embed'].forEach(function (k) {
+          var v = parentParams.get(k);
+          if (v && !src.searchParams.get(k)) src.searchParams.set(k, v);
+        });
+        if (!src.searchParams.get('embed')) src.searchParams.set('embed', '1');
+        iframe.src = src.pathname + src.search + src.hash;
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>

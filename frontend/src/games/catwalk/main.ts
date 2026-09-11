@@ -1,5 +1,5 @@
 import { CatwalkAudio } from './audio';
-import { CatwalkEngine, getStageConfig } from './engine/game';
+import { CatwalkEngine, getDogLanesForStage, getStageConfig, positionsForLane } from './engine/game';
 import { bindInput } from './input';
 import { BOARD_HEIGHT, BOARD_WIDTH, CELL_SIZE, PLAY_TOP_Y } from './models/environment';
 import { ParticleSystem } from './rendering/particles';
@@ -14,10 +14,24 @@ if (root && canvas && context) {
   const engine = new CatwalkEngine(Number.isFinite(best) ? best : 0);
   const audio = new CatwalkAudio();
   const particles = new ParticleSystem();
+  const reducedMotion = (() => {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
+  })();
+  particles.setReducedMotion(reducedMotion);
+
+  const triggerHomeSuccessFlash = () => {
+    const bezel = root.querySelector<HTMLElement>('.catwalk-bezel') || root;
+    bezel.classList.remove('catwalk-home-flash');
+    void bezel.offsetWidth;
+    bezel.classList.add('catwalk-home-flash');
+    window.setTimeout(() => bezel.classList.remove('catwalk-home-flash'), reducedMotion ? 180 : 420);
+  };
   const overlay = root.querySelector<HTMLElement>('[data-overlay]');
   const overlayTitle = root.querySelector<HTMLElement>('[data-overlay-title]');
   const overlayCopy = root.querySelector<HTMLElement>('[data-overlay-copy]');
   const startButton = root.querySelector<HTMLButtonElement>('[data-start]');
+  const touchMute = root.querySelector<HTMLButtonElement>('[data-touch-mute]');
+  const touchPause = root.querySelector<HTMLButtonElement>('[data-touch-pause]');
   const debug = new URLSearchParams(window.location.search).get('debug') === '1';
 
   let audioEnabled = false;
@@ -61,6 +75,23 @@ if (root && canvas && context) {
     hideOverlay();
   });
 
+  touchMute?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    void toggleSound();
+  });
+  touchPause?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    togglePause();
+  });
+
+  // Larger HUD hit targets on coarse pointers (canvas icons are ~30px).
+  const hudHitPad = () =>
+    window.matchMedia('(pointer: coarse)').matches || document.documentElement.classList.contains('catwalk-touch')
+      ? 10
+      : 0;
+
   // Mouse hover tracking for vector controls in top HUD
   canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -68,11 +99,12 @@ if (root && canvas && context) {
     const scaleY = BOARD_HEIGHT / rect.height;
     const canvasX = (event.clientX - rect.left) * scaleX;
     const canvasY = (event.clientY - rect.top) * scaleY;
+    const pad = hudHitPad();
 
     let nextHover: 'sound' | 'pause' | null = null;
-    if (canvasY >= 10 && canvasY <= 44) {
-      if (canvasX >= 644 && canvasX <= 674) nextHover = 'sound';
-      else if (canvasX >= 680 && canvasX <= 710) nextHover = 'pause';
+    if (canvasY >= 10 - pad && canvasY <= 44 + pad) {
+      if (canvasX >= 644 - pad && canvasX <= 674 + pad) nextHover = 'sound';
+      else if (canvasX >= 680 - pad && canvasX <= 710 + pad) nextHover = 'pause';
     }
 
     if (nextHover !== hoveredControl) {
@@ -95,11 +127,12 @@ if (root && canvas && context) {
     const scaleY = BOARD_HEIGHT / rect.height;
     const canvasX = (event.clientX - rect.left) * scaleX;
     const canvasY = (event.clientY - rect.top) * scaleY;
+    const pad = hudHitPad();
 
-    if (canvasY >= 10 && canvasY <= 44) {
-      if (canvasX >= 644 && canvasX <= 674) {
-        toggleSound();
-      } else if (canvasX >= 680 && canvasX <= 710) {
+    if (canvasY >= 10 - pad && canvasY <= 44 + pad) {
+      if (canvasX >= 644 - pad && canvasX <= 674 + pad) {
+        void toggleSound();
+      } else if (canvasX >= 680 - pad && canvasX <= 710 + pad) {
         togglePause();
       }
     }
@@ -131,9 +164,16 @@ if (root && canvas && context) {
         const catRow = Math.floor((engine.state.cat.y - PLAY_TOP_Y) / CELL_SIZE);
         const onWater = catRow >= 1 && catRow <= 5;
         particles.spawnHop(engine.state.cat.x, engine.state.cat.y, onWater);
+        // Denser afterimages when hopping quickly (short action window = rapid inputs)
+        const fastHop = engine.state.cat.actionTime > 0.12;
+        particles.spawnTrail(engine.state.cat.x, engine.state.cat.y, engine.state.cat.direction, fastHop);
+        if (onWater) {
+          particles.spawnFishboneSparkle(engine.state.cat.x, engine.state.cat.y);
+        }
       }
       if (event === 'home') {
         particles.spawnHome(engine.state.cat.x, PLAY_TOP_Y + 31);
+        triggerHomeSuccessFlash();
       }
       if (event === 'caught' || event === 'splash') {
         particles.spawnDefeat(engine.state.cat.x, engine.state.cat.y);
@@ -166,7 +206,8 @@ if (root && canvas && context) {
             })
           }).catch(() => {});
 
-          // Catwalk Milestone Rewards -> Pet Booster Packs
+          // Catwalk Milestone Rewards -> Adoptédex claimReward (server authoritative).
+          // Only toast / local mark after claimed:true — never pre-bump monroeDexPacks.
           const milestones = [
             { score: 500, key: 'score_500', tier: 'standard' },
             { score: 1500, key: 'score_1500', tier: 'duo' },
@@ -177,38 +218,63 @@ if (root && canvas && context) {
             claimedList = JSON.parse(localStorage.getItem('monroe_catwalk_claimed_milestones') || '[]');
           } catch (e) {}
 
+          const Dex = (window as any).MonroeAdoptedex;
+          const params = Dex && typeof Dex.getParams === 'function' ? Dex.getParams() : null;
+          const user = String((params && params.dexUser) || localStorage.getItem('monroeDexUser') || player || '')
+            .trim()
+            .toLowerCase();
+          const api = String((params && params.dexApi) || (window.location.origin + '/arcade-api/v1/')).replace(/\/?$/, '/');
+
           milestones.forEach((m) => {
-            if (finalScore >= m.score && !claimedList.includes(m.key)) {
-              claimedList.push(m.key);
+            if (finalScore < m.score || claimedList.includes(m.key)) return;
+
+            const onClaimed = () => {
+              if (!claimedList.includes(m.key)) claimedList.push(m.key);
               try {
                 localStorage.setItem('monroe_catwalk_claimed_milestones', JSON.stringify(claimedList));
-                const currentPacks = Math.max(0, parseInt(localStorage.getItem('monroeDexPacks') || '1', 10));
-                localStorage.setItem('monroeDexPacks', String(currentPacks + 1));
               } catch (e) {}
-
-              // Notify parent Arcade Pass to show celebration toast
-              if (window.parent && window.parent !== window) {
-                try {
-                  window.parent.postMessage({
-                    type: 'adoptedex:pack_awarded',
-                    action: 'pack_awarded',
-                    game: 'catwalk',
-                    milestone: m.key,
-                    tier: m.tier
-                  }, '*');
-                } catch (e) {}
+              if (Dex && typeof Dex.showRewardToast === 'function') {
+                Dex.showRewardToast({
+                  title: 'Catwalk pack unlocked!',
+                  message: `Reached ${m.score} points — ${m.tier} pack ready in your album.`,
+                  game: 'Catwalk',
+                  tier: m.tier,
+                  rare: m.key === 'score_3000',
+                });
               }
+            };
 
-              // Server-side deduplication claim
-              const user = (localStorage.getItem('monroeDexUser') || player).trim().toLowerCase();
-              fetch(`/arcade-api/v1/adoptedex/${encodeURIComponent(user)}/rewards/claim`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  game_id: 'catwalk',
-                  reward_key: m.key
+            if (Dex && typeof Dex.claimReward === 'function' && user) {
+              Dex.claimReward(api, user, 'catwalk', m.key, { tier: m.tier, count: 1 })
+                .then((result: any) => {
+                  if (result && result.claimed) onClaimed();
                 })
-              }).catch(() => {});
+                .catch((err: any) => console.warn('[Catwalk] claimReward failed:', err));
+            } else if (user) {
+              fetch(`${api}adoptedex/${encodeURIComponent(user)}/rewards/claim`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_id: 'catwalk', reward_key: m.key, tier: m.tier, count: 1 }),
+              })
+                .then((r) => r.json().catch(() => null))
+                .then((result) => {
+                  if (result && result.claimed) {
+                    onClaimed();
+                    if (window.parent && window.parent !== window) {
+                      try {
+                        window.parent.postMessage({
+                          type: 'adoptedex:pack_awarded',
+                          action: 'pack_awarded',
+                          game: 'catwalk',
+                          milestone: m.key,
+                          tier: m.tier,
+                        }, '*');
+                      } catch (e) {}
+                    }
+                  }
+                })
+                .catch(() => {});
             }
           });
         }
@@ -221,6 +287,27 @@ if (root && canvas && context) {
 
     if (engine.state.score > engine.state.best) {
       localStorage.setItem('humane-catwalk-best', String(engine.state.best));
+    }
+
+    // Dog-near warning dust (throttled via particle life; skip under reduced motion)
+    if (engine.state.status === 'playing') {
+      const catRow = Math.floor((engine.state.cat.y - PLAY_TOP_Y) / CELL_SIZE);
+      if (catRow >= 7 && catRow <= 11) {
+        const lane = getDogLanesForStage(engine.state.level).find((l) => l.row === catRow);
+        if (lane) {
+          const nearest = positionsForLane(lane, engine.state).reduce((best, center) => {
+            const d = Math.abs(center - engine.state.cat.x);
+            return d < best.d ? { d, center } : best;
+          }, { d: Infinity, center: 0 });
+          if (nearest.d < 145) {
+            const intensity = Math.max(0.35, 1 - nearest.d / 145);
+            // Spawn sparingly (~every ~180ms worth of frames via elapsed phase)
+            if (Math.floor(engine.state.elapsed * 5.5) !== Math.floor((engine.state.elapsed - delta) * 5.5)) {
+              particles.spawnDogWarning(nearest.center, engine.state.cat.y, intensity);
+            }
+          }
+        }
+      }
     }
 
     renderGame(context, engine.state, !audioEnabled, debug, hoveredControl, particles);

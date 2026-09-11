@@ -1,0 +1,65 @@
+---
+/**
+ * Native Astro homepage Community Veterinary Partners (Phase 3).
+ * Preserves `#VetPartners` + `#sponsor-widget-title` for side-dock / deep links.
+ * Structural BEM classes kept so monroe-home-widgets.css sponsor rules still apply
+ * (vet card modifiers + CTA chrome). Full Tailwind restyle deferred with CSS purge.
+ */
+import home from '../../data/homepage.json';
+import sponsors from '../../data/sponsors.json';
+
+type VetPartner = {
+  name: string;
+  link: string;
+  image: string;
+  alt: string;
+  modifier?: string;
+};
+
+interface Props {
+  label?: string;
+  title?: string;
+  intro?: string;
+  partners?: VetPartner[];
+}
+
+const {
+  label = home.vet_partners.label,
+  title = home.vet_partners.title,
+  intro = home.vet_partners.intro,
+  partners = sponsors.vet_partners as VetPartner[],
+} = Astro.props;
+---
+
+<div class="wp-block-group alignwide home-editable-section is-layout-constrained mx-auto w-full min-w-0 max-w-[var(--monroe-home-content-max)] box-border scroll-mt-[calc(var(--monroe-nav-height,96px)+var(--monroe-sticky-wayfinding-offset,0px)+var(--monroe-scroll-anchor-gap,12px))]">
+  <div class="home-editable-news-card is-style-monroe-news-band home-editable-runtime-card">
+    <p class="home-editable-section-label wp-block-paragraph">{label}</p>
+    <h2 id="sponsor-widget-title" class="wp-block-heading">{title}</h2>
+    <p class="wp-block-paragraph">{intro}</p>
+    <div class="sponsor-widget-shell">
+      <section class="sponsor-widget" id="VetPartners" aria-labelledby="sponsor-widget-title">
+        <div class="sponsor-grid">
+          {
+            partners.map((v) => (
+              <figure class={`sponsor-card ${v.modifier || ''}`}>
+                <div class="sponsor-card__logo">
+                  <img src={v.image} alt={v.alt} loading="lazy" decoding="async" />
+                </div>
+                <figcaption>{v.name}</figcaption>
+                <a
+                  class="sponsor-card__cta"
+                  href={v.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit ${v.name} website`}
+                >
+                  Visit website
+                </a>
+              </figure>
+            ))
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

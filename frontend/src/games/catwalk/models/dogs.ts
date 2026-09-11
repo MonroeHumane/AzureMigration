@@ -77,6 +77,9 @@ export const DOG_PROFILES: Record<DogBreed, DogProfile> = {
   },
 };
 
+/** Cosmetic wireframe accent — does not affect collision. */
+export type DogAccent = 'plain' | 'collar' | 'spots' | 'bandana' | 'scarf';
+
 export interface DogPose {
   x: number;
   y: number;
@@ -84,6 +87,16 @@ export interface DogPose {
   facing: 1 | -1;
   phase: number;
   alert?: boolean;
+  /** Silhouette accent variety (procedural from spawn index). */
+  accent?: DogAccent;
+}
+
+const ACCENTS: DogAccent[] = ['plain', 'collar', 'spots', 'bandana', 'scarf'];
+
+/** Stable accent pick from a lane center so dogs keep a consistent look while scrolling. */
+export function dogAccentForCenter(center: number, breed: DogBreed): DogAccent {
+  const seed = Math.abs(Math.floor(center * 0.17) + breed.charCodeAt(0) * 3);
+  return ACCENTS[seed % ACCENTS.length];
 }
 
 export function drawDog(context: CanvasRenderingContext2D, pose: DogPose): void {
@@ -206,8 +219,58 @@ export function drawDog(context: CanvasRenderingContext2D, pose: DogPose): void 
     context.closePath();
     context.stroke();
 
+
     // Keen canine eye
     circle(context, { x: headX + 1, y: headY - 2 }, 1.5);
+
+    // --- 3b. COSMETIC ACCENTS (collar / spots / bandana / scarf) ---
+    const accent = pose.accent ?? 'plain';
+    if (accent === 'collar') {
+      wire(context, p.color, 1.5, 0.85);
+      context.beginPath();
+      context.ellipse(neckBaseX + 4, neckBaseY + 4, 7, 3.2, -0.2, 0, Math.PI * 2);
+      context.stroke();
+      // Tag
+      polyline(context, [
+        { x: neckBaseX + 8, y: neckBaseY + 6 },
+        { x: neckBaseX + 11, y: neckBaseY + 10 },
+        { x: neckBaseX + 8, y: neckBaseY + 12 },
+        { x: neckBaseX + 5, y: neckBaseY + 10 },
+      ], true);
+      wire(context, p.color, 1.9, 1, 3);
+    } else if (accent === 'spots') {
+      wire(context, p.color, 1.2, 0.55);
+      circle(context, { x: chestFront * 0.15, y: withersY + 6 }, 2.4);
+      circle(context, { x: rumpBack * 0.35, y: withersY + 4 }, 1.8);
+      circle(context, { x: chestFront * 0.35, y: chestDeepY * 0.35 }, 1.5);
+      wire(context, p.color, 1.9, 1, 3);
+    } else if (accent === 'bandana') {
+      wire(context, p.color, 1.5, 0.9);
+      polyline(context, [
+        { x: neckBaseX - 2, y: neckBaseY + 2 },
+        { x: neckBaseX + 10, y: neckBaseY + 1 },
+        { x: neckBaseX + 6, y: neckBaseY + 12 },
+      ], true);
+      line(context, { x: neckBaseX + 6, y: neckBaseY + 12 }, { x: neckBaseX + 8, y: neckBaseY + 16 });
+      wire(context, p.color, 1.9, 1, 3);
+    } else if (accent === 'scarf') {
+      wire(context, p.color, 1.4, 0.8);
+      curve(
+        context,
+        { x: neckBaseX - 1, y: neckBaseY + 3 },
+        { x: neckBaseX + 6, y: neckBaseY + 8 },
+        { x: neckBaseX + 2, y: neckBaseY + 16 },
+        { x: neckBaseX - 4, y: neckBaseY + 18 },
+      );
+      curve(
+        context,
+        { x: neckBaseX + 2, y: neckBaseY + 4 },
+        { x: neckBaseX + 10, y: neckBaseY + 10 },
+        { x: neckBaseX + 8, y: neckBaseY + 18 },
+        { x: neckBaseX + 4, y: neckBaseY + 20 },
+      );
+      wire(context, p.color, 1.9, 1, 3);
+    }
 
     // --- 4. DYNAMIC EARS (Hound floppy wave, Terrier/Shepherd alert prick) ---
     if (p.earStyle === 'pricked') {

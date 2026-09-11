@@ -3,11 +3,11 @@
 
 	const HINT_KEY = 'monroePetMatch_hint';
 	const TIMING = {
-		flipMs: 220,
-		flipEase: 'cubic-bezier(0.33, 1, 0.68, 1)',
-		mismatchShakeMs: 450,
+		flipMs: 280,
+		flipEase: 'cubic-bezier(0.22, 1, 0.36, 1)',
+		mismatchShakeMs: 380,
 		mismatchHoldMs: 520,
-		matchPopMs: 350,
+		matchPopMs: 480,
 		previewRevealMs: 180,
 		previewHoldMs: 550,
 		previewWaveCapMs: 600,
@@ -71,6 +71,7 @@
 		boosterCloseBtn: document.getElementById('pmBoosterCloseBtn'),
 		quickRestart: document.getElementById('pmQuickRestart'),
 		toggleControls: document.getElementById('pmToggleControls'),
+		keyHints: document.getElementById('pmKeyHints'),
 		controls: document.querySelector('.pet-match-controls'),
 	};
 
@@ -81,6 +82,7 @@
 	let firstIndex = null;
 	let moves = 0;
 	let matchedPairs = 0;
+	let matchStreak = 0;
 	let inputLocked = false;
 	let currentLevel = 1;
 	let progress = freshProgress();
@@ -245,6 +247,34 @@
 		}
 		return reducedMotionCached;
 	}
+
+
+	function hashStr(str) {
+		let h = 2166136261;
+		const s = String(str || '');
+		for (let i = 0; i < s.length; i += 1) {
+			h ^= s.charCodeAt(i);
+			h = Math.imul(h, 16777619);
+		}
+		return h >>> 0;
+	}
+
+	/** Visual juice tier only — uses API rarity when present, else stable id hash. */
+	function rarityForPet(pet) {
+		const raw = String((pet && (pet.rarity || pet.rarity_key || pet.tier)) || '').toLowerCase().trim();
+		if (raw) {
+			if (/alumni|golden|legendary|mythic|holo|prism|cosmos|aurora/.test(raw)) return raw.includes('alumni') ? 'alumni' : (raw.includes('golden') ? 'golden_senior' : 'legendary');
+			if (/longtimer|champion/.test(raw)) return 'longtimer';
+			if (/tiny|wonder/.test(raw)) return 'tiny_wonder';
+			if (/rare|deluxe/.test(raw)) return 'rare';
+			if (/uncommon|duo/.test(raw)) return 'uncommon';
+			if (/common|standard/.test(raw)) return 'common';
+			return raw.replace(/\s+/g, '_');
+		}
+		const tiers = ['common', 'common', 'common', 'uncommon', 'uncommon', 'rare', 'legendary'];
+		return tiers[hashStr(pet && (pet.id || pet.name || pet.file)) % tiers.length];
+	}
+
 
 	function applyTimingCssVars() {
 		if (!els.app) {
@@ -511,15 +541,35 @@
 
 	// ---- Dex / Stats helpers ----------------------------------------
 
+	function getAdoptedex() {
+		return (typeof window !== 'undefined' && window.MonroeAdoptedex) ? window.MonroeAdoptedex : null;
+	}
+
 	function getDexRestBase() {
 		const dex = getDexParams();
 		if (dex.api) return dex.api;
-		return window.location.origin + '/wp-json/monroe/v1/';
+		const shared = getAdoptedex();
+		if (shared && typeof shared.getParams === 'function') {
+			const p = shared.getParams();
+			if (p && p.dexApi) return p.dexApi;
+		}
+		// Prefer the shared arcade-api base (same default as dex-shared.js).
+		return window.location.origin + '/arcade-api/v1/';
 	}
 
 	function getDexUser() {
 		const dex = getDexParams();
-		return (dex.user || (localStorage.getItem('monroeDexUser') || '').trim()).toLowerCase();
+		if (dex.user) return dex.user;
+		const shared = getAdoptedex();
+		if (shared && typeof shared.getParams === 'function') {
+			const p = shared.getParams();
+			if (p && p.dexUser) return String(p.dexUser).toLowerCase();
+		}
+		try {
+			return (localStorage.getItem('monroeDexUser') || '').trim().toLowerCase();
+		} catch (err) {
+			return '';
+		}
 	}
 
 	// Local state — kept in sync with server
@@ -620,6 +670,26 @@
 		}
 	}
 
+	function discoverRoundPets() {
+		const adoptedex = getAdoptedex();
+		const user = getDexUser();
+		if (!adoptedex || typeof adoptedex.discoverBulk !== 'function' || !user) {
+			return;
+		}
+		const petIds = Array.from(new Set(
+			(roundPets || [])
+				.map((pet) => pet && pet.id)
+				.filter(Boolean)
+				.map((id) => String(id))
+		));
+		if (!petIds.length) {
+			return;
+		}
+		adoptedex.discoverBulk(getDexRestBase(), user, petIds, 'match').catch((err) => {
+			console.warn('[Pet Match] discoverBulk failed:', err);
+		});
+	}
+
 	function showPackRewardModal(milestone) {
 		if (!els.rewardModal) return;
 		if (els.rewardTitle) els.rewardTitle.textContent = milestone.title || 'Pet Booster Pack Unlocked!';
@@ -637,7 +707,11 @@
 		hidePackRewardModal();
 		const user = getDexUser();
 		const api = getDexRestBase();
-		let src = '../booster/index.html?embed=1&pack=' + encodeURIComponent(tier || currentRewardTier);
+		const packTier = tier || currentRewardTier || 'standard';
+		// Visual rip/open UX lives in booster; it calls the same packs/open
+		// endpoint as MonroeAdoptedex.openPack. Prefetch via shared openPack
+		// only when the iframe path is unavailable.
+		let src = '../booster/index.html?embed=1&pack=' + encodeURIComponent(packTier);
 		if (api) {
 			src += '&dex_api=' + encodeURIComponent(api);
 		}
@@ -645,6 +719,16 @@
 			src += '&user=' + encodeURIComponent(user) + '&dex_user=' + encodeURIComponent(user);
 		}
 		if (!els.boosterEmbedModal || !els.boosterFrame) {
+			const adoptedex = getAdoptedex();
+			if (user && adoptedex && typeof adoptedex.openPack === 'function') {
+				adoptedex.openPack(api, user, packTier).then(() => {
+					window.open('../dex/album.html?embed=1&dex_user=' + encodeURIComponent(user), '_blank');
+				}).catch((err) => {
+					console.warn('[Pet Match] openPack fallback failed:', err);
+					window.open(src, '_blank');
+				});
+				return;
+			}
 			window.open(src, '_blank');
 			return;
 		}
@@ -672,6 +756,153 @@
 		return data;
 	}
 
+
+	const MANIFEST_FALLBACK_LIMIT = 18;
+	const IMAGE_PROBE_MS = 5500;
+	const MAX_PAIRS_NEEDED = LEVELS.reduce((max, level) => Math.max(max, level.pairs), 0);
+
+	function isRemoteUrl(url) {
+		return typeof url === 'string' && (/^https?:\/\//i.test(url) || url.startsWith('//'));
+	}
+
+	function silhouetteFallback(pet) {
+		const type = String((pet && pet.type) || '').toLowerCase();
+		const breed = String((pet && pet.breed) || '').toLowerCase();
+		const isCat = type === 'cat' || breed.includes('cat') || breed.includes('kitten');
+		// Prefer illustrated silhouettes shipped with the game (never blank).
+		return isCat ? 'images/pet02.svg' : 'images/pet01.svg';
+	}
+
+	function probeImage(url) {
+		return new Promise((resolve) => {
+			if (!url) {
+				resolve(false);
+				return;
+			}
+			// Local / relative assets (SVG fallbacks) are always treated as loadable.
+			if (!isRemoteUrl(url)) {
+				resolve(true);
+				return;
+			}
+			const img = new Image();
+			let settled = false;
+			const finish = (ok) => {
+				if (settled) return;
+				settled = true;
+				window.clearTimeout(timer);
+				img.onload = null;
+				img.onerror = null;
+				resolve(ok);
+			};
+			const timer = window.setTimeout(() => finish(false), IMAGE_PROBE_MS);
+			img.referrerPolicy = 'no-referrer';
+			img.decoding = 'async';
+			img.onload = () => finish(true);
+			img.onerror = () => finish(false);
+			img.src = url;
+		});
+	}
+
+	async function filterLoadablePets(images) {
+		const pool = Array.isArray(images) ? images.slice() : [];
+		const kept = [];
+		const rejected = [];
+		// Probe in small batches so we do not open dozens of sockets at once.
+		const BATCH = 8;
+		for (let i = 0; i < pool.length && kept.length < Math.max(MAX_PAIRS_NEEDED + 4, 12); i += BATCH) {
+			const slice = pool.slice(i, i + BATCH);
+			const results = await Promise.all(slice.map(async (pet) => ({
+				pet,
+				ok: await probeImage(pet.file)
+			})));
+			results.forEach(({ pet, ok }) => {
+				if (ok) {
+					kept.push(pet);
+				} else {
+					rejected.push(pet);
+				}
+			});
+		}
+		if (rejected.length) {
+			console.warn('[Pet Match] Dropped pets with broken photos:', rejected.length);
+		}
+		return kept;
+	}
+
+	async function ensurePlayablePool(images) {
+		let kept = await filterLoadablePets(images);
+		if (kept.length >= MAX_PAIRS_NEEDED) {
+			return kept;
+		}
+		// Pad with illustrated SVG fallbacks so levels still start.
+		try {
+			const manifest = await loadManifestFallback();
+			const extras = (manifest.images || []).filter((img) => {
+				return !kept.some((k) => k.id === img.id || k.file === img.file);
+			}).slice(0, MANIFEST_FALLBACK_LIMIT);
+			kept = kept.concat(extras.map((img) => ({
+				id: img.id,
+				name: img.alt || img.id,
+				breed: 'Companion',
+				type: /cat|kitten/i.test(img.alt || '') ? 'cat' : 'dog',
+				file: img.file,
+				alt: img.alt,
+				url: '/adopt/'
+			})));
+		} catch (err) {
+			console.warn('[Pet Match] Could not pad with SVG fallbacks:', err);
+		}
+		return kept;
+	}
+
+	function wirePetPhoto(img, pet, options) {
+		const opts = options || {};
+		const primary = pet && pet.file ? pet.file : '';
+		const fallback = silhouetteFallback(pet);
+		const candidates = [];
+		if (primary) {
+			candidates.push(primary);
+		}
+		if (fallback && fallback !== primary) {
+			candidates.push(fallback);
+		}
+		// Ultimate local backups if type-based silhouette somehow fails.
+		candidates.push('images/pet18.svg', 'images/pet01.svg');
+
+		let attempt = 0;
+		img.classList.add('is-loading');
+		img.classList.remove('is-loaded', 'is-broken');
+		img.alt = (pet && (pet.alt || pet.name)) || img.alt || 'Shelter pet';
+		img.decoding = 'async';
+		img.loading = opts.loading || 'eager';
+		img.referrerPolicy = 'no-referrer';
+		const tryNext = () => {
+			if (attempt >= candidates.length) {
+				img.onload = null;
+				img.onerror = null;
+				img.removeAttribute('src');
+				img.classList.remove('is-loading');
+				img.classList.add('is-broken');
+				return;
+			}
+			const next = candidates[attempt];
+			attempt += 1;
+			img.src = next;
+		};
+
+		img.onload = () => {
+			img.classList.remove('is-loading', 'is-broken');
+			img.classList.add('is-loaded');
+		};
+		img.onerror = () => {
+			// Advance to next candidate (silhouette / local SVG) so cards never stay blank.
+			tryNext();
+		};
+		tryNext();
+		return img;
+	}
+
+
 	async function loadPetPool() {
 		// 1. Try Live WordPress REST feed
 		const apiUrl = getPetsApiUrl() || '/wp-json/monroe/v1/featured-pets';
@@ -695,11 +926,15 @@
 							type: p.type || 'companion',
 							file: file,
 							alt: `${name} (${breed})`,
-							url: p.url || ('/adopt/' + encodeURIComponent(p.id))
+							url: p.url || ('/adopt/' + encodeURIComponent(p.id)),
+							rarity: p.rarity || p.rarity_key || p.tier || ''
 						};
 					}).filter(p => !!p.file);
 					if (mapped.length >= 4) {
-						return { images: mapped };
+						const playable = await ensurePlayablePool(mapped);
+						if (playable.length >= 4) {
+							return { images: playable };
+						}
 					}
 				}
 			}
@@ -720,10 +955,14 @@
 						type: p.type || 'companion',
 						file: p.image || p.image_url || p.photo || p.file || '',
 						alt: `${p.name} (${p.breed || 'Companion'})`,
-						url: p.url || ('/adopt/' + encodeURIComponent(p.id))
+						url: p.url || ('/adopt/' + encodeURIComponent(p.id)),
+						rarity: p.rarity || p.rarity_key || p.tier || ''
 					})).filter(p => !!p.file);
 					if (mappedFallback.length >= 4) {
-						return { images: mappedFallback };
+						const playable = await ensurePlayablePool(mappedFallback);
+						if (playable.length >= 4) {
+							return { images: playable };
+						}
 					}
 				}
 			}
@@ -731,8 +970,10 @@
 			console.warn('Fallback shelter-pets.json load failed:', err2);
 		}
 
-		// 3. Fallback to vector SVGs
-		return loadManifestFallback();
+		// 3. Fallback to illustrated SVG silhouettes
+		const manifest = await loadManifestFallback();
+		const playable = await ensurePlayablePool(manifest.images || []);
+		return { images: playable.length ? playable : (manifest.images || []) };
 	}
 
 	function buildDeck(level, images) {
@@ -760,6 +1001,8 @@
 			}
 			seen.add(file);
 			const img = new Image();
+			img.referrerPolicy = 'no-referrer';
+			img.decoding = 'async';
 			img.src = file;
 		});
 	}
@@ -776,15 +1019,34 @@
 		return els.board.querySelector(`[data-index="${index}"]`);
 	}
 
-	function isDesktopEmbed() {
-		return document.documentElement.classList.contains('humane-embed')
-			&& window.innerWidth >= DESKTOP_MIN_WIDTH;
+	function isFinePointerDesktop() {
+		try {
+			return window.matchMedia('(hover: hover) and (pointer: fine)').matches
+				&& window.innerWidth >= DESKTOP_MIN_WIDTH;
+		} catch (err) {
+			return window.innerWidth >= DESKTOP_MIN_WIDTH;
+		}
+	}
+
+	function isDesktopWide() {
+		return window.innerWidth >= DESKTOP_MIN_WIDTH;
+	}
+
+	function updateKeyHintsVisibility() {
+		if (!els.keyHints) {
+			return;
+		}
+		const show = isFinePointerDesktop();
+		els.keyHints.hidden = !show;
+		els.keyHints.setAttribute('aria-hidden', show ? 'false' : 'true');
 	}
 
 	function updateLayoutMode() {
 		if (els.app) {
-			els.app.classList.toggle('pet-match-app--wide', isDesktopEmbed());
+			// Side-rail controls on any desktop-width viewport (embed + standalone).
+			els.app.classList.toggle('pet-match-app--wide', isDesktopWide());
 		}
+		updateKeyHintsVisibility();
 	}
 
 	function boardGapFor(config) {
@@ -870,6 +1132,7 @@
 			button.type = 'button';
 			button.className = 'pet-match-card';
 			button.dataset.index = String(index);
+			button.dataset.rarity = rarityForPet(card.image);
 			button.setAttribute('role', 'gridcell');
 			button.setAttribute('aria-label', cardLabel(card, index, true));
 
@@ -896,10 +1159,9 @@
 			const front = document.createElement('span');
 			front.className = 'pet-match-card__face pet-match-card__front';
 			const img = document.createElement('img');
-			img.src = card.image.file;
-			img.alt = card.image.alt;
-			img.loading = 'eager';
-			img.decoding = 'async';
+			front.classList.add('is-awaiting');
+			wirePetPhoto(img, card.image, { loading: 'eager' });
+			img.addEventListener('load', () => front.classList.remove('is-awaiting'), { once: true });
 			front.appendChild(img);
 
 			inner.appendChild(back);
@@ -917,6 +1179,15 @@
 			button.addEventListener('keydown', (event) => onCardKeydown(event, index));
 			els.board.appendChild(button);
 		});
+
+		// Desktop: park focus on the board so arrow keys work without an extra click.
+		if (isFinePointerDesktop() && state !== 'preview' && !inputLocked) {
+			window.requestAnimationFrame(() => {
+				if (document.activeElement === document.body || document.activeElement === els.board) {
+					focusFirstPlayableCard();
+				}
+			});
+		}
 	}
 
 	function updateLevelSelect() {
@@ -1043,6 +1314,98 @@
 		later(durationMs, () => {
 			button.classList.remove(className);
 		});
+	}
+
+	function ensureComboChip() {
+		const wrap = els.board && els.board.parentElement;
+		if (!wrap || wrap.querySelector('.pet-match-combo-chip')) {
+			return wrap;
+		}
+		const chip = document.createElement('div');
+		chip.className = 'pet-match-combo-chip';
+		chip.setAttribute('aria-hidden', 'true');
+		chip.textContent = 'COMBO';
+		wrap.appendChild(chip);
+		return wrap;
+	}
+
+	function setComboUi(streak) {
+		const wrap = ensureComboChip();
+		const chip = wrap && wrap.querySelector('.pet-match-combo-chip');
+		const hot = streak >= 2 && !prefersReducedMotion();
+		if (els.board) {
+			els.board.classList.toggle('is-combo-hot', hot);
+		}
+		if (wrap) {
+			wrap.classList.toggle('is-combo-visible', hot);
+		}
+		if (chip) {
+			chip.textContent = streak >= 3 ? `COMBO x${streak}` : 'COMBO';
+			chip.classList.toggle('is-hot', streak >= 4);
+			if (hot) {
+				chip.classList.remove('is-bump');
+				// force reflow for replayable bump when matching quickly
+				void chip.offsetWidth;
+				chip.classList.add('is-bump');
+			} else {
+				chip.classList.remove('is-bump', 'is-hot');
+			}
+		}
+	}
+
+	function spawnMatchBurst(index) {
+		if (prefersReducedMotion()) {
+			return;
+		}
+		const button = cardButton(index);
+		if (!button) {
+			return;
+		}
+		const rarity = button.dataset.rarity || 'common';
+		const rich = /rare|legendary|alumni|golden|longtimer|tiny|uncommon/.test(rarity);
+		const angles = rich
+			? [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+			: [20, 70, 120, 170, 220, 270, 320, 350];
+		angles.forEach((deg, i) => {
+			const spark = document.createElement('span');
+			spark.className = 'pet-match-spark';
+			spark.setAttribute('aria-hidden', 'true');
+			const rad = (deg * Math.PI) / 180;
+			const dist = 28 + (i % 3) * 10 + (rich ? 6 : 0);
+			spark.style.setProperty('--sx', `${Math.cos(rad) * dist}px`);
+			spark.style.setProperty('--sy', `${Math.sin(rad) * dist}px`);
+			button.appendChild(spark);
+			later(560, () => {
+				spark.remove();
+			});
+		});
+	}
+
+	function celebrateMatch(firstIdx, secondIdx) {
+		matchStreak += 1;
+		pulseCard(firstIdx, 'is-match-pop', TIMING.matchPopMs);
+		pulseCard(secondIdx, 'is-match-pop', TIMING.matchPopMs);
+		spawnMatchBurst(firstIdx);
+		spawnMatchBurst(secondIdx);
+		if (matchStreak >= 2) {
+			pulseCard(firstIdx, 'is-combo-glow', 700);
+			pulseCard(secondIdx, 'is-combo-glow', 700);
+		}
+		setComboUi(matchStreak);
+		if (matchStreak >= 2) {
+			setLiveMessage(matchStreak >= 3 ? `Combo x${matchStreak}!` : 'Combo!');
+		} else {
+			setLiveMessage('Match!');
+		}
+	}
+
+	function punishMismatch(firstIdx, secondIdx) {
+		matchStreak = 0;
+		setComboUi(0);
+		pulseCard(firstIdx, 'is-shake', TIMING.mismatchShakeMs);
+		pulseCard(secondIdx, 'is-shake', TIMING.mismatchShakeMs);
+		pulseCard(firstIdx, 'is-mismatch-flash', TIMING.mismatchShakeMs);
+		pulseCard(secondIdx, 'is-mismatch-flash', TIMING.mismatchShakeMs);
 	}
 
 	function lockBoard(locked) {
@@ -1245,6 +1608,40 @@
 		window.setTimeout(run, 180);
 	}
 
+
+	function offerMeetThePetDiscover() {
+		try {
+			const adoptedex = getAdoptedex();
+			if (!adoptedex || typeof adoptedex.meetRandomPet !== 'function') return;
+			const user = getDexUser();
+			if (!user) return;
+			const restBase = getDexRestBase();
+			const pets = (typeof petPool !== 'undefined' && petPool && petPool.images) ? petPool.images
+				: (typeof allPets !== 'undefined' ? allPets : roundPets);
+			// Prefer discovering a pet from this round that isn't already in album —
+			// fall back to random unmet from pool.
+			adoptedex.fetchDex(restBase, user).then((data) => {
+				const serverMet = {};
+				(data.met_ids || []).forEach((id) => { serverMet[id] = true; });
+				const unmetRound = (roundPets || []).filter((p) => p && p.id && !serverMet[p.id]);
+				if (unmetRound.length) {
+					const pick = unmetRound[Math.floor(Math.random() * unmetRound.length)];
+					return adoptedex.discoverPet(restBase, user, pick.id, 'match_meet').then(() => {
+						if (typeof adoptedex.showFlipCardOverlay === 'function') {
+							adoptedex.showFlipCardOverlay(pick, {
+								title: 'Meet ' + (pick.name || 'a shelter friend') + '!',
+								message: 'Matched in this round — flip the card and visit their shelter profile.',
+								foil: typeof adoptedex.foilFromRarity === 'function' ? adoptedex.foilFromRarity(pick.rarity) : false,
+								rarity: pick.rarity || '',
+							});
+						}
+					});
+				}
+				return adoptedex.meetRandomPet(restBase, user, pets, serverMet, 'match_meet');
+			}).catch(() => {});
+		} catch (e) {}
+	}
+
 	function renderMeetThePets() {
 		if (!els.winMeet || !els.winMeetGrid) {
 			return;
@@ -1275,38 +1672,73 @@
 
 		els.winMeetGrid.dataset.count = String(pets.length);
 
-		pets.forEach((pet) => {
-			const li = document.createElement('li');
-			const link = document.createElement('a');
-			link.className = 'pet-match-meet__link';
-			link.href = pet.url;
-			link.target = '_blank';
-			link.rel = 'noopener noreferrer';
-			link.setAttribute('aria-label', `View ${pet.name || pet.alt} profile`);
+		const adoptedex = getAdoptedex();
+		const useFlipCards = adoptedex && typeof adoptedex.createFlipCard === 'function';
+		if (useFlipCards) {
+			els.winMeetGrid.classList.add('pet-match-meet__grid--flip');
+			if (els.winMeet && els.winMeetHint) {
+				els.winMeetHint.textContent = 'Tap a card to flip · open the profile from the back';
+			} else if (els.winMeet) {
+				const hint = els.winMeet.querySelector('.pet-match-meet__hint');
+				if (hint) hint.textContent = 'Tap a card to flip · open the profile from the back';
+			}
+			pets.forEach((pet, index) => {
+				const cardPet = {
+					id: pet.id,
+					name: pet.name || pet.alt || 'Adoptable pet',
+					type: pet.type || 'companion',
+					breed: pet.breed || '',
+					age: pet.age || '',
+					gender: pet.gender || '',
+					file: pet.file,
+					url: pet.url,
+					archived: !!pet.archived,
+				};
+				const li = adoptedex.createFlipCard(cardPet, {
+					met: true,
+					mode: 'collection',
+					readOnly: true,
+					dexNumber: index + 1,
+					highlight: true,
+					startFlipped: false,
+				});
+				els.winMeetGrid.appendChild(li);
+			});
+		} else {
+			els.winMeetGrid.classList.remove('pet-match-meet__grid--flip');
+			pets.forEach((pet) => {
+				const li = document.createElement('li');
+				const link = document.createElement('a');
+				link.className = 'pet-match-meet__link';
+				link.href = pet.url;
+				link.target = '_blank';
+				link.rel = 'noopener noreferrer';
+				link.setAttribute('aria-label', `View ${pet.name || pet.alt} profile`);
 
-			const photo = document.createElement('span');
-			photo.className = 'pet-match-meet__photo';
+				const photo = document.createElement('span');
+				photo.className = 'pet-match-meet__photo';
 
-			const img = document.createElement('img');
-			img.src = pet.file;
-			img.alt = '';
-			img.loading = 'lazy';
-			img.decoding = 'async';
+				const img = document.createElement('img');
+				photo.classList.add('is-awaiting');
+				wirePetPhoto(img, pet, { loading: 'lazy' });
+				img.alt = '';
+				img.addEventListener('load', () => photo.classList.remove('is-awaiting'), { once: true });
 
-			photo.appendChild(img);
+				photo.appendChild(img);
 
-			const name = document.createElement('span');
-			name.className = 'pet-match-meet__name';
-			name.textContent = pet.name || pet.alt || 'Adoptable pet';
+				const name = document.createElement('span');
+				name.className = 'pet-match-meet__name';
+				name.textContent = pet.name || pet.alt || 'Adoptable pet';
 
-			const cta = document.createElement('span');
-			cta.className = 'pet-match-meet__cta';
-			cta.textContent = 'View profile';
+				const cta = document.createElement('span');
+				cta.className = 'pet-match-meet__cta';
+				cta.textContent = 'View profile';
 
-			link.append(photo, name, cta);
-			li.appendChild(link);
-			els.winMeetGrid.appendChild(li);
-		});
+				link.append(photo, name, cta);
+				li.appendChild(link);
+				els.winMeetGrid.appendChild(li);
+			});
+		}
 
 		scheduleMeetSizing();
 	}
@@ -1417,9 +1849,7 @@
 				refreshCardUi(index);
 				sounds.playMatch();
 				triggerHaptic(25);
-				pulseCard(firstIndex, 'is-match-pop', TIMING.matchPopMs);
-				pulseCard(index, 'is-match-pop', TIMING.matchPopMs);
-				setLiveMessage('Match!');
+				celebrateMatch(firstIndex, index);
 				state = 'idle';
 				firstIndex = null;
 				lockBoard(false);
@@ -1437,8 +1867,7 @@
 			}
 
 			sounds.playMismatch();
-			pulseCard(firstIndex, 'is-shake', TIMING.mismatchShakeMs);
-			pulseCard(index, 'is-shake', TIMING.mismatchShakeMs);
+			punishMismatch(firstIndex, index);
 			setLiveMessage('Not a match.');
 			later(TIMING.mismatchHoldMs, () => {
 				first.faceUp = false;
@@ -1483,6 +1912,7 @@
 			els.winPraise.textContent = praiseForStars(stars);
 		}
 		renderMeetThePets();
+		offerMeetThePetDiscover();
 
 		// Award a pack only at milestone levels (see LEVEL_MILESTONES). The
 		// local claimedLevelWins check below is just to skip a pointless
@@ -1495,32 +1925,19 @@
 		// client thinks it should.
 		const milestone = LEVEL_MILESTONES[currentLevel];
 		const user = getDexUser();
+		const adoptedex = getAdoptedex();
+		discoverRoundPets();
 		if (milestone) {
 			readLocalStats();
 			if (!localStats.claimedLevelWins.includes(currentLevel)) {
 				const restBase = getDexRestBase();
-				const awardMilestonePack = (notifyParent) => {
+				const markMilestoneClaimedLocally = () => {
 					if (!localStats.claimedLevelWins.includes(currentLevel)) {
 						localStats.claimedLevelWins.push(currentLevel);
 					}
 					writeLocalStats();
 					currentRewardTier = milestone.tier;
 					pendingLevelMilestone = milestone;
-					if (!notifyParent) return;
-					try {
-						if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-							let remainingPacks;
-							try {
-								remainingPacks = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
-							} catch (e) {}
-							window.parent.postMessage({
-								type: 'adoptedex:pack_awarded',
-								tier: milestone.tier,
-								level: currentLevel,
-								remainingPacks: remainingPacks
-							}, '*');
-						}
-					} catch (err) {}
 				};
 
 				const showPackRewardIfWinModalGone = () => {
@@ -1532,35 +1949,32 @@
 					}
 				};
 
-				const creditLocalDexPack = () => {
-					try {
-						const count = 1;
-						const cur = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
-						localStorage.setItem('monroeDexPacks', String(cur + count));
-					} catch (e) {}
-				};
-
-				if (user) {
-					MonroeAdoptedex.claimReward(restBase, user, 'match', 'level_' + currentLevel, {
+				// Prefer shared MonroeAdoptedex.claimReward — it posts
+				// adoptedex:pack_awarded and handles offline monroeDexPacks.
+				if (user && adoptedex && typeof adoptedex.claimReward === 'function') {
+					adoptedex.claimReward(restBase, user, 'match', 'level_' + currentLevel, {
 						tier: milestone.tier,
 						count: 1,
+						level: currentLevel,
 					}).then((result) => {
 						if (result && result.claimed) {
-							// claimReward already notifies the cabinet (and writes
-							// monroeDexPacks on offline fallback). Do not post again.
-							awardMilestonePack(false);
+							markMilestoneClaimedLocally();
 							showPackRewardIfWinModalGone();
+							if (adoptedex && typeof adoptedex.showRewardToast === 'function') {
+								adoptedex.showRewardToast({
+									title: milestone.title || 'Match pack unlocked!',
+									message: milestone.message || 'A foil pack is ready in your album.',
+									game: 'Pet Match',
+									tier: milestone.tier,
+									rare: currentLevel >= 10,
+								});
+							}
 						}
 					}).catch((e) => {
-						console.warn('[Pet Match] Reward claim failed, falling back to local award:', e);
-						creditLocalDexPack();
-						awardMilestonePack(true);
-						showPackRewardIfWinModalGone();
+						console.warn('[Pet Match] claimReward failed:', e);
 					});
 				} else {
-					creditLocalDexPack();
-					awardMilestonePack(true);
-					showPackRewardIfWinModalGone();
+					console.warn('[Pet Match] MonroeAdoptedex.claimReward unavailable; pack grant skipped until dex-shared loads.');
 				}
 			}
 		}
@@ -1652,6 +2066,8 @@
 		firstIndex = null;
 		moves = 0;
 		matchedPairs = 0;
+		matchStreak = 0;
+		setComboUi(0);
 		inputLocked = false;
 		setLiveMessage('');
 		updateHud();
@@ -1762,6 +2178,76 @@
 			els.nextLevel.addEventListener('click', () => {
 				if (currentLevel < progress.bestLevel) {
 					startLevel(currentLevel + 1);
+				}
+			});
+		}
+
+		function isTypingTarget(target) {
+			if (!target || !target.closest) {
+				return false;
+			}
+			return Boolean(target.closest('input, textarea, select, [contenteditable="true"]'));
+		}
+
+		function anyModalOpen() {
+			return Boolean(
+				(els.winModal && !els.winModal.hidden)
+				|| (els.rewardModal && !els.rewardModal.hidden)
+				|| (els.boosterEmbedModal && !els.boosterEmbedModal.hidden)
+				|| document.querySelector('.pet-match-modal:not([hidden])')
+			);
+		}
+
+		document.addEventListener('keydown', (event) => {
+			if (isTypingTarget(event.target)) {
+				return;
+			}
+			if (event.key === 'Escape') {
+				if (els.controls && els.controls.classList.contains('is-open')) {
+					event.preventDefault();
+					els.controls.classList.remove('is-open');
+					return;
+				}
+				if (els.boosterEmbedModal && !els.boosterEmbedModal.hidden) {
+					event.preventDefault();
+					closeBoosterPackOverlay();
+					return;
+				}
+				if (els.rewardModal && !els.rewardModal.hidden) {
+					event.preventDefault();
+					hidePackRewardModal();
+					return;
+				}
+				return;
+			}
+			if (anyModalOpen()) {
+				return;
+			}
+			const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+			if (key === 'r') {
+				event.preventDefault();
+				startLevel(currentLevel);
+				return;
+			}
+			if ((key === '[' || key === ',') && currentLevel > 1) {
+				event.preventDefault();
+				startLevel(currentLevel - 1);
+				return;
+			}
+			if ((key === ']' || key === '.') && currentLevel < progress.bestLevel) {
+				event.preventDefault();
+				startLevel(currentLevel + 1);
+			}
+		});
+
+		// Close mobile controls sheet when tapping the backdrop (not the panel).
+		if (els.controls) {
+			els.controls.addEventListener('click', (event) => {
+				if (!els.controls.classList.contains('is-open')) {
+					return;
+				}
+				if (event.target === els.controls) {
+					els.controls.classList.remove('is-open');
 				}
 			});
 		}

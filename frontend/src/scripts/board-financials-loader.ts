@@ -1477,7 +1477,7 @@ function monthLabel(monthKey: string): string {
 }
 
 async function fetchStatementPdfBlob(doc: 'bank' | 'qbo', token: string, monthKey: string): Promise<string | null> {
-  const params = new URLSearchParams({ doc, month: monthKey, token });
+  const params = new URLSearchParams({ doc, month: monthKey }); // auth via headers only — never ?token=
   const res = await fetch(`/api/statement?${params.toString()}`, {
     headers: {
       Authorization: `Bearer ${token}`,

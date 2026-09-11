@@ -58,6 +58,17 @@ jobs:
       #   with 503 if this setting is missing or empty. Generate a long random value
       #   and set it once; do not commit the value.
       #   az staticwebapp appsettings set -g MCHS-Platform-RG -n mchs-frontend-prod --setting-names STAFF_AUTH_SECRET=<generated>
+
+      - name: Optional site integrity smoke
+        # Non-blocking: audits dist/ links after build. Failures should not block deploy.
+        continue-on-error: true
+        run: |
+          if [ -f test-site-integrity.cjs ]; then
+            node test-site-integrity.cjs
+          else
+            echo "test-site-integrity.cjs not present; skipping"
+          fi
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:

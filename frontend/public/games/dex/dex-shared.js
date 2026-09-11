@@ -159,10 +159,25 @@
 			}
 			return res.json();
 		}).then(function (data) {
-			if (data && data.claimed && typeof window !== 'undefined' && window.parent && window.parent !== window) {
+			if (data && data.claimed) {
 				try {
-					window.parent.postMessage({ type: 'adoptedex:pack_awarded', extra: extra }, '*');
+					var awarded = typeof data.packsAwarded === 'number' ? data.packsAwarded : ((extra && extra.count) ? extra.count : 1);
+					if (awarded > 0) {
+						var cur = parseInt(localStorage.getItem('monroeDexPacks') || '0', 10);
+						if (isNaN(cur)) cur = 0;
+						localStorage.setItem('monroeDexPacks', String(cur + awarded));
+					}
+					if (typeof data.coinsAwarded === 'number' && data.coinsAwarded > 0) {
+						var coins = parseInt(localStorage.getItem('monroeDexCoins') || '0', 10);
+						if (isNaN(coins)) coins = 0;
+						localStorage.setItem('monroeDexCoins', String(coins + data.coinsAwarded));
+					}
 				} catch (e) {}
+				if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+					try {
+						window.parent.postMessage({ type: 'adoptedex:pack_awarded', extra: extra, packsAwarded: data.packsAwarded, reward_key: data.reward_key }, '*');
+					} catch (e) {}
+				}
 			}
 			return data;
 		}).catch(function (err) {
@@ -315,11 +330,19 @@
 		var showUnmet = mode === 'available' && !met;
 		var typeClass = typeClassFromPet(pet);
 		var displayName = showUnmet ? '???' : (pet.name || 'Pet');
+		var foil = opts.foil || pet.foil || '';
+		var rarity = opts.rarity || pet.rarity || '';
 
 		var li = document.createElement('li');
 		li.className = 'adoptedex-card-wrap';
 		if (opts.highlight) {
 			li.classList.add('adoptedex-card-wrap--highlight');
+		}
+		if (foil && foil !== 'none') {
+			li.classList.add('adoptedex-card-wrap--foil', 'adoptedex-card-wrap--foil-' + String(foil).replace(/[^a-z0-9_-]/gi, ''));
+		}
+		if (rarity && /rare|alumni|golden|longtimer|uncommon|holographic|prism|cosmos|aurora/i.test(String(rarity))) {
+			li.classList.add('adoptedex-card-wrap--rare');
 		}
 		li.setAttribute('data-pet-id', pet.id || '');
 
@@ -331,6 +354,9 @@
 		}
 		if (pet.archived) {
 			card.classList.add('adoptedex-card--archived');
+		}
+		if (foil && foil !== 'none') {
+			card.classList.add('adoptedex-card--foil');
 		}
 		if (opts.startFlipped) {
 			card.classList.add('is-flipped');
@@ -368,7 +394,19 @@
 			img.decoding = 'async';
 			img.onerror = function () { onImgError(img); };
 			art.appendChild(halo);
+			if (foil && foil !== 'none') {
+				var sheen = document.createElement('span');
+				sheen.className = 'adoptedex-card__foil-sheen';
+				sheen.setAttribute('aria-hidden', 'true');
+				art.appendChild(sheen);
+			}
 			art.appendChild(img);
+			if (rarity) {
+				var rarityPill = document.createElement('span');
+				rarityPill.className = 'adoptedex-card__rarity';
+				rarityPill.textContent = String(rarity).replace(/_/g, ' ');
+				art.appendChild(rarityPill);
+			}
 		}
 
 		var name = document.createElement('span');
@@ -521,6 +559,347 @@
 		return parts.join(' · ');
 	}
 
+
+	var TOAST_CSS_ID = 'monroe-adoptedex-reward-toast-css';
+	var TOAST_STYLE = [
+		'#monroe-adoptedex-toast-root{position:fixed;inset:auto 0 0 0;z-index:2147483000;pointer-events:none;',
+		'display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px;',
+		'padding-bottom:max(12px,env(safe-area-inset-bottom,0px));padding-left:max(12px,env(safe-area-inset-left,0px));',
+		'padding-right:max(12px,env(safe-area-inset-right,0px));}',
+		'.adx-toast{pointer-events:auto;min-width:min(92vw,320px);max-width:min(96vw,420px);',
+		'background:linear-gradient(160deg,#0f3d32 0%,#08241f 55%,#041814 100%);color:#fef6ea;',
+		'border:2px solid rgba(255,179,71,.85);border-radius:16px;box-shadow:0 18px 40px rgba(0,0,0,.45);',
+		'padding:14px 16px;display:flex;gap:12px;align-items:center;animation:adxToastIn .35s ease-out;}',
+		'.adx-toast--rare{border-color:#fef08a;box-shadow:0 0 0 2px rgba(254,240,138,.35),0 18px 40px rgba(0,0,0,.5);}',
+		'.adx-toast__icon{font-size:1.75rem;line-height:1;flex:0 0 auto;}',
+		'.adx-toast__body{flex:1 1 auto;min-width:0;}',
+		'.adx-toast__title{font-weight:800;font-size:1.05rem;margin:0 0 2px;color:#fef08a;}',
+		'.adx-toast__msg{margin:0;font-size:.92rem;line-height:1.35;color:#ccfbf1;}',
+		'.adx-toast__cta{margin-top:8px;display:inline-flex;align-items:center;justify-content:center;',
+		'min-height:44px;min-width:44px;padding:8px 14px;border-radius:999px;border:0;',
+		'background:#ffb347;color:#2c1c19;font-weight:800;cursor:pointer;touch-action:manipulation;}',
+		'.adx-toast__dismiss{flex:0 0 auto;min-width:44px;min-height:44px;border:0;border-radius:999px;',
+		'background:rgba(255,255,255,.12);color:#fff;font-size:1.2rem;cursor:pointer;touch-action:manipulation;}',
+		'@keyframes adxToastIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}',
+		'#monroe-adoptedex-overlay-root{position:fixed;inset:0;z-index:2147483001;display:flex;align-items:center;',
+		'justify-content:center;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right))',
+		'max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));',
+		'background:rgba(8,20,16,.72);backdrop-filter:blur(4px);}',
+		'#monroe-adoptedex-overlay-root[hidden]{display:none!important;}',
+		'.adx-overlay-card{background:linear-gradient(180deg,#fffaf3,#fef6ea);color:#2c1c19;border-radius:20px;',
+		'max-width:min(96vw,440px);width:100%;padding:18px 16px 16px;box-shadow:0 24px 60px rgba(0,0,0,.4);',
+		'border:2px solid rgba(26,79,75,.25);text-align:center;}',
+		'.adx-overlay-card h2{margin:0 0 6px;font-size:1.25rem;}',
+		'.adx-overlay-card p{margin:0 0 12px;color:#4b5563;line-height:1.4;}',
+		'.adx-overlay-card .adoptedex-card-wrap{list-style:none;margin:0 auto 12px;max-width:200px;}',
+		'.adx-overlay-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}',
+		'.adx-overlay-actions button,.adx-overlay-actions a{min-height:44px;min-width:44px;padding:10px 16px;',
+		'border-radius:999px;border:0;font-weight:800;cursor:pointer;touch-action:manipulation;text-decoration:none;',
+		'display:inline-flex;align-items:center;justify-content:center;}',
+		'.adx-btn-primary{background:#1a4f4b;color:#fffaf3;}',
+		'.adx-btn-ghost{background:rgba(26,79,75,.12);color:#1a4f4b;}',
+		'.adoptedex-card-wrap--rare .adoptedex-card,.adoptedex-card--foil{',
+		'box-shadow:0 0 0 2px rgba(254,240,138,.55),0 12px 28px rgba(255,179,71,.28);}',
+		'.adoptedex-card__foil-sheen{position:absolute;inset:0;border-radius:inherit;pointer-events:none;',
+		'background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.4) 45%,transparent 70%);',
+		'animation:adxFoil 3.6s linear infinite;mix-blend-mode:screen;opacity:.28;}',
+		'.adoptedex-card__art{position:relative;overflow:hidden;}',
+		'.adoptedex-card__rarity{position:absolute;left:8px;bottom:8px;font-size:.65rem;font-weight:800;',
+		'text-transform:uppercase;letter-spacing:.04em;background:rgba(15,61,50,.85);color:#fef08a;',
+		'padding:3px 7px;border-radius:999px;}',
+		'@keyframes adxFoil{from{transform:translateX(-40%)}to{transform:translateX(40%)}}'
+	].join('');
+
+	function ensureToastStyles() {
+		if (typeof document === 'undefined') return;
+		if (document.getElementById(TOAST_CSS_ID)) return;
+		var style = document.createElement('style');
+		style.id = TOAST_CSS_ID;
+		style.textContent = TOAST_STYLE;
+		document.head.appendChild(style);
+	}
+
+	function toastRoot() {
+		ensureToastStyles();
+		var root = document.getElementById('monroe-adoptedex-toast-root');
+		if (!root) {
+			root = document.createElement('div');
+			root.id = 'monroe-adoptedex-toast-root';
+			root.setAttribute('aria-live', 'polite');
+			document.body.appendChild(root);
+		}
+		return root;
+	}
+
+	/**
+	 * Shared pack/reward toast used by every game. Prefer calling this only
+	 * after claimReward resolves with claimed:true (server authoritative).
+	 */
+	function showRewardToast(opts) {
+		opts = opts || {};
+		if (typeof document === 'undefined') return null;
+		var root = toastRoot();
+		var el = document.createElement('div');
+		el.className = 'adx-toast' + (opts.rare || opts.rarity === 'rare' ? ' adx-toast--rare' : '');
+		el.setAttribute('role', 'status');
+
+		var icon = document.createElement('div');
+		icon.className = 'adx-toast__icon';
+		icon.textContent = opts.icon || '🎁';
+
+		var body = document.createElement('div');
+		body.className = 'adx-toast__body';
+		var title = document.createElement('p');
+		title.className = 'adx-toast__title';
+		title.textContent = opts.title || 'Pack earned!';
+		var msg = document.createElement('p');
+		msg.className = 'adx-toast__msg';
+		msg.textContent = opts.message || opts.msg || ('Nice work' + (opts.game ? ' in ' + opts.game : '') + ' — a shelter pet pack is waiting in your album.');
+		body.appendChild(title);
+		body.appendChild(msg);
+
+		if (opts.href || opts.onOpen) {
+			var cta = document.createElement(opts.href ? 'a' : 'button');
+			cta.className = 'adx-toast__cta';
+			if (opts.href) {
+				cta.href = opts.href;
+				cta.target = opts.target || '_self';
+			} else {
+				cta.type = 'button';
+				cta.addEventListener('click', function () {
+					try { opts.onOpen(); } catch (e) {}
+					el.remove();
+				});
+			}
+			cta.textContent = opts.ctaLabel || 'Open packs';
+			body.appendChild(cta);
+		}
+
+		var dismiss = document.createElement('button');
+		dismiss.type = 'button';
+		dismiss.className = 'adx-toast__dismiss';
+		dismiss.setAttribute('aria-label', 'Dismiss');
+		dismiss.textContent = '×';
+		dismiss.addEventListener('click', function () { el.remove(); });
+
+		el.append(icon, body, dismiss);
+		root.appendChild(el);
+		var ttl = typeof opts.duration === 'number' ? opts.duration : 6500;
+		if (ttl > 0) {
+			setTimeout(function () { if (el.parentNode) el.remove(); }, ttl);
+		}
+		return el;
+	}
+
+	function overlayRoot() {
+		ensureToastStyles();
+		var root = document.getElementById('monroe-adoptedex-overlay-root');
+		if (!root) {
+			root = document.createElement('div');
+			root.id = 'monroe-adoptedex-overlay-root';
+			root.hidden = true;
+			root.addEventListener('click', function (e) {
+				if (e.target === root) closeMeetOverlay();
+			});
+			document.body.appendChild(root);
+		}
+		return root;
+	}
+
+	function closeMeetOverlay() {
+		var root = document.getElementById('monroe-adoptedex-overlay-root');
+		if (root) {
+			root.hidden = true;
+			root.innerHTML = '';
+		}
+	}
+
+	function foilFromRarity(rarity) {
+		var r = String(rarity || '').toLowerCase();
+		if (r.indexOf('alumni') >= 0 || r === 'prism') return 'prism';
+		if (r.indexOf('golden') >= 0 || r === 'gold') return 'gold';
+		if (r.indexOf('longtimer') >= 0 || r === 'cosmos') return 'cosmos';
+		if (r.indexOf('tiny') >= 0 || r === 'aurora') return 'aurora';
+		if (r === 'rare' || r === 'uncommon') return 'gold';
+		return 'none';
+	}
+
+	/**
+	 * Show a createFlipCard overlay for a newly met / pack-pulled pet.
+	 * Used by Meet-the-Pet and album pack reveal.
+	 */
+	function showFlipCardOverlay(pet, options) {
+		options = options || {};
+		if (!pet || typeof document === 'undefined') return null;
+		var root = overlayRoot();
+		root.innerHTML = '';
+		root.hidden = false;
+		var panel = document.createElement('div');
+		panel.className = 'adx-overlay-card';
+		var h = document.createElement('h2');
+		h.textContent = options.title || ('Meet ' + (pet.name || 'a new friend') + '!');
+		var p = document.createElement('p');
+		p.textContent = options.message || 'Tap the card to flip and learn more. Added to your Adoptédex.';
+		var wrap = createFlipCard(pet, {
+			met: true,
+			mode: 'collection',
+			readOnly: true,
+			dexNumber: options.dexNumber || 0,
+			foil: options.foil || foilFromRarity(pet.rarity || options.rarity),
+			rarity: pet.rarity || options.rarity || '',
+			highlight: true,
+			startFlipped: !!options.startFlipped,
+		});
+		// animate flip in
+		var cardBtn = wrap.querySelector('.adoptedex-card');
+		if (cardBtn && !options.startFlipped) {
+			setTimeout(function () { cardBtn.classList.add('is-flipped'); }, 450);
+		}
+		var actions = document.createElement('div');
+		actions.className = 'adx-overlay-actions';
+		var closeBtn = document.createElement('button');
+		closeBtn.type = 'button';
+		closeBtn.className = 'adx-btn-primary';
+		closeBtn.textContent = options.closeLabel || 'Awesome!';
+		closeBtn.addEventListener('click', closeMeetOverlay);
+		actions.appendChild(closeBtn);
+		if (pet.url) {
+			var link = document.createElement('a');
+			link.className = 'adx-btn-ghost';
+			link.href = pet.url;
+			link.target = '_blank';
+			link.rel = 'noopener noreferrer';
+			link.textContent = 'View on shelter site';
+			actions.appendChild(link);
+		}
+		panel.append(h, p, wrap, actions);
+		root.appendChild(panel);
+		return root;
+	}
+
+	/**
+	 * Once-per-calendar-day streak pack (server stores date-scoped key).
+	 */
+	function claimDailyStreak(base, user, gameId) {
+		gameId = gameId || 'dex';
+		return claimReward(base, user, gameId, 'daily_streak', { tier: 'standard', count: 1 }).then(function (data) {
+			if (data && data.claimed) {
+				showRewardToast({
+					title: 'Daily Streak Pack!',
+					message: 'Thanks for checking in today — a free pack is waiting in your album.',
+					game: 'Adoptédex',
+					icon: '🔥',
+					rare: true,
+				});
+			}
+			return data;
+		});
+	}
+
+	/**
+	 * Species Scout: after discovering N pets of one type, claim bonus pack.
+	 * Client counts; server unique key dedups.
+	 */
+	function claimSpeciesScout(base, user, species, count) {
+		species = String(species || '').toLowerCase();
+		if (species.indexOf('cat') >= 0) species = 'cat';
+		else if (species.indexOf('dog') >= 0) species = 'dog';
+		else return Promise.resolve({ ok: false, claimed: false });
+
+		var key = null;
+		if (count >= 10) key = 'species_scout_' + species + '_10';
+		else if (count >= 3) key = 'species_scout_' + species + '_3';
+		else return Promise.resolve({ ok: true, claimed: false });
+
+		return claimReward(base, user, 'dex', key, { tier: 'standard', count: 1 }).then(function (data) {
+			if (data && data.claimed) {
+				showRewardToast({
+					title: 'Species Scout bonus!',
+					message: 'You met ' + count + ' ' + species + (count === 1 ? '' : 's') + ' — bonus pack unlocked.',
+					icon: species === 'cat' ? '🐱' : '🐕',
+					rare: count >= 10,
+				});
+			}
+			return data;
+		});
+	}
+
+	/**
+	 * Coin shop: spend server coins for 1 pack (reason buy_pack).
+	 */
+	function buyPackWithCoins(base, user, cost) {
+		cost = typeof cost === 'number' ? cost : 25;
+		return spendCoins(base, user, cost, 'buy_pack').then(function (data) {
+			if (data && data.ok) {
+				try {
+					var cur = parseInt(localStorage.getItem('monroeDexPacks') || '0', 10);
+					var next = (isNaN(cur) ? 0 : cur) + (data.packsAwarded || 1);
+					localStorage.setItem('monroeDexPacks', String(next));
+					if (typeof data.coin_balance === 'number') {
+						localStorage.setItem('monroeDexCoins', String(data.coin_balance));
+					}
+				} catch (e) {}
+				showRewardToast({
+					title: 'Pack purchased!',
+					message: 'Spent ' + (data.spent || cost) + ' coins on a shelter pet pack.',
+					icon: '🪙',
+				});
+				if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+					try {
+						window.parent.postMessage({ type: 'adoptedex:pack_awarded', source: 'coin_shop', extra: { count: 1 } }, '*');
+					} catch (e) {}
+				}
+			}
+			return data;
+		});
+	}
+
+	/**
+	 * Meet-the-Pet: discover one random unmet pet and celebrate with flip card.
+	 */
+	function meetRandomPet(base, user, pets, metSet, source) {
+		metSet = metSet || {};
+		var unmet = (pets || []).filter(function (p) {
+			return p && p.id && !metSet[p.id] && !p.archived;
+		});
+		if (!unmet.length) {
+			return Promise.resolve({ ok: false, message: 'No unmet pets' });
+		}
+		var pick = unmet[Math.floor(Math.random() * unmet.length)];
+		return discoverPet(base, user, pick.id, source || 'meet_the_pet').then(function (data) {
+			showFlipCardOverlay(pick, {
+				title: 'Meet ' + (pick.name || 'a new friend') + '!',
+				message: 'A new shelter friend joined your Adoptédex. Tap the card to flip!',
+				foil: foilFromRarity(pick.rarity),
+				rarity: pick.rarity || '',
+			});
+			return { ok: true, pet: pick, data: data };
+		});
+	}
+
+	/** Sync local monroeDexPacks from server profile (booster / album bridge). */
+	function syncLocalPacksFromProfile(profileOrStats) {
+		try {
+			var packs = null;
+			if (profileOrStats && typeof profileOrStats.unopened_packs !== 'undefined') {
+				packs = parseInt(profileOrStats.unopened_packs, 10);
+			} else if (profileOrStats && profileOrStats.stats && typeof profileOrStats.stats.unopened_packs !== 'undefined') {
+				packs = parseInt(profileOrStats.stats.unopened_packs, 10);
+			} else if (profileOrStats && profileOrStats.profile && typeof profileOrStats.profile.unopened_packs !== 'undefined') {
+				packs = parseInt(profileOrStats.profile.unopened_packs, 10);
+			}
+			if (packs !== null && !isNaN(packs)) {
+				localStorage.setItem('monroeDexPacks', String(Math.max(0, packs)));
+				window.dispatchEvent(new CustomEvent('monroe-adoptedex-updated', {
+					detail: { remainingPacks: packs, synced: true }
+				}));
+			}
+			return packs;
+		} catch (e) {
+			return null;
+		}
+	}
+
 	global.MonroeAdoptedex = {
 		getParams: getParams,
 		fetchDex: fetchDex,
@@ -537,5 +916,15 @@
 		formatStats: formatStats,
 		onImgError: onImgError,
 		PLACEHOLDER_SVG: PLACEHOLDER_SVG,
+		showRewardToast: showRewardToast,
+		showFlipCardOverlay: showFlipCardOverlay,
+		closeMeetOverlay: closeMeetOverlay,
+		claimDailyStreak: claimDailyStreak,
+		claimSpeciesScout: claimSpeciesScout,
+		buyPackWithCoins: buyPackWithCoins,
+		meetRandomPet: meetRandomPet,
+		syncLocalPacksFromProfile: syncLocalPacksFromProfile,
+		foilFromRarity: foilFromRarity,
+		ensureToastStyles: ensureToastStyles,
 	};
 })(window);
