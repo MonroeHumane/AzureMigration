@@ -1,7 +1,9 @@
 /* Embed mode (?embed=1): the game is inside the site launcher's iframe.
  *
  * adventure-shell.css already makes the page a full-viewport app, so this file
- * only has to strip the surrounding site chrome the host page duplicates. */
+ * only has to strip the surrounding site chrome the host page duplicates.
+ * Also applies safe-area + overscroll polish for phone/desktop cabinet iframes.
+ */
 
 html.humane-embed .site-header,
 html.humane-embed .back-link,
@@ -20,18 +22,54 @@ html.humane-embed .adventure-watermark {
 html.humane-embed body {
 	padding: 0;
 	background: #1c110c;
+	overscroll-behavior: none;
+	touch-action: manipulation;
+	-webkit-text-size-adjust: 100%;
 }
 
 /* Nothing above the game should reserve space. */
 html.humane-embed .site-main {
 	padding-top: 0;
+	padding-left: 0;
+	padding-right: 0;
+	/* Keep bottom clear of notch / home indicator when game chrome needs it */
+	padding-bottom: 0;
 }
 
 html.humane-embed .section__header {
 	margin-bottom: 0;
 }
 
-/* With the nav gone the screens no longer need to clear it. */
+/* With the nav gone the screens no longer need to clear it — use safe areas. */
 html.humane-embed body.adventure-page .screen {
-	padding-top: calc(max(8px, env(safe-area-inset-top)) + 12px);
+	padding-top: calc(max(8px, env(safe-area-inset-top, 0px)) + 12px);
+	padding-left: max(8px, env(safe-area-inset-left, 0px));
+	padding-right: max(8px, env(safe-area-inset-right, 0px));
+}
+
+/* Full-bleed game roots: fill the cabinet iframe without double chrome. */
+html.humane-embed,
+html.humane-embed body {
+	height: 100%;
+	min-height: 100%;
+	min-height: 100dvh;
+	overflow: hidden;
+}
+
+html.humane-embed .hg-game-root,
+html.humane-embed .site-shell {
+	min-height: 100%;
+	min-height: 100dvh;
+}
+
+/* Hide any in-game "back to arcade" that duplicates cabinet Close. */
+html.humane-embed .hg-hide-in-embed,
+html.humane-embed [data-hg-hide-in-embed] {
+	display: none !important;
+}
+
+/* Soften page-level safe padding; cabinet header/dock already own chrome. */
+html.humane-embed .hg-safe-pad {
+	padding-top: 0;
+	padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
 }

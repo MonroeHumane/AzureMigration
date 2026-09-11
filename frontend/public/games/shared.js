@@ -124,4 +124,233 @@
 	global.HumaneAudio = {
 		getSuite: () => suite
 	};
+
+	/* ========================================================================
+	   HumaneGameSystem — desktop/mobile input contract for embedded games
+	   ========================================================================
+	   Markup contract:
+	     [data-hg-desktop-controls]  shown on fine-pointer / desktop
+	     [data-hg-mobile-controls]   shown on coarse-pointer / mobile
+	     [data-hg-action="pause"]    optional; Escape / visibility helpers
+	   CSS: humane-game-system.css (classes hg-desktop / hg-mobile / hg-coarse)
+	   ======================================================================== */
+
+	const MOBILE_UA = /Android|iPhone|iPad|iPod|Mobile/i;
+
+	function isEmbed() {
+		return (
+			typeof document !== "undefined" &&
+			(document.documentElement.classList.contains("humane-embed") ||
+				/(?:^|[?&])embed=1(?:&|$)/.test(global.location.search))
+		);
+	}
+
+	function isCoarsePointer() {
+		try {
+			return !!global.matchMedia && global.matchMedia("(pointer: coarse)").matches;
+		} catch (_) {
+			return false;
+		}
+	}
+
+	function isFinePointer() {
+		try {
+			return !!global.matchMedia && global.matchMedia("(pointer: fine)").matches;
+		} catch (_) {
+			return true;
+		}
+	}
+
+	function isNarrowViewport() {
+		try {
+			return !!global.matchMedia && global.matchMedia("(max-width: 720px)").matches;
+		} catch (_) {
+			return false;
+		}
+	}
+
+	function isMobileLike() {
+		const uaMobile = typeof navigator !== "undefined" && MOBILE_UA.test(navigator.userAgent || "");
+		return isCoarsePointer() || isNarrowViewport() || uaMobile;
+	}
+
+	/**
+	 * Apply html.hg-desktop | hg-mobile | hg-coarse for CSS control visibility.
+	 * Call once on boot (and optionally on resize/orientationchange).
+	 */
+	function applyViewportClasses(root) {
+		const el = root || (typeof document !== "undefined" ? document.documentElement : null);
+		if (!el) return { desktop: false, mobile: false, coarse: false };
+
+		const coarse = isCoarsePointer();
+		const mobile = isMobileLike();
+		const desktop = !mobile || (isFinePointer() && !coarse && !isNarrowViewport());
+
+		el.classList.toggle("hg-coarse", coarse);
+		el.classList.toggle("hg-mobile", mobile);
+		el.classList.toggle("hg-desktop", desktop || (!mobile && !coarse));
+
+		// If both flags would be false, prefer desktop chrome for keyboard games.
+		if (!el.classList.contains("hg-mobile") && !el.classList.contains("hg-desktop")) {
+			el.classList.add("hg-desktop");
+		}
+
+		return {
+			desktop: el.classList.contains("hg-desktop"),
+			mobile: el.classList.contains("hg-mobile"),
+			coarse: el.classList.contains("hg-coarse")
+		};
+	}
+
+	/**
+	 * Wire elements marked with data-hg-action / data-hg-key.
+	 * options.onAction(actionName, event) — game handles pause/resume/etc.
+	 * Desktop: keydown from data-hg-key on [data-hg-desktop-controls] children.
+	 * Mobile: pointer/click on [data-hg-mobile-controls] [data-hg-action].
+	 */
+	function bindControlSurfaces(options) {
+		const opts = options || {};
+		const onAction = typeof opts.onAction === "function" ? opts.onAction : function () {};
+		const root = opts.root || document;
+		const disposers = [];
+
+		function fire(action, event) {
+			if (!action) return;
+			onAction(String(action), event);
+		}
+
+		const desktopRoot = root.querySelector("[data-hg-desktop-controls]");
+		const mobileRoot = root.querySelector("[data-hg-mobile-controls]");
+
+		function onKeyDown(event) {
+			if (!desktopRoot && !opts.listenGlobalKeys) return;
+			const key = event.key;
+			const nodes = (desktopRoot || root).querySelectorAll("[data-hg-key]");
+			for (let i = 0; i < nodes.length; i += 1) {
+				const want = nodes[i].getAttribute("data-hg-key");
+				if (!want) continue;
+				const keys = want.split("|").map(function (k) {
+					return k.trim();
+				});
+				if (keys.indexOf(key) !== -1) {
+					const action =
+						nodes[i].getAttribute("data-hg-action") ||
+						nodes[i].getAttribute("data-action") ||
+						want;
+					fire(action, event);
+					if (opts.preventDefault !== false) event.preventDefault();
+					break;
+				}
+			}
+			if (opts.escapePauses !== false && (key === "Escape" || key === "Esc")) {
+				fire("pause", event);
+			}
+		}
+
+		global.addEventListener("keydown", onKeyDown);
+		disposers.push(function () {
+			global.removeEventListener("keydown", onKeyDown);
+		});
+
+		function bindPointerActions(surface) {
+			if (!surface) return;
+			function onClick(event) {
+				const target = event.target && event.target.closest
+					? event.target.closest("[data-hg-action]")
+					: null;
+				if (!target || !surface.contains(target)) return;
+				fire(target.getAttribute("data-hg-action"), event);
+			}
+			surface.addEventListener("click", onClick);
+			disposers.push(function () {
+				surface.removeEventListener("click", onClick);
+			});
+		}
+
+		bindPointerActions(mobileRoot);
+		bindPointerActions(desktopRoot);
+
+		return function unbind() {
+			while (disposers.length) {
+				const d = disposers.pop();
+				try {
+					d();
+				} catch (_) {}
+			}
+		};
+	}
+
+	/**
+	 * Optional: pause when the tab/iframe hides (hub switch, phone lock, etc.).
+	 * onPause() should pause gameplay; onResume is optional (do not auto-resume
+	 * audio-heavy games without a user gesture).
+	 */
+	function pauseOnVisibilityChange(onPause, onResume) {
+		if (typeof document === "undefined") return function () {};
+
+		function handle() {
+			if (document.hidden || document.visibilityState === "hidden") {
+				if (typeof onPause === "function") onPause();
+			} else if (typeof onResume === "function") {
+				onResume();
+			}
+		}
+
+		document.addEventListener("visibilitychange", handle);
+		return function unbind() {
+			document.removeEventListener("visibilitychange", handle);
+		};
+	}
+
+	/** Boot helper: classes + optional control binding + visibility pause. */
+	function boot(options) {
+		const opts = options || {};
+		const mode = applyViewportClasses(opts.rootHtml || document.documentElement);
+		let unbindControls = null;
+		let unbindVis = null;
+
+		if (opts.onAction || opts.bindControls) {
+			unbindControls = bindControlSurfaces(opts);
+		}
+		if (typeof opts.onVisibilityPause === "function") {
+			unbindVis = pauseOnVisibilityChange(
+				opts.onVisibilityPause,
+				opts.onVisibilityResume
+			);
+		}
+
+		if (opts.watchResize !== false) {
+			const onResize = function () {
+				applyViewportClasses(opts.rootHtml || document.documentElement);
+			};
+			global.addEventListener("resize", onResize);
+			global.addEventListener("orientationchange", onResize);
+			const prevUnbind = unbindControls;
+			unbindControls = function () {
+				global.removeEventListener("resize", onResize);
+				global.removeEventListener("orientationchange", onResize);
+				if (prevUnbind) prevUnbind();
+			};
+		}
+
+		return {
+			mode: mode,
+			isEmbed: isEmbed(),
+			dispose: function () {
+				if (unbindControls) unbindControls();
+				if (unbindVis) unbindVis();
+			}
+		};
+	}
+
+	global.HumaneGameSystem = {
+		isEmbed: isEmbed,
+		isCoarsePointer: isCoarsePointer,
+		isFinePointer: isFinePointer,
+		isMobileLike: isMobileLike,
+		applyViewportClasses: applyViewportClasses,
+		bindControlSurfaces: bindControlSurfaces,
+		pauseOnVisibilityChange: pauseOnVisibilityChange,
+		boot: boot
+	};
 })(window);
