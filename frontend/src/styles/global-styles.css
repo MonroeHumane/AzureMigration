@@ -1,10 +1,13 @@
 /**
- * WordPress Global Styles — Phase 2 diet (parity-preserving).
+ * WordPress Global Styles — Phase 2 diet + chrome soak trim (parity-preserving).
  * Trimmed: unused --wp--preset--* definitions and unused .has-* utilities
  * that had zero references across frontend pages/components/layouts/styles/scripts.
  * Kept: cover-dim / hero fixes, homepage-referenced colors/fonts, layout helpers
  * still used by index.astro + monroe-wp-compat.css, monroe-home inset-pill tokens.
- * See PHASE_2_CSS_NOTES.md for audit method and retained-unsure list.
+ * Chrome soak (2026-09-11): dropped alignleft/alignright float helpers (0 markup),
+ * unused has-contrast-color / has-vivid-cyan-blue-color / has-base-background-color,
+ * and dead eyebrow selectors (home-editable-page-index*, hs-eyebrow). Kept
+ * monroe-native-eyebrow + full cover-dim ladder + home-editable-section-label.
  */
 
 :root {
@@ -23,11 +26,7 @@
 :where(body) { margin: 0; }
 
 :where(.is-layout-flex){gap: 0.5em;}
-.is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}
-.is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}
 .is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}
-.is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}
-.is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}
 .is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}
 .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){max-width: var(--wp--style--global--content-size);margin-left: auto !important;margin-right: auto !important;}
 .is-layout-constrained > .alignwide{max-width: var(--wp--style--global--wide-size);}
@@ -64,11 +63,8 @@ h3{font-family: var(--wp--preset--font-family--abril);}
   text-transform: inherit;
 }
 
-/* Used has-* utilities (homepage + monroe-wp-compat.css) */
+/* Used has-* utilities (homepage CTAs / cover) */
 .has-base-color{color: var(--wp--preset--color--base) !important;}
-.has-contrast-color{color: var(--wp--preset--color--contrast) !important;}
-.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}
-.has-base-background-color{background-color: var(--wp--preset--color--base) !important;}
 .has-contrast-background-color{background-color: var(--wp--preset--color--contrast) !important;}
 .has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}
 
@@ -93,10 +89,8 @@ h3{font-family: var(--wp--preset--font-family--abril);}
 .wp-block-cover__background.has-background-dim-90 {opacity: 0.9;}
 .wp-block-cover__background.has-background-dim-100 {opacity: 1;}
 
-/* Allow eyebrow bubbles and mobile pill nav links to wrap text cleanly instead of cutting off */
-.home-editable-page-index--mobile .home-editable-page-index__link,
-.monroe-native-eyebrow,
-.hs-eyebrow {
+/* Allow eyebrow bubbles to wrap text cleanly instead of cutting off */
+.monroe-native-eyebrow {
     white-space: normal !important;
     height: auto !important;
     min-height: auto !important;

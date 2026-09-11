@@ -6,6 +6,11 @@
  markup relies on — values taken from the WP core block library and the live
  site's global-styles output (content size 1320px, flex gap 0.5em, column
  collapse at 781px). Loaded BEFORE the theme styles so theme rules win.
+
+ Chrome soak trim (2026-09-11): removed unused color/align utilities with zero
+ frontend/src markup hits (has-secondary/accent/*, has-*-color unused variants,
+ has-text-align-left/right, is-content-justification-center, empty has-text-color /
+ has-background stubs). Layout + cover + used button colors retained.
 */
 
 :root {
@@ -108,21 +113,9 @@
   justify-content: center;
 }
 
-.is-content-justification-center {
-  justify-content: center;
-}
-
-/* Text alignment utilities */
+/* Text alignment utilities (only center still referenced) */
 .has-text-align-center {
   text-align: center;
-}
-
-.has-text-align-left {
-  text-align: left;
-}
-
-.has-text-align-right {
-  text-align: right;
 }
 
 /* Images */
@@ -135,53 +128,17 @@
   max-width: 100%;
 }
 
-/* WordPress Global Styles Color Presets */
+/* WordPress Global Styles Color Presets still used on homepage CTAs / cover */
 .has-vivid-cyan-blue-background-color {
   background-color: #0693e3 !important;
-}
-
-.has-vivid-cyan-blue-color {
-  color: #0693e3 !important;
 }
 
 .has-contrast-background-color {
   background-color: #173a39 !important;
 }
 
-.has-contrast-color {
-  color: #173a39 !important;
-}
-
-.has-base-background-color {
-  background-color: #ffffff !important;
-}
-
 .has-base-color {
   color: #ffffff !important;
-}
-
-.has-secondary-background-color {
-  background-color: #0f766e !important;
-}
-
-.has-secondary-color {
-  color: #0f766e !important;
-}
-
-.has-accent-background-color {
-  background-color: #e76f51 !important;
-}
-
-.has-accent-color {
-  color: #e76f51 !important;
-}
-
-.has-text-color {
-  /* Inherits current color or explicitly set utility */
-}
-
-.has-background {
-  /* Declares background element */
 }
 
 /* WP Block Button Link Base */
@@ -198,4 +155,3 @@
   opacity: 0.92;
   text-decoration: none;
 }
-
