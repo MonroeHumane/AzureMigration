@@ -40,12 +40,20 @@ class GameScene extends Phaser.Scene {
 
     this._setupInput();
     this._buildHud();
+    try { document.documentElement.classList.add('sr-running'); } catch (e) {}
 
     // A device rotation mid-run changes this.scale.width/height under us -
     // redraw the ground/HUD at the new size rather than leaving them sized
     // for the orientation the run started in.
     this.scale.on('resize', this._onResize, this);
-    this.events.once('shutdown', () => this.scale.off('resize', this._onResize, this));
+    this.events.once('shutdown', () => {
+      this.scale.off('resize', this._onResize, this);
+      try {
+        document.documentElement.classList.remove('sr-running');
+        const lines = document.getElementById('srSpeedLines');
+        if (lines) lines.classList.remove('is-active');
+      } catch (e) {}
+    });
   }
 
   _onResize() {
@@ -157,6 +165,90 @@ class GameScene extends Phaser.Scene {
       }
     }
   }
+
+  _fxReduced() {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  }
+
+  _fxRoot() {
+    return document.getElementById('game-container');
+  }
+
+  _pulseHurtFlash() {
+    const el = document.getElementById('srHurtFlash');
+    if (!el) return;
+    el.classList.remove('is-on');
+    void el.offsetWidth;
+    el.classList.add('is-on');
+    setTimeout(() => el.classList.remove('is-on'), this._fxReduced() ? 200 : 480);
+  }
+
+  _spawnPickupFx(worldX, worldY) {
+    const root = this._fxRoot();
+    if (!root) return;
+    const canvas = root.querySelector('canvas');
+    const rect = (canvas || root).getBoundingClientRect();
+    const rootRect = root.getBoundingClientRect();
+    // Map world coords approx via player screen position + delta
+    const player = this.player && this.player.sprite;
+    let sx = rootRect.width * 0.35;
+    let sy = rootRect.height * 0.55;
+    if (player && canvas && this.scale) {
+      const scaleX = rect.width / this.scale.width;
+      const scaleY = rect.height / this.scale.height;
+      sx = (worldX / this.scale.width) * rect.width + (rect.left - rootRect.left);
+      sy = (worldY / this.scale.height) * rect.height + (rect.top - rootRect.top);
+    }
+
+    const pop = document.createElement('div');
+    pop.className = 'sr-fx-pickup-pop';
+    pop.textContent = '+🐾';
+    pop.style.left = sx + 'px';
+    pop.style.top = sy + 'px';
+    root.appendChild(pop);
+    setTimeout(() => pop.remove(), this._fxReduced() ? 450 : 750);
+
+    if (this._fxReduced()) return;
+    for (let i = 0; i < 6; i++) {
+      const spark = document.createElement('div');
+      spark.className = 'sr-fx-spark';
+      const ang = (i / 6) * Math.PI * 2;
+      const dist = 18 + Math.random() * 22;
+      spark.style.left = sx + 'px';
+      spark.style.top = sy + 'px';
+      spark.style.setProperty('--sx', Math.cos(ang) * dist + 'px');
+      spark.style.setProperty('--sy', Math.sin(ang) * dist - 10 + 'px');
+      root.appendChild(spark);
+      setTimeout(() => spark.remove(), 600);
+    }
+
+    // Brief Phaser sparkle at collectible
+    if (this.add && typeof this.add.circle === 'function') {
+      const burst = this.add.circle(worldX, worldY, 10, 0xffd166, 0.9).setDepth(30);
+      this.tweens.add({
+        targets: burst,
+        scale: 2.4,
+        alpha: 0,
+        duration: 280,
+        onComplete: () => burst.destroy(),
+      });
+    }
+  }
+
+  _syncSpeedFx() {
+    const lines = document.getElementById('srSpeedLines');
+    const rootHtml = document.documentElement;
+    if (!lines) return;
+    const active = !this.isGameOver && this.sys && this.sys.isActive();
+    rootHtml.classList.toggle('sr-running', !!active);
+    const t = Math.max(0, Math.min(1, (this.scrollSpeed - CFG.BASE_SCROLL_SPEED) / (CFG.MAX_SCROLL_SPEED - CFG.BASE_SCROLL_SPEED || 1)));
+    const opacity = 0.12 + t * 0.55;
+    const duration = (0.7 - t * 0.4).toFixed(2) + 's';
+    lines.style.setProperty('--sr-speed-opacity', String(opacity));
+    lines.style.setProperty('--sr-speed-duration', duration);
+    lines.classList.toggle('is-active', !this.isGameOver && t > 0.02);
+  }
+
 
   update(time, delta) {
     if (this.isGameOver) return;
@@ -275,10 +367,14 @@ class GameScene extends Phaser.Scene {
   }
 
   _collectPet(spawn) {
+    const fxX = spawn.obj ? spawn.obj.x : (this.player && this.player.sprite ? this.player.sprite.x : 0);
+    const fxY = spawn.obj ? spawn.obj.y : this.groundY - SR_COLLECTIBLE_Y_OFFSET;
     spawn.resolved = true;
     this._destroySpawn(spawn);
     const idx = this.spawns.indexOf(spawn);
     if (idx !== -1) this.spawns.splice(idx, 1);
+
+    this._spawnPickupFx(fxX, fxY);
 
     const pet = this.availablePets.length ? this.availablePets.pop() : null;
     if (pet) {
@@ -327,12 +423,19 @@ class GameScene extends Phaser.Scene {
   _gameOver() {
     if (this.isGameOver) return;
     this.isGameOver = true;
+    this._pulseHurtFlash();
+    this._syncSpeedFx();
     const finalMeters = Math.floor(this.distancePx / CFG.PX_PER_METER);
-    this.scene.start('RoundOver', {
+    const payload = {
       distanceMeters: finalMeters,
       collectedPetIds: this.collectedPetIds,
       collectedPets: this.collectedPets,
       companionIndex: this.companionIndex,
+    };
+    // Brief hurt feedback before results so the hit is felt mid-play
+    const delay = this._fxReduced() ? 60 : 220;
+    this.time.delayedCall(delay, () => {
+      this.scene.start('RoundOver', payload);
     });
   }
 }

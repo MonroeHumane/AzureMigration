@@ -10,7 +10,7 @@ export interface Particle {
   maxLife: number;
   color: string;
   size: number;
-  type: 'spark' | 'ripple' | 'star' | 'dust' | 'fracture';
+  type: 'spark' | 'ripple' | 'star' | 'dust' | 'fracture' | 'afterimage';
 }
 
 export class ParticleSystem {
@@ -75,6 +75,32 @@ export class ParticleSystem {
           type: 'dust',
         });
       }
+    }
+  }
+
+
+  /** Soft afterimage trail behind the cat on each hop. */
+  spawnTrail(x: number, y: number, direction: 'up' | 'down' | 'left' | 'right' = 'up'): void {
+    const dirMap = {
+      up: { x: 0, y: 1 },
+      down: { x: 0, y: -1 },
+      left: { x: 1, y: 0 },
+      right: { x: -1, y: 0 },
+    } as const;
+    const back = dirMap[direction] || dirMap.up;
+    for (let i = 0; i < 3; i++) {
+      const t = (i + 1) / 3;
+      this.particles.push({
+        x: x + back.x * (10 + i * 9) + (Math.random() - 0.5) * 4,
+        y: y + back.y * (10 + i * 9) + (Math.random() - 0.5) * 4,
+        vx: back.x * 8,
+        vy: back.y * 8,
+        life: 0.22 + t * 0.12,
+        maxLife: 0.34,
+        color: i % 2 === 0 ? PALETTE.catGlow : PALETTE.catSoft,
+        size: 5.5 - i * 1.1,
+        type: 'afterimage',
+      });
     }
   }
 
@@ -146,7 +172,7 @@ export class ParticleSystem {
       if (p.type === 'spark' || p.type === 'star') {
         p.vy += 80 * delta; // Gravity
         p.vx *= 0.95;
-      } else if (p.type === 'dust') {
+      } else if (p.type === 'dust' || p.type === 'afterimage') {
         p.vx *= 0.90;
         p.vy *= 0.90;
       }
@@ -181,6 +207,12 @@ export class ParticleSystem {
           { x: p.x, y: p.y },
           { x: p.x + Math.cos(angle) * len, y: p.y + Math.sin(angle) * len },
         );
+      } else if (p.type === 'afterimage') {
+        const s = p.size * (1 - progress * 0.35);
+        wire(context, p.color, 1.1, alpha * 0.55, 6);
+        circle(context, { x: p.x, y: p.y }, s);
+        wire(context, p.color, 0.9, alpha * 0.35);
+        circle(context, { x: p.x, y: p.y }, s * 0.45);
       } else {
         // Spark or dust dot
         wire(context, p.color, 1.2, alpha, 2);

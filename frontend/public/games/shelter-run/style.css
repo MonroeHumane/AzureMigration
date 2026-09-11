@@ -189,3 +189,125 @@ html.sr-standalone-chrome .sr-chrome-exit {
 .sr-chrome-exit:focus-visible {
   box-shadow: 0 0 0 3px rgba(107, 196, 166, 0.45);
 }
+
+
+/* ── In-play visual juice overlays ─────────────────────────────────────── */
+.sr-fx-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  overflow: hidden;
+}
+
+.sr-fx-speedlines {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 14px,
+      rgba(255, 250, 243, 0.045) 15px,
+      rgba(255, 250, 243, 0.045) 17px
+    );
+  mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 70%, transparent 100%);
+  transform: translateX(0);
+  will-change: transform, opacity;
+}
+
+html.sr-running .sr-fx-speedlines.is-active {
+  opacity: var(--sr-speed-opacity, 0.35);
+  animation: srSpeedScroll var(--sr-speed-duration, 0.55s) linear infinite;
+}
+
+@keyframes srSpeedScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-64px); }
+}
+
+.sr-fx-hurt {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 35% 55%, rgba(255, 80, 80, 0.55), rgba(180, 20, 40, 0.25) 45%, transparent 70%);
+  opacity: 0;
+}
+
+.sr-fx-hurt.is-on {
+  animation: srHurtFlash 0.45s ease-out;
+}
+
+@keyframes srHurtFlash {
+  0% { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+.sr-fx-pickup-pop {
+  position: absolute;
+  font: 800 18px/1 "Fredoka", system-ui, sans-serif;
+  color: #ffd166;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.45), 0 0 10px rgba(255,209,102,0.55);
+  animation: srPickupPop 0.7s ease-out forwards;
+  will-change: transform, opacity;
+  z-index: 10;
+}
+
+@keyframes srPickupPop {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
+  20% { opacity: 1; transform: translate(-50%, -10px) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -48px) scale(1); }
+}
+
+.sr-fx-spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: #fff6c2;
+  box-shadow: 0 0 10px 3px rgba(255, 209, 102, 0.8);
+  animation: srSpark 0.55s ease-out forwards;
+  z-index: 10;
+}
+
+@keyframes srSpark {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--sx, 12px), var(--sy, -28px)) scale(0.2); }
+}
+
+.sr-fx-celebrate {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 209, 102, 0.45), rgba(107, 196, 166, 0.18) 40%, transparent 68%);
+  opacity: 0;
+}
+
+.sr-fx-celebrate.is-on {
+  animation: srCelebrate 0.7s ease-out;
+}
+
+@keyframes srCelebrate {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.sr-running .sr-fx-speedlines.is-active {
+    animation: none !important;
+    opacity: 0.18;
+  }
+  .sr-fx-hurt.is-on,
+  .sr-fx-celebrate.is-on {
+    animation: none !important;
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+  }
+  .sr-fx-pickup-pop,
+  .sr-fx-spark {
+    animation: none !important;
+    opacity: 0.85;
+  }
+}

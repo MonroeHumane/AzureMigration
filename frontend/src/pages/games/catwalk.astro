@@ -443,4 +443,27 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
       height: 44px;
     }
   }
+
+  /* Home-entry success flash (in-play, not hub chrome) */
+  .catwalk-bezel.catwalk-home-flash::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: 6px;
+    background: radial-gradient(circle at 50% 12%, rgba(255, 209, 102, 0.55), rgba(77, 250, 139, 0.18) 45%, transparent 70%);
+    animation: catwalkHomeFlash 0.42s ease-out;
+  }
+  @keyframes catwalkHomeFlash {
+    0% { opacity: 0.95; }
+    100% { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .catwalk-bezel.catwalk-home-flash::after {
+      animation: none;
+      opacity: 0.35;
+      transition: opacity 0.2s ease;
+    }
+  }
 </style>
