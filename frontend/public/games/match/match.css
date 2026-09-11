@@ -306,6 +306,55 @@ body {
 	transform: scale(1.06);
 }
 
+
+/* Loading shimmer while remote pet photos resolve */
+@keyframes pet-match-shimmer {
+	0% { background-position: 100% 0; }
+	100% { background-position: -100% 0; }
+}
+
+.pet-match-card__front.is-awaiting,
+.pet-match-meet__photo.is-awaiting {
+	background-image: linear-gradient(
+		110deg,
+		rgba(255, 255, 255, 0.35) 0%,
+		rgba(255, 248, 235, 0.9) 40%,
+		rgba(255, 255, 255, 0.35) 80%
+	);
+	background-size: 200% 100%;
+	animation: pet-match-shimmer 1.1s linear infinite;
+}
+
+.pet-match-card__front img.is-loading,
+.pet-match-meet__photo img.is-loading {
+	opacity: 0;
+}
+
+.pet-match-card__front img.is-loaded,
+.pet-match-meet__photo img.is-loaded {
+	opacity: 1;
+	transition: opacity 0.18s ease-out;
+}
+
+.pet-match-card__front img.is-broken,
+.pet-match-meet__photo img.is-broken {
+	opacity: 0;
+}
+
+.pet-match-card__front img,
+.pet-match-meet__photo img {
+	object-fit: cover;
+	object-position: center 20%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pet-match-card__front.is-awaiting,
+	.pet-match-meet__photo.is-awaiting {
+		animation: none;
+		background: rgba(255, 248, 235, 0.85);
+	}
+}
+
 .pet-match-card.is-matched .pet-match-card__front {
 	border-color: var(--mint);
 	box-shadow: inset 0 0 0 2px rgba(107, 196, 166, 0.35);
