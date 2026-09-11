@@ -3,33 +3,167 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#71c5cf">
   <title>Flappy Cat</title>
   <style>
+    :root {
+      --fur: #fef6ea;
+      --treat: #ffb347;
+      --treat-deep: #ff7a3c;
+      --mint: #6bc4a6;
+      --ink: #2c1c19;
+      --sky: #71c5cf;
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-l: env(safe-area-inset-left, 0px);
+      --safe-r: env(safe-area-inset-right, 0px);
+    }
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
       height: 100dvh;
-      background-color: #71c5cf;
+      background-color: var(--sky);
       overflow: hidden;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
       overscroll-behavior: none;
+    }
+    #game-shell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding:
+        max(0px, var(--safe-t))
+        max(0px, var(--safe-r))
+        max(0px, var(--safe-b))
+        max(0px, var(--safe-l));
+      box-sizing: border-box;
     }
     #game-canvas {
       display: block;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
       touch-action: none;
+      background: var(--sky);
     }
-    /* Fail open: never cover the canvas waiting for Penpal. */
+    /* Landscape phones: keep a portrait playfield so score / get-ready / retry stay readable */
+    @media (orientation: landscape) and (max-height: 520px) {
+      #game-canvas {
+        width: auto;
+        height: 100%;
+        aspect-ratio: 2 / 3;
+        max-width: 100%;
+      }
+    }
     #loading {
       display: none;
       pointer-events: none;
       opacity: 0;
+    }
+
+    /* Desktop / fine-pointer key hints on the start screen */
+    .fc-hints {
+      position: absolute;
+      left: 50%;
+      bottom: max(12px, calc(var(--safe-b) + 12px));
+      transform: translateX(-50%);
+      z-index: 5;
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      pointer-events: none;
+      max-width: min(92vw, 440px);
+      opacity: 1;
+      transition: opacity 0.35s ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .fc-hints { display: flex; }
+      html.fc-playing .fc-hints,
+      html.fc-over .fc-hints { opacity: 0; }
+    }
+    .fc-chip {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+      color: var(--ink);
+      background: color-mix(in srgb, var(--fur) 94%, white);
+      border: 1px solid color-mix(in srgb, var(--mint) 50%, #1c3d35);
+      border-radius: 999px;
+      padding: 7px 12px;
+      box-shadow: 0 4px 12px rgba(44, 28, 25, 0.14);
+      white-space: nowrap;
+    }
+    .fc-chip kbd {
+      display: inline-block;
+      font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      padding: 3px 6px;
+      margin: 0 2px;
+      border-radius: 5px;
+      border: 1px solid rgba(44, 28, 25, 0.18);
+      background: #fff;
+      box-shadow: 0 1px 0 rgba(44, 28, 25, 0.12);
+    }
+
+    /* Mobile / coarse: large tap-to-flap control (44px+), clears bottom HUD */
+    .fc-flap-btn {
+      display: none;
+      position: absolute;
+      right: max(12px, calc(var(--safe-r) + 12px));
+      bottom: max(16px, calc(var(--safe-b) + 16px));
+      z-index: 6;
+      min-width: 72px;
+      min-height: 72px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      border: 2px solid #1c3d35;
+      background: linear-gradient(180deg, var(--treat), var(--treat-deep));
+      color: #fff;
+      font: 800 14px/1.1 system-ui, -apple-system, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 8px 20px rgba(44, 28, 25, 0.28);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+    .fc-flap-btn:active {
+      transform: scale(0.96);
+      filter: brightness(0.96);
+    }
+    @media (hover: none) and (pointer: coarse) {
+      .fc-flap-btn { display: inline-flex; }
+      .fc-hints { display: none !important; }
+    }
+    /* Narrow hub iframe: prefer touch affordance over desktop chips */
+    @media (max-width: 720px) {
+      html.fc-embed .fc-flap-btn { display: inline-flex; }
+      html.fc-embed .fc-hints { display: none !important; }
+    }
+    @media (orientation: landscape) and (max-height: 520px) {
+      .fc-flap-btn {
+        min-width: 64px;
+        min-height: 64px;
+        right: max(8px, calc(var(--safe-r) + 8px));
+        bottom: 50%;
+        transform: translateY(50%);
+      }
+      .fc-flap-btn:active { transform: translateY(50%) scale(0.96); }
+      .fc-hints { bottom: max(8px, calc(var(--safe-b) + 8px)); }
     }
   </style>
   <script>
@@ -44,17 +178,29 @@
       } catch (e) {}
     })();
   </script>
+  <script src="../../dex/dex-shared.js"></script>
   <script type="module" crossorigin src="./assets/index-D_etShWE.js"></script>
 </head>
 <body>
   <div id="loading" aria-hidden="true">Connecting to Humane Arcade...</div>
-  <canvas id="game-canvas"></canvas>
+  <div id="game-shell">
+    <canvas id="game-canvas" tabindex="0" aria-label="Flappy Cat playfield"></canvas>
+    <div class="fc-hints" id="fc-hints" aria-hidden="true">
+      <span class="fc-chip"><kbd>Space</kbd> / click to flap</span>
+      <span class="fc-chip"><kbd>M</kbd> mute · <kbd>C</kbd> / <kbd>Tab</kbd> companion</span>
+    </div>
+    <button type="button" class="fc-flap-btn" id="fc-flap" aria-label="Tap to flap">Flap</button>
+  </div>
 
   <script>
     // Arcade Integration Bridge: mute, scores, and cabinet postMessage.
     // Runs on the inner game document only so host/cabinet never double-submit.
     (function () {
       var pendingMute = null;
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('embed') === '1') {
+        document.documentElement.classList.add('fc-embed');
+      }
 
       function applyMute(muted) {
         if (window.gameInstance && window.gameInstance.audio) {
@@ -119,40 +265,167 @@
 
       hookScoreReporting();
 
-      function hookMilestones() {
-        if (!window.gameInstance) {
-          setTimeout(hookMilestones, 200);
-          return;
-        }
-        if (window.gameInstance._arcadeMilestoneHooked) return;
-        window.gameInstance._arcadeMilestoneHooked = true;
-        if (pendingMute !== null) applyMute(pendingMute);
 
-        var origClaim = window.gameInstance.claimReward;
-        window.gameInstance.claimReward = function (tier, key, toast) {
-          if (typeof origClaim === 'function') {
-            try { origClaim.apply(this, arguments); } catch (err) {}
-          }
-          try {
-            var currentPacks = Math.max(0, parseInt(localStorage.getItem('monroeDexPacks') || '1', 10));
-            localStorage.setItem('monroeDexPacks', String(currentPacks + 1));
-          } catch (e) {}
+      // Shared MonroeAdoptedex: server-authoritative pack/coin claims + real pet discovery.
+      // Do not invent monroeDexPacks grants here — claimReward owns offline fallback.
+      var COMPANION_IDS = ['smokey', 'marmalade', 'patches', 'oreo'];
+      var COMPANION_TO_REAL_PET = { smokey: '58223344' }; // Smokey in Adoptedex shelter pool
+      var EXTRA_MILESTONES = [
+        { score: 10, key: 'score_10', tier: 'standard' },
+        { score: 25, key: 'score_25', tier: 'duo' },
+        { score: 50, key: 'score_50', tier: 'deluxe' }
+      ];
+      var extraClaimed = {};
+      var discoveredReal = {};
 
-          if (window.parent && window.parent !== window) {
-            try {
-              window.parent.postMessage({
-                type: 'adoptedex:pack_awarded',
-                action: 'pack_awarded',
-                game: 'flappy_cat',
-                milestone: key,
-                tier: tier
-              }, '*');
-            } catch (err) {}
-          }
-        };
+      function dexParams() {
+        if (!window.MonroeAdoptedex) return null;
+        try { return window.MonroeAdoptedex.getParams(); } catch (e) { return null; }
       }
 
-      hookMilestones();
+      function claimViaAdoptedex(tier, key, toastText) {
+        var p = dexParams();
+        if (!p || !p.dexUser) return;
+        window.MonroeAdoptedex.claimReward(p.dexApi, p.dexUser, 'flappy_cat', key, {
+          tier: tier || 'standard',
+          count: 1
+        }).then(function (result) {
+          if (!result || !result.claimed) return;
+          try {
+            if (window.gameInstance) {
+              window.gameInstance.discoveryToast = {
+                text: toastText || ('🎁 Milestone ' + key + '!'),
+                timer: 5,
+                alpha: 1
+              };
+              if (window.gameInstance.audio && typeof window.gameInstance.audio.playPoint === 'function') {
+                window.gameInstance.audio.playPoint();
+              }
+            }
+          } catch (e) {}
+        }).catch(function () {});
+      }
+
+      function discoverActiveCompanionIfReal() {
+        var p = dexParams();
+        if (!p || !p.dexUser || !window.gameInstance) return;
+        var idx = window.gameInstance.activePetIndex || 0;
+        var companionId = COMPANION_IDS[idx] || 'smokey';
+        var realId = COMPANION_TO_REAL_PET[companionId];
+        if (!realId || discoveredReal[realId]) return;
+        discoveredReal[realId] = true;
+        window.MonroeAdoptedex.discoverPet(p.dexApi, p.dexUser, realId, 'flappy_cat').catch(function () {
+          discoveredReal[realId] = false;
+        });
+      }
+
+      function hookAdoptedex() {
+        if (!window.MonroeAdoptedex) {
+          setTimeout(hookAdoptedex, 100);
+          return;
+        }
+        if (!window.gameInstance || typeof window.gameInstance.claimReward !== 'function') {
+          setTimeout(hookAdoptedex, 200);
+          return;
+        }
+        if (window.gameInstance._monroeDexHooked) return;
+        window.gameInstance._monroeDexHooked = true;
+        if (pendingMute !== null) applyMute(pendingMute);
+
+        // Replace bundled claimReward (legacy WP rest base) with shared Adoptedex.
+        window.gameInstance.claimReward = function (tier, key, toast) {
+          claimViaAdoptedex(tier, key, toast);
+        };
+
+        // Prefer real shelter pet ids when the companion on screen maps to one.
+        var model = window.gameInstance.model;
+        if (model && typeof model.onDiscoveryCallback === 'function' && !model._monroeDiscoverHooked) {
+          model._monroeDiscoverHooked = true;
+          var origDiscover = model.onDiscoveryCallback;
+          model.onDiscoveryCallback = function (petKey) {
+            discoverActiveCompanionIfReal();
+            // Skip inventing discoveries for synthetic keys like "flappy-cat-01".
+            if (petKey && /^\d+$/.test(String(petKey)) && window.MonroeAdoptedex) {
+              var p = dexParams();
+              if (p && p.dexUser) {
+                window.MonroeAdoptedex.discoverPet(p.dexApi, p.dexUser, String(petKey), 'flappy_cat').catch(function () {});
+              }
+            }
+            // Do not forward synthetic ids into arcade.dex.discover.
+          };
+        }
+      }
+
+      hookAdoptedex();
+
+      // Claim server keys the canvas bundle does not (score_10 / 25 / 50).
+      setInterval(function () {
+        var model = window.gameInstance && window.gameInstance.model;
+        if (!model) return;
+        var score = model.score || 0;
+        if (score >= 5) discoverActiveCompanionIfReal();
+        EXTRA_MILESTONES.forEach(function (m) {
+          if (score >= m.score && !extraClaimed[m.key]) {
+            extraClaimed[m.key] = true;
+            claimViaAdoptedex(m.tier, m.key, '🎁 Score ' + m.score + '! Pack unlocked');
+          }
+        });
+      }, 400);
+
+
+      // Sync start / playing / game-over chrome without rewriting the canvas engine.
+      function syncChrome() {
+        var model = window.gameInstance && window.gameInstance.model;
+        var state = model && model.state;
+        document.documentElement.classList.toggle('fc-playing', state === 'PLAYING' || state === 'DYING');
+        document.documentElement.classList.toggle('fc-over', state === 'GAME_OVER');
+        document.documentElement.classList.toggle('fc-ready', !state || state === 'READY');
+      }
+      setInterval(syncChrome, 250);
+
+      // Mobile FLAP control → same pointer path the bundled input uses on the canvas.
+      var canvas = document.getElementById('game-canvas');
+      var flapBtn = document.getElementById('fc-flap');
+      function fireFlap(fromEl) {
+        if (!canvas) return;
+        var rect = canvas.getBoundingClientRect();
+        var x = rect.left + rect.width * 0.5;
+        var y = rect.top + rect.height * 0.55;
+        var opts = { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'touch', isPrimary: true };
+        try {
+          canvas.dispatchEvent(new PointerEvent('pointerdown', opts));
+          canvas.dispatchEvent(new PointerEvent('pointerup', opts));
+        } catch (err) {
+          try {
+            canvas.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+          } catch (e2) {}
+        }
+        if (fromEl && fromEl.focus) {
+          try { canvas.focus({ preventScroll: true }); } catch (e3) {}
+        }
+      }
+      if (flapBtn) {
+        flapBtn.addEventListener('pointerdown', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          fireFlap(flapBtn);
+        });
+        flapBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      }
+
+      // Reduce double-tap zoom / gesture annoyances inside the iframe.
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {
+        document.addEventListener(type, function (e) { e.preventDefault(); }, { passive: false });
+      });
+      var lastTouchEnd = 0;
+      document.addEventListener('touchend', function (e) {
+        var now = Date.now();
+        if (now - lastTouchEnd <= 300) e.preventDefault();
+        lastTouchEnd = now;
+      }, { passive: false });
     })();
   </script>
 </body>

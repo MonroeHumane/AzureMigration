@@ -20,6 +20,8 @@ html.humane-embed .adventure-watermark {
 html.humane-embed body {
 	padding: 0;
 	background: #1c110c;
+	overscroll-behavior: none;
+	-webkit-text-size-adjust: 100%;
 }
 
 /* Nothing above the game should reserve space. */
@@ -34,4 +36,19 @@ html.humane-embed .section__header {
 /* With the nav gone the screens no longer need to clear it. */
 html.humane-embed body.adventure-page .screen {
 	padding-top: calc(max(8px, env(safe-area-inset-top)) + 12px);
+}
+
+/* Stable full-bleed iframe playfields (Flappy / Catwalk / similar cabinets). */
+html.humane-embed.game-embed-fill,
+html.humane-embed.is-embedded {
+	height: 100%;
+	overflow: hidden;
+	touch-action: manipulation;
+}
+
+html.humane-embed.game-embed-fill body,
+html.humane-embed.is-embedded body {
+	height: 100%;
+	min-height: 100dvh;
+	overflow: hidden;
 }

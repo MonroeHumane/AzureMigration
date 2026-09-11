@@ -26,14 +26,23 @@ export function bindInput({ root, surface, onMove, onPause }: InputOptions): () 
   removers.push(() => window.removeEventListener('keydown', handleKey));
 
   root.querySelectorAll<HTMLButtonElement>('[data-move]').forEach((button) => {
-    const handleMove = () => onMove(button.dataset.move as Direction);
+    const handleMove = (event: PointerEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onMove(button.dataset.move as Direction);
+    };
+    // pointerdown keeps D-pad responsive; click alone feels laggy on mobile.
     button.addEventListener('pointerdown', handleMove);
-    removers.push(() => button.removeEventListener('pointerdown', handleMove));
+    button.addEventListener('contextmenu', (event) => event.preventDefault());
+    removers.push(() => {
+      button.removeEventListener('pointerdown', handleMove);
+    });
   });
 
   let pointerId: number | null = null;
   let originX = 0;
   let originY = 0;
+  const swipeThreshold = 28;
   const handleDown = (event: PointerEvent) => {
     if (event.pointerType === 'mouse') return;
     pointerId = event.pointerId;
@@ -45,7 +54,7 @@ export function bindInput({ root, surface, onMove, onPause }: InputOptions): () 
     if (event.pointerId !== pointerId) return;
     const distanceX = event.clientX - originX;
     const distanceY = event.clientY - originY;
-    if (Math.max(Math.abs(distanceX), Math.abs(distanceY)) < 28) return;
+    if (Math.max(Math.abs(distanceX), Math.abs(distanceY)) < swipeThreshold) return;
     onMove(Math.abs(distanceX) > Math.abs(distanceY) ? (distanceX > 0 ? 'right' : 'left') : (distanceY > 0 ? 'down' : 'up'));
     originX = event.clientX;
     originY = event.clientY;

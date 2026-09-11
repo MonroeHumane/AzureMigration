@@ -5,6 +5,38 @@ import { BOARD_HEIGHT, BOARD_WIDTH, CELL_SIZE, PLAY_TOP_Y } from './models/envir
 import { ParticleSystem } from './rendering/particles';
 import { renderGame } from './rendering/renderer';
 
+type AdoptedexApi = {
+  getParams: () => { dexUser: string; dexDisplay: string; dexApi: string };
+  claimReward: (
+    base: string,
+    user: string,
+    gameId: string,
+    rewardKey: string,
+    extra?: Record<string, unknown>
+  ) => Promise<{ ok?: boolean; claimed?: boolean; offline?: boolean }>;
+  discoverPet: (
+    base: string,
+    user: string,
+    petId: string,
+    source?: string
+  ) => Promise<unknown>;
+};
+
+declare global {
+  interface Window {
+    MonroeAdoptedex?: AdoptedexApi;
+  }
+}
+
+const CATWALK_MILESTONES = [
+  { score: 500, key: 'score_500', tier: 'standard' },
+  { score: 1500, key: 'score_1500', tier: 'duo' },
+  { score: 3000, key: 'score_3000', tier: 'deluxe' },
+] as const;
+
+/** Real shelter pet ids only — discover when a mapped companion is actually shown. */
+const FEATURED_PATROL_PET_ID = '58223344'; // Smokey (cat) in Adoptedex shelter pool
+
 const root = document.querySelector<HTMLElement>('[data-catwalk-root]');
 const canvas = root?.querySelector<HTMLCanvasElement>('[data-game-canvas]');
 const context = canvas?.getContext('2d');
@@ -18,10 +50,14 @@ if (root && canvas && context) {
   const overlayTitle = root.querySelector<HTMLElement>('[data-overlay-title]');
   const overlayCopy = root.querySelector<HTMLElement>('[data-overlay-copy]');
   const startButton = root.querySelector<HTMLButtonElement>('[data-start]');
+  const touchMute = root.querySelector<HTMLButtonElement>('[data-touch-mute]');
+  const touchPause = root.querySelector<HTMLButtonElement>('[data-touch-pause]');
   const debug = new URLSearchParams(window.location.search).get('debug') === '1';
 
   let audioEnabled = false;
   let hoveredControl: 'sound' | 'pause' | null = null;
+  const claimedMilestones = new Set<string>();
+  let discoveredFeatured = false;
 
   const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = BOARD_WIDTH * pixelRatio;
@@ -49,6 +85,40 @@ if (root && canvas && context) {
     audioEnabled = await audio.toggle();
   };
 
+  const dexParams = () => {
+    try {
+      return window.MonroeAdoptedex?.getParams() ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  /** Server-authoritative pack/coin claim — never invent monroeDexPacks here. */
+  const claimCatwalkMilestone = (key: string, tier: string) => {
+    if (claimedMilestones.has(key)) return;
+    claimedMilestones.add(key);
+    const adoptedex = window.MonroeAdoptedex;
+    const params = dexParams();
+    if (!adoptedex || !params?.dexUser) return;
+    adoptedex
+      .claimReward(params.dexApi, params.dexUser, 'catwalk', key, { tier, count: 1 })
+      .catch(() => {
+        // Allow a later retry if the network blip happened before offline fallback ran.
+        claimedMilestones.delete(key);
+      });
+  };
+
+  const discoverFeaturedPetIfShown = () => {
+    if (discoveredFeatured) return;
+    const adoptedex = window.MonroeAdoptedex;
+    const params = dexParams();
+    if (!adoptedex || !params?.dexUser) return;
+    discoveredFeatured = true;
+    adoptedex.discoverPet(params.dexApi, params.dexUser, FEATURED_PATROL_PET_ID, 'catwalk').catch(() => {
+      discoveredFeatured = false;
+    });
+  };
+
   bindInput({ root, surface: canvas, onMove: (direction) => engine.move(direction), onPause: togglePause });
 
   startButton?.addEventListener('click', () => {
@@ -59,7 +129,26 @@ if (root && canvas && context) {
     }
     engine.start();
     hideOverlay();
+    // First patrol introduces Smokey as the featured shelter cat on the night beat.
+    discoverFeaturedPetIfShown();
   });
+
+  touchMute?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    void toggleSound();
+  });
+  touchPause?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    togglePause();
+  });
+
+  // Larger HUD hit targets on coarse pointers (canvas icons are ~30px).
+  const hudHitPad = () =>
+    window.matchMedia('(pointer: coarse)').matches || document.documentElement.classList.contains('catwalk-touch')
+      ? 10
+      : 0;
 
   // Mouse hover tracking for vector controls in top HUD
   canvas.addEventListener('mousemove', (event) => {
@@ -68,11 +157,12 @@ if (root && canvas && context) {
     const scaleY = BOARD_HEIGHT / rect.height;
     const canvasX = (event.clientX - rect.left) * scaleX;
     const canvasY = (event.clientY - rect.top) * scaleY;
+    const pad = hudHitPad();
 
     let nextHover: 'sound' | 'pause' | null = null;
-    if (canvasY >= 10 && canvasY <= 44) {
-      if (canvasX >= 644 && canvasX <= 674) nextHover = 'sound';
-      else if (canvasX >= 680 && canvasX <= 710) nextHover = 'pause';
+    if (canvasY >= 10 - pad && canvasY <= 44 + pad) {
+      if (canvasX >= 644 - pad && canvasX <= 674 + pad) nextHover = 'sound';
+      else if (canvasX >= 680 - pad && canvasX <= 710 + pad) nextHover = 'pause';
     }
 
     if (nextHover !== hoveredControl) {
@@ -95,11 +185,12 @@ if (root && canvas && context) {
     const scaleY = BOARD_HEIGHT / rect.height;
     const canvasX = (event.clientX - rect.left) * scaleX;
     const canvasY = (event.clientY - rect.top) * scaleY;
+    const pad = hudHitPad();
 
-    if (canvasY >= 10 && canvasY <= 44) {
-      if (canvasX >= 644 && canvasX <= 674) {
-        toggleSound();
-      } else if (canvasX >= 680 && canvasX <= 710) {
+    if (canvasY >= 10 - pad && canvasY <= 44 + pad) {
+      if (canvasX >= 644 - pad && canvasX <= 674 + pad) {
+        void toggleSound();
+      } else if (canvasX >= 680 - pad && canvasX <= 710 + pad) {
         togglePause();
       }
     }
@@ -166,49 +257,10 @@ if (root && canvas && context) {
             })
           }).catch(() => {});
 
-          // Catwalk Milestone Rewards -> Pet Booster Packs
-          const milestones = [
-            { score: 500, key: 'score_500', tier: 'standard' },
-            { score: 1500, key: 'score_1500', tier: 'duo' },
-            { score: 3000, key: 'score_3000', tier: 'deluxe' }
-          ];
-          let claimedList: string[] = [];
-          try {
-            claimedList = JSON.parse(localStorage.getItem('monroe_catwalk_claimed_milestones') || '[]');
-          } catch (e) {}
-
-          milestones.forEach((m) => {
-            if (finalScore >= m.score && !claimedList.includes(m.key)) {
-              claimedList.push(m.key);
-              try {
-                localStorage.setItem('monroe_catwalk_claimed_milestones', JSON.stringify(claimedList));
-                const currentPacks = Math.max(0, parseInt(localStorage.getItem('monroeDexPacks') || '1', 10));
-                localStorage.setItem('monroeDexPacks', String(currentPacks + 1));
-              } catch (e) {}
-
-              // Notify parent Arcade Pass to show celebration toast
-              if (window.parent && window.parent !== window) {
-                try {
-                  window.parent.postMessage({
-                    type: 'adoptedex:pack_awarded',
-                    action: 'pack_awarded',
-                    game: 'catwalk',
-                    milestone: m.key,
-                    tier: m.tier
-                  }, '*');
-                } catch (e) {}
-              }
-
-              // Server-side deduplication claim
-              const user = (localStorage.getItem('monroeDexUser') || player).trim().toLowerCase();
-              fetch(`/arcade-api/v1/adoptedex/${encodeURIComponent(user)}/rewards/claim`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  game_id: 'catwalk',
-                  reward_key: m.key
-                })
-              }).catch(() => {});
+          // Pack/coin milestones via shared MonroeAdoptedex (server reward table).
+          CATWALK_MILESTONES.forEach((m) => {
+            if (finalScore >= m.score) {
+              claimCatwalkMilestone(m.key, m.tier);
             }
           });
         }
@@ -230,4 +282,3 @@ if (root && canvas && context) {
   renderGame(context, engine.state, !audioEnabled, debug, hoveredControl, particles);
   requestAnimationFrame(frame);
 }
-

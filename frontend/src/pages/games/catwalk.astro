@@ -6,20 +6,23 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
 <html lang="en-US" class:list={{ 'is-embedded': embedded }}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#040b08" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="description" content="Guide a vector cat through the night patrol into five safe homes." />
     <title>Catwalk | Humane Games</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <script src="/games/dex/dex-shared.js"></script>
   </head>
   <body>
     <h1 class="catwalk-page-title">Catwalk — Humane Games</h1>
     <!-- Single unified viewport-fitting arcade cabinet window -->
     <main class="catwalk-cabinet" data-catwalk-root>
       <div class="catwalk-bezel">
-        <canvas width="720" height="864" data-game-canvas></canvas>
+        <canvas width="720" height="864" data-game-canvas tabindex="0" aria-label="Catwalk Night Patrol playfield"></canvas>
 
         <!-- In-game vector overlay modal -->
         <div class="catwalk__overlay" data-overlay>
@@ -30,8 +33,19 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
             <div class="catwalk__overlay-actions">
               <button type="button" class="btn-primary" data-start>Start patrol</button>
             </div>
-            <p class="catwalk__overlay-hint">WASD / arrows or tap D-pad / swipe • Space/P to Pause • Click audio icon to toggle sound</p>
+            <p class="catwalk__overlay-hint catwalk__overlay-hint--desktop">
+              <kbd>WASD</kbd> / <kbd>←↑↓→</kbd> move · <kbd>Space</kbd> / <kbd>P</kbd> pause · click HUD icons for sound
+            </p>
+            <p class="catwalk__overlay-hint catwalk__overlay-hint--mobile">
+              Use the D-pad or swipe the board · Pause / mute buttons below · Tap Start to patrol
+            </p>
           </div>
+        </div>
+
+        <!-- Mobile HUD: pause + mute (canvas icons are small on phones) -->
+        <div class="catwalk__touch-hud" aria-label="Game controls">
+          <button type="button" data-touch-mute aria-label="Toggle sound">♪</button>
+          <button type="button" data-touch-pause aria-label="Pause or resume">❚❚</button>
         </div>
 
         <!-- Touch/mobile d-pad controls embedded smoothly into bottom of bezel if on mobile -->
@@ -50,17 +64,36 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
       import '../../games/catwalk/main';
 
       const dpad = document.querySelector<HTMLElement>('.catwalk__touch-dpad');
-      const syncTouchDpad = () => {
-        if (!dpad) return;
+      const touchHud = document.querySelector<HTMLElement>('.catwalk__touch-hud');
+      const syncTouchChrome = () => {
         const embedded = document.documentElement.classList.contains('is-embedded');
         const coarse = window.matchMedia('(pointer: coarse)').matches;
         const noHover = window.matchMedia('(hover: none)').matches;
         const narrow = window.matchMedia('(max-width: 900px)').matches;
         const show = (noHover && coarse) || (embedded && (coarse || narrow));
-        dpad.style.display = show ? 'flex' : '';
+        if (dpad) dpad.style.display = show ? 'flex' : '';
+        if (touchHud) touchHud.style.display = show ? 'flex' : '';
+        document.documentElement.classList.toggle('catwalk-touch', show);
       };
-      syncTouchDpad();
-      window.addEventListener('resize', syncTouchDpad);
+      syncTouchChrome();
+      window.addEventListener('resize', syncTouchChrome);
+      window.matchMedia('(pointer: coarse)').addEventListener?.('change', syncTouchChrome);
+      window.matchMedia('(orientation: landscape)').addEventListener?.('change', syncTouchChrome);
+
+      // Reduce double-tap zoom annoyances in the cabinet iframe.
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach((type) => {
+        document.addEventListener(type, (e) => e.preventDefault(), { passive: false });
+      });
+      let lastTouchEnd = 0;
+      document.addEventListener(
+        'touchend',
+        (e) => {
+          const now = Date.now();
+          if (now - lastTouchEnd <= 300) e.preventDefault();
+          lastTouchEnd = now;
+        },
+        { passive: false }
+      );
     </script>
   </body>
 </html>
@@ -84,6 +117,8 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     font-family: 'Share Tech Mono', Consolas, monospace;
     height: 100%;
     overflow: hidden;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
   }
   :global(body) {
     height: 100%;
@@ -94,6 +129,11 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     justify-content: center;
     background:
       radial-gradient(ellipse at center, #091a13 0%, #040b08 75%, #010403 100%);
+    overscroll-behavior: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Single self-contained arcade window */
@@ -105,13 +145,18 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: clamp(4px, 1.5vh, 16px);
+    padding:
+      max(4px, env(safe-area-inset-top, 0px))
+      max(4px, env(safe-area-inset-right, 0px))
+      max(4px, env(safe-area-inset-bottom, 0px))
+      max(4px, env(safe-area-inset-left, 0px));
   }
 
   .catwalk-bezel {
     position: relative;
     height: 100%;
     max-height: calc(100dvh - 16px);
+    max-width: 100%;
     aspect-ratio: 720 / 864;
     display: flex;
     flex-direction: column;
@@ -146,6 +191,7 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     object-fit: contain;
     aspect-ratio: 720 / 864;
     cursor: default;
+    touch-action: none;
   }
 
   /* Integrated In-Game Overlay */
@@ -156,7 +202,7 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     display: grid;
     place-content: center;
     justify-items: center;
-    padding: 24px;
+    padding: max(16px, env(safe-area-inset-top, 0px)) 20px max(16px, env(safe-area-inset-bottom, 0px));
     text-align: center;
     background: rgba(4, 11, 8, 0.88);
     backdrop-filter: blur(6px);
@@ -170,10 +216,10 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 440px;
+    max-width: min(440px, 100%);
     border: 1px solid #1a3c2c;
     border-radius: 6px;
-    padding: 32px 28px;
+    padding: clamp(18px, 4vh, 32px) clamp(16px, 4vw, 28px);
     background: rgba(9, 26, 19, 0.94);
     box-shadow: 0 0 40px rgba(77, 250, 139, 0.15);
   }
@@ -188,7 +234,7 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
 
   .catwalk__overlay h2 {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(38px, 6vw, 56px);
+    font-size: clamp(32px, 6vw, 56px);
     font-weight: 400;
     line-height: 0.95;
     letter-spacing: 0.04em;
@@ -210,7 +256,29 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     margin-top: 18px !important;
     margin-bottom: 0 !important;
     letter-spacing: 0.05em;
+    line-height: 1.5 !important;
   }
+
+  .catwalk__overlay-hint kbd {
+    display: inline-block;
+    font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    padding: 2px 5px;
+    margin: 0 1px;
+    border-radius: 4px;
+    border: 1px solid #1a3c2c;
+    background: #0d2218;
+    color: #4dfa8b;
+  }
+
+  .catwalk__overlay-hint--mobile { display: none; }
+  .catwalk__overlay-hint--desktop { display: block; }
+
+  @media (hover: none) and (pointer: coarse) {
+    .catwalk__overlay-hint--desktop { display: none; }
+    .catwalk__overlay-hint--mobile { display: block; }
+  }
+  :global(html.catwalk-touch) .catwalk__overlay-hint--desktop { display: none; }
+  :global(html.catwalk-touch) .catwalk__overlay-hint--mobile { display: block; }
 
   .btn-primary {
     font-family: 'Share Tech Mono', Consolas, monospace;
@@ -222,10 +290,14 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     background: #4dfa8b;
     border: 1px solid #4dfa8b;
     border-radius: 4px;
-    padding: 12px 32px;
+    padding: 14px 32px;
+    min-height: 48px;
+    min-width: 160px;
     cursor: pointer;
     box-shadow: 0 0 20px rgba(77, 250, 139, 0.35);
     transition: all 0.15s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .btn-primary:hover, .btn-primary:focus-visible {
@@ -236,38 +308,76 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
     transform: translateY(-1px);
   }
 
+  .catwalk__touch-hud {
+    display: none;
+    position: absolute;
+    top: max(8px, env(safe-area-inset-top, 0px));
+    right: max(8px, env(safe-area-inset-right, 0px));
+    z-index: 7;
+    gap: 8px;
+    pointer-events: auto;
+  }
+
+  .catwalk__touch-hud button {
+    width: 48px;
+    height: 48px;
+    min-width: 44px;
+    min-height: 44px;
+    border: 1px solid #22a058;
+    border-radius: 8px;
+    background: rgba(4, 11, 8, 0.88);
+    color: #4dfa8b;
+    font-size: 16px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .catwalk__touch-hud button:active {
+    background: #4dfa8b;
+    color: #040b08;
+  }
+
   /* Optional Touch D-Pad for Mobile screens.
-     Sits above the 32px canvas bottom bar so it never covers the top HUD. */
+     Portrait: above the 32px canvas bottom bar so it never covers the top HUD. */
   .catwalk__touch-dpad {
     display: none;
     position: absolute;
     left: 50%;
     top: auto;
-    bottom: max(8px, calc(100% * 32 / 864 + 6px));
+    bottom: max(8px, calc(100% * 32 / 864 + 6px), env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
     z-index: 6;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    opacity: 0.85;
+    gap: 8px;
+    opacity: 0.9;
     pointer-events: auto;
   }
 
   .dpad-row {
     display: flex;
-    gap: 6px;
+    gap: 8px;
   }
 
   .catwalk__touch-dpad button {
-    width: 48px;
-    height: 42px;
+    width: 56px;
+    height: 52px;
+    min-width: 44px;
+    min-height: 44px;
     border: 1px solid #22a058;
-    border-radius: 4px;
-    background: rgba(4, 11, 8, 0.8);
+    border-radius: 8px;
+    background: rgba(4, 11, 8, 0.82);
     color: #4dfa8b;
-    font-size: 16px;
+    font-size: 18px;
     cursor: pointer;
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .catwalk__touch-dpad button:hover {
+    border-color: #4dfa8b;
+    box-shadow: 0 0 12px rgba(77, 250, 139, 0.25);
   }
 
   .catwalk__touch-dpad button:active {
@@ -276,15 +386,61 @@ const embedded = Astro.url.searchParams.get('embed') === '1';
   }
 
   @media (hover: none) and (pointer: coarse) {
-    .catwalk__touch-dpad {
+    .catwalk__touch-dpad,
+    .catwalk__touch-hud {
       display: flex;
     }
   }
 
   /* Cabinet embed: real phones (coarse) and 390px / narrow iframes (fine pointer). */
   @media (pointer: coarse), (max-width: 900px) {
-    :global(html.is-embedded) .catwalk__touch-dpad {
+    :global(html.is-embedded) .catwalk__touch-dpad,
+    :global(html.is-embedded) .catwalk__touch-hud {
       display: flex !important;
+    }
+  }
+
+  /* Landscape phones: park D-pad on the left so top HUD + homes stay visible */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .catwalk-cabinet {
+      padding: max(2px, env(safe-area-inset-top, 0px)) max(2px, env(safe-area-inset-right, 0px)) max(2px, env(safe-area-inset-bottom, 0px)) max(2px, env(safe-area-inset-left, 0px));
+    }
+    .catwalk-bezel {
+      max-height: calc(100dvh - 8px);
+    }
+    .catwalk__overlay {
+      padding: 10px;
+    }
+    .catwalk__overlay-card {
+      padding: 14px 16px;
+    }
+    .catwalk__overlay h2 {
+      font-size: clamp(26px, 8vh, 40px);
+      margin-bottom: 8px;
+    }
+    .catwalk__overlay p {
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .catwalk__touch-dpad {
+      left: max(6px, env(safe-area-inset-left, 0px));
+      right: auto;
+      bottom: 50%;
+      transform: translateY(50%);
+      opacity: 0.92;
+    }
+    .catwalk__touch-dpad button {
+      width: 48px;
+      height: 44px;
+      font-size: 15px;
+    }
+    .catwalk__touch-hud {
+      top: max(4px, env(safe-area-inset-top, 0px));
+      right: max(4px, env(safe-area-inset-right, 0px));
+    }
+    .catwalk__touch-hud button {
+      width: 44px;
+      height: 44px;
     }
   }
 </style>
