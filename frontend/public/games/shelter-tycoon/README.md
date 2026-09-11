@@ -1,5 +1,4 @@
 <p align="center">
-  <img src="screenshot.png" alt="Business Tycoon - AI Office Simulator" width="800">
 </p>
 
 <h1 align="center">Business Tycoon</h1>
@@ -118,9 +117,9 @@ business-tycoon/
 │       ├── strategy-panel.js
 │       └── loan.js         #   Loan/debt management
 ├── assets/
-│   ├── *.mp3               # Background music tracks
+│   ├── (BGM optional)       # No bundled MP3s in Monroe deploy
 │   └── team/               # Agent avatar images (.webp)
-└── og-image.jpg            # Social sharing image
+└── og-image.jpg            # Social sharing image (local); meta tags may use CDN
 ```
 
 ## Contributing

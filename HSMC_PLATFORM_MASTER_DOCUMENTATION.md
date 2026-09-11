@@ -124,7 +124,7 @@ The Monroe County Humane Society platform is an enterprise web architecture engi
   * *Catwalk Night Patrol* (`/games/catwalk`)
   * *Shelter Run* (`/games/shelter-run/`)
   * *Adoptédex* dock (`/games/dex/album.html`) — binder / collectibles, not a separate GAMES[] card
-  * **Legacy** (deep links kept, listed under Legacy on hub): Pet Snake, Pet Snake Adventure, Shelter Tycoon. `found/` and large experimental assets remain on disk pending a later archive pass.
+  * **Legacy / archived experiments** (deep links kept on hub): Pet Snake, Pet Snake Adventure, Shelter Tycoon. Orphan trees (`found/`, `shelter-pit/`, `shelter-tycoon-main/`) and unused multi-MB tycoon BGM / duplicate art were removed in the games weight cleanup.
 
 ---
 
