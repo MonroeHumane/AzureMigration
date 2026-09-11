@@ -151,11 +151,12 @@ html.humane-embed #game-container {
   white-space: nowrap;
 }
 
-/* Exit / menu affordance for embed + standalone */
+/* Exit / menu affordance for embed + standalone (top-right clears distance HUD) */
 .sr-chrome-exit {
   position: absolute;
   top: calc(8px + var(--sr-safe-top));
-  left: calc(8px + var(--sr-safe-left));
+  right: calc(8px + var(--sr-safe-right));
+  left: auto;
   z-index: 12;
   min-width: var(--sr-touch-min);
   min-height: var(--sr-touch-min);

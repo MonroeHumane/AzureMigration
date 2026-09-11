@@ -191,10 +191,31 @@ class GameScene extends Phaser.Scene {
     this.events.once('shutdown', () => { if (hints) hints.style.display = 'none'; });
   }
 
+  /** Reserve space so canvas HUD never sits under the DOM Exit chrome. */
+  _chromeExitClearance() {
+    const exitBtn = typeof document !== 'undefined' ? document.getElementById('srExitBtn') : null;
+    if (!exitBtn || !this.game || !this.game.canvas) return 0;
+    const style = window.getComputedStyle(exitBtn);
+    if (style.display === 'none' || style.visibility === 'hidden') return 0;
+
+    const rect = exitBtn.getBoundingClientRect();
+    const canvasRect = this.game.canvas.getBoundingClientRect();
+    if (!rect.height || !canvasRect.height) {
+      // Fallback: top offset + 44px touch target + gap + half HUD pill
+      return 8 + 44 + 10 + 17;
+    }
+    const scaleY = this.scale.height / canvasRect.height;
+    const exitBottom = (rect.bottom - canvasRect.top) * scaleY;
+    // HUD uses origin 0.5 — return center Y that clears Exit bottom + gap.
+    return Math.ceil(exitBottom + 10 + 17);
+  }
+
   _layoutHud() {
     const W = this.scale.width;
     const padX = Math.max(16, Math.min(28, W * 0.04));
-    const padY = Math.max(18, Math.min(36, this.scale.height * 0.04));
+    let padY = Math.max(18, Math.min(36, this.scale.height * 0.04));
+    const chromePadY = this._chromeExitClearance();
+    if (chromePadY) padY = Math.max(padY, chromePadY);
     const fontSize = W < 420 ? '18px' : '22px';
     this.distanceText.setFontSize(fontSize).setPosition(padX + 48, padY);
     this.petsText.setFontSize(fontSize).setPosition(W - padX - 40, padY);
