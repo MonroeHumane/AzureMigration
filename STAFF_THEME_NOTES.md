@@ -1,7 +1,7 @@
 # Staff Theme Notes — Phase 6 (CSS variables)
 
-**Branch:** `chore/staff-theme-batch-4`  
-**Date:** 2026-09-10  
+**Branch:** `chore/staff-theme-phase6-batch`  
+**Date:** 2026-09-11  
 **Scope:** Staff portal only (`frontend/src/styles/staff-theme.css`). No public site CSS changes. No DesktopSidebar edits this batch.
 
 ## How theme toggle works (smoke checklist)
@@ -26,24 +26,29 @@ Dock / sheet / cmd / FAB / sidebar cmd chrome / logout pair; CMS tabs + tool-car
 
 Table / input / modal / panel / brand-hover / hub-review tokens; PetSync + donor-roster light remaps; Dark Ops tables/cards/modals/inputs/accordion/thead; hub review status. See prior notes history in git.
 
-## What batch 4 converted
+## What batch 4 converted (merged PR #10)
+
+Pill families + tool brand-tint; pastel/hero/metric/subnav remaps. See prior notes history in git.
+
+## What batch 5 converted
 
 New / expanded tokens (light + dark):
 
-- Pill families: `--sp-pill-{emerald,teal,amber,rose,purple,blue,slate,sky,pink,success}-{bg|text|border}`
-- Tool brand-tint: `--sp-tool-zeffy`, `--sp-tool-grantable`, `--sp-tool-aawa`
+- Status banners: `--sp-banner-{loading,error,retry}-{bg|border|text}`
+- PWA install card: `--sp-pwa-{card-bg,card-border,title,desc,icon-*,btn-*}`
+- CMS active tab chip: `--sp-tab-active-chip-bg`
+- Month-drawer share bars: `--sp-share-{track,rev,exp}`
+- FAB primary button: `--sp-fab-btn-{bg,text,border,hover}`
 
-Remaps:
+Remaps / collapses:
 
-- Light high-contrast pastel text (teal/emerald/rose/amber/purple/blue/sky/slate-100/200) → pill / body tokens
-- Light hero action buttons (board print + Directus) → surface / brand / accent / brand-hover
-- Light card icon badges (`bg-teal-950*`) → `--sp-icon-box-*` / `--sp-brand`
-- Light subnav pills → surface-subtle / muted / brand
-- Light hero gradient card soft shadow → `--sp-tab-shadow`
-- Standalone `.text-teal-400` + `.text-white` on brand buttons → accent-hover / on-accent
-- Grants tool tint links (light + Dark Ops) → `--sp-tool-*`
-- Dark Ops pastel utility soup (emerald/teal/amber/rose/purple/blue/indigo/sky bg+text) → `--sp-pill-*`
-- Grants `.badge-status.*` / `.badge-source.*` Dark Ops → pill families (success/sky/pink/slate)
+- `.staff-data-status--*` + `__retry` → banner tokens (drop duplicate Dark Ops hex blocks)
+- `.pwa-install-*` → `--sp-pwa-*` (drop duplicate Dark Ops hex blocks)
+- `.sheet-mode-chip` → `--sp-pill-emerald-*` (tokens flip; drop dark-only override)
+- `.cms-tab-btn.active div` → `--sp-tab-active-chip-bg` (shared; was light-only rgba)
+- Cmd-K palette → shared surface/input/text tokens (was light-only remaps)
+- FAB panel + emerald button → dock / `--sp-fab-btn-*` (shared both themes)
+- `#monthly-statement-root .drawer-share-*` → `--sp-share-*` (now flips with theme)
 
 **Still pinned (do not theme via body text tokens):** `.drill-flow-header`, `.certified-footing` (white-on-brand bars). Print-packet emerald chip on dark control also stays hardcoded.
 
@@ -51,22 +56,22 @@ Remaps:
 
 | Metric | Approx. |
 |--------|---------|
-| Total `!important` in `staff-theme.css` | ~523 (still required vs Tailwind utilities) |
-| Hardcoded hex/rgba still on `!important` declarations | ~13 (down from ~97 after batch 3; almost all pinned drill/certified/print + one cms-tab translucent white) |
-| `var(--sp-*)` property uses | ~504 |
+| Total `!important` in `staff-theme.css` | ~513 (still required vs Tailwind utilities) |
+| Hardcoded hex/rgba still on `!important` declarations | ~12 (down from ~13; pinned drill/certified/print only) |
+| `var(--sp-*)` property uses | ~518 |
 
 ### Next conversion targets (priority)
 
 1. **Utility soup** (`.bg-teal-950/80`, `.text-slate-400`, arbitrary `bg-[#…]` still in markup) — change markup to semantic classes so `!important` can drop
 2. Wire `--color-staff-*` into `tailwind.config` theme.extend.colors when ready
-3. Optional: dark cmd-K / FAB shared rules; staff-data-status banners → warn/status tokens; cms-tab active icon `rgba(255,255,255,0.2)` → token
-4. Drawer share-track fills (`#10b981` / `#94a3b8`) if monthly statement should flip with theme
+3. Optional: further light-only remaps that can become shared once markup is semantic
+4. Cream/sand card headers (`#f5efe3` / `#fbf9f5`) → dedicated surface tokens if Dark Ops remap should stay centralized
 
 ## Blockers / risks
 
-- **Visual parity:** Grants badge-status `applied` border previously used a slightly brighter blue (`rgba(96,165,250,0.4)`); now shares `--sp-pill-blue-border`. Badge-source `manual` text was `#cbd5e1`, now `--sp-text-secondary` (dark). Hero print button shadow uses `--sp-tab-shadow` (same 0 1px 2px family). Smoke grants badges + hub hero buttons + pastel chips in both themes.
+- **Visual parity:** Dark Ops sheet-mode-chip now uses pill-emerald (was a slightly different emerald-500 tint). PWA / banners preserve prior hex via dedicated tokens. Share bars now dim in Dark Ops (intentional theme flip). Smoke Cmd-K + FAB in both themes after shared promotion.
 - **Exceptions that must stay pinned:** `.drill-flow-header`, `.certified-footing` (intentionally keep hardcoded white/pastel-on-brand).
-- No automated visual regression for staff portal in CI yet (manual smoke: Light ↔ Dark Ops on `/internal/` hub, grants badges, pastel status chips, hero print/Directus, subnav pills, icon badges).
+- No automated visual regression for staff portal in CI yet (manual smoke: Light ↔ Dark Ops on `/internal/` hub + key internal pages).
 
 ## Out of scope
 
