@@ -1,5 +1,5 @@
 import { drawCat } from '../models/cat';
-import { drawDog, DOG_PROFILES } from '../models/dogs';
+import { drawDog, dogAccentForCenter, DOG_PROFILES } from '../models/dogs';
 import { drawEnvironment, BOARD_WIDTH, CELL_SIZE, PLAY_TOP_Y } from '../models/environment';
 import { drawFishbone } from '../models/fishbones';
 import { drawHouse } from '../models/houses';
@@ -11,7 +11,7 @@ import {
   positionsForLane,
   type GameState,
 } from '../engine/game';
-import { PALETTE } from './palette';
+import { PALETTE, getShiftPaletteForState } from './palette';
 import type { ParticleSystem } from './particles';
 import { circle, line, polyline, resetGlow, wire } from './primitives';
 
@@ -23,8 +23,9 @@ export function renderGame(
   hoveredControl: 'sound' | 'pause' | null = null,
   particles?: ParticleSystem,
 ): void {
-  // 1. World environment
-  drawEnvironment(context, state.elapsed);
+  // 1. World environment (time-of-day / shift mood)
+  const shift = getShiftPaletteForState(state.elapsed, state.score, state.level);
+  drawEnvironment(context, state.elapsed, shift);
 
   // 2. Sanctuary Houses (Goals)
   const onHomeRow = state.cat.y <= PLAY_TOP_Y + CELL_SIZE * 0.85;
@@ -82,6 +83,7 @@ export function renderGame(
         facing: lane.speed > 0 ? 1 : -1,
         phase: (state.elapsed * Math.abs(lane.speed)) / 32,
         alert: lane.row === Math.floor((state.cat.y - PLAY_TOP_Y) / CELL_SIZE) && Math.abs(center - state.cat.x) < 145,
+        accent: dogAccentForCenter(center, lane.breed),
       });
       if (debug) {
         context.strokeStyle = PALETTE.warning;
