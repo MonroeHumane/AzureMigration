@@ -71,6 +71,7 @@
 		boosterCloseBtn: document.getElementById('pmBoosterCloseBtn'),
 		quickRestart: document.getElementById('pmQuickRestart'),
 		toggleControls: document.getElementById('pmToggleControls'),
+		keyHints: document.getElementById('pmKeyHints'),
 		controls: document.querySelector('.pet-match-controls'),
 	};
 
@@ -511,15 +512,35 @@
 
 	// ---- Dex / Stats helpers ----------------------------------------
 
+	function getAdoptedex() {
+		return (typeof window !== 'undefined' && window.MonroeAdoptedex) ? window.MonroeAdoptedex : null;
+	}
+
 	function getDexRestBase() {
 		const dex = getDexParams();
 		if (dex.api) return dex.api;
-		return window.location.origin + '/wp-json/monroe/v1/';
+		const shared = getAdoptedex();
+		if (shared && typeof shared.getParams === 'function') {
+			const p = shared.getParams();
+			if (p && p.dexApi) return p.dexApi;
+		}
+		// Prefer the shared arcade-api base (same default as dex-shared.js).
+		return window.location.origin + '/arcade-api/v1/';
 	}
 
 	function getDexUser() {
 		const dex = getDexParams();
-		return (dex.user || (localStorage.getItem('monroeDexUser') || '').trim()).toLowerCase();
+		if (dex.user) return dex.user;
+		const shared = getAdoptedex();
+		if (shared && typeof shared.getParams === 'function') {
+			const p = shared.getParams();
+			if (p && p.dexUser) return String(p.dexUser).toLowerCase();
+		}
+		try {
+			return (localStorage.getItem('monroeDexUser') || '').trim().toLowerCase();
+		} catch (err) {
+			return '';
+		}
 	}
 
 	// Local state — kept in sync with server
@@ -620,6 +641,26 @@
 		}
 	}
 
+	function discoverRoundPets() {
+		const adoptedex = getAdoptedex();
+		const user = getDexUser();
+		if (!adoptedex || typeof adoptedex.discoverBulk !== 'function' || !user) {
+			return;
+		}
+		const petIds = Array.from(new Set(
+			(roundPets || [])
+				.map((pet) => pet && pet.id)
+				.filter(Boolean)
+				.map((id) => String(id))
+		));
+		if (!petIds.length) {
+			return;
+		}
+		adoptedex.discoverBulk(getDexRestBase(), user, petIds, 'match').catch((err) => {
+			console.warn('[Pet Match] discoverBulk failed:', err);
+		});
+	}
+
 	function showPackRewardModal(milestone) {
 		if (!els.rewardModal) return;
 		if (els.rewardTitle) els.rewardTitle.textContent = milestone.title || 'Pet Booster Pack Unlocked!';
@@ -637,7 +678,11 @@
 		hidePackRewardModal();
 		const user = getDexUser();
 		const api = getDexRestBase();
-		let src = '../booster/index.html?embed=1&pack=' + encodeURIComponent(tier || currentRewardTier);
+		const packTier = tier || currentRewardTier || 'standard';
+		// Visual rip/open UX lives in booster; it calls the same packs/open
+		// endpoint as MonroeAdoptedex.openPack. Prefetch via shared openPack
+		// only when the iframe path is unavailable.
+		let src = '../booster/index.html?embed=1&pack=' + encodeURIComponent(packTier);
 		if (api) {
 			src += '&dex_api=' + encodeURIComponent(api);
 		}
@@ -645,6 +690,16 @@
 			src += '&user=' + encodeURIComponent(user) + '&dex_user=' + encodeURIComponent(user);
 		}
 		if (!els.boosterEmbedModal || !els.boosterFrame) {
+			const adoptedex = getAdoptedex();
+			if (user && adoptedex && typeof adoptedex.openPack === 'function') {
+				adoptedex.openPack(api, user, packTier).then(() => {
+					window.open('../dex/album.html?embed=1&dex_user=' + encodeURIComponent(user), '_blank');
+				}).catch((err) => {
+					console.warn('[Pet Match] openPack fallback failed:', err);
+					window.open(src, '_blank');
+				});
+				return;
+			}
 			window.open(src, '_blank');
 			return;
 		}
@@ -776,15 +831,34 @@
 		return els.board.querySelector(`[data-index="${index}"]`);
 	}
 
-	function isDesktopEmbed() {
-		return document.documentElement.classList.contains('humane-embed')
-			&& window.innerWidth >= DESKTOP_MIN_WIDTH;
+	function isFinePointerDesktop() {
+		try {
+			return window.matchMedia('(hover: hover) and (pointer: fine)').matches
+				&& window.innerWidth >= DESKTOP_MIN_WIDTH;
+		} catch (err) {
+			return window.innerWidth >= DESKTOP_MIN_WIDTH;
+		}
+	}
+
+	function isDesktopWide() {
+		return window.innerWidth >= DESKTOP_MIN_WIDTH;
+	}
+
+	function updateKeyHintsVisibility() {
+		if (!els.keyHints) {
+			return;
+		}
+		const show = isFinePointerDesktop();
+		els.keyHints.hidden = !show;
+		els.keyHints.setAttribute('aria-hidden', show ? 'false' : 'true');
 	}
 
 	function updateLayoutMode() {
 		if (els.app) {
-			els.app.classList.toggle('pet-match-app--wide', isDesktopEmbed());
+			// Side-rail controls on any desktop-width viewport (embed + standalone).
+			els.app.classList.toggle('pet-match-app--wide', isDesktopWide());
 		}
+		updateKeyHintsVisibility();
 	}
 
 	function boardGapFor(config) {
@@ -917,6 +991,15 @@
 			button.addEventListener('keydown', (event) => onCardKeydown(event, index));
 			els.board.appendChild(button);
 		});
+
+		// Desktop: park focus on the board so arrow keys work without an extra click.
+		if (isFinePointerDesktop() && state !== 'preview' && !inputLocked) {
+			window.requestAnimationFrame(() => {
+				if (document.activeElement === document.body || document.activeElement === els.board) {
+					focusFirstPlayableCard();
+				}
+			});
+		}
 	}
 
 	function updateLevelSelect() {
@@ -1275,38 +1358,73 @@
 
 		els.winMeetGrid.dataset.count = String(pets.length);
 
-		pets.forEach((pet) => {
-			const li = document.createElement('li');
-			const link = document.createElement('a');
-			link.className = 'pet-match-meet__link';
-			link.href = pet.url;
-			link.target = '_blank';
-			link.rel = 'noopener noreferrer';
-			link.setAttribute('aria-label', `View ${pet.name || pet.alt} profile`);
+		const adoptedex = getAdoptedex();
+		const useFlipCards = adoptedex && typeof adoptedex.createFlipCard === 'function';
+		if (useFlipCards) {
+			els.winMeetGrid.classList.add('pet-match-meet__grid--flip');
+			if (els.winMeet && els.winMeetHint) {
+				els.winMeetHint.textContent = 'Tap a card to flip · open the profile from the back';
+			} else if (els.winMeet) {
+				const hint = els.winMeet.querySelector('.pet-match-meet__hint');
+				if (hint) hint.textContent = 'Tap a card to flip · open the profile from the back';
+			}
+			pets.forEach((pet, index) => {
+				const cardPet = {
+					id: pet.id,
+					name: pet.name || pet.alt || 'Adoptable pet',
+					type: pet.type || 'companion',
+					breed: pet.breed || '',
+					age: pet.age || '',
+					gender: pet.gender || '',
+					file: pet.file,
+					url: pet.url,
+					archived: !!pet.archived,
+				};
+				const li = adoptedex.createFlipCard(cardPet, {
+					met: true,
+					mode: 'collection',
+					readOnly: true,
+					dexNumber: index + 1,
+					highlight: true,
+					startFlipped: false,
+				});
+				els.winMeetGrid.appendChild(li);
+			});
+		} else {
+			els.winMeetGrid.classList.remove('pet-match-meet__grid--flip');
+			pets.forEach((pet) => {
+				const li = document.createElement('li');
+				const link = document.createElement('a');
+				link.className = 'pet-match-meet__link';
+				link.href = pet.url;
+				link.target = '_blank';
+				link.rel = 'noopener noreferrer';
+				link.setAttribute('aria-label', `View ${pet.name || pet.alt} profile`);
 
-			const photo = document.createElement('span');
-			photo.className = 'pet-match-meet__photo';
+				const photo = document.createElement('span');
+				photo.className = 'pet-match-meet__photo';
 
-			const img = document.createElement('img');
-			img.src = pet.file;
-			img.alt = '';
-			img.loading = 'lazy';
-			img.decoding = 'async';
+				const img = document.createElement('img');
+				img.src = pet.file;
+				img.alt = '';
+				img.loading = 'lazy';
+				img.decoding = 'async';
 
-			photo.appendChild(img);
+				photo.appendChild(img);
 
-			const name = document.createElement('span');
-			name.className = 'pet-match-meet__name';
-			name.textContent = pet.name || pet.alt || 'Adoptable pet';
+				const name = document.createElement('span');
+				name.className = 'pet-match-meet__name';
+				name.textContent = pet.name || pet.alt || 'Adoptable pet';
 
-			const cta = document.createElement('span');
-			cta.className = 'pet-match-meet__cta';
-			cta.textContent = 'View profile';
+				const cta = document.createElement('span');
+				cta.className = 'pet-match-meet__cta';
+				cta.textContent = 'View profile';
 
-			link.append(photo, name, cta);
-			li.appendChild(link);
-			els.winMeetGrid.appendChild(li);
-		});
+				link.append(photo, name, cta);
+				li.appendChild(link);
+				els.winMeetGrid.appendChild(li);
+			});
+		}
 
 		scheduleMeetSizing();
 	}
@@ -1495,32 +1613,19 @@
 		// client thinks it should.
 		const milestone = LEVEL_MILESTONES[currentLevel];
 		const user = getDexUser();
+		const adoptedex = getAdoptedex();
+		discoverRoundPets();
 		if (milestone) {
 			readLocalStats();
 			if (!localStats.claimedLevelWins.includes(currentLevel)) {
 				const restBase = getDexRestBase();
-				const awardMilestonePack = (notifyParent) => {
+				const markMilestoneClaimedLocally = () => {
 					if (!localStats.claimedLevelWins.includes(currentLevel)) {
 						localStats.claimedLevelWins.push(currentLevel);
 					}
 					writeLocalStats();
 					currentRewardTier = milestone.tier;
 					pendingLevelMilestone = milestone;
-					if (!notifyParent) return;
-					try {
-						if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-							let remainingPacks;
-							try {
-								remainingPacks = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
-							} catch (e) {}
-							window.parent.postMessage({
-								type: 'adoptedex:pack_awarded',
-								tier: milestone.tier,
-								level: currentLevel,
-								remainingPacks: remainingPacks
-							}, '*');
-						}
-					} catch (err) {}
 				};
 
 				const showPackRewardIfWinModalGone = () => {
@@ -1532,35 +1637,23 @@
 					}
 				};
 
-				const creditLocalDexPack = () => {
-					try {
-						const count = 1;
-						const cur = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
-						localStorage.setItem('monroeDexPacks', String(cur + count));
-					} catch (e) {}
-				};
-
-				if (user) {
-					MonroeAdoptedex.claimReward(restBase, user, 'match', 'level_' + currentLevel, {
+				// Prefer shared MonroeAdoptedex.claimReward — it posts
+				// adoptedex:pack_awarded and handles offline monroeDexPacks.
+				if (user && adoptedex && typeof adoptedex.claimReward === 'function') {
+					adoptedex.claimReward(restBase, user, 'match', 'level_' + currentLevel, {
 						tier: milestone.tier,
 						count: 1,
+						level: currentLevel,
 					}).then((result) => {
 						if (result && result.claimed) {
-							// claimReward already notifies the cabinet (and writes
-							// monroeDexPacks on offline fallback). Do not post again.
-							awardMilestonePack(false);
+							markMilestoneClaimedLocally();
 							showPackRewardIfWinModalGone();
 						}
 					}).catch((e) => {
-						console.warn('[Pet Match] Reward claim failed, falling back to local award:', e);
-						creditLocalDexPack();
-						awardMilestonePack(true);
-						showPackRewardIfWinModalGone();
+						console.warn('[Pet Match] claimReward failed:', e);
 					});
 				} else {
-					creditLocalDexPack();
-					awardMilestonePack(true);
-					showPackRewardIfWinModalGone();
+					console.warn('[Pet Match] MonroeAdoptedex.claimReward unavailable; pack grant skipped until dex-shared loads.');
 				}
 			}
 		}
@@ -1762,6 +1855,76 @@
 			els.nextLevel.addEventListener('click', () => {
 				if (currentLevel < progress.bestLevel) {
 					startLevel(currentLevel + 1);
+				}
+			});
+		}
+
+		function isTypingTarget(target) {
+			if (!target || !target.closest) {
+				return false;
+			}
+			return Boolean(target.closest('input, textarea, select, [contenteditable="true"]'));
+		}
+
+		function anyModalOpen() {
+			return Boolean(
+				(els.winModal && !els.winModal.hidden)
+				|| (els.rewardModal && !els.rewardModal.hidden)
+				|| (els.boosterEmbedModal && !els.boosterEmbedModal.hidden)
+				|| document.querySelector('.pet-match-modal:not([hidden])')
+			);
+		}
+
+		document.addEventListener('keydown', (event) => {
+			if (isTypingTarget(event.target)) {
+				return;
+			}
+			if (event.key === 'Escape') {
+				if (els.controls && els.controls.classList.contains('is-open')) {
+					event.preventDefault();
+					els.controls.classList.remove('is-open');
+					return;
+				}
+				if (els.boosterEmbedModal && !els.boosterEmbedModal.hidden) {
+					event.preventDefault();
+					closeBoosterPackOverlay();
+					return;
+				}
+				if (els.rewardModal && !els.rewardModal.hidden) {
+					event.preventDefault();
+					hidePackRewardModal();
+					return;
+				}
+				return;
+			}
+			if (anyModalOpen()) {
+				return;
+			}
+			const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+			if (key === 'r') {
+				event.preventDefault();
+				startLevel(currentLevel);
+				return;
+			}
+			if ((key === '[' || key === ',') && currentLevel > 1) {
+				event.preventDefault();
+				startLevel(currentLevel - 1);
+				return;
+			}
+			if ((key === ']' || key === '.') && currentLevel < progress.bestLevel) {
+				event.preventDefault();
+				startLevel(currentLevel + 1);
+			}
+		});
+
+		// Close mobile controls sheet when tapping the backdrop (not the panel).
+		if (els.controls) {
+			els.controls.addEventListener('click', (event) => {
+				if (!els.controls.classList.contains('is-open')) {
+					return;
+				}
+				if (event.target === els.controls) {
+					els.controls.classList.remove('is-open');
 				}
 			});
 		}

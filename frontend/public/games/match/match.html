@@ -6,8 +6,8 @@
 	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 	<title>Pet Match - Humane Games</title>
 	<script src="../embed.js"></script>
-	<link rel="stylesheet" href="match.css?v=35">
-	<link rel="stylesheet" href="embed.css?v=35">
+	<link rel="stylesheet" href="match.css?v=38">
+	<link rel="stylesheet" href="embed.css?v=38">
 </head>
 <body>
 	<div class="pet-match-app" id="petMatchApp">
@@ -28,6 +28,12 @@
 				<div class="pet-match-progress__bar" id="pmProgressBar"></div>
 			</div>
 		</header>
+		<p class="pet-match-key-hints" id="pmKeyHints" hidden aria-hidden="true">
+			<span class="pet-match-key-hints__item"><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> move</span>
+			<span class="pet-match-key-hints__item"><kbd>Enter</kbd> / <kbd>Space</kbd> flip</span>
+			<span class="pet-match-key-hints__item"><kbd>R</kbd> restart</span>
+			<span class="pet-match-key-hints__item"><kbd>Esc</kbd> close</span>
+		</p>
 		<p class="pet-match-live" id="pmLive" aria-live="polite" aria-atomic="true"></p>
 		<p class="pet-match-intro" id="pmLevelIntro" hidden aria-live="polite"></p>
 		<div class="pet-match-play">
@@ -68,7 +74,7 @@
 			</div>
 			<section class="pet-match-meet" id="pmWinMeet" hidden aria-labelledby="pmWinMeetTitle">
 				<h3 id="pmWinMeetTitle">Meet the pets from this round</h3>
-				<p class="pet-match-meet__hint">Tap a photo to open their adopt profile</p>
+				<p class="pet-match-meet__hint">Tap a card to flip · open the profile from the back</p>
 				<ul class="pet-match-meet__grid" id="pmWinMeetGrid"></ul>
 			</section>
 			<footer class="pet-match-modal__actions pet-match-modal__actions--win">
@@ -107,7 +113,7 @@
 		</div>
 	</div>
 
-	<script src="../dex/dex-shared.js?v=4"></script>
-	<script src="match.js?v=37" defer></script>
+	<script src="../dex/dex-shared.js?v=5"></script>
+	<script src="match.js?v=38" defer></script>
 </body>
 </html>

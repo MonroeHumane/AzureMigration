@@ -6,6 +6,8 @@
   <title>Humane Booster Packs | Monroe Humane Society</title>
   <meta name="description" content="Open adoptable pet booster packs, discover shelter companions, and build your Adoptédex album." />
   <link rel="icon" href="/assets/monroe-paw-print-tile.png" />
+  <script src="../embed.js"></script>
+  <script src="../dex/dex-shared.js?v=5"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BLWOQFaX.css">
   <link rel="stylesheet" href="./embed.css">
   <style>
@@ -43,49 +45,95 @@
 </head>
 <body>
   <div id="app"></div>
+  <div class="booster-key-hints" id="boosterKeyHints" aria-hidden="true">
+    <span><kbd>Space</kbd>/<kbd>Enter</kbd> open / flip</span>
+    <span><kbd>←</kbd><kbd>→</kbd> cards</span>
+    <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> tiers</span>
+    <span><kbd>M</kbd> mute</span>
+  </div>
 
   <script>
-    // Two-way Bridge between Booster Packs and Arcade Cabinet Shell
+    // Two-way Bridge between Booster Packs, Adoptédex shared API, and Arcade Cabinet
     (function () {
       var params = new URLSearchParams(window.location.search);
       if (params.get('embed') === '1' || (window.parent && window.parent !== window)) {
         document.documentElement.classList.add('is-embedded');
+        document.documentElement.classList.add('humane-embed');
       }
 
-      // Forward pet discovery & pack opened events to parent Arcade Pass
-      window.addEventListener('monroe-adoptedex-updated', function (e) {
-        if (window.parent && window.parent !== window) {
-          try {
-            if (e.detail && e.detail.packOpened) {
-              window.parent.postMessage({
-                type: 'adoptedex:pack_opened',
-                action: 'pack_opened',
-                tier: e.detail.tier || 'standard',
-                remainingPacks: e.detail.remainingPacks
-              }, '*');
-            }
-            window.parent.postMessage({
-              type: 'adoptedex:pet_discovered',
-              action: 'pet_discovered',
-              petIds: e.detail ? e.detail.petIds : []
-            }, '*');
-          } catch (err) {}
-        }
-      });
+      var cachedPackCount = null;
 
-      function getLocalPackCount() {
+      function getAdoptedex() {
+        return window.MonroeAdoptedex || null;
+      }
+
+      function getDexIdentity() {
+        var adoptedex = getAdoptedex();
+        if (adoptedex && typeof adoptedex.getParams === 'function') {
+          return adoptedex.getParams();
+        }
+        var user = params.get('dex_user') || params.get('user') || '';
+        try {
+          if (!user) user = localStorage.getItem('monroeDexUser') || '';
+        } catch (err) {}
+        var api = params.get('dex_api') || params.get('api') || (window.location.origin + '/arcade-api/v1/');
+        return {
+          dexUser: String(user || '').trim().toLowerCase(),
+          dexApi: String(api || '').replace(/\/?$/, '/')
+        };
+      }
+
+      function readMirroredPackCount() {
         try {
           var raw = localStorage.getItem('monroeDexPacks');
-          if (raw === null) return 1;
+          if (raw === null) return null;
           var n = parseInt(raw, 10);
-          return isNaN(n) ? 0 : Math.max(0, n);
+          return isNaN(n) ? null : Math.max(0, n);
         } catch (err) {
-          return 0;
+          return null;
         }
+      }
+
+      function getLocalPackCount() {
+        if (typeof cachedPackCount === 'number') return cachedPackCount;
+        var mirrored = readMirroredPackCount();
+        return mirrored === null ? 1 : mirrored;
       }
 
       function syncNoPacksClass() {
         document.documentElement.classList.toggle('booster-no-packs', getLocalPackCount() <= 0);
+      }
+
+      function setPackCount(n) {
+        if (typeof n !== 'number' || isNaN(n)) return;
+        cachedPackCount = Math.max(0, n);
+        try {
+          // Mirror only — authoritative grants/opens go through MonroeAdoptedex.
+          localStorage.setItem('monroeDexPacks', String(cachedPackCount));
+        } catch (err) {}
+        syncNoPacksClass();
+        var pill = document.querySelector('[data-unopened-count]');
+        if (pill) pill.textContent = String(cachedPackCount);
+      }
+
+      function refreshPackCountFromDex() {
+        var adoptedex = getAdoptedex();
+        var id = getDexIdentity();
+        if (!adoptedex || typeof adoptedex.fetchDex !== 'function' || !id.dexUser || id.dexUser === 'guest') {
+          syncNoPacksClass();
+          return;
+        }
+        adoptedex.fetchDex(id.dexApi, id.dexUser).then(function (data) {
+          var stats = data && (data.stats || data);
+          var packs = stats && (stats.unopened_packs != null ? stats.unopened_packs : stats.unopenedPacks);
+          if (typeof packs === 'number') {
+            setPackCount(packs);
+          } else {
+            syncNoPacksClass();
+          }
+        }).catch(function () {
+          syncNoPacksClass();
+        });
       }
 
       function blockTearWhenEmpty(e) {
@@ -99,18 +147,81 @@
         }
       }
 
-      syncNoPacksClass();
+      // Forward pet discovery & pack opened events to parent Arcade Pass.
+      // Prefer MonroeAdoptedex for discoveries when available.
+      window.addEventListener('monroe-adoptedex-updated', function (e) {
+        var detail = e && e.detail ? e.detail : {};
+        if (typeof detail.remainingPacks === 'number') {
+          setPackCount(detail.remainingPacks);
+        } else {
+          refreshPackCountFromDex();
+        }
+
+        var adoptedex = getAdoptedex();
+        var id = getDexIdentity();
+        var petIds = detail.petIds || detail.pet_ids || [];
+        if (detail.packOpened && adoptedex && typeof adoptedex.discoverBulk === 'function' && id.dexUser && petIds.length) {
+          // Server openPack already discovers; this is a best-effort sync for offline/local paths.
+          adoptedex.discoverBulk(id.dexApi, id.dexUser, petIds, 'booster').catch(function () {});
+        }
+
+        if (window.parent && window.parent !== window) {
+          try {
+            if (detail.packOpened) {
+              window.parent.postMessage({
+                type: 'adoptedex:pack_opened',
+                action: 'pack_opened',
+                tier: detail.tier || 'standard',
+                remainingPacks: typeof detail.remainingPacks === 'number' ? detail.remainingPacks : getLocalPackCount()
+              }, '*');
+            }
+            window.parent.postMessage({
+              type: 'adoptedex:pet_discovered',
+              action: 'pet_discovered',
+              petIds: petIds
+            }, '*');
+          } catch (err) {}
+        }
+      });
+
+      // Keep empty-state in sync if the Vite app mirrors packs to localStorage.
       try {
         var nativeSetItem = localStorage.setItem.bind(localStorage);
         localStorage.setItem = function (key, value) {
           nativeSetItem(key, value);
-          if (key === 'monroeDexPacks') syncNoPacksClass();
+          if (key === 'monroeDexPacks') {
+            var n = parseInt(value, 10);
+            if (!isNaN(n)) cachedPackCount = Math.max(0, n);
+            syncNoPacksClass();
+          }
         };
       } catch (err) {}
-      window.addEventListener('storage', syncNoPacksClass);
+
+      window.addEventListener('storage', function (e) {
+        if (!e || e.key === 'monroeDexPacks' || e.key == null) {
+          var mirrored = readMirroredPackCount();
+          if (mirrored !== null) cachedPackCount = mirrored;
+          syncNoPacksClass();
+        }
+      });
       document.addEventListener('pointerdown', blockTearWhenEmpty, true);
       document.addEventListener('click', blockTearWhenEmpty, true);
-      window.addEventListener('monroe-adoptedex-updated', syncNoPacksClass);
+
+      // Keyboard: ensure tear badge is activatable; Esc closes summary if present.
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          var closeBtn = document.querySelector('.summary-modal-overlay .btn-secondary-link, .summary-modal-overlay button');
+          if (closeBtn) closeBtn.click();
+          return;
+        }
+        if (e.key === 'Enter' || e.key === ' ') {
+          var active = document.activeElement;
+          if (active && active.classList && active.classList.contains('tear-prompt-badge')) {
+            e.preventDefault();
+            active.click();
+          }
+        }
+      }, true);
 
       // Handle arcade sound mute state
       window.addEventListener('message', function (e) {
@@ -121,7 +232,46 @@
             localStorage.setItem('monroeArcadeMuted', String(e.data.muted));
           } catch (err) {}
         }
+        if (e.data.type === 'adoptedex:pack_awarded') {
+          refreshPackCountFromDex();
+        }
       });
+
+      // Expose a thin helper so other shells can grant packs via shared claimReward.
+      window.HumaneBoosterBridge = {
+        claimReward: function (gameId, rewardKey, extra) {
+          var adoptedex = getAdoptedex();
+          var id = getDexIdentity();
+          if (!adoptedex || typeof adoptedex.claimReward !== 'function' || !id.dexUser) {
+            return Promise.reject(new Error('MonroeAdoptedex.claimReward unavailable'));
+          }
+          return adoptedex.claimReward(id.dexApi, id.dexUser, gameId, rewardKey, extra || {}).then(function (result) {
+            refreshPackCountFromDex();
+            return result;
+          });
+        },
+        openPack: function (tier) {
+          var adoptedex = getAdoptedex();
+          var id = getDexIdentity();
+          if (!adoptedex || typeof adoptedex.openPack !== 'function' || !id.dexUser) {
+            return Promise.reject(new Error('MonroeAdoptedex.openPack unavailable'));
+          }
+          return adoptedex.openPack(id.dexApi, id.dexUser, tier || 'standard').then(function (result) {
+            if (result && typeof result.unopened_packs === 'number') {
+              setPackCount(result.unopened_packs);
+            } else if (result && typeof result.nextUnopenedPacks === 'number') {
+              setPackCount(result.nextUnopenedPacks);
+            } else {
+              refreshPackCountFromDex();
+            }
+            return result;
+          });
+        },
+        refreshPackCount: refreshPackCountFromDex
+      };
+
+      syncNoPacksClass();
+      refreshPackCountFromDex();
     })();
   </script>
 </body>

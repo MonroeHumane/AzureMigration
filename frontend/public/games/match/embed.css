@@ -25,11 +25,17 @@ html.humane-embed body {
 html.humane-embed .pet-match-app {
 	height: 100%;
 	min-height: 100%;
-	padding: 0.45rem 0.65rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+	padding:
+		calc(0.45rem + env(safe-area-inset-top, 0px))
+		calc(0.65rem + env(safe-area-inset-right, 0px))
+		calc(0.45rem + env(safe-area-inset-bottom, 0px))
+		calc(0.65rem + env(safe-area-inset-left, 0px));
 	display: flex;
 	flex-direction: column;
 	max-width: none;
 	background: radial-gradient(circle at 50% 15%, #0d332b 0%, #061815 100%);
+	overscroll-behavior: none;
+	touch-action: manipulation;
 }
 
 html.humane-embed .pet-match-hud__title {
@@ -74,17 +80,21 @@ html.humane-embed .pet-match-quick-btn {
 	background: #092c25;
 	border: 1.5px solid rgba(45, 212, 191, 0.3);
 	color: #e2e8f0;
-	width: 32px;
-	height: 32px;
-	border-radius: 9px;
-	font-size: 0.95rem;
+	width: 44px;
+	height: 44px;
+	min-width: 44px;
+	min-height: 44px;
+	border-radius: 12px;
+	font-size: 1.05rem;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-html.humane-embed .pet-match-quick-btn:hover {
-	background: #0d3c33;
-	border-color: #2dd4bf;
-	color: #ffffff;
+@media (hover: hover) and (pointer: fine) {
+	html.humane-embed .pet-match-quick-btn:hover {
+		background: #0d3c33;
+		border-color: #2dd4bf;
+		color: #ffffff;
+	}
 }
 
 html.humane-embed .pet-match-progress {
@@ -116,19 +126,19 @@ html.humane-embed .pet-match-board-wrap {
 }
 
 /* Card Visuals in Arcade Embed Mode */
-html.humane-embed .pet-match-card__face--back {
+html.humane-embed .pet-match-card__back {
 	border: 1.5px solid rgba(45, 212, 191, 0.35);
 	background: var(--card-back);
 	box-shadow: inset 0 0 12px rgba(20, 184, 166, 0.15);
 }
 
-html.humane-embed .pet-match-card__face--back::before {
+html.humane-embed .pet-match-card__back::before {
 	color: #2dd4bf;
 	opacity: 0.85;
 	text-shadow: 0 0 8px rgba(45, 212, 191, 0.6);
 }
 
-html.humane-embed .pet-match-card:hover .pet-match-card__face--back {
+html.humane-embed .pet-match-card:hover .pet-match-card__back {
 	border-color: #5eead4;
 	box-shadow: 0 0 14px rgba(45, 212, 191, 0.5), inset 0 0 14px rgba(20, 184, 166, 0.3);
 }
@@ -184,4 +194,54 @@ html.humane-embed .pet-match-btn--ghost {
 html.humane-embed .pet-match-btn--ghost:hover {
 	background: rgba(255, 255, 255, 0.15);
 	color: #ffffff;
+}
+
+
+/* Narrow embed: stack HUD vertically, keep score readable */
+@media (max-width: 680px) {
+	html.humane-embed .pet-match-hud__top {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.4rem;
+	}
+
+	html.humane-embed .pet-match-hud__stats {
+		width: 100%;
+		justify-content: space-between;
+		font-size: 0.9rem;
+		color: #cbd5e1;
+	}
+
+	html.humane-embed .pet-match-stat strong {
+		font-size: 1.05rem;
+	}
+
+	html.humane-embed .pet-match-hud__quick-actions {
+		margin-left: 0;
+		justify-content: flex-end;
+	}
+
+	html.humane-embed .pet-match-key-hints {
+		display: none !important;
+	}
+}
+
+html.humane-embed .pet-match-key-hints {
+	background: rgba(5, 24, 20, 0.75);
+	border-color: rgba(45, 212, 191, 0.25);
+	color: #99f6e4;
+}
+
+html.humane-embed .pet-match-key-hints kbd {
+	background: #0b2823;
+	border-color: rgba(45, 212, 191, 0.35);
+	color: #f1f5f9;
+	box-shadow: none;
+}
+
+/* Desktop embed: larger board breathing room */
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+	html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-board-wrap {
+		padding: 0.55rem;
+	}
 }
