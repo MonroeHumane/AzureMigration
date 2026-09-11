@@ -585,6 +585,17 @@ html, body {
 		0 0 20px rgba(45, 212, 191, 0.35);
 }
 
+.pocket-cell--occupied:focus {
+	outline: none;
+}
+
+.pocket-cell--occupied:focus-visible {
+	border-color: var(--teal-300);
+	box-shadow:
+		0 0 0 3px rgba(45, 212, 191, 0.55),
+		0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
 /* Empty Pocket Placeholder */
 .pocket-empty {
 	display: flex;
@@ -719,9 +730,15 @@ html, body {
 	font-size: 0.65rem;
 	font-weight: 700;
 	color: #475569;
-	white-space: nowrap;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: normal;
+	line-height: 1.25;
+	max-height: 2.5em;
 }
 
 .binder-card__move {
@@ -835,7 +852,7 @@ html, body {
 .pocket-cell--occupied.is-shine-kick .foil-gold .binder-card__foil,
 .inspector-card-host.is-shine-kick .foil-prism .binder-card__foil,
 .inspector-card-host.is-shine-kick .foil-gold .binder-card__foil {
-	opacity: 0.82;
+	opacity: 0.72;
 }
 
 
@@ -847,7 +864,7 @@ html, body {
 
 /* Aurora: Pastel wave */
 .foil-aurora .binder-card__foil {
-	opacity: 0.32;
+	opacity: 0.24;
 	background: linear-gradient(
 		var(--pointer-deg, 135deg),
 		rgba(255, 183, 178, 0.45) 0%,
@@ -862,7 +879,7 @@ html, body {
 
 /* Cosmos: Nebula starlight */
 .foil-cosmos .binder-card__foil {
-	opacity: 0.34;
+	opacity: 0.26;
 	background:
 		radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(251, 146, 60, 0.65) 0%, transparent 60%),
 		linear-gradient(var(--pointer-deg, 135deg), rgba(99, 102, 241, 0.4) 0%, rgba(236, 72, 153, 0.4) 100%);
@@ -871,7 +888,7 @@ html, body {
 
 /* Gold: 24k mirror gold */
 .foil-gold .binder-card__foil {
-	opacity: 0.36;
+	opacity: 0.26;
 	background: linear-gradient(
 		var(--pointer-deg, 135deg),
 		rgba(217, 119, 6, 0.4) 0%,
@@ -884,7 +901,7 @@ html, body {
 
 /* Prism: Rainbow diffraction grating */
 .foil-prism .binder-card__foil {
-	opacity: 0.38;
+	opacity: 0.26;
 	background:
 		repeating-linear-gradient(
 			var(--pointer-deg, 45deg),
@@ -1066,6 +1083,12 @@ html, body {
 	align-items: center;
 	justify-content: center;
 	perspective: 1800px;
+}
+
+/* HTML [hidden] must win over display:flex (same fix as .binder-pack-reveal[hidden]) */
+.card-inspector-modal[hidden] {
+	display: none !important;
+	pointer-events: none !important;
 }
 
 .inspector-backdrop {
@@ -1589,6 +1612,7 @@ html, body {
 		flex-wrap: nowrap;
 		-webkit-overflow-scrolling: touch;
 		padding-bottom: 0.2rem;
+		padding-inline-end: 1.25rem; /* Prism Alumni etc. fully scroll into view */
 		scrollbar-width: thin;
 	}
 
@@ -2058,8 +2082,8 @@ html, body {
 	);
 	background-size: 280% 280%;
 	animation: dexHoloRim 3.4s linear infinite;
-	opacity: 0.55;
-	mix-blend-mode: color-dodge;
+	opacity: 0.28;
+	mix-blend-mode: soft-light;
 }
 
 @keyframes dexHoloRim {
@@ -2089,9 +2113,6 @@ html, body {
 		rotateX(var(--insp-tilt-x, 0deg));
 }
 
-.inspector-card-host.is-shine-kick .inspector-face--front {
-	filter: brightness(1.08) saturate(1.12);
-}
 
 @media (prefers-reduced-motion: reduce) {
 	.binder-card__foil::after,

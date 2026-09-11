@@ -680,9 +680,7 @@
 					'</div>';
 
 				(function (c, globalIdx) {
-					pocketCell.addEventListener('click', function () {
-						openInspector(globalIdx);
-					});
+					bindPocketActivate(pocketCell, globalIdx, c.name);
 				})(card, startIndex + slot);
 
 				bindPocketTilt(pocketCell);
@@ -767,9 +765,7 @@
 					'</div>' +
 				'</div>';
 
-			pocketCell.addEventListener('click', function () {
-				openInspector(idx);
-			});
+			bindPocketActivate(pocketCell, idx, card.name);
 
 			bindPocketTilt(pocketCell);
 			els.binderShowcaseGrid.appendChild(pocketCell);
@@ -883,6 +879,22 @@
 		host.addEventListener('pointerup', function () { window.setTimeout(reset, 160); });
 	}
 
+
+	function bindPocketActivate(pocketCell, cardIndex, cardName) {
+		pocketCell.setAttribute('role', 'button');
+		pocketCell.setAttribute('tabindex', '0');
+		pocketCell.setAttribute('aria-label', 'Inspect ' + cardName + ' in 3D');
+		pocketCell.addEventListener('click', function () {
+			openInspector(cardIndex);
+		});
+		pocketCell.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				openInspector(cardIndex);
+			}
+		});
+	}
+
 	// ──────────────────────────────────────────────────────────────────────────
 	// 3D Card Inspector Modal
 	// ──────────────────────────────────────────────────────────────────────────
@@ -898,13 +910,18 @@
 
 		if (els.inspectorModal) {
 			els.inspectorModal.hidden = false;
+			els.inspectorModal.setAttribute('aria-hidden', 'false');
 			document.body.style.overflow = 'hidden';
+			if (els.inspectorCloseBtn) {
+				try { els.inspectorCloseBtn.focus(); } catch (e) {}
+			}
 		}
 	}
 
 	function closeInspector() {
 		if (els.inspectorModal) {
 			els.inspectorModal.hidden = true;
+			els.inspectorModal.setAttribute('aria-hidden', 'true');
 			document.body.style.overflow = '';
 		}
 	}
