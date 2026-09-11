@@ -316,7 +316,7 @@
 			rows.push({ label: 'Gender', value: pet.gender });
 		}
 		if (pet.archived) {
-			rows.push({ label: 'Status', value: 'Found a home' });
+			rows.push({ label: 'Status', value: 'Adopted' });
 		}
 		return rows;
 	}
@@ -465,11 +465,11 @@
 			actions.appendChild(register);
 		}
 
-		if (pet.archived && mode === 'past') {
+		if (pet.archived) {
 			var badge = document.createElement('span');
 			badge.className = 'adoptedex-card__archived-badge';
-			badge.textContent = 'Found a home?';
-			back.insertBefore(badge, back.firstChild);
+			badge.textContent = 'Adopted';
+			front.appendChild(badge);
 		}
 
 		back.append(backTitle, stats);

@@ -8,9 +8,9 @@
 	<script src="../theme.js?v=1"></script>
 	<link rel="stylesheet" href="../shared-styles.css">
 	<link rel="stylesheet" href="../humane-game-system.css">
-	<link rel="stylesheet" href="dex.css?v=8">
-	<link rel="stylesheet" href="embed.css?v=8">
-	<link rel="stylesheet" href="reward-toast.css?v=8">
+	<link rel="stylesheet" href="dex.css?v=9">
+	<link rel="stylesheet" href="embed.css?v=9">
+	<link rel="stylesheet" href="reward-toast.css?v=9">
 </head>
 <body>
 	<div class="binder-app" id="binderApp">
@@ -78,50 +78,21 @@
 				</div>
 			</div>
 
-			<!-- Search & Filter Controls Toolbar -->
+			<!-- Simple control strip: species + search + theme -->
 			<div class="binder-toolbar">
-				<div class="binder-toolbar__row">
-					<div class="binder-search-box">
-						<span class="binder-search-icon">🔍</span>
-						<input type="search" class="binder-search-input" id="binderSearch" placeholder="Search by pet name, breed, personality, move…" aria-label="Search pet collection">
-						<button type="button" class="binder-search-clear" id="binderSearchClear" hidden aria-label="Clear search">&times;</button>
+				<div class="binder-toolbar__row binder-toolbar__row--simple">
+					<div class="binder-species-toggle" role="group" aria-label="Filter by pet type">
+						<button type="button" class="chip is-active" data-filter-species="all">All</button>
+						<button type="button" class="chip" data-filter-species="dog">🐕 Dogs</button>
+						<button type="button" class="chip" data-filter-species="cat">🐱 Cats</button>
 					</div>
-					<button type="button" class="binder-filters-toggle" id="binderFiltersToggle" aria-expanded="true" aria-controls="binderFiltersPanel">
-						<span aria-hidden="true">⚙️</span>
-						<span>Filters</span>
-						<span class="binder-filters-badge" id="binderFiltersBadge" hidden>0</span>
-					</button>
-				</div>
-
-				<div class="binder-filters-panel" id="binderFiltersPanel">
-					<div class="binder-filters-row">
-						<!-- Species Filter Chips -->
-						<div class="binder-chips-group" role="group" aria-label="Filter by Species">
-							<button type="button" class="chip is-active" data-filter-species="all">All Species</button>
-							<button type="button" class="chip" data-filter-species="dog">🐕 Dogs</button>
-							<button type="button" class="chip" data-filter-species="cat">🐱 Cats</button>
-							<button type="button" class="chip" data-filter-species="other">🐰 Small Pets</button>
+					<div class="binder-toolbar__controls">
+						<div class="binder-search-box binder-search-box--compact">
+							<span class="binder-search-icon">🔍</span>
+							<input type="search" class="binder-search-input" id="binderSearch" placeholder="Search name…" aria-label="Search pet collection">
+							<button type="button" class="binder-search-clear" id="binderSearchClear" hidden aria-label="Clear search">&times;</button>
 						</div>
-
-						<!-- Rarity Filter Chips -->
-						<div class="binder-chips-group" role="group" aria-label="Filter by Rarity">
-							<button type="button" class="chip is-active" data-filter-rarity="all">All Rarities</button>
-							<button type="button" class="chip chip--aurora" data-filter-rarity="tiny_wonder">🍼 Aurora</button>
-							<button type="button" class="chip chip--cosmos" data-filter-rarity="longtimer">⭐ Cosmos</button>
-							<button type="button" class="chip chip--gold" data-filter-rarity="golden_senior">👑 Gold</button>
-							<button type="button" class="chip chip--prism" data-filter-rarity="alumni">💖 Prism Alumni</button>
-						</div>
-
-						<!-- Sort Dropdown -->
-						<div class="binder-sort-wrap">
-							<label for="binderSortSelect" class="sr-only">Sort collection</label>
-							<select class="binder-sort-select" id="binderSortSelect" aria-label="Sort collection">
-								<option value="dex_asc"># Dex (001 → 087)</option>
-								<option value="name_asc">Name (A → Z)</option>
-								<option value="rarity_desc">Rarity (Highest First)</option>
-								<option value="type_asc">Species (Dogs, Cats)</option>
-							</select>
-						</div>
+						<button type="button" class="binder-theme-toggle" id="binderThemeToggle" title="Toggle light or dark theme" aria-label="Toggle light or dark theme">🌙</button>
 					</div>
 				</div>
 			</div>
@@ -209,9 +180,9 @@
 			<div class="binder-empty-state" id="binderEmptyState" hidden>
 				<div class="empty-icon">🐾</div>
 				<h2 class="empty-title" id="emptyTitle">No Cards Found</h2>
-				<p class="empty-desc" id="emptyDesc">No cards match your active filters. Reset filters, or open booster packs to discover new shelter companions.</p>
+				<p class="empty-desc" id="emptyDesc">No cards match All / Dogs / Cats. Try Show All, or open booster packs to discover new shelter companions.</p>
 				<div class="empty-actions">
-					<button type="button" class="btn-empty-reset" id="btnResetFilters">Reset Filters</button>
+					<button type="button" class="btn-empty-reset" id="btnResetFilters">Show All</button>
 					<a href="../booster/index.html" class="btn-empty-packs">🎁 Open Booster Packs</a>
 				</div>
 			</div>
@@ -275,7 +246,7 @@
 		<div class="binder-error-toast" id="binderErrorToast" hidden role="alert"></div>
 	</div>
 
-	<script src="dex-shared.js?v=8"></script>
-	<script src="album.js?v=8" defer></script>
+	<script src="dex-shared.js?v=9"></script>
+	<script src="album.js?v=9" defer></script>
 </body>
 </html>
