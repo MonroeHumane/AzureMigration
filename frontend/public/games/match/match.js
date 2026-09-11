@@ -71,6 +71,8 @@
 		boosterCloseBtn: document.getElementById('pmBoosterCloseBtn'),
 		quickRestart: document.getElementById('pmQuickRestart'),
 		toggleControls: document.getElementById('pmToggleControls'),
+		themeToggle: document.getElementById('pmThemeToggle'),
+		winMeetHint: document.getElementById('pmWinMeetHint'),
 		keyHints: document.getElementById('pmKeyHints'),
 		controls: document.querySelector('.pet-match-controls'),
 	};
@@ -1499,16 +1501,17 @@
 	}
 
 	function meetLinkMetaPx(petCount) {
+		// Name + species/breed meta + CTA under the square photo.
 		if (petCount <= 4) {
-			return 72;
+			return 86;
 		}
 		if (petCount <= 8) {
-			return 56;
+			return 70;
 		}
 		if (petCount <= 12) {
-			return 50;
+			return 62;
 		}
-		return 46;
+		return 56;
 	}
 
 	function meetDensity(petCount) {
@@ -1642,6 +1645,37 @@
 		} catch (e) {}
 	}
 
+	function titleCaseWord(value) {
+		const raw = String(value || '').trim();
+		if (!raw) return '';
+		return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+	}
+
+	function meetSpeciesLabel(pet) {
+		const type = String((pet && pet.type) || '').trim();
+		if (!type || type.toLowerCase() === 'companion') {
+			return '';
+		}
+		return titleCaseWord(type);
+	}
+
+	function meetMetaLine(pet) {
+		const species = meetSpeciesLabel(pet);
+		const breed = String((pet && pet.breed) || '').trim();
+		const breedUseful = breed && breed.toLowerCase() !== 'companion'
+			&& (!species || breed.toLowerCase() !== species.toLowerCase());
+		if (species && breedUseful) {
+			return species + ' · ' + breed;
+		}
+		if (breedUseful) {
+			return breed;
+		}
+		if (species) {
+			return species;
+		}
+		return 'Shelter friend';
+	}
+
 	function renderMeetThePets() {
 		if (!els.winMeet || !els.winMeetGrid) {
 			return;
@@ -1649,6 +1683,7 @@
 
 		const pets = roundPets.filter((pet) => pet && pet.url && pet.file);
 		els.winMeetGrid.innerHTML = '';
+		els.winMeetGrid.classList.remove('pet-match-meet__grid--flip');
 		delete els.winMeetGrid.dataset.density;
 		if (els.winMeet) {
 			delete els.winMeet.dataset.density;
@@ -1672,73 +1707,48 @@
 
 		els.winMeetGrid.dataset.count = String(pets.length);
 
-		const adoptedex = getAdoptedex();
-		const useFlipCards = adoptedex && typeof adoptedex.createFlipCard === 'function';
-		if (useFlipCards) {
-			els.winMeetGrid.classList.add('pet-match-meet__grid--flip');
-			if (els.winMeet && els.winMeetHint) {
-				els.winMeetHint.textContent = 'Tap a card to flip · open the profile from the back';
-			} else if (els.winMeet) {
-				const hint = els.winMeet.querySelector('.pet-match-meet__hint');
-				if (hint) hint.textContent = 'Tap a card to flip · open the profile from the back';
-			}
-			pets.forEach((pet, index) => {
-				const cardPet = {
-					id: pet.id,
-					name: pet.name || pet.alt || 'Adoptable pet',
-					type: pet.type || 'companion',
-					breed: pet.breed || '',
-					age: pet.age || '',
-					gender: pet.gender || '',
-					file: pet.file,
-					url: pet.url,
-					archived: !!pet.archived,
-				};
-				const li = adoptedex.createFlipCard(cardPet, {
-					met: true,
-					mode: 'collection',
-					readOnly: true,
-					dexNumber: index + 1,
-					highlight: true,
-					startFlipped: false,
-				});
-				els.winMeetGrid.appendChild(li);
-			});
-		} else {
-			els.winMeetGrid.classList.remove('pet-match-meet__grid--flip');
-			pets.forEach((pet) => {
-				const li = document.createElement('li');
-				const link = document.createElement('a');
-				link.className = 'pet-match-meet__link';
-				link.href = pet.url;
-				link.target = '_blank';
-				link.rel = 'noopener noreferrer';
-				link.setAttribute('aria-label', `View ${pet.name || pet.alt} profile`);
-
-				const photo = document.createElement('span');
-				photo.className = 'pet-match-meet__photo';
-
-				const img = document.createElement('img');
-				photo.classList.add('is-awaiting');
-				wirePetPhoto(img, pet, { loading: 'lazy' });
-				img.alt = '';
-				img.addEventListener('load', () => photo.classList.remove('is-awaiting'), { once: true });
-
-				photo.appendChild(img);
-
-				const name = document.createElement('span');
-				name.className = 'pet-match-meet__name';
-				name.textContent = pet.name || pet.alt || 'Adoptable pet';
-
-				const cta = document.createElement('span');
-				cta.className = 'pet-match-meet__cta';
-				cta.textContent = 'View profile';
-
-				link.append(photo, name, cta);
-				li.appendChild(link);
-				els.winMeetGrid.appendChild(li);
-			});
+		const hint = els.winMeetHint || (els.winMeet && els.winMeet.querySelector('.pet-match-meet__hint'));
+		if (hint) {
+			hint.textContent = 'Tap a pet to view their shelter profile';
 		}
+
+		pets.forEach((pet) => {
+			const displayName = pet.name || pet.alt || 'Adoptable pet';
+			const li = document.createElement('li');
+			li.className = 'pet-match-meet__card';
+
+			const link = document.createElement('a');
+			link.className = 'pet-match-meet__link';
+			link.href = pet.url;
+			link.target = '_blank';
+			link.rel = 'noopener noreferrer';
+			link.setAttribute('aria-label', 'View ' + displayName + ' profile');
+
+			const photo = document.createElement('span');
+			photo.className = 'pet-match-meet__photo is-awaiting';
+
+			const img = document.createElement('img');
+			wirePetPhoto(img, pet, { loading: 'lazy' });
+			img.alt = '';
+			img.addEventListener('load', () => photo.classList.remove('is-awaiting'), { once: true });
+			photo.appendChild(img);
+
+			const name = document.createElement('span');
+			name.className = 'pet-match-meet__name';
+			name.textContent = displayName;
+
+			const meta = document.createElement('span');
+			meta.className = 'pet-match-meet__meta';
+			meta.textContent = meetMetaLine(pet);
+
+			const cta = document.createElement('span');
+			cta.className = 'pet-match-meet__cta';
+			cta.textContent = 'View profile';
+
+			link.append(photo, name, meta, cta);
+			li.appendChild(link);
+			els.winMeetGrid.appendChild(li);
+		});
 
 		scheduleMeetSizing();
 	}
@@ -2099,6 +2109,12 @@
 		console.error('[Pet Match]', message);
 	}
 
+	function initTheme() {
+		const api = window.HumaneGamesTheme;
+		if (!api) return;
+		api.init({ button: els.themeToggle });
+	}
+
 	function bindControls() {
 		if (els.restart) {
 			els.restart.addEventListener('click', () => startLevel(currentLevel));
@@ -2110,6 +2126,9 @@
 			els.toggleControls.addEventListener('click', () => {
 				els.controls.classList.toggle('is-open');
 			});
+		}
+		if (els.themeToggle && window.HumaneGamesTheme && typeof window.HumaneGamesTheme.bindToggle === 'function') {
+			window.HumaneGamesTheme.bindToggle(els.themeToggle);
 		}
 		if (els.retry) {
 			els.retry.addEventListener('click', () => startLevel(currentLevel));
@@ -2271,6 +2290,7 @@
 			return;
 		}
 
+		initTheme();
 		applyTimingCssVars();
 		updateLayoutMode();
 		bindControls();

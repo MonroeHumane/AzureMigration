@@ -6,8 +6,9 @@
 	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 	<title>Pet Match - Humane Games</title>
 	<script src="../embed.js"></script>
-	<link rel="stylesheet" href="match.css?v=39">
-	<link rel="stylesheet" href="embed.css?v=38">
+	<script src="../theme.js?v=1"></script>
+	<link rel="stylesheet" href="match.css?v=40">
+	<link rel="stylesheet" href="embed.css?v=40">
 </head>
 <body>
 	<div class="pet-match-app" id="petMatchApp">
@@ -21,6 +22,7 @@
 				</div>
 				<div class="pet-match-hud__quick-actions">
 					<button type="button" class="pet-match-quick-btn" id="pmQuickRestart" title="Restart level" aria-label="Restart level">↺</button>
+					<button type="button" class="pet-match-quick-btn" id="pmThemeToggle" title="Toggle light or dark theme" aria-label="Toggle light or dark theme">🌙</button>
 					<button type="button" class="pet-match-quick-btn" id="pmToggleControls" title="Toggle game controls" aria-label="Toggle game controls">⚙️</button>
 				</div>
 			</div>
@@ -74,7 +76,7 @@
 			</div>
 			<section class="pet-match-meet" id="pmWinMeet" hidden aria-labelledby="pmWinMeetTitle">
 				<h3 id="pmWinMeetTitle">Meet the pets from this round</h3>
-				<p class="pet-match-meet__hint">Tap a card to flip · open the profile from the back</p>
+				<p class="pet-match-meet__hint" id="pmWinMeetHint">Tap a pet to view their shelter profile</p>
 				<ul class="pet-match-meet__grid" id="pmWinMeetGrid"></ul>
 			</section>
 			<footer class="pet-match-modal__actions pet-match-modal__actions--win">
@@ -114,6 +116,6 @@
 	</div>
 
 	<script src="../dex/dex-shared.js?v=6"></script>
-	<script src="match.js?v=39" defer></script>
+	<script src="match.js?v=40" defer></script>
 </body>
 </html>
