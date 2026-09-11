@@ -45,7 +45,7 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
 >
   <div
     id="Newsletter"
-    class="flex flex-col items-stretch overflow-visible rounded-[28px] px-[clamp(1.25rem,3vw,2.25rem)] py-[clamp(1.25rem,3vw,2.25rem)] text-white bg-[linear-gradient(135deg,#1f4c49,#2f736c)]"
+    class="flex flex-col items-stretch overflow-visible rounded-[28px] px-[clamp(1rem,3vw,2.25rem)] py-[clamp(1.1rem,3vw,2.25rem)] text-white bg-[linear-gradient(135deg,#1f4c49,#2f736c)]"
   >
     <p
       id="newsletter-section-label"
@@ -67,11 +67,15 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
     </p>
 
     <article
-      class="mt-6 grid grid-cols-1 overflow-hidden rounded-[22px] border border-white/15 bg-[#fffdf8] text-[#153635] shadow-[0_22px_48px_rgba(8,28,27,0.28)] min-[901px]:grid-cols-[minmax(0,1.25fr)_minmax(17rem,0.9fr)]"
+      class="mt-5 grid grid-cols-1 overflow-hidden rounded-[22px] border border-white/15 bg-[#fffdf8] text-[#153635] shadow-[0_22px_48px_rgba(8,28,27,0.28)] min-[901px]:grid-cols-[minmax(0,1.7fr)_minmax(15.5rem,0.78fr)]"
       data-newsletter-home
       aria-labelledby="hs-news-featured-title"
     >
-      <div class="relative min-h-0 bg-[#e7f0ec] aspect-[1168/514] min-[901px]:aspect-auto min-[901px]:min-h-[22rem] min-[1100px]:min-h-[26rem]">
+      {/*
+        Keep native collage aspect at ALL breakpoints. Prior desktop min-h + aspect-auto
+        letterboxed object-contain and made shirts look tiny.
+      */}
+      <div class="relative min-h-0 w-full bg-[#e7f0ec] aspect-[1168/514]">
         <img
           data-nl-hero
           src={heroSrc}
@@ -80,10 +84,10 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
           height="514"
           decoding="async"
           loading="lazy"
-          class="absolute inset-0 block h-full w-full object-contain object-center p-2 sm:p-3"
+          class="absolute inset-0 block h-full w-full object-contain object-center p-0.5 sm:p-1"
         />
       </div>
-      <div class="flex min-w-0 flex-col p-[clamp(1.2rem,3vw,2.15rem)]">
+      <div class="flex min-w-0 flex-col p-[clamp(1rem,2.8vw,1.75rem)]">
         <p
           data-nl-topline
           class="m-0 mb-[0.3rem] font-['Jost','Segoe_UI',sans-serif] text-[0.72rem] font-bold uppercase leading-tight tracking-[0.16em] text-teal-700"
@@ -92,7 +96,7 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
         </p>
         <p
           data-nl-date
-          class="m-0 mb-[0.7rem] font-['Jost','Segoe_UI',sans-serif] text-[0.92rem] font-medium leading-snug text-[#5b6f6e] empty:hidden"
+          class="m-0 mb-[0.55rem] font-['Jost','Segoe_UI',sans-serif] text-[0.92rem] font-medium leading-snug text-[#5b6f6e] empty:hidden"
         >{dateText}</p>
         <h3
           id="hs-news-featured-title"
@@ -103,33 +107,64 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
         </h3>
         <p
           data-nl-byline
-          class="m-0 mb-4 font-['Questrial','Segoe_UI',sans-serif] text-base font-medium italic leading-snug text-[#405757]"
+          class="m-0 mb-3 font-['Questrial','Segoe_UI',sans-serif] text-base font-medium italic leading-snug text-[#405757]"
         >
           {byline}
         </p>
         <p
           data-nl-excerpt
-          class="m-0 mb-3 font-['Questrial','Segoe_UI',sans-serif] text-[1.05rem] font-normal leading-[1.75] text-[#3d4f4e]"
+          class="m-0 mb-3 font-['Questrial','Segoe_UI',sans-serif] text-[1.02rem] font-normal leading-[1.7] text-[#3d4f4e]"
         >
           {excerpt}
         </p>
 
+        {/* Primary actions first on mobile — shorter path than details + 3 buttons */}
+        <div class="mt-1 flex flex-col gap-2.5 sm:mt-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-[0.55rem]">
+          <a
+            data-nl-link
+            href={readHref}
+            class="inline-flex min-h-11 w-full items-center justify-center rounded-full border-[1.5px] border-[#1f4c49] bg-[#1f4c49] px-[1.1rem] py-[0.65rem] font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.04em] text-white no-underline transition-colors hover:border-[#163a38] hover:bg-[#163a38] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf] sm:w-auto sm:min-h-[2.6rem] sm:py-[0.55rem]"
+          >
+            {readLabel}
+          </a>
+          <div class="grid grid-cols-2 gap-2 sm:contents">
+            <a
+              data-nl-pdf
+              class:list={[
+                "inline-flex min-h-11 w-full items-center justify-center rounded-full border-[1.5px] border-[rgba(31,76,73,0.28)] bg-white px-[0.9rem] py-[0.65rem] font-['Jost','Segoe_UI',sans-serif] text-[0.78rem] font-extrabold uppercase tracking-[0.04em] text-[#1f4c49] no-underline transition-colors hover:border-[#1f4c49] hover:bg-[#f3faf7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf] sm:w-auto sm:min-h-[2.6rem] sm:px-[1.1rem] sm:py-[0.55rem] sm:text-[0.82rem]",
+                !pdfUrl && 'home-nl__btn--off hidden',
+              ]}
+              href={pdfUrl || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Download PDF
+            </a>
+            <a
+              href="/newsletter"
+              class="inline-flex min-h-11 w-full items-center justify-center rounded-full border-[1.5px] border-[rgba(31,76,73,0.28)] bg-white px-[0.9rem] py-[0.65rem] font-['Jost','Segoe_UI',sans-serif] text-[0.78rem] font-extrabold uppercase tracking-[0.04em] text-[#1f4c49] no-underline transition-colors hover:border-[#1f4c49] hover:bg-[#f3faf7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf] sm:w-auto sm:min-h-[2.6rem] sm:px-[1.1rem] sm:py-[0.55rem] sm:text-[0.82rem]"
+            >
+              All issues
+            </a>
+          </div>
+        </div>
+
         <details
             data-nl-readall
             class:list={[
-              'group mb-4 rounded-2xl border border-[rgba(31,76,73,0.14)] bg-[#f7fbf9] open:bg-white open:shadow-[inset_0_0_0_1px_rgba(31,76,73,0.08)]',
+              'group mt-3 rounded-xl border border-[rgba(31,76,73,0.12)] bg-transparent open:bg-[#f7fbf9] open:shadow-none',
               !hasFullLetter && 'hidden',
             ]}
           >
             <summary
-              class="cursor-pointer list-none px-4 py-3 font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.06em] text-[#1f4c49] marker:content-none flex items-center justify-between gap-3 select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2dd4bf] rounded-2xl"
+              class="cursor-pointer list-none px-3 py-2.5 font-['Jost','Segoe_UI',sans-serif] text-[0.75rem] font-bold uppercase tracking-[0.05em] text-[#1f4c49]/90 marker:content-none flex items-center justify-between gap-3 select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2dd4bf] rounded-xl min-h-11 sm:min-h-0"
             >
               <span>Read the full letter</span>
-              <span aria-hidden="true" class="text-lg leading-none transition-transform group-open:rotate-180">▾</span>
+              <span aria-hidden="true" class="text-base leading-none transition-transform group-open:rotate-180">▾</span>
             </summary>
             <div
               data-nl-fullbody
-              class="border-t border-[rgba(31,76,73,0.1)] px-4 pb-4 pt-3 max-h-[min(28rem,55vh)] overflow-y-auto"
+              class="border-t border-[rgba(31,76,73,0.1)] px-3 pb-3 pt-2 max-h-[min(18rem,42vh)] overflow-y-auto sm:max-h-[min(24rem,50vh)]"
             >
               {storyBlocks.map((block) => (
                 <div class="mb-4 last:mb-0">
@@ -148,34 +183,6 @@ const hasFullLetter = storyBlocks.some((block) => String(block.body || '').trim(
               ))}
             </div>
           </details>
-
-        <div class="mt-auto flex flex-wrap gap-[0.55rem]">
-          <a
-            data-nl-link
-            href={readHref}
-            class="inline-flex min-h-[2.6rem] items-center justify-center rounded-full border-[1.5px] border-[#1f4c49] bg-[#1f4c49] px-[1.1rem] py-[0.55rem] font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.04em] text-white no-underline transition-colors hover:border-[#163a38] hover:bg-[#163a38] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf]"
-          >
-            {readLabel}
-          </a>
-          <a
-            data-nl-pdf
-            class:list={[
-              "inline-flex min-h-[2.6rem] items-center justify-center rounded-full border-[1.5px] border-[rgba(31,76,73,0.28)] bg-white px-[1.1rem] py-[0.55rem] font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.04em] text-[#1f4c49] no-underline transition-colors hover:border-[#1f4c49] hover:bg-[#f3faf7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf]",
-              !pdfUrl && 'home-nl__btn--off hidden',
-            ]}
-            href={pdfUrl || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Download PDF
-          </a>
-          <a
-            href="/newsletter"
-            class="inline-flex min-h-[2.6rem] items-center justify-center rounded-full border-[1.5px] border-[rgba(31,76,73,0.28)] bg-white px-[1.1rem] py-[0.55rem] font-['Jost','Segoe_UI',sans-serif] text-[0.82rem] font-extrabold uppercase tracking-[0.04em] text-[#1f4c49] no-underline transition-colors hover:border-[#1f4c49] hover:bg-[#f3faf7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2dd4bf]"
-          >
-            All issues
-          </a>
-        </div>
       </div>
     </article>
   </div>
