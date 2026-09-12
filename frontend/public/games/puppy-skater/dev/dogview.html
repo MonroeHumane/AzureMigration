@@ -2,24 +2,27 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Puppy Skater — Quaternius Shiba preview</title>
+<title>Puppy Skater — pup &amp; board garage</title>
 <style>
   :root { color-scheme: dark; }
   body { margin: 0; background: #0b1020; color: #dfe7f5; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; display: flex; min-height: 100vh; }
   #stage { padding: 14px; }
   canvas { border-radius: 12px; display: block; }
-  #side { padding: 18px 18px 18px 4px; width: 320px; }
+  #side { padding: 18px 18px 18px 4px; width: 330px; }
   h1 { font-size: 16px; color: #ffd166; margin: 0 0 4px; }
-  .sub { color: #7c8db0; margin-bottom: 14px; }
-  h2 { font-size: 11px; color: #8ecae6; text-transform: uppercase; letter-spacing: .08em; margin: 16px 0 8px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-  button { background: #1d2f52; color: #dfe7f5; border: 1px solid #33507f; border-radius: 8px; padding: 8px 10px; font: inherit; cursor: pointer; text-align: left; }
+  .sub { color: #7c8db0; margin-bottom: 12px; }
+  h2 { font-size: 11px; color: #8ecae6; text-transform: uppercase; letter-spacing: .08em; margin: 14px 0 7px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  button { background: #1d2f52; color: #dfe7f5; border: 1px solid #33507f; border-radius: 8px; padding: 7px 9px; font: inherit; font-size: 12px; cursor: pointer; text-align: left; }
   button:hover { background: #27406e; }
   button.on { background: #2f6f4f; border-color: #4fae82; }
+  button .lic { display: block; font-size: 9px; color: #7c8db0; margin-top: 1px; }
+  button.on .lic { color: #b8e6cf; }
   button.seq { grid-column: 1 / -1; }
-  label { display: block; margin-top: 10px; color: #7c8db0; }
+  label { display: block; margin-top: 9px; color: #7c8db0; }
   input[type=range] { width: 100%; }
-  .note { color: #7c8db0; font-size: 12px; margin-top: 14px; }
+  .note { color: #7c8db0; font-size: 11px; margin-top: 12px; line-height: 1.45; }
 </style>
 <script type="importmap">
 { "imports": {
@@ -31,46 +34,70 @@
 <body>
 <div id="stage"></div>
 <div id="side">
-  <h1>Quaternius Shiba Inu — CC0 rigged</h1>
-  <div class="sub">side-view framing ≈ in-game. The board is a placeholder prop; the final bake renders frames off the rig.</div>
-  <h2>Animation</h2>
-  <div class="grid" id="anims">
-    <button data-a="Gallop" class="on">🐕 Gallop (ride)</button>
-    <button data-a="Gallop_Jump">🛹 Gallop_Jump (ollie)</button>
-    <button data-a="Idle_2_HeadLow">🦆 HeadLow (duck)</button>
-    <button data-a="Jump_ToIdle">🛬 Jump_ToIdle (land)</button>
-    <button data-a="Idle_HitReact_Left">💥 HitReact (stumble)</button>
-    <button data-a="Death">💀 Death (wipeout)</button>
-    <button data-a="Walk">🚶 Walk</button>
-    <button data-a="Eating">🦴 Eating (idle treat?)</button>
-  </div>
+  <h1>Puppy Skater — pup &amp; board garage</h1>
+  <div class="sub">side-view framing ≈ in-game. Everything here bakes to sprite sheets later.</div>
+  <h2>Pup</h2>
+  <div class="grid" id="models"></div>
+  <h2>Board</h2>
+  <div class="grid3" id="boards"></div>
+  <h2>Gameplay (engine-facing)</h2>
+  <div class="grid3" id="gameplay"></div>
   <div class="grid" style="margin-top:8px">
-    <button class="seq" id="seq">▶ ollie sequence — gallop → jump → land → gallop</button>
-    <button class="seq" id="hit">▶ hit sequence — gallop → stumble → gallop</button>
+    <button class="seq" id="seq">▶ ollie — ride → jump → land → ride</button>
+    <button class="seq" id="hit">▶ hit — ride → stumble → ride</button>
   </div>
+  <h2>All clips</h2>
+  <div class="grid" id="anims"></div>
   <label>time scale <input id="ts" type="range" min="0.3" max="2" step="0.05" value="1"></label>
+  <label>chibi head scale <b id="hsv">1.00</b><input id="hs" type="range" min="0.8" max="1.8" step="0.05" value="1"></label>
   <label><input id="scroll" type="checkbox" checked> scroll world (runner feel)</label>
-  <p class="note">Drag to orbit · wheel to zoom. Source: Quaternius “Shiba Inu” (poly.pizza/m/y4wdQpg767), CC0.</p>
+  <label><input id="gear" type="checkbox" checked> backpack &amp; gear (pug)</label>
+  <p class="note" id="src"></p>
 </div>
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const W = 560, H = 700;
+// ── catalog ──────────────────────────────────────────────────────────────
+const PUPS = {
+  pug:       { name: 'Pug (chibi)',   src: 'Quaternius · poly.pizza/m/xvcUwuKl4c', lic: 'CC-BY' },
+  corgi:     { name: 'Corgi (loaf)',  src: 'Gobkit Free Animal Pack',              lic: 'CC0' },
+  fox:       { name: 'Fox (Khronos)', src: 'Khronos glTF-Sample-Assets',           lic: 'CC0' },
+  blackshiba:{ name: 'Black Shiba',   src: 'poly.pizza/m/aT17TtLWOL',              lic: 'CC0' },
+  dog:       { name: 'Dog (cartoon)', src: 'Quaternius · poly.pizza/m/2kUk0QqpCg', lic: 'CC0' },
+  husky:     { name: 'Husky',         src: 'Quaternius · poly.pizza/m/wcWiuEqwzq', lic: 'CC0' },
+  shiba:     { name: 'Shiba Inu',     src: 'Quaternius · poly.pizza/m/y4wdQpg767', lic: 'CC0' },
+};
+const BOARDS = {
+  kenney:      { name: 'Kenney',      file: 'kenney.glb',      author: 'Kenney',            lic: 'CC0' },
+  cgworld:     { name: 'cg_world',    file: 'cgworld.glb',     author: 'cg_world',          lic: 'CC0' },
+  snowboard:   { name: 'Snowboard',   file: 'snowboard.glb',   author: 'Geldvillager',      lic: 'CC0' },
+  complete:    { name: 'Complete',    file: 'complete.glb',    author: 'T. van iseghem',    lic: 'CC-BY' },
+  classic:     { name: 'Classic',     file: 'classic.glb',author: 'Poly by Google',    lic: 'CC-BY' },
+  fuchs:       { name: 'Fuchs',       file: 'fuchs.glb',       author: 'Michael Fuchs',     lic: 'CC-BY' },
+  red:         { name: 'Red deck',    file: 'red.glb',    author: 'Poly by Google',    lic: 'CC-BY' },
+  hover_j:     { name: 'Hoverboard',  file: 'hover_j.glb',author: 'jeremy',            lic: 'CC-BY' },
+  hover_s:     { name: 'Hoverboard2', file: 'hover_s.glb',   author: 'SamPokemon',        lic: 'CC-BY' },
+  hover_p:     { name: 'Hoverboard3', file: 'hover_p.glb',  author: 'Poly by Google',    lic: 'CC-BY' },
+};
+
+const params = new URLSearchParams(location.search);
+const MODEL = params.get('model') || 'pug';
+let BOARD_ID = params.get('board') || 'kenney';
+
+// ── renderer / scene ─────────────────────────────────────────────────────
+const W = 620, H = 730;
 const stage = document.getElementById('stage');
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setSize(W, H);
 renderer.setPixelRatio(Math.min(2, devicePixelRatio));
 renderer.shadowMap.enabled = true;
 stage.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-// game biome sky colors
 const skyTop = new THREE.Color('#5ec8e4'), skyBot = new THREE.Color('#d8f2ef');
 scene.background = skyTop.clone();
-
-// big gradient dome: cheap trick — vertex-colored backdrop plane
 const bg = new THREE.Mesh(
   new THREE.PlaneGeometry(60, 40),
   new THREE.ShaderMaterial({
@@ -90,11 +117,7 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024);
 scene.add(sun);
 
-// pavement
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(80, 14),
-  new THREE.MeshStandardMaterial({ color: 0x9aa2ac })
-);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 14), new THREE.MeshStandardMaterial({ color: 0x9aa2ac }));
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
@@ -102,17 +125,13 @@ const curb = new THREE.Mesh(new THREE.BoxGeometry(80, 0.12, 0.5), new THREE.Mesh
 curb.position.set(0, 0.06, -0.2);
 scene.add(curb);
 
-// scrolling props — simple block stacks sliding right→left like the game
 const props = [];
 const blockCols = [0xff8fa3, 0xffd166, 0x7ee0a3, 0xcdb4f0];
 for (let i = 0; i < 7; i++) {
   const stack = new THREE.Group();
   const n = 1 + (i % 3);
   for (let j = 0; j < n; j++) {
-    const bx = new THREE.Mesh(
-      new THREE.BoxGeometry(0.55, 0.55, 0.55),
-      new THREE.MeshStandardMaterial({ color: blockCols[(i + j) % 4] })
-    );
+    const bx = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.55), new THREE.MeshStandardMaterial({ color: blockCols[(i + j) % 4] }));
     bx.position.y = 0.28 + j * 0.55;
     bx.castShadow = true;
     stack.add(bx);
@@ -122,72 +141,244 @@ for (let i = 0; i < 7; i++) {
   props.push(stack);
 }
 
-// placeholder skateboard
-const board = new THREE.Group();
-const deck = new THREE.Mesh(
-  new THREE.BoxGeometry(1.15, 0.05, 0.34),
-  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
-);
-deck.castShadow = true;
-board.add(deck);
-const wheelMat = new THREE.MeshStandardMaterial({ color: 0xffd166 });
-for (const [x, z] of [[-0.42, -0.13], [-0.42, 0.13], [0.42, -0.13], [0.42, 0.13]]) {
-  const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.06, 12), wheelMat);
-  wheel.rotation.x = Math.PI / 2;
-  wheel.position.set(x, -0.07, z);
-  board.add(wheel);
-}
-board.position.y = 0.1;
-scene.add(board);
-
-const camera = new THREE.PerspectiveCamera(32, W / H, 0.1, 100);
-camera.position.set(0.4, 1.15, 4.6);
+const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 100);
+camera.position.set(-0.45, 1.1, 4.9);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 0.85, 0);
+controls.target.set(0.15, 0.55, 0);
 controls.update();
 
+// ── pup ──────────────────────────────────────────────────────────────────
+const loader = new GLTFLoader();
 let mixer = null, actions = {}, current = null, seq = null;
-const dog = await new GLTFLoader().loadAsync('./models/shiba.glb');
+const dog = await loader.loadAsync(`./models/${MODEL}.glb`);
 dog.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
-// auto-fit: normalize to ~1.05 units tall, feet on the board, facing +x (travel)
-const bbox = new THREE.Box3().setFromObject(dog.scene);
-const size = bbox.getSize(new THREE.Vector3());
-const scale = 1.05 / size.y;
-dog.scene.scale.setScalar(scale);
-const c = bbox.getCenter(new THREE.Vector3());
-dog.scene.position.set(-c.x * scale, 0.16 - bbox.min.y * scale, -c.z * scale);
-dog.scene.rotation.y = -Math.PI / 2; // face +x → camera sees the side profile
-scene.add(dog.scene);
+const holder = new THREE.Group();   // normalization transform (measure/scale/position)
+const pupFx = new THREE.Group();    // procedural gameplay transform (hop/squash/wobble/tip)
+pupFx.add(dog.scene);
+holder.add(pupFx);
+scene.add(holder);
 
 mixer = new THREE.AnimationMixer(dog.scene);
-for (const clip of dog.animations) actions[clip.name] = mixer.clipAction(clip);
+const short = n => n.split('|').pop();
+const SUBCLIPS = { corgi: { Idle: [0, 29], Attack: [30, 59], Death: [60, 89], Walk: [90, 119] } };
+if (SUBCLIPS[MODEL] && dog.animations.length === 1) {
+  for (const [name, [from, to]] of Object.entries(SUBCLIPS[MODEL])) {
+    actions[name] = mixer.clipAction(THREE.AnimationUtils.subclip(dog.animations[0], name, from, to, 24));
+  }
+} else {
+  for (const clip of dog.animations) {
+    const key = short(clip.name);
+    if (!actions[key]) actions[key] = mixer.clipAction(clip);
+  }
+}
+const pick = (...names) => names.find(n => actions[n]);
+const RIDE = pick('Gallop', 'Run', 'Walk', 'trot') || Object.keys(actions)[0];
+const JUMP = pick('Gallop_Jump', 'Run_Jump', 'Jump_Start', 'Jump_Loop', 'Attack');
+const DUCK = pick('Idle_2_HeadLow');
+const IDLE = pick('Idle', 'Idle_2', 'Survey', 'Walk');
+const LAND = pick('Jump_ToIdle', 'Jump_Loop');
+const HIT  = pick('Idle_HitReact_Left', 'Headbutt');
+const DEATH = pick('Death');
+const ride = actions[RIDE];
+ride.play();
+
+// chibi head bone
+const headBones = [];
+dog.scene.traverse(o => { if (o.isBone && /head/i.test(o.name)) headBones.push(o); });
+const applyHead = () => {
+  const v = parseFloat(document.getElementById('hs').value);
+  document.getElementById('hsv').textContent = v.toFixed(2);
+  headBones.forEach(b => b.scale.setScalar(v));
+};
+document.getElementById('hs').oninput = applyHead;
+
+// gear toggle
+const gearMeshes = [];
+holder.traverse(o => { if (o.isSkinnedMesh && /00[12]/.test(o.name)) gearMeshes.push(o); });
+const gearEl = document.getElementById('gear');
+const applyGear = () => gearMeshes.forEach(m => m.visible = gearEl.checked);
+gearEl.onchange = applyGear;
+applyGear();
+gearEl.parentElement.style.display = gearMeshes.length ? '' : 'none';
+
+// measure SKINNED bounds unioned across the ride cycle
+const skins = [];
+holder.traverse(o => { if (o.isSkinnedMesh) skins.push(o); });
+const bbox = new THREE.Box3(), tmp = new THREE.Box3();
+const measure = () => {
+  scene.updateMatrixWorld(true);
+  for (const m of skins) {
+    m.computeBoundingBox();
+    tmp.copy(m.boundingBox).applyMatrix4(m.matrixWorld);
+    bbox.union(tmp);
+  }
+};
+const dur = ride.getClip().duration;
+for (let s = 0; s <= 12; s++) { ride.time = dur * s / 12; mixer.update(0); measure(); }
+let size = bbox.getSize(new THREE.Vector3());
+if (size.z > size.x) {
+  dog.scene.rotation.y = Math.PI / 2;
+  bbox.makeEmpty();
+  ride.time = dur * 0.2; mixer.update(0); measure();
+  size = bbox.getSize(new THREE.Vector3());
+}
+// regulated sizing: fit BOTH axes — length ≤1.55 vs the 1.35 deck, height ≤1.0
+const scale = Math.min(1.55 / size.x, 1.0 / size.y);
+holder.scale.setScalar(scale);
+const c = bbox.getCenter(new THREE.Vector3()).multiplyScalar(scale);
+
+// ── board ────────────────────────────────────────────────────────────────
+let boardGroup = null, boardTop = 0.14, wheelMeshes = [];
+async function loadBoard(id) {
+  if (boardGroup) { scene.remove(boardGroup); }
+  wheelMeshes = [];
+  const spec = BOARDS[id];
+  const g = await loader.loadAsync(`./models/boards/${spec.file}`);
+  g.scene.traverse(o => {
+    if (o.isMesh) { o.castShadow = true; if (/wheel|roll/i.test(o.name)) wheelMeshes.push(o); }
+  });
+  const wrap = new THREE.Group();
+  wrap.add(g.scene);
+
+  // normalize: longest axis → x (length), then thinnest axis → y (deck flat).
+  // Then optional per-board fixups for upside-down/nose-wrong exports.
+  const bbOf = () => { g.scene.updateMatrixWorld(true); return new THREE.Box3().setFromObject(g.scene); };
+  let bb = bbOf(), s = bb.getSize(new THREE.Vector3());
+  if (s.y >= s.x && s.y >= s.z) g.scene.rotation.z = Math.PI / 2;
+  else if (s.z >= s.x && s.z >= s.y) g.scene.rotation.y = Math.PI / 2;
+  bb = bbOf(); s = bb.getSize(new THREE.Vector3());
+  if (s.y > s.z) g.scene.rotation.x = Math.PI / 2;
+  bb = bbOf(); s = bb.getSize(new THREE.Vector3());
+  const fix = spec.fix || {};
+  if (fix.rx) g.scene.rotation.x += fix.rx;
+  if (fix.ry) g.scene.rotation.y += fix.ry;
+  if (fix.rz) g.scene.rotation.z += fix.rz;
+  bb = bbOf(); s = bb.getSize(new THREE.Vector3());
+
+  const LEN = 1.35;
+  const sc = LEN / s.x;
+  wrap.scale.setScalar(sc);
+  const cc = bb.getCenter(new THREE.Vector3()).multiplyScalar(sc);
+  wrap.position.set(-cc.x, -bb.min.y * sc, -cc.z);
+  boardTop = s.y * sc;
+  boardGroup = wrap;
+  scene.add(boardGroup);
+
+  // re-anchor pup feet onto the deck top
+  holder.position.set(-c.x, boardTop - bbox.min.y * scale, -c.z);
+  document.querySelectorAll('#boards button').forEach(b => b.classList.toggle('on', b.dataset.b === id));
+  BOARD_ID = id;
+}
+await loadBoard(BOARD_ID);
+
+// ── UI wiring ────────────────────────────────────────────────────────────
+const modelsBox = document.getElementById('models');
+for (const [id, p] of Object.entries(PUPS)) {
+  const b = document.createElement('button');
+  b.dataset.m = id;
+  b.innerHTML = `${p.name}<span class="lic">${p.lic}</span>`;
+  b.classList.toggle('on', id === MODEL);
+  b.onclick = () => { params.set('model', id); params.set('board', BOARD_ID); location.search = '?' + params; };
+  modelsBox.appendChild(b);
+}
+const boardsBox = document.getElementById('boards');
+for (const [id, b2] of Object.entries(BOARDS)) {
+  const b = document.createElement('button');
+  b.dataset.b = id;
+  b.innerHTML = `${b2.name}<span class="lic">${b2.lic} · ${b2.author}</span>`;
+  b.classList.toggle('on', id === BOARD_ID);
+  b.onclick = () => { params.set('board', id); history.replaceState(null, '', '?' + params); loadBoard(id); };
+  boardsBox.appendChild(b);
+}
+
+const LABELS = {
+  Gallop: '🐕 Gallop (ride)', Run: '🐕 Run (ride)', Walk: '🚶 Walk', trot: '🐕 trot',
+  Gallop_Jump: '🛹 Gallop_Jump (ollie)', Run_Jump: '🛹 Run_Jump (ollie)',
+  Jump_Start: '🛹 Jump_Start', Jump_Loop: '🌀 Jump_Loop (air)', Jump_ToIdle: '🛬 Jump_ToIdle',
+  Idle_2_HeadLow: '🦆 HeadLow (duck)', Idle: '🙂 Idle', Idle_2: '🙂 Idle 2',
+  Idle_Eating: '🦴 Eating', Eating: '🦴 Eating', Survey: '👀 Survey',
+  Idle_HitReact_Left: '💥 HitReact L', Idle_HitReact_Right: '💥 HitReact R',
+  Headbutt: '💥 Headbutt', Death: '💀 Death (wipeout)', Attack: '⚔️ Attack',
+};
+const ORDER = [RIDE, JUMP, DUCK, LAND, HIT, DEATH, 'Idle', 'Idle_2', 'Walk', 'Survey', 'Idle_Eating', 'Eating', 'Attack', 'Idle_HitReact_Right', 'Jump_Loop', 'Headbutt'];
+const animBox = document.getElementById('anims');
+for (const key of [...new Set(ORDER)].filter(k => actions[k]).concat(Object.keys(actions).filter(k => !ORDER.includes(k)))) {
+  const b = document.createElement('button');
+  b.dataset.a = key;
+  b.textContent = LABELS[key] || key;
+  if (key === RIDE) b.classList.add('on');
+  animBox.appendChild(b);
+}
 function play(name, fade = 0.18, once = false) {
   const a = actions[name];
-  if (!a || current === a && !once) return;
+  if (!a || (current === a && !once)) return;
   a.reset();
   a.timeScale = parseFloat(document.getElementById('ts').value);
   if (once) { a.setLoop(THREE.LoopOnce); a.clampWhenFinished = true; }
   else a.setLoop(THREE.LoopRepeat);
-  if (current && current !== a) { a.crossFadeFrom(current, fade, false); }
+  if (current && current !== a) a.crossFadeFrom(current, fade, false);
   a.play();
   current = a;
   document.querySelectorAll('#anims button').forEach(b => b.classList.toggle('on', b.dataset.a === name));
 }
-play('Gallop');
-
+const ONCE = new Set([JUMP, LAND, HIT, DEATH, 'Idle_Eating', 'Eating', 'Jump_Start']);
 document.querySelectorAll('#anims button').forEach(b => {
-  b.onclick = () => { seq = null; play(b.dataset.a, 0.18, ['Gallop_Jump', 'Jump_ToIdle', 'Idle_HitReact_Left', 'Death', 'Eating'].includes(b.dataset.a)); };
+  b.onclick = () => { seq = null; play(b.dataset.a, 0.18, ONCE.has(b.dataset.a)); };
 });
-document.getElementById('seq').onclick = () => { seq = { steps: ['Gallop_Jump', 'Jump_ToIdle'], i: -1 }; advance(); };
-document.getElementById('hit').onclick = () => { seq = { steps: ['Idle_HitReact_Left'], i: -1 }; advance(); };
+
+// ── gameplay layer — the canonical six the engine needs ─────────────────
+// Real clip when the rig ships one, synthesized motion when it doesn't.
+const proc = { hop: -1, duck: 0, duckOn: false, hit: -1, death: -1 };
+const GP = [
+  ['ride',  '🐕 Ride',    RIDE],
+  ['ollie', '🛹 Ollie',   JUMP],
+  ['duck',  '🦆 Duck',    DUCK],
+  ['hit',   '💥 Hit',     HIT],
+  ['death', '💀 Wipeout', DEATH],
+  ['idle',  '🙂 Idle',    IDLE],
+];
+const gpBox = document.getElementById('gameplay');
+for (const [kind, label, clip] of GP) {
+  const b = document.createElement('button');
+  b.innerHTML = clip ? label : `${label}<span class="lic">synth</span>`;
+  b.onclick = () => {
+    seq = null;
+    if (kind === 'ride') { resetProc(); play(RIDE); return; }
+    if (kind === 'ollie') { clip ? play(clip, 0.12, true) : proc.hop = 0; return; }
+    if (kind === 'duck') {
+      if (clip) play(clip);
+      else { proc.duckOn = !proc.duckOn; b.classList.toggle('on', proc.duckOn); }
+      return;
+    }
+    if (kind === 'hit') { clip ? play(clip, 0.15, true) : proc.hit = 0; return; }
+    if (kind === 'death') { clip ? play(clip, 0.15, true) : proc.death = 0; return; }
+    if (kind === 'idle') { clip ? play(clip) : play(RIDE); }
+  };
+  gpBox.appendChild(b);
+}
+function resetProc() {
+  proc.hop = proc.hit = proc.death = -1;
+  proc.duckOn = false;
+  pupFx.position.set(0, 0, 0);
+  pupFx.rotation.set(0, 0, 0);
+  pupFx.scale.set(1, 1, 1);
+}
+
+document.getElementById('seq').onclick = () => { seq = { steps: [JUMP, LAND].filter(Boolean), i: -1 }; advance(); };
+document.getElementById('hit').onclick = () => { seq = { steps: [HIT].filter(Boolean), i: -1 }; advance(); };
 function advance() {
   if (!seq) return;
   seq.i++;
-  if (seq.i >= seq.steps.length) { seq = null; play('Gallop'); return; }
+  if (seq.i >= seq.steps.length) { seq = null; play(RIDE); return; }
   play(seq.steps[seq.i], 0.12, true);
 }
 document.getElementById('ts').oninput = e => { if (current) current.timeScale = parseFloat(e.target.value); };
+document.getElementById('src').innerHTML =
+  `Pup: ${PUPS[MODEL].name} — ${PUPS[MODEL].lic} (${PUPS[MODEL].src})<br>` +
+  `Board: ${BOARDS[BOARD_ID].name} — ${BOARDS[BOARD_ID].lic} by ${BOARDS[BOARD_ID].author}<br>` +
+  `Drag to orbit · wheel to zoom.`;
 
+// ── loop ─────────────────────────────────────────────────────────────────
 const clock = new THREE.Clock();
 let scrollX = 0;
 function tick() {
@@ -195,11 +386,39 @@ function tick() {
   const dt = clock.getDelta();
   if (mixer) {
     mixer.update(dt);
+    applyHead();
     if (current && current.loop === THREE.LoopOnce && !current.isRunning()) {
-      if (seq) advance(); else if (current !== actions.Gallop) play('Gallop');
+      if (seq) advance(); else if (current !== actions[RIDE]) play(RIDE);
     }
   }
-  if (document.getElementById('scroll').checked) {
+  // ── synthesized gameplay motion (rigs missing the real clip) ──
+  if (proc.hop >= 0) {                       // ollie: hop arc + nose-up pitch
+    proc.hop += dt / 0.55;
+    const p = Math.min(1, proc.hop);
+    pupFx.position.y = Math.sin(p * Math.PI) * 0.5;
+    pupFx.rotation.z = Math.sin(p * Math.PI) * 0.2;
+    if (p >= 1) { proc.hop = -1; pupFx.position.y = 0; pupFx.rotation.z = 0; }
+  }
+  const duckTgt = proc.duckOn ? 1 : 0;       // duck: smooth squash toward 0.68
+  proc.duck += (duckTgt - proc.duck) * Math.min(1, dt * 10);
+  pupFx.scale.y = 1 - 0.32 * proc.duck;
+  if (proc.hit >= 0) {                       // hit: shake + small knockback
+    proc.hit += dt / 0.45;
+    const p = Math.min(1, proc.hit);
+    pupFx.rotation.z = Math.sin(p * Math.PI * 3) * 0.22 * (1 - p);
+    pupFx.position.x = -Math.sin(p * Math.PI) * 0.12;
+    if (p >= 1) { proc.hit = -1; pupFx.rotation.z = 0; pupFx.position.x = 0; }
+  }
+  if (proc.death >= 0) {                     // wipeout: tip over sideways, stay
+    proc.death += dt / 0.6;
+    const p = Math.min(1, proc.death);
+    const e = 1 - Math.pow(1 - p, 3);        // ease-out
+    pupFx.rotation.z = -e * 1.35;
+    pupFx.position.y = Math.sin(Math.min(1, p * 1.4) * Math.PI) * 0.12;
+    if (p >= 1) proc.death = 1;              // hold
+  }
+  const scrolling = document.getElementById('scroll').checked;
+  if (scrolling) {
     scrollX += dt * 2.2;
     for (const p of props) {
       p.position.x -= dt * 2.2;
@@ -207,11 +426,26 @@ function tick() {
     }
     curb.position.x = -(scrollX % 4);
   }
-  // subtle board bounce
-  board.position.y = 0.1 + Math.sin(clock.elapsedTime * 14) * 0.004;
+  // wheels roll with the scroll; board ollie-syncs to jump clip OR synth hop
+  if (boardGroup) {
+    wheelMeshes.forEach(w => w.rotation.x -= dt * 2.2 / 0.055);
+    let jp = 0;
+    if (current && JUMP && current === actions[JUMP]) {
+      jp = Math.min(1, current.time / current.getClip().duration);
+    } else if (proc.hop >= 0) {
+      jp = Math.min(1, proc.hop);
+    }
+    const hop = Math.sin(jp * Math.PI) * 0.34;
+    boardGroup.position.y = (boardGroup.userData.baseY ??= boardGroup.position.y) + hop + Math.sin(clock.elapsedTime * 14) * 0.004;
+    boardGroup.rotation.z = Math.sin(jp * Math.PI) * 0.22; // pitch nose-up (x = travel axis)
+  }
   renderer.render(scene, camera);
 }
 tick();
+
+window.__dbg = () => ({ model: MODEL, board: BOARD_ID, boardTop, wheels: wheelMeshes.length, size: size.toArray().map(v => +v.toFixed(2)), scale: +scale.toFixed(4), holderPos: holder.position.toArray().map(v => +v.toFixed(2)), anims: Object.keys(actions) });
+window.__scene = scene; window.__holder = holder; window.__camera = camera; window.__controls = controls; window.__renderer = renderer;
+window.__board = () => boardGroup;
 </script>
 </body>
 </html>
