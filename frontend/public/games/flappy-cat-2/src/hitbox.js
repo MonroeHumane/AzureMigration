@@ -5,6 +5,8 @@
 // If pixel reads fail (tainted canvas, missing image) callers fall back to
 // the old conservative shapes — never crash.
 
+import { FRAME_SHIFT } from './config.js';
+
 const TIP_FRACTION = 0.38; // pointed end of the rock sprite (matches render slice)
 const TIP_BANDS = 5;       // horizontal bands subdividing the tip region
 const ALPHA_MIN = 16;      // alpha > this counts as solid
@@ -37,7 +39,7 @@ export function catEllipse(img, frame, fw, fh, drawW) {
   if (catCache.has(key)) return catCache.get(key);
 
   const drawH = drawW * (fh / fw);
-  const data = scan(img, frame * fw, 0, fw, fh);
+  const data = scan(img, frame * fw - (FRAME_SHIFT[frame] || 0), 0, fw, fh);
   let box = null;
   if (data) {
     let minX = fw, minY = fh, maxX = -1, maxY = -1;

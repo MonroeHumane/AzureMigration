@@ -357,9 +357,16 @@ Flight::route('POST /v1/adoptedex/auth', function () use ($adoptedexController, 
             return;
         }
 
+        // Bound PIN guesses (6-digit rescue PIN) + profile enumeration.
+        if (!limitAdoptedex($rateLimiter, 'dex_auth', 30)) {
+            return;
+        }
+
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
         $username = $payload['username'] ?? $payload['display_name'] ?? $payload['user'] ?? 'Player';
-        $result = $adoptedexController->getOrCreateProfile((string)$username);
+        $pin = $payload['pin'] ?? null;
+        $sessionProfileId = currentArcadeSessionProfile($authMiddleware);
+        $result = $adoptedexController->getOrCreateProfile((string)$username, $sessionProfileId, $pin !== null ? (string)$pin : null);
         Flight::json($result);
     } catch (\Exception $e) {
         serverError('adoptedexAuth', $e);
@@ -379,9 +386,46 @@ Flight::route('GET /v1/adoptedex/@user', function ($user) use ($adoptedexControl
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/discover', function ($user) use ($adoptedexController, $authMiddleware) {
+/**
+ * Map an Adoptédex controller result to an HTTP status + JSON body.
+ * 'forbidden' → 403, 'not_found'/'Profile not found' → 404, other failures → $failStatus.
+ */
+function sendAdoptedexResult(array $result, int $failStatus = 400): void
+{
+    if (!empty($result['ok'])) {
+        Flight::json($result);
+        return;
+    }
+    $code = $result['code'] ?? '';
+    if ($code === 'forbidden') {
+        Flight::json($result, 403);
+        return;
+    }
+    if ($code === 'not_found' || ($result['message'] ?? '') === 'Profile not found') {
+        Flight::json($result, 404);
+        return;
+    }
+    Flight::json($result, $failStatus);
+}
+
+/**
+ * Hourly fixed-window cap for Adoptédex mutating routes (rate_limit_buckets
+ * are hour-aligned). Returns true when the request may proceed.
+ */
+function limitAdoptedex($rateLimiter, string $action, int $limit): bool
+{
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    if ($rateLimiter->allow($action, $ip, $limit)) {
+        return true;
+    }
+    Flight::json(['ok' => false, 'code' => 'rate_limited', 'message' => 'Too many requests — try again later.'], 429);
+    return false;
+}
+
+Flight::route('POST /v1/adoptedex/@user/discover', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
     try {
-        if (requireArcadeSession($authMiddleware) === null) {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_discover', 240)) {
             return;
         }
 
@@ -394,16 +438,17 @@ Flight::route('POST /v1/adoptedex/@user/discover', function ($user) use ($adopte
             return;
         }
 
-        $result = $adoptedexController->discoverPet((string)$user, $petId, $source);
-        Flight::json($result);
+        $result = $adoptedexController->discoverPet((string)$user, $petId, $source, $sessionProfileId);
+        sendAdoptedexResult($result);
     } catch (\Exception $e) {
         serverError('discoverPet', $e);
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/discover/bulk', function ($user) use ($adoptedexController, $authMiddleware) {
+Flight::route('POST /v1/adoptedex/@user/discover/bulk', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
     try {
-        if (requireArcadeSession($authMiddleware) === null) {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_discover_bulk', 60)) {
             return;
         }
 
@@ -411,16 +456,17 @@ Flight::route('POST /v1/adoptedex/@user/discover/bulk', function ($user) use ($a
         $petIds  = (array)($payload['pet_ids'] ?? []);
         $source  = (string)($payload['source'] ?? 'match');
 
-        $result = $adoptedexController->discoverBulk((string)$user, $petIds, $source);
-        Flight::json($result);
+        $result = $adoptedexController->discoverBulk((string)$user, $petIds, $source, $sessionProfileId);
+        sendAdoptedexResult($result);
     } catch (\Exception $e) {
         serverError('discoverBulk', $e);
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/rewards/claim', function ($user) use ($adoptedexController, $authMiddleware) {
+Flight::route('POST /v1/adoptedex/@user/rewards/claim', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
     try {
-        if (requireArcadeSession($authMiddleware) === null) {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_claim', 120)) {
             return;
         }
 
@@ -433,62 +479,51 @@ Flight::route('POST /v1/adoptedex/@user/rewards/claim', function ($user) use ($a
             return;
         }
 
-        $result = $adoptedexController->claimReward((string)$user, $gameId, $rewardKey);
-        if (!$result['ok']) {
-            $status = ($result['message'] ?? '') === 'Profile not found' ? 404 : 400;
-            Flight::json($result, $status);
-            return;
-        }
-        Flight::json($result);
+        $result = $adoptedexController->claimReward((string)$user, $gameId, $rewardKey, [], $sessionProfileId);
+        sendAdoptedexResult($result);
     } catch (\Exception $e) {
         serverError('claimReward', $e);
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/packs/open', function ($user) use ($adoptedexController, $authMiddleware) {
+Flight::route('POST /v1/adoptedex/@user/packs/open', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
     try {
-        if (requireArcadeSession($authMiddleware) === null) {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_pack_open', 60)) {
             return;
         }
 
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
         $tier    = (string)($payload['tier'] ?? 'standard');
 
-        $result = $adoptedexController->openPack((string)$user, $tier);
-        if (!$result['ok']) {
-            Flight::json($result, 409);
-            return;
-        }
-        Flight::json($result);
+        $result = $adoptedexController->openPack((string)$user, $tier, $sessionProfileId);
+        sendAdoptedexResult($result, 409);
     } catch (\Exception $e) {
         serverError('openPack', $e);
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/coins/award', function ($user) use ($adoptedexController, $authMiddleware) {
+Flight::route('POST /v1/adoptedex/@user/coins/award', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
     try {
-        if (requireArcadeSession($authMiddleware) === null) {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_coins_award', 40)) {
             return;
         }
 
         $payload = json_decode(Flight::request()->getBody(), true) ?: [];
         $reason  = (string)($payload['reason'] ?? 'game_award');
 
-        $result = $adoptedexController->awardCoins((string)$user, 0, $reason);
-        if (!$result['ok']) {
-            $status = ($result['message'] ?? '') === 'Profile not found' ? 404 : 400;
-            Flight::json($result, $status);
-            return;
-        }
-        Flight::json($result);
+        $result = $adoptedexController->awardCoins((string)$user, 0, $reason, $sessionProfileId);
+        sendAdoptedexResult($result);
     } catch (\Exception $e) {
         serverError('awardCoins', $e);
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/coins/spend', function ($user) use ($adoptedexController, $authMiddleware) {
+Flight::route('POST /v1/adoptedex/@user/coins/spend', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
     try {
-        if (requireArcadeSession($authMiddleware) === null) {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_coins_spend', 60)) {
             return;
         }
 
@@ -496,23 +531,15 @@ Flight::route('POST /v1/adoptedex/@user/coins/spend', function ($user) use ($ado
         $amount  = (int)($payload['amount'] ?? 0);
         $reason  = (string)($payload['reason'] ?? 'game_spend');
 
-        $result = $adoptedexController->spendCoins((string)$user, $amount, $reason);
-        if (!$result['ok']) {
-            Flight::json($result, 402);
-            return;
-        }
-        Flight::json($result);
+        $result = $adoptedexController->spendCoins((string)$user, $amount, $reason, $sessionProfileId);
+        sendAdoptedexResult($result, 402);
     } catch (\Exception $e) {
         serverError('spendCoins', $e);
     }
 });
 
-Flight::route('GET /v1/pack-tiers', function () {
-    Flight::json([
-        'standard' => ['cardCount' => 1, 'label' => 'Standard Pack'],
-        'duo'      => ['cardCount' => 2, 'label' => 'Duo Pack'],
-        'deluxe'   => ['cardCount' => 3, 'label' => 'Deluxe Pack'],
-    ]);
+Flight::route('GET /v1/pack-tiers', function () use ($adoptedexController) {
+    Flight::json($adoptedexController->getPackTiers());
 });
 
 Flight::route('GET /v1/adoptedex/@user/match-stats', function ($user) use ($adoptedexController) {
@@ -528,15 +555,17 @@ Flight::route('GET /v1/adoptedex/@user/match-stats', function ($user) use ($adop
     }
 });
 
-Flight::route('POST /v1/adoptedex/@user/match-stats', function ($user) use ($adoptedexController) {
+Flight::route('POST /v1/adoptedex/@user/match-stats', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
     try {
-        $payload = json_decode(Flight::request()->getBody(), true) ?: [];
-        $result = $adoptedexController->saveMatchStats((string)$user, $payload);
-        if (!$result['ok']) {
-            Flight::json($result, 404);
+        // Session required — saveMatchStats can mint rewards via new_milestone.
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_match_stats', 60)) {
             return;
         }
-        Flight::json($result);
+
+        $payload = json_decode(Flight::request()->getBody(), true) ?: [];
+        $result = $adoptedexController->saveMatchStats((string)$user, $payload, $sessionProfileId);
+        sendAdoptedexResult($result, 404);
     } catch (\Exception $e) {
         serverError('saveMatchStats', $e);
     }

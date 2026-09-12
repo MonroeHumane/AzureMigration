@@ -112,7 +112,8 @@
 		filterRarity: 'all',
 		sortMode: 'dex_asc',
 		searchQuery: '',
-		unopenedPacks: 1,
+		unopenedPacks: 0,
+		packsByTier: { standard: 0, duo: 0, deluxe: 0 },
 		coinBalance: 0,
 		inspectorIndex: -1,
 		isInspectorFlipped: false,
@@ -169,6 +170,13 @@
 		sheetDots: document.getElementById('sheetDots'),
 		emptyState: document.getElementById('binderEmptyState'),
 		btnResetFilters: document.getElementById('btnResetFilters'),
+		recoverBtn: document.getElementById('binderRecoverBtn'),
+		recoverModal: document.getElementById('binderRecoverModal'),
+		recoverSlug: document.getElementById('binderRecoverSlug'),
+		recoverPin: document.getElementById('binderRecoverPin'),
+		recoverError: document.getElementById('binderRecoverError'),
+		recoverGo: document.getElementById('binderRecoverGo'),
+		recoverCancel: document.getElementById('binderRecoverCancel'),
 		inspectorModal: document.getElementById('cardInspectorModal'),
 		inspectorBackdrop: document.getElementById('inspectorBackdrop'),
 		inspectorCloseBtn: document.getElementById('inspectorCloseBtn'),
@@ -275,61 +283,23 @@
 	function buildBinderCardHtml(card, opts) {
 		opts = opts || {};
 		var inspector = !!opts.inspector;
-		var foilClass = foilClassForCard(card);
-		var genderLabel = formatGenderLabel(card.gender);
-		var statusLabel = card.isAdopted ? 'Adopted' : 'Available';
-		var statusMod = card.isAdopted ? 'is-adopted' : 'is-available';
-		var typeLabel = card.species === 'dog' ? 'Dog' : (card.species === 'cat' ? 'Cat' : 'Pet');
-		var adoptedBadge = card.isAdopted
-			? '<span class="binder-card__adopted-badge">Adopted</span>'
-			: '';
-		var metaChips = '';
-		if (card.ageDisplay) {
-			metaChips += '<span class="binder-card__chip">' + escapeHtml(card.ageDisplay) + '</span>';
+		// Unified shared renderer — same card the booster reveals and overlays show.
+		if (window.MonroeCard && typeof window.MonroeCard.buildFaceHtml === 'function') {
+			var inner = window.MonroeCard.buildFaceHtml(card, {
+				inspector: inspector,
+				nameTag: inspector ? 'h2' : 'span',
+			});
+			if (inspector) {
+				return '<div class="inspector-face inspector-face--front ' + foilClassForCard(card) + '">' + inner + '</div>';
+			}
+			return inner;
 		}
-		if (genderLabel) {
-			metaChips += '<span class="binder-card__chip">' + escapeHtml(genderLabel) + '</span>';
-		}
-		metaChips += '<span class="binder-card__chip">' + escapeHtml(typeLabel) + '</span>';
-		metaChips += '<span class="binder-card__chip binder-card__chip--status ' + statusMod + '">' + statusLabel + '</span>';
-
-		var nameTag = inspector
-			? '<h2 class="binder-card__name" id="inspectorPetName">' + escapeHtml(card.name) + '</h2>'
-			: '<span class="binder-card__name">' + escapeHtml(card.name) + '</span>';
-		var speciesLabel = inspector ? escapeHtml(card.speciesLabel) : speciesEmoji(card);
-		var moveInner = inspector
-			? ('<div><strong>' + escapeHtml(card.signatureMove.icon + ' ' + card.signatureMove.name) + '</strong>' +
-				'<p class="binder-card__move-effect">' + escapeHtml(card.signatureMove.effect) + '</p></div>')
-			: ('<span>' + escapeHtml(card.signatureMove.icon + ' ' + card.signatureMove.name) + '</span>');
-		var cardClass = 'binder-card' + (card.isAdopted ? ' binder-card--adopted' : '') + (inspector ? ' binder-card--inspector' : '');
-		var outerOpen = inspector
-			? ('<div class="inspector-face inspector-face--front ' + foilClass + '"><div class="' + cardClass + '">')
-			: ('<div class="' + cardClass + ' ' + foilClass + '">');
-		var outerClose = inspector ? '</div></div>' : '</div>';
-
-		return outerOpen +
-			'<div class="binder-card__foil"></div>' +
-			'<div class="binder-card__header">' +
-				'<span class="binder-card__dex">' + escapeHtml(card.dexNumber) + '</span>' +
-				nameTag +
-				'<span class="binder-card__species" aria-hidden="true">' + speciesLabel + '</span>' +
-			'</div>' +
-			'<div class="binder-card__photo-window">' +
-				'<img class="binder-card__photo" src="' + escapeHtml(card.photoUrl) + '" alt="' + escapeHtml(card.name) + '"' + (inspector ? '' : ' loading="lazy"') + '>' +
-				adoptedBadge +
-				'<span class="binder-card__rarity-badge">' + escapeHtml(card.rarityLabel) + '</span>' +
-			'</div>' +
-			'<div class="binder-card__body">' +
-				'<div class="binder-card__meta">' + metaChips + '</div>' +
-				'<span class="binder-card__breed">' + escapeHtml(card.breed) + '</span>' +
-				'<div class="binder-card__move">' + moveInner + '</div>' +
-				'<div class="binder-card__stats">' +
-					'<span class="binder-card__stat-item" title="Energy"><span class="binder-card__stat-ico" aria-hidden="true">⚡</span><span class="binder-card__stat-val">' + card.stats.energy + '</span><span class="binder-card__stat-lbl">Energy</span></span>' +
-					'<span class="binder-card__stat-item" title="Cuddle"><span class="binder-card__stat-ico" aria-hidden="true">💖</span><span class="binder-card__stat-val">' + card.stats.cuddle + '</span><span class="binder-card__stat-lbl">Cuddle</span></span>' +
-					'<span class="binder-card__stat-item" title="Loyalty"><span class="binder-card__stat-ico" aria-hidden="true">⭐</span><span class="binder-card__stat-val">' + card.stats.loyalty + '</span><span class="binder-card__stat-lbl">Loyalty</span></span>' +
-				'</div>' +
-			'</div>' +
-			outerClose;
+		// Fallback (shared card module missing) — minimal card.
+		return '<div class="binder-card ' + foilClassForCard(card) + '">' +
+			'<div class="binder-card__header"><span class="binder-card__dex">' + escapeHtml(card.dexNumber) + '</span>' +
+			'<span class="binder-card__name">' + escapeHtml(card.name) + '</span></div>' +
+			'<div class="binder-card__photo-window"><img class="binder-card__photo" src="' + escapeHtml(card.photoUrl) + '" alt="' + escapeHtml(card.name) + '"' + (inspector ? '' : ' loading="lazy"') + '></div>' +
+			'</div>';
 	}
 
 	function determinePocketsPerSheet() {
@@ -339,85 +309,36 @@
 	// ──────────────────────────────────────────────────────────────────────────
 	// Card Generation & Attribute Calculation
 	// ──────────────────────────────────────────────────────────────────────────
+	// Canonical card attributes live in card-model.js — one rarity/stat/move
+	// source shared with the booster, overlays and the server's pack draws.
 	function computeCardAttributes(pet, index) {
-		var isDog = (pet.type || '').toLowerCase() === 'dog' || (pet.species_label || '').toLowerCase() === 'dog';
-		var isCat = (pet.type || '').toLowerCase() === 'cat' || (pet.species_label || '').toLowerCase() === 'cat';
-		var species = isDog ? 'dog' : (isCat ? 'cat' : 'other');
-
-		var ageStr = (pet.age_display || pet.age || '').toLowerCase();
-		var isArchived = !!(pet.archived || pet.archived_at);
-
-		// Determine Rarity & Holographic Foil
-		var rarity = 'common';
-		var foil = 'none';
-		var rarityLabel = 'Rescue Pet';
-
-		if (isArchived) {
-			rarity = 'alumni';
-			foil = 'prism';
-			rarityLabel = 'Happy Alumni';
-		} else if (ageStr.indexOf('senior') !== -1 || ageStr.indexOf('7 year') !== -1 || ageStr.indexOf('8 year') !== -1 || ageStr.indexOf('9 year') !== -1 || ageStr.indexOf('10 year') !== -1 || ageStr.indexOf('11 year') !== -1 || ageStr.indexOf('12 year') !== -1) {
-			rarity = 'golden_senior';
-			foil = 'gold';
-			rarityLabel = 'Golden Senior';
-		} else if (pet.location === 'Foster Care' || (pet.description && pet.description.length > 200) || (pet.intake_date && pet.intake_date.indexOf('2025') !== -1)) {
-			rarity = 'longtimer';
-			foil = 'cosmos';
-			rarityLabel = 'Shelter Champion';
-		} else if (ageStr.indexOf('month') !== -1 || ageStr.indexOf('baby') !== -1 || ageStr.indexOf('puppy') !== -1 || ageStr.indexOf('kitten') !== -1) {
-			rarity = 'tiny_wonder';
-			foil = 'aurora';
-			rarityLabel = 'Tiny Wonder';
+		if (window.MonroeCardModel && typeof window.MonroeCardModel.computeCardAttributes === 'function') {
+			return window.MonroeCardModel.computeCardAttributes(pet, index);
 		}
-
-		// Signature Moves
-		var moves = isDog ? [
-			{ icon: '🎾', name: 'Fetch Frenzy', effect: 'Recovers energy and delivers a joyful squeak.' },
-			{ icon: '🐾', name: 'Tail Thump', effect: 'Rhythmically wags tail, lifting spirits by +40.' },
-			{ icon: '🐶', name: 'Puppy Dog Eyes', effect: 'Irresistible gaze grants instant belly rubs.' },
-			{ icon: '⚡', name: 'Zoomie Dash', effect: 'Sprints in hyper-speed circles across the yard.' }
-		] : (isCat ? [
-			{ icon: '☀️', name: 'Sunbeam Nap', effect: 'Basks in warm light to completely restore HP.' },
-			{ icon: '🎯', name: 'Laser Pounce', effect: 'Acrobatic leap chasing red dots with laser focus.' },
-			{ icon: '🧶', name: 'Yarn Tangle', effect: 'Playfully ensnares toys in spinning gymnastics.' },
-			{ icon: '🎶', name: 'Purr Motor', effect: 'Vibrates at therapeutic 25Hz frequency for calmness.' }
-		] : [
-			{ icon: '🥕', name: 'Carrot Crunch', effect: 'Nosh with vigor, brightening everyone\'s day.' },
-			{ icon: '✨', name: 'Nose Twitch', effect: 'Quick curious sniffs explore surroundings safely.' }
-		]);
-
-		var move = moves[(parseInt(pet.id || '0', 10) + index) % moves.length];
-
-		// Stats
-		var seed = parseInt(String(pet.id).slice(-3) || '42', 10);
-		var energy = 60 + (seed % 35);
-		var cuddle = 75 + ((seed * 3) % 25);
-		var loyalty = 80 + ((seed * 7) % 20);
-
-		var numStr = '#' + String(index + 1).padStart(3, '0');
-		var photo = pet.image_url || pet.file || 'https://placehold.co/500x500/0f3d32/2dd4bf?text=' + encodeURIComponent(pet.name || 'Pet');
-
+		// Minimal fallback if the shared model failed to load.
+		var species = String(pet.type || pet.species_label || '').toLowerCase().indexOf('dog') >= 0 ? 'dog' : 'cat';
 		return {
 			id: String(pet.id),
-			dexNumber: numStr,
+			dexNumber: '#' + String(index + 1).padStart(3, '0'),
 			dexIndex: index + 1,
 			name: pet.name || 'Companion',
 			species: species,
-			speciesLabel: isDog ? '🐕 Dog' : (isCat ? '🐱 Cat' : '🐰 Small Pet'),
+			speciesLabel: species === 'dog' ? 'Dog' : 'Cat',
 			breed: pet.breed || 'Rescue Companion',
 			ageDisplay: pet.age_display || pet.age || 'Companion',
 			gender: pet.gender || 'Unknown',
 			location: pet.location || 'Shelter',
-			photoUrl: photo,
-			rarity: rarity,
-			rarityLabel: rarityLabel,
-			foil: foil,
-			signatureMove: move,
-			stats: { energy: energy, cuddle: cuddle, loyalty: loyalty },
-			isAdopted: isArchived,
+			photoUrl: pet.image_url || pet.file || '',
+			rarity: 'common',
+			rarityLabel: 'Shelter Companion',
+			foil: 'none',
+			signatureMove: { icon: 'paw', name: 'Friendly Hello', effect: '' },
+			stats: { energy: 60, cuddle: 75, loyalty: 80 },
+			isAdopted: !!(pet.archived || pet.archived_at),
 			adoptionUrl: pet.url || ('/adopt/' + pet.id),
-			description: pet.description || 'A loving, loyal friend eager for their forever home.',
-			intakeDate: pet.intake_date ? new Date(pet.intake_date).toLocaleDateString() : 'Recent Rescuer'
+			description: pet.description || '',
+			intakeDate: pet.intake_date ? new Date(pet.intake_date).toLocaleDateString() : 'Recent Rescue',
+			shelterStamp: 'HSMC ID #' + pet.id + ' · Monroe Co.',
 		};
 	}
 
@@ -428,7 +349,7 @@
 		setLoading(true);
 		// Read local state
 		var localPacks = localStorage.getItem('monroeDexPacks');
-		state.unopenedPacks = localPacks !== null ? Math.max(0, parseInt(localPacks, 10)) : 1;
+		state.unopenedPacks = localPacks !== null ? Math.max(0, parseInt(localPacks, 10)) : 0;
 
 		var localCoins = localStorage.getItem('monroeDexCoins');
 		state.coinBalance = localCoins !== null ? Math.max(0, parseInt(localCoins, 10)) : 0;
@@ -468,14 +389,19 @@
 		}
 		state.allShelterPets = combined;
 
-		// Fetch backend profile discoveries if available
+		// Fetch backend profile discoveries if available — server is authoritative
+		// for packs/coins when reachable (local mirror is the offline fallback).
 		if (params.dexUser && params.dexApi) {
 			try {
 				var serverData = await Dex.fetchDex(params.dexApi, params.dexUser);
 				if (serverData) {
 					if (serverData.stats && typeof serverData.stats.unopened_packs !== 'undefined') {
-						state.unopenedPacks = Math.max(state.unopenedPacks, parseInt(serverData.stats.unopened_packs, 10));
+						state.unopenedPacks = Math.max(0, parseInt(serverData.stats.unopened_packs, 10));
 						localStorage.setItem('monroeDexPacks', String(state.unopenedPacks));
+					}
+					if (serverData.stats && serverData.stats.packs_by_tier) {
+						state.packsByTier = serverData.stats.packs_by_tier;
+						localStorage.setItem('monroeDexPacksByTier', JSON.stringify(state.packsByTier));
 					}
 					if (serverData.stats && typeof serverData.stats.coin_balance !== 'undefined') {
 						state.coinBalance = parseInt(serverData.stats.coin_balance, 10);
@@ -490,12 +416,17 @@
 			}
 		}
 
-		// Ensure that if user has NO discovered cards at all yet, we give them their starter companion so binder isn't barren!
+		// Starter companion so the binder isn't barren — persisted to the
+		// server when possible so the discovery is real, not local-only.
 		if (Object.keys(state.metIdsSet).length === 0 && combined.length > 0) {
-			state.metIdsSet[String(combined[0].id)] = true;
+			var starter = combined[0];
+			state.metIdsSet[String(starter.id)] = true;
 			try {
-				localStorage.setItem('monroe_discovered_pets', JSON.stringify([String(combined[0].id)]));
+				localStorage.setItem('monroe_discovered_pets', JSON.stringify([String(starter.id)]));
 			} catch (e) {}
+			if (Dex && params.dexUser && params.dexUser !== 'guest' && typeof Dex.discoverPet === 'function') {
+				Dex.discoverPet(params.dexApi, params.dexUser, String(starter.id), 'album_starter').catch(function () {});
+			}
 		}
 
 		// Build enriched cards array
@@ -540,6 +471,24 @@
 	// ──────────────────────────────────────────────────────────────────────────
 	// Header & Progress Updates
 	// ──────────────────────────────────────────────────────────────────────────
+	/** Species Scout milestone strip — mirrors REWARD_TABLE thresholds
+	 *  (packs at 3 and 10 per species, server-claimed via claimReward). */
+	function updateScoutStrip(catCount, dogCount) {
+		if (!document.getElementById('binderScoutStrip')) return;
+		function setChip(prefix, count) {
+			var fill = document.getElementById(prefix + 'Fill');
+			var countEl = document.getElementById(prefix + 'Count');
+			var chip = document.getElementById(prefix);
+			var goal = count >= 3 ? 10 : 3;
+			var done = count >= 10;
+			if (fill) fill.style.width = Math.min(100, Math.round(count / goal * 100)) + '%';
+			if (countEl) countEl.textContent = done ? '10/10 ✓' : count + '/' + goal;
+			if (chip) chip.classList.toggle('is-maxed', done);
+		}
+		setChip('scoutCats', catCount);
+		setChip('scoutDogs', dogCount);
+	}
+
 	function updateHeaderStats() {
 		var user = (params.dexDisplay || '').trim();
 		if (!user || user === 'Guest Rescuer') {
@@ -938,30 +887,17 @@
 
 		els.inspectorCardHost.className = 'inspector-card-host' + (state.isInspectorFlipped ? ' is-flipped' : '');
 
+		var backInner = (window.MonroeCard && typeof window.MonroeCard.buildBackHtml === 'function')
+			? window.MonroeCard.buildBackHtml(card)
+			: '<div class="inspector-back-bio">' + escapeHtml(card.description || '') + '</div>';
+
 		els.inspectorCardHost.innerHTML =
 			'<!-- FRONT FACE -->' +
 			buildBinderCardHtml(card, { inspector: true }) +
 
 			'<!-- BACK FACE (Full Rescue Bio & Medallion) -->' +
 			'<div class="inspector-face inspector-face--back">' +
-				'<div class="inspector-back-header">' +
-					'<span style="font-size: 2rem;">🐾</span>' +
-					'<h3 class="inspector-back-title">' + card.name + '</h3>' +
-					'<div class="inspector-back-subtitle">ID #' + card.id + ' · ' + card.speciesLabel + ' · ' + card.gender + '</div>' +
-				'</div>' +
-				'<div class="inspector-back-bio">' +
-					'<strong>Rescue Story:</strong><br>' +
-					(card.description || 'A gentle soul currently thriving at Monroe County Humane Society.') +
-				'</div>' +
-				'<div class="inspector-back-traits">' +
-					'<span class="trait-tag">🏠 ' + card.location + '</span>' +
-					'<span class="trait-tag">📅 Intake: ' + card.intakeDate + '</span>' +
-					'<span class="trait-tag">' + (card.isAdopted ? '🏠 Adopted' : '✨ Available') + '</span>' +
-				'</div>' +
-				'<div class="inspector-back-footer">' +
-					'<span>Official Monroe Collector Card</span>' +
-					'<span>Tap to Flip 🔄</span>' +
-				'</div>' +
+				backInner +
 			'</div>';
 
 		// Update Adopt button
@@ -995,6 +931,22 @@
 		var api = params.dexApi;
 		var user = params.dexUser;
 
+		// Register/refresh this device's profile; a brand-new profile gets a
+		// rescue PIN back once — surface it so the binder can be recovered
+		// on another device.
+		if (typeof Dex.ensureProfile === 'function') {
+			Dex.ensureProfile(api, user, params.dexDisplay).then(function (prof) {
+				if (prof && prof.rescue_pin) {
+					Dex.showRewardToast({
+						title: 'Rescue PIN: ' + prof.rescue_pin,
+						message: 'Write this down — it recovers your binder on a new device.',
+						icon: '🔑',
+						game: 'Adoptédex',
+					});
+				}
+			}).catch(function () {});
+		}
+
 		Dex.claimDailyStreak(api, user, 'dex').then(function (res) {
 			if (res && res.claimed) {
 				state.unopenedPacks = (state.unopenedPacks || 0) + (res.packsAwarded || 1);
@@ -1024,6 +976,7 @@
 			if (t.indexOf('cat') >= 0) catCount++;
 			else if (t.indexOf('dog') >= 0) dogCount++;
 		});
+		updateScoutStrip(catCount, dogCount);
 		if (typeof Dex.claimSpeciesScout === 'function') {
 			Dex.claimSpeciesScout(api, user, 'cat', catCount).then(function (res) {
 				if (res && res.claimed) loadAllData();
@@ -1085,29 +1038,6 @@
 		}
 	}
 
-	function offlineDrawCards(tier) {
-		var count = tier === 'deluxe' ? 3 : (tier === 'duo' ? 2 : 1);
-		var pool = (state.allShelterPets || []).slice();
-		if (!pool.length) return [];
-		for (var i = pool.length - 1; i > 0; i--) {
-			var j = Math.floor(Math.random() * (i + 1));
-			var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
-		}
-		return pool.slice(0, count).map(function (p) {
-			return {
-				id: p.id,
-				name: p.name,
-				file: p.file || p.photo || p.image,
-				type: p.type || p.species_label,
-				breed: p.breed,
-				age: p.age_display || p.age,
-				gender: p.gender,
-				url: p.url,
-				archived: !!p.archived,
-			};
-		});
-	}
-
 	function boosterUrl() {
 		return '../booster/index.html?embed=' + (window.location.search.indexOf('embed=1') >= 0 ? '1' : '0')
 			+ '&dex_user=' + encodeURIComponent(params.dexUser || '')
@@ -1115,7 +1045,11 @@
 	}
 
 	function quickOpenPack(tier) {
-		tier = tier || 'standard';
+		// Default: open the best pack the player actually owns.
+		if (!tier) {
+			var tiers = state.packsByTier || {};
+			tier = tiers.deluxe > 0 ? 'deluxe' : (tiers.duo > 0 ? 'duo' : 'standard');
+		}
 		if ((state.unopenedPacks || 0) <= 0) {
 			showError('No packs to open — earn one in a game, claim Daily, or buy with coins.');
 			return;
@@ -1129,6 +1063,7 @@
 
 		openPromise.then(function (data) {
 			state.unopenedPacks = typeof data.unopened_packs === 'number' ? data.unopened_packs : Math.max(0, (state.unopenedPacks || 1) - 1);
+			if (data.packs_by_tier) state.packsByTier = data.packs_by_tier;
 			if (typeof data.coin_balance === 'number') state.coinBalance = data.coin_balance;
 			if (Dex && Dex.syncLocalPacksFromProfile) Dex.syncLocalPacksFromProfile(data);
 			updateHeaderStats();
@@ -1145,41 +1080,39 @@
 				}
 			} catch (e) {}
 		}).catch(function (err) {
-			console.warn('[Album] openPack failed, offline draw:', err);
-			var cards = offlineDrawCards(tier);
-			if (!cards.length) {
-				showError((err && err.message) || 'Could not open pack.');
-				return;
-			}
-			state.unopenedPacks = Math.max(0, (state.unopenedPacks || 1) - 1);
-			try { localStorage.setItem('monroeDexPacks', String(state.unopenedPacks)); } catch (e) {}
-			cards.forEach(function (c) {
-				if (c && c.id) state.metIdsSet[String(c.id)] = true;
-			});
-			try { localStorage.setItem('monroe_discovered_pets', JSON.stringify(Object.keys(state.metIdsSet))); } catch (e) {}
-			updateHeaderStats();
-			showPackReveal({ cards: cards, pack_rarity: 'common', pack_rarity_label: tier + ' pack (offline)', tier: tier, unopened_packs: state.unopenedPacks });
-			loadAllData();
+			// Honest failure — no phantom cards, no phantom pack spend.
+			console.warn('[Album] openPack failed:', err);
+			showError((err && err.message) || 'Could not open pack — check connection and try again.');
 		}).then(function () {
 			if (els.quickOpenBtn) els.quickOpenBtn.disabled = false;
 		});
 	}
 
-	function buyPackFromShop() {
+	var SHOP_TIERS = {
+		standard: { cost: 25, reason: 'buy_pack' },
+		duo:      { cost: 45, reason: 'buy_duo' },
+		deluxe:   { cost: 60, reason: 'buy_deluxe' },
+	};
+
+	function buyPackFromShop(tier) {
 		if (!Dex || !params.dexUser) return;
-		if ((state.coinBalance || 0) < 25) {
-			showError('Need 25 coins to buy a pack. Play games to earn coins!');
+		tier = SHOP_TIERS[tier] ? tier : 'standard';
+		var cost = SHOP_TIERS[tier].cost;
+		if ((state.coinBalance || 0) < cost) {
+			showError('Need ' + cost + ' coins for that pack. Play games to earn coins!');
 			return;
 		}
-		if (els.buyPackBtn) els.buyPackBtn.disabled = true;
-		Dex.buyPackWithCoins(params.dexApi, params.dexUser, 25).then(function (data) {
+		var shopBtns = document.querySelectorAll('[data-shop-tier]');
+		for (var i = 0; i < shopBtns.length; i++) shopBtns[i].disabled = true;
+		Dex.buyPackWithCoins(params.dexApi, params.dexUser, cost, tier).then(function (data) {
 			if (data && data.ok) {
 				if (typeof data.coin_balance === 'number') state.coinBalance = data.coin_balance;
-				else state.coinBalance = Math.max(0, (state.coinBalance || 0) - (data.spent || 25));
+				else state.coinBalance = Math.max(0, (state.coinBalance || 0) - (data.spent || cost));
 				state.unopenedPacks = typeof data.unopened_packs === 'number'
 					? data.unopened_packs
 					: (state.unopenedPacks || 0) + (data.packsAwarded || 1);
-				Dex.syncLocalPacksFromProfile({ unopened_packs: state.unopenedPacks, stats: { unopened_packs: state.unopenedPacks, coin_balance: state.coinBalance } });
+				if (data.packs_by_tier) state.packsByTier = data.packs_by_tier;
+				Dex.syncLocalPacksFromProfile({ unopened_packs: state.unopenedPacks, packs_by_tier: data.packs_by_tier, stats: { unopened_packs: state.unopenedPacks, coin_balance: state.coinBalance, packs_by_tier: data.packs_by_tier } });
 				updateHeaderStats();
 			} else {
 				showError((data && data.message) || 'Could not buy pack.');
@@ -1187,7 +1120,8 @@
 		}).catch(function (err) {
 			showError((err && err.message) || 'Could not buy pack.');
 		}).then(function () {
-			if (els.buyPackBtn) els.buyPackBtn.disabled = false;
+			var btns = document.querySelectorAll('[data-shop-tier]');
+			for (var i = 0; i < btns.length; i++) btns[i].disabled = false;
 		});
 	}
 
@@ -1285,6 +1219,38 @@
 		}
 
 		// Inspector controls
+		// Binder recovery modal (slug + rescue PIN rebinds this device)
+		if (els.recoverBtn) els.recoverBtn.addEventListener('click', function () {
+			if (els.recoverModal) els.recoverModal.hidden = false;
+			if (els.recoverError) els.recoverError.hidden = true;
+			if (els.recoverSlug) els.recoverSlug.focus();
+		});
+		if (els.recoverCancel) els.recoverCancel.addEventListener('click', function () {
+			if (els.recoverModal) els.recoverModal.hidden = true;
+		});
+		if (els.recoverGo) els.recoverGo.addEventListener('click', function () {
+			var slug = (els.recoverSlug && els.recoverSlug.value || '').trim().toLowerCase();
+			var pin = (els.recoverPin && els.recoverPin.value || '').trim();
+			if (!slug || !pin) {
+				if (els.recoverError) { els.recoverError.textContent = 'Enter both the slug and the rescue PIN.'; els.recoverError.hidden = false; }
+				return;
+			}
+			els.recoverGo.disabled = true;
+			Dex.recoverProfile(params.dexApi, slug, pin).then(function (data) {
+				els.recoverGo.disabled = false;
+				if (data && (data.reclaimed || data.owned)) {
+					var q = new URLSearchParams(window.location.search);
+					q.set('dex_user', slug);
+					window.location.href = 'album.html?' + q.toString();
+				} else {
+					if (els.recoverError) { els.recoverError.textContent = 'Wrong slug or PIN — check them and try again.'; els.recoverError.hidden = false; }
+				}
+			}).catch(function () {
+				els.recoverGo.disabled = false;
+				if (els.recoverError) { els.recoverError.textContent = 'Could not reach the arcade — try again.'; els.recoverError.hidden = false; }
+			});
+		});
+
 		if (els.inspectorBackdrop) els.inspectorBackdrop.addEventListener('click', closeInspector);
 		if (els.inspectorCloseBtn) els.inspectorCloseBtn.addEventListener('click', closeInspector);
 		if (els.btnInspectorFlip) els.btnInspectorFlip.addEventListener('click', toggleInspectorFlip);
@@ -1341,8 +1307,13 @@
 				if (e.target === els.packReveal) closePackReveal();
 			});
 		}
-		if (els.buyPackBtn) {
-			els.buyPackBtn.addEventListener('click', buyPackFromShop);
+		var shopBtns = document.querySelectorAll('[data-shop-tier]');
+		for (var sb = 0; sb < shopBtns.length; sb++) {
+			(function (btn) {
+				btn.addEventListener('click', function () {
+					buyPackFromShop(btn.getAttribute('data-shop-tier') || 'standard');
+				});
+			})(shopBtns[sb]);
 		}
 		if (els.dailyStreakBtn) {
 			els.dailyStreakBtn.addEventListener('click', function () {

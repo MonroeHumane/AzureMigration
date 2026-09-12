@@ -9,6 +9,7 @@
 	<link rel="stylesheet" href="../shared-styles.css">
 	<link rel="stylesheet" href="../humane-game-system.css">
 	<link rel="stylesheet" href="dex.css?v=14">
+	<link rel="stylesheet" href="card.css?v=1">
 	<link rel="stylesheet" href="embed.css?v=14">
 	<link rel="stylesheet" href="reward-toast.css?v=14">
 </head>
@@ -33,10 +34,13 @@
 					<!-- Unopened Packs Notification Pill -->
 					<div class="binder-pack-pill" id="binderPackPill" hidden>
 						<span class="binder-pack-pill__icon">🎁</span>
-						<span class="binder-pack-pill__text" id="binderPackCount">1 Pack Ready</span>
+						<span class="binder-pack-pill__text" id="binderPackCount">Packs</span>
 						<button type="button" class="binder-pack-pill__btn" id="binderQuickOpenBtn" title="Open one pack here">Quick Open</button>
 						<a class="binder-pack-pill__btn" id="binderOpenPacksBtn" href="../booster/index.html">Booster ›</a>
 					</div>
+
+					<!-- Profile recovery: rebind a binder to this device with slug + rescue PIN -->
+					<button type="button" class="binder-icon-btn" id="binderRecoverBtn" title="Recover a binder on this device" aria-label="Recover binder">🔑</button>
 
 					<!-- Coin Shop lite + Daily Streak (collapsible on small screens) -->
 					<div class="binder-shop-wrap" id="binderShopWrap">
@@ -47,8 +51,14 @@
 							<button type="button" class="binder-shop-btn" id="binderDailyStreakBtn" title="Claim once per day">
 								<span aria-hidden="true">🔥</span><span class="binder-shop-btn__label">Daily Pack</span>
 							</button>
-							<button type="button" class="binder-shop-btn" id="binderBuyPackBtn" title="Spend 25 coins for 1 pack">
+							<button type="button" class="binder-shop-btn" id="binderBuyPackBtn" data-shop-tier="standard" title="Spend 25 coins for 1 card">
 								<span aria-hidden="true">🪙</span><span class="binder-shop-btn__label">Buy · 25</span>
+							</button>
+							<button type="button" class="binder-shop-btn" id="binderBuyDuoBtn" data-shop-tier="duo" title="Spend 45 coins for a 2-card pack">
+								<span aria-hidden="true">🪙</span><span class="binder-shop-btn__label">Duo · 45</span>
+							</button>
+							<button type="button" class="binder-shop-btn" id="binderBuyDeluxeBtn" data-shop-tier="deluxe" title="Spend 60 coins for a 3-card pack">
+								<span aria-hidden="true">🪙</span><span class="binder-shop-btn__label">Deluxe · 60</span>
 							</button>
 						</div>
 					</div>
@@ -75,6 +85,19 @@
 				<div class="binder-progress-labels">
 					<span id="progressPercent">0% Discovered</span>
 					<span id="progressCounts">0 / 87 Companions Found</span>
+				</div>
+				<!-- Species Scout milestones -->
+				<div class="binder-scout-strip" id="binderScoutStrip" title="Species Scout milestones — earn packs at 3 and 10 of each species">
+					<span class="binder-scout-chip" id="scoutCats">
+						<span class="binder-scout-chip__label">🐱 Cat Scout</span>
+						<span class="binder-scout-chip__track"><i id="scoutCatsFill" style="width:0%"></i></span>
+						<span class="binder-scout-chip__count" id="scoutCatsCount">0/10</span>
+					</span>
+					<span class="binder-scout-chip" id="scoutDogs">
+						<span class="binder-scout-chip__label">🐕 Dog Scout</span>
+						<span class="binder-scout-chip__track"><i id="scoutDogsFill" style="width:0%"></i></span>
+						<span class="binder-scout-chip__count" id="scoutDogsCount">0/10</span>
+					</span>
 				</div>
 			</div>
 
@@ -241,11 +264,32 @@
 			</div>
 		</div>
 
+		<!-- Binder recovery (slug + rescue PIN) -->
+		<div class="binder-pack-reveal" id="binderRecoverModal" hidden>
+			<div class="binder-pack-reveal__panel binder-recover-panel" role="dialog" aria-modal="true" aria-labelledby="binderRecoverTitle">
+				<h2 id="binderRecoverTitle">Recover a binder</h2>
+				<p class="binder-recover-panel__hint">Enter the player slug and 6-digit rescue PIN from the other device.</p>
+				<label class="binder-recover-panel__field">Player slug
+					<input type="text" id="binderRecoverSlug" autocomplete="off" placeholder="e.g. player-a1b2c3d4 or max" />
+				</label>
+				<label class="binder-recover-panel__field">Rescue PIN
+					<input type="password" id="binderRecoverPin" inputmode="numeric" autocomplete="off" placeholder="6 digits" />
+				</label>
+				<p class="binder-recover-panel__error" id="binderRecoverError" hidden></p>
+				<div class="binder-pack-reveal__actions">
+					<button type="button" class="binder-shop-btn binder-shop-btn--primary" id="binderRecoverGo">Recover binder</button>
+					<button type="button" class="binder-shop-btn" id="binderRecoverCancel">Cancel</button>
+				</div>
+			</div>
+		</div>
+
 		<!-- Error Toast -->
 		<div class="binder-error-toast" id="binderErrorToast" hidden role="alert"></div>
 	</div>
 
-	<script src="dex-shared.js?v=14"></script>
-	<script src="album.js?v=14" defer></script>
+	<script src="dex-shared.js?v=15"></script>
+	<script src="card-model.js?v=1"></script>
+	<script src="card.js?v=1"></script>
+	<script src="album.js?v=15" defer></script>
 </body>
 </html>

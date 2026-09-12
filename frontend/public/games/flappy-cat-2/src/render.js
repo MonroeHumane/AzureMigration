@@ -1,5 +1,5 @@
 // Canvas renderer — draws in logical 432x768 space; caller scales via setTransform.
-import { VIEW, PHYS } from './config.js';
+import { VIEW, PHYS, FRAME_SHIFT } from './config.js';
 import { biomeForScore } from './engine.js';
 import { catEllipse, pipeRects } from './hitbox.js';
 
@@ -119,7 +119,8 @@ export function drawGame(ctx, g, images, catDef, reducedMotion, debug) {
     ctx.translate(PHYS.catX, g.catY);
     ctx.rotate(g.catRot);
     const fw = catDef.fw, fh = catDef.fh;
-    const sx = (g.catFrame % catDef.frames) * fw;
+    const fr = g.catFrame % catDef.frames;
+    const sx = fr * fw - (FRAME_SHIFT[fr] || 0);
     const dw = 92, dh = dw * (fh / fw);
     ctx.drawImage(cat, sx, 0, fw, fh, -dw / 2, -dh / 2, dw, dh);
     ctx.restore();

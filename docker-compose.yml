@@ -16,6 +16,11 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./infra/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     networks:
       - monroe-network
 
@@ -52,6 +57,25 @@ services:
     networks:
       - monroe-network
 
+  arcade-migrate:
+    build:
+      context: ./arcade
+      dockerfile: Dockerfile
+    container_name: monroe-arcade-migrate
+    restart: "no"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: "mysql"
+      DB_USER: ${DB_USER:-root}
+      DB_PASS: ${DB_PASS:-root}
+      DB_NAME: ${DB_ARCADE_NAME:-arcade_db}
+    # No volume mount — use the image's own vendor/ (host tree may not have it).
+    command: ["php", "vendor/bin/phinx", "migrate", "-e", "development"]
+    networks:
+      - monroe-network
+
   arcade-api:
     build:
       context: ./arcade
@@ -61,7 +85,10 @@ services:
     ports:
       - "8081:80"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+      arcade-migrate:
+        condition: service_completed_successfully
     env_file:
       - path: .env
         required: false

@@ -22,7 +22,16 @@
 		}
 
 		if (!user) {
-			user = 'guest';
+			// Per-device identity: mint a stable slug instead of sharing the
+			// communal 'guest' profile (which any session could write to).
+			try {
+				var buf = new Uint8Array(4);
+				(window.crypto || window.msCrypto).getRandomValues(buf);
+				user = 'player-' + Array.from(buf, function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+				localStorage.setItem('monroeDexUser', user);
+			} catch (e) {
+				user = 'guest';
+			}
 		}
 
 		var guestDefault = !display || display === 'Guest Rescuer';
@@ -87,6 +96,54 @@
 				}
 				return res.json();
 			});
+	}
+
+	var profilePromise = null;
+
+	/**
+	 * Register/refresh this device's profile. New profiles get a rescue PIN
+	 * back once (also stashed in localStorage as monroeDexPin).
+	 */
+	function ensureProfile(base, user, display, pin) {
+		if (profilePromise && !pin) {
+			return profilePromise;
+		}
+		var p = ensureArcadeSession(base).then(function () {
+			return fetch(apiUrl(base, 'adoptedex/auth'), {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username: user, display_name: display || user, pin: pin || undefined }),
+			});
+		}).then(function (res) {
+			return res.json().then(function (data) {
+				if (data && data.rescue_pin) {
+					try { localStorage.setItem('monroeDexPin', data.rescue_pin); } catch (e) {}
+				}
+				return data;
+			});
+		});
+		if (!pin) {
+			profilePromise = p;
+			p.catch(function () { profilePromise = null; });
+		}
+		return p;
+	}
+
+	/**
+	 * Recover a binder on a new device: slug + rescue PIN rebinds ownership
+	 * to this session. On success this device adopts the slug.
+	 */
+	function recoverProfile(base, slug, pin) {
+		return ensureProfile(base, slug, slug, pin).then(function (data) {
+			if (data && (data.reclaimed || data.owned)) {
+				try {
+					localStorage.setItem('monroeDexUser', String(slug).toLowerCase());
+					localStorage.removeItem('monroeDexDisplay');
+				} catch (e) {}
+			}
+			return data;
+		});
 	}
 
 	function discoverPet(base, user, petId, source) {
@@ -161,42 +218,40 @@
 		}).then(function (data) {
 			if (data && data.claimed) {
 				try {
-					var awarded = typeof data.packsAwarded === 'number' ? data.packsAwarded : ((extra && extra.count) ? extra.count : 1);
-					if (awarded > 0) {
-						var cur = parseInt(localStorage.getItem('monroeDexPacks') || '0', 10);
-						if (isNaN(cur)) cur = 0;
-						localStorage.setItem('monroeDexPacks', String(cur + awarded));
+					// Prefer authoritative server balances when present; fall
+					// back to incrementing the local mirror.
+					if (typeof data.unopened_packs === 'number') {
+						localStorage.setItem('monroeDexPacks', String(Math.max(0, data.unopened_packs)));
+					} else {
+						var awarded = typeof data.packsAwarded === 'number' ? data.packsAwarded : ((extra && extra.count) ? extra.count : 1);
+						if (awarded > 0) {
+							var cur = parseInt(localStorage.getItem('monroeDexPacks') || '0', 10);
+							if (isNaN(cur)) cur = 0;
+							localStorage.setItem('monroeDexPacks', String(cur + awarded));
+						}
 					}
-					if (typeof data.coinsAwarded === 'number' && data.coinsAwarded > 0) {
+					if (typeof data.coin_balance === 'number') {
+						localStorage.setItem('monroeDexCoins', String(data.coin_balance));
+					} else if (typeof data.coinsAwarded === 'number' && data.coinsAwarded > 0) {
 						var coins = parseInt(localStorage.getItem('monroeDexCoins') || '0', 10);
 						if (isNaN(coins)) coins = 0;
 						localStorage.setItem('monroeDexCoins', String(coins + data.coinsAwarded));
 					}
+					if (data.packs_by_tier) {
+						localStorage.setItem('monroeDexPacksByTier', JSON.stringify(data.packs_by_tier));
+					}
 				} catch (e) {}
 				if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
 					try {
-						window.parent.postMessage({ type: 'adoptedex:pack_awarded', extra: extra, packsAwarded: data.packsAwarded, reward_key: data.reward_key }, '*');
+						window.parent.postMessage({ type: 'adoptedex:pack_awarded', extra: extra, packsAwarded: data.packsAwarded, packTier: data.packTier, reward_key: data.reward_key }, '*');
 					} catch (e) {}
 				}
 			}
 			return data;
 		}).catch(function (err) {
-			console.warn('[Adoptedex] claimReward network offline fallback:', err);
-			try {
-				var count = (extra && extra.count) ? extra.count : 1;
-				var cur = parseInt(localStorage.getItem('monroeDexPacks') || '1', 10);
-				var next = cur + count;
-				localStorage.setItem('monroeDexPacks', String(next));
-				if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-					window.parent.postMessage({
-						type: 'adoptedex:pack_awarded',
-						extra: extra,
-						offline: true,
-						remainingPacks: next
-					}, '*');
-				}
-			} catch (e) {}
-			return { ok: true, claimed: true, offline: true };
+			// Honest failure — never mint phantom packs into the local mirror.
+			console.warn('[Adoptedex] claimReward failed:', err);
+			return { ok: false, claimed: false, offline: true, error: (err && err.message) || 'offline' };
 		});
 	}
 
@@ -345,6 +400,27 @@
 			li.classList.add('adoptedex-card-wrap--rare');
 		}
 		li.setAttribute('data-pet-id', pet.id || '');
+
+		// Unified card face: when the shared renderer is present, met pets get
+		// the real TCG card (same as binder/inspector/booster). Unmet pets keep
+		// the silhouette mystery card below.
+		if (!showUnmet && window.MonroeCard && typeof window.MonroeCard.build === 'function') {
+			var cardObj = window.MonroeCard.toCard(pet, dexNum ? dexNum - 1 : undefined);
+			if (!cardObj.foil || cardObj.foil === 'none') {
+				var forcedFoil = foil || window.MonroeCardModel && window.MonroeCardModel.foilForRarity(cardObj.rarity);
+				if (forcedFoil && forcedFoil !== 'none') cardObj.foil = forcedFoil;
+			}
+			var scene = window.MonroeCard.build(cardObj, {
+				startFlipped: !!opts.startFlipped,
+				dexNumber: cardObj.dexNumber || (dexNum ? formatDexNumber(dexNum) : ''),
+			});
+			// Compat: callers query .adoptedex-card for flip toggling.
+			var flipBtn = scene.querySelector('.mhc-card-flip');
+			if (flipBtn) flipBtn.classList.add('adoptedex-card');
+			window.MonroeCard.bindTilt(scene);
+			li.appendChild(scene);
+			return li;
+		}
 
 		var card = document.createElement('button');
 		card.type = 'button';
@@ -825,28 +901,37 @@
 	}
 
 	/**
-	 * Coin shop: spend server coins for 1 pack (reason buy_pack).
+	 * Coin shop: spend server coins for a pack. Tier maps to the server's
+	 * COIN_SPEND_CATALOG reason — client cost is display-only, server decides.
 	 */
-	function buyPackWithCoins(base, user, cost) {
-		cost = typeof cost === 'number' ? cost : 25;
-		return spendCoins(base, user, cost, 'buy_pack').then(function (data) {
+	function buyPackWithCoins(base, user, cost, tier) {
+		tier = (tier === 'duo' || tier === 'deluxe') ? tier : 'standard';
+		var reason = tier === 'standard' ? 'buy_pack' : 'buy_' + tier;
+		var label = tier === 'deluxe' ? 'Deluxe Pack' : (tier === 'duo' ? 'Duo Pack' : 'a shelter pet pack');
+		return spendCoins(base, user, typeof cost === 'number' ? cost : 25, reason).then(function (data) {
 			if (data && data.ok) {
 				try {
-					var cur = parseInt(localStorage.getItem('monroeDexPacks') || '0', 10);
-					var next = (isNaN(cur) ? 0 : cur) + (data.packsAwarded || 1);
-					localStorage.setItem('monroeDexPacks', String(next));
+					if (typeof data.unopened_packs === 'number') {
+						localStorage.setItem('monroeDexPacks', String(Math.max(0, data.unopened_packs)));
+					} else {
+						var cur = parseInt(localStorage.getItem('monroeDexPacks') || '0', 10);
+						localStorage.setItem('monroeDexPacks', String((isNaN(cur) ? 0 : cur) + (data.packsAwarded || 1)));
+					}
 					if (typeof data.coin_balance === 'number') {
 						localStorage.setItem('monroeDexCoins', String(data.coin_balance));
+					}
+					if (data.packs_by_tier) {
+						localStorage.setItem('monroeDexPacksByTier', JSON.stringify(data.packs_by_tier));
 					}
 				} catch (e) {}
 				showRewardToast({
 					title: 'Pack purchased!',
-					message: 'Spent ' + (data.spent || cost) + ' coins on a shelter pet pack.',
+					message: 'Spent ' + (data.spent || cost) + ' coins on ' + label + '.',
 					icon: '🪙',
 				});
 				if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
 					try {
-						window.parent.postMessage({ type: 'adoptedex:pack_awarded', source: 'coin_shop', extra: { count: 1 } }, '*');
+						window.parent.postMessage({ type: 'adoptedex:pack_awarded', source: 'coin_shop', packTier: tier, extra: { count: 1 } }, '*');
 					} catch (e) {}
 				}
 			}
@@ -877,21 +962,30 @@
 		});
 	}
 
-	/** Sync local monroeDexPacks from server profile (booster / album bridge). */
+	/** Sync local pack mirrors from server profile (booster / album bridge). */
 	function syncLocalPacksFromProfile(profileOrStats) {
 		try {
 			var packs = null;
+			var tiers = null;
+			var src = null;
 			if (profileOrStats && typeof profileOrStats.unopened_packs !== 'undefined') {
-				packs = parseInt(profileOrStats.unopened_packs, 10);
+				src = profileOrStats;
 			} else if (profileOrStats && profileOrStats.stats && typeof profileOrStats.stats.unopened_packs !== 'undefined') {
-				packs = parseInt(profileOrStats.stats.unopened_packs, 10);
+				src = profileOrStats.stats;
 			} else if (profileOrStats && profileOrStats.profile && typeof profileOrStats.profile.unopened_packs !== 'undefined') {
-				packs = parseInt(profileOrStats.profile.unopened_packs, 10);
+				src = profileOrStats.profile;
+			}
+			if (src) {
+				packs = parseInt(src.unopened_packs, 10);
+				if (src.packs_by_tier) tiers = src.packs_by_tier;
 			}
 			if (packs !== null && !isNaN(packs)) {
 				localStorage.setItem('monroeDexPacks', String(Math.max(0, packs)));
+				if (tiers) {
+					localStorage.setItem('monroeDexPacksByTier', JSON.stringify(tiers));
+				}
 				window.dispatchEvent(new CustomEvent('monroe-adoptedex-updated', {
-					detail: { remainingPacks: packs, synced: true }
+					detail: { remainingPacks: packs, packsByTier: tiers || undefined, synced: true }
 				}));
 			}
 			return packs;
@@ -903,6 +997,8 @@
 	global.MonroeAdoptedex = {
 		getParams: getParams,
 		fetchDex: fetchDex,
+		ensureProfile: ensureProfile,
+		recoverProfile: recoverProfile,
 		discoverPet: discoverPet,
 		discoverBulk: discoverBulk,
 		claimReward: claimReward,

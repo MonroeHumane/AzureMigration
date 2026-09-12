@@ -49,6 +49,10 @@ export const CATS = [
 
 export const MASCOT_TO_CAT = { smokey: 'tabby', marmalade: 'ginger' };
 
+// Frames 3-5 had chopped edge art repaired by shifting content left inside
+// the cell; sample that many px earlier so the sprite lands identically.
+export const FRAME_SHIFT = { 3: 6, 4: 6, 5: 6 };
+
 export const IMAGES = {
   cats: CATS.map(c => c.sheet),
   decor: ['cloud1.png','cloud2.png','cloud3.png','cloud4.png','cloud5.png','cloud6.png',

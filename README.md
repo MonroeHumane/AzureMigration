@@ -83,6 +83,33 @@ npm run check
 npm run build
 ```
 
+### 1b. Local Arcade API (Docker)
+
+The root `docker-compose.yml` runs MariaDB + the PHP Arcade API + a one-shot
+migration job — enough to exercise Adoptédex end-to-end without Azure:
+
+```bash
+cp .env.example .env          # local-only defaults; never reuse in prod
+docker compose up -d --build arcade-api
+# mysql → healthy → arcade-migrate (phinx) → arcade-api on :8081
+```
+
+Local API base: `http://localhost:8081/v1` — point games at it with
+`?dex_api=http://localhost:8081/v1` or `ARCADE_API_BASE`.
+
+```bash
+# Full e2e smoke: sessions, rescue PIN, ownership 403s, packs, coin caps
+cd arcade && ARCADE_API_BASE=http://localhost:8081/v1 node tests/smoke.mjs
+
+# Cabinet iframe postMessage contract (needs Chrome + astro deps)
+cd frontend && python tests/cabinet_contract.py
+```
+
+**Profile recovery:** new named Adoptédex profiles get a one-time 6-digit
+rescue PIN (shown once at creation). On a new device, open the album → 🔑 →
+enter the profile slug + PIN to reclaim the binder. PINs are stored hashed;
+guessing is rate-limited server-side.
+
 ### 2. Full Site Integrity & Route Verification
 Before pushing changes, run the root link auditor to verify all 140+ pre-rendered pages, redirects, images, and anchors:
 ```bash

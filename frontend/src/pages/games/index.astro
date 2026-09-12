@@ -16,6 +16,7 @@ interface GameItem {
   gradientBg: string;
   glowBorder: string;
   accentText: string;
+  cover: string;
 }
 
 
@@ -39,7 +40,8 @@ const GAMES: GameItem[] = [
     perks: ['🧩 Match & Win Packs', '🐾🐾✨ Holographic Rares'],
     gradientBg: 'from-amber-500 via-orange-500 to-rose-600',
     glowBorder: 'hover:border-amber-400/80 hover:shadow-[0_12px_40px_-8px_rgba(245,158,11,0.45)]',
-    accentText: 'text-amber-300'
+    accentText: 'text-amber-300',
+    cover: '/assets/game-covers/cover-booster.png'
   },
   {
     id: 'match',
@@ -54,7 +56,8 @@ const GAMES: GameItem[] = [
     perks: ['🎁 Free Pack on Milestones', '🐾 Real Shelter Profiles'],
     gradientBg: 'from-teal-600 via-emerald-600 to-cyan-700',
     glowBorder: 'hover:border-emerald-400/80 hover:shadow-[0_12px_40px_-8px_rgba(16,185,129,0.45)]',
-    accentText: 'text-emerald-300'
+    accentText: 'text-emerald-300',
+    cover: '/assets/game-covers/cover-match.png'
   },
   {
     id: 'flappy',
@@ -69,7 +72,8 @@ const GAMES: GameItem[] = [
     perks: ['🏆 Endless High Scores', '🐟 Collect Fish Treats'],
     gradientBg: 'from-sky-600 via-indigo-600 to-purple-700',
     glowBorder: 'hover:border-sky-400/80 hover:shadow-[0_12px_40px_-8px_rgba(56,189,248,0.45)]',
-    accentText: 'text-sky-300'
+    accentText: 'text-sky-300',
+    cover: '/assets/game-covers/cover-flappy.png'
   },
   {
     id: 'catwalk',
@@ -84,7 +88,8 @@ const GAMES: GameItem[] = [
     perks: ['🎮 Vector CRT Lines', '📱 Mobile Touch D-Pad'],
     gradientBg: 'from-emerald-600 via-teal-700 to-green-800',
     glowBorder: 'hover:border-emerald-400/80 hover:shadow-[0_12px_40px_-8px_rgba(16,185,129,0.45)]',
-    accentText: 'text-emerald-300'
+    accentText: 'text-emerald-300',
+    cover: '/assets/game-covers/cover-catwalk.png'
   },
   {
     id: 'shelter_run',
@@ -99,7 +104,23 @@ const GAMES: GameItem[] = [
     perks: ['🏆 Distance Milestones', '🐾 Rescue Pets On-the-Run'],
     gradientBg: 'from-violet-600 via-purple-700 to-indigo-800',
     glowBorder: 'hover:border-purple-400/80 hover:shadow-[0_12px_40px_-8px_rgba(168,85,247,0.45)]',
-    accentText: 'text-purple-300'
+    accentText: 'text-purple-300',
+    cover: '/assets/game-covers/cover-shelterrun.png'
+  },
+  {
+    id: 'dex',
+    title: 'Pet Discovery Binder',
+    badge: '📖 Your Collection',
+    desc: 'Open your binder to flip through every companion you\u2019ve discovered. Track Species Scout milestones, spend coins on packs, and admire your foil pulls.',
+    action: 'Open Your Binder',
+    icon: '📖',
+    url: '/games/dex/album.html?embed=1',
+    needsDex: true,
+    perks: ['🎴 Foil Card Showcase', '🏅 Scout Milestones'],
+    gradientBg: 'from-teal-700 via-cyan-700 to-sky-800',
+    glowBorder: 'hover:border-teal-400/80 hover:shadow-[0_12px_40px_-8px_rgba(45,212,191,0.45)]',
+    accentText: 'text-teal-300',
+    cover: '/assets/game-covers/cover-album.png'
   }
 ];
 
@@ -129,12 +150,19 @@ const MASCOTS = [
         <div class="lg:col-span-6 bg-gradient-to-br from-[#133c39] via-[#1a4f4b] to-[#0f2e2c] text-white rounded-3xl p-5 sm:p-7 border border-teal-700/50 shadow-lg flex flex-col justify-between relative overflow-hidden">
           <!-- Subtle atmospheric glow -->
           <div class="absolute top-0 right-0 w-48 h-48 bg-amber-400/10 blur-[80px] rounded-full pointer-events-none"></div>
+          <!-- Ranger cat mascot -->
+          <img
+            src="/games/cathead.png"
+            alt=""
+            aria-hidden="true"
+            class="absolute -right-4 -bottom-6 w-36 sm:w-44 opacity-90 drop-shadow-[0_10px_24px_rgba(0,0,0,0.45)] pointer-events-none select-none"
+          />
 
-          <div class="relative z-10">
+          <div class="relative z-10 max-w-[calc(100%-7.5rem)] sm:max-w-[calc(100%-9.5rem)]">
             <!-- Badge -->
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-bold uppercase tracking-wider mb-4">
+            <div class="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 px-3 py-1.5 rounded-2xl bg-white/10 border border-white/20 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4">
               <span class="text-amber-300">🎮 Humane Arcade</span>
-              <span class="opacity-50">·</span>
+              <span class="opacity-50 hidden sm:inline">·</span>
               <span class="text-teal-200 font-normal">Monroe County Humane Society</span>
             </div>
 
@@ -269,36 +297,41 @@ const MASCOTS = [
     <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-2">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
         {GAMES.map((game) => (
-          <div class={`group relative rounded-3xl p-6 sm:p-7 flex flex-col bg-white dark:bg-gradient-to-b dark:from-[#0b2823] dark:to-[#071d1a] border border-stone-200/90 dark:border-teal-800/80 shadow-sm hover:shadow-xl transition-all duration-300 ${game.glowBorder} justify-between`}>
-            
-            <!-- Glow sheen backdrop -->
-            <div class={`absolute top-0 right-0 w-44 h-44 bg-gradient-to-br ${game.gradientBg} opacity-15 blur-[60px] rounded-full pointer-events-none group-hover:opacity-25 transition-opacity`}></div>
+          <div class={`group relative rounded-3xl overflow-hidden flex flex-col bg-white dark:bg-gradient-to-b dark:from-[#0b2823] dark:to-[#071d1a] border border-stone-200/90 dark:border-teal-800/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${game.glowBorder} justify-between`}>
 
-            <div>
-              <!-- Top Row: Icon Box & Badge -->
-              <div class="flex items-center justify-between gap-2 mb-5">
-                <div class="w-14 h-14 rounded-2xl bg-stone-50 dark:bg-[#061e1a] border border-stone-200 dark:border-teal-700/60 flex items-center justify-center text-3xl shadow-inner group-hover:scale-105 transition-transform">
-                  {game.icon}
-                </div>
-                
-                <div class="flex items-center gap-1.5">
-                  {game.leaderboardId && (
-                    <button
-                      type="button"
-                      data-open-leaderboard
-                      data-leaderboard-game={game.leaderboardId}
-                      class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-600/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition cursor-pointer"
-                      title="View High Scores"
-                    >
-                      🏆 High Scores
-                    </button>
-                  )}
-                  <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-teal-50 dark:bg-teal-950/80 border border-teal-200 dark:border-teal-700/60 text-teal-700 dark:text-slate-200">
-                    {game.badge}
-                  </span>
-                </div>
+            <!-- Cover art banner -->
+            <div class="relative h-44 sm:h-48 shrink-0">
+              <img
+                src={game.cover}
+                alt=""
+                loading="lazy"
+                class="w-full h-full object-cover rounded-t-3xl transition-transform duration-500 group-hover:scale-[1.04]"
+              />
+              <div class="absolute inset-0 rounded-t-3xl bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none"></div>
+              <!-- Icon chip overlapping the cover -->
+              <div class="absolute -bottom-5 left-6 w-12 h-12 rounded-2xl bg-white dark:bg-[#061e1a] border border-stone-200 dark:border-teal-700/60 flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition-transform">
+                {game.icon}
               </div>
+              <!-- Badges float on the cover -->
+              <div class="absolute top-3 right-3 flex items-center gap-1.5">
+                {game.leaderboardId && (
+                  <button
+                    type="button"
+                    data-open-leaderboard
+                    data-leaderboard-game={game.leaderboardId}
+                    class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-400/90 text-amber-950 border border-amber-300 shadow-sm hover:bg-amber-300 transition cursor-pointer backdrop-blur-sm"
+                    title="View High Scores"
+                  >
+                    🏆 Scores
+                  </button>
+                )}
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-black/45 text-white border border-white/25 backdrop-blur-sm shadow-sm">
+                  {game.badge}
+                </span>
+              </div>
+            </div>
 
+            <div class="p-6 sm:p-7 pt-8">
               <!-- Title & Description -->
               <h3 class="text-2xl font-serif font-black text-slate-900 dark:text-white tracking-tight mb-2.5">
                 {game.title}
@@ -318,7 +351,7 @@ const MASCOTS = [
             </div>
 
             <!-- Primary Action Button -->
-            <div class="pt-4 border-t border-stone-100 dark:border-teal-900/60 mt-auto space-y-2">
+            <div class="mx-6 sm:mx-7 mb-6 sm:mb-7 mt-auto pt-4 border-t border-stone-100 dark:border-teal-900/60 space-y-2">
               <button
                 type="button"
                 data-launch-game={game.id}
@@ -380,6 +413,28 @@ const MASCOTS = [
             Support Pet Care
           </a>
         </div>
+      </div>
+    </section>
+
+    <!-- Archived experiments -->
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 mt-10" aria-label="Archived experiments">
+      <div class="rounded-2xl border border-stone-200 dark:border-teal-800/60 bg-stone-50 dark:bg-[#0b2420]/60 px-5 py-4">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-0.5">Archived experiments</h2>
+        <p class="text-[11px] text-slate-400 dark:text-slate-500 mb-3">
+          Older prototypes kept for bookmarks and deep links — the supported set is above.
+        </p>
+        <ul class="flex flex-wrap gap-2">
+          {LEGACY_GAMES.map((game) => (
+            <li>
+              <a
+                href={game.href}
+                class="inline-flex items-center gap-2 rounded-lg border border-stone-200 dark:border-teal-800/60 bg-white dark:bg-[#061e1a] px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300 hover:border-teal-400 hover:text-teal-700 dark:hover:text-teal-200 transition"
+              >
+                <span class="font-semibold">{game.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   </main>
@@ -584,7 +639,7 @@ const MASCOTS = [
   <!-- Celebration Toast (Milestone Packs & Scores) -->
   <div
     id="milestone-award-toast"
-    class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[10000] px-5 py-3.5 rounded-2xl bg-gradient-to-r from-amber-600 to-rose-600 text-white shadow-2xl border border-amber-300/60 flex items-center gap-3 animate-bounce"
+    class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[10000] px-5 py-3.5 rounded-2xl bg-gradient-to-r from-amber-600 to-rose-600 text-white shadow-2xl border border-amber-300/60 items-center gap-3 animate-bounce"
     role="alert"
   >
     <span class="text-2xl" id="milestone-award-icon">🎁</span>
@@ -595,31 +650,15 @@ const MASCOTS = [
   </div>
 
   <!-- Global Arcade Leaderboard Modal -->
-  
-    <section class="mt-10 mb-6 rounded-2xl border border-white/10 bg-slate-950/40 p-5 sm:p-6" aria-label="Archived experiments">
-      <h2 class="text-lg font-bold text-white mb-1">Archived experiments</h2>
-      <p class="text-sm text-slate-300 mb-4">
-        Older prototypes kept for bookmarks and deep links. Prefer the cabinet above for the supported set.
-      </p>
-      <ul class="flex flex-wrap gap-3">
-        {LEGACY_GAMES.map((game) => (
-          <li>
-            <a
-              href={game.href}
-              class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-amber-100 hover:bg-white/10"
-            >
-              <span class="font-semibold">{game.title}</span>
-              <span class="text-xs text-slate-400">{game.note}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
-
-    <ArcadeLeaderboardModal />
+  <ArcadeLeaderboardModal />
 </BaseLayout>
 
 <style>
+  /* Milestone toast: flex only when visible (hidden class wins otherwise) */
+  #milestone-award-toast:not(.hidden) {
+    display: flex;
+  }
+
   /* CRT Scanline & Phosphor Sheen Simulation */
   .crt-effect {
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),

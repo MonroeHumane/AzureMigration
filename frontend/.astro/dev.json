@@ -1,24 +1,14 @@
 {
-	"pid": 34616,
-	"port": 4321,
-	"url": "http://localhost:4321",
+	"pid": 18012,
+	"port": 8399,
+	"url": "http://127.0.0.1:8399",
 	"urls": {
 		"local": [
-			"http://localhost:4321/"
+			"http://127.0.0.1:8399/"
 		],
-		"network": [
-			"http://100.122.36.25:4321/",
-			"http://172.17.16.1:4321/",
-			"http://192.168.0.149:4321/",
-			"http://10.0.0.126:4321/"
-		],
-		"networkInterfaceNames": [
-			"Tailscale",
-			"vEthernet (WSL (Hyper-V firewall))",
-			"Ethernet",
-			"WiFi"
-		]
+		"network": [],
+		"networkInterfaceNames": []
 	},
 	"background": false,
-	"startedAt": "2026-09-11T07:28:34.241Z"
+	"startedAt": "2026-09-12T03:27:04.022Z"
 }

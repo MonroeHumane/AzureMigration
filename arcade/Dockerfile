@@ -34,6 +34,8 @@ WORKDIR /var/www/html
 
 COPY --from=builder /app/vendor ./vendor
 COPY composer.json ./
+COPY phinx.php ./
+COPY db ./db
 COPY public ./public
 COPY src ./src
 
