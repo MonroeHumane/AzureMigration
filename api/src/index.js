@@ -169,8 +169,11 @@ function verifyStaffToken(token) {
     }
     const data = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
     if (data && data.email) {
-      // Enforce 30-day maximum session lifetime (2,592,000,000 ms) with clock-skew tolerance
-      const MAX_SESSION_AGE = 30 * 24 * 60 * 60 * 1000;
+      // Enforce 7-day maximum session lifetime (604,800,000 ms) with clock-skew tolerance.
+      // Shortened from 30 days: these tokens have no server-side revocation (see
+      // STAFF_AUTH_SECRET rotation below for the emergency path), so the expiry window
+      // is the only bound on how long a stolen token stays useful.
+      const MAX_SESSION_AGE = 7 * 24 * 60 * 60 * 1000;
       if (data.iat && Math.abs(Date.now() - data.iat) > MAX_SESSION_AGE) {
         console.warn(`[StaffAuth] HMAC session expired for ${data.email}`);
         return null;

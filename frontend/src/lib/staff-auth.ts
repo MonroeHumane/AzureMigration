@@ -71,7 +71,9 @@ export function isStaffHmacToken(token: string | null | undefined): token is str
     if (jsonStr) {
       const payload = JSON.parse(jsonStr);
       if (payload && typeof payload.iat === 'number') {
-        const MAX_SESSION_AGE = 30 * 24 * 60 * 60 * 1000;
+        // Must match api/src/index.js's server-side MAX_SESSION_AGE -- this is just an
+        // early client-side check to avoid sending a token the server will reject anyway.
+        const MAX_SESSION_AGE = 7 * 24 * 60 * 60 * 1000;
         if (Math.abs(Date.now() - payload.iat) > MAX_SESSION_AGE) {
           return false;
         }
