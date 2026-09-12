@@ -454,18 +454,23 @@ function drawObstacle(ctx, obs, relZ, biome, images) {
       ctx.lineTo(pn.x - wn, pn.y);
       ctx.closePath();
       ctx.fill();
-      // Crumbled lip on the near edge.
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-      ctx.lineWidth = Math.max(1.5, 4 * pn.scale);
-      ctx.beginPath();
-      ctx.moveTo(pn.x - wn, pn.y);
-      ctx.lineTo(pn.x + wn, pn.y);
-      ctx.stroke();
-      ctx.strokeStyle = 'rgba(255,255,255,0.14)';
-      ctx.lineWidth = Math.max(1, 1.6 * pn.scale);
+      // Crumbled lip — a lighter soil rim all around so the hole reads on
+      // both bright dirt and dark ice.
+      ctx.strokeStyle = 'rgba(230,200,160,0.55)';
+      ctx.lineWidth = Math.max(1.5, 3 * pn.scale);
       ctx.beginPath();
       ctx.moveTo(pf.x - wf, pf.y);
       ctx.lineTo(pf.x + wf, pf.y);
+      ctx.lineTo(pn.x + wn, pn.y);
+      ctx.lineTo(pn.x - wn, pn.y);
+      ctx.closePath();
+      ctx.stroke();
+      // Heavy shadow on the near (falling) edge.
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = Math.max(1.5, 5 * pn.scale);
+      ctx.beginPath();
+      ctx.moveTo(pn.x - wn, pn.y);
+      ctx.lineTo(pn.x + wn, pn.y);
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
