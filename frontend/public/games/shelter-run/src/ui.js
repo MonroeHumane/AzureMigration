@@ -1,7 +1,7 @@
 // DOM chrome: start screen, game-over panel (medal/distance/leaderboard/
-// rescued pets), pack-open modal, milestone toasts, companion picker.
-// Canvas stays gameplay-only.
-import { MEDALS, CATS, MILESTONES } from './config.js';
+// rescued pets), pack-open modal, upgrade store, objectives panel,
+// milestone toasts, companion picker. Canvas stays gameplay-only.
+import { MEDALS, CATS, MILESTONES, UPGRADES, OBJECTIVES } from './config.js';
 
 const $ = sel => document.querySelector(sel);
 
@@ -12,7 +12,7 @@ function el(tag, cls, html) {
   return e;
 }
 
-export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
+export function createUI({ onStart, onRetry, onOpenPack, onPickCat, onBuyUpgrade }) {
   const root = $('#ui-root');
 
   // ── Start screen ─────────────────────────────────────────────────────────
@@ -24,7 +24,12 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
       <p class="sr-sub">Swipe or use <kbd>←</kbd><kbd>→</kbd> to change lanes, <kbd>↑</kbd> to jump, <kbd>↓</kbd> to slide.<br>Rescue pets along the trail — distance milestones earn packs.</p>
       <div class="sr-cats" role="radiogroup" aria-label="Choose your cat"></div>
       <button type="button" class="sr-btn sr-btn-primary" data-start>Start Running</button>
+      <div class="sr-menu-row">
+        <button type="button" class="sr-btn sr-btn-soft" data-store>🛍 Upgrades</button>
+        <button type="button" class="sr-btn sr-btn-soft" data-objectives>🎯 Objectives</button>
+      </div>
       <p class="sr-best" data-best></p>
+      <p class="sr-wallet" data-wallet hidden></p>
     </div>`;
   root.appendChild(start);
 
@@ -100,6 +105,35 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
   root.appendChild(packModal);
   packModal.querySelector('[data-pack-done]').addEventListener('click', () => hide(packModal));
 
+  // ── Upgrade store modal ─────────────────────────────────────────────────
+  const storeModal = el('section', 'sr-overlay sr-storemodal');
+  storeModal.innerHTML = `
+    <div class="sr-card sr-store-card">
+      <h2 class="sr-h2">Upgrade Store</h2>
+      <p class="sr-store-sub">Spend shelter coins on run power-ups. Each has 5 levels.</p>
+      <p class="sr-wallet sr-wallet-lg" data-store-wallet>🪙 <b data-store-coins>0</b> coins</p>
+      <div class="sr-store-list" data-store-list></div>
+      <button type="button" class="sr-btn sr-btn-primary" data-store-close>Done</button>
+    </div>`;
+  root.appendChild(storeModal);
+  storeModal.querySelector('[data-store-close]').addEventListener('click', () => hide(storeModal));
+
+  // ── Objectives modal ─────────────────────────────────────────────────────
+  const objModal = el('section', 'sr-overlay sr-objmodal');
+  objModal.innerHTML = `
+    <div class="sr-card sr-obj-card">
+      <h2 class="sr-h2">Objectives</h2>
+      <p class="sr-store-sub">Each completed objective raises your score multiplier.</p>
+      <p class="sr-mult-line" data-obj-mult>Score multiplier: <b>×1</b></p>
+      <ul class="sr-obj-list" data-obj-list></ul>
+      <button type="button" class="sr-btn sr-btn-primary" data-obj-close>Done</button>
+    </div>`;
+  root.appendChild(objModal);
+  objModal.querySelector('[data-obj-close]').addEventListener('click', () => hide(objModal));
+
+  start.querySelector('[data-store]').addEventListener('click', () => { show(storeModal); if (onBuyUpgrade) onBuyUpgrade(null); });
+  start.querySelector('[data-objectives]').addEventListener('click', () => show(objModal));
+
   // ── Toast lane ───────────────────────────────────────────────────────────
   const toasts = el('div', 'sr-toasts', '');
   root.appendChild(toasts);
@@ -155,6 +189,61 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
     line.textContent = packs > 0 ? `You have ${packs} unopened pack${packs === 1 ? '' : 's'} in your Adoptédex.` : '';
   }
 
+  // ── Upgrade store rendering ──────────────────────────────────────────────
+  // progress = server GET shape { upgrades: {k:{level}}, coin_balance } —
+  // coinBalance may be passed separately when we know it from the profile.
+  function renderStore(progress, coinBalance, busyKey) {
+    const list = storeModal.querySelector('[data-store-list]');
+    const coinsEl = storeModal.querySelector('[data-store-coins]');
+    const owned = (progress && progress.upgrades) || {};
+    const coins = coinBalance | 0;
+    coinsEl.textContent = coins;
+    list.innerHTML = '';
+    for (const [key, def] of Object.entries(UPGRADES)) {
+      const lvl = Math.min(5, (owned[key] && owned[key].level) | 0);
+      const maxed = lvl >= 5;
+      const cost = maxed ? null : def.costs[lvl];
+      const row = el('div', 'sr-upgrade' + (maxed ? ' is-maxed' : ''));
+      row.innerHTML = `
+        <span class="sr-up-icon">${def.icon}</span>
+        <div class="sr-up-mid">
+          <div class="sr-up-name">${escapeHtml(def.label)}</div>
+          <div class="sr-up-pips">${[1,2,3,4,5].map(i => `<i class="${i <= lvl ? 'on' : ''}"></i>`).join('')}</div>
+          <div class="sr-up-desc">${escapeHtml(def.desc)}</div>
+        </div>
+        <button type="button" class="sr-btn sr-btn-buy" data-buy="${key}"
+          ${maxed || coins < cost || busyKey ? 'disabled' : ''}>
+          ${maxed ? 'MAX' : `🪙 ${cost}`}
+        </button>`;
+      if (!maxed && onBuyUpgrade) {
+        row.querySelector('[data-buy]').addEventListener('click', () => onBuyUpgrade(key));
+      }
+      list.appendChild(row);
+    }
+  }
+
+  function renderObjectives(progress) {
+    const list = objModal.querySelector('[data-obj-list]');
+    const mult = objModal.querySelector('[data-obj-mult]');
+    const done = new Set((progress && progress.objectives) || []);
+    const m = (progress && progress.multiplier) || (1 + done.size);
+    mult.innerHTML = `Score multiplier: <b>×${m}</b>`;
+    list.innerHTML = '';
+    for (const o of OBJECTIVES) {
+      const claimed = done.has(o.key);
+      const li = el('li', claimed ? 'is-done' : '');
+      li.innerHTML = `<span class="sr-obj-check">${claimed ? '✓' : ''}</span><span>${escapeHtml(o.label)}</span><span class="sr-obj-plus">+1×</span>`;
+      list.appendChild(li);
+    }
+  }
+
+  function setWallet(coins) {
+    const w = start.querySelector('[data-wallet]');
+    if (coins === null || coins === undefined) { w.hidden = true; return; }
+    w.hidden = false;
+    w.innerHTML = `🪙 <b>${coins | 0}</b> coins`;
+  }
+
   function toast(text, opts = {}) {
     const t = el('div', 'sr-toast' + (opts.rare ? ' is-rare' : ''), text);
     toasts.appendChild(t);
@@ -165,6 +254,12 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
   return {
     updateLeaderboard(leaders, score) { renderLeaders(leaders, score); },
     setPacks,
+    renderStore,
+    renderObjectives,
+    setWallet,
+    openStore() { show(storeModal); },
+    openObjectives() { show(objModal); },
+    closeStore() { hide(storeModal); },
     showStart(best, catId) {
       selectCat(catId);
       start.querySelector('[data-best]').textContent = best > 0 ? `Personal best: ${best} m` : '';
@@ -173,24 +268,34 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
     hideStart() { hide(start); },
     selectCat,
 
-    showGameOver({ score, best, isNewBest, leaders, unopenedPacks, rescued }) {
+    showGameOver({ score, meters, best, isNewBest, leaders, unopenedPacks, rescued, caught }) {
       over.querySelector('[data-score]').textContent = score;
       over.querySelector('[data-best-run]').textContent = best;
       over.querySelector('[data-new-best]').hidden = !isNewBest;
+      over.querySelector('.sr-meters').textContent =
+        (caught ? 'score — the pack caught you! ' : 'score — ') + `${meters}m ran`;
+      if (caught) over.querySelector('.sr-meters').classList.add('is-caught');
+      else over.querySelector('.sr-meters').classList.remove('is-caught');
 
-      const medal = MEDALS.find(m => score >= m.min);
+      const medal = MEDALS.find(m => meters >= m.min);
       const medalImg = over.querySelector('[data-medal]');
       if (medal) { medalImg.src = `assets/${medal.img}`; medalImg.alt = `${medal.label} medal`; medalImg.hidden = false; }
       else medalImg.hidden = true;
 
-      // Rescued pet chips
+      // Rescued pet chips — linked to their adoption pages when we have a URL.
       const rw = over.querySelector('[data-rescued]');
       const row = over.querySelector('[data-rescued-row]');
       row.innerHTML = '';
       if (rescued && rescued.length) {
         rw.hidden = false;
         rescued.slice(0, 8).forEach(pet => {
-          const chip = el('div', 'sr-rescued-chip');
+          const chip = el(pet.url ? 'a' : 'div', 'sr-rescued-chip');
+          if (pet.url) {
+            chip.href = pet.url;
+            chip.target = '_blank';
+            chip.rel = 'noopener';
+            chip.title = `Adopt ${pet.name}`;
+          }
           if (pet.photo) {
             const img = el('img', '');
             img.src = pet.photo; img.alt = pet.name; img.loading = 'lazy';
@@ -218,7 +323,7 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
         over.querySelector('[data-binder-link]').hidden = true;
       }
 
-      renderLeaders(leaders, score);
+      renderLeaders(leaders, meters);
 
       setPacks(unopenedPacks);
       hide(start); show(over);

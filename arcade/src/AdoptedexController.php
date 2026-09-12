@@ -68,6 +68,11 @@ class AdoptedexController
             'score_1500' => ['packs' => 1, 'coins' => 5,  'tier' => 'standard'],
             'score_3000' => ['packs' => 1, 'coins' => 10, 'tier' => 'duo'],
         ],
+        'puppy_skater' => [
+            'distance_500'  => ['packs' => 1, 'coins' => 1, 'tier' => 'standard'],
+            'distance_1500' => ['packs' => 1, 'coins' => 3, 'tier' => 'standard'],
+            'distance_3000' => ['packs' => 1, 'coins' => 5, 'tier' => 'duo'],
+        ],
         // Album / hub shared systems (client triggers; server caps + unique keys dedup)
         'dex' => [
             'daily_streak' => ['packs' => 1, 'coins' => 5, 'tier' => 'standard'],
@@ -98,6 +103,40 @@ class AdoptedexController
     private const COIN_AWARD_REASONS = [
         'game_award'  => 5,
         'daily_bonus' => 10,
+    ];
+
+    /**
+     * Per-game upgrade store: upgrade id => 5 coin costs (level 1..5 price).
+     * Client-supplied levels/costs are never trusted — the server owns both.
+     */
+    private const UPGRADE_DEFS = [
+        'magnet'   => ['label' => 'Treat Magnet',         'costs' => [60, 140, 280, 500, 800]],
+        'golden'   => ['label' => 'Golden Treats',        'costs' => [50, 120, 250, 450, 700]],
+        'ghost'    => ['label' => 'Ghost Pepper Zoomies', 'costs' => [80, 180, 360, 650, 1000]],
+        'boost'    => ['label' => 'Autopilot Sprint',     'costs' => [90, 200, 400, 700, 1100]],
+        'donation' => ['label' => 'Donation Burst',       'costs' => [40, 100, 220, 400, 650]],
+    ];
+
+    /** Coins granted by a Donation Burst pickup, indexed by upgrade level 0-5. */
+    private const DONATION_VALUES = [0, 8, 16, 26, 40, 60];
+
+    /**
+     * Objective catalog per game: key => label. Each claimed objective raises
+     * the player's permanent score multiplier for that game by +1.
+     */
+    private const OBJECTIVE_DEFS = [
+        'shelter_run' => [
+            'rescue_5'      => 'Rescue 5 pets in one run',
+            'rescue_15'     => 'Rescue 15 pets all-time',
+            'clean_1000'    => 'Run 1000m without stumbling',
+            'streak_8'      => 'Reach an 8-rescue streak',
+            'distance_750'  => 'Run 750m in one run',
+            'distance_2500' => 'Run 2500m in one run',
+            'nearmiss_3'    => 'Dodge 3 obstacles by a whisker in one run',
+            'pickups_2'     => 'Grab 2 power-ups in one run',
+            'runs_5'        => 'Finish 5 runs',
+            'chase_escape'  => 'Escape the kennel pack',
+        ],
     ];
 
     /**
@@ -947,6 +986,222 @@ class AdoptedexController
                 'packs_by_tier'  => $packsByTier,
                 'reason'         => $reason,
             ];
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    // ─── Per-game progression (upgrades + objectives) ────────────────────────
+
+    /**
+     * Read the dex_game_progress row for a profile+game. $forUpdate locks the
+     * row inside the caller's transaction. Returns ['upgrades'=>map,'objectives'=>list].
+     * Missing table (pre-migration) degrades to empty defaults.
+     */
+    private function readProgress(int $profileId, string $gameId, bool $forUpdate = false): array
+    {
+        try {
+            $sql = "SELECT upgrades_json, objectives_json FROM dex_game_progress WHERE profile_id = ? AND game_id = ?";
+            if ($forUpdate) $sql .= " FOR UPDATE";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$profileId, $gameId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $row = null; // pre-migration — treat as no progress
+        }
+        if (!$row) return ['upgrades' => [], 'objectives' => []];
+        $up = json_decode((string)($row['upgrades_json'] ?? ''), true);
+        $ob = json_decode((string)($row['objectives_json'] ?? ''), true);
+        return [
+            'upgrades'   => is_array($up) ? $up : [],
+            'objectives' => is_array($ob) ? array_values($ob) : [],
+        ];
+    }
+
+    private function writeProgress(int $profileId, string $gameId, array $upgrades, array $objectives): void
+    {
+        $stmt = $this->db->prepare(
+            "INSERT INTO dex_game_progress (profile_id, game_id, upgrades_json, objectives_json)
+             VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE upgrades_json = VALUES(upgrades_json), objectives_json = VALUES(objectives_json)"
+        );
+        $stmt->execute([$profileId, $gameId, json_encode($upgrades), json_encode(array_values($objectives))]);
+    }
+
+    private static function multiplierFor(array $objectives): int
+    {
+        return 1 + count($objectives);
+    }
+
+    /** Public read: upgrade levels, claimed objectives, derived multiplier, catalogs. */
+    public function getGameProgress(string $userSlug, string $gameId): array
+    {
+        $stmt = $this->db->prepare("SELECT id FROM dex_profiles WHERE username_slug = ?");
+        $stmt->execute([$userSlug]);
+        $profileId = $stmt->fetchColumn();
+        if (!$profileId) {
+            return ['ok' => false, 'message' => 'Profile not found'];
+        }
+        $prog = $this->readProgress((int)$profileId, $gameId);
+        $defs = self::OBJECTIVE_DEFS[$gameId] ?? [];
+        $claimed = array_values(array_intersect(array_keys($defs), $prog['objectives']));
+        $upOut = [];
+        foreach (self::UPGRADE_DEFS as $id => $def) {
+            $lvl = isset($prog['upgrades'][$id]) ? (int)$prog['upgrades'][$id] : 0;
+            $upOut[$id] = [
+                'label'    => $def['label'],
+                'level'    => min(5, max(0, $lvl)),
+                'maxLevel' => 5,
+                'nextCost' => $lvl < 5 ? $def['costs'][$lvl] : null,
+            ];
+        }
+        return [
+            'ok'           => true,
+            'game_id'      => $gameId,
+            'upgrades'     => $upOut,
+            'objectives'   => $claimed,
+            'multiplier'   => self::multiplierFor($claimed),
+            'objectiveDefs'=> $defs,
+        ];
+    }
+
+    /** Buy the next level of an upgrade with server-held coins. */
+    public function buyUpgrade(string $userSlug, string $gameId, string $upgrade, ?int $sessionProfileId): array
+    {
+        if (!isset(self::UPGRADE_DEFS[$upgrade])) {
+            return ['ok' => false, 'code' => 'bad_request', 'message' => 'Unknown upgrade'];
+        }
+        if (!\HumaneArcade\GameCatalog::isValidGame($gameId)) {
+            return ['ok' => false, 'code' => 'bad_request', 'message' => 'Unknown game'];
+        }
+
+        $this->db->beginTransaction();
+        try {
+            $resolved = $this->resolveMutableProfile($userSlug, $sessionProfileId);
+            if (isset($resolved['ok']) && $resolved['ok'] === false) {
+                $this->db->rollBack();
+                return $resolved;
+            }
+            $profileId = (int)$resolved['row']['id'];
+            $balance   = (int)$resolved['row']['coin_balance'];
+
+            $prog  = $this->readProgress($profileId, $gameId, true);
+            $level = isset($prog['upgrades'][$upgrade]) ? (int)$prog['upgrades'][$upgrade] : 0;
+            if ($level >= 5) {
+                $this->db->rollBack();
+                return ['ok' => false, 'code' => 'maxed', 'message' => 'Upgrade already maxed'];
+            }
+            $cost = self::UPGRADE_DEFS[$upgrade]['costs'][$level];
+            if ($balance < $cost) {
+                $this->db->rollBack();
+                return ['ok' => false, 'code' => 'insufficient', 'message' => 'Not enough coins', 'coin_balance' => $balance];
+            }
+
+            $upd = $this->db->prepare("UPDATE dex_profiles SET coin_balance = coin_balance - ? WHERE id = ? AND coin_balance >= ?");
+            $upd->execute([$cost, $profileId, $cost]);
+            if ($upd->rowCount() === 0) {
+                $this->db->rollBack();
+                return ['ok' => false, 'code' => 'insufficient', 'message' => 'Not enough coins'];
+            }
+
+            $newLevel = $level + 1;
+            $upgrades = $prog['upgrades'];
+            $upgrades[$upgrade] = $newLevel;
+            $this->writeProgress($profileId, $gameId, $upgrades, $prog['objectives']);
+
+            $ins = $this->db->prepare("INSERT INTO dex_coin_transactions (profile_id, delta, reason, created_at) VALUES (?, ?, ?, NOW())");
+            $ins->execute([$profileId, -$cost, "upgrade_{$gameId}_{$upgrade}_{$newLevel}"]);
+
+            $bal = (int)$balance - $cost;
+            $this->db->commit();
+            return [
+                'ok'           => true,
+                'upgrade'      => $upgrade,
+                'level'        => $newLevel,
+                'cost'         => $cost,
+                'coin_balance' => $bal,
+            ];
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    /** Claim an objective once — each raises the game's score multiplier by +1. */
+    public function claimObjective(string $userSlug, string $gameId, string $key, ?int $sessionProfileId): array
+    {
+        $defs = self::OBJECTIVE_DEFS[$gameId] ?? [];
+        if (!isset($defs[$key])) {
+            return ['ok' => false, 'code' => 'bad_request', 'message' => 'Unknown objective'];
+        }
+
+        $this->db->beginTransaction();
+        try {
+            $resolved = $this->resolveMutableProfile($userSlug, $sessionProfileId);
+            if (isset($resolved['ok']) && $resolved['ok'] === false) {
+                $this->db->rollBack();
+                return $resolved;
+            }
+            $profileId = (int)$resolved['row']['id'];
+            $prog = $this->readProgress($profileId, $gameId, true);
+
+            if (in_array($key, $prog['objectives'], true)) {
+                $this->db->commit();
+                return ['ok' => true, 'already' => true, 'multiplier' => self::multiplierFor($prog['objectives']), 'objectives' => $prog['objectives']];
+            }
+            $objectives = array_merge($prog['objectives'], [$key]);
+            $this->writeProgress($profileId, $gameId, $prog['upgrades'], $objectives);
+
+            $this->db->commit();
+            return [
+                'ok'         => true,
+                'already'    => false,
+                'objective'  => $key,
+                'label'      => $defs[$key],
+                'objectives' => $objectives,
+                'multiplier' => self::multiplierFor($objectives),
+            ];
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    /** Donation Burst pickup — coins scaled by the player's owned upgrade level. */
+    public function awardDonationBurst(string $userSlug, ?int $sessionProfileId): array
+    {
+        $this->db->beginTransaction();
+        try {
+            $resolved = $this->resolveMutableProfile($userSlug, $sessionProfileId);
+            if (isset($resolved['ok']) && $resolved['ok'] === false) {
+                $this->db->rollBack();
+                return $resolved;
+            }
+            $profileId = (int)$resolved['row']['id'];
+            $prog = $this->readProgress($profileId, 'shelter_run', true);
+            $level = isset($prog['upgrades']['donation']) ? (int)$prog['upgrades']['donation'] : 0;
+            $delta = self::DONATION_VALUES[max(0, min(5, $level))];
+            if ($delta <= 0) {
+                $this->db->rollBack();
+                return ['ok' => false, 'message' => 'Donation Burst not owned'];
+            }
+
+            // Shares the daily gameplay-earnings pool with game_award.
+            $cap = $this->db->prepare("SELECT COALESCE(SUM(delta),0) FROM dex_coin_transactions WHERE profile_id = ? AND reason IN ('game_award','donation_burst') AND created_at >= UTC_DATE()");
+            $cap->execute([$profileId]);
+            if ((int)$cap->fetchColumn() + $delta > self::GAME_AWARD_DAILY_CAP * 4) {
+                $this->db->rollBack();
+                return ['ok' => true, 'awarded' => 0, 'message' => 'Daily coin limit reached'];
+            }
+
+            $ins = $this->db->prepare("INSERT INTO dex_coin_transactions (profile_id, delta, reason, created_at) VALUES (?, ?, 'donation_burst', NOW())");
+            $ins->execute([$profileId, $delta]);
+            $upd = $this->db->prepare("UPDATE dex_profiles SET coin_balance = coin_balance + ? WHERE id = ?");
+            $upd->execute([$delta, $profileId]);
+
+            $this->db->commit();
+            return ['ok' => true, 'awarded' => $delta, 'level' => $level];
         } catch (Exception $e) {
             $this->db->rollBack();
             throw $e;

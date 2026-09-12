@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Bind dark: to the explicit site theme, not prefers-color-scheme.
    OS dark + staff/public light was painting white titles on light backgrounds. */

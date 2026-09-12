@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Puppy Skater — Quaternius Shiba preview</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0b1020; color: #dfe7f5; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; display: flex; min-height: 100vh; }
+  #stage { padding: 14px; }
+  canvas { border-radius: 12px; display: block; }
+  #side { padding: 18px 18px 18px 4px; width: 320px; }
+  h1 { font-size: 16px; color: #ffd166; margin: 0 0 4px; }
+  .sub { color: #7c8db0; margin-bottom: 14px; }
+  h2 { font-size: 11px; color: #8ecae6; text-transform: uppercase; letter-spacing: .08em; margin: 16px 0 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  button { background: #1d2f52; color: #dfe7f5; border: 1px solid #33507f; border-radius: 8px; padding: 8px 10px; font: inherit; cursor: pointer; text-align: left; }
+  button:hover { background: #27406e; }
+  button.on { background: #2f6f4f; border-color: #4fae82; }
+  button.seq { grid-column: 1 / -1; }
+  label { display: block; margin-top: 10px; color: #7c8db0; }
+  input[type=range] { width: 100%; }
+  .note { color: #7c8db0; font-size: 12px; margin-top: 14px; }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<div id="side">
+  <h1>Quaternius Shiba Inu — CC0 rigged</h1>
+  <div class="sub">side-view framing ≈ in-game. The board is a placeholder prop; the final bake renders frames off the rig.</div>
+  <h2>Animation</h2>
+  <div class="grid" id="anims">
+    <button data-a="Gallop" class="on">🐕 Gallop (ride)</button>
+    <button data-a="Gallop_Jump">🛹 Gallop_Jump (ollie)</button>
+    <button data-a="Idle_2_HeadLow">🦆 HeadLow (duck)</button>
+    <button data-a="Jump_ToIdle">🛬 Jump_ToIdle (land)</button>
+    <button data-a="Idle_HitReact_Left">💥 HitReact (stumble)</button>
+    <button data-a="Death">💀 Death (wipeout)</button>
+    <button data-a="Walk">🚶 Walk</button>
+    <button data-a="Eating">🦴 Eating (idle treat?)</button>
+  </div>
+  <div class="grid" style="margin-top:8px">
+    <button class="seq" id="seq">▶ ollie sequence — gallop → jump → land → gallop</button>
+    <button class="seq" id="hit">▶ hit sequence — gallop → stumble → gallop</button>
+  </div>
+  <label>time scale <input id="ts" type="range" min="0.3" max="2" step="0.05" value="1"></label>
+  <label><input id="scroll" type="checkbox" checked> scroll world (runner feel)</label>
+  <p class="note">Drag to orbit · wheel to zoom. Source: Quaternius “Shiba Inu” (poly.pizza/m/y4wdQpg767), CC0.</p>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const W = 560, H = 700;
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(W, H);
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.shadowMap.enabled = true;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+// game biome sky colors
+const skyTop = new THREE.Color('#5ec8e4'), skyBot = new THREE.Color('#d8f2ef');
+scene.background = skyTop.clone();
+
+// big gradient dome: cheap trick — vertex-colored backdrop plane
+const bg = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 40),
+  new THREE.ShaderMaterial({
+    uniforms: { top: { value: skyTop }, bot: { value: skyBot } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader: 'uniform vec3 top,bot; varying vec2 vUv; void main(){ gl_FragColor=vec4(mix(bot,top,vUv.y),1.);}',
+    depthWrite: false,
+  })
+);
+bg.position.set(0, 8, -14);
+scene.add(bg);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a7a5c, 1.15));
+const sun = new THREE.DirectionalLight(0xfff3c4, 1.6);
+sun.position.set(3, 8, 6);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+scene.add(sun);
+
+// pavement
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(80, 14),
+  new THREE.MeshStandardMaterial({ color: 0x9aa2ac })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+const curb = new THREE.Mesh(new THREE.BoxGeometry(80, 0.12, 0.5), new THREE.MeshStandardMaterial({ color: 0xc4ccd4 }));
+curb.position.set(0, 0.06, -0.2);
+scene.add(curb);
+
+// scrolling props — simple block stacks sliding right→left like the game
+const props = [];
+const blockCols = [0xff8fa3, 0xffd166, 0x7ee0a3, 0xcdb4f0];
+for (let i = 0; i < 7; i++) {
+  const stack = new THREE.Group();
+  const n = 1 + (i % 3);
+  for (let j = 0; j < n; j++) {
+    const bx = new THREE.Mesh(
+      new THREE.BoxGeometry(0.55, 0.55, 0.55),
+      new THREE.MeshStandardMaterial({ color: blockCols[(i + j) % 4] })
+    );
+    bx.position.y = 0.28 + j * 0.55;
+    bx.castShadow = true;
+    stack.add(bx);
+  }
+  stack.position.set(4 + i * 2.2, 0, -0.5 - (i % 2) * 1.2);
+  scene.add(stack);
+  props.push(stack);
+}
+
+// placeholder skateboard
+const board = new THREE.Group();
+const deck = new THREE.Mesh(
+  new THREE.BoxGeometry(1.15, 0.05, 0.34),
+  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+);
+deck.castShadow = true;
+board.add(deck);
+const wheelMat = new THREE.MeshStandardMaterial({ color: 0xffd166 });
+for (const [x, z] of [[-0.42, -0.13], [-0.42, 0.13], [0.42, -0.13], [0.42, 0.13]]) {
+  const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.06, 12), wheelMat);
+  wheel.rotation.x = Math.PI / 2;
+  wheel.position.set(x, -0.07, z);
+  board.add(wheel);
+}
+board.position.y = 0.1;
+scene.add(board);
+
+const camera = new THREE.PerspectiveCamera(32, W / H, 0.1, 100);
+camera.position.set(0.4, 1.15, 4.6);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.85, 0);
+controls.update();
+
+let mixer = null, actions = {}, current = null, seq = null;
+const dog = await new GLTFLoader().loadAsync('./models/shiba.glb');
+dog.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+// auto-fit: normalize to ~1.05 units tall, feet on the board, facing +x (travel)
+const bbox = new THREE.Box3().setFromObject(dog.scene);
+const size = bbox.getSize(new THREE.Vector3());
+const scale = 1.05 / size.y;
+dog.scene.scale.setScalar(scale);
+const c = bbox.getCenter(new THREE.Vector3());
+dog.scene.position.set(-c.x * scale, 0.16 - bbox.min.y * scale, -c.z * scale);
+dog.scene.rotation.y = -Math.PI / 2; // face +x → camera sees the side profile
+scene.add(dog.scene);
+
+mixer = new THREE.AnimationMixer(dog.scene);
+for (const clip of dog.animations) actions[clip.name] = mixer.clipAction(clip);
+function play(name, fade = 0.18, once = false) {
+  const a = actions[name];
+  if (!a || current === a && !once) return;
+  a.reset();
+  a.timeScale = parseFloat(document.getElementById('ts').value);
+  if (once) { a.setLoop(THREE.LoopOnce); a.clampWhenFinished = true; }
+  else a.setLoop(THREE.LoopRepeat);
+  if (current && current !== a) { a.crossFadeFrom(current, fade, false); }
+  a.play();
+  current = a;
+  document.querySelectorAll('#anims button').forEach(b => b.classList.toggle('on', b.dataset.a === name));
+}
+play('Gallop');
+
+document.querySelectorAll('#anims button').forEach(b => {
+  b.onclick = () => { seq = null; play(b.dataset.a, 0.18, ['Gallop_Jump', 'Jump_ToIdle', 'Idle_HitReact_Left', 'Death', 'Eating'].includes(b.dataset.a)); };
+});
+document.getElementById('seq').onclick = () => { seq = { steps: ['Gallop_Jump', 'Jump_ToIdle'], i: -1 }; advance(); };
+document.getElementById('hit').onclick = () => { seq = { steps: ['Idle_HitReact_Left'], i: -1 }; advance(); };
+function advance() {
+  if (!seq) return;
+  seq.i++;
+  if (seq.i >= seq.steps.length) { seq = null; play('Gallop'); return; }
+  play(seq.steps[seq.i], 0.12, true);
+}
+document.getElementById('ts').oninput = e => { if (current) current.timeScale = parseFloat(e.target.value); };
+
+const clock = new THREE.Clock();
+let scrollX = 0;
+function tick() {
+  requestAnimationFrame(tick);
+  const dt = clock.getDelta();
+  if (mixer) {
+    mixer.update(dt);
+    if (current && current.loop === THREE.LoopOnce && !current.isRunning()) {
+      if (seq) advance(); else if (current !== actions.Gallop) play('Gallop');
+    }
+  }
+  if (document.getElementById('scroll').checked) {
+    scrollX += dt * 2.2;
+    for (const p of props) {
+      p.position.x -= dt * 2.2;
+      if (p.position.x < -5) p.position.x += 16;
+    }
+    curb.position.x = -(scrollX % 4);
+  }
+  // subtle board bounce
+  board.position.y = 0.1 + Math.sin(clock.elapsedTime * 14) * 0.004;
+  renderer.render(scene, camera);
+}
+tick();
+</script>
+</body>
+</html>

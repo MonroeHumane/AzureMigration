@@ -29,6 +29,25 @@ export const PHYS = {
   highBarBottom: 95,      // slide must be under this
   lives: 2,
   invincibleMs: 1600,
+  chaseRecoverSec: 7.5,     // clean play needed for the kennel pack to drop back
+  stumbleSpeedMul: 0.55,    // speed retained after a stumble
+  magnetRadius: 1.6,        // lanes the magnet can pull from (adjacent)
+  ghostSecPerLevel: 1.6,    // ghost-peek duration per upgrade level
+  boostMetersPerLevel: 150, // boost distance per upgrade level (L1 ≈ 250m)
+  donationValues: [0, 8, 16, 26, 40, 60], // mirrors server DONATION_VALUES (display only)
+  treatTiers: [
+    { minMeters: 0,    value: 1, tier: 'bronze' },
+    { minMeters: 1500, value: 3, tier: 'silver' },
+    { minMeters: 2800, value: 5, tier: 'gold'   },
+  ],
+  goldenThresholds: [       // Golden Treats upgrade shifts tier gates earlier
+    [1500, 2800],           // L0
+    [1300, 2400],           // L1
+    [1100, 2000],           // L2
+    [900,  1600],           // L3
+    [700,  1200],           // L4
+    [500,   800],           // L5
+  ],
 };
 
 // Distance-gated biomes — palettes harmonized with flappy-cat-2's set.
@@ -97,13 +116,48 @@ export const IMAGES = {
   rocks: ['rock.png', 'rockGrass.png', 'rockIce.png', 'rockSnow.png'],
   obstacles: ['obs_wall_0.png','obs_wall_1.png','obs_wall_2.png',
               'obs_low_0.png','obs_low_1.png','obs_low_2.png',
-              'obs_high_0.png','obs_high_1.png','obs_high_2.png'],
+              'obs_high_0.png','obs_high_1.png','obs_high_2.png',
+              'chase_dogs.png'],
   ui: ['ui/medalBronze.png','ui/medalGold.png','ui/medalSilver.png',
        'ui/tap.png','ui/textGameOver.png','ui/textGetReady.png'],
   numbers: Array.from({ length: 10 }, (_, i) => `numbers/number${i}.png`),
 };
 
-export const OBSTACLE = { LANE_BLOCK: 'lane_block', LOW: 'low', HIGH: 'high' };
+export const OBSTACLE = { LANE_BLOCK: 'lane_block', LOW: 'low', HIGH: 'high', GAP: 'gap' };
+
+// Upgrade store — mirrors server UPGRADE_DEFS (server owns cost/level truth).
+export const UPGRADES = {
+  magnet:   { label: 'Treat Magnet',         icon: '🧲', costs: [60, 140, 280, 500, 800],   desc: 'Pulls pickups from nearby lanes. L5 triples treat value.' },
+  golden:   { label: 'Golden Treats',        icon: '✨', costs: [50, 120, 250, 450, 700],   desc: 'Richer treats appear sooner on the trail.' },
+  ghost:    { label: 'Ghost Pepper Zoomies', icon: '👻', costs: [80, 180, 360, 650, 1000],  desc: 'Phase straight through obstacles. Lasts longer per level.' },
+  boost:    { label: 'Autopilot Sprint',     icon: '🚀', costs: [90, 200, 400, 700, 1100],  desc: 'Invincible full-speed sprint. Goes farther per level.' },
+  donation: { label: 'Donation Burst',       icon: '💰', costs: [40, 100, 220, 400, 650],   desc: 'Instant coin donation when grabbed. More coins per level.' },
+};
+
+// Objectives — mirrors server OBJECTIVE_DEFS.shelter_run. Each claim = +1 multiplier.
+export const OBJECTIVES = [
+  { key: 'rescue_5',      label: 'Rescue 5 pets in one run' },
+  { key: 'rescue_15',     label: 'Rescue 15 pets all-time' },
+  { key: 'clean_1000',    label: 'Run 1000m without stumbling' },
+  { key: 'streak_8',      label: 'Reach an 8-rescue streak' },
+  { key: 'distance_750',  label: 'Run 750m in one run' },
+  { key: 'distance_2500', label: 'Run 2500m in one run' },
+  { key: 'nearmiss_3',    label: 'Dodge 3 obstacles by a whisker in one run' },
+  { key: 'pickups_2',     label: 'Grab 2 power-ups in one run' },
+  { key: 'runs_5',        label: 'Finish 5 runs' },
+  { key: 'chase_escape',  label: 'Escape the kennel pack' },
+];
+
+// World power-up pickups (spawn only when the matching upgrade is owned)
+// plus the always-spawning treat.
+export const PICKUP = { TREAT: 'treat', MAGNET: 'magnet', GHOST: 'ghost', BOOST: 'boost', DONATION: 'donation' };
+export const PICKUP_STYLE = {
+  treat:    { color: '#ffb347', glyph: '🦴' },
+  magnet:   { color: '#ff8fa3', glyph: '🧲' },
+  ghost:    { color: '#cdb4f0', glyph: '👻' },
+  boost:    { color: '#ffd166', glyph: '🚀' },
+  donation: { color: '#7ee0a3', glyph: '💰' },
+};
 
 export const SAVE_SLOT = 'default';
 export const SCHEMA_VERSION = 1;

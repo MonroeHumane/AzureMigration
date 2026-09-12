@@ -50,6 +50,10 @@ final class GameCatalog
             'title'        => 'Catwalk Night Patrol',
             'capabilities' => ['storage', 'scores'],
         ],
+        'puppy_skater' => [
+            'title'        => 'Puppy Skater',
+            'capabilities' => ['storage', 'petdex', 'scores'],
+        ],
         'ref-game' => [
             'title'        => 'Reference Game',
             'capabilities' => ['storage'],

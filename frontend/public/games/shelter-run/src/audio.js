@@ -56,8 +56,36 @@ export function setWind(level) {
   windGain.gain.setTargetAtTime(muted ? 0 : level * 0.055, ac.currentTime, 0.14);
 }
 
+// Urgency drone — low pulsing bed while the kennel pack is loose.
+let droneOsc = null, droneGain = null, droneLfo = null;
+export function setChaseDrone(on) {
+  const ac = ctx(); if (!ac) return;
+  if (!droneOsc) {
+    droneOsc = ac.createOscillator();
+    droneOsc.type = 'sawtooth';
+    droneOsc.frequency.value = 74;
+    const f = ac.createBiquadFilter();
+    f.type = 'lowpass'; f.frequency.value = 300;
+    droneGain = ac.createGain(); droneGain.gain.value = 0;
+    droneLfo = ac.createOscillator();
+    droneLfo.frequency.value = 5.5;
+    const lfoG = ac.createGain(); lfoG.gain.value = 40;
+    droneLfo.connect(lfoG).connect(droneOsc.frequency);
+    droneOsc.connect(f).connect(droneGain).connect(ac.destination);
+    droneOsc.start(); droneLfo.start();
+  }
+  droneGain.gain.setTargetAtTime(on && !muted ? 0.05 : 0, ac.currentTime, 0.25);
+}
+
 export const sfx = {
   step:    () => hiss(0.04, 420, 0.028, 'lowpass'),
+  bark:    () => { beep(340, 190, 0.09, 'sawtooth', 0.16); setTimeout(() => beep(300, 170, 0.08, 'sawtooth', 0.13), 110); },
+  chaseSting: () => { beep(196, 196, 0.16, 'square', 0.13); setTimeout(() => beep(185, 185, 0.16, 'square', 0.13), 150); setTimeout(() => beep(175, 175, 0.3, 'square', 0.15), 300); },
+  escaped: () => { beep(392, 523, 0.12, 'sine', 0.13); setTimeout(() => beep(523, 659, 0.16, 'sine', 0.12), 100); },
+  powerup: () => { beep(440, 880, 0.14, 'triangle', 0.15); setTimeout(() => beep(880, 1320, 0.18, 'triangle', 0.12), 90); },
+  treat:   () => beep(980, 1240, 0.06, 'triangle', 0.09),
+  buy:     () => { beep(523, 523, 0.08, 'triangle', 0.12); setTimeout(() => beep(784, 784, 0.14, 'triangle', 0.14), 90); },
+  denied:  () => beep(160, 120, 0.14, 'square', 0.12),
   nearMiss:() => hiss(0.15, 2800, 0.1, 'highpass'),
   fanfare: () => {
     beep(523, 523, 0.11, 'triangle', 0.15);
@@ -78,6 +106,9 @@ export const sfx = {
   tick:    () => beep(880, 880, 0.05, 'square', 0.06),
 };
 
-export function setMuted(m) { muted = !!m; }
+export function setMuted(m) {
+  muted = !!m;
+  if (droneGain && AC) droneGain.gain.setTargetAtTime(0, AC.currentTime, 0.1);
+}
 export function isMuted() { return muted; }
 export function primeAudio() { ctx(); }

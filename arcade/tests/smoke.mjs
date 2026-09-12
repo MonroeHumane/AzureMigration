@@ -127,6 +127,35 @@ for (let i = 0; i < 40; i++) {
 }
 check('game_award daily cap (or rate limit) binds', capped, r.body);
 
+// ── Game progress — upgrades + objectives + multiplier ──────────────────────
+r = await A.get(`adoptedex/${SLUG}/game/progress?game_id=shelter_run`);
+check('progress defaults', r.status === 200 && r.body && r.body.ok &&
+	r.body.upgrades && r.body.upgrades.magnet && r.body.upgrades.magnet.level === 0 &&
+	r.body.multiplier === 1, r.body);
+
+r = await A.post(`adoptedex/${SLUG}/game/upgrades/buy`, { game_id: 'shelter_run', upgrade: 'bogus' });
+check('unknown upgrade rejected', r.status === 400 || (r.body && r.body.ok === false), r.status);
+
+r = await C.post(`adoptedex/${SLUG}/game/upgrades/buy`, { game_id: 'shelter_run', upgrade: 'magnet' });
+check('no-session upgrade buy → 401', r.status === 401, r.status);
+
+// Objectives claim → multiplier +1, idempotent
+r = await A.post(`adoptedex/${SLUG}/game/objectives/claim`, { game_id: 'shelter_run', key: 'rescue_5' });
+check('objective claim → multiplier 2', r.status === 200 && r.body && r.body.multiplier === 2, r.body);
+r = await A.post(`adoptedex/${SLUG}/game/objectives/claim`, { game_id: 'shelter_run', key: 'rescue_5' });
+check('re-claim idempotent (already:true)', r.status === 200 && r.body && r.body.already === true && r.body.multiplier === 2, r.body);
+r = await A.post(`adoptedex/${SLUG}/game/objectives/claim`, { game_id: 'shelter_run', key: 'fake_key' });
+check('unknown objective rejected', r.status === 400 || (r.body && r.body.ok === false), r.status);
+
+// Donation payout — level 0 awards nothing; buy donation L1 (if affordable) then payout
+r = await A.post(`adoptedex/${SLUG}/coins/donation`, { game_id: 'shelter_run' });
+check('donation at L0 → awarded 0 or ok:false', r.status === 200 || r.status === 400, r.body);
+
+// Re-read progress — multiplier persisted
+r = await A.get(`adoptedex/${SLUG}/game/progress?game_id=shelter_run`);
+check('progress persists multiplier', r.status === 200 && r.body && r.body.multiplier === 2 &&
+	Array.isArray(r.body.objectives) && r.body.objectives.includes('rescue_5'), r.body);
+
 // ── Pack tiers endpoint ─────────────────────────────────────────────────────
 r = await A.get('pack-tiers');
 check('pack-tiers authoritative', r.status === 200 && r.body && r.body.standard && r.body.deluxe, r.body);

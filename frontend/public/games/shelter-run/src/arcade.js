@@ -183,3 +183,94 @@ export async function awardCoins(reason = 'game_award') {
     return r.ok && r.data && r.data.ok ? r.data : null;
   } catch (e) { return null; }
 }
+
+// ── Game progress — upgrades + objectives + multiplier ──────────────────────
+
+const LS_PROGRESS = 'sr_progress';
+
+function readLocalProgress() {
+  try { return JSON.parse(localStorage.getItem(LS_PROGRESS) || 'null'); } catch (e) { return null; }
+}
+function writeLocalProgress(p) {
+  try { localStorage.setItem(LS_PROGRESS, JSON.stringify(p)); } catch (e) {}
+}
+
+// Server truth, with a localStorage fallback so upgrades work for guests.
+export async function fetchProgress() {
+  const user = dexUser();
+  if (user) {
+    try {
+      await ensureSession();
+      const r = await get(`adoptedex/${encodeURIComponent(user)}/game/progress?game_id=${GAME_ID}`);
+      if (r.ok && r.data && r.data.ok) {
+        writeLocalProgress(r.data);
+        return r.data;
+      }
+    } catch (e) { /* fall through to local */ }
+  }
+  return readLocalProgress();
+}
+
+export async function buyUpgrade(upgrade) {
+  const user = dexUser();
+  if (user) {
+    try {
+      await ensureSession();
+      const r = await post(`adoptedex/${encodeURIComponent(user)}/game/upgrades/buy`, { game_id: GAME_ID, upgrade });
+      if (r.ok && r.data && r.data.ok) {
+        const p = readLocalProgress() || {};
+        p.upgrades = Object.assign(p.upgrades || {}, { [upgrade]: { level: r.data.level } });
+        writeLocalProgress(p);
+      }
+      return r.data;
+    } catch (e) { return null; }
+  }
+  // Guest fallback — local coins can't buy server-side, so deny politely.
+  return { ok: false, code: 'guest', message: 'Sign in with your Binder name to buy upgrades.' };
+}
+
+export async function claimObjective(key) {
+  const user = dexUser();
+  if (!user) {
+    const p = readLocalProgress() || {};
+    p.objectives = Array.isArray(p.objectives) ? p.objectives : [];
+    if (!p.objectives.includes(key)) {
+      p.objectives.push(key);
+      p.multiplier = (p.multiplier || 1) + 1;
+      writeLocalProgress(p);
+    }
+    return { ok: true, already: false, multiplier: p.multiplier, local: true };
+  }
+  try {
+    await ensureSession();
+    const r = await post(`adoptedex/${encodeURIComponent(user)}/game/objectives/claim`, { game_id: GAME_ID, key });
+    if (r.ok && r.data && r.data.ok) {
+      const p = readLocalProgress() || {};
+      p.multiplier = r.data.multiplier;
+      p.objectives = r.data.objectives;
+      writeLocalProgress(p);
+    }
+    return r.data;
+  } catch (e) { return null; }
+}
+
+// Donation pickup → server awards level-scaled coins.
+export async function donation() {
+  const user = dexUser();
+  if (!user) return null;
+  try {
+    await ensureSession();
+    const r = await post(`adoptedex/${encodeURIComponent(user)}/coins/donation`, { game_id: GAME_ID });
+    return r.ok && r.data && r.data.ok ? r.data : null;
+  } catch (e) { return null; }
+}
+
+export async function spendCoins(amount, reason) {
+  const user = dexUser();
+  if (!user) return { ok: false, code: 'guest' };
+  try {
+    await ensureSession();
+    const r = await post(`adoptedex/${encodeURIComponent(user)}/coins/spend`, { amount, reason: reason || 'game_spend' });
+    return r.data;
+  } catch (e) { return { ok: false, code: 'offline' }; }
+}

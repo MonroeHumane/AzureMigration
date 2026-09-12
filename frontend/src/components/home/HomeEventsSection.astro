@@ -55,6 +55,9 @@ const formatFlyerDate = (value?: string) => {
     ? ''
     : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
+
+const gallery = eventsFeature.gallery ?? [];
+const galleryDurationSec = Math.max(gallery.length, 1) * 5;
 ---
 
 <div
@@ -113,7 +116,87 @@ const formatFlyerDate = (value?: string) => {
         )
       }
     </div>
+
+    {
+      gallery.length > 0 && (
+        <div class="contest-gallery relative z-[1] mt-7 -mx-[clamp(18px,2.6vw,34px)]">
+          <div class="contest-gallery__viewport overflow-hidden">
+            <div
+              class="contest-gallery__track flex w-max flex-nowrap gap-4 px-[clamp(18px,2.6vw,34px)]"
+              style={`animation-duration: ${galleryDurationSec}s`}
+            >
+              {[...gallery, ...gallery].map((photo, i) => (
+                <button
+                  type="button"
+                  class="contest-gallery__item group relative block h-[220px] w-[280px] shrink-0 overflow-hidden rounded-[16px] border border-slate-900/10 bg-slate-100 shadow-[0_10px_24px_rgba(15,30,29,0.10)] transition hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(15,30,29,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                  data-contest-photo-index={i % gallery.length}
+                  aria-label={`View larger photo: ${photo.alt}`}
+                  tabindex={i < gallery.length ? 0 : -1}
+                  aria-hidden={i < gallery.length ? undefined : 'true'}
+                >
+                  <img
+                    src={photo.src}
+                    alt={photo.alt}
+                    loading="lazy"
+                    decoding="async"
+                    class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                  />
+                  <span class="pointer-events-none absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,rgba(15,30,29,0.55),transparent)] px-3 py-2 text-left text-[0.72rem] font-semibold text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                    View photo
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    }
   </section>
+
+  {
+    gallery.length > 0 && (
+      <dialog
+        id="contestGalleryDialog"
+        class="contest-gallery-dialog m-auto max-h-[90vh] w-[min(92vw,900px)] max-w-none rounded-[20px] border-0 bg-transparent p-0 backdrop:bg-[rgba(15,23,42,0.78)] backdrop:backdrop-blur-sm open:flex open:flex-col"
+      >
+        <div class="relative flex flex-col overflow-hidden rounded-[20px] bg-slate-950">
+          <button
+            type="button"
+            id="contestGalleryClose"
+            class="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-lg font-bold text-white backdrop-blur-sm transition hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            aria-label="Close photo viewer"
+          >
+            &times;
+          </button>
+          <div class="relative flex min-h-[260px] items-center justify-center bg-black">
+            <img
+              id="contestGalleryImage"
+              src=""
+              alt=""
+              class="max-h-[70vh] w-full object-contain"
+            />
+            <button
+              type="button"
+              id="contestGalleryPrev"
+              class="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              aria-label="Previous photo"
+            >
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+            <button
+              type="button"
+              id="contestGalleryNext"
+              class="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              aria-label="Next photo"
+            >
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+          </div>
+          <p id="contestGalleryCaption" class="m-0 bg-slate-950 px-5 py-3.5 text-center font-['Questrial','Segoe_UI',sans-serif] text-[0.92rem] leading-snug text-slate-200" />
+        </div>
+      </dialog>
+    )
+  }
 
   <!-- Upcoming / next event hero (Directus flyers → nextEvent) -->
   <div class="home-editable-upcoming-event-section m-0 p-0">
@@ -328,4 +411,90 @@ const formatFlyerDate = (value?: string) => {
       opacity: 1;
     }
   }
+
+  .contest-gallery__track {
+    animation-name: contestGalleryScroll;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .contest-gallery__viewport:hover .contest-gallery__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes contestGalleryScroll {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contest-gallery__track {
+      animation: none !important;
+      transform: none !important;
+    }
+    .contest-gallery__viewport {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  .contest-gallery-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.78);
+  }
 </style>
+
+<script>
+  function initContestGallery() {
+    const dialog = document.getElementById('contestGalleryDialog') as HTMLDialogElement | null;
+    const img = document.getElementById('contestGalleryImage') as HTMLImageElement | null;
+    const caption = document.getElementById('contestGalleryCaption');
+    const closeBtn = document.getElementById('contestGalleryClose');
+    const prevBtn = document.getElementById('contestGalleryPrev');
+    const nextBtn = document.getElementById('contestGalleryNext');
+    const items = Array.from(document.querySelectorAll<HTMLButtonElement>('.contest-gallery__item[tabindex="0"]'));
+
+    if (!dialog || !img || !items.length || dialog.dataset.bound === '1') return;
+    dialog.dataset.bound = '1';
+
+    const photos = items.map((el) => {
+      const image = el.querySelector('img');
+      return { src: image?.getAttribute('src') || '', alt: image?.getAttribute('alt') || '' };
+    });
+
+    let current = 0;
+
+    const show = (index: number) => {
+      current = (index + photos.length) % photos.length;
+      const photo = photos[current];
+      img.src = photo.src;
+      img.alt = photo.alt;
+      if (caption) caption.textContent = photo.alt;
+    };
+
+    items.forEach((el, i) => {
+      el.addEventListener('click', () => {
+        show(i);
+        dialog.showModal();
+      });
+    });
+
+    closeBtn?.addEventListener('click', () => dialog.close());
+    prevBtn?.addEventListener('click', () => show(current - 1));
+    nextBtn?.addEventListener('click', () => show(current + 1));
+
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+  }
+
+  document.addEventListener('astro:page-load', initContestGallery);
+</script>

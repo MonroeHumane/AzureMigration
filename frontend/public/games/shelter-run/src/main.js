@@ -1,9 +1,9 @@
 // Bootstrap: assets → arcade session → input → loop → death pipeline.
-import { VIEW, IMAGES, CATS, MASCOT_TO_CAT, MILESTONES, GAME_ID, PHYS } from './config.js';
-import { createGame, resetRun, startRun, changeLane, jump, slide, update, burstConfetti, setBanner } from './engine.js';
+import { VIEW, IMAGES, CATS, MASCOT_TO_CAT, MILESTONES, GAME_ID, PHYS, UPGRADES } from './config.js';
+import { createGame, resetRun, startRun, changeLane, jump, slide, update, burstConfetti, setBanner, applyProgress, claimableObjectives } from './engine.js';
 import { drawGame } from './render.js';
 import { createUI } from './ui.js';
-import { sfx, setMuted, primeAudio, setWind } from './audio.js';
+import { sfx, setMuted, primeAudio, setWind, setChaseDrone } from './audio.js';
 import * as arcade from './arcade.js';
 import * as pets from './pets.js';
 
@@ -12,6 +12,7 @@ const LS = {
   best: 'shelterRunBest',
   claimed: 'shelterRunClaimed',
   mute: 'shelterRunMuted',
+  rescues: 'shelterRunRescuesTotal',
 };
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -33,6 +34,30 @@ g.best = best;
 window.__sr = g; // debug/test hook (same as legacy __srGame)
 let petDeck = [];           // pets available to rescue this run
 const petImgCache = new Map();
+
+// Progression — server progress (upgrades/objectives/multiplier) + wallet.
+let progress = null;        // last fetchProgress() result
+let coinBalance = null;     // from fetchProfile()
+let rescuesTotal = readJSON(LS.rescues, 0) | 0;
+
+async function refreshProgress() {
+  const p = await arcade.fetchProgress().catch(() => null);
+  if (p && p.ok !== false) {
+    progress = p;
+    applyProgress(g, p);
+  }
+  g.rescuesAll = rescuesTotal;
+  ui.renderStore(progress, coinBalance || 0);
+  ui.renderObjectives(progress);
+  return progress;
+}
+
+async function refreshWallet() {
+  const prof = await arcade.fetchProfile().catch(() => null);
+  if (!prof) return;
+  const bal = (prof.coin_balance ?? (prof.profile && prof.profile.coin_balance));
+  if (typeof bal === 'number') { coinBalance = bal; ui.setWallet(bal); }
+}
 
 // ── Asset loading ──────────────────────────────────────────────────────────
 function loadImage(rel) {
@@ -106,6 +131,25 @@ const ui = createUI({
     }
   },
   onPickCat(id) { catId = id; try { localStorage.setItem(LS.cat, id); } catch (e) {} sfx.tick(); },
+  // Store open (null key) just re-renders; a key attempts the purchase.
+  async onBuyUpgrade(key) {
+    if (key === null) { ui.renderStore(progress, coinBalance || 0); return; }
+    if (!UPGRADES[key]) return;
+    const lvl = (progress && progress.upgrades && progress.upgrades[key] && progress.upgrades[key].level) | 0;
+    if (lvl >= 5) return;
+    ui.renderStore(progress, coinBalance || 0, key); // disable buttons while buying
+    const res = await arcade.buyUpgrade(key);
+    if (res && res.ok) {
+      sfx.buy();
+      ui.toast(`${UPGRADES[key].label} → level ${res.level}!`);
+      if (typeof res.coin_balance === 'number') { coinBalance = res.coin_balance; ui.setWallet(coinBalance); }
+      await refreshProgress();
+    } else {
+      sfx.denied();
+      ui.toast((res && res.message) || 'Not enough coins — rescue more pets!');
+      ui.renderStore(progress, coinBalance || 0);
+    }
+  },
 });
 
 // ── Input: keyboard + swipe + on-screen pads ──────────────────────────────
@@ -213,13 +257,50 @@ g.onLane = () => {};
 g.onJump = () => sfx.jump();
 g.onSlide = () => sfx.slide();
 g.onLand = () => sfx.land();
-g.onHit = lives => { sfx.hit(); ui.toast(lives > 0 ? `Oof! ${lives} ❤ left` : 'Caught!'); };
+g.onHit = () => { sfx.hit(); ui.toast('Stumbled — the pack is loose! 🐕'); };
 g.onNearMiss = () => sfx.nearMiss();
+g.onTreat = () => sfx.treat();
+
+// Two-strike chase — pack released / escaped / caught.
+g.onChaseStart = () => {
+  sfx.chaseSting();
+  setTimeout(() => sfx.bark(), 350);
+  setChaseDrone(true);
+  setBanner(g, 'The kennel doors opened!', 'Run clean to lose the pack', 2.6);
+};
+g.onChaseEnd = () => {
+  setChaseDrone(false);
+  sfx.escaped();
+  ui.toast('🐾 You lost the pack!');
+};
+g.onCaught = () => { setChaseDrone(false); };
+
+// Power-up pickups — chime + toast; donation pays out through the server.
+const PICKUP_TOAST = {
+  magnet: '🧲 Treat Magnet!', ghost: '👻 Ghost Zoomies!',
+  boost: '🚀 Autopilot Sprint!', donation: '💰 Donation!',
+};
+g.onPickup = c => {
+  sfx.powerup();
+  ui.toast(PICKUP_TOAST[c.kind] || 'Power-up!', { rare: c.kind === 'boost' });
+};
+
+// Objective satisfied mid-run → claim it now (server dedupes).
+g.onObjective = key => {
+  arcade.claimObjective(key).then(res => {
+    if (res && res.ok && !res.already) {
+      g.multiplier = res.multiplier || g.multiplier;
+      ui.toast(`🎯 Objective complete — multiplier ×${g.multiplier}!`, { rare: true, ms: 4200 });
+      sfx.medal();
+      if (progress) { progress.objectives = res.objectives; progress.multiplier = res.multiplier; }
+    }
+  }).catch(() => {});
+};
 
 g.onCollect = c => {
   const pet = c.pet;
   if (pet) {
-    g.rescued.push({ id: pet.id, name: pet.name, photo: pet.photo });
+    g.rescued.push({ id: pet.id, name: pet.name, photo: pet.photo, url: pet.link || pet.url });
     sfx.rescue();
     ui.toast(`🐾 ${pet.name} rescued!`);
   } else {
@@ -240,20 +321,32 @@ g.onCollect = c => {
 };
 
 let deathBusy = false;
-g.onDeath = async score => {
+g.onDeath = async meters => {
   if (deathBusy) return;
   deathBusy = true;
+  setChaseDrone(false);
   sfx.hit(); setTimeout(() => sfx.die(), 140);
+  if (g.caught) setTimeout(() => sfx.bark(), 300);
   ui.setTicksVisible(false);
 
+  const score = g.score | 0;
   gamesPlayed += 1;
-  totalMeters += score;
-  const isNewBest = score > best;
-  if (isNewBest) { best = score; g.best = best; writeLS(LS.best, best); }
+  totalMeters += meters;
+  rescuesTotal += g.rescuedCount;
+  writeLS(LS.rescues, rescuesTotal);
+  const isNewBest = meters > best;
+  if (isNewBest) { best = meters; g.best = best; writeLS(LS.best, best); }
 
-  // Score submit + cabinet notify (fire-and-forget)
-  if (score > 0) {
-    arcade.submitScore(score, { cat: catId, rescued: g.rescuedCount }).catch(() => {});
+  // Final objective drain — distance/rescue objectives complete at run end.
+  for (const k of claimableObjectives(g)) {
+    g.claimedObjectives.push(k);
+    g.onObjective(k);
+  }
+
+  // Score submit + cabinet notify (fire-and-forget) — arcade score includes
+  // the objective multiplier; meters stay in metadata.
+  if (score > 0 || meters > 0) {
+    arcade.submitScore(score, { cat: catId, rescued: g.rescuedCount, meters, multiplier: g.multiplier }).catch(() => {});
     try {
       if (window.parent && window.parent !== window) {
         window.parent.postMessage({ type: 'arcade:score_recorded', game: GAME_ID, gameId: GAME_ID, score, player: arcade.playerName() }, '*');
@@ -267,12 +360,12 @@ g.onDeath = async score => {
 
   // Show the panel immediately — the leaderboard fills in when the fetch
   // resolves (a cold Azure container can take 10s+; don't gate the UI on it).
-  ui.showGameOver({ score, best, isNewBest, leaders: null, unopenedPacks: 0, rescued: g.rescued });
+  ui.showGameOver({ score, meters, best, isNewBest, leaders: null, unopenedPacks: 0, rescued: g.rescued, caught: g.caught });
   arcade.getLeaderboard(10).then(leaders => ui.updateLeaderboard(leaders, score)).catch(() => {});
   const profile = await arcade.fetchProfile().catch(() => null);
 
-  // Milestone claims — server dedupes, claimed:true is the only truth
-  const crossed = MILESTONES.filter(m => score >= m.at);
+  // Milestone claims — distance-based; server dedupes, claimed:true is truth
+  const crossed = MILESTONES.filter(m => meters >= m.at);
   for (const m of crossed) {
     if (claimedThisDevice.includes(m.key)) continue;
     try {
@@ -292,9 +385,13 @@ g.onDeath = async score => {
     } catch (e) { /* offline — retry next run */ }
   }
 
-  // Cloud save (best-effort)
-  const saveData = { best, gamesPlayed, totalMeters, catId, claimedMilestones: claimedThisDevice };
+  // Cloud save (best-effort) — includes lifetime rescue count for objectives.
+  const saveData = { best, gamesPlayed, totalMeters, totalRescued: rescuesTotal, catId, claimedMilestones: claimedThisDevice };
   arcade.pushCloudSave(saveData).catch(() => {});
+
+  // Progress + wallet may have moved (donation pickups, objectives).
+  refreshProgress();
+  refreshWallet();
 
   const unopened = profile && typeof profile.unopened_packs === 'number'
     ? profile.unopened_packs
@@ -328,6 +425,19 @@ function frame(now) {
     update(g, dt);
     if (g.state === 'PLAYING') checkMilestoneTicks();
     else if (g.state === 'READY') lastMilestoneCheck = 0;
+  }
+
+  // Donation pickup — the server pays out scaled by owned upgrade level.
+  if (g._donationPending) {
+    g._donationPending = false;
+    arcade.donation().then(res => {
+      if (res && res.awarded) {
+        ui.toast(`💰 Donation +${res.awarded} coins!`, { rare: true });
+        if (typeof res.coin_balance === 'number') { coinBalance = res.coin_balance; ui.setWallet(coinBalance); }
+      } else {
+        ui.toast('💰 Donation grabbed! (sign in to bank the coins)');
+      }
+    }).catch(() => {});
   }
 
   // Paw-step rhythm synced to the run cycle + wind that follows speed.
@@ -372,7 +482,13 @@ function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } cat
     if (cloud.catId && CATS.some(c => c.id === cloud.catId) && !localStorage.getItem(LS.cat)) catId = cloud.catId;
     gamesPlayed = cloud.gamesPlayed || 0;
     totalMeters = cloud.totalMeters || 0;
+    if (cloud.totalRescued) { rescuesTotal = Math.max(rescuesTotal, cloud.totalRescued | 0); writeLS(LS.rescues, rescuesTotal); }
   }
+
+  // Progression + wallet — applies upgrade levels, multiplier, claimed
+  // objectives into the engine and paints the store/objectives panels.
+  refreshProgress();
+  refreshWallet();
 
   newPetDeck();
   ui.showStart(best, catId);

@@ -38,7 +38,13 @@ COPY phinx.php ./
 COPY db ./db
 COPY public ./public
 COPY src ./src
+COPY docker-entrypoint.sh /usr/local/bin/arcade-entrypoint.sh
+RUN chmod +x /usr/local/bin/arcade-entrypoint.sh
 
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
+
+# Migrate (idempotent, named-locked) then serve. Migrations run on every
+# revision start so the schema always matches the deployed code.
+ENTRYPOINT ["arcade-entrypoint.sh"]

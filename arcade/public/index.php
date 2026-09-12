@@ -538,6 +538,69 @@ Flight::route('POST /v1/adoptedex/@user/coins/spend', function ($user) use ($ado
     }
 });
 
+Flight::route('POST /v1/adoptedex/@user/coins/donation', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
+    try {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_coins_award', 40)) {
+            return;
+        }
+        $result = $adoptedexController->awardDonationBurst((string)$user, $sessionProfileId);
+        sendAdoptedexResult($result);
+    } catch (\Exception $e) {
+        serverError('donationBurst', $e);
+    }
+});
+
+Flight::route('GET /v1/adoptedex/@user/game/progress', function ($user) use ($adoptedexController) {
+    try {
+        $gameId = (string)(Flight::request()->query['game_id'] ?? '');
+        if ($gameId === '') {
+            Flight::json(['ok' => false, 'message' => 'game_id is required'], 400);
+            return;
+        }
+        $result = $adoptedexController->getGameProgress((string)$user, $gameId);
+        if (!$result['ok']) {
+            Flight::json($result, 404);
+            return;
+        }
+        Flight::json($result);
+    } catch (\Exception $e) {
+        serverError('getGameProgress', $e);
+    }
+});
+
+Flight::route('POST /v1/adoptedex/@user/game/upgrades/buy', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
+    try {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_upgrade_buy', 60)) {
+            return;
+        }
+        $payload  = json_decode(Flight::request()->getBody(), true) ?: [];
+        $gameId   = (string)($payload['game_id'] ?? '');
+        $upgrade  = (string)($payload['upgrade'] ?? '');
+        $result = $adoptedexController->buyUpgrade((string)$user, $gameId, $upgrade, $sessionProfileId);
+        sendAdoptedexResult($result, 402);
+    } catch (\Exception $e) {
+        serverError('buyUpgrade', $e);
+    }
+});
+
+Flight::route('POST /v1/adoptedex/@user/game/objectives/claim', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
+    try {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_objective_claim', 60)) {
+            return;
+        }
+        $payload  = json_decode(Flight::request()->getBody(), true) ?: [];
+        $gameId   = (string)($payload['game_id'] ?? '');
+        $key      = (string)($payload['objective'] ?? $payload['key'] ?? '');
+        $result = $adoptedexController->claimObjective((string)$user, $gameId, $key, $sessionProfileId);
+        sendAdoptedexResult($result);
+    } catch (\Exception $e) {
+        serverError('claimObjective', $e);
+    }
+});
+
 Flight::route('GET /v1/pack-tiers', function () use ($adoptedexController) {
     Flight::json($adoptedexController->getPackTiers());
 });

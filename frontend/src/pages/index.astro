@@ -209,25 +209,6 @@ const sideNavSections = [
 
   function initHomePage() {
     hydrateHomeNewsletter();
-    const fpwDialog = document.getElementById('featuredPetsFsDialog') as HTMLDialogElement | null;
-    const fpwExpand = document.getElementById('fpwExpandBtn');
-    if (fpwDialog && fpwExpand && fpwExpand.dataset.bound !== '1') {
-      fpwExpand.dataset.bound = '1';
-      fpwExpand.addEventListener('click', () => {
-        const mount = fpwDialog.querySelector('#fpw-fs-longest');
-        // Pull cards from the primary strip only — `#longestRow` also
-        // contains an aria-hidden `.scroll-strip--clone` (duplicate cards
-        // used to loop the auto-scroll marquee) plus the marquee's own
-        // scroll-viewport/scroll-track wrapper and animation, none of which
-        // belong in the static full-screen grid.
-        const primaryStrip = document.querySelector('#longestRow .scroll-strip--primary');
-        if (mount && primaryStrip && !mount.childElementCount) {
-          mount.innerHTML = primaryStrip.innerHTML;
-        }
-        fpwDialog.showModal();
-      });
-      fpwDialog.querySelector('.fpw-fs-close, .fpw-fs-dialog__close')?.addEventListener('click', () => fpwDialog.close());
-    }
 
     // Scroll-reveal for below-the-fold sections. Anything already visible on
     // load is left completely alone (never hidden) so there's no dependency

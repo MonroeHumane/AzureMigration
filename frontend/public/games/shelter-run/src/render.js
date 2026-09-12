@@ -1,7 +1,7 @@
 // Canvas pseudo-3D renderer — draws in logical 432x768 space; caller scales
 // via setTransform. Painter's algorithm: sky → sides → props → track →
 // depth-sorted world items → particles → player → flashes → HUD.
-import { VIEW, PROJ, PHYS, OBSTACLE, FRAME_JUMP, FRAME_SLIDE, BIOMES, BIOME_CYCLE_RESET } from './config.js';
+import { VIEW, PROJ, PHYS, OBSTACLE, PICKUP, PICKUP_STYLE, FRAME_JUMP, FRAME_SLIDE, BIOMES, BIOME_CYCLE_RESET } from './config.js';
 import { biomeForMeters } from './engine.js';
 import { layout, project, screenYToRelZ, laneScreenX, obstacleBox, smoothstep, lerp } from './perspective.js';
 
@@ -99,6 +99,7 @@ export function drawGame(ctx, g, assets, reducedMotion, debug) {
   drawWorldItems(ctx, g, biome, images, petDeck);
   drawParticles(ctx, g, images);
   drawPlayer(ctx, g, images, catDef);
+  drawChasePack(ctx, g, images, reducedMotion);
 
   // Fog glow at horizon for depth
   const fog = ctx.createLinearGradient(0, L.horizonY - 30, 0, L.horizonY + 120);
@@ -114,12 +115,23 @@ export function drawGame(ctx, g, assets, reducedMotion, debug) {
   if (g.flash > 0) { ctx.fillStyle = `rgba(255,244,230,${(g.flash * 0.8).toFixed(3)})`; ctx.fillRect(-10, -10, W + 20, H + 20); }
   if (g.hurtFlash > 0) { ctx.fillStyle = `rgba(220,60,50,${(g.hurtFlash * 0.35).toFixed(3)})`; ctx.fillRect(-10, -10, W + 20, H + 20); }
 
-  // Vignette
+  // Vignette — deeper at night (Starlight/ice biome darkness).
+  const night = biome.id === 'ice' ? 0.18 : biome.id === 'snow' ? 0.07 : 0;
   const vig = ctx.createRadialGradient(W / 2, H * 0.55, H * 0.3, W / 2, H * 0.55, H * 0.75);
   vig.addColorStop(0, 'rgba(0,0,0,0)');
-  vig.addColorStop(1, 'rgba(8,14,20,0.32)');
+  vig.addColorStop(1, `rgba(8,14,20,${(0.32 + night).toFixed(2)})`);
   ctx.fillStyle = vig;
   ctx.fillRect(0, 0, W, H);
+
+  // Danger vignette while the pack is loose — pulsing red edges.
+  if (g.chase && g.chase.active) {
+    const pulse = (reducedMotion ? 0.5 : (0.5 + 0.5 * Math.sin(g.time * 7))) * g.chase.intensity;
+    const dv = ctx.createRadialGradient(W / 2, H * 0.55, H * 0.32, W / 2, H * 0.55, H * 0.72);
+    dv.addColorStop(0, 'rgba(0,0,0,0)');
+    dv.addColorStop(1, `rgba(190,40,30,${(0.34 * pulse + 0.1 * g.chase.intensity).toFixed(3)})`);
+    ctx.fillStyle = dv;
+    ctx.fillRect(0, 0, W, H);
+  }
 
   if (!reducedMotion) drawConfetti(ctx, g);
   drawBanner(ctx, g);
@@ -415,11 +427,50 @@ function drawObstacle(ctx, obs, relZ, biome, images) {
   const fogT = Math.max(0, Math.min(1, (relZ - L.farZ * 0.6) / (L.farZ * 0.4)));
   ctx.globalAlpha = (1 - fogT * 0.6) * nearFade(relZ);
 
-  // Contact shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.28)';
-  ctx.beginPath();
-  ctx.ellipse(cx, groundY + 2 * scale, w * 0.55, 6 * scale, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // Contact shadow (not for gaps — they ARE the hole).
+  if (obs.type !== OBSTACLE.GAP) {
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath();
+    ctx.ellipse(cx, groundY + 2 * scale, w * 0.55, 6 * scale, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // GAP — a hole in the trail: flat dark trapezoid between two depth slices.
+  if (obs.type === OBSTACLE.GAP) {
+    const near = Math.max(relZ - 46, NEAR_CLIP + 2), far = relZ + 46;
+    const pn = project(L, near, L.laneWorldX[obs.lane], 0);
+    const pf = project(L, far, L.laneWorldX[obs.lane], 0);
+    if (pn && pf) {
+      const wn = L.laneWorldX[1] * pn.scale * 0.8, wf = L.laneWorldX[1] * pf.scale * 0.8;
+      const grad = ctx.createLinearGradient(0, pf.y, 0, pn.y);
+      grad.addColorStop(0, '#060a10');
+      grad.addColorStop(0.75, '#0b1620');
+      grad.addColorStop(1, '#12222e');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(pf.x - wf, pf.y);
+      ctx.lineTo(pf.x + wf, pf.y);
+      ctx.lineTo(pn.x + wn, pn.y);
+      ctx.lineTo(pn.x - wn, pn.y);
+      ctx.closePath();
+      ctx.fill();
+      // Crumbled lip on the near edge.
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = Math.max(1.5, 4 * pn.scale);
+      ctx.beginPath();
+      ctx.moveTo(pn.x - wn, pn.y);
+      ctx.lineTo(pn.x + wn, pn.y);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+      ctx.lineWidth = Math.max(1, 1.6 * pn.scale);
+      ctx.beginPath();
+      ctx.moveTo(pf.x - wf, pf.y);
+      ctx.lineTo(pf.x + wf, pf.y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    return;
+  }
 
   // Pre-baked sprite when available — fitted to the obstacle's world AABB.
   const fam = obs.type === OBSTACLE.LANE_BLOCK ? 'wall' : obs.type === OBSTACLE.LOW ? 'low' : 'high';
@@ -634,7 +685,8 @@ function drawConfetti(ctx, g) {
   ctx.globalAlpha = 1;
 }
 
-// Pet rescue token — real photo in a floating golden leash ring.
+// Pet rescue token — real photo in a floating golden leash ring. Treats and
+// power-up pickups get smaller styled discs instead.
 function drawCollectible(ctx, c, relZ, t, petDeck, images) {
   const scale = L.focal / relZ;
   const wx = L.laneWorldX[c.lane];
@@ -644,6 +696,10 @@ function drawCollectible(ctx, c, relZ, t, petDeck, images) {
   const r = Math.max(5, 26 * scale);
   const fogT = Math.max(0, Math.min(1, (relZ - L.farZ * 0.6) / (L.farZ * 0.4)));
   ctx.globalAlpha = (1 - fogT * 0.6) * nearFade(relZ);
+
+  const kind = c.kind || 'pet';
+  if (kind === PICKUP.TREAT) { drawTreat(ctx, c, p, r, t); ctx.globalAlpha = 1; return; }
+  if (kind !== 'pet') { drawPickup(ctx, c, p, r, t, fogT, relZ); ctx.globalAlpha = 1; return; }
 
   // Beacon pillar — reads from far away down the lane.
   if (relZ > 500) {
@@ -716,6 +772,115 @@ function drawCollectible(ctx, c, relZ, t, petDeck, images) {
   ctx.globalAlpha = 1;
 }
 
+// Treat — small tiered disc with a bone glyph. Bronze/silver/gold by distance.
+const TREAT_COL = { bronze: '#c98a4b', silver: '#cfd6dd', gold: '#ffd166' };
+function drawTreat(ctx, c, p, r, t) {
+  const tr = r * 0.62;
+  const col = TREAT_COL[c.tier] || TREAT_COL.bronze;
+  const halo = ctx.createRadialGradient(p.x, p.y, tr * 0.3, p.x, p.y, tr * 1.8);
+  halo.addColorStop(0, col + 'aa');
+  halo.addColorStop(1, col + '00');
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(p.x, p.y, tr * 1.8, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.arc(p.x, p.y, tr, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+  ctx.lineWidth = Math.max(1, tr * 0.12);
+  ctx.stroke();
+  // bone glyph
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  const bs = tr * 0.62;
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(-0.5);
+  ctx.fillRect(-bs * 0.8, -bs * 0.28, bs * 1.6, bs * 0.56);
+  for (const [dx, dy] of [[-0.8, -0.28], [-0.8, 0.28], [0.8, -0.28], [0.8, 0.28]]) {
+    ctx.beginPath(); ctx.arc(dx * bs, dy * bs, bs * 0.42, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+  if (c.tier === 'gold') {
+    ctx.fillStyle = '#fff8dc';
+    ctx.font = `${Math.max(6, tr * 0.7)}px system-ui`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('✦', p.x + tr * 0.9, p.y - tr * 0.9);
+  }
+}
+
+// Power-up pickup — glowing disc in the upgrade's color + emoji glyph + beacon.
+function drawPickup(ctx, c, p, r, t, fogT, relZ) {
+  const style = PICKUP_STYLE[c.kind] || PICKUP_STYLE.treat;
+  const pr = r * 1.05;
+  // Beacon pillar
+  if (relZ > 400) {
+    const pb = project(L, relZ, L.laneWorldX[c.lane], 0);
+    if (pb) {
+      const grad = ctx.createLinearGradient(0, pb.y, 0, p.y);
+      grad.addColorStop(0, 'rgba(255,255,255,0)');
+      grad.addColorStop(1, style.color + '44');
+      ctx.fillStyle = grad;
+      const bw = Math.max(4, 14 * (L.focal / relZ));
+      ctx.fillRect(p.x - bw / 2, p.y, bw, pb.y - p.y);
+    }
+  }
+  const pulse = 0.85 + 0.15 * Math.sin(t * 6 + c.id);
+  const halo = ctx.createRadialGradient(p.x, p.y, pr * 0.4, p.x, p.y, pr * 2.1);
+  halo.addColorStop(0, style.color + '88');
+  halo.addColorStop(1, style.color + '00');
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(p.x, p.y, pr * 2.1 * pulse, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(14,26,24,0.92)';
+  ctx.beginPath(); ctx.arc(p.x, p.y, pr, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = style.color;
+  ctx.lineWidth = Math.max(1.5, pr * 0.16);
+  ctx.stroke();
+  ctx.font = `${Math.max(8, pr * 1.15)}px system-ui`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(style.glyph, p.x, p.y + pr * 0.06);
+}
+
+// The kennel pack — two-frame rear-view dogs sliding in at the screen bottom
+// while chase.active. intensity drives the slide-up.
+function drawChasePack(ctx, g, images, reducedMotion) {
+  if (!g.chase) return;
+  const it = g.chase.active ? g.chase.intensity : (g.caught && g.state === 'DYING' ? 1 : 0);
+  if (it <= 0.01) return;
+  const spr = images['chase_dogs.png'];
+  const W = VIEW.W, H = VIEW.H;
+  const dw = 380, dh = dw * (170 / 480);
+  const slideIn = 1 - Math.pow(1 - it, 2); // ease-out
+  const y = H - dh * 0.42 + (1 - slideIn) * dh * 0.9;
+  const x = W / 2 + (reducedMotion ? 0 : Math.sin(g.time * 2.2) * 6 * it);
+  ctx.save();
+  ctx.globalAlpha = Math.min(1, it * 1.4);
+  if (spr && spr.naturalWidth) {
+    const fr = reducedMotion ? 0 : (Math.floor(g.time * 9) % 2);
+    ctx.drawImage(spr, fr * 480, 0, 480, 170, x - dw / 2, y - dh, dw, dh);
+  } else {
+    // Fallback silhouettes
+    ctx.fillStyle = 'rgba(40,28,20,0.9)';
+    for (const dx of [-110, 0, 110]) {
+      ctx.beginPath();
+      ctx.ellipse(x + dx, y - 40, 52, 40, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x + dx, y - 84, 30, 26, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  // Dust kicked up under the pack
+  if (!reducedMotion && g.state === 'PLAYING') {
+    ctx.fillStyle = 'rgba(180,160,130,0.5)';
+    for (let i = 0; i < 4; i++) {
+      const seed = hash2(i, Math.floor(g.time * 5));
+      ctx.globalAlpha = Math.min(0.5, it) * (0.5 - i * 0.09);
+      ctx.beginPath();
+      ctx.ellipse(x - 140 + i * 95 + seed * 30, y - 4, 26 + seed * 16, 8 + seed * 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
 // ── Particles ──────────────────────────────────────────────────────────────
 function drawParticles(ctx, g, images) {
   const puff = images['puff.png'], star = images['star.png'];
@@ -758,7 +923,30 @@ function drawPlayer(ctx, g, images, catDef) {
   const cat = images[catDef.sheet];
   if (!cat || !cat.naturalWidth) return;
 
+  // Active power-up auras — magnet ring pulse, boost comet glow.
+  if (g.effects) {
+    if (g.effects.magnet > 0) {
+      const ringR = 44 + Math.sin(g.time * 6) * 7;
+      ctx.strokeStyle = 'rgba(255,143,163,0.75)';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([8, 7]);
+      ctx.lineDashOffset = -g.time * 60;
+      ctx.beginPath();
+      ctx.ellipse(px, py - 40, ringR, ringR * 0.5, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if (g.effects.boost > 0) {
+      const grad = ctx.createRadialGradient(px, py - 44, 10, px, py - 44, 90);
+      grad.addColorStop(0, 'rgba(255,209,102,0.5)');
+      grad.addColorStop(1, 'rgba(255,209,102,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(px, py - 44, 90, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
   const invBlink = g.invincibleT > 0 && Math.floor(g.time / 0.08) % 2 === 0;
+  const ghosting = g.effects && g.effects.ghost > 0;
   // Hit tumble — brief stagger roll instead of an instant reset.
   const tumble = g.hitT > 0 ? Math.sin((1 - g.hitT / 0.55) * Math.PI) : 0;
   ctx.save();
@@ -768,7 +956,8 @@ function drawPlayer(ctx, g, images, catDef) {
   const jumping = g.action === 'jumping';
   const dw = 104, dh = dw * (catDef.fh / catDef.fw);
   ctx.scale(g.stretchX * (sliding ? 1.12 : 1), g.squashY * (sliding ? 0.9 : 1));
-  if (invBlink) ctx.globalAlpha = 0.35;
+  if (ghosting) ctx.globalAlpha = 0.5 + Math.sin(g.time * 10) * 0.14;
+  else if (invBlink) ctx.globalAlpha = 0.35;
   const fr = jumping ? FRAME_JUMP : sliding ? FRAME_SLIDE : g.catFrame % 6;
   ctx.drawImage(cat, fr * catDef.fw, 0, catDef.fw, catDef.fh, -dw / 2, -dh + 8, dw, dh);
   ctx.restore();
@@ -806,9 +995,23 @@ function drawHud(ctx, g, images) {
   ctx.font = '800 20px system-ui, sans-serif';
   ctx.textBaseline = 'middle';
   ctx.fillText('m', sx + 4, 52 + dh / 2 + 2);
+
+  // Score + multiplier badge under the distance.
+  ctx.textAlign = 'center';
+  ctx.font = '800 15px system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillText(String(g.score | 0), W / 2, 104);
+  if (g.multiplier > 1) {
+    const mx = W / 2 + ctx.measureText(String(g.score | 0)).width / 2 + 8;
+    ctx.fillStyle = 'rgba(255,209,102,0.95)';
+    roundRect(ctx, mx, 92, 34, 22, 11); ctx.fill();
+    ctx.fillStyle = '#4a2c00';
+    ctx.font = '800 12px system-ui, sans-serif';
+    ctx.fillText(`×${g.multiplier}`, mx + 17, 103);
+  }
   ctx.restore();
 
-  // Rescued counter
+  // Rescued + treats counter
   ctx.save();
   ctx.font = '800 17px system-ui, sans-serif';
   ctx.textBaseline = 'middle';
@@ -821,7 +1024,38 @@ function drawHud(ctx, g, images) {
     ctx.font = '800 12px system-ui, sans-serif';
     ctx.fillText(`×${g.rescueStreak} streak`, 20, 92);
   }
+  if (g.treatsRun > 0) {
+    ctx.fillStyle = 'rgba(10,28,25,0.55)';
+    roundRect(ctx, 12, 96, 78, 26, 13); ctx.fill();
+    ctx.fillStyle = '#ffb347';
+    ctx.font = '800 14px system-ui, sans-serif';
+    ctx.fillText('🦴 ' + g.treatsRun, 24, 110);
+  }
   ctx.restore();
+
+  // Active effect chips under the lives pill.
+  if (g.effects) {
+    const active = [];
+    if (g.effects.magnet > 0) active.push({ glyph: '🧲', t: g.effects.magnet, max: 26 });
+    if (g.effects.ghost > 0) active.push({ glyph: '👻', t: g.effects.ghost, max: 13 });
+    if (g.effects.boost > 0) active.push({ glyph: '🚀', t: g.effects.boost, max: 26 });
+    ctx.save();
+    ctx.font = '15px system-ui';
+    ctx.textBaseline = 'middle';
+    let ey = 96;
+    for (const e of active) {
+      ctx.fillStyle = 'rgba(10,28,25,0.55)';
+      roundRect(ctx, W - 52, ey, 40, 26, 13); ctx.fill();
+      ctx.fillText(e.glyph, W - 44, ey + 14);
+      // countdown bar
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillRect(W - 46, ey + 22, 28, 3);
+      ctx.fillStyle = '#7ee0a3';
+      ctx.fillRect(W - 46, ey + 22, 28 * Math.min(1, e.t / e.max), 3);
+      ey += 32;
+    }
+    ctx.restore();
+  }
 
   // Lives
   ctx.save();
@@ -855,7 +1089,7 @@ function drawDebug(ctx, g) {
     const d = o.worldZ - g.cameraZ;
     if (d < L.nearZ || d > L.farZ) continue;
     const b = obstacleBox(L, o, d);
-    const h = (o.type === OBSTACLE.LANE_BLOCK ? 210 : o.type === OBSTACLE.LOW ? PHYS.lowWallHeight : 60) * b.scale;
+    const h = (o.type === OBSTACLE.LANE_BLOCK ? 210 : o.type === OBSTACLE.LOW || o.type === OBSTACLE.GAP ? PHYS.lowWallHeight : 60) * b.scale;
     const y = o.type === OBSTACLE.HIGH ? b.groundY - (PHYS.highBarBottom + 60) * b.scale : b.groundY - h;
     ctx.strokeRect(b.cx - b.w / 2, y, b.w, h);
   }

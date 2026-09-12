@@ -61,44 +61,11 @@ const petChips = (p: Pet) => [
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </a>
-        <button
-          id="fpwExpandBtn"
-          type="button"
-          class="fpw-expand-btn inline-flex items-center gap-[0.45rem] rounded-full border-[1.5px] border-teal-700/35 bg-[#fffaf2] px-5 py-3 text-[0.85rem] font-semibold text-teal-700 transition hover:-translate-y-px hover:border-teal-700 hover:bg-teal-700/8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
-          aria-controls="featuredPetsFsDialog"
-        >
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <polyline points="9 21 3 21 3 15"></polyline>
-            <line x1="21" y1="3" x2="14" y2="10"></line>
-            <line x1="3" y1="21" x2="10" y2="14"></line>
-          </svg>
-          <span>Full Screen Gallery</span>
-        </button>
       </div>
     </header>
 
     {/* Keep id for legacy hooks; .home-fpw-native resets orphaned widget shell CSS */}
     <div id="featuredPetsWidget" data-monroe-static class="home-fpw-native relative w-full max-w-full overflow-hidden">
-      <dialog
-        id="featuredPetsFsDialog"
-        class="fpw-fs-dialog m-0 h-[100dvh] max-h-[100dvh] w-screen max-w-[100vw] border-0 bg-slate-50 p-0 text-slate-900 open:flex open:flex-col"
-      >
-        <div class="fpw-fs-header fpw-fs-dialog__head flex shrink-0 items-center justify-between gap-4 bg-[linear-gradient(120deg,#0ea5e9,#14b8a6)] px-4 py-[0.85rem] text-white shadow-[0_6px_20px_rgba(14,165,233,0.25)]">
-          <h2 class="m-0 text-[1.15rem] font-extrabold tracking-[-0.02em]">Adoptable Pets — Longest Residents</h2>
-          <button
-            type="button"
-            class="fpw-fs-close fpw-fs-dialog__close shrink-0 cursor-pointer rounded-full border-0 bg-white/20 px-4 py-2 text-[0.85rem] font-extrabold text-white hover:bg-white/32 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            aria-label="Close"
-          >
-            Close
-          </button>
-        </div>
-        <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4 pb-6 [-webkit-overflow-scrolling:touch]">
-          <div id="fpw-fs-longest" class="home-fpw-fs-grid"></div>
-        </div>
-      </dialog>
-
       {pets.length === 0 ? (
         <div class="rounded-2xl border border-dashed border-teal-700/25 bg-teal-50/40 px-5 py-8 text-center">
           <p class="m-0 mb-3 text-[0.95rem] text-slate-600">No featured pets are available right now.</p>
@@ -248,21 +215,6 @@ const petChips = (p: Pet) => [
     #featuredPetsWidget.home-fpw-native .scroll-strip--clone {
       display: none;
     }
-  }
-
-  #featuredPetsWidget.home-fpw-native dialog.fpw-fs-dialog::backdrop {
-    background: rgba(15, 23, 42, 0.72);
-  }
-
-  #featuredPetsWidget.home-fpw-native .home-fpw-fs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
-  }
-
-  #featuredPetsWidget.home-fpw-native .home-fpw-fs-grid .home-fpw-card {
-    width: auto;
-    max-width: none;
   }
 
   @media (hover: none), (pointer: coarse) {

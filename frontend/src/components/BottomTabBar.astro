@@ -132,33 +132,12 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
       </button>
     </div>
 
-    <!-- Quick Thumb Action Pills -->
-    <div class="monroe-bottom-sheet__quick-grid">
-      <a href="/adopt" class="monroe-bottom-sheet__quick-pill">
-        <span class="font-bold text-teal-950">🐾 Adopt</span>
-        <span class="text-[10px] text-stone-500">Available pets</span>
-      </a>
-      <a href="/donate" class="monroe-bottom-sheet__quick-pill">
-        <span class="font-bold text-teal-800">❤️ Donate</span>
-        <span class="text-[10px] text-stone-500">Support care</span>
-      </a>
-      <a href="/events" class="monroe-bottom-sheet__quick-pill">
-        <span class="font-bold text-teal-950">📅 Events</span>
-        <span class="text-[10px] text-stone-500">Flyers & dates</span>
-      </a>
-      <a href={SITE.contact.phoneTel} class="monroe-bottom-sheet__quick-pill">
-        <span class="font-bold text-amber-800">📞 Call Us</span>
-        <span class="text-[10px] text-stone-500">734-243-3669</span>
-      </a>
-    </div>
-
     <!-- Full Directory Scrollable Content -->
     <div class="monroe-bottom-sheet__content" id="monroe-bottom-sheet-content">
       <!-- Section: Services -->
       <div class="monroe-bottom-sheet__group">
         <div class="monroe-bottom-sheet__group-title">Services & Shelter</div>
         <div class="monroe-bottom-sheet__links">
-          <a href="/adopt" class="monroe-bottom-sheet__link">Adoptable Pets</a>
           <a href="/dog-and-cat-shelter" class="monroe-bottom-sheet__link">About Our Shelter</a>
           <a href="/#hs-hero-fence-widget" class="monroe-bottom-sheet__link">Hero Fence</a>
           <a href="/#Testimonials" class="monroe-bottom-sheet__link">Community Reviews</a>
@@ -180,8 +159,6 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
       <div class="monroe-bottom-sheet__group">
         <div class="monroe-bottom-sheet__group-title">Resources & Community</div>
         <div class="monroe-bottom-sheet__links">
-          <a href="/shop" class="monroe-bottom-sheet__link">Shelter Shop (coming soon)</a>
-          <a href="/membership" class="monroe-bottom-sheet__link">Membership (coming soon)</a>
           <a href="/faq" class="monroe-bottom-sheet__link">Frequently Asked Questions</a>
           <a href="/newsletter" class="monroe-bottom-sheet__link">Newsletter Archive</a>
           <a href="/#Newsletter" class="monroe-bottom-sheet__link">Latest newsletter</a>
@@ -214,9 +191,19 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
         <div class="monroe-bottom-sheet__group-title">Contact & Preferences</div>
         <div class="monroe-bottom-sheet__links">
           <a href="/contact" class="monroe-bottom-sheet__link">Contact Information & Shelter Hours</a>
+          <a href={SITE.contact.phoneTel} class="monroe-bottom-sheet__link">Call Us (734-243-3669)</a>
           <button type="button" id="bottom-sheet-nav-pref-btn" class="monroe-bottom-sheet__link text-left w-full text-teal-800 font-semibold cursor-pointer">
             ⚙️ Navigation Preferences (Standard vs Bottom Bar)
           </button>
+        </div>
+      </div>
+
+      <!-- Section: Coming Soon -->
+      <div class="monroe-bottom-sheet__group">
+        <div class="monroe-bottom-sheet__group-title">Coming Soon</div>
+        <div class="monroe-bottom-sheet__links">
+          <a href="/shop" class="monroe-bottom-sheet__link text-stone-400">Shelter Shop (coming soon)</a>
+          <a href="/membership" class="monroe-bottom-sheet__link text-stone-400">Membership (coming soon)</a>
         </div>
       </div>
     </div>
@@ -488,34 +475,6 @@ const isDonate = currentPath.startsWith('/donate') || currentPath.startsWith('/m
     justify-content: space-between;
     padding: 0.5rem 1.25rem 0.75rem;
     border-bottom: 1px solid rgba(22, 52, 51, 0.08);
-  }
-
-  .monroe-bottom-sheet__quick-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.4rem;
-    padding: 0.75rem 1rem;
-    background: rgba(15, 118, 110, 0.04);
-    border-bottom: 1px solid rgba(22, 52, 51, 0.06);
-  }
-
-  .monroe-bottom-sheet__quick-pill {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 0.5rem 0.25rem;
-    border-radius: 12px;
-    background: #ffffff;
-    border: 1px solid rgba(22, 52, 51, 0.08);
-    text-decoration: none;
-    font-size: 0.75rem;
-    transition: transform 0.12s ease, border-color 0.12s ease;
-  }
-
-  .monroe-bottom-sheet__quick-pill:hover {
-    transform: translateY(-1px);
-    border-color: rgba(15, 118, 110, 0.4);
   }
 
   .monroe-bottom-sheet__content {
