@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#71c5cf">
+  <title>Flappy Cat | Humane Arcade</title>
+  <script src="../embed.js"></script>
+  <script src="../theme.js?v=2"></script>
+  <link rel="stylesheet" href="../humane-game-system.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="game-shell">
+    <canvas id="game-canvas" tabindex="0" aria-label="Flappy Cat playfield"></canvas>
+
+    <div id="ui-root" aria-live="polite"></div>
+
+    <button type="button" id="fc-flap" class="fc2-flap-btn" aria-label="Tap to flap">Flap</button>
+    <button type="button" id="fc-mute" class="fc2-mute-btn" aria-label="Toggle sound">🔊</button>
+
+    <div class="fc2-hints" id="fc-hints" aria-hidden="true"></div>
+  </div>
+
+  <script src="../shared.js"></script>
+  <script src="../dex/dex-shared.js?v=6"></script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

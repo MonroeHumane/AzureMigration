@@ -1,0 +1,286 @@
+/* Flappy Cat 2 — chrome. Gameplay is canvas; these are HUD + overlay styles. */
+:root {
+  --fur: #fef6ea;
+  --treat: #ffb347;
+  --treat-deep: #ff7a3c;
+  --mint: #6bc4a6;
+  --ink: #2c1c19;
+  --sky: #71c5cf;
+  --card: rgba(18, 34, 32, 0.88);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+}
+
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  height: 100dvh;
+  background: var(--sky);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+#game-shell {
+  position: relative;
+  width: 100%; height: 100%; height: 100dvh;
+  display: grid; place-items: center;
+  padding: max(0px, var(--safe-t)) max(0px, var(--safe-r)) max(0px, var(--safe-b)) max(0px, var(--safe-l));
+  box-sizing: border-box;
+}
+#game-canvas { display: block; background: var(--sky); outline: none; }
+
+/* ── On-canvas controls ─────────────────────────────────────────────────── */
+.fc2-flap-btn {
+  display: none;
+  position: absolute;
+  right: max(12px, calc(var(--safe-r) + 12px));
+  bottom: max(18px, calc(var(--safe-b) + 18px));
+  z-index: 6;
+  min-width: 78px; min-height: 78px;
+  padding: 14px 18px;
+  border-radius: 999px;
+  border: 2px solid #1c3d35;
+  background: linear-gradient(180deg, var(--treat), var(--treat-deep));
+  color: #fff; font: 800 14px/1.1 system-ui, sans-serif;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(44,28,25,0.28);
+  cursor: pointer;
+}
+.fc2-flap-btn:active { transform: scale(0.95); }
+@media (pointer: coarse) { .fc2-flap-btn { display: block; } }
+@media (orientation: landscape) and (max-height: 520px) {
+  .fc2-flap-btn { min-width: 64px; min-height: 64px; right: max(8px, calc(var(--safe-r) + 8px)); bottom: 50%; transform: translateY(50%); }
+  .fc2-flap-btn:active { transform: translateY(50%) scale(0.95); }
+}
+
+.fc2-mute-btn {
+  position: absolute;
+  top: max(10px, calc(var(--safe-t) + 10px));
+  right: max(10px, calc(var(--safe-r) + 10px));
+  z-index: 6;
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(10, 30, 28, 0.55);
+  color: #fff; font-size: 19px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+/* Desktop key hints — hidden on coarse pointers */
+.fc2-hints {
+  position: absolute;
+  left: 50%; bottom: max(12px, calc(var(--safe-b) + 12px));
+  transform: translateX(-50%);
+  z-index: 5;
+  display: none;
+  gap: 8px; flex-wrap: wrap; justify-content: center;
+  pointer-events: none;
+  max-width: min(92vw, 460px);
+}
+@media (hover: hover) and (pointer: fine) { .fc2-hints { display: flex; } }
+.fc2-hints.is-hidden { display: none; }
+.fc2-chip {
+  font-size: 12px; letter-spacing: 0.03em;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--fur) 94%, white);
+  border: 1px solid color-mix(in srgb, var(--mint) 50%, #1c3d35);
+  border-radius: 999px; padding: 7px 12px;
+  box-shadow: 0 4px 12px rgba(44,28,25,0.14);
+  white-space: nowrap;
+}
+.fc2-chip kbd {
+  display: inline-block;
+  font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 3px 6px; margin: 0 2px;
+  border-radius: 5px;
+  border: 1px solid rgba(44,28,25,0.18);
+  background: #fff;
+}
+
+/* ── Milestone tick bar (during play) ───────────────────────────────────── */
+.fc2-ticks {
+  position: absolute;
+  top: max(10px, calc(var(--safe-t) + 10px));
+  left: max(10px, calc(var(--safe-l) + 10px));
+  z-index: 4;
+  display: none;
+  gap: 5px;
+}
+.fc2-ticks.is-live { display: flex; }
+.fc2-tick {
+  font: 700 10px/1 system-ui, sans-serif;
+  color: rgba(255,255,255,0.75);
+  background: rgba(10,30,28,0.5);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px;
+  padding: 4px 7px;
+}
+.fc2-tick.hit { background: var(--mint); color: #0c2620; border-color: transparent; }
+
+/* ── Overlays ───────────────────────────────────────────────────────────── */
+.fc2-overlay {
+  position: absolute; inset: 0;
+  z-index: 10;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: max(14px, var(--safe-t)) 14px max(14px, var(--safe-b));
+  background: radial-gradient(ellipse at center, rgba(10,24,22,0.55), rgba(6,14,13,0.82));
+  backdrop-filter: blur(3px);
+  overflow-y: auto;
+}
+.fc2-overlay.is-open { display: flex; }
+
+.fc2-card {
+  width: min(92vw, 380px);
+  background: var(--card);
+  border: 1px solid rgba(107,196,166,0.35);
+  border-radius: 20px;
+  padding: 22px 20px;
+  text-align: center;
+  color: var(--fur);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.fc2-eyebrow {
+  margin: 0 0 4px;
+  font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--mint);
+}
+.fc2-title {
+  margin: 0 0 8px;
+  font-size: clamp(34px, 9vw, 46px);
+  letter-spacing: 0.14em;
+  color: var(--fur);
+  text-shadow: 0 3px 0 rgba(0,0,0,0.25), 0 0 24px rgba(255,179,71,0.25);
+}
+.fc2-sub { margin: 0 0 14px; font-size: 13.5px; line-height: 1.55; color: rgba(254,246,234,0.8); }
+.fc2-sub kbd {
+  font: 700 11px/1 ui-monospace, monospace;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px; padding: 2px 6px;
+}
+.fc2-best { margin: 10px 0 0; font-size: 12px; color: var(--treat); letter-spacing: 0.06em; }
+
+.fc2-cats { display: flex; gap: 8px; justify-content: center; margin: 4px 0 16px; }
+.fc2-cat-pick {
+  width: 62px; padding: 5px 3px 4px;
+  border-radius: 12px;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+.fc2-cat-thumb { width: 52px; height: 46px; display: block; }
+.fc2-cat-pick .fc2-cat-name { font-size: 9.5px; color: rgba(254,246,234,0.75); letter-spacing: 0.04em; }
+.fc2-cat-pick.is-picked { border-color: var(--treat); background: rgba(255,179,71,0.12); transform: translateY(-2px); }
+
+.fc2-btn {
+  min-height: 48px; min-width: 150px;
+  padding: 13px 22px;
+  border-radius: 14px;
+  border: 0;
+  font: 800 15px/1 system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: transform 0.12s, filter 0.12s;
+}
+.fc2-btn:active { transform: scale(0.96); }
+.fc2-btn-primary {
+  background: linear-gradient(180deg, var(--treat), var(--treat-deep));
+  color: #fff;
+  box-shadow: 0 6px 0 #b85a1f, 0 10px 22px rgba(0,0,0,0.3);
+}
+.fc2-btn-primary:active { transform: translateY(3px); box-shadow: 0 3px 0 #b85a1f; }
+.fc2-btn-pack {
+  background: linear-gradient(180deg, #7ee3ff, #3ea6d8);
+  color: #08303f;
+  box-shadow: 0 6px 0 #23779e, 0 10px 22px rgba(0,0,0,0.3);
+}
+
+.fc2-banner { display: block; width: min(300px, 78%); margin: 0 auto 12px; }
+.fc2-score-row { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 14px; }
+.fc2-medal { width: 64px; height: 67px; }
+.fc2-score-big { font-size: 52px; font-weight: 800; color: var(--fur); line-height: 1; text-shadow: 0 3px 0 rgba(0,0,0,0.3); }
+.fc2-best-line { font-size: 12.5px; color: rgba(254,246,234,0.7); margin-top: 4px; }
+.fc2-newbest { color: var(--treat); font-weight: 700; }
+
+.fc2-board { margin: 0 0 14px; text-align: left; }
+.fc2-h2 {
+  margin: 0 0 8px; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--mint); text-align: center;
+}
+.fc2-leader { list-style: none; margin: 0; padding: 0; }
+.fc2-leader li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px; border-radius: 9px;
+  font-size: 13.5px; color: rgba(254,246,234,0.85);
+}
+.fc2-leader li:nth-child(odd) { background: rgba(255,255,255,0.05); }
+.fc2-leader li.is-you { background: rgba(255,179,71,0.18); color: var(--fur); font-weight: 700; }
+.fc2-leader .fc2-rank { width: 30px; color: var(--mint); font-weight: 700; font-size: 12px; }
+.fc2-leader .fc2-pname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fc2-leader .fc2-pscore { font-weight: 800; }
+.fc2-leader .fc2-loading { justify-content: center; color: rgba(254,246,234,0.5); font-style: italic; }
+
+.fc2-actions { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.fc2-packs-line { margin: 10px 0 0; font-size: 12px; color: #7ee3ff; }
+
+/* Pack modal */
+.fc2-pack-card { max-width: min(92vw, 420px); }
+.fc2-pack-body { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 12px 0 16px; }
+.fc2-petcard {
+  width: 110px; padding: 10px 8px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(107,196,166,0.3);
+  border-radius: 12px;
+  display: flex; flex-direction: column; gap: 4px; align-items: center;
+}
+.fc2-petcard img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; }
+.fc2-petcard b { font-size: 13px; color: var(--fur); }
+.fc2-petcard span { font-size: 10.5px; color: rgba(254,246,234,0.65); }
+.fc2-coin-note { width: 100%; margin: 4px 0 0; color: var(--treat); font-size: 13px; font-weight: 700; }
+
+/* dex-shared flip cards rendered inside our modal */
+.fc2-pack-body .dex-card, .fc2-pack-body [class*="flip"] { max-width: 140px; }
+
+/* ── Toasts ─────────────────────────────────────────────────────────────── */
+.fc2-toasts {
+  position: absolute;
+  top: max(10px, calc(var(--safe-t) + 10px));
+  left: 50%; transform: translateX(-50%);
+  z-index: 20;
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+  pointer-events: none;
+  width: min(92vw, 340px);
+}
+.fc2-toast {
+  background: linear-gradient(180deg, rgba(20,40,36,0.95), rgba(12,28,25,0.95));
+  border: 1px solid var(--mint);
+  color: var(--fur);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 13px; font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  opacity: 0; transform: translateY(-12px) scale(0.95);
+  transition: opacity 0.25s, transform 0.25s;
+  text-align: center;
+}
+.fc2-toast.in { opacity: 1; transform: translateY(0) scale(1); }
+.fc2-toast.is-rare { border-color: var(--treat); box-shadow: 0 0 24px rgba(255,179,71,0.35), 0 10px 30px rgba(0,0,0,0.4); }
+
+/* Embed: drop the page-level padding, cabinet owns chrome */
+html.humane-embed .fc2-hints { bottom: max(8px, calc(var(--safe-b) + 8px)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fc2-cat-pick, .fc2-btn, .fc2-toast { transition: none; }
+}
