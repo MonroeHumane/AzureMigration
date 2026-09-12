@@ -1,0 +1,185 @@
+---
+// Hydrated client-side via hydrateCheckingTrend() in board-financials-loader.ts,
+// fed by data.checking_balance_history from GET /api/financials. Do not import
+// checking_balance_2024_2026.json here -- Astro SSG would bake it into public HTML.
+---
+
+<section class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-xs overflow-hidden">
+  <div class="px-6 py-5 border-b border-slate-200 dark:border-teal-800/80 bg-[#fbf9f5] dark:bg-[#061815]/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-lg font-bold text-[#173a39] dark:text-white tracking-tight">Checking balance trend</h2>
+      <p id="trend-meta-note" class="text-xs text-slate-500 dark:text-teal-300/80 mt-0.5">
+        First Merchants Bank &middot; month-end balance, 2024&ndash;2026
+      </p>
+    </div>
+    <div class="flex items-center gap-4">
+      <div id="trend-legend" class="hidden sm:flex items-center gap-3 text-[11px] font-bold text-slate-600 dark:text-teal-200/90"></div>
+      <button
+        type="button"
+        id="trend-mode-toggle"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#173a39] hover:bg-teal-900 text-white transition shadow-xs cursor-pointer"
+        aria-pressed="false"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3v18M16 3v18M3 8l5-5 5 5M3 16l5 5 5-5M13 8l5-5 5 5M13 16l5 5 5-5"></path>
+        </svg>
+        <span id="trend-mode-label">Combine into one trend</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="p-4 sm:p-6 trend-viz-root">
+    <svg
+      id="trendSvg"
+      viewBox="0 0 1900 760"
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label="First Merchants Bank checking account balance, month by month, 2024 through 2026"
+      data-mode="separated"
+    ></svg>
+  </div>
+</section>
+
+<div id="trend-tooltip" class="trend-tooltip" role="status"></div>
+
+<style>
+  .trend-viz-root {
+    color-scheme: light;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --s1: #2a78d6;
+    --s2: #eb6834;
+    --s3: #1baf7a;
+  }
+  :global([data-staff-theme="dark"]) .trend-viz-root {
+    color-scheme: dark;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+  }
+
+  .trend-viz-root svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .trend-viz-root :global(.grid-line) { stroke: var(--grid); stroke-width: 1.5; }
+  .trend-viz-root :global(.axis-line) { stroke: var(--axis); stroke-width: 2; }
+  .trend-viz-root :global(.tick) { font: 600 20px/1 ui-sans-serif, system-ui, -apple-system, sans-serif; fill: var(--muted); }
+  .trend-viz-root :global(.lbl-sub) { font: 700 22px/1 ui-sans-serif, system-ui, sans-serif; fill: var(--ink-2); }
+  .trend-viz-root :global(.callout-value) { font: 700 22px/1 ui-sans-serif, system-ui, sans-serif; }
+  .trend-viz-root :global(.callout-value.is-low) { fill: var(--s2); }
+  .trend-viz-root :global(.callout-value.is-high) { fill: var(--s1); }
+
+  .trend-viz-root :global(.year-line),
+  .trend-viz-root :global(.pt),
+  .trend-viz-root :global(.callout) {
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+  .trend-viz-root :global(.year-line) {
+    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .trend-viz-root :global(.year-path) {
+    fill: none;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    transition: stroke 400ms ease;
+  }
+  .trend-viz-root :global(.pt-dot) {
+    stroke: var(--surface);
+    transition: fill 400ms ease;
+  }
+
+  /* Separated mode: one hue per year (categorical identity). Path and dot
+     need different properties (stroke vs fill) -- keep them in separate
+     rules so a shared rule never hands .year-path a fill and breaks its
+     fill:none. */
+  .trend-viz-root svg[data-mode="separated"] :global(.year-line[data-year="2024"] .year-path) { stroke: var(--s1); }
+  .trend-viz-root svg[data-mode="separated"] :global(.year-line[data-year="2025"] .year-path) { stroke: var(--s2); }
+  .trend-viz-root svg[data-mode="separated"] :global(.year-line[data-year="2026"] .year-path) { stroke: var(--s3); }
+  .trend-viz-root svg[data-mode="separated"] :global(.pt[data-year="2024"] .pt-dot) { fill: var(--s1); }
+  .trend-viz-root svg[data-mode="separated"] :global(.pt[data-year="2025"] .pt-dot) { fill: var(--s2); }
+  .trend-viz-root svg[data-mode="separated"] :global(.pt[data-year="2026"] .pt-dot) { fill: var(--s3); }
+
+  /* Unified mode: one continuous account balance, one hue. */
+  .trend-viz-root svg[data-mode="unified"] :global(.year-path) { stroke: var(--s1); }
+  .trend-viz-root svg[data-mode="unified"] :global(.pt-dot) { fill: var(--s1); }
+
+  /* Bridges the Dec->Jan gap between year segments -- only reads as one
+     continuous line once the segments have landed in unified position, so it
+     fades in after the move (separated mode: invisible, no delay on the way
+     back out) rather than during the morph. */
+  .trend-viz-root :global(.connector) {
+    fill: none;
+    stroke: var(--s1);
+    stroke-width: 5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+  .trend-viz-root svg[data-mode="unified"] :global(.connector) {
+    opacity: 1;
+    transition: opacity 300ms ease 350ms;
+  }
+
+  .trend-viz-root :global(.pt),
+  .trend-viz-root :global(.callout) {
+    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 300ms ease;
+  }
+  .trend-viz-root :global(.ticks-separated),
+  .trend-viz-root :global(.ticks-unified) {
+    transition: opacity 300ms ease;
+  }
+  .trend-viz-root svg[data-mode="separated"] :global(.ticks-unified) { opacity: 0; pointer-events: none; }
+  .trend-viz-root svg[data-mode="unified"] :global(.ticks-separated) { opacity: 0; pointer-events: none; }
+
+  .trend-viz-root :global(.hit) { cursor: pointer; }
+
+  #trend-legend :global(.trend-swatch) {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 250ms ease;
+  }
+  #trend-legend :global(.trend-dot) {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+  #trend-legend:not([data-mode="unified"]) :global(.trend-legend-uni) { display: none; }
+  #trend-legend[data-mode="unified"] :global(.trend-legend-sep) { display: none; }
+
+  .trend-tooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 60;
+    background: #173a39;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transform: translate(-50%, -135%);
+    opacity: 0;
+    transition: opacity 120ms ease;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  }
+  .trend-tooltip.show { opacity: 1; }
+</style>

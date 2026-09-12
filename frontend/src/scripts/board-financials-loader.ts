@@ -27,12 +27,11 @@ function applyDashboard(data: any, token: string | null): void {
   hydrateOperatingBridge(data.headline_kpis, data.bridge_composition);
   hydrateMonthlyStatements(data.monthly_statements, data.monthly_drilldown?.months);
   hydratePositionAndCash(data.statement_of_position);
-  hydrateMultiYear(data.multiyear_comparison);
-  hydrateScenarioSimulator(data);
   if (token && (data.bank_statement || data.bank_statements)) {
     hydrateBankStatements(data, token);
   }
   hydrateExpenseExplorer(data);
+  hydrateCheckingTrend(data.checking_balance_history);
   hydrateFooter(data.meta);
 }
 
@@ -1557,62 +1556,238 @@ async function attachStatementPdfBlobs(token: string, monthKey: string): Promise
   }
 }
 
-function hydrateMultiYear(comp: any) {
-  if (!comp) return;
-  const setEl = (id: string, text: string) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = text;
-  };
+type TrendPoint = { year: number; month: number; value: number };
 
-  if (comp['2024']) {
-    setEl('my-2024-rev', formatDollar(comp['2024'].total_revenue));
-    setEl('my-2024-exp', formatDollar(comp['2024'].total_expenditures));
-    setEl('my-2024-net', formatDollar(comp['2024'].net_result));
-    setEl('my-2024-margin', `${comp['2024'].margin_pct.toFixed(1)}%`);
-    setEl('my-2024-prog', `${comp['2024'].program_ratio.toFixed(1)}%`);
+const TREND_MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const TREND_YEAR_COLORS: Record<string, string> = { '2024': 'var(--s1)', '2025': 'var(--s2)', '2026': 'var(--s3)' };
+
+function trendMoney(v: number): string {
+  const isNeg = v < 0;
+  const abs = Math.abs(Math.round(v));
+  const formatted = '$' + abs.toLocaleString('en-US');
+  return isNeg ? `(${formatted})` : formatted;
+}
+
+function findExtrema(series: TrendPoint[]): { i: number; type: 'peak' | 'valley' }[] {
+  const marks: { i: number; type: 'peak' | 'valley' }[] = [];
+  for (let i = 0; i < series.length; i++) {
+    const prev = series[i - 1]?.value;
+    const next = series[i + 1]?.value;
+    const cur = series[i].value;
+    const isPeak = (prev === undefined || cur > prev) && (next === undefined || cur > next);
+    const isValley = (prev === undefined || cur < prev) && (next === undefined || cur < next);
+    if (isPeak) marks.push({ i, type: 'peak' });
+    else if (isValley) marks.push({ i, type: 'valley' });
+  }
+  return marks;
+}
+
+function hydrateCheckingTrend(history: any): void {
+  const svg = document.getElementById('trendSvg') as unknown as SVGSVGElement | null;
+  const legend = document.getElementById('trend-legend');
+  const toggle = document.getElementById('trend-mode-toggle');
+  const modeLabel = document.getElementById('trend-mode-label');
+  const metaNote = document.getElementById('trend-meta-note');
+  if (!svg || !history?.years) return;
+
+  const years = Object.keys(history.years).filter((y) => Array.isArray(history.years[y]) && history.years[y].length).sort();
+  if (!years.length) return;
+
+  if (metaNote && history.meta) {
+    const cutoff = history.meta.cutoff_date ? `closed ${history.meta.cutoff_date}` : '';
+    const partial = history.meta.has_partial_cutoff && history.meta.latest_partial_date
+      ? ` (through ${history.meta.latest_partial_date}, in progress)`
+      : '';
+    metaNote.textContent = `First Merchants Bank · month-end balance, ${years[0]}–${years[years.length - 1]}${cutoff ? ' · ' + cutoff + partial : ''}`;
   }
 
-  if (comp['2025']) {
-    setEl('my-2025-rev', formatDollar(comp['2025'].total_revenue));
-    setEl('my-2025-exp', formatDollar(comp['2025'].total_expenditures));
-    setEl('my-2025-net', `+${formatDollar(comp['2025'].net_result)}`);
-    setEl('my-2025-ex-bequest', formatDollar(comp['2025'].ex_bequest_operating_net || 0));
-    setEl('my-2025-prog', `${comp['2025'].program_ratio.toFixed(1)}%`);
+  const perYear: Record<string, TrendPoint[]> = {};
+  const flat: TrendPoint[] = [];
+  years.forEach((y) => {
+    const vals: number[] = history.years[y];
+    perYear[y] = vals.map((v, m) => ({ year: Number(y), month: m, value: v }));
+    perYear[y].forEach((p) => flat.push(p));
+  });
+
+  const W = 1900, H = 760;
+  const left = 90, right = W - 40, top = 28, bottom = H - 60;
+  const plotWidth = right - left;
+  const unitW = plotWidth / years.length;
+
+  const allVals = flat.map((d) => d.value);
+  const minV = Math.min(...allVals, 0);
+  const maxV = Math.max(...allVals);
+  const pad = (maxV - minV) * 0.08;
+  const lo = minV - pad, hi = maxV + pad;
+  const yFor = (v: number) => bottom - (v - lo) / (hi - lo) * (bottom - top);
+  const localX = (m: number) => (plotWidth * m) / 11;
+  const sepX = (m: number) => left + localX(m);
+  const uniX = (yearIdx: number, m: number) => left + yearIdx * unitW + localX(m) / years.length;
+
+  let svgMarkup = '';
+
+  // Shared $ gridlines (y-scale is identical in both modes).
+  const step = 25000;
+  for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+    const y = yFor(v);
+    svgMarkup += `<line class="grid-line" x1="${left}" y1="${y}" x2="${right}" y2="${y}"/>`;
+    svgMarkup += `<text class="tick" x="${left - 14}" y="${y + 6}" text-anchor="end">${(v / 1000).toFixed(0)}K</text>`;
+  }
+  if (lo < 0) {
+    svgMarkup += `<line class="axis-line" x1="${left}" y1="${yFor(0)}" x2="${right}" y2="${yFor(0)}"/>`;
+  }
+  svgMarkup += `<line class="axis-line" x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}"/>`;
+
+  // Separated-mode x-axis: one shared Jan-Dec month row.
+  svgMarkup += `<g class="ticks-separated">`;
+  TREND_MONTH_LABELS.forEach((label, m) => {
+    svgMarkup += `<text class="tick" x="${sepX(m)}" y="${bottom + 30}" text-anchor="middle">${label}</text>`;
+  });
+  svgMarkup += `</g>`;
+
+  // Unified-mode x-axis: year dividers + quarterly month ticks across the full width.
+  svgMarkup += `<g class="ticks-unified">`;
+  years.forEach((y, yi) => {
+    const x0 = uniX(yi, 0);
+    if (yi > 0) svgMarkup += `<line class="grid-line" x1="${x0}" y1="${top}" x2="${x0}" y2="${bottom}"/>`;
+    svgMarkup += `<text class="lbl-sub" x="${x0}" y="${top - 10}" text-anchor="${yi === 0 ? 'start' : 'middle'}">${y}</text>`;
+    perYear[y].forEach((p) => {
+      if (p.month % 3 === 0) {
+        svgMarkup += `<text class="tick" x="${uniX(yi, p.month)}" y="${bottom + 30}" text-anchor="middle">${TREND_MONTH_LABELS[p.month]}</text>`;
+      }
+    });
+  });
+  svgMarkup += `</g>`;
+
+  // One <path> per year, drawn in local (untranslated) coordinates; the
+  // year-group's own transform positions/compresses it per mode (CSS-driven,
+  // see .year-line rules) -- no per-point path interpolation needed.
+  svgMarkup += `<g class="lines-layer">`;
+  years.forEach((y, yi) => {
+    const d = perYear[y].map((p, i) => `${i === 0 ? 'M' : 'L'}${localX(p.month).toFixed(1)} ${yFor(p.value).toFixed(1)}`).join(' ');
+    svgMarkup += `<g class="year-line" data-year="${y}" data-year-index="${yi}" style="--sep-tx:${left}px; --uni-tx:${(left + yi * unitW).toFixed(1)}px; --uni-sx:${(1 / years.length).toFixed(5)};">`;
+    svgMarkup += `<path class="year-path" d="${d}"/>`;
+    svgMarkup += `</g>`;
+  });
+  svgMarkup += `</g>`;
+
+  // Bridge segments across each year boundary (Dec -> Jan). Each year is its
+  // own <path> so it can be colored/scaled independently in separated mode,
+  // but that means unified mode -- three segments placed end to end -- has no
+  // line actually drawn between them. These connectors fill that gap; they
+  // only make visual sense once the segments land in unified position, so
+  // they stay invisible (opacity 0) in separated mode.
+  svgMarkup += `<g class="connectors-layer">`;
+  for (let yi = 0; yi < years.length - 1; yi++) {
+    const curYear = perYear[years[yi]];
+    const nextYear = perYear[years[yi + 1]];
+    if (!curYear.length || !nextYear.length) continue;
+    const from = curYear[curYear.length - 1];
+    const to = nextYear[0];
+    const x1 = uniX(yi, from.month);
+    const y1 = yFor(from.value);
+    const x2 = uniX(yi + 1, to.month);
+    const y2 = yFor(to.value);
+    svgMarkup += `<path class="connector" d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}"/>`;
+  }
+  svgMarkup += `</g>`;
+
+  // Point markers + hit targets live outside the scaled groups (translate-only
+  // positioning) so they never get squished into ellipses by the x-only scale.
+  svgMarkup += `<g class="points-layer">`;
+  flat.forEach((p, i) => {
+    const yi = years.indexOf(String(p.year));
+    const sx = sepX(p.month);
+    const ux = uniX(yi, p.month);
+    const y = yFor(p.value);
+    svgMarkup += `<g class="pt" data-i="${i}" data-year="${p.year}" style="--sep-tx:${sx.toFixed(1)}px; --sep-ty:${y.toFixed(1)}px; --uni-tx:${ux.toFixed(1)}px; --uni-ty:${y.toFixed(1)}px;">`;
+    svgMarkup += `<circle class="pt-dot" r="6"/>`;
+    svgMarkup += `<circle class="hit" data-i="${i}" r="20" fill="transparent"/>`;
+    svgMarkup += `</g>`;
+  });
+  svgMarkup += `</g>`;
+
+  // Peak/valley/latest-point callouts -- selective labels, never one per point.
+  const extrema = findExtrema(flat);
+  const peaks = extrema.filter((m) => m.type === 'peak').sort((a, b) => flat[b.i].value - flat[a.i].value).slice(0, 2);
+  const valleys = extrema.filter((m) => m.type === 'valley').sort((a, b) => flat[a.i].value - flat[b.i].value).slice(0, 2);
+  const calloutIdxs = new Set<number>([...peaks.map((p) => p.i), ...valleys.map((v) => v.i), flat.length - 1]);
+
+  svgMarkup += `<g class="callouts-layer">`;
+  calloutIdxs.forEach((i) => {
+    const p = flat[i];
+    const yi = years.indexOf(String(p.year));
+    const sx = sepX(p.month);
+    const ux = uniX(yi, p.month);
+    const y = yFor(p.value);
+    const isLow = valleys.some((v) => v.i === i);
+    const dy = isLow ? 34 : -20;
+    svgMarkup += `<g class="callout" data-i="${i}" style="--sep-tx:${sx.toFixed(1)}px; --sep-ty:${y.toFixed(1)}px; --uni-tx:${ux.toFixed(1)}px; --uni-ty:${y.toFixed(1)}px;">`;
+    svgMarkup += `<text class="callout-value ${isLow ? 'is-low' : 'is-high'}" x="0" y="${dy}" text-anchor="middle">${trendMoney(p.value)}</text>`;
+    svgMarkup += `</g>`;
+  });
+  svgMarkup += `</g>`;
+
+  svg.innerHTML = svgMarkup;
+
+  svg.querySelectorAll<SVGGElement>('.year-line').forEach((g) => {
+    g.style.setProperty('--sep-transform', `translate(var(--sep-tx), 0) scale(1,1)`);
+    g.style.setProperty('--uni-transform', `translate(var(--uni-tx), 0) scale(var(--uni-sx),1)`);
+  });
+  svg.querySelectorAll<SVGGElement>('.pt, .callout').forEach((g) => {
+    g.style.setProperty('--sep-transform', `translate(var(--sep-tx), var(--sep-ty))`);
+    g.style.setProperty('--uni-transform', `translate(var(--uni-tx), var(--uni-ty))`);
+  });
+  applyTrendMode(svg, svg.getAttribute('data-mode') || 'separated');
+
+  // Legend: year swatches in separated mode, one swatch in unified mode.
+  if (legend) {
+    const sepSwatches = years.map((y) => `<span class="trend-swatch trend-legend-sep"><span class="trend-dot" style="background:${TREND_YEAR_COLORS[y] || 'var(--s1)'}"></span>${y}</span>`).join('');
+    const uniSwatch = `<span class="trend-swatch trend-legend-uni"><span class="trend-dot" style="background:var(--s1)"></span>Balance</span>`;
+    legend.innerHTML = sepSwatches + uniSwatch;
+    legend.classList.remove('hidden');
   }
 
-  if (comp['2026']) {
-    setEl('my-2026-rev', formatDollar(comp['2026'].total_revenue));
-    setEl('my-2026-exp', formatDollar(comp['2026'].total_expenditures));
-    setEl('my-2026-net', formatDollar(comp['2026'].net_result));
-    setEl('my-2026-margin', `${comp['2026'].margin_pct.toFixed(1)}%`);
-    setEl('my-2026-prog', `${comp['2026'].program_ratio.toFixed(1)}%`);
+  const tooltip = document.getElementById('trend-tooltip');
+  svg.querySelectorAll<SVGCircleElement>('.hit').forEach((el) => {
+    el.addEventListener('mouseenter', () => {
+      const p = flat[Number(el.dataset.i)];
+      if (tooltip) {
+        tooltip.textContent = `${TREND_MONTH_LABELS[p.month]} ${p.year} — ${trendMoney(p.value)}`;
+        tooltip.classList.add('show');
+      }
+    });
+    el.addEventListener('mousemove', (e) => {
+      if (tooltip) {
+        tooltip.style.left = `${(e as MouseEvent).clientX}px`;
+        tooltip.style.top = `${(e as MouseEvent).clientY}px`;
+      }
+    });
+    el.addEventListener('mouseleave', () => tooltip?.classList.remove('show'));
+  });
+
+  if (toggle && toggle.dataset.trendBound !== '1') {
+    toggle.dataset.trendBound = '1';
+    toggle.addEventListener('click', () => {
+      const current = svg.getAttribute('data-mode') || 'separated';
+      const next = current === 'separated' ? 'unified' : 'separated';
+      applyTrendMode(svg, next);
+      if (modeLabel) modeLabel.textContent = next === 'separated' ? 'Combine into one trend' : 'Show by year';
+      toggle.setAttribute('aria-pressed', String(next === 'unified'));
+      if (legend) legend.setAttribute('data-mode', next);
+    });
   }
 }
 
-function hydrateScenarioSimulator(data: any) {
-  const root = document.getElementById('scenario-simulator-root');
-  if (!root || !data.headline_kpis || !data.statement_of_position) return;
-
-  const closed = data.meta?.closed_months_count || 8;
-  const coreRev = data.headline_kpis.qbo_operating_revenue / closed;
-  const coreExp = (data.headline_kpis.qbo_cogs + data.headline_kpis.qbo_operating_expenditures) / closed;
-  const allinRev = data.headline_kpis.all_in_revenue / closed;
-  const allinExp = data.headline_kpis.all_in_expenditures / closed;
-  const baseChecking = data.statement_of_position.assets.total_book_operating_cash;
-  const baseFidelity = data.statement_of_position.assets.fidelity_board_designated_reserve;
-
-  root.setAttribute('data-core-rev', String(coreRev));
-  root.setAttribute('data-core-exp', String(coreExp));
-  root.setAttribute('data-allin-rev', String(allinRev));
-  root.setAttribute('data-allin-exp', String(allinExp));
-  root.setAttribute('data-base-rev', String(coreRev));
-  root.setAttribute('data-base-exp', String(coreExp));
-  root.setAttribute('data-base-checking', String(baseChecking));
-  root.setAttribute('data-base-fidelity', String(baseFidelity));
-
-  window.dispatchEvent(new CustomEvent('update-scenario-simulator', {
-    detail: { coreRev, coreExp, allinRev, allinExp, baseChecking, baseFidelity }
-  }));
+function applyTrendMode(svg: SVGSVGElement, mode: string): void {
+  svg.setAttribute('data-mode', mode);
+  svg.querySelectorAll<SVGGElement>('.year-line, .pt, .callout').forEach((g) => {
+    g.style.transform = mode === 'unified'
+      ? g.style.getPropertyValue('--uni-transform')
+      : g.style.getPropertyValue('--sep-transform');
+  });
+  const legend = document.getElementById('trend-legend');
+  if (legend) legend.setAttribute('data-mode', mode);
 }
 
 function hydrateFooter(meta: any) {

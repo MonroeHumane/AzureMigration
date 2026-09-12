@@ -1,0 +1,54 @@
+{
+  "years": {
+    "2024": [
+      6001.71,
+      24435.77,
+      44531.64,
+      102419.36,
+      105829.53,
+      72681.92,
+      51609.56,
+      87405.79,
+      95797.86,
+      122240.31,
+      112009.49,
+      87263.39
+    ],
+    "2025": [
+      55004.19,
+      46284.8,
+      64283.06,
+      86747.94,
+      67318.47,
+      41373.51,
+      31588.83,
+      -30884.6,
+      41304.6,
+      124686.52,
+      135852.22,
+      129224.11
+    ],
+    "2026": [
+      123186.73,
+      129301.47,
+      104986.54,
+      131328.97,
+      114642.77,
+      112968.7,
+      54262.48,
+      25065.66,
+      26159.98
+    ]
+  },
+  "meta": {
+    "period_title": "First Merchants Bank Checking -- Month-End Balance History",
+    "cutoff_date": "2026-08-31",
+    "latest_partial_date": "2026-09-11",
+    "has_partial_cutoff": true,
+    "source": "QuickBooks Online GeneralLedger report, First Merchants Bank checking (account 111)",
+    "basis": "Accrual",
+    "published_by": "Automated (qbo_publish_checking_balance_history.py)",
+    "published_at": "2026-09-12T09:39:07Z",
+    "sha256_checksum": "93c2b533f5a0cb6cbfe7f9d350a56310cca35847f4298743909b3ab688b8245a"
+  }
+}

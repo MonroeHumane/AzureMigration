@@ -3,19 +3,24 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
 import StaffSubNav from '../../../components/internal/StaffSubNav.astro';
 import ExecutiveBanner from '../../../components/board/ExecutiveBanner.astro';
 import HeadlineKpiGrid from '../../../components/board/HeadlineKpiGrid.astro';
+import PositionAndCashCard from '../../../components/board/PositionAndCashCard.astro';
+import OperatingBridgeCard from '../../../components/board/OperatingBridgeCard.astro';
 import MonthlyStatementTable from '../../../components/board/MonthlyStatementTable.astro';
 import BankStatementViewer from '../../../components/board/BankStatementViewer.astro';
 import ExpenseExplorer from '../../../components/board/ExpenseExplorer.astro';
+import CheckingBalanceTrend from '../../../components/board/CheckingBalanceTrend.astro';
 // Financial JSON is loaded client-side after getStaffToken() via GET /api/financials
-// (YTD report + bank_statement + bank_statements + monthly_drilldown + donors). Do not import
-// published_2026_ytd.json, statement_2026_08.json, monthly_drilldown_2026.json,
-// or donor_database.json here — Astro SSG would bake them into public HTML.
+// (YTD report + bank_statement + bank_statements + monthly_drilldown + checking_balance_history
+// + donors). Do not import published_2026_ytd.json, statement_2026_08.json,
+// monthly_drilldown_2026.json, checking_balance_2024_2026.json, or donor_database.json here —
+// Astro SSG would bake them into public HTML.
 
 const subNavItems = [
   { id: 'snapshot', label: 'Summary' },
   { id: 'statement',label: 'Months' },
   { id: 'expenses', label: 'Money detail' },
   { id: 'audit',    label: 'Bank' },
+  { id: 'trend',    label: 'Trend' },
 ];
 ---
 
@@ -39,9 +44,11 @@ const subNavItems = [
     </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8" id="financials-main-content">
-      <!-- Section 1: Headline KPI Grid -->
+      <!-- Section 1: Headline KPI Grid + Position/Cash + Operating Bridge -->
       <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20">
         <HeadlineKpiGrid />
+        <PositionAndCashCard />
+        <OperatingBridgeCard />
       </section>
 
       <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
@@ -59,6 +66,11 @@ const subNavItems = [
         <BankStatementViewer />
       </section>
 
+      <!-- Section 5: Checking balance trend (2024-2026) -->
+      <section id="sec-trend" class="financial-module space-y-6 scroll-mt-20 hidden">
+        <CheckingBalanceTrend />
+      </section>
+
       <footer class="mt-8 pt-4 border-t border-slate-200 text-xs text-slate-400">
         Confidential
       </footer>
@@ -73,7 +85,7 @@ const subNavItems = [
       const sections = document.querySelectorAll('.financial-module');
 
       function setActiveModule(targetId: string, scroll = true) {
-        const allowed = new Set(['snapshot', 'statement', 'expenses', 'audit']);
+        const allowed = new Set(['snapshot', 'statement', 'expenses', 'audit', 'trend']);
         if (targetId === 'all' || !allowed.has(targetId)) targetId = 'snapshot';
 
         pills.forEach((p) => {

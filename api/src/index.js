@@ -18,6 +18,7 @@ function loadJsonOptional(relPath) {
 }
 
 const donorDatabase = loadJsonOptional('../data/donor_database.json');
+const checkingBalanceHistory = loadJsonOptional('../data/checking_balance_2024_2026.json');
 const monthlyDrilldown = loadJsonOptional('../data/monthly_drilldown_2026.json');
 const bankInOutData = loadJsonOptional('../data/bank_in_out_2026.json');
 const bankInOut2024 = loadJsonOptional('../data/bank_in_out_2024.json');
@@ -374,6 +375,11 @@ app.http('financials', {
     // 3-level GL drilldown for the board explorer (not baked into Astro pages).
     if (monthlyDrilldown) {
       payload.monthly_drilldown = monthlyDrilldown;
+    }
+
+    // Month-end checking balance history for the board "Trend" chart.
+    if (checkingBalanceHistory) {
+      payload.checking_balance_history = checkingBalanceHistory;
     }
 
     // Donor registry — same Bearer auth as financials. Keys match staff hydrators:
