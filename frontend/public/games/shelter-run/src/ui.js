@@ -126,6 +126,34 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
     document.documentElement.classList.toggle('sr-playing', phase === 'playing');
   }
 
+  function renderLeaders(leaders, score) {
+    const ol = over.querySelector('[data-leader]');
+    ol.innerHTML = '';
+    if (leaders === null) {
+      ol.appendChild(el('li', 'sr-loading', 'Loading…'));
+      return;
+    }
+    if (!leaders.length) {
+      ol.appendChild(el('li', 'sr-loading', 'No scores yet — be the first!'));
+      return;
+    }
+    leaders.forEach(row => {
+      const li = el('li', row.playerName === playerNameSafe() && row.score === score ? 'is-you' : '');
+      li.appendChild(el('span', 'sr-rank', `#${row.rank}`));
+      li.appendChild(el('span', 'sr-pname', escapeHtml(row.playerName || 'Player')));
+      li.appendChild(el('span', 'sr-pscore', `${row.score}m`));
+      ol.appendChild(li);
+    });
+  }
+
+  function setPacks(count) {
+    const packBtn = over.querySelector('[data-pack]');
+    const line = over.querySelector('[data-packs-line]');
+    const packs = count | 0;
+    packBtn.hidden = packs <= 0;
+    line.textContent = packs > 0 ? `You have ${packs} unopened pack${packs === 1 ? '' : 's'} in your Adoptédex.` : '';
+  }
+
   function toast(text, opts = {}) {
     const t = el('div', 'sr-toast' + (opts.rare ? ' is-rare' : ''), text);
     toasts.appendChild(t);
@@ -134,6 +162,8 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
   }
 
   return {
+    updateLeaderboard(leaders, score) { renderLeaders(leaders, score); },
+    setPacks,
     showStart(best, catId) {
       selectCat(catId);
       start.querySelector('[data-best]').textContent = best > 0 ? `Personal best: ${best} m` : '';
@@ -173,25 +203,9 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
         rw.hidden = true;
       }
 
-      const ol = over.querySelector('[data-leader]');
-      ol.innerHTML = '';
-      if (!leaders || !leaders.length) {
-        ol.appendChild(el('li', 'sr-loading', 'No scores yet — be the first!'));
-      } else {
-        leaders.forEach(row => {
-          const li = el('li', row.playerName === playerNameSafe() && row.score === score ? 'is-you' : '');
-          li.appendChild(el('span', 'sr-rank', `#${row.rank}`));
-          li.appendChild(el('span', 'sr-pname', escapeHtml(row.playerName || 'Player')));
-          li.appendChild(el('span', 'sr-pscore', `${row.score}m`));
-          ol.appendChild(li);
-        });
-      }
+      renderLeaders(leaders, score);
 
-      const packBtn = over.querySelector('[data-pack]');
-      const line = over.querySelector('[data-packs-line]');
-      const packs = unopenedPacks | 0;
-      packBtn.hidden = packs <= 0;
-      line.textContent = packs > 0 ? `You have ${packs} unopened pack${packs === 1 ? '' : 's'} in your Adoptédex.` : '';
+      setPacks(unopenedPacks);
       hide(start); show(over);
     },
     hideGameOver() { hide(over); },

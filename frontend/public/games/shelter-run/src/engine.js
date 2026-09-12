@@ -1,7 +1,6 @@
 // Pure game model — no DOM, no canvas. Update with dt (seconds).
 import { PHYS, PROJ, BIOMES, BIOME_CYCLE_RESET, OBSTACLE } from './config.js';
 import { spawnCluster, nextGap } from './levelgen.js';
-import { smoothstep } from './perspective.js';
 
 const rand = (a, b) => a + Math.random() * (b - a);
 
@@ -85,7 +84,7 @@ export function jump(g) {
   g.action = 'jumping'; g.actionT = 0;
   g.squashY = 1.1; g.stretchX = 0.9;
   for (let i = 0; i < 3; i++) {
-    g.puffs.push({ lane: g.effectiveLane ?? g.targetLane, x: 0, z: PROJ.playerZ - 10, vx: rand(-30, 30), vy: rand(15, 50), life: rand(0.3, 0.5) });
+    g.puffs.push({ lane: effectiveLane(g), x: 0, z: PROJ.playerZ - 10, vx: rand(-30, 30), vy: rand(15, 50), life: rand(0.3, 0.5) });
   }
   if (g.onJump) g.onJump();
 }

@@ -200,16 +200,25 @@ function drawWorldItems(ctx, g, biome, images, petDeck) {
   items.sort((a, b) => b.z - a.z);
 
   for (const it of items) {
+    // Near-plane clip: items at/under the camera would fill the screen.
+    if (it.d < NEAR_CLIP) continue;
     if (it.kind === 'obs') drawObstacle(ctx, it.o, it.d, biome, images);
     else drawCollectible(ctx, it.c, it.d, g.time, petDeck);
   }
+}
+
+// Below this depth an item is at the camera — hide it rather than let a
+// wall-sized quad sweep the screen. Items fade out approaching the clip.
+const NEAR_CLIP = 118;
+function nearFade(relZ) {
+  return Math.max(0, Math.min(1, (relZ - NEAR_CLIP) / 90));
 }
 
 function drawObstacle(ctx, obs, relZ, biome, images) {
   const { cx, groundY, w, scale } = obstacleBox(L, obs, relZ);
   const v = obs.variant | 0;
   const fogT = Math.max(0, Math.min(1, (relZ - L.farZ * 0.6) / (L.farZ * 0.4)));
-  ctx.globalAlpha = 1 - fogT * 0.6;
+  ctx.globalAlpha = (1 - fogT * 0.6) * nearFade(relZ);
 
   // Contact shadow
   ctx.fillStyle = 'rgba(0,0,0,0.28)';
@@ -363,7 +372,7 @@ function drawCollectible(ctx, c, relZ, t, petDeck) {
   if (!p) return;
   const r = Math.max(5, 26 * scale);
   const fogT = Math.max(0, Math.min(1, (relZ - L.farZ * 0.6) / (L.farZ * 0.4)));
-  ctx.globalAlpha = 1 - fogT * 0.6;
+  ctx.globalAlpha = (1 - fogT * 0.6) * nearFade(relZ);
 
   // Assign a pet the first time this token is drawn.
   if (!c.pet && petDeck && petDeck.length) c.pet = petDeck[Math.floor(Math.random() * petDeck.length)];

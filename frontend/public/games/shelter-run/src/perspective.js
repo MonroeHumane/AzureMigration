@@ -46,12 +46,6 @@ export function laneScreenX(L, lane) {
   return L.centerX + (L.laneWorldX[lane] || 0) * (L.focal / L.playerZ);
 }
 
-export function laneWorldAt(L, laneT, fromLane, toLane) {
-  // Interpolated *world* x for collision (lane check uses effectiveLane, but
-  // rendering interpolates screen x directly).
-  return L.laneWorldX[fromLane] + (L.laneWorldX[toLane] - L.laneWorldX[fromLane]) * smoothstep(laneT);
-}
-
 export function lerp(a, b, t) { return a + (b - a) * t; }
 export function smoothstep(t) { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); }
 
