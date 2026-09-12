@@ -64,6 +64,7 @@ export function createGame() {
     rescuesAll: 0,             // all-time rescues (seeded by main.js)
     escapes: 0,                // times the pack was escaped this session
     claimedObjectives: [],     // objective keys already claimed (server or local)
+    claimPending: new Set(),   // keys with an in-flight claim — not yet confirmed
     onDeath: null, onHit: null, onCollect: null, onJump: null, onSlide: null, onLane: null, onLand: null,
     onMilestone: null, onNearMiss: null,
     onPickup: null,            // (pickup collectible)
@@ -100,7 +101,7 @@ export function treatTierFor(g, meters) {
 export function claimableObjectives(g) {
   const out = [];
   for (const o of OBJECTIVES) {
-    if (g.claimedObjectives.includes(o.key)) continue;
+    if (g.claimedObjectives.includes(o.key) || g.claimPending.has(o.key)) continue;
     let met = false;
     switch (o.key) {
       case 'rescue_5':      met = g.rescuedCount >= 5; break;
@@ -144,6 +145,7 @@ export function resetRun(g) {
   g.rescued = []; g.rescuedCount = 0; g.rescueStreak = 0; g.streakBest = 0;
   g.treatsRun = 0; g.pickupsRun = 0; g.nearMissRun = 0;
   g.cleanMeters = 0; g.escapes = 0;
+  g.claimPending = new Set();
   g.state = 'READY';
 }
 
@@ -421,7 +423,7 @@ export function update(g, dt) {
   // Objective polling — cheap scan each frame; callback fires per claimable key.
   if (g.onObjective && (g.frame || 0) % 30 === 0) {
     for (const key of claimableObjectives(g)) {
-      g.claimedObjectives.push(key); // claim once locally; server dedupes too
+      g.claimPending.add(key); // main.js moves to claimedObjectives on confirm
       g.onObjective(key);
     }
   }

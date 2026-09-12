@@ -176,7 +176,7 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat, onBuyUpgrade
       const li = el('li', row.playerName === playerNameSafe() && row.score === score ? 'is-you' : '');
       li.appendChild(el('span', 'sr-rank', `#${row.rank}`));
       li.appendChild(el('span', 'sr-pname', escapeHtml(row.playerName || 'Player')));
-      li.appendChild(el('span', 'sr-pscore', `${row.score}m`));
+      li.appendChild(el('span', 'sr-pscore', `${row.score}`));
       ol.appendChild(li);
     });
   }
@@ -323,7 +323,7 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat, onBuyUpgrade
         over.querySelector('[data-binder-link]').hidden = true;
       }
 
-      renderLeaders(leaders, meters);
+      renderLeaders(leaders, score);
 
       setPacks(unopenedPacks);
       hide(start); show(over);

@@ -100,6 +100,31 @@ jobs:
           inlineScript: |
             az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest --revision-suffix gha${{ github.run_number }} --min-replicas 1
 
+      # The entrypoint runs Phinx migrations before Apache starts, so the new
+      # revision only becomes ready once the DB schema is current. Poll a
+      # public read endpoint (exercises PHP + DB) until the revision serves;
+      # fail the run if it never does so the deploy can't go green silently.
+      - name: Verify Arcade API is serving
+        if: steps.filter.outputs.arcade == 'true'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            FQDN=$(az containerapp show --name mchs-arcade-api --resource-group MCHS-Platform-RG --query properties.configuration.ingress.fqdn -o tsv)
+            echo "Arcade FQDN: $FQDN"
+            ok=0
+            for i in $(seq 1 40); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "https://${FQDN}/arcade-api/v1/scores?gameId=shelter_run&limit=1" || true)
+              echo "attempt $i: HTTP $code"
+              if [ "$code" = "200" ]; then ok=1; break; fi
+              sleep 8
+            done
+            if [ "$ok" != "1" ]; then
+              echo "::error::Arcade API did not become healthy within ~5 minutes"
+              az containerapp revision list --name mchs-arcade-api --resource-group MCHS-Platform-RG --query "[].{name:name,active:properties.active,health:properties.healthState,created:properties.createdTime}" -o table || true
+              exit 1
+            fi
+            echo "Arcade API healthy"
+
       - name: Deploy PetSync job (only if cron/** changed)
         if: steps.filter.outputs.cron == 'true'
         uses: azure/cli@v2

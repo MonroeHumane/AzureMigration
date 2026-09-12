@@ -2,7 +2,9 @@
 
 Assumes the Astro dev server is already running on :8399.
 Covers: boot, start screen, run start, lane/jump/slide input, canvas
-rendering, distance HUD ticking, console errors.
+rendering, distance HUD, rescue pickup, milestone banner/confetti,
+two-strike chase (stumble → pack → escape / caught), upgrade store,
+objectives panel, death + retry, console errors.
 
 Run:  python tests/shelter_run.py
 """
@@ -23,6 +25,7 @@ RESULTS = []
 
 def check(name, cond, extra=""):
     RESULTS.append((name, bool(cond)))
+    name = str(name).encode("ascii", "replace").decode("ascii")
     extra = str(extra).encode("ascii", "replace").decode("ascii")
     print(f"  {'PASS' if cond else 'FAIL'}  {name}{(' - ' + extra) if extra else ''}")
 
@@ -67,6 +70,25 @@ def main():
         check("cat picker rendered", page.locator(".sr-cat-pick").count() == 4)
         page.screenshot(path=str(SHOTS / "sr_start.png"))
 
+        # Store modal: opens, lists 5 upgrades with level pips, closes.
+        page.click("[data-store]")
+        page.wait_for_timeout(300)
+        check("store opens", page.is_visible(".sr-storemodal.is-open"))
+        check("store lists 5 upgrades", page.locator(".sr-upgrade").count() == 5)
+        page.screenshot(path=str(SHOTS / "sr_store.png"))
+        page.click("[data-store-close]")
+        page.wait_for_timeout(200)
+        check("store closes", not page.is_visible(".sr-storemodal.is-open"))
+
+        # Objectives modal: opens, lists objectives, closes.
+        page.click("[data-objectives]")
+        page.wait_for_timeout(300)
+        check("objectives opens", page.is_visible(".sr-objmodal.is-open"))
+        check("objectives listed", page.locator(".sr-obj-list li").count() >= 8)
+        page.screenshot(path=str(SHOTS / "sr_objectives.png"))
+        page.click("[data-obj-close]")
+        page.wait_for_timeout(200)
+
         # Start the run
         page.click("[data-start]")
         page.wait_for_timeout(400)
@@ -78,7 +100,8 @@ def main():
         page.wait_for_timeout(1400)
         page.screenshot(path=str(SHOTS / "sr_play.png"))
 
-        meters = page.evaluate("() => window.__srDebug ? window.__srDebug.meters : -1")
+        meters = page.evaluate("() => window.__sr ? window.__sr.meters : -1")
+        check("meters advancing", meters > 1, f"meters={meters:.0f}")
 
         # Lane changes + slide + jump shouldn't throw and cat should animate
         page.keyboard.press("ArrowLeft")
@@ -95,24 +118,95 @@ def main():
         check("jump pose active", page.evaluate("() => window.__sr.action") == "jumping")
         page.screenshot(path=str(SHOTS / "sr_jump.png"))
 
-        # Rescue pickup: drop a collectible in the player's lane at the plane.
+        # Rescue pickup: drop a pet token in the player's lane at the plane.
         rescued_before = page.evaluate("() => window.__sr.rescuedCount")
         page.evaluate("""() => {
           const g = window.__sr;
-          g.collectibles.push({ id: 8888, lane: g.targetLane,
+          g.collectibles.push({ id: 8888, kind: 'pet', lane: g.targetLane,
                                 worldZ: g.cameraZ + 130, collected: false, pet: null });
         }""")
         page.wait_for_timeout(600)
         check("rescue pickup counted",
               page.evaluate("() => window.__sr.rescuedCount") > rescued_before)
 
-        # Milestone cross: move the camera to just under 500m (meters derive
-        # from cameraZ via distScale = 0.009) → banner + confetti.
-        # Top up lives + invincibility so a random hit can't end the run
-        # between the camera jump and the threshold cross.
+        # Treat pickup: same path, kind 'treat' feeds treatsRun.
         page.evaluate("""() => {
           const g = window.__sr;
-          g.lives = 3; g.invincibleT = 30;
+          g.collectibles.push({ id: 8889, kind: 'treat', lane: g.targetLane,
+                                worldZ: g.cameraZ + 130, collected: false,
+                                tier: 'bronze', value: 1 });
+        }""")
+        page.wait_for_timeout(600)
+        check("treat pickup counted",
+              page.evaluate("() => window.__sr.treatsRun") >= 1)
+
+        # ── Two-strike chase ──────────────────────────────────────────────
+        # Strike one: forced hit while clean → pack releases (chase.active).
+        page.evaluate("""() => {
+          const g = window.__sr;
+          g.invincibleT = 0; g.effects = { magnet: 0, ghost: 0, boost: 0 };
+          g.obstacles.push({ id: 9991, type: 'lane_block', lane: g.targetLane,
+                             worldZ: g.cameraZ + 205, passed: false, variant: 0 });
+        }""")
+        page.wait_for_timeout(700)
+        check("strike one releases the pack",
+              page.evaluate("() => window.__sr.chase.active") == True)
+        check("pack visible (intensity rising)",
+              page.evaluate("() => window.__sr.chase.intensity") > 0)
+        check("still alive after strike one",
+              page.evaluate("() => window.__sr.state") == "PLAYING")
+        page.screenshot(path=str(SHOTS / "sr_chase.png"))
+
+        # Escape: drain the recovery clock → pack retreats, lives restored.
+        page.evaluate("""() => {
+          const g = window.__sr;
+          g.invincibleT = 12;   // stay clean while the clock drains
+          g.chase.t = 0.4;
+        }""")
+        page.wait_for_timeout(900)
+        check("clean play escapes the pack",
+              page.evaluate("() => window.__sr.chase.active") == False)
+        check("lives restored after escape",
+              page.evaluate("() => window.__sr.lives") == 2)
+
+        # Strike two while the pack is out → caught → death.
+        page.evaluate("""() => {
+          const g = window.__sr;
+          g.chase.active = true; g.chase.t = 8; g.chase.intensity = 1;
+          g.invincibleT = 0;
+          g.obstacles.push({ id: 9992, type: 'lane_block', lane: g.targetLane,
+                             worldZ: g.cameraZ + 205, passed: false, variant: 0 });
+        }""")
+        try:
+            page.wait_for_selector(".sr-over.is-open", timeout=12000)
+            state = True
+        except Exception:
+            state = False
+        check("strike two caught → game over", state)
+        check("caught flag set", page.evaluate("() => window.__sr.caught") == True)
+        page.screenshot(path=str(SHOTS / "sr_caught.png"))
+
+        # Retry restarts cleanly — chase state fully cleared.
+        if state:
+            page.click("[data-retry]")
+            page.wait_for_timeout(500)
+            check("retry resets to READY", page.evaluate("() => window.__sr.state") in ("READY", "PLAYING"),
+                  page.evaluate("() => window.__sr.state"))
+            check("chase cleared on retry",
+                  page.evaluate("() => window.__sr.chase.active") == False)
+
+        # ── Fresh page for milestone + boost coverage ─────────────────────
+        page.goto(GAME, wait_until="domcontentloaded")
+        page.wait_for_timeout(2200)
+        page.click("[data-start]")
+        page.wait_for_timeout(300)
+        page.keyboard.press("ArrowUp")
+        page.wait_for_timeout(800)
+
+        # Milestone cross: move the camera to just under 500m.
+        page.evaluate("""() => {
+          const g = window.__sr;
+          g.invincibleT = 30;
           g.cameraZ = 497 / 0.009;
         }""")
         page.wait_for_timeout(1600)
@@ -122,36 +216,17 @@ def main():
               page.evaluate("() => window.__sr.confetti.length") > 0)
         page.screenshot(path=str(SHOTS / "sr_milestone.png"))
 
-        # Canvas is actually drawing — screenshot the play state for review
-        # (pixel reads are unavailable: remote pet photos may taint the canvas)
-
-        # Force a death: park a lane-block on the player's lane at playerZ
-        # with lives=1 → hitPlayer → DYING → GAME_OVER → over panel.
+        # Boost autopilot: enable + verify it survives a stretch + collects.
         page.evaluate("""() => {
           const g = window.__sr;
-          g.lives = 1;
-          g.invincibleT = 0;
-          g.obstacles.push({ id: 9999, type: 'lane_block', lane: g.targetLane,
-                             worldZ: g.cameraZ + 200, passed: false, variant: 0 });
+          g.upgrades.boost = 3;
+          g.effects.boost = 4; g.boostEndM = g.meters + 400;
+          g.invincibleT = 8;
         }""")
-        # Death → DYING (~1.1s) → GAME_OVER, then the over panel opens after
-        # the async leaderboard/profile fetch resolves (slow when the API is
-        # origin-locked) — wait on the selector, not a fixed delay.
-        try:
-            page.wait_for_selector(".sr-over.is-open", timeout=12000)
-            state = True
-        except Exception:
-            state = False
-        page.screenshot(path=str(SHOTS / "sr_late.png"))
-        check("game over panel opens on death", state)
-        check("retry button present", page.is_visible("[data-retry]"))
-
-        # Retry restarts cleanly
-        if state:
-            page.click("[data-retry]")
-            page.wait_for_timeout(500)
-            check("retry resets to READY", page.evaluate("() => window.__sr.state") in ("READY", "PLAYING"),
-                  page.evaluate("() => window.__sr.state"))
+        page.wait_for_timeout(1200)
+        check("boost runs at max speed",
+              page.evaluate("() => Math.abs(window.__sr.speed - 23) < 0.5"))
+        page.screenshot(path=str(SHOTS / "sr_boost.png"))
 
         check("no page errors", not errors, "; ".join(errors[:3]) or "clean")
         browser.close()

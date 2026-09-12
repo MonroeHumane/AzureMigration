@@ -234,12 +234,13 @@ export async function claimObjective(key) {
   if (!user) {
     const p = readLocalProgress() || {};
     p.objectives = Array.isArray(p.objectives) ? p.objectives : [];
-    if (!p.objectives.includes(key)) {
+    const already = p.objectives.includes(key);
+    if (!already) {
       p.objectives.push(key);
       p.multiplier = (p.multiplier || 1) + 1;
       writeLocalProgress(p);
     }
-    return { ok: true, already: false, multiplier: p.multiplier, local: true };
+    return { ok: true, already, multiplier: p.multiplier, objectives: p.objectives, local: true };
   }
   try {
     await ensureSession();

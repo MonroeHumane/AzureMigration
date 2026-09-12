@@ -47,6 +47,7 @@ async function refreshProgress() {
     applyProgress(g, p);
   }
   g.rescuesAll = rescuesTotal;
+  g.runsPlayed = gamesPlayed;
   ui.renderStore(progress, coinBalance || 0);
   ui.renderObjectives(progress);
   return progress;
@@ -285,16 +286,22 @@ g.onPickup = c => {
   ui.toast(PICKUP_TOAST[c.kind] || 'Power-up!', { rare: c.kind === 'boost' });
 };
 
-// Objective satisfied mid-run → claim it now (server dedupes).
+// Objective satisfied mid-run → claim it now (server dedupes). A failed claim
+// leaves the key un-pended so the next poll retries it.
 g.onObjective = key => {
   arcade.claimObjective(key).then(res => {
-    if (res && res.ok && !res.already) {
-      g.multiplier = res.multiplier || g.multiplier;
-      ui.toast(`🎯 Objective complete — multiplier ×${g.multiplier}!`, { rare: true, ms: 4200 });
-      sfx.medal();
-      if (progress) { progress.objectives = res.objectives; progress.multiplier = res.multiplier; }
+    g.claimPending.delete(key);
+    if (res && res.ok) {
+      if (!g.claimedObjectives.includes(key)) g.claimedObjectives.push(key);
+      if (!res.already) {
+        g.multiplier = res.multiplier || g.multiplier;
+        ui.toast(`🎯 Objective complete — multiplier ×${g.multiplier}!`, { rare: true, ms: 4200 });
+        sfx.medal();
+        if (progress) { progress.objectives = res.objectives; progress.multiplier = res.multiplier; }
+      }
     }
-  }).catch(() => {});
+    // !res.ok or network failure → key drops out of pending, retried next poll
+  }).catch(() => { g.claimPending.delete(key); });
 };
 
 g.onCollect = c => {
@@ -339,7 +346,7 @@ g.onDeath = async meters => {
 
   // Final objective drain — distance/rescue objectives complete at run end.
   for (const k of claimableObjectives(g)) {
-    g.claimedObjectives.push(k);
+    g.claimPending.add(k);
     g.onObjective(k);
   }
 
@@ -447,6 +454,7 @@ function frame(now) {
   }
   const speedT = Math.max(0, Math.min(1, (g.speed - PHYS.speedBase) / (PHYS.speedMax - PHYS.speedBase)));
   setWind(g.state === 'PLAYING' ? speedT : 0);
+  setChaseDrone(g.state === 'PLAYING' && g.chase.active);
 
   const phase = g.state === 'PLAYING' || g.state === 'DYING' ? 'playing'
     : g.state === 'GAME_OVER' ? 'over' : 'menu';

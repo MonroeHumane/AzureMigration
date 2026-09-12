@@ -47,6 +47,18 @@ jobs:
           cd frontend
           npm run check
 
+      # Games under public/ ship as plain browser ES modules — Astro's check
+      # doesn't parse them. node --check catches syntax errors that would
+      # otherwise ship dead-on-arrival to players.
+      - name: Game JS syntax check
+        run: |
+          cd frontend
+          fail=0
+          while IFS= read -r f; do
+            if ! node --check "$f"; then fail=1; fi
+          done < <(find public/games -name '*.js' -type f)
+          exit $fail
+
       - name: Build Astro Static Site
         run: |
           cd frontend
