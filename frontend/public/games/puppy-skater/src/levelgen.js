@@ -87,7 +87,7 @@ export function nextGapMs(rand, meters, lastWasHard) {
 }
 
 function pickColor(rand) { return BLOCK_COLORS[Math.floor(rand() * BLOCK_COLORS.length)]; }
-function pickFish(rand) { return rand() < 0.5 ? 'fish_red.png' : 'fish_blue.png'; }
+function pickFish(rand) { return 'fish_red.png'; } // red reads as hazard — the "bird"
 
 // Spawns one cluster anchored at world px atX. `approachPxMs` = world px per ms of
 // approach at current speed (speed + flySpeed for flyers is handled per-element).

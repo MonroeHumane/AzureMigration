@@ -25,13 +25,20 @@ function lerpColor(a, b, t) {
   return al >= 0.999 ? `rgb(${r},${g},${bl})` : `rgba(${r},${g},${bl},${al.toFixed(3)})`;
 }
 const BLEND_M = 170;
-function blendedBiome(m) {
+function blendedBiome(m, nightStart) {
   const cycled = m % BIOME_CYCLE_RESET;
   let idx = 0;
   for (let i = 0; i < BIOMES.length; i++) if (cycled >= BIOMES[i].min) idx = i;
-  const cur = BIOMES[idx];
-  const next = BIOMES[(idx + 1) % BIOMES.length];
-  const nextMin = idx + 1 < BIOMES.length ? next.min : BIOME_CYCLE_RESET;
+  let cur = BIOMES[idx];
+  let next = BIOMES[(idx + 1) % BIOMES.length];
+  let nextMin = idx + 1 < BIOMES.length ? next.min : BIOME_CYCLE_RESET;
+  if (nightStart && cycled < BIOMES[1].min) {
+    // Dark launcher theme: the opening leg skates under the night palette,
+    // then blends into Wildflower Walk at the normal 500m seam.
+    cur = BIOMES[BIOMES.length - 1];
+    next = BIOMES[1];
+    nextMin = BIOMES[1].min;
+  }
   const t = Math.max(0, Math.min(1, (cycled - (nextMin - BLEND_M)) / BLEND_M));
   if (t <= 0) return cur;
   const mix = {};
@@ -81,7 +88,7 @@ function tinted(images, key, color) {
 
 export function drawGame(ctx, g, assets, reducedMotion, debug) {
   const { images, dogDef, petDeck } = assets;
-  const biome = blendedBiome(g.meters);
+  const biome = blendedBiome(g.meters, g.nightStart);
   const W = VIEW.W, H = VIEW.H;
   const speedT = Math.max(0, Math.min(1, (g.speed - PHYS.speedBase) / (PHYS.speedMax - PHYS.speedBase)));
 
@@ -108,10 +115,13 @@ export function drawGame(ctx, g, assets, reducedMotion, debug) {
   if (g.flash > 0) { ctx.fillStyle = `rgba(255,244,230,${(g.flash * 0.8).toFixed(3)})`; ctx.fillRect(-10, -10, W + 20, H + 20); }
   if (g.hurtFlash > 0) { ctx.fillStyle = `rgba(220,60,50,${(g.hurtFlash * 0.35).toFixed(3)})`; ctx.fillRect(-10, -10, W + 20, H + 20); }
 
-  const vig = ctx.createRadialGradient(W / 2, H * 0.55, H * 0.3, W / 2, H * 0.55, H * 0.75);
-  vig.addColorStop(0, 'rgba(0,0,0,0)');
-  vig.addColorStop(1, 'rgba(8,14,20,0.30)');
-  ctx.fillStyle = vig;
+  // Vignette — static gradient, built once (allocating it per frame is pure churn)
+  if (!vigCache) {
+    vigCache = ctx.createRadialGradient(W / 2, H * 0.55, H * 0.3, W / 2, H * 0.55, H * 0.75);
+    vigCache.addColorStop(0, 'rgba(0,0,0,0)');
+    vigCache.addColorStop(1, 'rgba(8,14,20,0.30)');
+  }
+  ctx.fillStyle = vigCache;
   ctx.fillRect(0, 0, W, H);
 
   drawConfetti(ctx, g);
@@ -121,22 +131,55 @@ export function drawGame(ctx, g, assets, reducedMotion, debug) {
   if (debug) drawDebug(ctx, g);
 }
 
+// Gradient caches — keyed by palette; rebuilt only when the biome blend changes.
+let vigCache = null;
+let skyCache = { key: '', grad: null };
+const glowCache = new Map();  // sun color -> 180px radial sprite
+let haloSprite = null;        // shared collectible halo
+
+function sunGlowSprite(color) {
+  let c = glowCache.get(color);
+  if (c) return c;
+  c = document.createElement('canvas');
+  c.width = c.height = 180;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(90, 90, 8, 90, 90, 90);
+  g.addColorStop(0, color);
+  g.addColorStop(0.35, fade(color, 0.33));
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 180, 180);
+  glowCache.set(color, c);
+  return c;
+}
+
+function getHaloSprite() {
+  if (haloSprite) return haloSprite;
+  const c = document.createElement('canvas');
+  c.width = c.height = 96;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(48, 48, 10, 48, 48, 48);
+  g.addColorStop(0, 'rgba(255,209,102,0.55)');
+  g.addColorStop(1, 'rgba(255,209,102,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 96, 96);
+  haloSprite = c;
+  return c;
+}
+
 function drawSky(ctx, biome, t, images) {
   const W = VIEW.W;
-  const grad = ctx.createLinearGradient(0, 0, 0, GY);
-  grad.addColorStop(0, biome.sky[0]);
-  grad.addColorStop(1, biome.sky[1]);
-  ctx.fillStyle = grad;
+  const skyKey = biome.sky[0] + '|' + biome.sky[1];
+  if (skyCache.key !== skyKey) {
+    const grad = ctx.createLinearGradient(0, 0, 0, GY);
+    grad.addColorStop(0, biome.sky[0]);
+    grad.addColorStop(1, biome.sky[1]);
+    skyCache = { key: skyKey, grad };
+  }
+  ctx.fillStyle = skyCache.grad;
   ctx.fillRect(0, 0, W, GY + 2);
 
   // Sun / moon — drifts slowly down as the run goes on
   const sx = W * 0.24, sy = 92 + Math.sin(t * 0.12) * 4;
-  const glow = ctx.createRadialGradient(sx, sy, 8, sx, sy, 90);
-  glow.addColorStop(0, biome.sun);
-  glow.addColorStop(0.35, fade(biome.sun, 0.33));
-  glow.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = glow;
-  ctx.fillRect(sx - 90, sy - 90, 180, 180);
+  ctx.drawImage(sunGlowSprite(biome.sun), sx - 90, sy - 90);
   ctx.fillStyle = biome.sun;
   ctx.beginPath(); ctx.arc(sx, sy, 30, 0, Math.PI * 2); ctx.fill();
 
@@ -229,11 +272,8 @@ function drawCollectibles(ctx, g, images, petDeck) {
     }
     ctx.globalAlpha = 1;
 
-    const halo = ctx.createRadialGradient(x, y, r * 0.4, x, y, r * 1.9);
-    halo.addColorStop(0, 'rgba(255,209,102,0.55)');
-    halo.addColorStop(1, 'rgba(255,209,102,0)');
-    ctx.fillStyle = halo;
-    ctx.beginPath(); ctx.arc(x, y, r * 1.9, 0, Math.PI * 2); ctx.fill();
+    const haloR = r * 1.9;
+    ctx.drawImage(getHaloSprite(), x - haloR, y - haloR, haloR * 2, haloR * 2);
 
     const img = c.pet && c.pet.img;
     if (img && img.complete && img.naturalWidth) {
@@ -364,7 +404,8 @@ function drawBanner(ctx, g) {
   ctx.globalAlpha = Math.max(0, a);
   const y = 136 - (1 - a) * 16;
   ctx.font = '800 25px system-ui, sans-serif';
-  const pw = Math.max(210, ctx.measureText(b.text).width + 60);
+  if (!b._pw) b._pw = Math.max(210, ctx.measureText(b.text).width + 60); // cache per banner
+  const pw = b._pw;
   const ph = b.sub ? 60 : 46;
   ctx.fillStyle = 'rgba(12,30,26,0.74)';
   roundRect(ctx, (W - pw) / 2, y, pw, ph, 14); ctx.fill();

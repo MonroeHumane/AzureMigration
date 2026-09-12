@@ -13,6 +13,15 @@ export function biomeForMeters(m) {
   return b;
 }
 
+// Theme-aware biome: when the launcher is in dark theme the opening leg
+// (the morning-city slot) runs under Starlight Skate instead; dawn breaks
+// into the meadow at the normal 500m seam.
+export function biomeForGame(g) {
+  const cycled = g.meters % BIOME_CYCLE_RESET;
+  if (g.nightStart && cycled < BIOMES[1].min) return BIOMES[BIOMES.length - 1];
+  return biomeForMeters(g.meters);
+}
+
 export function createGame() {
   return {
     state: 'READY',            // READY | PLAYING | DYING | GAME_OVER | PAUSED
@@ -27,6 +36,7 @@ export function createGame() {
     // Player
     action: 'running',         // running | jumping | ducking
     actionT: 0,
+    buffered: null,            // queued input for the landing frame
     worldY: 0,                 // height above the pavement
     lives: PHYS.lives,
     invincibleT: 0,
@@ -40,6 +50,7 @@ export function createGame() {
     shake: 0, flash: 0, hurtFlash: 0, hitStop: 0,
     banner: null,              // { text, sub, t, dur }
     biomeId: 'city',
+    nightStart: false,         // launcher dark theme → opening leg runs at night
     time: 0, deadT: 0,
     // Run stats
     rescued: [],               // [{id,name,photo}] pets picked up this run
@@ -58,14 +69,14 @@ export function resetRun(g) {
   g.lastWasHard = false;
   g.obstacles = [];
   g.collectibles = [];
-  g.action = 'running'; g.actionT = 0; g.worldY = 0;
+  g.action = 'running'; g.actionT = 0; g.worldY = 0; g.buffered = null;
   g.lives = PHYS.lives; g.invincibleT = 0;
   g.squashY = 1; g.stretchX = 1; g.landFlash = 0; g.lean = 0;
   g.hitT = 0;
   g.puffs = []; g.sparkles = []; g.confetti = [];
   g.popups = []; g.speedlines = [];
   g.shake = 0; g.flash = 0; g.hurtFlash = 0; g.hitStop = 0;
-  g.banner = null; g.biomeId = 'city';
+  g.banner = null; g.biomeId = g.nightStart ? 'night' : 'city';
   g.deadT = 0;
   g.rescued = []; g.rescuedCount = 0; g.rescueStreak = 0;
   g.state = 'READY';
@@ -88,9 +99,15 @@ export function setBanner(g, text, sub = '', dur = 2.4) {
   g.banner = { text, sub, t: dur, dur };
 }
 
+// Input buffer — a press in the back half of an action queues for the landing
+// frame instead of being dropped. This is what makes chained ollies feel crisp.
 export function jump(g) {
   if (g.state === 'READY') { g.state = 'PLAYING'; return; }
-  if (g.state !== 'PLAYING' || g.action !== 'running') return;
+  if (g.state !== 'PLAYING') return;
+  if (g.action !== 'running') {
+    if (g.actionT > 0.55) g.buffered = 'jump';
+    return;
+  }
   g.action = 'jumping'; g.actionT = 0;
   g.squashY = 1.1; g.stretchX = 0.9;
   g.lean = -1;
@@ -102,7 +119,19 @@ export function jump(g) {
 
 export function duck(g) {
   if (g.state === 'READY') { g.state = 'PLAYING'; return; }
-  if (g.state !== 'PLAYING' || g.action !== 'running') return;
+  if (g.state !== 'PLAYING') return;
+  if (g.action !== 'running') {
+    // Slam-down: duck pressed while rising fast-forwards past the apex —
+    // the pup drops early instead of riding out the full arc.
+    if (g.action === 'jumping' && g.actionT < 0.55) {
+      g.actionT = Math.max(g.actionT, 0.55);
+      g.lean = 0.4;
+      if (g.onDuck) g.onDuck();
+      return;
+    }
+    if (g.actionT > 0.55) g.buffered = 'duck';
+    return;
+  }
   g.action = 'ducking'; g.actionT = 0;
   g.squashY = 0.68; g.stretchX = 1.28;
   g.lean = 0.6;
@@ -140,7 +169,7 @@ function hitPlayer(g, o) {
   g.shake = 0.5;
   g.hitT = 0.55;
   g.rescueStreak = 0;
-  g.action = 'running'; g.actionT = 0; g.worldY = 0;
+  g.action = 'running'; g.actionT = 0; g.worldY = 0; g.buffered = null;
   // Impact burst — debris kicks forward off the crash point
   for (let i = 0; i < 10; i++) {
     g.puffs.push({ x: WORLD.playerX + rand(0, 30), y: GY - rand(8, 60),
@@ -193,6 +222,11 @@ export function update(g, dt) {
         }
         if (g.onLand) g.onLand();
       }
+      // Fire a queued input on the landing/rise frame — no dead presses.
+      const queued = g.buffered;
+      g.buffered = null;
+      if (queued === 'jump') jump(g);
+      else if (queued === 'duck') duck(g);
     }
   }
   g.lean *= Math.max(0, 1 - dt * (g.action === 'jumping' ? 0 : 9));
@@ -207,7 +241,7 @@ export function update(g, dt) {
   g.hitT = Math.max(0, g.hitT - dt);
 
   // Biome-change banner
-  const b = biomeForMeters(g.meters);
+  const b = biomeForGame(g);
   if (b.id !== g.biomeId && g.state === 'PLAYING') {
     g.biomeId = b.id;
     g.banner = { text: b.label, sub: 'New block ahead', t: 2.4, dur: 2.4 };

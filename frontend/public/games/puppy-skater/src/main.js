@@ -30,6 +30,10 @@ setMuted(muted);
 
 const g = createGame();
 g.best = best;
+// Launcher theme → night opening leg. Read from the cabinet's ?theme= param;
+// live changes arrive via arcade:set_theme below. No per-game toggle.
+function applyLauncherTheme(theme) { g.nightStart = theme === 'dark'; }
+applyLauncherTheme(new URLSearchParams(location.search).get('theme'));
 window.__ps = g; // debug/test hook (same role as shelter-run's __sr)
 let petDeck = [];           // pets available to rescue this run
 const petImgCache = new Map();
@@ -191,6 +195,7 @@ addEventListener('message', e => {
   const d = e.data;
   if (!d || typeof d !== 'object') return;
   if (d.type === 'arcade:set_mute') { muted = !!d.muted; setMuted(muted); writeLS(LS.mute, muted); document.getElementById('ps-mute').textContent = muted ? '🔇' : '🔊'; }
+  if (d.type === 'arcade:set_theme') applyLauncherTheme(d.theme);
   if (d.type === 'arcade:pause' && g.state === 'PLAYING') togglePause();
 });
 document.addEventListener('visibilitychange', () => {
