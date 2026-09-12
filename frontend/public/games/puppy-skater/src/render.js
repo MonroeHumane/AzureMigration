@@ -101,7 +101,8 @@ export function drawGame(ctx, g, assets, reducedMotion, debug) {
   drawParticles(ctx, g, images);
   drawPlayer(ctx, g, images, dogDef);
 
-  if (speedT > 0.5 && !reducedMotion && g.state === 'PLAYING') drawSpeedLines(ctx, speedT, g.time);
+  if (speedT > 0.4 && !reducedMotion && g.state === 'PLAYING') drawSpeedLines(ctx, g, speedT);
+  drawPopups(ctx, g);
   ctx.restore(); // end shake transform
 
   if (g.flash > 0) { ctx.fillStyle = `rgba(255,244,230,${(g.flash * 0.8).toFixed(3)})`; ctx.fillRect(-10, -10, W + 20, H + 20); }
@@ -283,20 +284,22 @@ function drawObstacles(ctx, g, images) {
       const img = images[`block_${o.color}.png`];
       const cols = Math.round(o.w / B);
       const bottom = GY - WORLD.hangBottom;
-      // Column hangs from the sky to head height — the duck wall
+      // Column hangs from the sky to head height — the duck wall.
+      // Slight sway so it reads as hanging, not a wall segment.
+      const sway = Math.sin(g.time * 1.7 + o.id) * 3;
       const rows = Math.ceil((bottom - 52) / B);
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          const bx = x + c * B - 1, by = bottom - (r + 1) * B - 1;
+          const bx = x + c * B - 1 + sway * (rows - r) / rows, by = bottom - (r + 1) * B - 1;
           if (img && img.naturalWidth) ctx.drawImage(img, bx, by, B + 2, B + 2);
         }
       }
-      // warning chevron on the lowest block
-      ctx.fillStyle = 'rgba(255,240,200,0.9)';
+      // warning chevron on the lowest block — pulses
+      ctx.fillStyle = `rgba(255,240,200,${0.65 + 0.3 * Math.sin(g.time * 7 + o.id)})`;
       ctx.beginPath();
-      ctx.moveTo(x + o.w / 2 - 9, bottom - 14);
-      ctx.lineTo(x + o.w / 2 + 9, bottom - 14);
-      ctx.lineTo(x + o.w / 2, bottom - 4);
+      ctx.moveTo(x + o.w / 2 - 9 + sway, bottom - 14);
+      ctx.lineTo(x + o.w / 2 + 9 + sway, bottom - 14);
+      ctx.lineTo(x + o.w / 2 + sway, bottom - 4);
       ctx.closePath(); ctx.fill();
     } else {
       // Flyers — bob + wiggle, face left into the pup's path
@@ -315,21 +318,38 @@ function drawObstacles(ctx, g, images) {
   }
 }
 
-function drawSpeedLines(ctx, speedT, t) {
-  const W = VIEW.W;
-  const n = Math.floor(4 + speedT * 9);
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 2;
-  for (let i = 0; i < n; i++) {
-    const seed = hash2(i, Math.floor(t * 9));
-    const y = 60 + seed * (GY - 140);
-    const len = 26 + speedT * 70 + seed * 22;
-    const x = W - 8 - hash2(i, 71) * (W * 0.7);
-    ctx.globalAlpha = (speedT - 0.5) * (0.3 + seed * 0.4);
+function drawSpeedLines(ctx, g, speedT) {
+  // engine-streamed streaks — they live in world space so they read as motion,
+  // not flicker
+  ctx.lineCap = 'round';
+  for (const l of g.speedlines) {
+    ctx.globalAlpha = Math.min(0.55, l.life * 1.6) * speedT;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.4;
     ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + len, y);
+    ctx.moveTo(l.x, l.y);
+    ctx.lineTo(l.x + l.len, l.y);
     ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// Floating popups — near-miss praise etc. Rise handled in engine; render pops in + fades.
+function drawPopups(ctx, g) {
+  for (const p of g.popups) {
+    const pop = Math.min(1, p.t * 8);
+    const a = Math.min(1, (p.life - p.t) * 2.2);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.scale(0.6 + 0.4 * pop, 0.6 + 0.4 * pop);
+    ctx.globalAlpha = Math.max(0, a);
+    ctx.font = '800 17px system-ui, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(20,30,25,0.8)';
+    ctx.strokeText(p.text, 0, 0);
+    ctx.fillStyle = '#ffe27a';
+    ctx.fillText(p.text, 0, 0);
+    ctx.restore();
   }
   ctx.globalAlpha = 1;
 }

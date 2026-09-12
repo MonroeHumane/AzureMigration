@@ -36,7 +36,8 @@ export function createGame() {
     hitT: 0,                   // hit-tumble timer (render)
     // FX
     puffs: [], sparkles: [], confetti: [],
-    shake: 0, flash: 0, hurtFlash: 0,
+    popups: [], speedlines: [],
+    shake: 0, flash: 0, hurtFlash: 0, hitStop: 0,
     banner: null,              // { text, sub, t, dur }
     biomeId: 'city',
     time: 0, deadT: 0,
@@ -62,7 +63,8 @@ export function resetRun(g) {
   g.squashY = 1; g.stretchX = 1; g.landFlash = 0; g.lean = 0;
   g.hitT = 0;
   g.puffs = []; g.sparkles = []; g.confetti = [];
-  g.shake = 0; g.flash = 0; g.hurtFlash = 0;
+  g.popups = []; g.speedlines = [];
+  g.shake = 0; g.flash = 0; g.hurtFlash = 0; g.hitStop = 0;
   g.banner = null; g.biomeId = 'city';
   g.deadT = 0;
   g.rescued = []; g.rescuedCount = 0; g.rescueStreak = 0;
@@ -139,15 +141,26 @@ function hitPlayer(g, o) {
   g.hitT = 0.55;
   g.rescueStreak = 0;
   g.action = 'running'; g.actionT = 0; g.worldY = 0;
+  // Impact burst — debris kicks forward off the crash point
+  for (let i = 0; i < 10; i++) {
+    g.puffs.push({ x: WORLD.playerX + rand(0, 30), y: GY - rand(8, 60),
+                   vx: rand(40, 160), vy: rand(-180, -30), life: rand(0.3, 0.55) });
+  }
+  g.hitStop = 0.09;
+  g.popups.push({ x: WORLD.playerX + 14, y: GY - 130,
+                  text: g.lives <= 0 ? 'wipeout!' : 'ouch!', t: 0, life: 1.0 });
   if (g.onHit) g.onHit(g.lives, o);
   if (g.lives <= 0) {
     g.state = 'DYING';
     g.deadT = 0;
+    g.shake = 1;
     if (g.onDeath) g.onDeath(Math.floor(g.meters));
   }
 }
 
 export function update(g, dt) {
+  // Hitstop — brief slow-mo on impact makes the crash read
+  if (g.hitStop > 0) { g.hitStop -= dt; dt *= 0.22; }
   g.time += dt;
   const frames = dt * 60;
 
@@ -162,19 +175,27 @@ export function update(g, dt) {
     const durMs = g.action === 'jumping' ? PHYS.jumpMs : PHYS.duckMs;
     g.actionT = Math.min(1, g.actionT + dt / (durMs / 1000));
     g.worldY = g.action === 'jumping' ? PHYS.jumpHeight * Math.sin(g.actionT * Math.PI) : 0;
-    if (g.action === 'jumping' && g.actionT > 0.35 && g.actionT < 0.65) {
-      g.squashY = Math.max(g.squashY, 1.08); g.stretchX = Math.min(g.stretchX, 0.92);
+    if (g.action === 'jumping') {
+      // Board-pop lean: nose up on the rise, dips through the fall
+      g.lean = Math.cos(g.actionT * Math.PI) * 0.85;
+      if (g.actionT > 0.35 && g.actionT < 0.65) {
+        g.squashY = Math.max(g.squashY, 1.08); g.stretchX = Math.min(g.stretchX, 0.92);
+      }
     }
     if (g.actionT >= 1) {
       const wasJump = g.action === 'jumping';
       g.action = 'running'; g.actionT = 0; g.worldY = 0;
       if (wasJump) {
-        g.squashY = 0.72; g.stretchX = 1.26; g.landFlash = 1;
+        g.squashY = 0.72; g.stretchX = 1.26; g.landFlash = 1; g.lean = 0;
+        for (let i = 0; i < 5; i++) {
+          g.puffs.push({ x: WORLD.playerX + rand(-26, 26), y: GY - 2,
+                         vx: rand(-90, 90), vy: rand(-60, -15), life: rand(0.18, 0.34) });
+        }
         if (g.onLand) g.onLand();
       }
     }
   }
-  g.lean *= Math.max(0, 1 - dt * 9);
+  g.lean *= Math.max(0, 1 - dt * (g.action === 'jumping' ? 0 : 9));
 
   // Ease squash/stretch back
   const ease = Math.min(1, dt / 0.12);
@@ -217,6 +238,25 @@ export function update(g, dt) {
   g.puffs = g.puffs.filter(p => p.life > 0);
   for (const s of g.sparkles) { s.x -= scroll * frames; s.life -= dt; s.rot += dt * 6; }
   g.sparkles = g.sparkles.filter(s => s.life > 0);
+
+  // Floating text popups — rise, pop in, fade out
+  for (const p of g.popups) { p.t += dt; p.y -= 46 * dt; }
+  g.popups = g.popups.filter(p => p.t < p.life);
+
+  // Speed lines — air streaks once the run is actually fast
+  const speedT = Math.max(0, Math.min(1, (g.speed - PHYS.speedBase) / (PHYS.speedMax - PHYS.speedBase)));
+  if (g.state === 'PLAYING' && speedT > 0.4) {
+    if (Math.random() < dt * (speedT - 0.4) * 34) {
+      g.speedlines.push({ x: VIEW.W + rand(0, 120), y: rand(60, GY - 80), len: rand(26, 90) * speedT, life: 0.5 });
+    }
+  }
+  for (const l of g.speedlines) { l.x -= (scroll * 2.1 + 140) * frames; l.life -= dt; }
+  g.speedlines = g.speedlines.filter(l => l.life > 0 && l.x + l.len > -10);
+
+  // Run dust — wheels kicking up grit when cruising
+  if (g.state === 'PLAYING' && g.action === 'running' && speedT > 0.25 && Math.random() < dt * 9) {
+    g.puffs.push({ x: WORLD.playerX + rand(-34, -18), y: GY - 2, vx: rand(-70, -30), vy: rand(-50, -10), life: rand(0.2, 0.38) });
+  }
 
   if (g.state === 'DYING') {
     g.deadT += dt;
@@ -281,6 +321,9 @@ export function update(g, dt) {
       const gap = Math.max(or.top - pr.bottom, pr.top - or.bottom);
       if (!o.nearMissed && gap < 34 && g.action !== 'running') {
         o.nearMissed = true;
+        const words = g.action === 'jumping' ? ['close!', 'nice ollie!', 'phew!'] : ['smooth!', 'low rider!', 'nice!'];
+        g.popups.push({ x: WORLD.playerX + rand(-6, 20), y: GY - g.worldY - 118,
+                        text: words[(Math.random() * words.length) | 0], t: 0, life: 0.9 });
         if (g.onNearMiss) g.onNearMiss(o);
       }
     }

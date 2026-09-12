@@ -153,6 +153,17 @@ export async function fetchProfile() {
   return r.ok ? r.data : null;
 }
 
+// Settle a run's rescues → packs (server: floor(rescues/20), no carry-over).
+export async function earnRescuePacks(rescues) {
+  const user = dexUser();
+  if (!user || !rescues) return null;
+  try {
+    await ensureSession();
+    const r = await post(`adoptedex/${encodeURIComponent(user)}/packs/earn`, { game_id: GAME_ID, rescues: rescues | 0 });
+    return r.ok && r.data && r.data.ok ? r.data : null;
+  } catch (e) { return null; }
+}
+
 // Batch-report rescued pets → Adoptédex discoveries (server dedupes).
 export async function reportDiscoveries(petIds) {
   if (!petIds || !petIds.length) return null;

@@ -21,7 +21,7 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickDog }) {
     <div class="ps-card">
       <p class="ps-eyebrow">Humane Arcade</p>
       <h1 class="ps-title">PUPPY SKATER</h1>
-      <p class="ps-sub"><kbd>↑</kbd> ollie over blocks &amp; low fish · <kbd>↓</kbd> duck under walls, high fish &amp; whales.<br>Pick up lost pets on the way — distance milestones earn packs.</p>
+      <p class="ps-sub"><kbd>↑</kbd> ollie over blocks &amp; low fish · <kbd>↓</kbd> duck under walls, high fish &amp; whales.<br>Pick up lost pets on the way — every 20 rescues in one run earns a pack.</p>
       <div class="ps-dogs" role="radiogroup" aria-label="Choose your pup"></div>
       <button type="button" class="ps-btn ps-btn-primary" data-start>Start Skating</button>
       <p class="ps-best" data-best></p>
@@ -73,6 +73,7 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickDog }) {
       <div class="ps-rescued" data-rescued hidden>
         <h2 class="ps-h2">Rescued this run</h2>
         <div class="ps-rescued-row" data-rescued-row></div>
+        <p class="ps-rescued-earn" data-earned hidden></p>
         <a class="ps-binder-link" data-binder-link target="_top" hidden>View in your Binder →</a>
       </div>
       <div class="ps-board">
@@ -173,7 +174,7 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickDog }) {
     hideStart() { hide(start); },
     selectDog,
 
-    showGameOver({ score, best, isNewBest, leaders, unopenedPacks, rescued }) {
+    showGameOver({ score, best, isNewBest, leaders, unopenedPacks, rescued, packsEarned }) {
       over.querySelector('[data-score]').textContent = score;
       over.querySelector('[data-best-run]').textContent = best;
       over.querySelector('[data-new-best]').hidden = !isNewBest;
@@ -190,7 +191,10 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickDog }) {
       if (rescued && rescued.length) {
         rw.hidden = false;
         rescued.slice(0, 8).forEach(pet => {
-          const chip = el('div', 'ps-rescued-chip');
+          const chip = el('a', 'ps-rescued-chip');
+          chip.href = pet.link || 'https://www.monroe-humane.org/adopt/';
+          chip.target = '_blank'; chip.rel = 'noopener';
+          chip.title = `Meet ${pet.name || 'this pet'} →`;
           if (pet.photo) {
             const img = el('img', '');
             img.src = pet.photo; img.alt = pet.name; img.loading = 'lazy';
@@ -200,6 +204,15 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickDog }) {
           row.appendChild(chip);
         });
         if (rescued.length > 8) row.appendChild(el('span', 'ps-rescued-more', `+${rescued.length - 8}`));
+        // Pack progress line — 1 pack per 20 rescues, this run only
+        const earn = over.querySelector('[data-earned]');
+        const packs = packsEarned | 0;
+        const left = rescued.length % 20;
+        earn.hidden = false;
+        earn.textContent = packs > 0
+          ? `🎁 ${packs} pack${packs > 1 ? 's' : ''} earned!${left ? ` ${20 - left} more rescues next run for another.` : ''}`
+          : `${20 - left} more rescues in a single run earns a pack.`;
+        earn.classList.toggle('is-earned', packs > 0);
         // Deep link to the Binder carrying the player's identity + api.
         const link = over.querySelector('[data-binder-link]');
         if (typeof MonroeAdoptedex !== 'undefined' && MonroeAdoptedex.getParams) {

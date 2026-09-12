@@ -743,6 +743,58 @@ class AdoptedexController
 
     // ─── Packs ───────────────────────────────────────────────────────────────
 
+    /**
+     * Per-run rescue pack grant: floor(rescues / 20) standard packs.
+     * Each call settles one run — nothing carries over, so a 50-rescue run
+     * pays 2 packs and a 10-rescue run pays 0. The rescue count is
+     * client-reported like discoveries/scores; it is clamped so a bad
+     * payload cannot mint absurd inventory.
+     */
+    private const RESCUES_PER_PACK = 20;
+    private const MAX_RESCUES_PER_RUN = 400;
+
+    public function earnRescuePacks(string $userSlug, string $gameId, int $rescues, ?int $sessionProfileId = null): array
+    {
+        if (!isset(self::REWARD_TABLE[$gameId])) {
+            return ['ok' => false, 'message' => 'Unknown game'];
+        }
+        $rescues = max(0, min(self::MAX_RESCUES_PER_RUN, $rescues));
+        $packs = intdiv($rescues, self::RESCUES_PER_PACK);
+
+        $this->db->beginTransaction();
+        try {
+            $resolved = $this->resolveMutableProfile($userSlug, $sessionProfileId);
+            if (isset($resolved['ok']) && $resolved['ok'] === false) {
+                $this->db->rollBack();
+                return $resolved;
+            }
+            $profileId = (int)$resolved['row']['id'];
+
+            if ($packs > 0) {
+                $this->grantPacks($profileId, 'standard', $packs, 'rescue_packs_' . $gameId);
+            }
+
+            $balStmt = $this->db->prepare("SELECT unopened_packs FROM dex_profiles WHERE id = ?");
+            $balStmt->execute([$profileId]);
+            $updated = $balStmt->fetch(PDO::FETCH_ASSOC) ?: ['unopened_packs' => 0];
+
+            $this->db->commit();
+
+            return [
+                'ok'             => true,
+                'rescues'        => $rescues,
+                'packsAwarded'   => $packs,
+                'packTier'       => 'standard',
+                'unopened_packs' => (int)$updated['unopened_packs'],
+                'packs_by_tier'  => $this->packsByTier($profileId, (int)$updated['unopened_packs']),
+                'game_id'        => $gameId,
+            ];
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
     public function openPack(string $userSlug, string $tier = 'standard', ?int $sessionProfileId = null): array
     {
         if (!isset(self::PACK_TIERS[$tier])) {

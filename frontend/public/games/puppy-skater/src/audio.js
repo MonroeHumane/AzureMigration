@@ -83,3 +83,51 @@ export const sfx = {
 export function setMuted(m) { muted = !!m; }
 export function isMuted() { return muted; }
 export function primeAudio() { ctx(); }
+
+// ── Tiny chiptune loop — lookahead step sequencer, tempo follows speed ──
+// bass pulse on quarters + square arp 8ths + hat ticks, quiet under the roll bed.
+let musTimer = null, musStep = 0, musBpm = 132, nextT = 0;
+const BASS = [110, 110, 130.81, 98];         // A1 A1 C2 G1 — driving minor vamp
+const ARP  = [220, 261.63, 329.63, 392, 329.63, 261.63, 220, 329.63];
+
+function noteAt(f, dur, type, vol, when) {
+  const ac = ctx(); if (!ac || muted) return;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(vol, when);
+  g.gain.exponentialRampToValueAtTime(0.001, when + dur);
+  o.connect(g).connect(ac.destination);
+  o.start(when); o.stop(when + dur + 0.03);
+}
+function hatAt(when) {
+  const ac = ctx(); if (!ac || muted) return;
+  const n = ac.createBufferSource();
+  const b = ac.createBuffer(1, ac.sampleRate * 0.03, ac.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  n.buffer = b;
+  const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 6500;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.025, when);
+  g.gain.exponentialRampToValueAtTime(0.001, when + 0.03);
+  n.connect(f).connect(g).connect(ac.destination); n.start(when);
+}
+function schedMusic() {
+  const ac = ctx(); if (!ac) return;
+  const eighth = 60 / musBpm / 2;
+  while (nextT < ac.currentTime + 0.18) {
+    const s = musStep % 8;
+    if (s % 2 === 0) noteAt(BASS[(musStep >> 3) % 4] * (s === 6 ? 1.5 : 1), eighth * 1.7, 'triangle', 0.055, nextT);
+    noteAt(ARP[s], eighth * 0.9, 'square', 0.028, nextT);
+    if (s % 2 === 1) hatAt(nextT);
+    nextT += eighth;
+    musStep++;
+  }
+}
+export function startMusic() {
+  const ac = ctx(); if (!ac || musTimer) return;
+  musStep = 0; nextT = ac.currentTime + 0.08;
+  musTimer = setInterval(schedMusic, 42);
+}
+export function stopMusic() { clearInterval(musTimer); musTimer = null; }
+export function setMusicTempo(t) { musBpm = 120 + t * 52; }  // 120→172 BPM by speed

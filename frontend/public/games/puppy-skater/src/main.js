@@ -3,7 +3,7 @@ import { VIEW, IMAGES, DOGS, MASCOT_TO_DOG, MILESTONES, GAME_ID, PHYS } from './
 import { createGame, resetRun, startRun, jump, duck, update, burstConfetti, setBanner } from './engine.js';
 import { drawGame } from './render.js';
 import { createUI } from './ui.js';
-import { sfx, setMuted, primeAudio, setRoll } from './audio.js';
+import { sfx, setMuted, primeAudio, setRoll, startMusic, stopMusic, setMusicTempo } from './audio.js';
 import * as arcade from './arcade.js';
 import * as pets from './pets.js';
 
@@ -207,7 +207,7 @@ g.onNearMiss = () => { sfx.nearMiss(); };
 g.onCollect = c => {
   const pet = c.pet;
   if (pet) {
-    g.rescued.push({ id: pet.id, name: pet.name, photo: pet.photo });
+    g.rescued.push({ id: pet.id, name: pet.name, photo: pet.photo, link: pet.link });
     sfx.rescue();
     ui.toast(`🐾 ${pet.name} rescued!`);
   } else {
@@ -249,13 +249,14 @@ g.onDeath = async score => {
     } catch (e) {}
   }
 
-  // Report rescued pets → Adoptédex discoveries (batched once per run)
-  const petIds = g.rescued.map(p => p.id).filter(Boolean);
-  arcade.reportDiscoveries(petIds).catch(() => {});
+  // Settle rescues → packs (every 20 in this run = 1 pack, no carry-over).
+  // Rescued pets no longer auto-enter the Binder — they earn packs instead.
+  const packsEarned = Math.floor(g.rescuedCount / 20);
+  const packSettle = arcade.earnRescuePacks(g.rescuedCount).catch(() => null);
 
   // Show the panel immediately — the leaderboard fills in when the fetch
   // resolves (a cold Azure container can take 10s+; don't gate the UI on it).
-  ui.showGameOver({ score, best, isNewBest, leaders: null, unopenedPacks: 0, rescued: g.rescued });
+  ui.showGameOver({ score, best, isNewBest, leaders: null, unopenedPacks: 0, rescued: g.rescued, packsEarned });
   arcade.getLeaderboard(10).then(leaders => ui.updateLeaderboard(leaders, score)).catch(() => {});
   const profile = await arcade.fetchProfile().catch(() => null);
 
@@ -284,10 +285,16 @@ g.onDeath = async score => {
   const saveData = { best, gamesPlayed, totalMeters, dogId, claimedMilestones: claimedThisDevice };
   arcade.pushCloudSave(saveData).catch(() => {});
 
-  const unopened = profile && typeof profile.unopened_packs === 'number'
-    ? profile.unopened_packs
-    : (profile && profile.profile && profile.profile.unopened_packs) || 0;
+  const settled = await packSettle;
+  const unopened = settled && typeof settled.unopened_packs === 'number'
+    ? settled.unopened_packs
+    : (profile && typeof profile.unopened_packs === 'number'
+        ? profile.unopened_packs
+        : (profile && profile.profile && profile.profile.unopened_packs) || 0);
   ui.setPacks(unopened);
+  if (settled && settled.packsAwarded > 0) {
+    ui.toast(`🎁 ${settled.packsAwarded} pack${settled.packsAwarded > 1 ? 's' : ''} earned — open in your Adoptédex!`, { rare: true, ms: 4200 });
+  }
   deathBusy = false;
 };
 
@@ -325,6 +332,8 @@ function frame(now) {
   }
   const speedT = Math.max(0, Math.min(1, (g.speed - PHYS.speedBase) / (PHYS.speedMax - PHYS.speedBase)));
   setRoll(g.state === 'PLAYING' ? speedT : 0);
+  setMusicTempo(speedT);
+  if (g.state === 'PLAYING') startMusic(); else stopMusic();
 
   const phase = g.state === 'PLAYING' || g.state === 'DYING' ? 'playing'
     : g.state === 'GAME_OVER' ? 'over' : 'menu';

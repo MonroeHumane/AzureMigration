@@ -486,6 +486,29 @@ Flight::route('POST /v1/adoptedex/@user/rewards/claim', function ($user) use ($a
     }
 });
 
+Flight::route('POST /v1/adoptedex/@user/packs/earn', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
+    try {
+        $sessionProfileId = requireArcadeSession($authMiddleware);
+        if ($sessionProfileId === null || !limitAdoptedex($rateLimiter, 'dex_packs_earn', 60)) {
+            return;
+        }
+
+        $payload = json_decode(Flight::request()->getBody(), true) ?: [];
+        $gameId  = (string)($payload['game_id'] ?? '');
+        $rescues = (int)($payload['rescues'] ?? 0);
+
+        if ($gameId === '') {
+            Flight::json(['ok' => false, 'message' => 'game_id is required'], 400);
+            return;
+        }
+
+        $result = $adoptedexController->earnRescuePacks((string)$user, $gameId, $rescues, $sessionProfileId);
+        sendAdoptedexResult($result);
+    } catch (\Exception $e) {
+        serverError('earnRescuePacks', $e);
+    }
+});
+
 Flight::route('POST /v1/adoptedex/@user/packs/open', function ($user) use ($adoptedexController, $authMiddleware, $rateLimiter) {
     try {
         $sessionProfileId = requireArcadeSession($authMiddleware);
