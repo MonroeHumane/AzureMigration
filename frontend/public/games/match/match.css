@@ -209,7 +209,7 @@ body {
 	--cell: min(
 		calc((100cqw - (var(--cols) - 1) * var(--board-gap, 10px)) / var(--cols)),
 		calc((100cqh - (var(--rows) - 1) * var(--board-gap, 10px)) / var(--rows)),
-		calc(min(100cqw, 100cqh) * 0.6)
+		calc(min(100cqw, 100cqh) * 0.74)
 	);
 	display: grid;
 	grid-template-columns: repeat(var(--cols), var(--cell));
@@ -1290,8 +1290,11 @@ html.humane-embed .pet-match-hud__title {
 	display: none;
 }
 
-/* Desktop overlay: board fills play area; controls in a side rail */
-html.humane-embed .pet-match-app.pet-match-app--wide {
+/* Desktop/wide layout: board fills play area; controls in a side rail.
+   Applies to embed and standalone alike — standalone body has no fixed
+   height, so the app takes the dynamic viewport height to give the grid's
+   minmax(0,1fr) row something to resolve against. */
+html .pet-match-app.pet-match-app--wide {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(13.5rem, 16.5rem);
 	grid-template-rows: auto auto auto minmax(0, 1fr);
@@ -1305,13 +1308,17 @@ html.humane-embed .pet-match-app.pet-match-app--wide {
 	padding: 0.6rem 1rem 0.75rem;
 	min-height: 0;
 	height: 100%;
+	height: 100dvh;
+	max-height: 100dvh;
+	overflow: hidden;
+	position: relative;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-key-hints {
+html .pet-match-app.pet-match-app--wide .pet-match-key-hints {
 	grid-area: hints;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-hud {
+html .pet-match-app.pet-match-app--wide .pet-match-hud {
 	grid-area: hud;
 	display: flex;
 	flex-wrap: wrap;
@@ -1320,23 +1327,37 @@ html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-hud {
 	margin-bottom: 0;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-hud__stats {
+html .pet-match-app.pet-match-app--wide .pet-match-hud__stats {
 	margin-left: auto;
 	font-size: 1.05rem;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-progress {
+html .pet-match-app.pet-match-app--wide .pet-match-progress {
 	flex: 1 1 100%;
 	max-width: 28rem;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-live,
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-intro {
+html .pet-match-app.pet-match-app--wide .pet-match-live {
 	grid-area: msg;
 	margin-bottom: 0;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-play {
+/* The intro banner used to share the "msg" grid cell with the live region,
+   so the two texts painted on top of each other. Float it over the play
+   column as a transient toast instead — same treatment as mobile. */
+html .pet-match-app.pet-match-app--wide .pet-match-intro {
+	position: absolute;
+	z-index: 80;
+	top: 50%;
+	left: 50%;
+	transform: translate(-60%, -50%);
+	margin: 0;
+	width: max-content;
+	max-width: min(80%, 28rem);
+	box-shadow: 0 10px 30px rgba(44, 28, 25, 0.28);
+}
+
+html .pet-match-app.pet-match-app--wide .pet-match-play {
 	grid-area: play;
 	min-width: 0;
 	min-height: 0;
@@ -1345,12 +1366,12 @@ html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-play {
 	justify-self: stretch;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-board-wrap {
+html .pet-match-app.pet-match-app--wide .pet-match-board-wrap {
 	min-width: 0;
 	padding: 0.35rem;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-controls {
+html .pet-match-app.pet-match-app--wide .pet-match-controls {
 	grid-area: controls;
 	margin-top: 0;
 	align-self: stretch;
@@ -1363,12 +1384,34 @@ html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-controls {
 	padding: 1rem 1.05rem 1.1rem;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-controls__title {
+html .pet-match-app.pet-match-app--wide .pet-match-controls__title {
 	display: block;
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-level-chip__select {
+html .pet-match-app.pet-match-app--wide .pet-match-level-chip__select {
 	max-width: none;
+}
+
+/* Short landscape frames (rotated phones, squat embeds): every vertical pixel
+   belongs to the board — drop the keyboard hint row and tighten chrome. */
+@media (max-height: 560px) {
+	html .pet-match-app.pet-match-app--wide {
+		row-gap: 0.25rem;
+		padding: 0.4rem 0.75rem 0.5rem;
+	}
+
+	html .pet-match-app.pet-match-app--wide .pet-match-key-hints {
+		display: none;
+	}
+
+	html .pet-match-app.pet-match-app--wide .pet-match-hud {
+		font-size: 0.92rem;
+	}
+
+	html .pet-match-app.pet-match-app--wide .pet-match-live {
+		font-size: 0.85rem;
+		min-height: 1rem;
+	}
 }
 
 html.humane-embed .pet-match-modal__panel--win,
@@ -1376,7 +1419,7 @@ html.humane-embed .pet-match-modal__panel--wide {
 	width: min(94vw, 62rem);
 }
 
-html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-stat strong {
+html .pet-match-app.pet-match-app--wide .pet-match-stat strong {
 	font-size: 1.12em;
 }
 
@@ -1457,6 +1500,7 @@ html.humane-embed .pet-match-app.pet-match-app--wide .pet-match-stat strong {
 	.pet-match-play {
 		flex: 1 1 100%;
 		height: calc(100vh - 55px);
+		height: calc(100dvh - 55px);
 		min-width: 0;
 		min-height: 0;
 	}

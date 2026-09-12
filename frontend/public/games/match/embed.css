@@ -46,6 +46,12 @@ html.humane-embed .pet-match-app {
 	touch-action: manipulation;
 }
 
+/* Wide rail layout lives in match.css; this file loads later and its flex
+   rule above would otherwise win on equal specificity — re-assert grid. */
+html.humane-embed .pet-match-app.pet-match-app--wide {
+	display: grid;
+}
+
 html.humane-embed:not(.pm-theme-light) .pet-match-app {
 	background: radial-gradient(circle at 50% 15%, #0d332b 0%, #061815 100%);
 }

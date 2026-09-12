@@ -120,7 +120,7 @@ The Monroe County Humane Society platform is an enterprise web architecture engi
 * **Featured Games** (cabinet hub `/games` — verified against `frontend/src/pages/games/index.astro`):
   * *Pet Booster Packs* (`/games/booster/`)
   * *Pet Match Memory* (`/games/match/match.html`)
-  * *Flappy Cat* (`/games/flappy-cat/`)
+  * *Flappy Cat* (`/games/flappy-cat-2/`)
   * *Catwalk Night Patrol* (`/games/catwalk`)
   * *Shelter Run* (`/games/shelter-run-temple/index.html`)
   * *Puppy Skater* (`/games/puppy-skater/index.html`) — side-view jump/duck skater on the shelter-run ES-module skeleton

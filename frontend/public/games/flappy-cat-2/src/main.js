@@ -1,9 +1,9 @@
 // Bootstrap: assets → arcade session → input → loop → death pipeline.
-import { VIEW, IMAGES, CATS, MASCOT_TO_CAT, MILESTONES, GAME_ID } from './config.js';
+import { VIEW, IMAGES, CATS, MASCOT_TO_CAT, MILESTONES, GAME_ID, PHYS } from './config.js';
 import { createGame, resetRun, flap, update } from './engine.js';
 import { drawGame } from './render.js';
 import { createUI } from './ui.js';
-import { sfx, setMuted, primeAudio } from './audio.js';
+import { sfx, setMuted, primeAudio, startMusic, stopMusic, setMusicTempo } from './audio.js';
 import * as arcade from './arcade.js';
 
 const LS = {
@@ -29,6 +29,11 @@ setMuted(muted);
 
 const g = createGame();
 g.best = best;
+// Launcher theme → night opening stretch. ?theme= is authoritative;
+// live changes arrive via arcade:set_theme. No per-game toggle.
+function applyLauncherTheme(theme) { g.nightStart = theme === 'dark'; }
+applyLauncherTheme(new URLSearchParams(location.search).get('theme'));
+window.__fc = g; // debug/test hook (same role as puppy-skater's __ps)
 
 // ── Asset loading ──────────────────────────────────────────────────────────
 function loadImage(rel) {
@@ -134,6 +139,7 @@ addEventListener('message', e => {
   const d = e.data;
   if (!d || typeof d !== 'object') return;
   if (d.type === 'arcade:set_mute') { muted = !!d.muted; setMuted(muted); writeLS(LS.mute, muted); }
+  if (d.type === 'arcade:set_theme') applyLauncherTheme(d.theme);
   if (d.type === 'arcade:pause' && g.state === 'PLAYING') togglePause();
 });
 document.addEventListener('visibilitychange', () => {
@@ -142,6 +148,7 @@ document.addEventListener('visibilitychange', () => {
 
 // ── Death pipeline: score → leaderboard → milestones → save ────────────────
 g.onFlap = () => sfx.flap();
+g.onNearMiss = () => sfx.whoosh();
 g.onScore = score => {
   sfx.point();
   const m = MILESTONES.find(x => x.at === score);
@@ -215,6 +222,11 @@ function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
   if (g.state !== 'PAUSED') update(g, dt, { images, catDef: catDef() });
+
+  // Music bed follows the run — tempo rides scroll speed
+  const scrollT = Math.max(0, Math.min(1, (Math.min(PHYS.speedMax, PHYS.speedBase + g.score * 2.2) - PHYS.speedBase) / (PHYS.speedMax - PHYS.speedBase)));
+  setMusicTempo(scrollT);
+  if (g.state === 'PLAYING') startMusic(); else stopMusic();
 
   // Keep key hints honest: only surface what works in this phase.
   const phase = g.state === 'PLAYING' || g.state === 'DYING' ? 'playing'

@@ -10,24 +10,31 @@
 		matchPopMs: 480,
 		previewRevealMs: 180,
 		previewHoldMs: 550,
+		previewHoldPerCardMs: 45,
+		previewHoldMaxMs: 2200,
 		previewWaveCapMs: 600,
 		reducedMotionHoldMs: 750,
+		reducedMotionHoldPerCardMs: 55,
+		reducedMotionHoldMaxMs: 2600,
 	};
 	const LEVEL_INTRO_MS = 2000;
 	const MAX_LEVEL = 10;
 
-	// Pair counts must be non-decreasing level over level so difficulty never
-	// steps backward; grid shape (cols x rows) still varies for visual variety.
+	// Pair counts must strictly increase level over level so difficulty never
+	// plateaus; grid orientation is auto-adapted to the play box, so shapes are
+	// written landscape-convention (cols >= rows) and transposed as needed.
+	// Pairs are capped at 18 — the illustrated SVG fallback pool size — so a
+	// short live feed can never deal an undealable board.
 	const LEVELS = [
 		{ cols: 2, rows: 2, pairs: 2, stars3: 3, stars2: 5 },
-		{ cols: 2, rows: 3, pairs: 3, stars3: 4, stars2: 7 },
-		{ cols: 3, rows: 4, pairs: 6, stars3: 9, stars2: 14 },
+		{ cols: 3, rows: 2, pairs: 3, stars3: 4, stars2: 7 },
+		{ cols: 4, rows: 3, pairs: 6, stars3: 9, stars2: 14 },
 		{ cols: 4, rows: 4, pairs: 8, stars3: 12, stars2: 18 },
-		{ cols: 3, rows: 6, pairs: 9, stars3: 13, stars2: 19 },
-		{ cols: 4, rows: 5, pairs: 10, stars3: 15, stars2: 22 },
+		{ cols: 6, rows: 3, pairs: 9, stars3: 13, stars2: 19 },
 		{ cols: 5, rows: 4, pairs: 10, stars3: 15, stars2: 22 },
-		{ cols: 4, rows: 6, pairs: 12, stars3: 18, stars2: 26 },
-		{ cols: 5, rows: 6, pairs: 15, stars3: 22, stars2: 32 },
+		{ cols: 6, rows: 4, pairs: 12, stars3: 18, stars2: 26 },
+		{ cols: 7, rows: 4, pairs: 14, stars3: 21, stars2: 30 },
+		{ cols: 6, rows: 5, pairs: 15, stars3: 22, stars2: 32 },
 		{ cols: 6, rows: 6, pairs: 18, stars3: 27, stars2: 38 },
 	];
 
@@ -86,6 +93,7 @@
 	let matchStreak = 0;
 	let inputLocked = false;
 	let currentLevel = 1;
+	let renderedCols = 0;
 	let progress = freshProgress();
 	let levelIntroTimer = null;
 	let focusTrapHandler = null;
@@ -405,6 +413,23 @@
 		return Math.max(0, Math.floor(TIMING.previewWaveCapMs / cardCount));
 	}
 
+	/* Study time scales with board size — a fixed hold means a 4-card board and
+	   a 36-card board get the same memorization window, which made late levels
+	   feel arbitrarily hard rather than bigger. */
+	function previewHoldMsFor(cardCount) {
+		return Math.min(
+			TIMING.previewHoldMs + cardCount * TIMING.previewHoldPerCardMs,
+			TIMING.previewHoldMaxMs
+		);
+	}
+
+	function reducedMotionHoldMsFor(cardCount) {
+		return Math.min(
+			TIMING.reducedMotionHoldMs + cardCount * TIMING.reducedMotionHoldPerCardMs,
+			TIMING.reducedMotionHoldMaxMs
+		);
+	}
+
 	async function runRoundPreview() {
 		const gen = previewGeneration;
 		cancelPreviewTimers();
@@ -435,7 +460,7 @@
 			if (gen !== previewGeneration) {
 				return;
 			}
-			await delay(TIMING.reducedMotionHoldMs);
+			await delay(reducedMotionHoldMsFor(cardCount));
 			if (gen !== previewGeneration) {
 				return;
 			}
@@ -458,7 +483,7 @@
 			if (gen !== previewGeneration) {
 				return;
 			}
-			await delay(TIMING.previewHoldMs);
+			await delay(previewHoldMsFor(cardCount));
 			if (gen !== previewGeneration) {
 				return;
 			}
@@ -1030,7 +1055,12 @@
 	}
 
 	function isDesktopWide() {
-		return window.innerWidth >= DESKTOP_MIN_WIDTH;
+		// Wide rail layout for desktop-width frames AND short landscape frames
+		// (phones/tablets rotated, short embeds) where the stacked column
+		// layout leaves the board starved for height.
+		return window.innerWidth >= DESKTOP_MIN_WIDTH
+			|| (window.innerWidth >= 640 && window.innerWidth > window.innerHeight
+				&& window.innerHeight <= 560);
 	}
 
 	function updateKeyHintsVisibility() {
@@ -1058,19 +1088,46 @@
 		if (total <= 24) {
 			return 8;
 		}
-		return 6;
+		if (total <= 30) {
+			return 6;
+		}
+		// 36-card finale: tighter gutters keep cells above the 44px touch
+		// floor on short landscape screens.
+		return 4;
 	}
 
 	// Cell size itself is computed in CSS (see --cell in match.css), fit to
 	// the board-wrap's container-query box - the browser's own layout engine
 	// guarantees it fits without ever exceeding the available space, so
 	// there's no JS measurement step (and no resize listener) needed here.
+	/* Grid orientation follows the play box, not the level table: a portrait
+	   board inside a landscape box leaves cards height-starved with dead space
+	   beside them. Put the longer grid axis along the longer box axis. */
+	function orientedDims(config) {
+		let cols = config.cols;
+		let rows = config.rows;
+		const wrap = els.board && els.board.parentElement;
+		if (wrap) {
+			const rect = wrap.getBoundingClientRect();
+			if (rect.width > rect.height && rows > cols) {
+				cols = config.rows;
+				rows = config.cols;
+			} else if (rect.height > rect.width && cols > rows) {
+				cols = config.rows;
+				rows = config.cols;
+			}
+		}
+		return { cols, rows };
+	}
+
 	function applyBoardGridVars(config) {
 		if (!els.board) {
 			return;
 		}
-		els.board.style.setProperty('--cols', String(config.cols));
-		els.board.style.setProperty('--rows', String(config.rows));
+		const { cols, rows } = orientedDims(config);
+		renderedCols = cols;
+		els.board.style.setProperty('--cols', String(cols));
+		els.board.style.setProperty('--rows', String(rows));
 		els.board.style.setProperty('--board-gap', `${boardGapFor(config)}px`);
 	}
 
@@ -1083,11 +1140,15 @@
 
 	function moveCardFocus(currentIndex, deltaCol, deltaRow) {
 		const config = levelConfig(currentLevel);
-		const row = Math.floor(currentIndex / config.cols);
-		const col = currentIndex % config.cols;
-		const nextRow = Math.max(0, Math.min(config.rows - 1, row + deltaRow));
-		const nextCol = Math.max(0, Math.min(config.cols - 1, col + deltaCol));
-		const nextIndex = nextRow * config.cols + nextCol;
+		// Arrow math must follow the rendered (possibly transposed) grid, not
+		// the level table's logical cols.
+		const cols = renderedCols || config.cols;
+		const total = config.cols * config.rows;
+		const row = Math.floor(currentIndex / cols);
+		const col = currentIndex % cols;
+		const nextRow = Math.max(0, Math.min(Math.ceil(total / cols) - 1, row + deltaRow));
+		const nextCol = Math.max(0, Math.min(cols - 1, col + deltaCol));
+		const nextIndex = Math.min(total - 1, nextRow * cols + nextCol);
 		const button = cardButton(nextIndex);
 		if (button) {
 			button.focus();
@@ -1257,13 +1318,14 @@
 
 	function showLevelIntro(level) {
 		const config = levelConfig(level);
+		const dims = orientedDims(config);
 		if (!els.levelIntro) {
-			setLiveMessage(`Level ${level} - ${config.pairs} pairs (${config.cols}×${config.rows})`);
+			setLiveMessage(`Level ${level} - ${config.pairs} pairs (${dims.cols}×${dims.rows})`);
 			return;
 		}
 
 		clearLevelIntro();
-		const text = `Level ${level} - ${config.pairs} pairs (${config.cols}×${config.rows})`;
+		const text = `Level ${level} - ${config.pairs} pairs (${dims.cols}×${dims.rows})`;
 		els.levelIntro.textContent = text;
 		els.levelIntro.hidden = false;
 		setLiveMessage(text);
@@ -2274,6 +2336,7 @@
 			window.clearTimeout(layoutTimer);
 			layoutTimer = window.setTimeout(() => {
 				updateLayoutMode();
+				applyBoardGridVars(levelConfig(currentLevel));
 				if (els.winModal && !els.winModal.hidden) {
 					scheduleMeetSizing();
 				}
@@ -2307,6 +2370,15 @@
 		// Bootstrap local stats then merge server state (non-blocking)
 		readLocalStats();
 		loadServerMatchStats();
+
+		// Debug/test hook — same role as __ps (puppy-skater) / __fc (flappy-cat-2)
+		window.__pm = {
+			startLevel: (n) => startLevel(n, { allowLocked: true }),
+			get state() { return state; },
+			get level() { return currentLevel; },
+			get progress() { return progress; },
+			get deck() { return deck; },
+		};
 
 		try {
 			petPool = await loadPetPool();

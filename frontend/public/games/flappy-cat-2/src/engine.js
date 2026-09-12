@@ -10,6 +10,14 @@ export function biomeForScore(score) {
   return b;
 }
 
+// Theme-aware biome: dark launcher theme → the opening stretch flies under
+// Night Ice instead of day grass; the palette rejoins the normal cycle at
+// the first seam (score 8).
+export function biomeForGame(g) {
+  if (g.nightStart && g.score < BIOMES[1].min) return BIOMES[BIOMES.length - 1];
+  return biomeForScore(g.score);
+}
+
 export function createGame() {
   return {
     state: 'READY',            // READY | PLAYING | DYING | GAME_OVER | PAUSED
@@ -32,9 +40,14 @@ export function createGame() {
     deadT: 0,
     flash: 0,
     shake: 0,
+    hitStop: 0,
+    popups: [],
+    speedlines: [],
+    nightStart: false,         // launcher dark theme → opening stretch at night
     onDeath: null,
     onScore: null,
     onFlap: null,
+    onNearMiss: null,
   };
 }
 
@@ -50,6 +63,9 @@ export function resetRun(g) {
   g.deadT = 0;
   g.flash = 0;
   g.shake = 0;
+  g.hitStop = 0;
+  g.popups = [];
+  g.speedlines = [];
   g.state = 'READY';
 }
 
@@ -79,11 +95,20 @@ function kill(g) {
   g.state = 'DYING';
   g.deadT = 0;
   g.flash = 1;
-  g.shake = 0.45;
+  g.shake = 0.55;
+  g.hitStop = 0.09;
+  // Impact burst — debris kicks off the crash point
+  for (let i = 0; i < 10; i++) {
+    g.puffs.push({ x: PHYS.catX + rand(-6, 20), y: g.catY + rand(-14, 14),
+                   vx: rand(30, 150), vy: rand(-170, -20), life: rand(0.3, 0.55) });
+  }
+  g.popups.push({ x: PHYS.catX + 20, y: g.catY - 52, text: 'bonk!', t: 0, life: 1.0 });
   if (g.onDeath) g.onDeath(g.score);
 }
 
 export function update(g, dt, assets) {
+  // Hitstop — brief slow-mo on impact makes the crash read
+  if (g.hitStop > 0) { g.hitStop -= dt; dt *= 0.22; }
   const images = (assets && assets.images) || {};
   const catDef = (assets && assets.catDef) || null;
   g.time += dt;
@@ -116,6 +141,20 @@ export function update(g, dt, assets) {
   g.flash = Math.max(0, g.flash - dt * 3.2);
   g.shake = Math.max(0, g.shake - dt * 1.8);
 
+  // Floating popups — rise + fade
+  for (const p of g.popups) { p.t += dt; p.y -= 46 * dt; }
+  g.popups = g.popups.filter(p => p.t < p.life);
+
+  // Speed lines — stream once the scroll is actually fast
+  const speedT = Math.max(0, Math.min(1, (scroll - PHYS.speedBase) / (PHYS.speedMax - PHYS.speedBase)));
+  if (g.state === 'PLAYING' && speedT > 0.45) {
+    if (Math.random() < dt * (speedT - 0.45) * 30) {
+      g.speedlines.push({ x: VIEW.W + rand(0, 120), y: rand(60, VIEW.H - VIEW.GROUND - 140), len: rand(24, 80) * speedT, life: 0.5 });
+    }
+  }
+  for (const l of g.speedlines) { l.x -= (scroll * 2.1 + 120) * dt; l.life -= dt; }
+  g.speedlines = g.speedlines.filter(l => l.life > 0 && l.x + l.len > -10);
+
   if (g.state !== 'PLAYING' && g.state !== 'DYING') return;
 
   // Pipes
@@ -138,7 +177,7 @@ export function update(g, dt, assets) {
     const ecx = PHYS.catX + e.ox * cr - e.oy * sr;
     const ecy = g.catY + e.ox * sr + e.oy * cr;
 
-    const biome = biomeForScore(g.score);
+    const biome = biomeForGame(g);
     const topImg = biome.id === 'grass' ? images['rock_top.png'] : images[`rock_top_${biome.id}.png`];
     const botImg = biome.id === 'grass' ? images['rock_bottom.png'] : images[`rock_bottom_${biome.id}.png`];
 
@@ -149,6 +188,15 @@ export function update(g, dt, assets) {
         if (g.onScore) g.onScore(g.score);
         for (let i = 0; i < 5; i++) {
           g.sparkles.push({ x: PHYS.catX + rand(-8, 8), y: g.catY - 40, vx: rand(-30, 30), vy: rand(-90, -30), life: rand(0.5, 0.9), rot: rand(0, 6) });
+        }
+        // Near-miss: squeaked through with <26px of breathing room → praise
+        const gapTop = p.gapY - p.gapH / 2, gapBot = p.gapY + p.gapH / 2;
+        const clearance = Math.min((g.catY - e.ry) - gapTop, gapBot - (g.catY + e.ry));
+        if (clearance < 26) {
+          const words = ['close!', 'phew!', 'threaded!'];
+          g.popups.push({ x: PHYS.catX + 26, y: g.catY - 60,
+                          text: words[(Math.random() * words.length) | 0], t: 0, life: 0.9 });
+          if (g.onNearMiss) g.onNearMiss(p);
         }
       }
       // Alpha-banded rock hitboxes vs the cat ellipse

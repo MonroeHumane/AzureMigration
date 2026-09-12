@@ -1,6 +1,6 @@
 // Canvas renderer — draws in logical 432x768 space; caller scales via setTransform.
 import { VIEW, PHYS, FRAME_SHIFT } from './config.js';
-import { biomeForScore } from './engine.js';
+import { biomeForGame } from './engine.js';
 import { catEllipse, pipeRects } from './hitbox.js';
 
 const ROCK_TIP = 0.38; // fraction of sprite that is the pointed cap facing the gap
@@ -12,8 +12,12 @@ const STRIP_CELL = 168;   // logical px per slot
 const STRIP_H = 118;      // band height above the ground line
 const stripOffset = i => 14 + (i % 3) * 26; // deterministic per-slot x jitter
 
+// Gradient caches — sky only rebuilds when the palette changes
+let skyCache = { key: '', grad: null };
+let vigCache = null;
+
 export function drawGame(ctx, g, images, catDef, reducedMotion, debug) {
-  const biome = biomeForScore(g.score);
+  const biome = biomeForGame(g);
   const W = VIEW.W, H = VIEW.H, groundY = H - VIEW.GROUND;
 
   ctx.save();
@@ -22,11 +26,15 @@ export function drawGame(ctx, g, images, catDef, reducedMotion, debug) {
     ctx.translate((Math.random() - 0.5) * s, (Math.random() - 0.5) * s);
   }
 
-  // Sky
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, biome.sky[0]);
-  sky.addColorStop(1, biome.sky[1]);
-  ctx.fillStyle = sky;
+  // Sky — cached gradient, rebuilt only when the biome palette shifts
+  const skyKey = biome.sky[0] + '|' + biome.sky[1];
+  if (skyCache.key !== skyKey) {
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, biome.sky[0]);
+    grad.addColorStop(1, biome.sky[1]);
+    skyCache = { key: skyKey, grad };
+  }
+  ctx.fillStyle = skyCache.grad;
   ctx.fillRect(0, 0, W, H);
 
   // Sun
@@ -126,11 +134,54 @@ export function drawGame(ctx, g, images, catDef, reducedMotion, debug) {
     ctx.restore();
   }
 
+  // Speed lines — stream past once the scroll is genuinely fast
+  const speedT = Math.max(0, Math.min(1, (Math.min(PHYS.speedMax, PHYS.speedBase + g.score * 2.2) - PHYS.speedBase) / (PHYS.speedMax - PHYS.speedBase)));
+  if (speedT > 0.45 && !reducedMotion && g.state === 'PLAYING') {
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2.2;
+    for (const l of g.speedlines) {
+      ctx.globalAlpha = Math.min(0.5, l.life * 1.6) * speedT;
+      ctx.beginPath();
+      ctx.moveTo(l.x, l.y);
+      ctx.lineTo(l.x + l.len, l.y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Floating popups — pop in, rise, fade
+  for (const p of g.popups) {
+    const pop = Math.min(1, p.t * 8);
+    const a = Math.min(1, (p.life - p.t) * 2.2);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.scale(0.6 + 0.4 * pop, 0.6 + 0.4 * pop);
+    ctx.globalAlpha = Math.max(0, a);
+    ctx.font = '800 17px system-ui, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(20,30,25,0.8)';
+    ctx.strokeText(p.text, 0, 0);
+    ctx.fillStyle = '#ffe27a';
+    ctx.fillText(p.text, 0, 0);
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+
   // Hit flash
   if (g.flash > 0) {
     ctx.fillStyle = `rgba(255,244,230,${(g.flash * 0.85).toFixed(3)})`;
     ctx.fillRect(-10, -10, W + 20, H + 20);
   }
+
+  // Vignette — static gradient, built once
+  if (!vigCache) {
+    vigCache = ctx.createRadialGradient(W / 2, H * 0.5, H * 0.32, W / 2, H * 0.5, H * 0.78);
+    vigCache.addColorStop(0, 'rgba(0,0,0,0)');
+    vigCache.addColorStop(1, 'rgba(8,14,20,0.26)');
+  }
+  ctx.fillStyle = vigCache;
+  ctx.fillRect(0, 0, W, H);
 
   // In-run score — Kenney digit sprites
   if (g.state === 'PLAYING' || g.state === 'DYING') {
