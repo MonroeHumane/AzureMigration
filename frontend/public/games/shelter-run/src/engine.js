@@ -32,15 +32,19 @@ export function createGame() {
     squashY: 1, stretchX: 1, landFlash: 0,
     catFrame: 0, catFrameT: 0,
     lean: 0,                   // lane-change lean (render)
+    hitT: 0,                   // hit-tumble timer (render)
     // FX
-    puffs: [], sparkles: [],
+    puffs: [], sparkles: [], confetti: [],
     shake: 0, flash: 0, hurtFlash: 0,
+    banner: null,              // { text, sub, t, dur } — milestone/biome banner
+    biomeId: 'grass',
     time: 0, deadT: 0,
     // Run stats
     rescued: [],               // [{id,name,photo}] pets picked up this run
     rescuedCount: 0,
+    rescueStreak: 0,           // consecutive rescues without a hit
     onDeath: null, onHit: null, onCollect: null, onJump: null, onSlide: null, onLane: null, onLand: null,
-    onMilestone: null,
+    onMilestone: null, onNearMiss: null,
   };
 }
 
@@ -56,14 +60,31 @@ export function resetRun(g) {
   g.action = 'running'; g.actionT = 0; g.worldY = 0;
   g.lives = PHYS.lives; g.invincibleT = 0;
   g.squashY = 1; g.stretchX = 1; g.landFlash = 0; g.lean = 0;
-  g.puffs = []; g.sparkles = [];
+  g.hitT = 0;
+  g.puffs = []; g.sparkles = []; g.confetti = [];
   g.shake = 0; g.flash = 0; g.hurtFlash = 0;
+  g.banner = null; g.biomeId = 'grass';
   g.deadT = 0;
-  g.rescued = []; g.rescuedCount = 0;
+  g.rescued = []; g.rescuedCount = 0; g.rescueStreak = 0;
   g.state = 'READY';
 }
 
 export function startRun(g) { if (g.state === 'READY') g.state = 'PLAYING'; }
+
+// Screen-space celebration helpers (logical 432x768 px)
+const CONFETTI_COLS = ['#ffd166', '#ff8fa3', '#7ee0a3', '#8ecae6', '#f4a261', '#cdb4f0'];
+export function burstConfetti(g, n = 60) {
+  for (let i = 0; i < n; i++) {
+    g.confetti.push({
+      x: rand(30, 400), y: rand(-50, 130), vx: rand(-70, 70), vy: rand(30, 170),
+      rot: rand(0, 6.3), vr: rand(-8, 8), life: rand(1.5, 2.6),
+      color: CONFETTI_COLS[i % CONFETTI_COLS.length], w: rand(5, 9), h: rand(7, 13),
+    });
+  }
+}
+export function setBanner(g, text, sub = '', dur = 2.4) {
+  g.banner = { text, sub, t: dur, dur };
+}
 
 export function changeLane(g, dir) {
   if (g.state !== 'PLAYING') return false;
@@ -107,6 +128,8 @@ function hitPlayer(g, obs) {
   g.invincibleT = PHYS.invincibleMs / 1000;
   g.hurtFlash = 1;
   g.shake = 0.5;
+  g.hitT = 0.55;
+  g.rescueStreak = 0;
   g.action = 'running'; g.actionT = 0; g.worldY = 0;
   if (g.onHit) g.onHit(g.lives);
   if (g.lives <= 0) {
@@ -160,6 +183,25 @@ export function update(g, dt) {
   g.landFlash = Math.max(0, g.landFlash - dt / 0.22);
 
   g.invincibleT = Math.max(0, g.invincibleT - dt);
+  g.hitT = Math.max(0, g.hitT - dt);
+
+  // Biome-change banner
+  const b = biomeForMeters(g.meters);
+  if (b.id !== g.biomeId && g.state === 'PLAYING') {
+    g.biomeId = b.id;
+    g.banner = { text: b.label, sub: 'New trail ahead', t: 2.4, dur: 2.4 };
+  }
+  if (g.banner) { g.banner.t -= dt; if (g.banner.t <= 0) g.banner = null; }
+
+  // Confetti — gravity + flutter, screen-space (logical px)
+  for (const c of g.confetti) {
+    c.life -= dt;
+    c.vy += 620 * dt;
+    c.x += (c.vx + Math.sin(c.life * 9 + c.rot * 7) * 34) * dt;
+    c.y += c.vy * dt;
+    c.rot += c.vr * dt;
+  }
+  g.confetti = g.confetti.filter(c => c.life > 0 && c.y < 820);
   g.flash = Math.max(0, g.flash - dt * 3.2);
   g.hurtFlash = Math.max(0, g.hurtFlash - dt * 2.6);
   g.shake = Math.max(0, g.shake - dt * 1.8);
@@ -205,6 +247,7 @@ export function update(g, dt) {
     if (c.lane !== lane) continue;
     c.collected = true;
     g.rescuedCount += 1;
+    g.rescueStreak += 1;
     if (g.onCollect) g.onCollect(c);
     for (let i = 0; i < 5; i++) {
       g.sparkles.push({ lane: c.lane, x: rand(-20, 20), z: pz + rand(-10, 30), vy: rand(-60, -20), life: rand(0.5, 0.9), rot: rand(0, 6) });
@@ -217,7 +260,15 @@ export function update(g, dt) {
       if (o.passed) continue;
       const d = o.worldZ - g.cameraZ;
       if (d > pz + PHYS.hitWindowFront || d < pz - PHYS.hitWindowBack) continue;
-      if (o.lane !== lane) { if (d < pz) o.passed = true; continue; }
+      if (o.lane !== lane) {
+        // Near-miss: dodged past in an adjacent lane right at the player plane.
+        if (!o.nearMissed && d < pz && d > pz - 60 && Math.abs(o.lane - lane) === 1) {
+          o.nearMissed = true;
+          if (g.onNearMiss) g.onNearMiss(o);
+        }
+        if (d < pz) o.passed = true;
+        continue;
+      }
       let hit = false;
       if (o.type === OBSTACLE.LANE_BLOCK) hit = g.worldY < PHYS.jumpHeight * 0.72;
       else if (o.type === OBSTACLE.LOW) hit = g.worldY < PHYS.lowWallHeight * 0.85;

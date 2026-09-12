@@ -1,9 +1,9 @@
 // Bootstrap: assets → arcade session → input → loop → death pipeline.
-import { VIEW, IMAGES, CATS, MASCOT_TO_CAT, MILESTONES, GAME_ID } from './config.js';
-import { createGame, resetRun, startRun, changeLane, jump, slide, update } from './engine.js';
+import { VIEW, IMAGES, CATS, MASCOT_TO_CAT, MILESTONES, GAME_ID, PHYS } from './config.js';
+import { createGame, resetRun, startRun, changeLane, jump, slide, update, burstConfetti, setBanner } from './engine.js';
 import { drawGame } from './render.js';
 import { createUI } from './ui.js';
-import { sfx, setMuted, primeAudio } from './audio.js';
+import { sfx, setMuted, primeAudio, setWind } from './audio.js';
 import * as arcade from './arcade.js';
 import * as pets from './pets.js';
 
@@ -43,7 +43,7 @@ function loadImage(rel) {
     img.src = 'assets/' + rel;
   });
 }
-const allImages = [...IMAGES.cats, ...IMAGES.decor, ...IMAGES.rocks, ...IMAGES.ui, ...IMAGES.numbers];
+const allImages = [...IMAGES.cats, ...IMAGES.decor, ...IMAGES.rocks, ...IMAGES.obstacles, ...IMAGES.ui, ...IMAGES.numbers];
 
 function petImage(pet) {
   if (!pet || !pet.photo) return null;
@@ -214,6 +214,7 @@ g.onJump = () => sfx.jump();
 g.onSlide = () => sfx.slide();
 g.onLand = () => sfx.land();
 g.onHit = lives => { sfx.hit(); ui.toast(lives > 0 ? `Oof! ${lives} ❤ left` : 'Caught!'); };
+g.onNearMiss = () => sfx.nearMiss();
 
 g.onCollect = c => {
   const pet = c.pet;
@@ -223,6 +224,13 @@ g.onCollect = c => {
     ui.toast(`🐾 ${pet.name} rescued!`);
   } else {
     sfx.collect();
+  }
+  // Rescue-streak coin bonus — every 5th consecutive rescue, server decides.
+  if (g.rescueStreak > 0 && g.rescueStreak % 5 === 0) {
+    arcade.awardCoins('game_award').then(res => {
+      const n = res && (res.awarded || res.coins);
+      ui.toast(n ? `🔥 ${g.rescueStreak}-rescue streak! +${n} coins` : `🔥 ${g.rescueStreak}-rescue streak!`, { rare: true });
+    });
   }
   try {
     if (window.parent && window.parent !== window && pet) {
@@ -301,8 +309,9 @@ function checkMilestoneTicks() {
   for (const m of MILESTONES) {
     if (g.meters >= m.at && lastMilestoneCheck < m.at) {
       ui.markMilestone(m.key);
-      ui.toast(`${m.at}m — ${m.label}!`, { ms: 2200 });
-      sfx.tick();
+      setBanner(g, `${m.at}m — ${m.label}!`, m.at >= 3000 ? 'Duo pack at the finish!' : 'Milestone reached');
+      burstConfetti(g, m.at >= 3000 ? 90 : 55);
+      sfx.fanfare();
     }
   }
   lastMilestoneCheck = g.meters;
@@ -311,6 +320,7 @@ function checkMilestoneTicks() {
 // ── Main loop ──────────────────────────────────────────────────────────────
 let last = performance.now();
 let lastPhase = '';
+let lastStepFrame = -1;
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
@@ -319,6 +329,14 @@ function frame(now) {
     if (g.state === 'PLAYING') checkMilestoneTicks();
     else if (g.state === 'READY') lastMilestoneCheck = 0;
   }
+
+  // Paw-step rhythm synced to the run cycle + wind that follows speed.
+  if (g.state === 'PLAYING' && g.action === 'running' && g.catFrame !== lastStepFrame) {
+    lastStepFrame = g.catFrame;
+    if (g.catFrame % 2 === 0) sfx.step();
+  }
+  const speedT = Math.max(0, Math.min(1, (g.speed - PHYS.speedBase) / (PHYS.speedMax - PHYS.speedBase)));
+  setWind(g.state === 'PLAYING' ? speedT : 0);
 
   const phase = g.state === 'PLAYING' || g.state === 'DYING' ? 'playing'
     : g.state === 'GAME_OVER' ? 'over' : 'menu';

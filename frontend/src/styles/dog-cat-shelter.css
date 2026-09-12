@@ -418,7 +418,12 @@
 }
 
 .monroe-shelter-trust .monroe-trust-row__list {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .monroe-shelter-trust .monroe-trust-row__item {
@@ -437,7 +442,16 @@
 }
 
 .monroe-shelter-trust .monroe-trust-row__label {
+  display: block;
+  margin-bottom: 0.4rem;
   color: var(--shelter-green-dark);
+  font-size: 1.05rem;
+}
+
+.monroe-shelter-trust .monroe-trust-row__detail {
+  display: block;
+  color: var(--shelter-muted);
+  font: 400 0.88rem/1.5 "Jost", "Segoe UI", sans-serif;
 }
 
 .monroe-native-inner--dog-and-cat-shelter .monroe-day-in-life {

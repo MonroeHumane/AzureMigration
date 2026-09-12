@@ -172,3 +172,14 @@ export async function reportDiscoveries(petIds) {
   const r = await post(`adoptedex/${encodeURIComponent(user)}/discover/bulk`, { pet_ids: petIds, source: GAME_ID });
   return r.ok ? r.data : null;
 }
+
+// Server-authoritative coin award — reason value comes from COIN_AWARD_REASONS.
+export async function awardCoins(reason = 'game_award') {
+  const user = dexUser();
+  if (!user) return null;
+  try {
+    await ensureSession();
+    const r = await post(`adoptedex/${encodeURIComponent(user)}/coins/award`, { reason });
+    return r.ok && r.data && r.data.ok ? r.data : null;
+  } catch (e) { return null; }
+}

@@ -73,6 +73,7 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
       <div class="sr-rescued" data-rescued hidden>
         <h2 class="sr-h2">Rescued this run</h2>
         <div class="sr-rescued-row" data-rescued-row></div>
+        <a class="sr-binder-link" data-binder-link target="_top" hidden>View in your Binder →</a>
       </div>
       <div class="sr-board">
         <h2 class="sr-h2">Leaderboard</h2>
@@ -199,8 +200,22 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat }) {
           row.appendChild(chip);
         });
         if (rescued.length > 8) row.appendChild(el('span', 'sr-rescued-more', `+${rescued.length - 8}`));
+        // Deep link to the Binder carrying the player's identity + api.
+        const link = over.querySelector('[data-binder-link]');
+        if (typeof MonroeAdoptedex !== 'undefined' && MonroeAdoptedex.getParams) {
+          const p = MonroeAdoptedex.getParams();
+          const qs = new URLSearchParams();
+          if (p.dexUser) qs.set('user', p.dexUser);
+          if (p.dexApi) qs.set('dex_api', p.dexApi);
+          link.href = `/games/dex/album.html?${qs}`;
+          link.hidden = false;
+        } else {
+          link.href = '/games/dex/album.html';
+          link.hidden = false;
+        }
       } else {
         rw.hidden = true;
+        over.querySelector('[data-binder-link]').hidden = true;
       }
 
       renderLeaders(leaders, score);

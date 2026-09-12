@@ -86,11 +86,41 @@ def main():
         page.keyboard.press("ArrowRight")
         page.wait_for_timeout(300)
         page.keyboard.press("ArrowDown")
-        page.wait_for_timeout(700)
+        page.wait_for_timeout(220)
+        check("slide pose active", page.evaluate("() => window.__sr.action") == "sliding")
         page.screenshot(path=str(SHOTS / "sr_slide.png"))
+        page.wait_for_timeout(600)
         page.keyboard.press("ArrowUp")
-        page.wait_for_timeout(200)
+        page.wait_for_timeout(180)
+        check("jump pose active", page.evaluate("() => window.__sr.action") == "jumping")
         page.screenshot(path=str(SHOTS / "sr_jump.png"))
+
+        # Rescue pickup: drop a collectible in the player's lane at the plane.
+        rescued_before = page.evaluate("() => window.__sr.rescuedCount")
+        page.evaluate("""() => {
+          const g = window.__sr;
+          g.collectibles.push({ id: 8888, lane: g.targetLane,
+                                worldZ: g.cameraZ + 130, collected: false, pet: null });
+        }""")
+        page.wait_for_timeout(600)
+        check("rescue pickup counted",
+              page.evaluate("() => window.__sr.rescuedCount") > rescued_before)
+
+        # Milestone cross: move the camera to just under 500m (meters derive
+        # from cameraZ via distScale = 0.009) → banner + confetti.
+        # Top up lives + invincibility so a random hit can't end the run
+        # between the camera jump and the threshold cross.
+        page.evaluate("""() => {
+          const g = window.__sr;
+          g.lives = 3; g.invincibleT = 30;
+          g.cameraZ = 497 / 0.009;
+        }""")
+        page.wait_for_timeout(1600)
+        check("milestone banner shown",
+              page.evaluate("() => !!(window.__sr.banner && window.__sr.banner.t > 0)"))
+        check("milestone confetti spawned",
+              page.evaluate("() => window.__sr.confetti.length") > 0)
+        page.screenshot(path=str(SHOTS / "sr_milestone.png"))
 
         # Canvas is actually drawing — screenshot the play state for review
         # (pixel reads are unavailable: remote pet photos may taint the canvas)
