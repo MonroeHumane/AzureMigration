@@ -90,7 +90,7 @@ if (pet.intake_date) {
 >
   <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
     <a href={`/adopt/${pet.id}`} class="absolute inset-0 z-0" aria-label={`Meet ${pet.name}, a ${pet.age_display || ''} ${pet.breed || pet.type}`}>
-      <Image class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src={pet.image_url || pet.image || ''} alt={pet.name} loading="lazy" decoding="async" width={480} height={360} />
+      <Image class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src={pet.image_url || pet.image || ''} alt={pet.name} loading="lazy" decoding="async" width={480} height={360} onerror="this.onerror=null;this.src='/assets/recovered/images/placeholder.svg';" />
       <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none" aria-hidden="true"></div>
     </a>
     <span class="absolute top-3 left-3 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-teal-950 shadow-xs z-10 uppercase tracking-wider border border-white/60 pointer-events-none">{speciesLabel}</span>

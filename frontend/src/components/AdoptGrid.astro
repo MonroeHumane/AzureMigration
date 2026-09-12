@@ -105,7 +105,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     >
       <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
         <a href="" class="absolute inset-0 z-0" data-pet-link>
-          <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src="" alt="" loading="lazy" decoding="async" />
+          <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src="" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/assets/recovered/images/placeholder.svg';" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none" aria-hidden="true"></div>
         </a>
         <span class="absolute top-3 left-3 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-teal-950 shadow-xs z-10 uppercase tracking-wider border border-white/60 pointer-events-none" data-pet-icon>Pet</span>

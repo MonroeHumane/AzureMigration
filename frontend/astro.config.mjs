@@ -45,6 +45,13 @@ export default defineConfig({
   },
 
   image: {
-    domains: ['mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io'],
+    // mchsstorage... is where PetSync re-hosts pet photos (cron/src/sync-pets.ts)
+    // -- pet.image_url points there directly, not at Directus, so PetCard.astro's
+    // <Image> component was silently skipping optimization for every pet photo
+    // (Astro passes through unrecognized remote domains unmodified, no build error).
+    domains: [
+      'mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io',
+      'mchsstorage2urwob6xh6j6s.blob.core.windows.net',
+    ],
   },
 });

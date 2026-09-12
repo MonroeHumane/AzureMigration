@@ -6,6 +6,8 @@
  */
 import type { Pet } from '../../lib/directus';
 import home from '../../data/homepage.json';
+import { Image } from 'astro:assets';
+const PLACEHOLDER = '/assets/recovered/images/placeholder.svg';
 
 interface Props {
   pets: Pet[];
@@ -114,12 +116,15 @@ const petChips = (p: Pet) => [
                         Waiting for You
                       </span>
                       <div class="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-slate-200">
-                        <img
+                        <Image
                           class="home-fpw-photo block h-full w-full object-cover object-[center_top] transition duration-200 group-hover:scale-[1.03]"
-                          src={pet.image || pet.image_url || '/assets/recovered/images/placeholder.svg'}
+                          src={pet.image || pet.image_url || PLACEHOLDER}
                           alt={pet.name}
                           loading="lazy"
                           decoding="async"
+                          width={280}
+                          height={350}
+                          onerror="this.onerror=null;this.src='/assets/recovered/images/placeholder.svg';"
                         />
                       </div>
                     </div>
@@ -156,12 +161,15 @@ const petChips = (p: Pet) => [
                         Waiting for You
                       </span>
                       <div class="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-slate-200">
-                        <img
+                        <Image
                           class="home-fpw-photo block h-full w-full object-cover object-[center_top]"
-                          src={pet.image || pet.image_url || '/assets/recovered/images/placeholder.svg'}
+                          src={pet.image || pet.image_url || PLACEHOLDER}
                           alt=""
                           loading="lazy"
                           decoding="async"
+                          width={280}
+                          height={350}
+                          onerror="this.onerror=null;this.src='/assets/recovered/images/placeholder.svg';"
                         />
                       </div>
                     </div>

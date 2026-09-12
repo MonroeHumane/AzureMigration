@@ -286,7 +286,18 @@ export async function rehostPhoto(petId: string, sourceUrl: string | null): Prom
     }
     const buf = Buffer.from(await res.arrayBuffer());
     const contentType = res.headers.get('content-type') || 'image/jpeg';
-    await blockBlobClient.uploadData(buf, { blobHTTPHeaders: { blobContentType: contentType } });
+    // Pet photos are immutable once uploaded (blobName is keyed by petId, and a
+    // pet's real photo doesn't change after intake) -- a long, immutable
+    // Cache-Control means repeat visitors and the adopt grid's 78-card scroll
+    // don't re-fetch from origin every time, which was the real cause of
+    // "inconsistent" mobile image loading (no CDN in front of this storage
+    // account, so every uncached request pays full origin latency).
+    await blockBlobClient.uploadData(buf, {
+      blobHTTPHeaders: {
+        blobContentType: contentType,
+        blobCacheControl: 'public, max-age=31536000, immutable',
+      },
+    });
     return blockBlobClient.url;
   } catch (err: any) {
     console.warn(`[PetSync] Photo re-host failed for ${petId}: ${err.message}`);
