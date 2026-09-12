@@ -1,28 +1,30 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/dog-cat-shelter.css';
+import { getSiteSettings } from '../../lib/directus';
 
 const IMG = '/assets/recovered/images/lirp.cdn-website.com/77cfa591/dms3rep/multi/opt';
 const DONATE_URL = '/donate';
+const settings = await getSiteSettings();
 
 const dayCards = [
   {
-    src: `${IMG}/452546926_883292250498381_6921668243561390358_n-1920w.jpg`,
-    alt: 'A group of people sitting on a bench with a dog at the shelter.',
+    src: `${IMG}/455279975_897310779096528_8326220811243597552_n-1920w.jpg`,
+    alt: 'An energetic husky mix greeting staff indoors at the shelter.',
     category: 'Morning Routine',
     title: 'Supervised playgroups',
     copy: 'Dogs play in matched groups of two to five with staff and volunteers watching every interaction.',
   },
   {
-    src: `${IMG}/450429686_875396881287918_7603871138057923160_n-1920w.jpg`,
-    alt: 'A white dog laying in the grass with a yellow ball on a Doggy Day Out outing.',
+    src: `${IMG}/447996308_855006676660272_1744801800987668714_n-1920w.jpg`,
+    alt: 'A leashed dog enjoying an outdoor Doggy Day Out outing.',
     category: 'Community Outing',
     title: 'Doggy Day Out',
     copy: 'Volunteers take dogs to parks, lakes, and calm outings that build confidence away from the kennel.',
   },
   {
-    src: `${IMG}/444445234_867747615386178_1349564242973393587_n-af65a848-1920w.jpg`,
-    alt: 'A close-up of a cat resting comfortably in the shelter cat room.',
+    src: `${IMG}/IMG_1072-1920w.jpg`,
+    alt: 'A hallway of climate-controlled cat and small-animal enclosures at the shelter.',
     category: 'Quiet Hours',
     title: 'Comfortable kennels',
     copy: 'Air conditioning in dog kennels and the cat room keeps everyone cool and resting well.',
@@ -167,23 +169,23 @@ const dayCards = [
         </div>
       </section>
 
-      <!-- Trust Row -->
-      <section class="monroe-trust-row monroe-shelter-trust" aria-label="Trust and credentials">
+      <!-- Trust Row: real 2025 outcomes (MDARD-verified), not a repeat of the hero facts above -->
+      <section class="monroe-trust-row monroe-shelter-trust" aria-label="2025 shelter outcomes">
         <ul class="monroe-trust-row__list">
           <li class="monroe-trust-row__item">
-            <span class="monroe-trust-row__number">70+</span>
-            <strong class="monroe-trust-row__label">Years of Service</strong>
-            <span class="monroe-trust-row__detail">Serving Monroe County families and homeless pets since 1954</span>
+            <span class="monroe-trust-row__number">{settings.intakes_count.toLocaleString()}</span>
+            <strong class="monroe-trust-row__label">Animals Taken In</strong>
+            <span class="monroe-trust-row__detail">Dogs and cats given shelter, medical care, and a fresh start in 2025</span>
           </li>
           <li class="monroe-trust-row__item">
-            <span class="monroe-trust-row__number">100%</span>
-            <strong class="monroe-trust-row__label">Fear Free Certified</strong>
-            <span class="monroe-trust-row__detail">Team trained in gentle, low-stress animal handling</span>
+            <span class="monroe-trust-row__number">{settings.adoptions_count.toLocaleString()}</span>
+            <strong class="monroe-trust-row__label">Adopted Into Homes</strong>
+            <span class="monroe-trust-row__detail">Forever families found for shelter pets in 2025 alone</span>
           </li>
           <li class="monroe-trust-row__item">
-            <span class="monroe-trust-row__number">501(c)(3)</span>
-            <strong class="monroe-trust-row__label">Community Nonprofit</strong>
-            <span class="monroe-trust-row__detail">Funded entirely by donors, volunteers, and local partners</span>
+            <span class="monroe-trust-row__number">{settings.return_to_owner_count.toLocaleString()}</span>
+            <strong class="monroe-trust-row__label">Reunited With Families</strong>
+            <span class="monroe-trust-row__detail">Lost pets returned to the people who were searching for them</span>
           </li>
         </ul>
       </section>
