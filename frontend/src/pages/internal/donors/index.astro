@@ -100,8 +100,23 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
       return false;
     }
 
+    function signedOutMessage() {
+      // The layout guard only checks token *shape* and age, so a token the server
+      // has since rejected still gets us here. Say so instead of leaving the page
+      // on "Loading donors…" forever.
+      setStaffDataStatus(
+        'donor-api-status',
+        'error',
+        'Your staff session has expired. Sign in again to load the donor registry.',
+        () => { window.location.href = '/internal/?redirect=' + encodeURIComponent(window.location.pathname); }
+      );
+    }
+
     async function loadDonors() {
-      if (!isStaffAuthenticated()) return;
+      if (!isStaffAuthenticated()) {
+        signedOutMessage();
+        return;
+      }
       setStaffDataStatus('donor-api-status', 'loading', 'Loading donors…');
 
       const cached = await fetchStaffFinancials();
@@ -111,7 +126,10 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
 
       const fresh = await refreshStaffFinancials();
       if (!fresh.ok) {
-        if (fresh.status === 401 || fresh.status === 403) return;
+        if (fresh.status === 401 || fresh.status === 403) {
+          signedOutMessage();
+          return;
+        }
         if (cached.ok && applyDonorPayload(cached.data)) {
           setStaffDataStatus('donor-api-status', 'error', `${fresh.error}. Showing the last loaded roster.`, () => {
             void loadDonors();
@@ -125,10 +143,16 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
       }
 
       if (!applyDonorPayload(fresh.data)) {
+        // A cache fallback means the live call was rejected, so the gap is our
+        // session, not the payload. Only blame the server for a real live response.
+        if (fresh.staleAuth) {
+          signedOutMessage();
+          return;
+        }
         setStaffDataStatus(
           'donor-api-status',
           'error',
-          'Donor registry is missing from the certified financials payload.',
+          'Donor registry is missing from the certified financials payload. The donor database may not be present on the API host.',
           () => { void loadDonors(); }
         );
         return;

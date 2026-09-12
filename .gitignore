@@ -23,6 +23,18 @@ frontend/src/data/donor_database.json
 # this PR — git history still contains the former blob until a separate purge.
 api/data/donor_database.json
 
+# Real bank statement PDFs and the QBO audit database — same policy as above:
+# these were tracked and pushed to origin/main (a public repo) before this rule.
+# Untracking here stops further exposure; the repo's git history still contains
+# the prior blobs until a separate purge/history-rewrite decision is made.
+api/data/files/*.pdf
+scripts/data/*.db
+
+# Dependency trees / generated build & test artifacts that were previously
+# committed by mistake — .astro/, frontend/node_modules/, node_modules/ and
+# visual-test/ above already cover future adds; these two still need it.
+arcade/vendor/
+
 # Scratch probe dumps / newsletter page proofs (not build inputs)
 scratch/qbo_named_gifts*.json
 scratch/*donor*.json

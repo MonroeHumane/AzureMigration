@@ -1,7 +1,12 @@
 import { getStaffToken } from './staff-auth';
 import { getCachedFinancials, setCachedFinancials } from './api';
 
-export type StaffFinancialsOk = { ok: true; data: any; fromCache: boolean };
+/**
+ * `staleAuth` means the live call was rejected (401/403) and we fell back to a
+ * previously cached payload. The data may be old and is missing anything the
+ * server has added since, so callers should not blame the server for gaps.
+ */
+export type StaffFinancialsOk = { ok: true; data: any; fromCache: boolean; staleAuth?: boolean };
 export type StaffFinancialsErr = { ok: false; status: number; error: string };
 
 export function formatUsd(val: number, digits = 0): string {
@@ -99,7 +104,7 @@ export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}):
       console.warn('[StaffFinancials] /api/financials returned', res.status);
       const fallbackCache = getCachedFinancials();
       if (fallbackCache?.headline_kpis) {
-        return { ok: true, data: fallbackCache, fromCache: true };
+        return { ok: true, data: fallbackCache, fromCache: true, staleAuth: true };
       }
       return { ok: false, status: res.status, error: 'Unauthorized to load live financials.' };
     }

@@ -154,6 +154,7 @@ export function clearStaffClientSession(preserveRememberedUser = false): void {
     localStorage.removeItem(STAFF_AUTH_FLAG);
     localStorage.removeItem(STAFF_TOKEN_KEY);
     localStorage.removeItem('mchs_financials_cache_v1');
+    localStorage.removeItem('mchs_financials_cache_v1_at');
 
     if (!preserveRememberedUser || !isRemembered) {
       localStorage.removeItem(STAFF_USER_KEY);
@@ -169,6 +170,7 @@ export function clearStaffClientSession(preserveRememberedUser = false): void {
     sessionStorage.removeItem(STAFF_TOKEN_KEY);
     sessionStorage.removeItem(STAFF_REMEMBER_KEY);
     sessionStorage.removeItem('mchs_financials_cache_v1');
+    sessionStorage.removeItem('mchs_financials_cache_v1_at');
 
     document.documentElement.classList.remove('staff-authenticated');
   } catch {}
