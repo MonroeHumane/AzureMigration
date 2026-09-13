@@ -267,7 +267,7 @@ function hydrateExpenseExplorer(data: any): void {
 function hydrateExecutiveBanner(meta: any) {
   if (!meta) return;
   const titleEl = document.getElementById('banner-period-title');
-  if (titleEl) titleEl.textContent = '2026 board finances';
+  if (titleEl) titleEl.textContent = meta.period_title || 'Board finances';
 
   const cutoffEl = document.getElementById('banner-cutoff');
   if (cutoffEl) {

@@ -65,17 +65,18 @@ const bankInOutData = loadJsonOptional('../data/bank_in_out_2026.json');
 const bankInOut2024 = loadJsonOptional('../data/bank_in_out_2024.json');
 const bankInOut2025 = loadJsonOptional('../data/bank_in_out_2025.json');
 
-// 2025 (and, once its own reconciliation is resolved, 2024) transaction-level
-// drilldown -- optional add-ons alongside the always-present 2026 file/report
-// data. Missing files degrade gracefully to 2026-only, same as every other
-// optional load in this file.
+// 2024 and 2025 transaction-level drilldown -- optional add-ons alongside the
+// always-present 2026 file/report data. Missing files degrade gracefully to
+// 2026-only, same as every other optional load in this file.
+const published2024 = loadJsonOptional('../data/published_2024_ytd.json');
+const monthlyDrilldown2024 = loadJsonOptional('../data/monthly_drilldown_2024.json');
 const published2025 = loadJsonOptional('../data/published_2025_ytd.json');
 const monthlyDrilldown2025 = loadJsonOptional('../data/monthly_drilldown_2025.json');
 
 /**
  * Merges monthly_statements arrays and monthly_drilldown.months objects
  * across whichever years' files are actually present (2026 always is; 2025
- * and later 2024 are additive), sorted chronologically. Month ids are
+ * and 2024 are additive), sorted chronologically. Month ids are
  * "month_{year}_{0-based index}" by construction, so they never collide.
  * Per-year "All {year}" YTD rollups are built client-side (same place the
  * existing single-year rollup was already built) rather than duplicated
@@ -87,6 +88,7 @@ function mergeMultiYearFinancials() {
   const yearData = [
     { year: 2026, statements: reportData.monthly_statements || [], drilldown: monthlyDrilldown2026 },
     { year: 2025, statements: published2025 ? published2025.monthly_statements : [], drilldown: monthlyDrilldown2025 },
+    { year: 2024, statements: published2024 ? published2024.monthly_statements : [], drilldown: monthlyDrilldown2024 },
   ].filter((y) => y.statements.length || y.drilldown);
 
   // ids are "month_{year}_{0-based month index}" -- a plain string sort puts
