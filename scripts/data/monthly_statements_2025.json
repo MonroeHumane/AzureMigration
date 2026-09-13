@@ -3,15 +3,15 @@
     "id": "month_2025_0",
     "month": "Jan 2025",
     "is_partial": false,
-    "revenue": 37357.48,
+    "revenue": 35938.18,
     "cogs": 2062.45,
     "operating_exp": 98366.85,
     "other_exp": 953.49,
     "total_exp": 101382.79,
-    "net_margin": -64025.31,
-    "margin_pct": -171.4,
+    "net_margin": -65444.61,
+    "margin_pct": -182.1,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($36,359)",
+    "driver": "Largest expense: Staff wages ($67,258)",
     "rev_items": [
       {
         "name": "Services",
@@ -19,14 +19,14 @@
         "amount": 19415.99
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
-        "amount": 9541.66
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
+        "amount": 8741.66
       },
       {
         "name": "Individual Donor Contributions",
         "group": "Contributed income",
-        "amount": 6880.33
+        "amount": 6781.03
       },
       {
         "name": "Corporate Donations",
@@ -39,26 +39,21 @@
         "amount": 555.0
       },
       {
-        "name": "Sales of Product Income",
-        "group": "Revenue",
-        "amount": 260.0
-      },
-      {
         "name": "Donation Canisters (Dog Banks)",
         "group": "Contributed income",
         "amount": 100.0
+      },
+      {
+        "name": "Sales of Product Income",
+        "group": "Revenue",
+        "amount": -260.0
       }
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
-        "amount": 36359.17
-      },
-      {
         "name": "Staff wages",
         "group": "Staff",
-        "amount": 30898.73
+        "amount": 67257.9
       },
       {
         "name": "Payroll Taxes",
@@ -171,15 +166,15 @@
     "id": "month_2025_1",
     "month": "Feb 2025",
     "is_partial": false,
-    "revenue": 51275.36,
+    "revenue": 49353.22,
     "cogs": 2165.04,
-    "operating_exp": 58264.75,
+    "operating_exp": 58264.73,
     "other_exp": 443.41,
-    "total_exp": 60873.2,
-    "net_margin": -9597.84,
-    "margin_pct": -18.7,
+    "total_exp": 60873.18,
+    "net_margin": -11519.96,
+    "margin_pct": -23.3,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($24,914)",
+    "driver": "Largest expense: Staff wages ($25,713)",
     "rev_items": [
       {
         "name": "Individual Donor Contributions",
@@ -187,9 +182,9 @@
         "amount": 36662.01
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
-        "amount": 11636.64
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
+        "amount": 9714.5
       },
       {
         "name": "Corporate Donations",
@@ -224,9 +219,9 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
-        "amount": 24914.32
+        "name": "Staff wages",
+        "group": "Staff",
+        "amount": 25713.49
       },
       {
         "name": "Spay & Neuter Program",
@@ -251,7 +246,7 @@
       {
         "name": "Payroll Taxes",
         "group": "Personnel & Staffing",
-        "amount": 2641.37
+        "amount": 2641.35
       },
       {
         "name": "Insurance",
@@ -267,11 +262,6 @@
         "name": "Facility & Cleaning Supplies",
         "group": "Shelter Operations",
         "amount": 979.31
-      },
-      {
-        "name": "Staff wages",
-        "group": "Staff",
-        "amount": 799.17
       },
       {
         "name": "Adoption Fee Refunds & Returns",
@@ -329,37 +319,37 @@
     "id": "month_2025_2",
     "month": "Mar 2025",
     "is_partial": false,
-    "revenue": 70196.29,
-    "cogs": 1820.29,
-    "operating_exp": 41036.11,
+    "revenue": 67732.95,
+    "cogs": 1817.29,
+    "operating_exp": 41036.07,
     "other_exp": 574.81,
-    "total_exp": 43431.21,
-    "net_margin": 26765.08,
-    "margin_pct": 38.1,
+    "total_exp": 43428.17,
+    "net_margin": 24304.78,
+    "margin_pct": 35.9,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($24,728)",
+    "driver": "Largest expense: Staff wages ($24,817)",
     "rev_items": [
       {
         "name": "Individual Donor Contributions",
         "group": "Contributed income",
-        "amount": 55714.75
+        "amount": 55548.95
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
-        "amount": 11745.54
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
+        "amount": 9798.0
       },
       {
         "name": "Services",
         "group": "Services",
-        "amount": 2736.0
+        "amount": 2386.0
       }
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
-        "amount": 24728.32
+        "name": "Staff wages",
+        "group": "Staff",
+        "amount": 24816.81
       },
       {
         "name": "Spay & Neuter Program",
@@ -379,7 +369,7 @@
       {
         "name": "Payroll Taxes",
         "group": "Personnel & Staffing",
-        "amount": 2527.61
+        "amount": 2527.57
       },
       {
         "name": "Animal Care Supplies",
@@ -394,7 +384,7 @@
       {
         "name": "Facility & Cleaning Supplies",
         "group": "Shelter Operations",
-        "amount": 843.24
+        "amount": 840.24
       },
       {
         "name": "Vehicle Fuel",
@@ -432,11 +422,6 @@
         "amount": 89.12
       },
       {
-        "name": "Staff wages",
-        "group": "Staff",
-        "amount": 88.49
-      },
-      {
         "name": "Merchant Account Fees",
         "group": "Office expenses",
         "amount": 65.0
@@ -462,25 +447,25 @@
     "id": "month_2025_3",
     "month": "Apr 2025",
     "is_partial": false,
-    "revenue": 84098.82,
-    "cogs": 2789.19,
-    "operating_exp": 47489.16,
+    "revenue": 83841.02,
+    "cogs": 2786.19,
+    "operating_exp": 47489.14,
     "other_exp": 556.98,
-    "total_exp": 50835.33,
-    "net_margin": 33263.49,
-    "margin_pct": 39.6,
+    "total_exp": 50832.31,
+    "net_margin": 33008.71,
+    "margin_pct": 39.4,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($23,936)",
+    "driver": "Largest expense: Staff wages ($23,936)",
     "rev_items": [
       {
         "name": "Individual Donor Contributions",
         "group": "Contributed income",
-        "amount": 31238.49
+        "amount": 31146.07
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
-        "amount": 21090.47
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
+        "amount": 20925.09
       },
       {
         "name": "Services",
@@ -498,8 +483,8 @@
         "amount": 7295.0
       },
       {
-        "name": "PROPERTY SALE",
-        "group": "PROPERTY SALE",
+        "name": "Property Sale",
+        "group": "Other Income (non-recurring)",
         "amount": 1000.0
       },
       {
@@ -510,8 +495,8 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
+        "name": "Staff wages",
+        "group": "Staff",
         "amount": 23935.7
       },
       {
@@ -532,7 +517,7 @@
       {
         "name": "Payroll Taxes",
         "group": "Personnel & Staffing",
-        "amount": 2154.61
+        "amount": 2154.59
       },
       {
         "name": "Building Repairs",
@@ -552,7 +537,7 @@
       {
         "name": "Facility & Cleaning Supplies",
         "group": "Shelter Operations",
-        "amount": 1362.41
+        "amount": 1359.41
       },
       {
         "name": "Insurance",
@@ -633,11 +618,11 @@
     "net_margin": -21154.5,
     "margin_pct": -89.7,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($23,769)",
+    "driver": "Largest expense: Staff wages ($23,769)",
     "rev_items": [
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
         "amount": 10411.96
       },
       {
@@ -651,8 +636,8 @@
         "amount": 2368.45
       },
       {
-        "name": "PROPERTY SALE",
-        "group": "PROPERTY SALE",
+        "name": "Property Sale",
+        "group": "Other Income (non-recurring)",
         "amount": 1000.0
       },
       {
@@ -663,8 +648,8 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
+        "name": "Staff wages",
+        "group": "Staff",
         "amount": 23768.7
       },
       {
@@ -778,19 +763,19 @@
     "id": "month_2025_5",
     "month": "Jun 2025",
     "is_partial": false,
-    "revenue": 26896.34,
+    "revenue": 21992.02,
     "cogs": 1228.25,
     "operating_exp": 46408.85,
     "other_exp": 370.4,
     "total_exp": 48007.5,
-    "net_margin": -21111.16,
-    "margin_pct": -78.5,
+    "net_margin": -26015.48,
+    "margin_pct": -118.3,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($24,274)",
+    "driver": "Largest expense: Staff wages ($24,274)",
     "rev_items": [
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
         "amount": 10839.54
       },
       {
@@ -806,13 +791,13 @@
       {
         "name": "Event Donation",
         "group": "Revenue",
-        "amount": 3305.16
+        "amount": -1599.16
       }
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
+        "name": "Staff wages",
+        "group": "Staff",
         "amount": 24273.64
       },
       {
@@ -931,20 +916,20 @@
     "id": "month_2025_6",
     "month": "Jul 2025",
     "is_partial": false,
-    "revenue": 36406.12,
-    "cogs": 2513.42,
+    "revenue": 36391.32,
+    "cogs": 2333.44,
     "operating_exp": 40988.47,
     "other_exp": 903.01,
-    "total_exp": 44404.9,
-    "net_margin": -7998.78,
-    "margin_pct": -22.0,
+    "total_exp": 44224.92,
+    "net_margin": -7833.6,
+    "margin_pct": -21.5,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($25,688)",
+    "driver": "Largest expense: Staff wages ($29,754)",
     "rev_items": [
       {
         "name": "Individual Donor Contributions",
         "group": "Contributed income",
-        "amount": 11734.23
+        "amount": 11719.43
       },
       {
         "name": "Government grants & contracts",
@@ -952,8 +937,8 @@
         "amount": 11102.96
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
         "amount": 9483.56
       },
       {
@@ -989,14 +974,9 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
-        "amount": 25687.82
-      },
-      {
         "name": "Staff wages",
         "group": "Staff",
-        "amount": 4066.16
+        "amount": 29753.98
       },
       {
         "name": "Payroll Taxes",
@@ -1039,14 +1019,14 @@
         "amount": 865.0
       },
       {
-        "name": "Animal Care Supplies",
-        "group": "Animal Care Supplies",
-        "amount": 742.7
-      },
-      {
         "name": "Building Repairs",
         "group": "Repairs and Maintenance",
         "amount": 640.88
+      },
+      {
+        "name": "Animal Care Supplies",
+        "group": "Animal Care Supplies",
+        "amount": 562.72
       },
       {
         "name": "Software & Apps",
@@ -1096,17 +1076,17 @@
     "is_partial": false,
     "revenue": 27506.74,
     "cogs": 835.49,
-    "operating_exp": 93996.54,
+    "operating_exp": 93556.54,
     "other_exp": 388.43,
-    "total_exp": 95220.46,
-    "net_margin": -67713.72,
-    "margin_pct": -246.2,
+    "total_exp": 94780.46,
+    "net_margin": -67273.72,
+    "margin_pct": -244.6,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($49,944)",
+    "driver": "Largest expense: Staff wages ($50,878)",
     "rev_items": [
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
         "amount": 11792.25
       },
       {
@@ -1142,9 +1122,9 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
-        "amount": 49944.42
+        "name": "Staff wages",
+        "group": "Staff",
+        "amount": 50877.92
       },
       {
         "name": "Building Repairs",
@@ -1169,7 +1149,7 @@
       {
         "name": "General Shelter Supplies",
         "group": "Shelter Operations & Facilities",
-        "amount": 2467.09
+        "amount": 2027.09
       },
       {
         "name": "Insurance",
@@ -1180,11 +1160,6 @@
         "name": "Emergency & Specialty Care",
         "group": "Veterinary & Medical Care",
         "amount": 1537.68
-      },
-      {
-        "name": "Staff wages",
-        "group": "Staff",
-        "amount": 933.5
       },
       {
         "name": "Microchips & Registries",
@@ -1289,13 +1264,13 @@
     "is_partial": false,
     "revenue": 91318.16,
     "cogs": 3027.37,
-    "operating_exp": 52483.35,
+    "operating_exp": 52482.81,
     "other_exp": 436.64,
-    "total_exp": 55947.36,
-    "net_margin": 35370.8,
+    "total_exp": 55946.82,
+    "net_margin": 35371.34,
     "margin_pct": 38.7,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($32,466)",
+    "driver": "Largest expense: Staff wages ($32,596)",
     "rev_items": [
       {
         "name": "FOUNDATION",
@@ -1303,8 +1278,8 @@
         "amount": 50959.75
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
         "amount": 12842.62
       },
       {
@@ -1340,9 +1315,9 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
-        "amount": 32466.48
+        "name": "Staff wages",
+        "group": "Staff",
+        "amount": 32596.48
       },
       {
         "name": "Spay & Neuter Program",
@@ -1352,7 +1327,7 @@
       {
         "name": "Payroll Taxes",
         "group": "Personnel & Staffing",
-        "amount": 2935.88
+        "amount": 2935.34
       },
       {
         "name": "Animal Care Supplies",
@@ -1425,11 +1400,6 @@
         "amount": 156.48
       },
       {
-        "name": "Staff wages",
-        "group": "Staff",
-        "amount": 130.0
-      },
-      {
         "name": "Special Events & Gala Expenses",
         "group": "Expenditures",
         "amount": 100.0
@@ -1482,17 +1452,17 @@
     "is_partial": false,
     "revenue": 312826.7,
     "cogs": 1323.31,
-    "operating_exp": 48809.31,
+    "operating_exp": 47324.47,
     "other_exp": 1057.53,
-    "total_exp": 51190.15,
-    "net_margin": 261636.55,
-    "margin_pct": 83.6,
+    "total_exp": 49705.31,
+    "net_margin": 263121.39,
+    "margin_pct": 84.1,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($31,664)",
+    "driver": "Largest expense: Staff wages ($32,027)",
     "rev_items": [
       {
-        "name": "PROPERTY SALE",
-        "group": "PROPERTY SALE",
+        "name": "Property Sale",
+        "group": "Other Income (non-recurring)",
         "amount": 251713.5
       },
       {
@@ -1501,8 +1471,8 @@
         "amount": 44367.08
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
         "amount": 9866.12
       },
       {
@@ -1523,9 +1493,9 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
-        "amount": 31663.53
+        "name": "Staff wages",
+        "group": "Staff",
+        "amount": 32026.86
       },
       {
         "name": "Spay & Neuter Program",
@@ -1563,11 +1533,6 @@
         "amount": 918.0
       },
       {
-        "name": "Legal fees",
-        "group": "Contract & professional fees",
-        "amount": 742.42
-      },
-      {
         "name": "Facility & Cleaning Supplies",
         "group": "Shelter Operations",
         "amount": 715.3
@@ -1586,11 +1551,6 @@
         "name": "Software & Apps",
         "group": "Office expenses",
         "amount": 450.36
-      },
-      {
-        "name": "Staff wages",
-        "group": "Staff",
-        "amount": 363.33
       },
       {
         "name": "Repairs and Maintenance",
@@ -1641,6 +1601,11 @@
         "name": "Heartworm Tests",
         "group": "Veterinary & Medical Care",
         "amount": 0.0
+      },
+      {
+        "name": "Legal fees",
+        "group": "Contract & professional fees",
+        "amount": -742.42
       }
     ]
   },
@@ -1656,7 +1621,7 @@
     "net_margin": -213.22,
     "margin_pct": -0.4,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($29,646)",
+    "driver": "Largest expense: Staff wages ($29,646)",
     "rev_items": [
       {
         "name": "Individual Donor Contributions",
@@ -1664,8 +1629,8 @@
         "amount": 37522.72
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
         "amount": 8388.7
       },
       {
@@ -1696,8 +1661,8 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
+        "name": "Staff wages",
+        "group": "Staff",
         "amount": 29646.24
       },
       {
@@ -1808,13 +1773,13 @@
     "is_partial": false,
     "revenue": 54900.26,
     "cogs": 1691.89,
-    "operating_exp": 47917.04,
+    "operating_exp": 47006.98,
     "other_exp": 906.59,
-    "total_exp": 50515.52,
-    "net_margin": 4384.74,
-    "margin_pct": 8.0,
+    "total_exp": 49605.46,
+    "net_margin": 5294.8,
+    "margin_pct": 9.6,
     "status": "",
-    "driver": "Largest expense: Salaries & Wages-1 ($30,140)",
+    "driver": "Largest expense: Staff wages ($30,140)",
     "rev_items": [
       {
         "name": "Memorial Donations",
@@ -1827,8 +1792,8 @@
         "amount": 19106.46
       },
       {
-        "name": "Animal Adoptions",
-        "group": "Revenue",
+        "name": "Adoption fees",
+        "group": "Adoptions and events",
         "amount": 11004.27
       },
       {
@@ -1854,8 +1819,8 @@
     ],
     "exp_items": [
       {
-        "name": "Salaries & Wages-1",
-        "group": "Salaries & Wages-1",
+        "name": "Staff wages",
+        "group": "Staff",
         "amount": 30140.3
       },
       {
@@ -1871,7 +1836,7 @@
       {
         "name": "Payroll Taxes",
         "group": "Personnel & Staffing",
-        "amount": 2642.03
+        "amount": 2641.97
       },
       {
         "name": "Spay & Neuter Program",
@@ -1887,11 +1852,6 @@
         "name": "Vehicle Fuel",
         "group": "Vehicle expenses",
         "amount": 906.59
-      },
-      {
-        "name": "Liability insurance",
-        "group": "Insurance",
-        "amount": 785.0
       },
       {
         "name": "Insurance",
@@ -1967,6 +1927,11 @@
         "name": "Office expenses",
         "group": "Office expenses",
         "amount": 0.0
+      },
+      {
+        "name": "Liability insurance",
+        "group": "Insurance",
+        "amount": -125.0
       }
     ]
   }

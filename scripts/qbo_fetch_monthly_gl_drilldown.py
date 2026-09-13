@@ -223,6 +223,15 @@ MANUAL_NAME_OVERRIDES = {
     "DONATIONS DIRECTED BY INDIVIDUALS": ("Individual Donor Contributions", "Contributed income"),
     "DONATION CANISTERS (DOG BANKS)": ("Donation Canisters (Dog Banks)", "Contributed income"),
     "SALARIES & WAGES": ("Staff wages", "Staff"),
+    # QBO has two separate accounts for this, "Salaries & Wages" and
+    # "Salaries & Wages-1" (confirmed live in the chart of accounts) -- a
+    # leftover duplicate from an earlier rename/merge, not two distinct kinds
+    # of pay. "-1" is actually the larger of the two in 2025 ($357,528.64 vs
+    # $37,279.38), so leaving it unmapped would show board members "Staff
+    # wages" as a small line and hide the real majority of payroll under a
+    # confusing raw account name. merge_duplicate_categories() below combines
+    # both into one "Staff wages" card once they share this display name.
+    "SALARIES & WAGES-1": ("Staff wages", "Staff"),
     "ACCOUNTING FEES": ("Accounting fees", "Contract & professional fees"),
     "LEGAL FEES": ("Legal fees", "Contract & professional fees"),
     "DOG MICROCHIP": ("Dog Microchip", "Veterinary & Medical Care"),
@@ -232,12 +241,39 @@ MANUAL_NAME_OVERRIDES = {
     "GAS": ("Vehicle Fuel", "Vehicle expenses"),
     "SALES OF PRODUCT INCOME": ("Sales of Product Income", "Revenue"),
     "SALES OF PRODUCT REVENUE": ("Sales of Product Income", "Revenue"),
+    # Confirmed directly by the org (2025-10-14 wire, $251,713.50): proceeds
+    # from a building/property sale, already posted by QBO's own books to an
+    # "Other Income" account, not a donor-contribution account -- keep that
+    # distinction visible instead of folding it into "Contributed income".
+    "PROPERTY SALE": ("Property Sale", "Other Income (non-recurring)"),
+    # 2026's detailed drilldown (api/data/monthly_drilldown_2026.json) already
+    # displays this exact QBO leaf account as "Adoption fees" / "Adoptions
+    # and events" -- confirmed live by inspection, not guessed. Matching it
+    # keeps 2025 and 2026 visually consistent in the Money Detail Explorer.
+    "ANIMAL ADOPTIONS": ("Adoption fees", "Adoptions and events"),
+}
+
+# Wire/ACH reference codes with no QBO entity attached, where the payer is
+# already known from context (confirmed with the org) rather than recoverable
+# from any QBO field -- avoids showing "Unknown" for a transaction whose
+# identity isn't actually in question.
+KNOWN_MEMO_LABELS = {
+    "INCOMING WIRE K0UAA": "Building sale proceeds (wire, Oct 14 2025)",
+    "INCOMING WIRE I1GW3": "Major Donor Wire (Oct 6 2025)",
 }
 
 
 def apply_manual_overrides(lookup: dict) -> dict:
+    # Force-assign rather than setdefault: an explicit, evidenced manual
+    # override should always win over whatever the automatic 2026-file scan
+    # happened to pick up. Confirmed necessary for "ANIMAL ADOPTIONS" --
+    # published_2026_ytd.json's coarser monthly_statements rev_items already
+    # carries a stale ("Animal Adoptions", "Revenue") pair that setdefault
+    # would otherwise leave in place ahead of this override, even though the
+    # detailed 2026 drilldown itself displays this same money as
+    # ("Adoption fees", "Adoptions and events").
     for key, (name, group) in MANUAL_NAME_OVERRIDES.items():
-        lookup.setdefault(key, {"name": name, "group": group})
+        lookup[key] = {"name": name, "group": group}
     return lookup
 
 
@@ -270,16 +306,33 @@ def extract_transactions(row: dict, entity_index: dict) -> list[dict]:
         if (vals[1] or "").strip().lower() == "journal entry":
             continue
         try:
-            amount = abs(float(str(vals[6]).replace(",", "") or 0))
+            amount = float(str(vals[6]).replace(",", "") or 0)
         except ValueError:
             continue
+        # Preserve the true sign -- do NOT abs() this. QBO's GL report shows
+        # a contra/reversing entry (a refund coded straight to a revenue
+        # account, a vendor rebate coded straight to an expense account, an
+        # overpayment refund) as negative, and abs()'ing it silently flipped
+        # a subtraction into an addition. Confirmed live and directly, not
+        # guessed: a $200 adoption-fee refund posts as "-200.00" under the
+        # "Animal Adoptions" revenue account (Check #4179/#4180, Jan 2025), a
+        # $220 BISSELL Pet Foundation rebate posts as "-220.00" under the
+        # "General Shelter Supplies" expense account, and a $455 liability-
+        # insurance overpayment refund posts as "-455.00" under "Liability
+        # insurance" -- all three were being added as positive instead of
+        # subtracted, overstating both revenue and expense.
         name = clean_name(vals[3])
+        if not name:
+            name = KNOWN_MEMO_LABELS.get((vals[4] or "").strip())
         if not name:
             # The GL report's own Name column is frequently blank even when
             # the underlying Deposit/SalesReceipt line has a real named
             # Entity -- backfill from the richer mirror-DB index built in
             # load_entity_enrichment_index() before falling back to "Unknown".
-            candidates = entity_index.get((date, round(amount, 2)))
+            # The index itself is keyed by the deposit LINE's own amount,
+            # which is always positive regardless of how this GL row's sign
+            # reads from the contra account's side -- look up by magnitude.
+            candidates = entity_index.get((date, round(abs(amount), 2)))
             if candidates:
                 name = candidates.pop(0)
         out.append({
@@ -379,6 +432,40 @@ def fetch_month(session, realm, year, month, start, end, buckets, name_group_map
                 opex_cats.append(cat)
             else:
                 other_cats.append(cat)
+
+    def merge_duplicate_categories(cats):
+        """Two raw QBO leaf accounts can map to the same display (name, group)
+        -- e.g. "Salaries & Wages" / "Salaries & Wages-1" both -> "Staff
+        wages". Combine those into one card instead of showing two
+        same-named categories with split totals."""
+        merged: dict = {}
+        order: list = []
+        for c in cats:
+            key = (c["name"], c["group"])
+            if key not in merged:
+                merged[key] = c
+                order.append(key)
+                continue
+            existing = merged[key]
+            existing["total"] = round(existing["total"] + c["total"], 2)
+            existing["txCount"] += c["txCount"]
+            by_payee = {p["name"]: p for p in existing["payees"]}
+            for p in c["payees"]:
+                if p["name"] in by_payee:
+                    ep = by_payee[p["name"]]
+                    ep["total"] = round(ep["total"] + p["total"], 2)
+                    ep["txCount"] += p["txCount"]
+                    ep["transactions"].extend(p["transactions"])
+                else:
+                    by_payee[p["name"]] = p
+            existing["payees"] = sorted(by_payee.values(), key=lambda p: -p["total"])
+            existing["payeeCount"] = len(existing["payees"])
+        return [merged[k] for k in order]
+
+    rev_cats = merge_duplicate_categories(rev_cats)
+    cogs_cats = merge_duplicate_categories(cogs_cats)
+    opex_cats = merge_duplicate_categories(opex_cats)
+    other_cats = merge_duplicate_categories(other_cats)
 
     def finalize(cats):
         total = sum(c["total"] for c in cats)

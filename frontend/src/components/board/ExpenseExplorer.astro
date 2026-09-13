@@ -696,14 +696,14 @@ function cc(color: string): ColorSet {
                                   )}
                                 </td>
                                 <td class="px-3 py-2.5 text-slate-500 hidden sm:table-cell whitespace-nowrap">{tx.channel}</td>
-                                <td class="px-6 py-2.5 text-right font-black font-mono text-emerald-700">+{fmt(tx.amount)}</td>
+                                <td class={`px-6 py-2.5 text-right font-black font-mono ${tx.amount < 0 ? 'text-rose-700' : 'text-emerald-700'}`}>{tx.amount < 0 ? '' : '+'}{fmt(tx.amount)}</td>
                               </tr>
                             ))}
                           </tbody>
                           <tfoot>
                             <tr class="border-t-2 border-slate-200 bg-white">
                               <td colspan={3} class="px-6 py-2 text-xs font-bold text-slate-600">Subtotal — {channel.payee}</td>
-                              <td class="px-6 py-2 text-right font-black font-mono text-emerald-800">+{fmt(channel.total)}</td>
+                              <td class={`px-6 py-2 text-right font-black font-mono ${channel.total < 0 ? 'text-rose-700' : 'text-emerald-800'}`}>{channel.total < 0 ? '' : '+'}{fmt(channel.total)}</td>
                             </tr>
                           </tfoot>
                         </table>
@@ -721,7 +721,7 @@ function cc(color: string): ColorSet {
                 </button>
                 <div class="text-right">
                   <span class="text-[10px] text-slate-400 block">Category Total</span>
-                  <span class={`font-black font-mono text-sm ${c.text}`}>+{fmt(cat.total)}</span>
+                  <span class={`font-black font-mono text-sm ${cat.total < 0 ? 'text-rose-700' : c.text}`}>{cat.total < 0 ? '' : '+'}{fmt(cat.total)}</span>
                 </div>
               </div>
             </div>
@@ -1036,7 +1036,7 @@ function cc(color: string): ColorSet {
               ${shareBar(cat.pctOfTotal, tone.fill)}
             </div>
             <div class="text-right flex-shrink-0 mr-1">
-              <span class="font-black font-mono text-base block text-emerald-700">+${fmtCurrency(cat.total)}</span>
+              <span class="font-black font-mono text-base block ${cat.total < 0 ? 'text-rose-700' : 'text-emerald-700'}">${cat.total < 0 ? '' : '+'}${fmtCurrency(cat.total)}</span>
               <span class="text-[11px] text-slate-400 block">${cat.payeeCount} entities · ${cat.txCount} deposits</span>
             </div>
             <span class="ee-inflow-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-200 flex-shrink-0 ml-1 flex items-center justify-center">
@@ -1058,7 +1058,7 @@ function cc(color: string): ColorSet {
                     <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black flex items-center justify-center flex-shrink-0 select-none">${pIdx + 1}</span>
                     <span class="flex-1 min-w-0 font-semibold text-sm text-slate-800 truncate text-left">${payee.name}</span>
                     <span class="w-20 text-right text-[11px] text-slate-400 hidden sm:block">${payee.txCount} dep</span>
-                    <span class="w-28 text-right font-black font-mono text-sm text-emerald-700 flex-shrink-0">+${fmtCurrency(payee.total)}</span>
+                    <span class="w-28 text-right font-black font-mono text-sm ${payee.total < 0 ? 'text-rose-700' : 'text-emerald-700'} flex-shrink-0">${payee.total < 0 ? '' : '+'}${fmtCurrency(payee.total)}</span>
                     <span class="ee-channel-chevron text-slate-400 group-hover:text-slate-600 transition-transform duration-150 w-5 flex items-center justify-center flex-shrink-0">
                       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </span>
@@ -1089,7 +1089,7 @@ function cc(color: string): ColorSet {
                                 <span>${tx.type}</span>
                                 ${tx.num ? `<span class="ml-1 px-1 rounded bg-slate-200 text-slate-700 text-[9px] font-mono">#${tx.num}</span>` : ''}
                               </td>
-                              <td class="px-6 py-2 text-right font-black font-mono text-emerald-700">+${fmtCurrency(tx.amount)}</td>
+                              <td class="px-6 py-2 text-right font-black font-mono ${tx.amount < 0 ? 'text-rose-700' : 'text-emerald-700'}">${tx.amount < 0 ? '' : '+'}${fmtCurrency(tx.amount)}</td>
                             </tr>
                           `).join('')}
                         </tbody>
@@ -1101,7 +1101,7 @@ function cc(color: string): ColorSet {
             </div>
             <div class="px-5 py-3 bg-white border-t border-emerald-100 flex items-center justify-between">
               <span class="text-xs text-slate-500">${cat.payees.length} entities in category</span>
-              <span class="font-black font-mono text-sm text-emerald-700">+${fmtCurrency(cat.total)}</span>
+              <span class="font-black font-mono text-sm ${cat.total < 0 ? 'text-rose-700' : 'text-emerald-700'}">${cat.total < 0 ? '' : '+'}${fmtCurrency(cat.total)}</span>
             </div>
           </div>
         `;

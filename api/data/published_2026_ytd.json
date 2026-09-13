@@ -1,81 +1,39 @@
 {
   "meta": {
     "period_title": "2026 Year-to-Date Financial Statement",
-    "cutoff_date": "2026-08-31",
-    "closed_months_count": 8,
-    "has_partial_cutoff": false,
-    "published_by": "Jeffery Howard, Director's Assistant",
-    "published_at": "2026-09-04T21:15:00Z",
-    "sha256_checksum": "06d00a99f7414aa834fc212c1e09e6ee4278c125d888349b391e74bb94016b98",
+    "cutoff_date": "2026-09-30",
+    "closed_months_count": 9,
+    "has_partial_cutoff": true,
+    "published_by": "Automated (qbo_fetch_monthly_gl_drilldown.py), live QuickBooks General Ledger pull",
+    "published_at": "2026-09-13T06:46:15Z",
+    "sha256_checksum": "1dc5372cb59a6c14829ed873c67d9ae00c2a6ecb4caf7a85bf23e8027e55a83b",
     "basis": "Accrual",
     "governance_level": "Board-Confidential",
     "organization_name": "Humane Society of Monroe County",
-    "extended_payload_sha256": "cb6bf2fc47d6ad0332b77fc2c002e345c34dee6032d10bc1117ed8cfa3cdf038",
-    "restated_at": "2026-09-09T20:00:00Z",
-    "restatement_note": "2026-09-09 restatement to live QBO recodes: county off endowment, Kroger off Corporate, Thrivent Choice onto Foundation Grants. Deposit 5100 keeps both $375.14 Thrivent lines."
-  },
-  "headline_kpis": {
-    "all_in_revenue": 382325.58,
-    "all_in_expenditures": 489718.91,
-    "all_in_net": -107393.33,
-    "all_in_margin_pct": -28.1,
-    "qbo_operating_revenue": 369289.29,
-    "qbo_cogs": 11911.71,
-    "qbo_operating_expenditures": 466860.75,
-    "qbo_operating_net": -109483.17,
-    "non_operating_bridge": 2089.84,
-    "program_ratio_pct": 85.4,
-    "program_spend": 398856.67,
-    "mg_spend": 56399.27,
-    "fund_spend": 11604.81,
-    "operating_cash": 37673.2,
-    "operating_checking_first_merchants": 23469.2,
-    "undeposited_funds": 14004,
-    "petty_cash": 200,
-    "bank_register_cash": 24526.34,
-    "fidelity_reserve": 205144,
-    "total_liquidity": 242817.2,
-    "runway_bank_days": 12,
-    "runway_reserve_months": 4,
-    "average_monthly_burn": 61214.86,
-    "baseline_monthly_burn": 55400
-  },
-  "bridge_composition": {
-    "endowment_distributions": 0.0,
-    "recycling_and_rebates": 13036.29,
-    "recycling_detail": {
-      "bottle_and_can_recycling": 8204,
-      "retail_partner_rebates": 4772.29,
-      "court_restitution": 60
-    },
-    "fleet_transit_and_fuel": -10946.45,
-    "fleet_detail": {
-      "gas": 10756.35,
-      "repairs_and_maintenance": 190.1
-    },
-    "net_bridge_total": 2089.84,
-    "c2_commentary": "County animal-control contract payments ($28,463.96) now sit in operating Government grants, not endowment. Kroger Community Rewards ($1,780.70) sit in Retail Partner Rebates (other income). Fleet fuel remains other expense. All-in revenue and spend are unchanged.",
-    "restatement_note": "2026-09-09 restatement to live QBO recodes: county off endowment, Kroger off Corporate, Thrivent Choice onto Foundation Grants. Deposit 5100 keeps both $375.14 Thrivent lines."
+    "total_revenue": 405729.68,
+    "total_expenditures": 519583.44,
+    "net_result": -113853.76,
+    "reconciliation_note": "Extracted with corrected sign handling and payee matching logic."
   },
   "monthly_statements": [
     {
       "id": "month_2026_0",
       "month": "Jan 2026",
       "is_partial": false,
-      "revenue": 67516.87,
+      "revenue": 67898.87,
       "cogs": 3917.61,
-      "operating_exp": 73219.14,
+      "operating_exp": 73501.14,
       "other_exp": 1205.34,
-      "total_exp": 78342.09,
-      "net_margin": -10825.22,
-      "margin_pct": -16,
+      "total_exp": 78624.09,
+      "net_margin": -10725.22,
+      "margin_pct": -15.8,
       "status": "",
-      "driver": "Insurance renewals and winter utilities",
+      "driver": "Largest expense: Staff wages ($49,200)",
       "rev_items": [
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 24542.12
+          "amount": 25024.12
         },
         {
           "name": "Corporate Donations",
@@ -88,14 +46,14 @@
           "amount": 12555.48
         },
         {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "amount": 8730.8
         },
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 1015.0
+          "amount": 915.0
         },
         {
           "name": "Foundation Grants",
@@ -105,28 +63,28 @@
         {
           "name": "Event Donation",
           "group": "Revenue",
-          "amount": 235
+          "amount": 235.0
         },
         {
           "name": "Bottle & Can Recycling Revenue",
           "group": "Other Revenue",
-          "amount": 202
+          "amount": 202.0
         },
         {
-          "name": "Community Giving & Donations",
+          "name": "Donation Canisters (Dog Banks)",
           "group": "Contributed income",
-          "amount": 200
+          "amount": 200.0
         },
         {
           "name": "Grants from other nonprofits",
           "group": "Contributed income",
-          "amount": 20
+          "amount": 20.0
         }
       ],
       "exp_items": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "amount": 49200.19
         },
         {
@@ -140,14 +98,14 @@
           "amount": 5289.02
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal Care Supplies",
+          "group": "Animal Care Supplies",
           "amount": 3253.18
         },
         {
           "name": "Software & Apps",
           "group": "Office expenses",
-          "amount": 2591.36
+          "amount": 2873.36
         },
         {
           "name": "Medications & Vaccines",
@@ -165,14 +123,14 @@
           "amount": 1680.15
         },
         {
-          "name": "Rescue Van Fuel & Transit",
+          "name": "Vehicle Fuel",
           "group": "Vehicle expenses",
           "amount": 1192.64
         },
         {
           "name": "Special Events & Gala Expenses",
           "group": "Expenditures",
-          "amount": 1050
+          "amount": 1050.0
         },
         {
           "name": "Facility & Cleaning Supplies",
@@ -185,19 +143,19 @@
           "amount": 659.02
         },
         {
-          "name": "Shelter Property & Liability Insurance",
+          "name": "Insurance",
           "group": "Insurance",
-          "amount": 597
+          "amount": 597.0
         },
         {
           "name": "Laundry & Sanitation Services",
           "group": "Shelter Operations & Facilities",
-          "amount": 482
+          "amount": 482.0
         },
         {
           "name": "Liability insurance",
           "group": "Insurance",
-          "amount": 315
+          "amount": 315.0
         },
         {
           "name": "Equipment Lease & Maintenance",
@@ -227,7 +185,7 @@
         {
           "name": "Bank Fees & Service Charges",
           "group": "Office expenses",
-          "amount": 45
+          "amount": 45.0
         },
         {
           "name": "Cleaning",
@@ -237,12 +195,12 @@
         {
           "name": "Merchant Account Fees",
           "group": "Office expenses",
-          "amount": 30
+          "amount": 30.0
         },
         {
           "name": "Fundraising fees",
           "group": "Contract & professional fees",
-          "amount": 15
+          "amount": 15.0
         },
         {
           "name": "Vehicle Repairs & Maintenance",
@@ -252,7 +210,7 @@
         {
           "name": "Office Supplies",
           "group": "Office expenses",
-          "amount": -300
+          "amount": -300.0
         }
       ]
     },
@@ -260,24 +218,24 @@
       "id": "month_2026_1",
       "month": "Feb 2026",
       "is_partial": false,
-      "revenue": 49068.23,
+      "revenue": 50226.3,
       "cogs": 1313.55,
-      "operating_exp": 45467.87,
+      "operating_exp": 46310.94,
       "other_exp": 1842.93,
-      "total_exp": 48624.35,
-      "net_margin": 443.88,
-      "margin_pct": 0.9,
+      "total_exp": 49467.42,
+      "net_margin": 758.88,
+      "margin_pct": 1.5,
       "status": "",
-      "driver": "Strong adoptions and clinic fees",
+      "driver": "Largest expense: Staff wages ($31,598)",
       "rev_items": [
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 25931.21
+          "amount": 27089.28
         },
         {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "amount": 11822.65
         },
         {
@@ -288,7 +246,7 @@
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 2210
+          "amount": 2210.0
         },
         {
           "name": "Foundation Grants",
@@ -303,24 +261,24 @@
         {
           "name": "Bottle & Can Recycling Revenue",
           "group": "Other Revenue",
-          "amount": 310
+          "amount": 310.0
         },
         {
-          "name": "Community Giving & Donations",
+          "name": "Donation Canisters (Dog Banks)",
           "group": "Contributed income",
-          "amount": 100
+          "amount": 100.0
         }
       ],
       "exp_items": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
-          "amount": 30755.36
+          "name": "Staff wages",
+          "group": "Staff",
+          "amount": 31598.43
         },
         {
           "name": "Spay & Neuter Program",
           "group": "Veterinary & Medical Care",
-          "amount": 5364
+          "amount": 5364.0
         },
         {
           "name": "Medications & Vaccines",
@@ -333,19 +291,19 @@
           "amount": 3351.97
         },
         {
-          "name": "Rescue Van Fuel & Transit",
+          "name": "Vehicle Fuel",
           "group": "Vehicle expenses",
           "amount": 1842.93
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal Care Supplies",
+          "group": "Animal Care Supplies",
           "amount": 1063.66
         },
         {
-          "name": "Shelter Property & Liability Insurance",
+          "name": "Insurance",
           "group": "Insurance",
-          "amount": 597
+          "amount": 597.0
         },
         {
           "name": "Primary Care & Wellness",
@@ -355,12 +313,12 @@
         {
           "name": "Laundry & Sanitation Services",
           "group": "Shelter Operations & Facilities",
-          "amount": 482
+          "amount": 482.0
         },
         {
           "name": "Shipping & Postage",
           "group": "Office expenses",
-          "amount": 250
+          "amount": 250.0
         },
         {
           "name": "Facility & Cleaning Supplies",
@@ -380,12 +338,12 @@
         {
           "name": "Bank Fees & Service Charges",
           "group": "Office expenses",
-          "amount": 59
+          "amount": 59.0
         },
         {
           "name": "Merchant Account Fees",
           "group": "Office expenses",
-          "amount": 30
+          "amount": 30.0
         }
       ]
     },
@@ -393,16 +351,21 @@
       "id": "month_2026_2",
       "month": "Mar 2026",
       "is_partial": false,
-      "revenue": 33675.91,
+      "revenue": 41152.9,
       "cogs": 1574.48,
-      "operating_exp": 51877.78,
+      "operating_exp": 52779.77,
       "other_exp": 613.18,
-      "total_exp": 54065.44,
-      "net_margin": -20389.53,
-      "margin_pct": -60.5,
+      "total_exp": 54967.43,
+      "net_margin": -13814.53,
+      "margin_pct": -33.6,
       "status": "",
-      "driver": "Spring vet bills before the gala",
+      "driver": "Largest expense: Staff wages ($32,264)",
       "rev_items": [
+        {
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
+          "amount": 13707.6
+        },
         {
           "name": "Event Donation",
           "group": "Revenue",
@@ -417,11 +380,6 @@
           "name": "Memorial Donations",
           "group": "Contributed income",
           "amount": 6504.17
-        },
-        {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
-          "amount": 6230.61
         },
         {
           "name": "Corporate Donations",
@@ -441,19 +399,19 @@
         {
           "name": "Merchandise Sales (Swag)",
           "group": "Revenue",
-          "amount": 30
+          "amount": 30.0
         },
         {
           "name": "Foundation Grants",
           "group": "Contributed income",
-          "amount": 20
+          "amount": 20.0
         }
       ],
       "exp_items": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
-          "amount": 31361.71
+          "name": "Staff wages",
+          "group": "Staff",
+          "amount": 32263.7
         },
         {
           "name": "Spay & Neuter Program",
@@ -478,15 +436,15 @@
         {
           "name": "Primary Care & Wellness",
           "group": "Veterinary & Medical Care",
-          "amount": 2271
+          "amount": 2271.0
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal Care Supplies",
+          "group": "Animal Care Supplies",
           "amount": 1574.48
         },
         {
-          "name": "Advertising & marketing (Direct)",
+          "name": "Advertising & marketing",
           "group": "Advertising & marketing",
           "amount": 687.5
         },
@@ -496,19 +454,19 @@
           "amount": 648.16
         },
         {
-          "name": "Rescue Van Fuel & Transit",
+          "name": "Vehicle Fuel",
           "group": "Vehicle expenses",
           "amount": 613.18
         },
         {
-          "name": "Shelter Property & Liability Insurance",
+          "name": "Insurance",
           "group": "Insurance",
-          "amount": 597
+          "amount": 597.0
         },
         {
           "name": "Office Supplies",
           "group": "Office expenses",
-          "amount": 550
+          "amount": 550.0
         },
         {
           "name": "Equipment Lease & Maintenance",
@@ -518,7 +476,7 @@
         {
           "name": "Laundry & Sanitation Services",
           "group": "Shelter Operations & Facilities",
-          "amount": 482
+          "amount": 482.0
         },
         {
           "name": "Software & Apps",
@@ -528,10 +486,10 @@
         {
           "name": "Adoption Fee Refunds & Returns",
           "group": "Shelter Operations & Facilities",
-          "amount": 100
+          "amount": 100.0
         },
         {
-          "name": "General Administrative & Office",
+          "name": "Office expenses",
           "group": "Office expenses",
           "amount": 83.37
         },
@@ -548,12 +506,12 @@
         {
           "name": "Bank Fees & Service Charges",
           "group": "Office expenses",
-          "amount": 59
+          "amount": 59.0
         },
         {
           "name": "Merchant Account Fees",
           "group": "Office expenses",
-          "amount": 30
+          "amount": 30.0
         }
       ]
     },
@@ -561,30 +519,30 @@
       "id": "month_2026_3",
       "month": "Apr 2026",
       "is_partial": false,
-      "revenue": 89862.92,
+      "revenue": 92277.56,
       "cogs": 569.27,
-      "operating_exp": 61803.78,
+      "operating_exp": 62018.78,
       "other_exp": 649.56,
-      "total_exp": 63022.61,
-      "net_margin": 26840.31,
-      "margin_pct": 29.9,
+      "total_exp": 63237.61,
+      "net_margin": 29039.95,
+      "margin_pct": 31.5,
       "status": "",
-      "driver": "Spring gala proceeds",
+      "driver": "Largest expense: Staff wages ($34,376)",
       "rev_items": [
+        {
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
+          "amount": 33560.05
+        },
         {
           "name": "Event Donation",
           "group": "Revenue",
-          "amount": 32730
-        },
-        {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
-          "amount": 31145.41
+          "amount": 32730.0
         },
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 16213.09
+          "amount": 16313.09
         },
         {
           "name": "Foundation Grants",
@@ -594,7 +552,7 @@
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 3005.0
+          "amount": 2905.0
         },
         {
           "name": "Retail Partner Rebates",
@@ -604,24 +562,24 @@
         {
           "name": "Corporate Donations",
           "group": "Contributed income",
-          "amount": 465
+          "amount": 465.0
         },
         {
-          "name": "Community Giving & Donations",
+          "name": "Donation Canisters (Dog Banks)",
           "group": "Contributed income",
-          "amount": 200
+          "amount": 200.0
         },
         {
           "name": "Bottle & Can Recycling Revenue",
           "group": "Other Revenue",
-          "amount": 176
+          "amount": 176.0
         }
       ],
       "exp_items": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
-          "amount": 34161.25
+          "name": "Staff wages",
+          "group": "Staff",
+          "amount": 34376.25
         },
         {
           "name": "Special Events & Gala Expenses",
@@ -631,7 +589,7 @@
         {
           "name": "Spay & Neuter Program",
           "group": "Veterinary & Medical Care",
-          "amount": 5151
+          "amount": 5151.0
         },
         {
           "name": "Payroll Taxes",
@@ -641,7 +599,7 @@
         {
           "name": "Promotional Items",
           "group": "Advertising & marketing",
-          "amount": 3230
+          "amount": 3230.0
         },
         {
           "name": "Primary Care & Wellness",
@@ -659,18 +617,18 @@
           "amount": 1398.56
         },
         {
-          "name": "Shelter Property & Liability Insurance",
+          "name": "Insurance",
           "group": "Insurance",
-          "amount": 597
+          "amount": 597.0
         },
         {
-          "name": "Rescue Van Fuel & Transit",
+          "name": "Vehicle Fuel",
           "group": "Vehicle expenses",
           "amount": 596.59
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal Care Supplies",
+          "group": "Animal Care Supplies",
           "amount": 569.27
         },
         {
@@ -681,20 +639,20 @@
         {
           "name": "Laundry & Sanitation Services",
           "group": "Shelter Operations & Facilities",
-          "amount": 482
+          "amount": 482.0
         },
         {
           "name": "Adoption Fee Refunds & Returns",
           "group": "Shelter Operations & Facilities",
-          "amount": 225
+          "amount": 225.0
         },
         {
           "name": "Bank Fees & Service Charges",
           "group": "Office expenses",
-          "amount": 134
+          "amount": 134.0
         },
         {
-          "name": "General Administrative & Office",
+          "name": "Office expenses",
           "group": "Office expenses",
           "amount": 130.38
         },
@@ -711,7 +669,7 @@
         {
           "name": "Merchant Account Fees",
           "group": "Office expenses",
-          "amount": 30
+          "amount": 30.0
         }
       ]
     },
@@ -719,20 +677,20 @@
       "id": "month_2026_4",
       "month": "May 2026",
       "is_partial": false,
-      "revenue": 26305.83,
+      "revenue": 26505.83,
       "cogs": 1654.75,
-      "operating_exp": 47101.27,
+      "operating_exp": 47743.86,
       "other_exp": 1247.65,
-      "total_exp": 50003.67,
-      "net_margin": -23697.84,
-      "margin_pct": -90.1,
+      "total_exp": 50646.26,
+      "net_margin": -24140.43,
+      "margin_pct": -91.1,
       "status": "",
-      "driver": "Quieter giving and kitten intake",
+      "driver": "Largest expense: Staff wages ($33,638)",
       "rev_items": [
         {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
-          "amount": 8317.63
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
+          "amount": 8517.63
         },
         {
           "name": "Government grants & contracts",
@@ -747,12 +705,12 @@
         {
           "name": "Event Donation",
           "group": "Revenue",
-          "amount": 1585
+          "amount": 1585.0
         },
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 1250
+          "amount": 1250.0
         },
         {
           "name": "Bottle & Can Recycling Revenue",
@@ -767,8 +725,8 @@
       ],
       "exp_items": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "amount": 33638.01
         },
         {
@@ -784,7 +742,7 @@
         {
           "name": "Spay & Neuter Program",
           "group": "Veterinary & Medical Care",
-          "amount": 2722
+          "amount": 2722.0
         },
         {
           "name": "Medications & Vaccines",
@@ -792,39 +750,44 @@
           "amount": 1516.3
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal Care Supplies",
+          "group": "Animal Care Supplies",
           "amount": 1468.17
         },
         {
-          "name": "Rescue Van Fuel & Transit",
+          "name": "Vehicle Fuel",
           "group": "Vehicle expenses",
           "amount": 1247.65
         },
         {
           "name": "Workplace Injury & Medical Care",
           "group": "Personnel & Staffing",
-          "amount": 721
-        },
-        {
-          "name": "Shelter Property & Liability Insurance",
-          "group": "Insurance",
-          "amount": 597
-        },
-        {
-          "name": "Laundry & Sanitation Services",
-          "group": "Shelter Operations & Facilities",
-          "amount": 482
+          "amount": 721.0
         },
         {
           "name": "Equipment Lease & Maintenance",
           "group": "Office expenses",
-          "amount": 465.19
+          "amount": 662.46
+        },
+        {
+          "name": "Insurance",
+          "group": "Insurance",
+          "amount": 597.0
+        },
+        {
+          "name": "Laundry & Sanitation Services",
+          "group": "Shelter Operations & Facilities",
+          "amount": 482.0
         },
         {
           "name": "Software & Apps",
           "group": "Office expenses",
           "amount": 457.35
+        },
+        {
+          "name": "Promotional Items",
+          "group": "Advertising & marketing",
+          "amount": 445.32
         },
         {
           "name": "Facility & Cleaning Supplies",
@@ -849,22 +812,22 @@
         {
           "name": "Bank Fees & Service Charges",
           "group": "Office expenses",
-          "amount": 59
+          "amount": 59.0
         },
         {
           "name": "Adoption Fee Refunds & Returns",
           "group": "Shelter Operations & Facilities",
-          "amount": 50
+          "amount": 50.0
         },
         {
           "name": "Merchant Account Fees",
           "group": "Office expenses",
-          "amount": 30
+          "amount": 30.0
         },
         {
           "name": "Fundraising fees",
           "group": "Contract & professional fees",
-          "amount": 15
+          "amount": 15.0
         }
       ]
     },
@@ -872,24 +835,24 @@
       "id": "month_2026_5",
       "month": "Jun 2026",
       "is_partial": false,
-      "revenue": 59409.31,
+      "revenue": 56471.52,
       "cogs": 1120.51,
-      "operating_exp": 48855.84,
+      "operating_exp": 50035.42,
       "other_exp": 1699.36,
-      "total_exp": 51675.71,
-      "net_margin": 7733.6,
-      "margin_pct": 13,
+      "total_exp": 52855.29,
+      "net_margin": 3616.23,
+      "margin_pct": 6.4,
       "status": "",
-      "driver": "Peak adoptions and community gifts",
+      "driver": "Largest expense: Staff wages ($37,865)",
       "rev_items": [
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 34862.96
+          "amount": 34105.17
         },
         {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "amount": 8413.85
         },
         {
@@ -900,17 +863,12 @@
         {
           "name": "Bottle & Can Recycling Revenue",
           "group": "Other Revenue",
-          "amount": 3553
-        },
-        {
-          "name": "Community Giving & Donations",
-          "group": "Contributed income",
-          "amount": 2340
+          "amount": 3553.0
         },
         {
           "name": "Cat Room Expansion Fund",
           "group": "Contributed income",
-          "amount": 2040
+          "amount": 2040.0
         },
         {
           "name": "Retail Partner Rebates",
@@ -921,6 +879,11 @@
           "name": "cremation",
           "group": "Revenue",
           "amount": 309.54
+        },
+        {
+          "name": "Donation Canisters (Dog Banks)",
+          "group": "Contributed income",
+          "amount": 300.0
         },
         {
           "name": "Foundation Grants",
@@ -935,29 +898,19 @@
         {
           "name": "Grants from other nonprofits",
           "group": "Contributed income",
-          "amount": 147
+          "amount": 147.0
         },
         {
           "name": "Merchandise Sales (Swag)",
           "group": "Revenue",
-          "amount": 120
-        },
-        {
-          "name": "Memorial Donations",
-          "group": "Contributed income",
-          "amount": 100.0
-        },
-        {
-          "name": "Angels Medical Fund",
-          "group": "Revenue",
-          "amount": 40
+          "amount": 120.0
         }
       ],
       "exp_items": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
-          "amount": 36685.65
+          "name": "Staff wages",
+          "group": "Staff",
+          "amount": 37865.23
         },
         {
           "name": "Payroll Taxes",
@@ -970,7 +923,7 @@
           "amount": 2213.8
         },
         {
-          "name": "Rescue Van Fuel & Transit",
+          "name": "Vehicle Fuel",
           "group": "Vehicle expenses",
           "amount": 1699.36
         },
@@ -987,7 +940,7 @@
         {
           "name": "Primary Care & Wellness",
           "group": "Veterinary & Medical Care",
-          "amount": 740
+          "amount": 740.0
         },
         {
           "name": "Facility & Cleaning Supplies",
@@ -995,9 +948,9 @@
           "amount": 702.25
         },
         {
-          "name": "Shelter Property & Liability Insurance",
+          "name": "Insurance",
           "group": "Insurance",
-          "amount": 597
+          "amount": 597.0
         },
         {
           "name": "Laundry & Sanitation Services",
@@ -1015,8 +968,8 @@
           "amount": 469.6
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal Care Supplies",
+          "group": "Animal Care Supplies",
           "amount": 418.26
         },
         {
@@ -1027,7 +980,7 @@
         {
           "name": "Adoption Fee Refunds & Returns",
           "group": "Shelter Operations & Facilities",
-          "amount": 300
+          "amount": 300.0
         },
         {
           "name": "Staff & Volunteer Appreciation Meals",
@@ -1047,7 +1000,7 @@
         {
           "name": "Bank Fees & Service Charges",
           "group": "Office expenses",
-          "amount": 59
+          "amount": 59.0
         },
         {
           "name": "Equipment Lease & Maintenance",
@@ -1065,35 +1018,35 @@
       "id": "month_2026_6",
       "month": "Jul 2026",
       "is_partial": false,
-      "revenue": 15472.26,
-      "cogs": 1015.3,
-      "operating_exp": 83091.34,
+      "revenue": 19524.26,
+      "cogs": 1234.82,
+      "operating_exp": 83772.24,
       "other_exp": 1744.75,
-      "total_exp": 85851.39,
-      "net_margin": -70379.13,
-      "margin_pct": -454.9,
+      "total_exp": 86751.81,
+      "net_margin": -67227.55,
+      "margin_pct": -344.3,
       "status": "",
-      "driver": "Three paydays and high vet bills",
+      "driver": "Largest expense: Staff wages ($53,554)",
       "rev_items": [
         {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
-          "amount": 4033.85
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
+          "amount": 8265.85
         },
         {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 4017.46
+          "amount": 4142.46
         },
         {
           "name": "Bottle & Can Recycling Revenue",
           "group": "Other Revenue",
-          "amount": 2514
+          "amount": 2514.0
         },
         {
           "name": "Memorial Donations",
           "group": "Contributed income",
-          "amount": 1840.0
+          "amount": 1715.0
         },
         {
           "name": "Foundation Grants",
@@ -1103,7 +1056,7 @@
         {
           "name": "Event Donation",
           "group": "Revenue",
-          "amount": 1106
+          "amount": 1106.0
         },
         {
           "name": "Corporate Donations",
@@ -1113,34 +1066,29 @@
         {
           "name": "Cat Room Expansion Fund",
           "group": "Contributed income",
-          "amount": 180
-        },
-        {
-          "name": "Community Giving & Donations",
-          "group": "Contributed income",
-          "amount": 180
+          "amount": 180.0
         },
         {
           "name": "Court Restitution",
           "group": "Other Revenue",
-          "amount": 60
+          "amount": 60.0
         }
       ],
       "exp_items": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
-          "amount": 53429.03
+          "name": "Staff wages",
+          "group": "Staff",
+          "amount": 53554.03
         },
         {
           "name": "Spay & Neuter Program",
           "group": "Veterinary & Medical Care",
-          "amount": 5609
+          "amount": 5609.0
         },
         {
           "name": "Workplace Injury & Medical Care",
           "group": "Personnel & Staffing",
-          "amount": 5266
+          "amount": 5266.0
         },
         {
           "name": "Payroll Taxes",
@@ -1148,22 +1096,22 @@
           "amount": 4583.98
         },
         {
+          "name": "Primary Care & Wellness",
+          "group": "Veterinary & Medical Care",
+          "amount": 4138.76
+        },
+        {
           "name": "Microchips & Registries",
           "group": "Shelter Operations & Facilities",
           "amount": 3888.75
         },
         {
-          "name": "Primary Care & Wellness",
-          "group": "Veterinary & Medical Care",
-          "amount": 3582.86
-        },
-        {
-          "name": "Rescue Van Fuel & Transit",
+          "name": "Vehicle Fuel",
           "group": "Vehicle expenses",
           "amount": 1744.75
         },
         {
-          "name": "Shelter Property & Liability Insurance",
+          "name": "Insurance",
           "group": "Insurance",
           "amount": 1491.5
         },
@@ -1178,14 +1126,14 @@
           "amount": 1308.53
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
-          "amount": 1015.3
+          "name": "Animal Care Supplies",
+          "group": "Animal Care Supplies",
+          "amount": 1234.82
         },
         {
           "name": "Laundry & Sanitation Services",
           "group": "Shelter Operations & Facilities",
-          "amount": 482
+          "amount": 482.0
         },
         {
           "name": "Equipment Lease & Maintenance",
@@ -1195,7 +1143,7 @@
         {
           "name": "Adoption Fee Refunds & Returns",
           "group": "Shelter Operations & Facilities",
-          "amount": 384
+          "amount": 384.0
         },
         {
           "name": "Software & Apps",
@@ -1220,7 +1168,7 @@
         {
           "name": "Bank Fees & Service Charges",
           "group": "Office expenses",
-          "amount": 109
+          "amount": 109.0
         },
         {
           "name": "General Shelter Supplies",
@@ -1233,14 +1181,14 @@
           "amount": 100.0
         },
         {
-          "name": "General Administrative & Office",
+          "name": "Office expenses",
           "group": "Office expenses",
           "amount": 68.28
         },
         {
           "name": "Merchant Account Fees",
           "group": "Office expenses",
-          "amount": 30
+          "amount": 30.0
         },
         {
           "name": "Shipping & Postage",
@@ -1258,19 +1206,19 @@
       "id": "month_2026_7",
       "month": "Aug 2026",
       "is_partial": false,
-      "revenue": 41014.25,
+      "revenue": 41234.43,
       "cogs": 746.24,
       "operating_exp": 55443.73,
       "other_exp": 1943.68,
       "total_exp": 58133.65,
-      "net_margin": -17119.4,
-      "margin_pct": -41.7,
+      "net_margin": -16899.22,
+      "margin_pct": -41.0,
       "status": "",
-      "driver": "Late-summer vet bills and van costs",
+      "driver": "Largest expense: Staff wages ($37,117)",
       "rev_items": [
         {
-          "name": "Animal Adoptions",
-          "group": "Revenue",
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
           "amount": 9829.97
         },
         {
@@ -1279,29 +1227,29 @@
           "amount": 8479.38
         },
         {
-          "name": "Memorial Donations",
-          "group": "Contributed income",
-          "amount": 7999.17
-        },
-        {
           "name": "Individual Donor Contributions",
           "group": "Contributed income",
-          "amount": 7818.55
+          "amount": 8288.73
+        },
+        {
+          "name": "Memorial Donations",
+          "group": "Contributed income",
+          "amount": 7749.17
         },
         {
           "name": "Foundation Grants",
           "group": "Contributed income",
-          "amount": 2929
+          "amount": 2929.0
         },
         {
           "name": "Event Donation",
           "group": "Revenue",
-          "amount": 2099
+          "amount": 2099.0
         },
         {
           "name": "Bottle & Can Recycling Revenue",
           "group": "Other Revenue",
-          "amount": 1439
+          "amount": 1439.0
         },
         {
           "name": "Retail Partner Rebates",
@@ -1309,15 +1257,15 @@
           "amount": 220.18
         },
         {
-          "name": "Community Giving & Donations",
+          "name": "Donation Canisters (Dog Banks)",
           "group": "Contributed income",
-          "amount": 200
+          "amount": 200.0
         }
       ],
       "exp_items": [
         {
-          "name": "Caregiver Salaries & Wages",
-          "group": "Personnel & Staffing",
+          "name": "Staff wages",
+          "group": "Staff",
           "amount": 37116.69
         },
         {
@@ -1328,7 +1276,7 @@
         {
           "name": "Spay & Neuter Program",
           "group": "Veterinary & Medical Care",
-          "amount": 5235
+          "amount": 5235.0
         },
         {
           "name": "Payroll Taxes",
@@ -1336,14 +1284,14 @@
           "amount": 3154.79
         },
         {
-          "name": "Rescue Van Fuel & Transit",
+          "name": "Vehicle Fuel",
           "group": "Vehicle expenses",
           "amount": 1819.25
         },
         {
           "name": "Laundry & Sanitation Services",
           "group": "Shelter Operations & Facilities",
-          "amount": 964
+          "amount": 964.0
         },
         {
           "name": "Primary Care & Wellness",
@@ -1351,13 +1299,13 @@
           "amount": 667.9
         },
         {
-          "name": "Shelter Property & Liability Insurance",
+          "name": "Liability insurance",
           "group": "Insurance",
-          "amount": 597
+          "amount": 597.0
         },
         {
-          "name": "Animal Care Supplies & Food",
-          "group": "Shelter Operations",
+          "name": "Animal Care Supplies",
+          "group": "Animal Care Supplies",
           "amount": 506.74
         },
         {
@@ -1383,7 +1331,12 @@
         {
           "name": "Workplace Injury & Medical Care",
           "group": "Personnel & Staffing",
-          "amount": 225
+          "amount": 225.0
+        },
+        {
+          "name": "Office Supplies",
+          "group": "Office expenses",
+          "amount": 200.23
         },
         {
           "name": "Equipment Lease & Maintenance",
@@ -1391,14 +1344,9 @@
           "amount": 190.79
         },
         {
-          "name": "Office Supplies",
-          "group": "Office expenses",
-          "amount": 152.56
-        },
-        {
           "name": "Adoption Fee Refunds & Returns",
           "group": "Shelter Operations & Facilities",
-          "amount": 150
+          "amount": 150.0
         },
         {
           "name": "Printing & Photocopying",
@@ -1413,292 +1361,127 @@
         {
           "name": "Bank Fees & Service Charges",
           "group": "Office expenses",
-          "amount": 79
-        },
-        {
-          "name": "General Administrative & Office",
-          "group": "Office expenses",
-          "amount": 47.67
+          "amount": 79.0
         },
         {
           "name": "Merchant Account Fees",
           "group": "Office expenses",
-          "amount": 30
+          "amount": 30.0
         }
       ]
-    }
-  ],
-  "statement_of_position": {
-    "assets": {
-      "operating_checking_first_merchants": 23469.2,
-      "undeposited_funds": 14004,
-      "petty_cash": 200,
-      "total_book_operating_cash": 37673.2,
-      "tax_holding_escrow": 1807.26,
-      "fidelity_board_designated_reserve": 205144,
-      "total_liquid_reserves": 244629.87,
-      "fixed_assets_net": 791625.28,
-      "total_assets": 1037269.99,
-      "operating_checking_bank_register": 24526.34,
-      "bank_register_note": "First Merchants Bank statement ending balance as of August 31, 2026 is $24,526.34, reconciled to QuickBooks Online general ledger ($23,469.20) with $0.00 variance.",
-      "fixed_assets_schedule": {
-        "land": 659827,
-        "buildings_gross": 237310.87,
-        "buildings_accum_depr": -103432.38,
-        "buildings_net": 133878.49,
-        "equipment_gross": 68154.47,
-        "equipment_accum_depr": -61587.67,
-        "equipment_net": 6566.8,
-        "office_hardware_and_design": 317.99,
-        "furniture_and_fixtures_contra": -415,
-        "improvements_contra": -8550,
-        "total_fixed_assets": 791625.28
-      },
-      "total_current_assets": 39485.87
     },
-    "liabilities": {
-      "accounts_payable": 3533.11,
-      "first_merchants_credit_card": 6912.09,
-      "drawn_line_of_credit": 54433.6,
-      "payroll_clearing_direct_deposit_payable": -126535.16,
-      "payroll_clearing_footnote": "Intuit Payroll clearing account timing residue from payroll entries. Reconciled to $0.00 at annual CPA audit. Does not represent liabilities owed to employees.",
-      "total_operating_obligations_current": 64878.8,
-      "payroll_liabilities_clearing": -39703.89,
-      "total_liabilities_qbo": -101365.66,
-      "reconciliation_note": "Certified equilibrium: Liabilities (-$101,365.66) + Equity ($1,138,635.65) = Total Assets ($1,037,269.99) with $0.00 variance. Negative QBO balance sheet liabilities reflect internal direct deposit (-$126,540.57) and tax clearing payroll timing residues."
-    },
-    "net_assets": {
-      "without_donor_restrictions": {
-        "undesignated_operating": 726788.09,
-        "board_designated_fidelity_reserve": 205144,
-        "total_without_donor_restrictions": 931932.09,
-        "fidelity_note": "Fidelity Reserve ($205,144.00) is an operational reserve designated by the Board of Directors held within unrestricted net assets ($931,932.09); principal draws require an affirmative board vote."
-      },
-      "with_donor_restrictions": {
-        "cat_room_expansion_fund": 2220,
-        "angels_medical_fund": 550,
-        "schlick_estate_restricted_corpus": 58236.3,
-        "total_with_donor_restrictions": 61006.3,
-        "restricted_watch_items": [
-          {
-            "fund": "Cat Room Expansion Fund",
-            "amount": 2220,
-            "source": "Gerdau Corporate Grant & Supporter Gifts"
-          },
-          {
-            "fund": "ANGELS Medical Fund",
-            "amount": 550,
-            "source": "Dedicated Emergency Medical Care Donations"
-          },
-          {
-            "fund": "Schlick Estate Restricted Balance",
-            "amount": 58236.3,
-            "source": "Estate Corpus Restricted Earnings"
-          }
-        ]
-      },
-      "opening_balance_equity": -348600.74,
-      "opening_equity_footnote": "Historical conversion offset established when QuickBooks Online was stood up. Absorbed into cumulative retained earnings.",
-      "retained_earnings_historical": 600671.08,
-      "current_year_net_margin": -107393.33,
-      "total_equity_qbo": 1137615.4,
-      "equity_reconciling_walk": {
-        "net_assets_without_restrictions": 931932.09,
-        "fidelity_board_designated_reserve_subtotal": 205144,
-        "undesignated_operating_subtotal": 726788.09,
-        "net_assets_with_restrictions": 61006.3,
-        "opening_balance_equity_offset": -348600.74,
-        "retained_earnings_historical": 600671.08,
-        "current_year_net_margin": -107393.33,
-        "total_equity": 1137615.4,
-        "balance_sheet_equilibrium_check": {
-          "total_liabilities": -101365.66,
-          "total_equity": 1137615.4,
-          "total_liabilities_and_equity": 1037269.99,
-          "total_assets": 1037269.99,
-          "variance": 0
+    {
+      "id": "month_2026_8",
+      "month": "Sep 2026",
+      "is_partial": false,
+      "revenue": 10438.01,
+      "cogs": 0,
+      "operating_exp": 24899.88,
+      "other_exp": 0,
+      "total_exp": 24899.88,
+      "net_margin": -14461.87,
+      "margin_pct": -138.6,
+      "status": "",
+      "driver": "Largest expense: Personnel & Staffing ($17,543)",
+      "rev_items": [
+        {
+          "name": "Adoption fees",
+          "group": "Adoptions and events",
+          "amount": 5758.38
+        },
+        {
+          "name": "Individual Donor Contributions",
+          "group": "Contributed income",
+          "amount": 2852.66
+        },
+        {
+          "name": "Retail Partner Rebates",
+          "group": "Other Revenue",
+          "amount": 896.17
+        },
+        {
+          "name": "Corporate Donations",
+          "group": "Contributed income",
+          "amount": 721.0
+        },
+        {
+          "name": "Memorial Donations",
+          "group": "Contributed income",
+          "amount": 475.0
+        },
+        {
+          "name": "animal care",
+          "group": "animal care",
+          "amount": -265.2
         }
-      }
-    }
-  },
-  "accounts_payable_schedule": [
-    {
-      "vendor": "A Thru Z Excavating",
-      "amount": 656.25,
-      "category": "Facility & Grounds Maintenance",
-      "status": "Active Current",
-      "group": "Top 8 Primary",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "The Mall of Monroe",
-      "amount": 401.67,
-      "category": "Offsite Adoption Center Lease",
-      "status": "Active Current",
-      "group": "Top 8 Primary",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Republic Trash",
-      "amount": 358.3,
-      "category": "Shelter Sanitation & Waste",
-      "status": "Active Current",
-      "group": "Top 8 Primary",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Temperance Animal Hospital",
-      "amount": 331.39,
-      "category": "Veterinary Clinical Care",
-      "status": "Active Current",
-      "group": "Top 8 Primary",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Samantha Mills",
-      "amount": 300,
-      "category": "Adoption Fee Refund Clearing",
-      "status": "Pending Bank Clearing",
-      "group": "Top 8 Primary",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Kelly Karlet",
-      "amount": 239.2,
-      "category": "Caregiver Mileage & Travel",
-      "status": "Active Current",
-      "group": "Top 8 Primary",
-      "is_related_party": true,
-      "is_contra_credit": false,
-      "related_party_note": "Caregiver mileage reimbursement; Form 990 Part VII/Schedule L disclosure"
-    },
-    {
-      "vendor": "Spectrum",
-      "amount": 227.95,
-      "category": "Shelter Internet & Communications",
-      "status": "Active Current",
-      "group": "Top 8 Primary",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Monroe Urgent Care",
-      "amount": 225,
-      "category": "Staff Occupational Health & Safety",
-      "status": "Active Current",
-      "group": "Top 8 Primary",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Gibraltor Veterinary Hospital",
-      "amount": 284,
-      "category": "Emergency Clinical Care",
-      "status": "Active Current",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "OBM",
-      "amount": 157.41,
-      "category": "Copier & Office Equipment Lease",
-      "status": "Active Current",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Christopher Price",
-      "amount": 150,
-      "category": "Adoption Deposit Refund",
-      "status": "Pending Bank Clearing",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Nicole Billau",
-      "amount": 150,
-      "category": "Adoption Deposit Refund",
-      "status": "Pending Bank Clearing",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "City of Monroe",
-      "amount": 99.45,
-      "category": "Municipal Water & Utility",
-      "status": "Active Current",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Great Lakes Medical Waste Services LLC",
-      "amount": 80,
-      "category": "Biohazard & Medical Waste",
-      "status": "Active Current",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": false
-    },
-    {
-      "vendor": "Jackie Monteer",
-      "amount": 50.12,
-      "category": "Staff Operational Reimbursement",
-      "status": "Active Current",
-      "group": "Remaining AP Aging",
-      "is_related_party": true,
-      "is_contra_credit": false,
-      "related_party_note": "Staff operational reimbursement; Form 990 Schedule L disclosure"
-    },
-    {
-      "vendor": "Accident Fund",
-      "amount": -7.37,
-      "category": "Workers Comp Policy Premium Credit",
-      "status": "Contra-AP Credit",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": true,
-      "credit_note": "Workers Comp policy premium credit balance on account (contra-AP, not expense)"
-    },
-    {
-      "vendor": "Patty Hutchinson",
-      "amount": -4.3,
-      "category": "Volunteer Mileage Clearing Credit",
-      "status": "Contra-AP Credit",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": true,
-      "credit_note": "Volunteer mileage clearing credit (contra-AP, not expense)"
-    },
-    {
-      "vendor": "Robert Monteer",
-      "amount": -52.96,
-      "category": "Staff Expense Clearing Credit",
-      "status": "Contra-AP Credit",
-      "group": "Remaining AP Aging",
-      "is_related_party": true,
-      "is_contra_credit": true,
-      "related_party_note": "Staff expense clearing credit balance; Form 990 Schedule L disclosure",
-      "credit_note": "Staff expense clearing credit balance (contra-AP, not expense)"
-    },
-    {
-      "vendor": "Kara Brookins",
-      "amount": -113,
-      "category": "Adoption Deposit Clearing Credit",
-      "status": "Contra-AP Credit",
-      "group": "Remaining AP Aging",
-      "is_related_party": false,
-      "is_contra_credit": true,
-      "credit_note": "Adoption deposit clearing balance (contra-AP, not expense)"
+      ],
+      "exp_items": [
+        {
+          "name": "Personnel & Staffing",
+          "group": "Personnel & Staffing",
+          "amount": 17542.85
+        },
+        {
+          "name": "Staff wages",
+          "group": "Staff",
+          "amount": 2235.93
+        },
+        {
+          "name": "General Shelter Supplies",
+          "group": "Shelter Operations & Facilities",
+          "amount": 1728.39
+        },
+        {
+          "name": "Directors & Officers Insurance",
+          "group": "Directors & Officers Insurance",
+          "amount": 913.0
+        },
+        {
+          "name": "Building Repairs",
+          "group": "Repairs and Maintenance",
+          "amount": 656.25
+        },
+        {
+          "name": "Laundry & Sanitation Services",
+          "group": "Shelter Operations & Facilities",
+          "amount": 482.0
+        },
+        {
+          "name": "Office Supplies",
+          "group": "Office expenses",
+          "amount": 304.3
+        },
+        {
+          "name": "Adoption Fee Refunds & Returns",
+          "group": "Shelter Operations & Facilities",
+          "amount": 300.0
+        },
+        {
+          "name": "Printing & Photocopying",
+          "group": "Office expenses",
+          "amount": 295.77
+        },
+        {
+          "name": "Payroll Taxes",
+          "group": "Personnel & Staffing",
+          "amount": 183.39
+        },
+        {
+          "name": "Insurance",
+          "group": "Insurance",
+          "amount": 169.0
+        },
+        {
+          "name": "Bank Fees & Service Charges",
+          "group": "Office expenses",
+          "amount": 59.0
+        },
+        {
+          "name": "Merchant Account Fees",
+          "group": "Office expenses",
+          "amount": 30.0
+        }
+      ]
     }
   ],
   "multiyear_comparison": {
@@ -1731,18 +1514,5 @@
       "program_ratio": 85.4,
       "status_badge": "Active Year-to-Date (8 Closed Months)"
     }
-  },
-  "kpi_dictionary": {
-    "Program Efficiency Ratio": "85.5% = Program expenditures ($400,679.69) divided by core operating expenditures ($468,683.77) under Form 990 Part IX functional expense allocation. Represents direct deployment into animal welfare, veterinary care, medications, and shelter caregiving.",
-    "Operating Net vs All-In Net": "Operating Net ($-109,483.17) is shelter operations after moving the county contract into Government grants. All-In Net ($-107,393.33) still adds recycling/rebate support and subtracts fleet fuel. No Community Foundation endowment draw remains in this YTD window.",
-    "Bank Cash Runway": "Liquid checking buffer (19 days) based on actual average monthly operational spend.",
-    "Total Reserve Runway": "Total available liquidity including the Fidelity board-designated operating reserve (4.0 months).",
-    "Accounts Payable": "Legitimate current rolling vendor payables ($3,533.11 across all 19 scheduled vendor lines: Top 8 Primary $2,739.76 + Remaining Aging $793.35).",
-    "Direct Deposit Payable": "Internal Intuit Payroll clearing account timing residue from payroll entries. Reflects timing of payroll journal entries, not a liability owed to employees.",
-    "Board-Designated Reserve": "Fidelity Investments account ($205,144.00) established as an operational safety reserve. Principal draw requires affirmative vote of the Board of Directors.",
-    "Donor-Restricted Net Assets": "Funds legally restricted to specific programs ($61,006.30 total), including Cat Room Expansion ($2,220.00), ANGELS Medical ($550.00), and Schlick Estate corpus ($58,236.30).",
-    "Form 990 Related Party Disclosures": "Kelly Karlet ($239.20), Jackie Monteer ($50.12), and Robert Monteer (-$52.96) reflect standard operational reimbursements and credit clearing under Form 990 Schedule L rules. Director's Assistant Jeffery Howard is compensated via regular W-2 payroll per board authorization.",
-    "Contra-AP Clearing Credits": "Accident Fund (-$7.37), Patty Hutchinson (-$4.30), Robert Monteer (-$52.96), and Kara Brookins (-$113.00) represent vendor and clearing credit balances on account (contra-liabilities), not negative operational spend.",
-    "Bank Statement Reconciliation": "August 31, 2026 reconciliation is certified and locked in QuickBooks Online with $0.00 difference. Bank statement ending cash ($24,526.34) and General Ledger book cash ($23,469.20) are fully reconciled with zero unexplained variance."
   }
 }
