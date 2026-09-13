@@ -356,6 +356,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <div id="metric-donor-volume" class="mt-2 text-2xl sm:text-3xl font-mono font-bold text-slate-900 dark:text-white transition">--</div>
           <div id="metric-donor-counts" class="mt-1 text-xs text-slate-500 dark:text-slate-400"></div>
           <div id="metric-donor-active" class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-mono"></div>
+          <div id="metric-donor-recent" class="mt-1 text-xs text-emerald-700 dark:text-emerald-400 font-semibold truncate"></div>
           <div id="card-donor-volume" class="hidden"></div>
           <div id="card-donor-count" class="hidden"></div>
           <div id="card-donor-addresses" class="hidden"></div>
@@ -593,6 +594,24 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     if (countEl) countEl.textContent = '—';
     const addrEl = document.getElementById('card-donor-addresses');
     if (addrEl) addrEl.textContent = '—';
+    const recentEl = document.getElementById('metric-donor-recent');
+    if (recentEl) recentEl.textContent = '';
+  }
+
+  // A hub-visible "something just happened" signal -- the Donors page itself
+  // is opt-in, so most staff would otherwise never see a big gift land.
+  // $250 floor keeps routine small gifts from crowding out the notable ones.
+  function findRecentNotableGift(donors: any[]): { name: string; amount: number; date: string } | null {
+    if (!Array.isArray(donors)) return null;
+    let best: { name: string; amount: number; date: string } | null = null;
+    for (const d of donors) {
+      if (d.isAggregate) continue;
+      for (const g of d.gifts || []) {
+        if ((g.amount || 0) < 250 || !g.date) continue;
+        if (!best || g.date > best.date) best = { name: d.name, amount: g.amount, date: g.date };
+      }
+    }
+    return best;
   }
 
   function applyDonorMeta(meta: any) {
@@ -653,6 +672,13 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     const donorMeta = data.donor_meta || data.donor_database?.meta || data.donors?.meta;
     if (donorMeta) applyDonorMeta(donorMeta);
     else applyDonorUnavailable();
+
+    const donorList = Array.isArray(data.donors) ? data.donors : (data.donor_database?.donors || data.donors?.donors);
+    const recentGift = findRecentNotableGift(donorList);
+    const recentEl = document.getElementById('metric-donor-recent');
+    if (recentEl) {
+      recentEl.textContent = recentGift ? `Recent: ${formatUsd(recentGift.amount, 0)} · ${recentGift.name}` : '';
+    }
   }
 
   async function loadFinancialMetrics() {

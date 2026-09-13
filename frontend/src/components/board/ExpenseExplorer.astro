@@ -277,18 +277,6 @@ function cc(color: string): ColorSet {
   return map[color] ?? map['slate'];
 }
 
-const monthKeys = [
-  { id: 'all_ytd',      label: 'All 2026' },
-  { id: 'month_2026_7', label: 'Aug' },
-  { id: 'month_2026_6', label: 'Jul' },
-  { id: 'month_2026_5', label: 'Jun' },
-  { id: 'month_2026_4', label: 'May' },
-  { id: 'month_2026_3', label: 'Apr' },
-  { id: 'month_2026_2', label: 'Mar' },
-  { id: 'month_2026_1', label: 'Feb' },
-  { id: 'month_2026_0', label: 'Jan' },
-];
-
 ---
 
 <div id="expense-explorer-root" class="space-y-4">
@@ -296,8 +284,11 @@ const monthKeys = [
   <!-- ── Mode Switcher & Flow Summary ──────────────────────────────────────── -->
   <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-4 sm:p-5">
     
-    <!-- Month-to-Month Period Selector Tabs -->
-    <div class="flex items-center gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-slate-100 text-xs scrollbar-thin">
+    <!-- Month-to-Month Period Selector Tabs -- built at hydrate time from
+         whatever years/months are actually in the payload (see
+         renderPeriodButtons in the script below), not a fixed list, so a
+         newly-closed month or an added year shows up without a code change. -->
+    <div id="ee-period-selector" class="flex items-center gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-slate-100 text-xs scrollbar-thin">
       <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1.5 flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2"></rect>
@@ -307,20 +298,7 @@ const monthKeys = [
         </svg>
         Period:
       </span>
-      {monthKeys.map((m) => (
-        <button
-          type="button"
-          class={`ee-period-btn px-2.5 py-1.5 rounded-lg font-bold text-xs whitespace-nowrap transition cursor-pointer ${
-            m.id === 'all_ytd'
-              ? 'bg-[#173a39] text-white shadow-xs'
-              : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 border border-slate-200/70'
-          }`}
-          data-month-id={m.id}
-          data-month-label={m.label}
-        >
-          {m.label}
-        </button>
-      ))}
+      <div id="ee-period-buttons" class="flex items-center gap-1.5"></div>
     </div>
 
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -792,13 +770,56 @@ const monthKeys = [
 
 <script is:inline>
   let allMonths = {};
-  let activeMonthId = 'all_ytd';
+  let activeMonthId = null;
   let currentMode = 'expenses';
+
+  const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function renderPeriodButtons() {
+    const container = document.getElementById('ee-period-buttons');
+    if (!container) return;
+
+    const byYear = {};
+    for (const id of Object.keys(allMonths)) {
+      const rollupMatch = /^all_(\d{4})$/.exec(id);
+      const monthMatch = /^month_(\d{4})_(\d+)$/.exec(id);
+      const year = rollupMatch ? rollupMatch[1] : (monthMatch ? monthMatch[1] : null);
+      if (!year) continue;
+      (byYear[year] || (byYear[year] = { rollupId: null, months: [] }));
+      if (rollupMatch) byYear[year].rollupId = id;
+      if (monthMatch) byYear[year].months.push({ id, idx: Number(monthMatch[2]) });
+    }
+    const years = Object.keys(byYear).sort();
+
+    let html = '';
+    years.forEach((year, yi) => {
+      const bucket = byYear[year];
+      bucket.months.sort((a, b) => a.idx - b.idx);
+      if (yi > 0) html += '<span class="w-px h-5 bg-slate-200 mx-0.5 shrink-0" aria-hidden="true"></span>';
+      if (bucket.rollupId) {
+        html += periodButtonHtml(bucket.rollupId, `All ${year}`);
+      }
+      bucket.months.forEach((m) => {
+        html += periodButtonHtml(m.id, MONTH_ABBR[m.idx] || m.id);
+      });
+    });
+    container.innerHTML = html;
+
+    if (!activeMonthId || !allMonths[activeMonthId]) {
+      const latestYear = years[years.length - 1];
+      activeMonthId = (latestYear && byYear[latestYear].rollupId) || Object.keys(allMonths)[0] || null;
+    }
+  }
+
+  function periodButtonHtml(id, label) {
+    return `<button type="button" class="ee-period-btn px-2.5 py-1.5 rounded-lg font-bold text-xs whitespace-nowrap transition cursor-pointer bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 border border-slate-200/70" data-month-id="${id}" data-month-label="${label}">${label}</button>`;
+  }
 
   window.__hydrateExpenseExplorer = function(months) {
     allMonths = months || {};
     window.__HSMC_EXPLORER_MONTHS__ = allMonths;
-    if (typeof renderMonthData === 'function') {
+    renderPeriodButtons();
+    if (activeMonthId && typeof renderMonthData === 'function') {
       renderMonthData(activeMonthId);
     }
   };
@@ -1197,13 +1218,16 @@ const monthKeys = [
     }
     root.dataset.eeBound = '1';
 
-    // Period buttons
-    root.querySelectorAll('.ee-period-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const mId = btn.getAttribute('data-month-id');
+    // Period buttons -- delegated on the container since the buttons
+    // themselves are (re)built dynamically at hydrate time (renderPeriodButtons).
+    const periodButtons = document.getElementById('ee-period-buttons');
+    if (periodButtons) {
+      periodButtons.addEventListener('click', (e) => {
+        const btn = e.target.closest('.ee-period-btn');
+        const mId = btn && btn.getAttribute('data-month-id');
         if (mId) renderMonthData(mId);
       });
-    });
+    }
 
     // Mode tab switching
     root.querySelectorAll('.ee-mode-tab').forEach(btn => {

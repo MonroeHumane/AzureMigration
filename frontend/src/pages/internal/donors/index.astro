@@ -2,7 +2,7 @@
 import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
 import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro';
 // Donor JSON is not imported at build time. After auth, GET /api/financials
-// returns donors (array), donor_meta, and donor_database ({ meta, donors }).
+// returns donors (array) and donor_meta.
 ---
 
 <StaffPortalLayout
@@ -25,7 +25,7 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
     </div>
 
     <main class="space-y-6">
-      <section class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <div class="bg-white dark:bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-sm">
           <div class="text-xs font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider">Lifetime Volume</div>
           <div id="donor-kpi-volume" class="mt-1.5 font-mono font-bold text-xl text-slate-900 dark:text-white">--</div>
@@ -46,11 +46,45 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
           <div class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">2026 Active</div>
           <div id="donor-kpi-active" class="mt-1.5 font-mono font-bold text-xl text-slate-900 dark:text-white">--</div>
         </div>
+        <div class="bg-white dark:bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-sm">
+          <div class="text-xs font-bold text-orange-700 dark:text-orange-400 uppercase tracking-wider">Lapsed (re-engage)</div>
+          <div id="donor-kpi-lapsed" class="mt-1.5 font-mono font-bold text-xl text-slate-900 dark:text-white">--</div>
+          <div id="donor-kpi-lapsed-value" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5"></div>
+        </div>
       </section>
 
       <div id="donor-api-status" class="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-950 shadow-xs">
         Loading donors…
       </div>
+
+      <section id="donor-insights-section" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white dark:bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-sm donor-tier-viz-root">
+          <h2 class="text-sm font-bold text-slate-800 dark:text-white mb-1">Giving by tier</h2>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">Lifetime dollar volume, by giving tier</p>
+          <svg id="donor-tier-chart" viewBox="0 0 560 220" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Lifetime giving volume by tier"></svg>
+        </div>
+
+        <div class="bg-white dark:bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm font-bold text-slate-800 dark:text-white">Tributes &amp; memorials</h2>
+            <span id="donor-tributes-count" class="text-[11px] font-semibold text-amber-700 dark:text-amber-400"></span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">In memory / in honor of gifts, most recent first</p>
+          <div id="donor-tributes-list" class="space-y-2 overflow-y-auto max-h-[260px] pr-1 text-xs"></div>
+        </div>
+      </section>
+
+      <section id="donor-duplicates-section" class="hidden bg-white dark:bg-[#0b2420]/85 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-sm font-bold text-slate-800 dark:text-white">Possible duplicate donors</h2>
+          <span id="donor-duplicates-count" class="text-[11px] font-semibold text-slate-500 dark:text-slate-400"></span>
+        </div>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">
+          High-confidence matches only (shared contact info, or a joint name like "Robert &amp; Valerie Clark" alongside "Robert Clark").
+          Confirming a merge combines their gift history; the next data refresh applies it.
+        </p>
+        <div id="donor-duplicates-list" class="space-y-2"></div>
+      </section>
 
       <section id="donor-roster-section" class="hidden">
         <DonorRosterTable donors={[]} />
@@ -59,16 +93,192 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
   </div>
 
   <script>
-    import { isStaffAuthenticated } from '../../../lib/staff-auth';
+    import { isStaffAuthenticated, getStaffToken } from '../../../lib/staff-auth';
     import { fetchStaffFinancials, refreshStaffFinancials, setStaffDataStatus } from '../../../lib/staff-financials';
 
     function formatCurrency(n: number) {
       return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
+    function formatCurrency0(n: number) {
+      return '$' + Math.round(n || 0).toLocaleString('en-US');
+    }
+
     function setText(id: string, text: string) {
       const el = document.getElementById(id);
       if (el) el.textContent = text;
+    }
+
+    function escapeHtml(value: unknown): string {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Darkest-to-lightest, one step per tier -- an ordinal ramp (discrete
+    // ordered tiers, not independent categories) per the dataviz skill.
+    // Separate light/dark step sets: dark colors read fine on the light
+    // surface but wash out against the dark one, so dark mode stays inside
+    // the lighter half of the same blue ramp instead of reusing the same hex.
+    const TIER_ORDER = ['visionary', 'benefactor', 'patron', 'sustainer', 'friend', 'supporter'];
+    const TIER_LABELS: Record<string, string> = {
+      visionary: 'Visionary', benefactor: 'Benefactor', patron: 'Patron',
+      sustainer: 'Sustainer', friend: 'Friend', supporter: 'Supporter',
+    };
+    const TIER_STEPS_LIGHT = ['#0d366b', '#184f95', '#256abf', '#3987e5', '#6da7ec', '#9ec5f4'];
+    const TIER_STEPS_DARK = ['#256abf', '#3987e5', '#5598e7', '#6da7ec', '#86b6ef', '#b7d3f6'];
+
+    function isDarkTheme(): boolean {
+      return document.documentElement.getAttribute('data-staff-theme') === 'dark';
+    }
+
+    function renderTierChart(donors: any[]): void {
+      const svg = document.getElementById('donor-tier-chart');
+      if (!svg || !donors.length) return;
+
+      const steps = isDarkTheme() ? TIER_STEPS_DARK : TIER_STEPS_LIGHT;
+      const byTier = new Map<string, { count: number; total: number }>();
+      for (const d of donors) {
+        const t = d.tierId || 'supporter';
+        const rec = byTier.get(t) || { count: 0, total: 0 };
+        rec.count += 1;
+        rec.total += Number(d.lifetimeTotal) || 0;
+        byTier.set(t, rec);
+      }
+
+      const W = 560, left = 110, right = W - 90, rowH = 30, gap = 6;
+      const maxTotal = Math.max(1, ...TIER_ORDER.map((t) => byTier.get(t)?.total || 0));
+
+      let markup = '';
+      TIER_ORDER.forEach((tierId, i) => {
+        const rec = byTier.get(tierId) || { count: 0, total: 0 };
+        const y = i * (rowH + gap) + 8;
+        const barW = Math.max(2, (rec.total / maxTotal) * (right - left));
+        markup += `<text x="${left - 10}" y="${y + rowH / 2 + 4}" text-anchor="end" class="donor-tier-label">${TIER_LABELS[tierId]}</text>`;
+        markup += `<rect x="${left}" y="${y}" width="${right - left}" height="${rowH}" rx="6" class="donor-tier-track"/>`;
+        markup += `<rect x="${left}" y="${y}" width="${barW}" height="${rowH}" rx="6" fill="${steps[i]}"/>`;
+        markup += `<text x="${right + 10}" y="${y + rowH / 2 + 4}" class="donor-tier-value">${formatCurrency0(rec.total)} · ${rec.count}</text>`;
+      });
+      svg.innerHTML = markup;
+      svg.setAttribute('viewBox', `0 0 ${W} ${TIER_ORDER.length * (rowH + gap) + 10}`);
+    }
+
+    function renderTributesList(donors: any[]): void {
+      const list = document.getElementById('donor-tributes-list');
+      const countEl = document.getElementById('donor-tributes-count');
+      if (!list) return;
+
+      const tributes: any[] = [];
+      for (const d of donors) {
+        for (const g of d.gifts || []) {
+          if (g.isTribute) tributes.push({ ...g, donorName: d.name });
+        }
+      }
+      tributes.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+      if (countEl) countEl.textContent = tributes.length ? `${tributes.length} gifts` : '';
+      if (!tributes.length) {
+        list.innerHTML = '<p class="text-slate-400 dark:text-slate-500 text-xs">No tribute or memorial gifts on file.</p>';
+        return;
+      }
+
+      list.innerHTML = tributes.map((t) => `
+        <div class="rounded-lg border border-amber-100 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-semibold text-slate-800 dark:text-slate-100">${escapeHtml(t.donorName)}</span>
+            <span class="font-mono font-bold text-slate-900 dark:text-white shrink-0">${formatCurrency0(t.amount)}</span>
+          </div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(t.date)}</div>
+          <div class="text-[11px] text-amber-800 dark:text-amber-300 mt-1">${escapeHtml(t.dedication)}</div>
+        </div>
+      `).join('');
+    }
+
+    async function postMergeDecision(aId: string, bId: string, decision: 'merge' | 'not_duplicate'): Promise<boolean> {
+      const token = await getStaffToken();
+      if (!token) return false;
+      try {
+        const res = await fetch('/api/donors/merge-decision', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            'X-Staff-Token': token,
+            'X-Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ aId, bId, decision }),
+        });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    }
+
+    function renderDuplicatesPanel(pairs: any[]): void {
+      const section = document.getElementById('donor-duplicates-section');
+      const list = document.getElementById('donor-duplicates-list');
+      const countEl = document.getElementById('donor-duplicates-count');
+      if (!section || !list) return;
+
+      if (!Array.isArray(pairs) || !pairs.length) {
+        section.classList.add('hidden');
+        return;
+      }
+      section.classList.remove('hidden');
+      if (countEl) countEl.textContent = `${pairs.length} to review`;
+
+      list.innerHTML = pairs.map((p) => `
+        <div class="dup-pair flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 rounded-lg border border-slate-200 dark:border-teal-800/60 px-3 py-2.5" data-a-id="${escapeHtml(p.aId)}" data-b-id="${escapeHtml(p.bId)}">
+          <div class="flex-1 min-w-0 text-xs">
+            <div class="flex flex-wrap items-center gap-x-2">
+              <span class="font-semibold text-slate-800 dark:text-slate-100">${escapeHtml(p.aName)}</span>
+              <span class="font-mono text-slate-500 dark:text-slate-400">${formatCurrency0(p.aLifetimeTotal)}</span>
+              <span class="text-slate-400">&harr;</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-100">${escapeHtml(p.bName)}</span>
+              <span class="font-mono text-slate-500 dark:text-slate-400">${formatCurrency0(p.bLifetimeTotal)}</span>
+            </div>
+            <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Signal: ${escapeHtml(p.signal)}</div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" class="dup-merge-btn px-2.5 py-1.5 rounded-md text-[11px] font-bold bg-teal-800 hover:bg-teal-900 text-white transition cursor-pointer">Merge</button>
+            <button type="button" class="dup-reject-btn px-2.5 py-1.5 rounded-md text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-teal-950/60 dark:hover:bg-teal-900 text-slate-700 dark:text-slate-200 transition cursor-pointer">Not a duplicate</button>
+            <span class="dup-status text-[11px] font-semibold hidden"></span>
+          </div>
+        </div>
+      `).join('');
+
+      if (list.dataset.bound === '1') return;
+      list.dataset.bound = '1';
+      list.addEventListener('click', async (e) => {
+        const target = e.target as HTMLElement;
+        const row = target.closest('.dup-pair') as HTMLElement | null;
+        if (!row) return;
+        const isMerge = target.closest('.dup-merge-btn');
+        const isReject = target.closest('.dup-reject-btn');
+        if (!isMerge && !isReject) return;
+
+        const buttons = row.querySelectorAll('button');
+        buttons.forEach((b) => (b as HTMLButtonElement).disabled = true);
+        const status = row.querySelector('.dup-status');
+
+        const ok = await postMergeDecision(row.dataset.aId!, row.dataset.bId!, isMerge ? 'merge' : 'not_duplicate');
+        if (ok) {
+          row.style.opacity = '0.5';
+          if (status) {
+            status.textContent = isMerge ? 'Merge recorded' : 'Marked not a duplicate';
+            status.classList.remove('hidden');
+          }
+          setTimeout(() => row.remove(), 900);
+        } else {
+          buttons.forEach((b) => (b as HTMLButtonElement).disabled = false);
+          if (status) {
+            status.textContent = 'Failed -- try again';
+            status.classList.remove('hidden');
+          }
+        }
+      });
     }
 
     function applyDonorPayload(data: any) {
@@ -86,11 +296,18 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
         setText('donor-kpi-major', String(meta.major_donors_count ?? '--'));
         setText('donor-kpi-addresses', (meta.total_with_address || 0).toLocaleString());
         setText('donor-kpi-active', String(meta.active_2026_count ?? '--'));
+        setText('donor-kpi-lapsed', String(meta.lapsed_2025_count ?? '--'));
+        setText('donor-kpi-lapsed-value', meta.lapsed_2025_value != null ? `${formatCurrency0(meta.lapsed_2025_value)} at stake` : '');
+        renderDuplicatesPanel(meta.possible_duplicates || []);
       }
       if (Array.isArray(donors) && donors.length) {
         (window as any).__HSMC_DONORS__ = donors;
         const roster = document.getElementById('donor-roster-section');
         if (roster) roster.classList.remove('hidden');
+        const insights = document.getElementById('donor-insights-section');
+        if (insights) insights.classList.remove('hidden');
+        renderTierChart(donors);
+        renderTributesList(donors);
         if (typeof (window as any).setHSMCDonors === 'function') {
           (window as any).setHSMCDonors(donors);
         }
@@ -161,5 +378,43 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
     }
 
     document.addEventListener('astro:page-load', loadDonors);
+
+    // Tier chart bar colors are baked in at render time (not pure CSS), so
+    // re-render on a theme toggle rather than leaving stale-mode colors up.
+    if (!(window as any).__donorThemeObserverBound) {
+      (window as any).__donorThemeObserverBound = true;
+      new MutationObserver(() => {
+        const donors = (window as any).__HSMC_DONORS__;
+        if (Array.isArray(donors) && donors.length) renderTierChart(donors);
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-staff-theme'] });
+    }
   </script>
+
+  <style>
+    #donor-tier-chart {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .donor-tier-viz-root :global(.donor-tier-label) {
+      font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
+      fill: #52514e;
+    }
+    :global([data-staff-theme="dark"]) .donor-tier-viz-root :global(.donor-tier-label) {
+      fill: #c3c2b7;
+    }
+    .donor-tier-viz-root :global(.donor-tier-value) {
+      font: 700 11px/1 ui-sans-serif, system-ui, sans-serif;
+      fill: #0b0b0b;
+    }
+    :global([data-staff-theme="dark"]) .donor-tier-viz-root :global(.donor-tier-value) {
+      fill: #ffffff;
+    }
+    .donor-tier-viz-root :global(.donor-tier-track) {
+      fill: #e1e0d9;
+    }
+    :global([data-staff-theme="dark"]) .donor-tier-viz-root :global(.donor-tier-track) {
+      fill: #2c2c2a;
+    }
+  </style>
 </StaffPortalLayout>

@@ -810,6 +810,13 @@
 				resolve(true);
 				return;
 			}
+			// The shelter CMS serves a "PHOTO NOT AVAILABLE" placeholder as a
+			// per-pet GIF (200x197). Real photos are JPEG, so a .gif URL - or
+			// those exact dims after load - means the pet has no real photo.
+			if (/\.gif(\?|#|$)/i.test(url)) {
+				resolve(false);
+				return;
+			}
 			const img = new Image();
 			let settled = false;
 			const finish = (ok) => {
@@ -823,7 +830,7 @@
 			const timer = window.setTimeout(() => finish(false), IMAGE_PROBE_MS);
 			img.referrerPolicy = 'no-referrer';
 			img.decoding = 'async';
-			img.onload = () => finish(true);
+			img.onload = () => finish(!(img.naturalWidth === 200 && img.naturalHeight === 197));
 			img.onerror = () => finish(false);
 			img.src = url;
 		});

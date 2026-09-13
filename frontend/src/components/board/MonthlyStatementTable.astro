@@ -430,7 +430,7 @@ const monthsMap: Record<string, any> = {};
       <tfoot class="certified-footing bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
         <tr>
           <td class="py-3 px-4 font-bold text-white uppercase tracking-wider">
-            2026 year to date
+            Combined statement total
           </td>
           <td id="footing-rev" class="py-3 px-3 text-right font-mono text-emerald-300 font-bold">{statements.length ? formatDollar(totalRev) : '--'}</td>
           <td id="footing-cogs" class="py-3 px-3 text-right font-mono text-slate-300">{statements.length ? formatDollar(totalCogs) : '--'}</td>
@@ -686,7 +686,7 @@ const monthsMap: Record<string, any> = {};
           const totMarginPct = (totNet / totRev) * 100;
 
           rows.push([
-            '"2026 year to date"',
+            '"Combined statement total"',
             totRev.toFixed(2),
             totCogs.toFixed(2),
             totOp.toFixed(2),
@@ -701,7 +701,7 @@ const monthsMap: Record<string, any> = {};
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.setAttribute('download', `HSMC_2026_Operating_Statement_YTD_${new Date().toISOString().slice(0, 10)}.csv`);
+          link.setAttribute('download', `HSMC_Operating_Statement_${new Date().toISOString().slice(0, 10)}.csv`);
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);

@@ -6,23 +6,112 @@ const crypto = require('crypto');
 const reportData = require('../data/published_2026_ytd.json');
 const statementData = require('../data/statement_2026_08.json');
 
+/**
+ * Loads an optional local data file without ever taking down the whole
+ * Function app. This runs at module load time (outside any request handler),
+ * so an unguarded throw here -- e.g. from a malformed/corrupted JSON file
+ * left by a manual restore -- would fail every single route in this file
+ * (login, session, financials, statement, everything), not just the one
+ * feature the file backs. Any load failure is optional-data-missing, never
+ * fatal.
+ */
 function loadJsonOptional(relPath) {
   try {
     return require(relPath);
   } catch (err) {
-    if (err && err.code === 'MODULE_NOT_FOUND') {
-      return null;
+    if (!err || err.code !== 'MODULE_NOT_FOUND') {
+      console.error(`[loadJsonOptional] Failed to load ${relPath}, continuing without it:`, err && err.message);
     }
-    throw err;
+    return null;
   }
 }
 
-const donorDatabase = loadJsonOptional('../data/donor_database.json');
+/**
+ * Donor data holds real PII (names, emails, phones, addresses, gift history)
+ * and must never be committed to git -- this repo was public when a prior
+ * donor dump leaked into history, so api/data/donor_database.json is
+ * git-ignored (see api/data/README.md). That means it never survives the
+ * normal git-push deploy pipeline: on production it lives in a private Blob
+ * Storage container instead, fetched at request time via a SAS URL and
+ * cached in memory. Local dev with no DONOR_DATA_BLOB_URL set falls back to
+ * the local (still git-ignored) file, restored by hand per the README.
+ */
+const DONOR_DATA_BLOB_URL = (process.env.DONOR_DATA_BLOB_URL || '').trim();
+const DONOR_DATA_CACHE_TTL_MS = 10 * 60 * 1000;
+let donorDatabaseCache = { data: loadJsonOptional('../data/donor_database.json'), fetchedAt: 0 };
+
+async function getDonorDatabase() {
+  if (!DONOR_DATA_BLOB_URL) {
+    return donorDatabaseCache.data;
+  }
+  if (donorDatabaseCache.data && Date.now() - donorDatabaseCache.fetchedAt < DONOR_DATA_CACHE_TTL_MS) {
+    return donorDatabaseCache.data;
+  }
+  try {
+    const res = await fetch(DONOR_DATA_BLOB_URL);
+    if (!res.ok) throw new Error(`blob storage returned ${res.status}`);
+    const json = await res.json();
+    donorDatabaseCache = { data: json, fetchedAt: Date.now() };
+    return json;
+  } catch (err) {
+    console.error('[DonorDatabase] Failed to refresh from blob storage, serving last known copy:', err && err.message);
+    return donorDatabaseCache.data;
+  }
+}
+
 const checkingBalanceHistory = loadJsonOptional('../data/checking_balance_2024_2026.json');
-const monthlyDrilldown = loadJsonOptional('../data/monthly_drilldown_2026.json');
+const monthlyDrilldown2026 = loadJsonOptional('../data/monthly_drilldown_2026.json');
 const bankInOutData = loadJsonOptional('../data/bank_in_out_2026.json');
 const bankInOut2024 = loadJsonOptional('../data/bank_in_out_2024.json');
 const bankInOut2025 = loadJsonOptional('../data/bank_in_out_2025.json');
+
+// 2025 (and, once its own reconciliation is resolved, 2024) transaction-level
+// drilldown -- optional add-ons alongside the always-present 2026 file/report
+// data. Missing files degrade gracefully to 2026-only, same as every other
+// optional load in this file.
+const published2025 = loadJsonOptional('../data/published_2025_ytd.json');
+const monthlyDrilldown2025 = loadJsonOptional('../data/monthly_drilldown_2025.json');
+
+/**
+ * Merges monthly_statements arrays and monthly_drilldown.months objects
+ * across whichever years' files are actually present (2026 always is; 2025
+ * and later 2024 are additive), sorted chronologically. Month ids are
+ * "month_{year}_{0-based index}" by construction, so they never collide.
+ * Per-year "All {year}" YTD rollups are built client-side (same place the
+ * existing single-year rollup was already built) rather than duplicated
+ * here, since that requires merging same-named categories across months
+ * (summed totals, not just concatenated arrays) -- easier to keep that one
+ * real implementation than have two.
+ */
+function mergeMultiYearFinancials() {
+  const yearData = [
+    { year: 2026, statements: reportData.monthly_statements || [], drilldown: monthlyDrilldown2026 },
+    { year: 2025, statements: published2025 ? published2025.monthly_statements : [], drilldown: monthlyDrilldown2025 },
+  ].filter((y) => y.statements.length || y.drilldown);
+
+  // ids are "month_{year}_{0-based month index}" -- a plain string sort puts
+  // "month_2025_10" before "month_2025_2", so sort on the parsed numeric
+  // parts instead.
+  const idParts = (id) => {
+    const m = /^month_(\d+)_(\d+)$/.exec(id || '');
+    return m ? [Number(m[1]), Number(m[2])] : [0, 0];
+  };
+  const monthly_statements = yearData
+    .flatMap((y) => y.statements)
+    .sort((a, b) => {
+      const [ay, am] = idParts(a.id);
+      const [by, bm] = idParts(b.id);
+      return ay - by || am - bm;
+    });
+
+  const months = {};
+  for (const y of yearData) {
+    if (!y.drilldown) continue;
+    Object.assign(months, y.drilldown.months);
+  }
+
+  return { monthly_statements, monthly_drilldown: { months } };
+}
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
 const STAFF_SECRET = (process.env.STAFF_AUTH_SECRET || '').trim();
@@ -364,35 +453,151 @@ app.http('financials', {
       });
     }
 
-    const payload = {
-      ...reportData,
-      bank_statement: statementData,
-    };
-    if (bankInOutData || bankInOut2024 || bankInOut2025) {
-      payload.bank_statements = mergeBankStatementPacks();
-    }
+    let payload;
+    try {
+      payload = {
+        ...reportData,
+        bank_statement: statementData,
+      };
+      if (bankInOutData || bankInOut2024 || bankInOut2025) {
+        payload.bank_statements = mergeBankStatementPacks();
+      }
 
-    // 3-level GL drilldown for the board explorer (not baked into Astro pages).
-    if (monthlyDrilldown) {
-      payload.monthly_drilldown = monthlyDrilldown;
-    }
+      // Month-by-month P&L + 3-level GL drilldown for the board explorer,
+      // merged across whichever years have data (2026 always; 2025 additive
+      // once its own file is present; 2024 once its reconciliation is
+      // resolved). Overrides the 2026-only reportData.monthly_statements.
+      const { monthly_statements, monthly_drilldown } = mergeMultiYearFinancials();
+      payload.monthly_statements = monthly_statements;
+      if (Object.keys(monthly_drilldown.months).length) {
+        payload.monthly_drilldown = monthly_drilldown;
+      }
 
-    // Month-end checking balance history for the board "Trend" chart.
-    if (checkingBalanceHistory) {
-      payload.checking_balance_history = checkingBalanceHistory;
-    }
+      // Month-end checking balance history for the board "Trend" chart.
+      if (checkingBalanceHistory) {
+        payload.checking_balance_history = checkingBalanceHistory;
+      }
 
-    // Donor registry — same Bearer auth as financials. Keys match staff hydrators:
-    //   data.donors (array), data.donor_meta, data.donor_database ({ meta, donors })
-    if (donorDatabase) {
-      payload.donors = Array.isArray(donorDatabase.donors) ? donorDatabase.donors : [];
-      payload.donor_meta = donorDatabase.meta || null;
-      payload.donor_database = donorDatabase;
+      // Donor registry — same Bearer auth as financials. Keys match staff hydrators:
+      //   data.donors (array), data.donor_meta. (Not also re-embedding the
+      //   whole donorDatabase object under donor_database: that would ship
+      //   the ~1MB donor list a second time in the same response for no
+      //   consumer that needs it — every hydrator reads data.donors first.)
+      const donorDatabase = await getDonorDatabase();
+      if (donorDatabase) {
+        payload.donors = Array.isArray(donorDatabase.donors) ? donorDatabase.donors : [];
+        payload.donor_meta = donorDatabase.meta || null;
+      }
+    } catch (err) {
+      console.error('Error building /api/financials payload:', err);
+      return jsonResponse(request, 500, { error: 'Internal error assembling financials payload.' }, {
+        'Cache-Control': 'no-store, private',
+      });
     }
 
     return jsonResponse(request, 200, payload, {
       'Cache-Control': 'private, no-store',
     });
+  },
+});
+
+// Small, low-blast-radius write surface: this blob holds only donor ID pairs
+// + a decision string (never PII), separate from the read-only main donor
+// blob. Staff confirm/reject a suggested duplicate pair here; the decision
+// is picked up the next time qbo_build_donor_database.py runs (it reads the
+// same blob via DONOR_MERGE_DECISIONS_URL) and either merges the pair or
+// excludes it from the review queue going forward.
+const DONOR_MERGE_DECISIONS_BLOB_URL = (process.env.DONOR_MERGE_DECISIONS_BLOB_URL || '').trim();
+
+async function readMergeDecisionsBlob() {
+  if (!DONOR_MERGE_DECISIONS_BLOB_URL) return [];
+  const res = await fetch(DONOR_MERGE_DECISIONS_BLOB_URL);
+  if (res.status === 404) return [];
+  if (!res.ok) throw new Error(`decisions blob GET returned ${res.status}`);
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
+async function writeMergeDecisionsBlob(decisions) {
+  const body = JSON.stringify(decisions);
+  const res = await fetch(DONOR_MERGE_DECISIONS_BLOB_URL, {
+    method: 'PUT',
+    headers: {
+      'x-ms-blob-type': 'BlockBlob',
+      'Content-Type': 'application/json',
+    },
+    body,
+  });
+  if (!res.ok) throw new Error(`decisions blob PUT returned ${res.status}`);
+}
+
+// POST /api/donors/merge-decision — records a staff decision on a suggested
+// duplicate-donor pair from the board Donors page's review panel.
+app.http('donorMergeDecision', {
+  methods: ['POST', 'OPTIONS'],
+  authLevel: 'anonymous',
+  route: 'donors/merge-decision',
+  handler: async (request, context) => {
+    if (request.method === 'OPTIONS') {
+      return corsPreflight(request, 'POST, OPTIONS', 'Authorization, Content-Type');
+    }
+    if (!isStaffSecretConfigured()) {
+      return staffAuthUnavailable(request);
+    }
+
+    const token = bearerToken(request);
+    if (!token) {
+      return jsonResponse(request, 401, { error: 'Unauthorized: Bearer token required.' }, {
+        'Cache-Control': 'no-store, private',
+      });
+    }
+    const staff = await authenticateRequest(token);
+    if (!staff) {
+      return jsonResponse(request, 401, { error: 'Unauthorized: Invalid or expired token.' }, {
+        'Cache-Control': 'no-store, private',
+      });
+    }
+    if (!DONOR_MERGE_DECISIONS_BLOB_URL) {
+      return jsonResponse(request, 503, { error: 'Duplicate-review storage is not configured.' }, {
+        'Cache-Control': 'no-store, private',
+      });
+    }
+
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return jsonResponse(request, 400, { error: 'Invalid JSON body.' });
+    }
+
+    const aId = String(body?.aId || '').trim();
+    const bId = String(body?.bId || '').trim();
+    const decision = body?.decision;
+    if (!aId || !bId || aId === bId || !['merge', 'not_duplicate'].includes(decision)) {
+      return jsonResponse(request, 400, {
+        error: 'Body must include distinct aId, bId, and decision of "merge" or "not_duplicate".',
+      });
+    }
+
+    try {
+      const decisions = await readMergeDecisionsBlob();
+      const filtered = decisions.filter((d) => {
+        const pair = [String(d.aId || ''), String(d.bId || '')];
+        return !(pair.includes(aId) && pair.includes(bId));
+      });
+      filtered.push({
+        aId, bId, decision,
+        decidedBy: staff.email || 'staff',
+        decidedAt: new Date().toISOString(),
+      });
+      await writeMergeDecisionsBlob(filtered);
+      return jsonResponse(request, 200, { ok: true }, { 'Cache-Control': 'no-store, private' });
+    } catch (err) {
+      console.error('Error recording donor merge decision:', err);
+      return jsonResponse(request, 500, { error: 'Could not record decision.' }, {
+        'Cache-Control': 'no-store, private',
+      });
+    }
   },
 });
 
@@ -1411,7 +1616,7 @@ app.http('health', {
         petSyncWebhook: Boolean(process.env.DIRECTUS_WEBHOOK_SECRET && process.env.GITHUB_DISPATCH_PAT),
         financialReports: Boolean(reportData),
         bankStatements: Boolean(statementData),
-        donorDatabase: Boolean(donorDatabase),
+        donorDatabase: Boolean(DONOR_DATA_BLOB_URL) || Boolean(donorDatabaseCache.data),
       },
       directus: {
         url: DIRECTUS_URL,

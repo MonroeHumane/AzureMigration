@@ -16,7 +16,7 @@ import {
  *   accounts_payable_schedule — plus bank_statement (August detail JSON),
  *   bank_statements (Jan–Aug in/out pack keyed by month),
  *   monthly_drilldown ({ meta, months }) for 3-level GL explorer,
- *   donors (array), donor_meta, donor_database ({ meta, donors }).
+ *   donors (array), donor_meta.
  * PDFs: GET /api/statement?doc=bank|qbo&month=YYYY-MM with staff Bearer headers.
  * Do not put the staff token on the query string in new code paths unless SWA strips Authorization.
  */
@@ -177,6 +177,39 @@ function groupBankRows(rows: any[], nameKey: string): any[] {
   return cats.sort((a, b) => b.total - a.total);
 }
 
+function yearFromMonthId(id: string): string | null {
+  const m = /^month_(\d{4})_\d+$/.exec(id || '');
+  return m ? m[1] : null;
+}
+
+/** One "All {year}" rollup per distinct year found among the given real
+ * (non-rollup) months -- replaces the old single hardcoded "All 2026"
+ * (all_ytd) now that the explorer spans multiple years. */
+function buildPerYearRollups(months: Record<string, any>): Record<string, any> {
+  const byYear: Record<string, { exp: any[]; rev: any[]; net: number }> = {};
+  for (const [id, month] of Object.entries(months)) {
+    const year = yearFromMonthId(id);
+    if (!year) continue;
+    const bucket = byYear[year] || (byYear[year] = { exp: [], rev: [], net: 0 });
+    bucket.exp.push(...(month.expenseCategories || []));
+    bucket.rev.push(...(month.revenueCategories || []));
+    bucket.net += month.net_margin || 0;
+  }
+  const rollups: Record<string, any> = {};
+  for (const [year, bucket] of Object.entries(byYear)) {
+    rollups[`all_${year}`] = {
+      id: `all_${year}`,
+      monthName: `All ${year}`,
+      monthKey: `all_${year}`,
+      net_margin: bucket.net,
+      status: 'YTD',
+      expenseCategories: mergeExplorerCategories(bucket.exp),
+      revenueCategories: mergeExplorerCategories(bucket.rev),
+    };
+  }
+  return rollups;
+}
+
 function hydrateExpenseExplorer(data: any): void {
   const decorateMonth = (month: any, merge: boolean) => {
     if (!month) return month;
@@ -197,25 +230,11 @@ function hydrateExpenseExplorer(data: any): void {
     Object.values(drilldownMonths).some((m: any) => Array.isArray(m?.expenseCategories) || Array.isArray(m?.revenueCategories))
   ) {
     const months: Record<string, any> = {};
-    const ytdExp: any[] = [];
-    const ytdRev: any[] = [];
-    let ytdNet = 0;
     for (const [id, month] of Object.entries(drilldownMonths) as [string, any][]) {
-      if (!month || month.id === 'all_ytd' || id === 'all_ytd') continue;
+      if (!month || id.startsWith('all_')) continue;
       months[id] = decorateMonth(month, false);
-      ytdExp.push(...(month.expenseCategories || []));
-      ytdRev.push(...(month.revenueCategories || []));
-      ytdNet += month.net_margin || 0;
     }
-    months.all_ytd = {
-      id: 'all_ytd',
-      monthName: 'All 2026',
-      monthKey: 'all_ytd',
-      net_margin: ytdNet,
-      status: 'YTD',
-      expenseCategories: mergeExplorerCategories(ytdExp),
-      revenueCategories: mergeExplorerCategories(ytdRev),
-    };
+    Object.assign(months, buildPerYearRollups(months));
     const hydrate = (window as any).__hydrateExpenseExplorer;
     if (typeof hydrate === 'function') {
       hydrate(months);
@@ -237,24 +256,7 @@ function hydrateExpenseExplorer(data: any): void {
       revenueCategories: decorateCats(itemsToExplorerCats(m.rev_items, m.revenue, 'revenue')),
     };
   }
-
-  const ytdExp: any[] = [];
-  const ytdRev: any[] = [];
-  let ytdNet = 0;
-  for (const month of Object.values(months) as any[]) {
-    ytdExp.push(...(month.expenseCategories || []));
-    ytdRev.push(...(month.revenueCategories || []));
-    ytdNet += month.net_margin || 0;
-  }
-  months.all_ytd = {
-    id: 'all_ytd',
-    monthName: 'All 2026',
-    monthKey: 'all_ytd',
-    net_margin: ytdNet,
-    status: 'YTD',
-    expenseCategories: mergeExplorerCategories(ytdExp),
-    revenueCategories: mergeExplorerCategories(ytdRev),
-  };
+  Object.assign(months, buildPerYearRollups(months));
 
   const hydrate = (window as any).__hydrateExpenseExplorer;
   if (typeof hydrate === 'function') {
@@ -819,7 +821,17 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
 
   if (tbody) {
     tbody.innerHTML = '';
+    let lastYear: string | null = null;
     statements.forEach((m) => {
+      const yearMatch = /^month_(\d{4})_/.exec(m.id || '');
+      const year = yearMatch ? yearMatch[1] : null;
+      if (year && year !== lastYear) {
+        lastYear = year;
+        const divider = document.createElement('tr');
+        divider.innerHTML = `<td colspan="8" class="py-1.5 px-4 bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-y border-slate-100">${year}</td>`;
+        tbody.appendChild(divider);
+      }
+
       const isSurplus = m.net_margin >= 0;
       const tr = document.createElement('tr');
       tr.className = 'hover:bg-slate-50/80 transition cursor-pointer group';
@@ -985,7 +997,7 @@ function hydrateMonthlyStatements(statements: any[], drilldownMonths?: Record<st
     footingCard.className = 'certified-footing p-4 bg-[#173a39] text-white';
     footingCard.innerHTML = `
       <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-2 flex items-center justify-between">
-        <span>2026 year to date</span>
+        <span>Combined statement total</span>
       </div>
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div>

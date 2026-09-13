@@ -39,6 +39,7 @@ export interface Donor {
   campaignsList: string[];
   hasMailingAddress: boolean;
   tributesCount: number;
+  isRecurring?: boolean;
   gifts: Gift[];
 }
 
@@ -168,8 +169,8 @@ const { donors = [] } = Astro.props;
         >
           <option value="all">Any year</option>
           <option value="2026">Gave in 2026</option>
-          <option value="2025">Gave in 2025</option>
-          <option value="earlier">Before 2025</option>
+          <option value="2025">Gave in 2025 (lapsed)</option>
+          <option value="earlier">Before 2025 (long-lapsed)</option>
         </select>
       </div>
 
@@ -188,10 +189,16 @@ const { donors = [] } = Astro.props;
         </select>
       </div>
     </div>
-    <label class="inline-flex items-center gap-2 text-[11px] text-slate-600 pt-1 cursor-pointer select-none">
-      <input id="filter-show-batches" type="checkbox" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-500/30">
-      <span>Include event totals and unnamed bank deposits</span>
-    </label>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1">
+      <label class="inline-flex items-center gap-2 text-[11px] text-slate-600 cursor-pointer select-none">
+        <input id="filter-show-batches" type="checkbox" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-500/30">
+        <span>Include event totals and unnamed bank deposits</span>
+      </label>
+      <label class="inline-flex items-center gap-2 text-[11px] text-slate-600 cursor-pointer select-none">
+        <input id="filter-recurring-only" type="checkbox" class="rounded border-slate-300 text-teal-700 focus:ring-teal-500/30">
+        <span>Recurring supporters only</span>
+      </label>
+    </div>
   </div>
 
   <!-- Table Container -->
@@ -324,6 +331,7 @@ const { donors = [] } = Astro.props;
       filterRecency: document.getElementById('filter-recency'),
       filterSort: document.getElementById('filter-sort'),
       filterShowBatches: document.getElementById('filter-show-batches'),
+      filterRecurringOnly: document.getElementById('filter-recurring-only'),
       pageSizeSelect: document.getElementById('page-size'),
       prevBtn: document.getElementById('pagination-prev-btn'),
       nextBtn: document.getElementById('pagination-next-btn'),
@@ -514,6 +522,7 @@ const { donors = [] } = Astro.props;
     const rec = els.filterRecency?.value || 'all';
     const sort = els.filterSort?.value || 'lifetime_desc';
     const showBatches = Boolean(els.filterShowBatches?.checked);
+    const recurringOnly = Boolean(els.filterRecurringOnly?.checked);
 
     if (els.clearSearchBtn) {
       els.clearSearchBtn.classList.toggle('hidden', !q);
@@ -523,6 +532,7 @@ const { donors = [] } = Astro.props;
       // Fast Search
       if (q && !d._searchStr.includes(q)) return false;
       if (!showBatches && d.isAggregate && !q) return false;
+      if (recurringOnly && !d.isRecurring) return false;
 
       // Tier
       if (tier !== 'all' && d.tierId !== tier) return false;
@@ -623,6 +633,15 @@ const { donors = [] } = Astro.props;
           ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">Event total</span>`
           : '';
 
+      const recurringBadge = donor.isRecurring
+        ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-teal-50 text-teal-800 border border-teal-200" title="Gifts spread across 3+ months -- a sustained supporter, not a one-time gift">Recurring</span>`
+        : '';
+
+      const isLapsed = !donor.isAggregate && donor.latestGiftDate && !donor.latestGiftDate.startsWith('2026');
+      const lapsedBadge = isLapsed
+        ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-800 border border-orange-200" title="No gift yet in 2026 -- worth a re-engagement outreach">Lapsed</span>`
+        : '';
+
       // Main Row
       const mainRow = `
         <tr
@@ -646,6 +665,8 @@ const { donors = [] } = Astro.props;
             <div class="font-bold text-slate-900 text-xs flex items-center gap-2">
               <span>${escapeHtml(donor.name)}</span>
               ${tributeBadge}
+              ${recurringBadge}
+              ${lapsedBadge}
               ${kindBadge}
             </div>
             <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 mt-0.5">
@@ -979,7 +1000,7 @@ const { donors = [] } = Astro.props;
     }
 
     // Filter change handlers
-    [els.filterTier, els.filterPlatform, els.filterAddress, els.filterRecency, els.filterSort, els.filterShowBatches].forEach(flt => {
+    [els.filterTier, els.filterPlatform, els.filterAddress, els.filterRecency, els.filterSort, els.filterShowBatches, els.filterRecurringOnly].forEach(flt => {
       if (flt && flt.dataset.bound !== '1') {
         flt.dataset.bound = '1';
         flt.addEventListener('change', applyFilters);
