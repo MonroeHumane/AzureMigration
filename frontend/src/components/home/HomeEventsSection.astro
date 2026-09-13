@@ -57,7 +57,14 @@ const formatFlyerDate = (value?: string) => {
 };
 
 const gallery = eventsFeature.gallery ?? [];
-const galleryDurationSec = Math.max(gallery.length, 1) * 5;
+let baseGallery = [...gallery];
+if (baseGallery.length > 0) {
+  while (baseGallery.length < 16) {
+    baseGallery = [...baseGallery, ...gallery];
+  }
+}
+const fullGallery = [...baseGallery, ...baseGallery];
+const galleryDurationSec = Math.max(baseGallery.length, 1) * 5;
 ---
 
 <div
@@ -125,7 +132,7 @@ const galleryDurationSec = Math.max(gallery.length, 1) * 5;
               class="contest-gallery__track flex w-max flex-nowrap gap-4 px-[clamp(18px,2.6vw,34px)]"
               style={`animation-duration: ${galleryDurationSec}s`}
             >
-              {[...gallery, ...gallery].map((photo, i) => (
+              {fullGallery.map((photo, i) => (
                 <button
                   type="button"
                   class="contest-gallery__item group relative block h-[220px] w-[280px] shrink-0 overflow-hidden rounded-[16px] border border-slate-900/10 bg-slate-100 shadow-[0_10px_24px_rgba(15,30,29,0.10)] transition hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(15,30,29,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
