@@ -63,7 +63,7 @@ if (baseGallery.length > 0) {
     baseGallery = [...baseGallery, ...gallery];
   }
 }
-const fullGallery = [...baseGallery, ...baseGallery];
+
 const galleryDurationSec = Math.max(baseGallery.length, 1) * 5;
 ---
 
@@ -129,29 +129,32 @@ const galleryDurationSec = Math.max(baseGallery.length, 1) * 5;
         <div class="contest-gallery relative z-[1] mt-7 -mx-[clamp(18px,2.6vw,34px)]">
           <div class="contest-gallery__viewport overflow-hidden">
             <div
-              class="contest-gallery__track flex w-max flex-nowrap gap-4 px-[clamp(18px,2.6vw,34px)]"
+              class="contest-gallery__track flex w-max flex-nowrap px-[clamp(18px,2.6vw,34px)]"
               style={`animation-duration: ${galleryDurationSec}s`}
             >
-              {fullGallery.map((photo, i) => (
-                <button
-                  type="button"
-                  class="contest-gallery__item group relative block h-[220px] w-[280px] shrink-0 overflow-hidden rounded-[16px] border border-slate-900/10 bg-slate-100 shadow-[0_10px_24px_rgba(15,30,29,0.10)] transition hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(15,30,29,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
-                  data-contest-photo-index={i % gallery.length}
-                  aria-label={`View larger photo: ${photo.alt}`}
-                  tabindex={i < gallery.length ? 0 : -1}
-                  aria-hidden={i < gallery.length ? undefined : 'true'}
-                >
-                  <img
-                    src={photo.src}
-                    alt={photo.alt}
-                    loading="lazy"
-                    decoding="async"
-                    class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                  />
-                  <span class="pointer-events-none absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,rgba(15,30,29,0.55),transparent)] px-3 py-2 text-left text-[0.72rem] font-semibold text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
-                    View photo
-                  </span>
-                </button>
+              {[false, true].map((clone) => (
+                <div class="contest-gallery__set flex w-max flex-nowrap gap-4 pr-4" aria-hidden={clone ? 'true' : undefined}>
+                  {baseGallery.map((photo, i) => (
+                    <button
+                      type="button"
+                      class="contest-gallery__item group relative block h-[220px] w-[280px] shrink-0 overflow-hidden rounded-[16px] border border-slate-900/10 bg-slate-100 shadow-[0_10px_24px_rgba(15,30,29,0.10)] transition hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(15,30,29,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                      data-contest-photo-index={i % gallery.length}
+                      aria-label={`View larger photo: ${photo.alt}`}
+                      tabindex={i < gallery.length && !clone ? 0 : -1}
+                    >
+                      <img
+                        src={photo.src}
+                        alt={photo.alt}
+                        loading="lazy"
+                        decoding="async"
+                        class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                      <span class="pointer-events-none absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,rgba(15,30,29,0.55),transparent)] px-3 py-2 text-left text-[0.72rem] font-semibold text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                        View photo
+                      </span>
+                    </button>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
