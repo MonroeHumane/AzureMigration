@@ -1477,320 +1477,9 @@
           "group": "Staff",
           "total": 67257.9,
           "pctOfTotal": 68.4,
-          "payeeCount": 16,
+          "payeeCount": 30,
           "txCount": 73,
           "payees": [
-            {
-              "name": "Unknown",
-              "total": 30673.03,
-              "txCount": 38,
-              "transactions": [
-                {
-                  "date": "2025-01-02",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "CHECK REF#4170",
-                  "split": "First Merchants Bank",
-                  "amount": 66.07
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1345.16
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 555.77
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 825.04
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1077.23
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 835.86
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 61.66
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1420.87
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 634.5
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1627.58
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1253.0
-                },
-                {
-                  "date": "2025-01-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1112.25
-                },
-                {
-                  "date": "2025-01-08",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "CHECK REF#4173",
-                  "split": "First Merchants Bank",
-                  "amount": 200.0
-                },
-                {
-                  "date": "2025-01-09",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "CHECK REF#4160",
-                  "split": "First Merchants Bank",
-                  "amount": 200.0
-                },
-                {
-                  "date": "2025-01-14",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "CHECK REF#4177",
-                  "split": "First Merchants Bank",
-                  "amount": 218.9
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1011.44
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 888.58
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1629.67
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 707.5
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 958.42
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 357.79
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 628.8
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 497.2
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 956.06
-                },
-                {
-                  "date": "2025-01-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 797.7
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 662.73
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 537.16
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 142.06
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 802.42
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 841.1
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 50499654/PAYROLL HUMANE S INTUIT 50499654/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 991.6
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1041.64
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 962.71
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 670.06
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1629.69
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 558.36
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 955.74
-                },
-                {
-                  "date": "2025-01-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1010.71
-                }
-              ]
-            },
             {
               "name": "AMY CUNNINGHAM-SHINAULT",
               "total": 6115.38,
@@ -1819,6 +1508,37 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 2038.46
+                }
+              ]
+            },
+            {
+              "name": "CUNNINGHAM-SHINAULT, AMY",
+              "total": 4886.94,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1627.58
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1629.67
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1629.69
                 }
               ]
             },
@@ -1947,6 +1667,68 @@
               ]
             },
             {
+              "name": "*EVOE, KAITLYN N",
+              "total": 3351.09,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1420.87
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 888.58
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1041.64
+                }
+              ]
+            },
+            {
+              "name": "*WORTLEY, DAYGAN A",
+              "total": 3266.29,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1345.16
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 958.42
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 962.71
+                }
+              ]
+            },
+            {
               "name": "ANGELA ORTNER",
               "total": 3069.75,
               "txCount": 3,
@@ -1974,6 +1756,68 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 924.0
+                }
+              ]
+            },
+            {
+              "name": "HALSEY, SHAUN",
+              "total": 3044.0,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1077.23
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 956.06
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1010.71
+                }
+              ]
+            },
+            {
+              "name": "HOPPERT, KALEI",
+              "total": 3006.44,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1253.0
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 797.7
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 955.74
                 }
               ]
             },
@@ -2009,6 +1853,37 @@
               ]
             },
             {
+              "name": "*ORTNER, ANGELA J",
+              "total": 2638.9,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 825.04
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1011.44
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 802.42
+                }
+              ]
+            },
+            {
               "name": "MADISON SHULTZ",
               "total": 2504.27,
               "txCount": 3,
@@ -2036,6 +1911,37 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 774.67
+                }
+              ]
+            },
+            {
+              "name": "CUNNINGHAM, MYA",
+              "total": 2311.14,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1112.25
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 357.79
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 841.1
                 }
               ]
             },
@@ -2071,6 +1977,68 @@
               ]
             },
             {
+              "name": "*SHULTZ, MADISON",
+              "total": 2127.39,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 835.86
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 628.8
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 662.73
+                }
+              ]
+            },
+            {
+              "name": "Stines, Paige A",
+              "total": 1933.33,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 555.77
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 707.5
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 670.06
+                }
+              ]
+            },
+            {
               "name": "CARMEN HOOD",
               "total": 1918.8,
               "txCount": 3,
@@ -2102,6 +2070,37 @@
               ]
             },
             {
+              "name": "*HOOD, CARMEN",
+              "total": 1668.86,
+              "txCount": 3,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 634.5
+                },
+                {
+                  "date": "2025-01-17",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48447259/PAYROLL HUMANE S INTUIT 48447259/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 497.2
+                },
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 537.16
+                }
+              ]
+            },
+            {
               "name": "Jeffery Howard",
               "total": 1200.0,
               "txCount": 1,
@@ -2117,6 +2116,60 @@
               ]
             },
             {
+              "name": "Howard, Jeffery",
+              "total": 991.6,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 50499654/PAYROLL HUMANE S INTUIT 50499654/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 991.6
+                }
+              ]
+            },
+            {
+              "name": "Unknown",
+              "total": 684.97,
+              "txCount": 4,
+              "transactions": [
+                {
+                  "date": "2025-01-02",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "CHECK REF#4170",
+                  "split": "First Merchants Bank",
+                  "amount": 66.07
+                },
+                {
+                  "date": "2025-01-08",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "CHECK REF#4173",
+                  "split": "First Merchants Bank",
+                  "amount": 200.0
+                },
+                {
+                  "date": "2025-01-09",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "CHECK REF#4160",
+                  "split": "First Merchants Bank",
+                  "amount": 200.0
+                },
+                {
+                  "date": "2025-01-14",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "CHECK REF#4177",
+                  "split": "First Merchants Bank",
+                  "amount": 218.9
+                }
+              ]
+            },
+            {
               "name": "REBEKAH CLEVELAND",
               "total": 617.4,
               "txCount": 1,
@@ -2128,6 +2181,21 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 617.4
+                }
+              ]
+            },
+            {
+              "name": "*CLEVELAND, REBEKAH",
+              "total": 558.36,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 558.36
                 }
               ]
             },
@@ -2162,6 +2230,21 @@
               ]
             },
             {
+              "name": "*Blevins, Kelly",
+              "total": 142.06,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2025-01-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 49971725/PAYROLL HUMANE S INTUIT 49971725/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 142.06
+                }
+              ]
+            },
+            {
               "name": "TRISTAN HYATT",
               "total": 70.0,
               "txCount": 1,
@@ -2173,6 +2256,21 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 70.0
+                }
+              ]
+            },
+            {
+              "name": "*HYATT, TRISTAN",
+              "total": 61.66,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2025-01-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48083862/PAYROLL HUMANE S INTUIT 48083862/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 61.66
                 }
               ]
             }

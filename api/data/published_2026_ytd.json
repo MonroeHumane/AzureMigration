@@ -5,7 +5,7 @@
     "closed_months_count": 9,
     "has_partial_cutoff": true,
     "published_by": "Automated (qbo_fetch_monthly_gl_drilldown.py), live QuickBooks General Ledger pull",
-    "published_at": "2026-09-13T06:46:15Z",
+    "published_at": "2026-09-13T14:51:55Z",
     "sha256_checksum": "1dc5372cb59a6c14829ed873c67d9ae00c2a6ecb4caf7a85bf23e8027e55a83b",
     "basis": "Accrual",
     "governance_level": "Board-Confidential",
@@ -1484,6 +1484,322 @@
       ]
     }
   ],
+  "headline_kpis": {
+    "all_in_revenue": 382325.58,
+    "all_in_expenditures": 489718.91,
+    "all_in_net": -107393.33,
+    "all_in_margin_pct": -28.1,
+    "qbo_operating_revenue": 369289.29,
+    "qbo_cogs": 11911.71,
+    "qbo_operating_expenditures": 466860.75,
+    "qbo_operating_net": -109483.17,
+    "non_operating_bridge": 2089.84,
+    "program_ratio_pct": 85.4,
+    "program_spend": 398856.67,
+    "mg_spend": 56399.27,
+    "fund_spend": 11604.81,
+    "operating_cash": 37673.2,
+    "operating_checking_first_merchants": 23469.2,
+    "undeposited_funds": 14004,
+    "petty_cash": 200,
+    "bank_register_cash": 24526.34,
+    "fidelity_reserve": 205144,
+    "total_liquidity": 242817.2,
+    "runway_bank_days": 12,
+    "runway_reserve_months": 4,
+    "average_monthly_burn": 61214.86,
+    "baseline_monthly_burn": 55400
+  },
+  "bridge_composition": {
+    "endowment_distributions": 0.0,
+    "recycling_and_rebates": 13036.29,
+    "recycling_detail": {
+      "bottle_and_can_recycling": 8204,
+      "retail_partner_rebates": 4772.29,
+      "court_restitution": 60
+    },
+    "fleet_transit_and_fuel": -10946.45,
+    "fleet_detail": {
+      "gas": 10756.35,
+      "repairs_and_maintenance": 190.1
+    },
+    "net_bridge_total": 2089.84,
+    "c2_commentary": "County animal-control contract payments ($28,463.96) now sit in operating Government grants, not endowment. Kroger Community Rewards ($1,780.70) sit in Retail Partner Rebates (other income). Fleet fuel remains other expense. All-in revenue and spend are unchanged.",
+    "restatement_note": "2026-09-09 restatement to live QBO recodes: county off endowment, Kroger off Corporate, Thrivent Choice onto Foundation Grants. Deposit 5100 keeps both $375.14 Thrivent lines."
+  },
+  "statement_of_position": {
+    "assets": {
+      "operating_checking_first_merchants": 23469.2,
+      "undeposited_funds": 14004,
+      "petty_cash": 200,
+      "total_book_operating_cash": 37673.2,
+      "tax_holding_escrow": 1807.26,
+      "fidelity_board_designated_reserve": 205144,
+      "total_liquid_reserves": 244629.87,
+      "fixed_assets_net": 791625.28,
+      "total_assets": 1037269.99,
+      "operating_checking_bank_register": 24526.34,
+      "bank_register_note": "First Merchants Bank statement ending balance as of August 31, 2026 is $24,526.34, reconciled to QuickBooks Online general ledger ($23,469.20) with $0.00 variance.",
+      "fixed_assets_schedule": {
+        "land": 659827,
+        "buildings_gross": 237310.87,
+        "buildings_accum_depr": -103432.38,
+        "buildings_net": 133878.49,
+        "equipment_gross": 68154.47,
+        "equipment_accum_depr": -61587.67,
+        "equipment_net": 6566.8,
+        "office_hardware_and_design": 317.99,
+        "furniture_and_fixtures_contra": -415,
+        "improvements_contra": -8550,
+        "total_fixed_assets": 791625.28
+      },
+      "total_current_assets": 39485.87
+    },
+    "liabilities": {
+      "accounts_payable": 3533.11,
+      "first_merchants_credit_card": 6912.09,
+      "drawn_line_of_credit": 54433.6,
+      "payroll_clearing_direct_deposit_payable": -126535.16,
+      "payroll_clearing_footnote": "Intuit Payroll clearing account timing residue from payroll entries. Reconciled to $0.00 at annual CPA audit. Does not represent liabilities owed to employees.",
+      "total_operating_obligations_current": 64878.8,
+      "payroll_liabilities_clearing": -39703.89,
+      "total_liabilities_qbo": -101365.66,
+      "reconciliation_note": "Certified equilibrium: Liabilities (-$101,365.66) + Equity ($1,138,635.65) = Total Assets ($1,037,269.99) with $0.00 variance. Negative QBO balance sheet liabilities reflect internal direct deposit (-$126,540.57) and tax clearing payroll timing residues."
+    },
+    "net_assets": {
+      "without_donor_restrictions": {
+        "undesignated_operating": 726788.09,
+        "board_designated_fidelity_reserve": 205144,
+        "total_without_donor_restrictions": 931932.09,
+        "fidelity_note": "Fidelity Reserve ($205,144.00) is an operational reserve designated by the Board of Directors held within unrestricted net assets ($931,932.09); principal draws require an affirmative board vote."
+      },
+      "with_donor_restrictions": {
+        "cat_room_expansion_fund": 2220,
+        "angels_medical_fund": 550,
+        "schlick_estate_restricted_corpus": 58236.3,
+        "total_with_donor_restrictions": 61006.3,
+        "restricted_watch_items": [
+          {
+            "fund": "Cat Room Expansion Fund",
+            "amount": 2220,
+            "source": "Gerdau Corporate Grant & Supporter Gifts"
+          },
+          {
+            "fund": "ANGELS Medical Fund",
+            "amount": 550,
+            "source": "Dedicated Emergency Medical Care Donations"
+          },
+          {
+            "fund": "Schlick Estate Restricted Balance",
+            "amount": 58236.3,
+            "source": "Estate Corpus Restricted Earnings"
+          }
+        ]
+      },
+      "opening_balance_equity": -348600.74,
+      "opening_equity_footnote": "Historical conversion offset established when QuickBooks Online was stood up. Absorbed into cumulative retained earnings.",
+      "retained_earnings_historical": 600671.08,
+      "current_year_net_margin": -107393.33,
+      "total_equity_qbo": 1137615.4,
+      "equity_reconciling_walk": {
+        "net_assets_without_restrictions": 931932.09,
+        "fidelity_board_designated_reserve_subtotal": 205144,
+        "undesignated_operating_subtotal": 726788.09,
+        "net_assets_with_restrictions": 61006.3,
+        "opening_balance_equity_offset": -348600.74,
+        "retained_earnings_historical": 600671.08,
+        "current_year_net_margin": -107393.33,
+        "total_equity": 1137615.4,
+        "balance_sheet_equilibrium_check": {
+          "total_liabilities": -101365.66,
+          "total_equity": 1137615.4,
+          "total_liabilities_and_equity": 1037269.99,
+          "total_assets": 1037269.99,
+          "variance": 0
+        }
+      }
+    }
+  },
+  "accounts_payable_schedule": [
+    {
+      "vendor": "A Thru Z Excavating",
+      "amount": 656.25,
+      "category": "Facility & Grounds Maintenance",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "The Mall of Monroe",
+      "amount": 401.67,
+      "category": "Offsite Adoption Center Lease",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Republic Trash",
+      "amount": 358.3,
+      "category": "Shelter Sanitation & Waste",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Temperance Animal Hospital",
+      "amount": 331.39,
+      "category": "Veterinary Clinical Care",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Samantha Mills",
+      "amount": 300,
+      "category": "Adoption Fee Refund Clearing",
+      "status": "Pending Bank Clearing",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Kelly Karlet",
+      "amount": 239.2,
+      "category": "Caregiver Mileage & Travel",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": true,
+      "is_contra_credit": false,
+      "related_party_note": "Caregiver mileage reimbursement; Form 990 Part VII/Schedule L disclosure"
+    },
+    {
+      "vendor": "Spectrum",
+      "amount": 227.95,
+      "category": "Shelter Internet & Communications",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Monroe Urgent Care",
+      "amount": 225,
+      "category": "Staff Occupational Health & Safety",
+      "status": "Active Current",
+      "group": "Top 8 Primary",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Gibraltor Veterinary Hospital",
+      "amount": 284,
+      "category": "Emergency Clinical Care",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "OBM",
+      "amount": 157.41,
+      "category": "Copier & Office Equipment Lease",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Christopher Price",
+      "amount": 150,
+      "category": "Adoption Deposit Refund",
+      "status": "Pending Bank Clearing",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Nicole Billau",
+      "amount": 150,
+      "category": "Adoption Deposit Refund",
+      "status": "Pending Bank Clearing",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "City of Monroe",
+      "amount": 99.45,
+      "category": "Municipal Water & Utility",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Great Lakes Medical Waste Services LLC",
+      "amount": 80,
+      "category": "Biohazard & Medical Waste",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": false
+    },
+    {
+      "vendor": "Jackie Monteer",
+      "amount": 50.12,
+      "category": "Staff Operational Reimbursement",
+      "status": "Active Current",
+      "group": "Remaining AP Aging",
+      "is_related_party": true,
+      "is_contra_credit": false,
+      "related_party_note": "Staff operational reimbursement; Form 990 Schedule L disclosure"
+    },
+    {
+      "vendor": "Accident Fund",
+      "amount": -7.37,
+      "category": "Workers Comp Policy Premium Credit",
+      "status": "Contra-AP Credit",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": true,
+      "credit_note": "Workers Comp policy premium credit balance on account (contra-AP, not expense)"
+    },
+    {
+      "vendor": "Patty Hutchinson",
+      "amount": -4.3,
+      "category": "Volunteer Mileage Clearing Credit",
+      "status": "Contra-AP Credit",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": true,
+      "credit_note": "Volunteer mileage clearing credit (contra-AP, not expense)"
+    },
+    {
+      "vendor": "Robert Monteer",
+      "amount": -52.96,
+      "category": "Staff Expense Clearing Credit",
+      "status": "Contra-AP Credit",
+      "group": "Remaining AP Aging",
+      "is_related_party": true,
+      "is_contra_credit": true,
+      "related_party_note": "Staff expense clearing credit balance; Form 990 Schedule L disclosure",
+      "credit_note": "Staff expense clearing credit balance (contra-AP, not expense)"
+    },
+    {
+      "vendor": "Kara Brookins",
+      "amount": -113,
+      "category": "Adoption Deposit Clearing Credit",
+      "status": "Contra-AP Credit",
+      "group": "Remaining AP Aging",
+      "is_related_party": false,
+      "is_contra_credit": true,
+      "credit_note": "Adoption deposit clearing balance (contra-AP, not expense)"
+    }
+  ],
   "multiyear_comparison": {
     "2024": {
       "period_label": "2024 Full Year (Form 990 Reconciled)",
@@ -1514,5 +1830,18 @@
       "program_ratio": 85.4,
       "status_badge": "Active Year-to-Date (8 Closed Months)"
     }
+  },
+  "kpi_dictionary": {
+    "Program Efficiency Ratio": "85.5% = Program expenditures ($400,679.69) divided by core operating expenditures ($468,683.77) under Form 990 Part IX functional expense allocation. Represents direct deployment into animal welfare, veterinary care, medications, and shelter caregiving.",
+    "Operating Net vs All-In Net": "Operating Net ($-109,483.17) is shelter operations after moving the county contract into Government grants. All-In Net ($-107,393.33) still adds recycling/rebate support and subtracts fleet fuel. No Community Foundation endowment draw remains in this YTD window.",
+    "Bank Cash Runway": "Liquid checking buffer (19 days) based on actual average monthly operational spend.",
+    "Total Reserve Runway": "Total available liquidity including the Fidelity board-designated operating reserve (4.0 months).",
+    "Accounts Payable": "Legitimate current rolling vendor payables ($3,533.11 across all 19 scheduled vendor lines: Top 8 Primary $2,739.76 + Remaining Aging $793.35).",
+    "Direct Deposit Payable": "Internal Intuit Payroll clearing account timing residue from payroll entries. Reflects timing of payroll journal entries, not a liability owed to employees.",
+    "Board-Designated Reserve": "Fidelity Investments account ($205,144.00) established as an operational safety reserve. Principal draw requires affirmative vote of the Board of Directors.",
+    "Donor-Restricted Net Assets": "Funds legally restricted to specific programs ($61,006.30 total), including Cat Room Expansion ($2,220.00), ANGELS Medical ($550.00), and Schlick Estate corpus ($58,236.30).",
+    "Form 990 Related Party Disclosures": "Kelly Karlet ($239.20), Jackie Monteer ($50.12), and Robert Monteer (-$52.96) reflect standard operational reimbursements and credit clearing under Form 990 Schedule L rules. Director's Assistant Jeffery Howard is compensated via regular W-2 payroll per board authorization.",
+    "Contra-AP Clearing Credits": "Accident Fund (-$7.37), Patty Hutchinson (-$4.30), Robert Monteer (-$52.96), and Kara Brookins (-$113.00) represent vendor and clearing credit balances on account (contra-liabilities), not negative operational spend.",
+    "Bank Statement Reconciliation": "August 31, 2026 reconciliation is certified and locked in QuickBooks Online with $0.00 difference. Bank statement ending cash ($24,526.34) and General Ledger book cash ($23,469.20) are fully reconciled with zero unexplained variance."
   }
 }

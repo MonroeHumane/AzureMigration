@@ -185,13 +185,27 @@ def match_by_category_convention(category: str, tx: dict) -> tuple[str, str, str
     return None
 
 
-def match_transaction(category: str, tx: dict, donor_index: dict) -> tuple[str, str, str, str] | None:
+def match_transaction(category: str, tx: dict, donor_index: dict, payroll_index: dict) -> tuple[str, str, str, str] | None:
     """Returns (matched_name, method, confidence, detail) or None."""
     result = match_by_category_convention(category, tx)
     if result:
         return result
-
+        
     memo = (tx.get("memo") or "").strip()
+    
+    # Check payroll if it's an INTUIT PAYROLL line
+    if "INTUIT" in memo.upper() and "PAYROLL" in memo.upper():
+        from datetime import datetime, timedelta
+        try:
+            tx_dt = datetime.strptime(tx['date'], "%Y-%m-%d")
+            for offset in [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5]:
+                check_date = (tx_dt + timedelta(days=offset)).strftime("%Y-%m-%d")
+                key = f"{check_date}_{abs(tx['amount']):.2f}"
+                if key in payroll_index:
+                    return payroll_index[key], "payroll_summary_lookup", "high", f"matched by date+amount to PayrollSummary ({offset} days diff)"
+        except Exception:
+            pass
+
     for substring, matched_name in KNOWN_MEMO_SUBSTRINGS:
         if substring in memo.upper():
             return matched_name, "known_memo_substring", "high", f"memo={memo!r}"
@@ -238,6 +252,13 @@ def main() -> None:
     print(f"Donor-database gift index: {sum(len(v) for v in donor_index.values())} gifts, "
           f"{len(donor_index)} distinct (date, amount) keys")
 
+    payroll_path = os.path.join(DATA_DIR, "payroll_matches.json")
+    payroll_index = {}
+    if os.path.exists(payroll_path):
+        with open(payroll_path, "r", encoding="utf-8") as f:
+            payroll_index = json.load(f)
+    print(f"Payroll index: {len(payroll_index)} distinct (date, amount) keys")
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     init_db(conn)
@@ -270,7 +291,7 @@ def main() -> None:
                              tx.get("type"), tx.get("memo"), tx.get("split"), tx["amount"], payee["name"]),
                         )
 
-                        result = match_transaction(cat["name"], tx, donor_index)
+                        result = match_transaction(cat["name"], tx, donor_index, payroll_index)
                         if result:
                             matched_name, method, confidence, detail = result
                             conn.execute(

@@ -23,11 +23,11 @@ def main():
     checksum = hashlib.sha256(json.dumps(statements, sort_keys=True).encode("utf-8")).hexdigest()
     published_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # Load existing published_2026_ytd.json to preserve multiyear_comparison if it exists
+    # Load existing published_2026_ytd.json to preserve all other UI keys
     out_pub = os.path.join(ROOT, "api", "data", "published_2026_ytd.json")
     existing_pub = {}
     if os.path.exists(out_pub):
-        with open(out_pub, encoding="utf-8") as f:
+        with open(out_pub, "r", encoding="utf-8") as f:
             existing_pub = json.load(f)
 
     published = {
@@ -50,10 +50,9 @@ def main():
         "monthly_statements": statements,
     }
     
-    if "multiyear_comparison" in existing_pub:
-        published["multiyear_comparison"] = existing_pub["multiyear_comparison"]
-    if "donor_metrics" in existing_pub:
-        published["donor_metrics"] = existing_pub["donor_metrics"]
+    for key, value in existing_pub.items():
+        if key not in ["meta", "monthly_statements"]:
+            published[key] = value
 
     with open(out_pub, "w", encoding="utf-8") as f:
         json.dump(published, f, indent=2)
