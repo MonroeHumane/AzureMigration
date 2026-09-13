@@ -604,7 +604,7 @@ app.http('donorMergeDecision', {
 });
 
 const GRANT_STATUSES = new Set(['open', 'watch', 'applied', 'awarded', 'skipped']);
-let cachedDirectusService = { token: '', expiresAt: 0 };
+let cachedDirectusService = {};
 
 function sanitizeGrantInput(body) {
   const title = String(body?.title || '').trim().slice(0, 255);
@@ -621,9 +621,9 @@ function sanitizeGrantInput(body) {
   return { payload };
 }
 
-async function getDirectusServiceToken() {
-  if (cachedDirectusService.token && Date.now() < cachedDirectusService.expiresAt) {
-    return cachedDirectusService.token;
+async function getDirectusServiceToken(collection = 'newsletter_issues') {
+  if (cachedDirectusService[collection] && Date.now() < cachedDirectusService[collection].expiresAt) {
+    return cachedDirectusService[collection].token;
   }
 
   const candidates = [
@@ -633,12 +633,12 @@ async function getDirectusServiceToken() {
 
   for (const token of candidates) {
     try {
-      const probe = await fetch(`${DIRECTUS_URL}/items/newsletter_issues?limit=1&fields=id`, {
+      const probe = await fetch(`${DIRECTUS_URL}/items/${collection}?limit=1&fields=id`, {
         headers: { Authorization: `Bearer ${token}` },
         signal: AbortSignal.timeout(4000),
       });
       if (probe.ok) {
-        cachedDirectusService = { token, expiresAt: Date.now() + 10 * 60 * 1000 };
+        cachedDirectusService[collection] = { token, expiresAt: Date.now() + 10 * 60 * 1000 };
         return token;
       }
     } catch {
@@ -656,7 +656,7 @@ async function getDirectusServiceToken() {
     body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
-    cachedDirectusService = { token: '', expiresAt: 0 };
+    cachedDirectusService[collection] = { token: '', expiresAt: 0 };
     return null;
   }
   const data = await res.json();
@@ -665,7 +665,7 @@ async function getDirectusServiceToken() {
     ? data.data.expires
     : 10 * 60 * 1000;
   if (token) {
-    cachedDirectusService = { token, expiresAt: Date.now() + Math.max(60 * 1000, ttl - 60 * 1000) };
+    cachedDirectusService[collection] = { token, expiresAt: Date.now() + Math.max(60 * 1000, ttl - 60 * 1000) };
   }
   return token;
 }
@@ -717,7 +717,7 @@ app.http('staffPets', {
     const auth = await requireStaff(request);
     if (auth.errorResponse) return auth.errorResponse;
 
-    const serviceToken = await getDirectusServiceToken();
+    const serviceToken = await getDirectusServiceToken('pets');
     if (!serviceToken) {
       return jsonResponse(request, 503, {
         error: 'Pet census service is not configured.',
@@ -803,7 +803,7 @@ app.http('grants', {
     const auth = await requireStaff(request);
     if (auth.errorResponse) return auth.errorResponse;
 
-    const serviceToken = await getDirectusServiceToken();
+    const serviceToken = await getDirectusServiceToken('grants');
     if (!serviceToken) {
       return jsonResponse(request, 503, {
         error: 'Grants service is not configured.',
