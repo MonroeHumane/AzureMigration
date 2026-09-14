@@ -242,6 +242,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             <ul class="text-[11px] space-y-1 list-disc list-inside text-slate-600 dark:text-slate-300">
               <li>To reset your password, email <a href="mailto:support@monroe-humane.org" class="text-teal-700 dark:text-teal-300 underline font-medium">support@monroe-humane.org</a>.</li>
               <li>For urgent shelter terminal issues, call <strong class="text-slate-800 dark:text-slate-200">(734) 243-3669</strong>.</li>
+              <li>For PetSync or Kennel Card printing issues, verify PetPoint is online.</li>
               <li>Always uncheck <em>Remember this device</em> on shared reception and clinic computers.</li>
             </ul>
           </div>
@@ -660,7 +661,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
     const auditEl = document.getElementById('metric-audit-diff');
     if (auditEl) {
-      auditEl.textContent = checking != null ? 'Balance at August 31.' : '';
+      auditEl.textContent = checking != null ? ('Balance at ' + (data.meta?.cutoff_date || 'August 31') + '.') : '';
     }
 
     const finPill = document.getElementById('hub-status-financials');

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-13T06:44:52.392225Z",
+    "generatedAt": "2026-09-14T05:26:59.082708Z",
     "source": "QuickBooks Online General Ledger",
     "closedMonthsCount": 12,
     "periodTitle": "2024 Month-to-Month 3-Level Hierarchical Drilldown",
@@ -59,7 +59,7 @@
               ]
             },
             {
-              "name": "DAN JOHNSON",
+              "name": "Unknown",
               "total": 100.0,
               "txCount": 1,
               "transactions": [
@@ -195,12 +195,12 @@
           "group": "Contributed income",
           "total": 9053.4,
           "pctOfTotal": 22.8,
-          "payeeCount": 28,
+          "payeeCount": 22,
           "txCount": 55,
           "payees": [
             {
               "name": "WePay",
-              "total": 3949.78,
+              "total": 3949.7800000000007,
               "txCount": 18,
               "transactions": [
                 {
@@ -350,24 +350,9 @@
               ]
             },
             {
-              "name": "CHRISTINE BOTTLE LADY",
-              "total": 1171.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-01-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "Huntington  Bank",
-                  "amount": 1171.0
-                }
-              ]
-            },
-            {
               "name": "Unknown",
-              "total": 1092.0,
-              "txCount": 7,
+              "total": 1306.0,
+              "txCount": 14,
               "transactions": [
                 {
                   "date": "2024-01-02",
@@ -389,9 +374,41 @@
                   "date": "2024-01-22",
                   "type": "Deposit",
                   "num": "",
+                  "memo": "BAG OF TREATS",
+                  "split": "Huntington  Bank",
+                  "amount": 8.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "1/24/24 MONTHLY  THANK YOU SENT 1/10",
+                  "split": "Huntington  Bank",
+                  "amount": 50.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
                   "memo": "",
                   "split": "Huntington  Bank",
                   "amount": 5.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "PHOTO COPIES",
+                  "split": "Huntington  Bank",
+                  "amount": 3.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "Huntington  Bank",
+                  "amount": 3.0
                 },
                 {
                   "date": "2024-01-31",
@@ -405,9 +422,25 @@
                   "date": "2024-01-31",
                   "type": "Deposit",
                   "num": "",
+                  "memo": "jan 24, 24",
+                  "split": "Huntington  Bank",
+                  "amount": 50.0
+                },
+                {
+                  "date": "2024-01-31",
+                  "type": "Deposit",
+                  "num": "",
                   "memo": "JAN 24,24",
                   "split": "Huntington  Bank",
                   "amount": 63.0
+                },
+                {
+                  "date": "2024-01-31",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "JAN 24,24",
+                  "split": "Huntington  Bank",
+                  "amount": 50.0
                 },
                 {
                   "date": "2024-01-31",
@@ -424,6 +457,29 @@
                   "memo": "JAN 24,24",
                   "split": "Huntington  Bank",
                   "amount": 45.0
+                },
+                {
+                  "date": "2024-01-31",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "HONOR OF ALEXA BRYNN JOHNSTON BIRTHDAY",
+                  "split": "Huntington  Bank",
+                  "amount": 50.0
+                }
+              ]
+            },
+            {
+              "name": "CHRISTINE BOTTLE LADY",
+              "total": 1171.0,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2024-01-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "Huntington  Bank",
+                  "amount": 1171.0
                 }
               ]
             },
@@ -511,29 +567,6 @@
               ]
             },
             {
-              "name": "KRISTIN & DAVID NELSON",
-              "total": 100.0,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2024-01-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "jan 24, 24",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
-                },
-                {
-                  "date": "2024-01-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "JAN 24,24",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
-                }
-              ]
-            },
-            {
               "name": "BLACKBAUD GIVING FUND",
               "total": 93.0,
               "txCount": 2,
@@ -598,36 +631,6 @@
                   "memo": "",
                   "split": "Huntington  Bank",
                   "amount": 60.0
-                }
-              ]
-            },
-            {
-              "name": "Linda Gagne",
-              "total": 50.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "1/24/24 MONTHLY  THANK YOU SENT 1/10",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
-                }
-              ]
-            },
-            {
-              "name": "Honor OF Alexa Brynn Johnston Birthday",
-              "total": 50.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-01-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "HONOR OF ALEXA BRYNN JOHNSTON BIRTHDAY",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
                 }
               ]
             },
@@ -788,51 +791,6 @@
                   "amount": 25.0
                 }
               ]
-            },
-            {
-              "name": "BAG OF Treats",
-              "total": 8.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BAG OF TREATS",
-                  "split": "Huntington  Bank",
-                  "amount": 8.0
-                }
-              ]
-            },
-            {
-              "name": "Photo Copies",
-              "total": 3.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "PHOTO COPIES",
-                  "split": "Huntington  Bank",
-                  "amount": 3.0
-                }
-              ]
-            },
-            {
-              "name": "PHOTO COPIES",
-              "total": 3.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "Huntington  Bank",
-                  "amount": 3.0
-                }
-              ]
             }
           ]
         },
@@ -841,13 +799,13 @@
           "group": "Adoptions and events",
           "total": 8629.24,
           "pctOfTotal": 21.7,
-          "payeeCount": 10,
+          "payeeCount": 8,
           "txCount": 41,
           "payees": [
             {
-              "name": "Square Inc",
-              "total": 6134.74,
-              "txCount": 20,
+              "name": "Unknown",
+              "total": 7591.739999999999,
+              "txCount": 32,
               "transactions": [
                 {
                   "date": "2024-01-02",
@@ -864,6 +822,14 @@
                   "memo": "Square Inc/0101 SHEL",
                   "split": "First Merchants Bank",
                   "amount": 374.59
+                },
+                {
+                  "date": "2024-01-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "KITTENS (1 FREE TO REPLACE DEAD ONE)  1/2 DN $50.00 FOSTER TO ADOPT",
+                  "split": "Huntington  Bank",
+                  "amount": 50.0
                 },
                 {
                   "date": "2024-01-03",
@@ -949,6 +915,62 @@
                   "date": "2024-01-22",
                   "type": "Deposit",
                   "num": "",
+                  "memo": "DUKE",
+                  "split": "Huntington  Bank",
+                  "amount": 300.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "MATILDA FINAL PAYMENT",
+                  "split": "Huntington  Bank",
+                  "amount": 125.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "SHERLOCK",
+                  "split": "Huntington  Bank",
+                  "amount": 200.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "Huntington  Bank",
+                  "amount": 120.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "EVE   DOG  300.  FEE 1/2 DOWN",
+                  "split": "Huntington  Bank",
+                  "amount": 150.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "PUPPY",
+                  "split": "Huntington  Bank",
+                  "amount": 162.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "VIXEN 100.00 DUE 50% DOWN",
+                  "split": "Huntington  Bank",
+                  "amount": 50.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
                   "memo": "Square Inc/0122 RGSTR",
                   "split": "First Merchants Bank",
                   "amount": 194.5
@@ -960,6 +982,14 @@
                   "memo": "Square Inc/0122 RGSTR",
                   "split": "First Merchants Bank",
                   "amount": 325.69
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "",
+                  "split": "Huntington  Bank",
+                  "amount": 100.0
                 },
                 {
                   "date": "2024-01-24",
@@ -1008,61 +1038,22 @@
                   "memo": "Square Inc/0122 RGSTR",
                   "split": "First Merchants Bank",
                   "amount": 389.2
-                }
-              ]
-            },
-            {
-              "name": "Unknown",
-              "total": 1082.0,
-              "txCount": 7,
-              "transactions": [
+                },
                 {
-                  "date": "2024-01-02",
+                  "date": "2024-01-31",
                   "type": "Deposit",
                   "num": "",
-                  "memo": "KITTENS (1 FREE TO REPLACE DEAD ONE)  1/2 DN $50.00 FOSTER TO ADOPT",
+                  "memo": "KITTEN DOWN PYMT JAN. 23, 24",
                   "split": "Huntington  Bank",
                   "amount": 50.0
                 },
                 {
-                  "date": "2024-01-22",
+                  "date": "2024-01-31",
                   "type": "Deposit",
                   "num": "",
-                  "memo": "DUKE",
+                  "memo": "KITTEN DOWN PYMT JAN. 23, 24",
                   "split": "Huntington  Bank",
-                  "amount": 300.0
-                },
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "SHERLOCK",
-                  "split": "Huntington  Bank",
-                  "amount": 200.0
-                },
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "Huntington  Bank",
-                  "amount": 120.0
-                },
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "EVE   DOG  300.  FEE 1/2 DOWN",
-                  "split": "Huntington  Bank",
-                  "amount": 150.0
-                },
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "PUPPY",
-                  "split": "Huntington  Bank",
-                  "amount": 162.0
+                  "amount": 50.0
                 },
                 {
                   "date": "2024-01-31",
@@ -1106,29 +1097,6 @@
               ]
             },
             {
-              "name": "DAN JOHNSON",
-              "total": 200.0,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "",
-                  "split": "Huntington  Bank",
-                  "amount": 100.0
-                },
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "BENGAL CAT",
-                  "split": "Huntington  Bank",
-                  "amount": 100.0
-                }
-              ]
-            },
-            {
               "name": "ANTHONY STOVER",
               "total": 162.5,
               "txCount": 1,
@@ -1140,37 +1108,6 @@
                   "memo": "TRIXIE ADOPTION PUPPY",
                   "split": "Huntington  Bank",
                   "amount": 162.5
-                }
-              ]
-            },
-            {
-              "name": "KRISTIN & DAVID NELSON",
-              "total": 150.0,
-              "txCount": 3,
-              "transactions": [
-                {
-                  "date": "2024-01-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "KITTEN DOWN PYMT JAN. 23, 24",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
-                },
-                {
-                  "date": "2024-01-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "KITTEN DOWN PYMT JAN. 23, 24",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
-                },
-                {
-                  "date": "2024-01-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "KITTEN DOWN PYMT JAN. 23, 24",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
                 }
               ]
             },
@@ -1190,40 +1127,17 @@
               ]
             },
             {
-              "name": "Matilda Final Payment",
-              "total": 125.0,
+              "name": "DAN JOHNSON",
+              "total": 100.0,
               "txCount": 1,
               "transactions": [
                 {
                   "date": "2024-01-22",
                   "type": "Deposit",
                   "num": "",
-                  "memo": "MATILDA FINAL PAYMENT",
+                  "memo": "BENGAL CAT",
                   "split": "Huntington  Bank",
-                  "amount": 125.0
-                }
-              ]
-            },
-            {
-              "name": "Linda Gagne",
-              "total": 100.0,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "VIXEN 100.00 DUE 50% DOWN",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
-                },
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "KITTEN 1/2",
-                  "split": "Huntington  Bank",
-                  "amount": 50.0
+                  "amount": 100.0
                 }
               ]
             },
@@ -1239,6 +1153,36 @@
                   "memo": "CAT",
                   "split": "Huntington  Bank",
                   "amount": 75.0
+                }
+              ]
+            },
+            {
+              "name": "Linda Gagne",
+              "total": 50.0,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "KITTEN 1/2",
+                  "split": "Huntington  Bank",
+                  "amount": 50.0
+                }
+              ]
+            },
+            {
+              "name": "KRISTIN & DAVID NELSON",
+              "total": 50.0,
+              "txCount": 1,
+              "transactions": [
+                {
+                  "date": "2024-01-31",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "KITTEN DOWN PYMT JAN. 23, 24",
+                  "split": "Huntington  Bank",
+                  "amount": 50.0
                 }
               ]
             }
@@ -1278,7 +1222,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "Refund OF Over Payment",
+              "name": "Unknown",
               "total": 597.79,
               "txCount": 1,
               "transactions": [
@@ -1299,13 +1243,13 @@
           "group": "Contributed income",
           "total": 553.0,
           "pctOfTotal": 1.4,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 2,
           "payees": [
             {
-              "name": "Large Dog Bank",
-              "total": 515.0,
-              "txCount": 1,
+              "name": "Unknown",
+              "total": 553.0,
+              "txCount": 2,
               "transactions": [
                 {
                   "date": "2024-01-02",
@@ -1314,14 +1258,7 @@
                   "memo": "Large Dog Bank",
                   "split": "Huntington  Bank",
                   "amount": 515.0
-                }
-              ]
-            },
-            {
-              "name": "Lori Holland",
-              "total": 38.0,
-              "txCount": 1,
-              "transactions": [
+                },
                 {
                   "date": "2024-01-31",
                   "type": "Deposit",
@@ -1339,13 +1276,13 @@
           "group": "Pet Surrender",
           "total": 325.0,
           "pctOfTotal": 0.8,
-          "payeeCount": 3,
+          "payeeCount": 1,
           "txCount": 4,
           "payees": [
             {
               "name": "Unknown",
-              "total": 150.0,
-              "txCount": 2,
+              "total": 325.0,
+              "txCount": 4,
               "transactions": [
                 {
                   "date": "2024-01-02",
@@ -1356,35 +1293,13 @@
                   "amount": 50.0
                 },
                 {
-                  "date": "2024-01-31",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "JAN 23, 24",
-                  "split": "Huntington  Bank",
-                  "amount": 100.0
-                }
-              ]
-            },
-            {
-              "name": "Wednesday CAT",
-              "total": 100.0,
-              "txCount": 1,
-              "transactions": [
-                {
                   "date": "2024-01-22",
                   "type": "Deposit",
                   "num": "",
                   "memo": "WEDNESDAY CAT",
                   "split": "Huntington  Bank",
                   "amount": 100.0
-                }
-              ]
-            },
-            {
-              "name": "CAT Surrender",
-              "total": 75.0,
-              "txCount": 1,
-              "transactions": [
+                },
                 {
                   "date": "2024-01-22",
                   "type": "Deposit",
@@ -1392,6 +1307,14 @@
                   "memo": "CAT SURRENDER",
                   "split": "Huntington  Bank",
                   "amount": 75.0
+                },
+                {
+                  "date": "2024-01-31",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "JAN 23, 24",
+                  "split": "Huntington  Bank",
+                  "amount": 100.0
                 }
               ]
             }
@@ -1427,13 +1350,13 @@
           "group": "pet reclaim",
           "total": 240.0,
           "pctOfTotal": 0.6,
-          "payeeCount": 3,
+          "payeeCount": 2,
           "txCount": 3,
           "payees": [
             {
-              "name": "Cookie Female DOG",
-              "total": 100.0,
-              "txCount": 1,
+              "name": "Unknown",
+              "total": 140.0,
+              "txCount": 2,
               "transactions": [
                 {
                   "date": "2024-01-02",
@@ -1442,6 +1365,14 @@
                   "memo": "COOKIE FEMALE DOG",
                   "split": "Huntington  Bank",
                   "amount": 100.0
+                },
+                {
+                  "date": "2024-01-22",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "ROOSTER",
+                  "split": "Huntington  Bank",
+                  "amount": 40.0
                 }
               ]
             },
@@ -1457,21 +1388,6 @@
                   "memo": "dOOBIE SENIOR LAB, LONG NAILS",
                   "split": "Huntington  Bank",
                   "amount": 100.0
-                }
-              ]
-            },
-            {
-              "name": "Unknown",
-              "total": 40.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-01-22",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "ROOSTER",
-                  "split": "Huntington  Bank",
-                  "amount": 40.0
                 }
               ]
             }
@@ -1507,13 +1423,13 @@
           "group": "Revenue",
           "total": 50.0,
           "pctOfTotal": 0.1,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 2,
           "payees": [
             {
               "name": "Unknown",
-              "total": 25.0,
-              "txCount": 1,
+              "total": 50.0,
+              "txCount": 2,
               "transactions": [
                 {
                   "date": "2024-01-22",
@@ -1522,14 +1438,7 @@
                   "memo": "CAT",
                   "split": "Huntington  Bank",
                   "amount": 25.0
-                }
-              ]
-            },
-            {
-              "name": "TIMOTHY ANTEAU",
-              "total": 25.0,
-              "txCount": 1,
-              "transactions": [
+                },
                 {
                   "date": "2024-01-31",
                   "type": "Deposit",
@@ -1547,48 +1456,9 @@
           "group": "Services",
           "total": -19023.88,
           "pctOfTotal": -47.9,
-          "payeeCount": 3,
+          "payeeCount": 2,
           "txCount": 35,
           "payees": [
-            {
-              "name": "Branch Deposit Batch",
-              "total": 596.35,
-              "txCount": 4,
-              "transactions": [
-                {
-                  "date": "2024-01-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "DEPOSIT",
-                  "split": "First Merchants Bank",
-                  "amount": 237.33
-                },
-                {
-                  "date": "2024-01-24",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "DEPOSIT",
-                  "split": "First Merchants Bank",
-                  "amount": 130.81
-                },
-                {
-                  "date": "2024-01-29",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "DEPOSIT",
-                  "split": "First Merchants Bank",
-                  "amount": 133.12
-                },
-                {
-                  "date": "2024-01-29",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "DEPOSIT",
-                  "split": "First Merchants Bank",
-                  "amount": 95.09
-                }
-              ]
-            },
             {
               "name": "Square customer",
               "total": 75.0,
@@ -1606,8 +1476,8 @@
             },
             {
               "name": "Unknown",
-              "total": -19695.23,
-              "txCount": 30,
+              "total": -19098.88,
+              "txCount": 34,
               "transactions": [
                 {
                   "date": "2024-01-02",
@@ -1624,6 +1494,14 @@
                   "memo": "",
                   "split": "Huntington  Bank",
                   "amount": -1007.91
+                },
+                {
+                  "date": "2024-01-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 237.33
                 },
                 {
                   "date": "2024-01-03",
@@ -1795,6 +1673,14 @@
                 },
                 {
                   "date": "2024-01-24",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 130.81
+                },
+                {
+                  "date": "2024-01-24",
                   "type": "Check",
                   "num": "3209",
                   "memo": "",
@@ -1835,11 +1721,27 @@
                 },
                 {
                   "date": "2024-01-29",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 133.12
+                },
+                {
+                  "date": "2024-01-29",
                   "type": "Check",
                   "num": "3211",
                   "memo": "",
                   "split": "Huntington  Bank",
                   "amount": -200.0
+                },
+                {
+                  "date": "2024-01-29",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 95.09
                 },
                 {
                   "date": "2024-01-30",
@@ -1934,7 +1836,7 @@
             },
             {
               "name": "EMILY A. RALPH",
-              "total": 2400.19,
+              "total": 2400.1899999999996,
               "txCount": 2,
               "transactions": [
                 {
@@ -2169,7 +2071,7 @@
             },
             {
               "name": "KALEI HOPPERT",
-              "total": 202.42,
+              "total": 202.42000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -2261,7 +2163,7 @@
             },
             {
               "name": "Sophia Pizzo",
-              "total": 90.01,
+              "total": 90.00999999999999,
               "txCount": 2,
               "transactions": [
                 {
@@ -2284,7 +2186,7 @@
             },
             {
               "name": "AMY CUNNINGHAM-SHINAULT",
-              "total": 78.29,
+              "total": 78.28999999999999,
               "txCount": 2,
               "transactions": [
                 {
@@ -2371,7 +2273,7 @@
           "txCount": 15,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 40343.2,
               "txCount": 4,
               "transactions": [
@@ -2411,7 +2313,7 @@
             },
             {
               "name": "WE PAY",
-              "total": 1590.34,
+              "total": 1590.3400000000001,
               "txCount": 11,
               "transactions": [
                 {
@@ -2515,7 +2417,7 @@
           "txCount": 21,
           "payees": [
             {
-              "name": "Square Inc",
+              "name": "Unknown",
               "total": 4265.99,
               "txCount": 21,
               "transactions": [
@@ -2700,7 +2602,7 @@
           "txCount": 2,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 83.3,
               "txCount": 2,
               "transactions": [
@@ -2830,7 +2732,7 @@
             },
             {
               "name": "KALEI HOPPERT",
-              "total": 2371.61,
+              "total": 2371.6099999999997,
               "txCount": 2,
               "transactions": [
                 {
@@ -2853,7 +2755,7 @@
             },
             {
               "name": "Unknown",
-              "total": 1794.77,
+              "total": 1794.7700000000002,
               "txCount": 6,
               "transactions": [
                 {
@@ -3086,7 +2988,7 @@
             },
             {
               "name": "KELLY  A. KARLET",
-              "total": 216.6,
+              "total": 216.60000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -3132,7 +3034,7 @@
             },
             {
               "name": "KALEI HOPPERT",
-              "total": 193.29,
+              "total": 193.29000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -3612,7 +3514,7 @@
           "txCount": 3,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 6505.99,
               "txCount": 2,
               "transactions": [
@@ -3660,8 +3562,8 @@
           "txCount": 18,
           "payees": [
             {
-              "name": "Square Inc",
-              "total": 5441.69,
+              "name": "Unknown",
+              "total": 5441.6900000000005,
               "txCount": 17,
               "transactions": [
                 {
@@ -4431,7 +4333,7 @@
             },
             {
               "name": "ANGELICA M. DENNIS",
-              "total": 149.33,
+              "total": 149.32999999999998,
               "txCount": 3,
               "transactions": [
                 {
@@ -4493,7 +4395,7 @@
             },
             {
               "name": "SUMMER WOODMAN",
-              "total": 126.0,
+              "total": 126.00000000000001,
               "txCount": 3,
               "transactions": [
                 {
@@ -4741,8 +4643,8 @@
           "txCount": 19,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 23248.31,
+              "name": "Unknown",
+              "total": 23248.309999999998,
               "txCount": 3,
               "transactions": [
                 {
@@ -4773,7 +4675,7 @@
             },
             {
               "name": "WE PAY",
-              "total": 5881.56,
+              "total": 5881.5599999999995,
               "txCount": 16,
               "transactions": [
                 {
@@ -4942,8 +4844,8 @@
           "txCount": 5,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 13257.84,
+              "name": "Unknown",
+              "total": 13257.839999999998,
               "txCount": 5,
               "transactions": [
                 {
@@ -4999,8 +4901,8 @@
           "txCount": 23,
           "payees": [
             {
-              "name": "Square Inc",
-              "total": 7052.86,
+              "name": "Unknown",
+              "total": 7052.859999999999,
               "txCount": 23,
               "transactions": [
                 {
@@ -5203,7 +5105,7 @@
           "payees": [
             {
               "name": "Unknown",
-              "total": 15791.13,
+              "total": 15791.130000000001,
               "txCount": 17,
               "transactions": [
                 {
@@ -5530,7 +5432,7 @@
             },
             {
               "name": "Sophia Pizzo",
-              "total": 1395.68,
+              "total": 1395.6799999999998,
               "txCount": 2,
               "transactions": [
                 {
@@ -5716,7 +5618,7 @@
             },
             {
               "name": "KALEI HOPPERT",
-              "total": 183.59,
+              "total": 183.58999999999997,
               "txCount": 2,
               "transactions": [
                 {
@@ -5739,7 +5641,7 @@
             },
             {
               "name": "DAYGAN A WORTLEY",
-              "total": 163.66,
+              "total": 163.66000000000003,
               "txCount": 2,
               "transactions": [
                 {
@@ -5762,7 +5664,7 @@
             },
             {
               "name": "SUMMER WOODMAN",
-              "total": 119.55,
+              "total": 119.55000000000001,
               "txCount": 2,
               "transactions": [
                 {
@@ -5997,28 +5899,13 @@
           "group": "Office expenses",
           "total": 110.0,
           "pctOfTotal": 0.3,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 2,
           "payees": [
             {
-              "name": "Charge Back",
-              "total": 100.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-04-15",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "CHARGE BACK",
-                  "split": "First Merchants Bank",
-                  "amount": 100.0
-                }
-              ]
-            },
-            {
               "name": "Unknown",
-              "total": 10.0,
-              "txCount": 1,
+              "total": 110.0,
+              "txCount": 2,
               "transactions": [
                 {
                   "date": "2024-04-01",
@@ -6027,6 +5914,14 @@
                   "memo": "BANKCARD/MTHLY FEES HUMANE SOCIE BANKCARD/MTHLY FEES HUMANE SOCIETY OF MONR",
                   "split": "First Merchants Bank",
                   "amount": 10.0
+                },
+                {
+                  "date": "2024-04-15",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "CHARGE BACK",
+                  "split": "First Merchants Bank",
+                  "amount": 100.0
                 }
               ]
             }
@@ -6131,8 +6026,8 @@
           "txCount": 7,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 14791.76,
+              "name": "Unknown",
+              "total": 14791.760000000002,
               "txCount": 7,
               "transactions": [
                 {
@@ -6204,8 +6099,8 @@
           "txCount": 24,
           "payees": [
             {
-              "name": "Square Inc",
-              "total": 9892.51,
+              "name": "Unknown",
+              "total": 9892.510000000002,
               "txCount": 24,
               "transactions": [
                 {
@@ -6614,7 +6509,7 @@
             },
             {
               "name": "RACHEL OHNECK",
-              "total": 2638.18,
+              "total": 2638.1800000000003,
               "txCount": 2,
               "transactions": [
                 {
@@ -6660,7 +6555,7 @@
             },
             {
               "name": "KAITLYN N. EVOE",
-              "total": 2480.47,
+              "total": 2480.4700000000003,
               "txCount": 2,
               "transactions": [
                 {
@@ -6729,7 +6624,7 @@
             },
             {
               "name": "KALEI HOPPERT",
-              "total": 2357.82,
+              "total": 2357.8199999999997,
               "txCount": 2,
               "transactions": [
                 {
@@ -6752,7 +6647,7 @@
             },
             {
               "name": "DAYGAN A WORTLEY",
-              "total": 2034.41,
+              "total": 2034.4099999999999,
               "txCount": 2,
               "transactions": [
                 {
@@ -6775,7 +6670,7 @@
             },
             {
               "name": "SUMMER WOODMAN",
-              "total": 1285.57,
+              "total": 1285.5700000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -6907,7 +6802,7 @@
             },
             {
               "name": "CASEY E. NICHOLSON",
-              "total": 198.17,
+              "total": 198.17000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -7352,8 +7247,8 @@
           "txCount": 5,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 17826.1,
+              "name": "Unknown",
+              "total": 17826.100000000002,
               "txCount": 5,
               "transactions": [
                 {
@@ -7409,7 +7304,7 @@
           "txCount": 22,
           "payees": [
             {
-              "name": "Square Inc",
+              "name": "Unknown",
               "total": 6602.89,
               "txCount": 22,
               "transactions": [
@@ -7602,7 +7497,7 @@
           "txCount": 6,
           "payees": [
             {
-              "name": "BetterUnite",
+              "name": "Unknown",
               "total": 527.0,
               "txCount": 1,
               "transactions": [
@@ -7684,7 +7579,7 @@
           "payees": [
             {
               "name": "QuickBooks Payments",
-              "total": 21548.46,
+              "total": 21548.460000000006,
               "txCount": 23,
               "transactions": [
                 {
@@ -8109,7 +8004,7 @@
             },
             {
               "name": "KAITLYN N. EVOE",
-              "total": 2537.28,
+              "total": 2537.2799999999997,
               "txCount": 2,
               "transactions": [
                 {
@@ -8319,7 +8214,7 @@
             },
             {
               "name": "OLIVIA DESANTIS",
-              "total": 220.84,
+              "total": 220.83999999999997,
               "txCount": 3,
               "transactions": [
                 {
@@ -8419,7 +8314,7 @@
             },
             {
               "name": "KAITLYN N. EVOE",
-              "total": 194.1,
+              "total": 194.10000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -8562,13 +8457,13 @@
           "group": "Veterinary & Medical Care",
           "total": 5110.0,
           "pctOfTotal": 5.9,
-          "payeeCount": 3,
+          "payeeCount": 2,
           "txCount": 4,
           "payees": [
             {
-              "name": "Humane Ohio Toledo OH",
-              "total": 2413.0,
-              "txCount": 1,
+              "name": "Unknown",
+              "total": 3823.0,
+              "txCount": 3,
               "transactions": [
                 {
                   "date": "2024-06-07",
@@ -8577,14 +8472,7 @@
                   "memo": "HUMANE OHIO TOLEDO OH",
                   "split": "First Merchants Creditcard",
                   "amount": 2413.0
-                }
-              ]
-            },
-            {
-              "name": "THE Paws Clinic INC Taylor MI",
-              "total": 1410.0,
-              "txCount": 2,
-              "transactions": [
+                },
                 {
                   "date": "2024-06-17",
                   "type": "Expenditure",
@@ -8650,13 +8538,13 @@
           "group": "Animal Care Supplies",
           "total": 1965.69,
           "pctOfTotal": 100.0,
-          "payeeCount": 5,
+          "payeeCount": 4,
           "txCount": 16,
           "payees": [
             {
               "name": "Unknown",
-              "total": 1532.12,
-              "txCount": 10,
+              "total": 1666.63,
+              "txCount": 11,
               "transactions": [
                 {
                   "date": "2024-06-03",
@@ -8665,6 +8553,14 @@
                   "memo": "HOBBY LOBBY #436 TAYLOR MI",
                   "split": "First Merchants Creditcard",
                   "amount": 23.24
+                },
+                {
+                  "date": "2024-06-03",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "OLLIES BARGAIN OUTLET MONROE MI",
+                  "split": "First Merchants Creditcard",
+                  "amount": 134.51
                 },
                 {
                   "date": "2024-06-06",
@@ -8737,21 +8633,6 @@
                   "memo": "WM SUPERCENTER #1790 MONROE MI",
                   "split": "First Merchants Creditcard",
                   "amount": 241.92
-                }
-              ]
-            },
-            {
-              "name": "Ollies Bargain Outlet Monroe MI",
-              "total": 134.51,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-06-03",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "OLLIES BARGAIN OUTLET MONROE MI",
-                  "split": "First Merchants Creditcard",
-                  "amount": 134.51
                 }
               ]
             },
@@ -8946,14 +8827,22 @@
           "group": "Vehicle expenses",
           "total": 200.9,
           "pctOfTotal": 100.0,
-          "payeeCount": 3,
+          "payeeCount": 2,
           "txCount": 4,
           "payees": [
             {
               "name": "Unknown",
-              "total": 110.93,
-              "txCount": 2,
+              "total": 151.45,
+              "txCount": 3,
               "transactions": [
+                {
+                  "date": "2024-06-06",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "EXXON MONROE MART MONROE MI",
+                  "split": "First Merchants Creditcard",
+                  "amount": 40.52
+                },
                 {
                   "date": "2024-06-17",
                   "type": "Expenditure",
@@ -8984,21 +8873,6 @@
                   "memo": "BP -- see PrivateNote",
                   "split": "First Merchants Creditcard",
                   "amount": 49.45
-                }
-              ]
-            },
-            {
-              "name": "Exxon Monroe Mart Monroe MI",
-              "total": 40.52,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-06-06",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "EXXON MONROE MART MONROE MI",
-                  "split": "First Merchants Creditcard",
-                  "amount": 40.52
                 }
               ]
             }
@@ -9103,7 +8977,7 @@
           "txCount": 23,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 5125.33,
               "txCount": 3,
               "transactions": [
@@ -9318,7 +9192,7 @@
           "txCount": 26,
           "payees": [
             {
-              "name": "Square Inc",
+              "name": "Unknown",
               "total": 8698.78,
               "txCount": 26,
               "transactions": [
@@ -9543,7 +9417,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 3751.5,
               "txCount": 1,
               "transactions": [
@@ -9566,7 +9440,7 @@
           "group": "Staff",
           "total": 51826.76,
           "pctOfTotal": 76.8,
-          "payeeCount": 16,
+          "payeeCount": 15,
           "txCount": 71,
           "payees": [
             {
@@ -9762,8 +9636,8 @@
             },
             {
               "name": "Unknown",
-              "total": 9738.63,
-              "txCount": 22,
+              "total": 9760.119999999999,
+              "txCount": 23,
               "transactions": [
                 {
                   "date": "2024-07-01",
@@ -9860,6 +9734,14 @@
                   "memo": "CHECK REF#4075",
                   "split": "First Merchants Bank",
                   "amount": 12.98
+                },
+                {
+                  "date": "2024-07-25",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 35141190/PAYROLL HUMANE S INTUIT 35141190/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 21.49
                 },
                 {
                   "date": "2024-07-26",
@@ -9999,7 +9881,7 @@
             },
             {
               "name": "KAITLYN N. EVOE",
-              "total": 2512.86,
+              "total": 2512.8599999999997,
               "txCount": 2,
               "transactions": [
                 {
@@ -10114,7 +9996,7 @@
             },
             {
               "name": "OLIVIA DESANTIS",
-              "total": 1598.63,
+              "total": 1598.6299999999999,
               "txCount": 2,
               "transactions": [
                 {
@@ -10137,7 +10019,7 @@
             },
             {
               "name": "SUMMER WOODMAN",
-              "total": 1429.61,
+              "total": 1429.6100000000001,
               "txCount": 2,
               "transactions": [
                 {
@@ -10231,21 +10113,6 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Business Checking",
                   "amount": 200.0
-                }
-              ]
-            },
-            {
-              "name": "*KARLET, KELLY  A",
-              "total": 21.49,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-07-25",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 35141190/PAYROLL HUMANE S INTUIT 35141190/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 21.49
                 }
               ]
             }
@@ -10377,7 +10244,7 @@
             },
             {
               "name": "KALEI HOPPERT",
-              "total": 191.48,
+              "total": 191.48000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -10469,7 +10336,7 @@
             },
             {
               "name": "OLIVIA DESANTIS",
-              "total": 130.29,
+              "total": 130.29000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -10829,7 +10696,7 @@
           "payees": [
             {
               "name": "Marathon Petroleum",
-              "total": 192.52,
+              "total": 192.51999999999998,
               "txCount": 3,
               "transactions": [
                 {
@@ -10860,7 +10727,7 @@
             },
             {
               "name": "Unknown",
-              "total": 144.16,
+              "total": 144.16000000000003,
               "txCount": 2,
               "transactions": [
                 {
@@ -11150,7 +11017,7 @@
           "txCount": 23,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 54372.99,
               "txCount": 1,
               "transactions": [
@@ -11365,7 +11232,7 @@
           "txCount": 2,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 17193.58,
               "txCount": 2,
               "transactions": [
@@ -11398,8 +11265,8 @@
           "txCount": 22,
           "payees": [
             {
-              "name": "Square Inc",
-              "total": 8077.35,
+              "name": "Unknown",
+              "total": 8077.349999999999,
               "txCount": 22,
               "transactions": [
                 {
@@ -11589,7 +11456,7 @@
           "group": "Staff",
           "total": 73008.73,
           "pctOfTotal": 85.3,
-          "payeeCount": 20,
+          "payeeCount": 19,
           "txCount": 90,
           "payees": [
             {
@@ -11881,8 +11748,8 @@
             },
             {
               "name": "Unknown",
-              "total": 10225.39,
-              "txCount": 13,
+              "total": 10383.53,
+              "txCount": 15,
               "transactions": [
                 {
                   "date": "2024-08-01",
@@ -11891,6 +11758,14 @@
                   "memo": "CHECK REF#4088",
                   "split": "First Merchants Bank",
                   "amount": 176.2
+                },
+                {
+                  "date": "2024-08-02",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 35612712/PAYROLL HUMANE S INTUIT 35612712/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 85.68
                 },
                 {
                   "date": "2024-08-06",
@@ -11939,6 +11814,14 @@
                   "memo": "CHECK REF#4093",
                   "split": "First Merchants Bank",
                   "amount": 165.0
+                },
+                {
+                  "date": "2024-08-16",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 36395203/PAYROLL HUMANE S INTUIT 36395203/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 72.46
                 },
                 {
                   "date": "2024-08-16",
@@ -12147,7 +12030,7 @@
             },
             {
               "name": "DAYGAN A WORTLEY",
-              "total": 3190.61,
+              "total": 3190.6099999999997,
               "txCount": 3,
               "transactions": [
                 {
@@ -12209,7 +12092,7 @@
             },
             {
               "name": "BROOKLYNN SARAZIN",
-              "total": 1923.76,
+              "total": 1923.7600000000002,
               "txCount": 3,
               "transactions": [
                 {
@@ -12396,29 +12279,6 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 82.25
-                }
-              ]
-            },
-            {
-              "name": "*RICE, CHELSEA R",
-              "total": 158.14,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2024-08-02",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 35612712/PAYROLL HUMANE S INTUIT 35612712/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 85.68
-                },
-                {
-                  "date": "2024-08-16",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 36395203/PAYROLL HUMANE S INTUIT 36395203/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 72.46
                 }
               ]
             },
@@ -12650,7 +12510,7 @@
             },
             {
               "name": "DAYGAN A WORTLEY",
-              "total": 244.07,
+              "total": 244.07000000000002,
               "txCount": 3,
               "transactions": [
                 {
@@ -12805,7 +12665,7 @@
             },
             {
               "name": "ANGELICA M. DENNIS",
-              "total": 80.85,
+              "total": 80.85000000000001,
               "txCount": 3,
               "transactions": [
                 {
@@ -12835,8 +12695,8 @@
               ]
             },
             {
-              "name": "Employer Taxes",
-              "total": 63.07,
+              "name": "Unknown",
+              "total": 63.06999999999999,
               "txCount": 3,
               "transactions": [
                 {
@@ -12912,7 +12772,7 @@
             },
             {
               "name": "CHELSEA R RICE",
-              "total": 14.63,
+              "total": 14.629999999999999,
               "txCount": 2,
               "transactions": [
                 {
@@ -13104,7 +12964,7 @@
           "payees": [
             {
               "name": "Unknown",
-              "total": 429.83,
+              "total": 429.83000000000004,
               "txCount": 7,
               "transactions": [
                 {
@@ -13497,7 +13357,7 @@
           "txCount": 19,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 24194.42,
               "txCount": 6,
               "transactions": [
@@ -13592,7 +13452,7 @@
             },
             {
               "name": "BETTER UNITE",
-              "total": 1202.37,
+              "total": 1202.3700000000001,
               "txCount": 9,
               "transactions": [
                 {
@@ -13680,8 +13540,8 @@
           "txCount": 7,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 16676.45,
+              "name": "Unknown",
+              "total": 16676.449999999997,
               "txCount": 7,
               "transactions": [
                 {
@@ -13753,8 +13613,8 @@
           "txCount": 24,
           "payees": [
             {
-              "name": "Square Inc",
-              "total": 10505.06,
+              "name": "Unknown",
+              "total": 10505.060000000001,
               "txCount": 24,
               "transactions": [
                 {
@@ -14298,7 +14158,7 @@
             },
             {
               "name": "EMILY A. RALPH",
-              "total": 2623.78,
+              "total": 2623.7799999999997,
               "txCount": 3,
               "transactions": [
                 {
@@ -14329,7 +14189,7 @@
             },
             {
               "name": "KAITLYN N. EVOE",
-              "total": 2555.11,
+              "total": 2555.1099999999997,
               "txCount": 2,
               "transactions": [
                 {
@@ -14701,8 +14561,8 @@
               ]
             },
             {
-              "name": "Employer Taxes",
-              "total": 514.86,
+              "name": "Unknown",
+              "total": 514.8600000000001,
               "txCount": 10,
               "transactions": [
                 {
@@ -15179,7 +15039,7 @@
           "payees": [
             {
               "name": "Unknown",
-              "total": 1159.5,
+              "total": 1159.4999999999998,
               "txCount": 17,
               "transactions": [
                 {
@@ -15739,7 +15599,7 @@
           "txCount": 21,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
+              "name": "Unknown",
               "total": 76495.37,
               "txCount": 6,
               "transactions": [
@@ -15952,7 +15812,7 @@
           "txCount": 24,
           "payees": [
             {
-              "name": "Square Inc",
+              "name": "Unknown",
               "total": 7124.36,
               "txCount": 24,
               "transactions": [
@@ -16161,8 +16021,8 @@
           "txCount": 10,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 1710.14,
+              "name": "Unknown",
+              "total": 1710.1399999999999,
               "txCount": 9,
               "transactions": [
                 {
@@ -16711,7 +16571,7 @@
             },
             {
               "name": "KALEI HOPPERT",
-              "total": 2465.93,
+              "total": 2465.9300000000003,
               "txCount": 2,
               "transactions": [
                 {
@@ -16757,7 +16617,7 @@
             },
             {
               "name": "TRISTAN HYATT",
-              "total": 1975.3,
+              "total": 1975.3000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -16961,12 +16821,12 @@
           "group": "Personnel & Staffing",
           "total": 10749.28,
           "pctOfTotal": 12.5,
-          "payeeCount": 18,
+          "payeeCount": 17,
           "txCount": 36,
           "payees": [
             {
               "name": "QuickBooks Payments",
-              "total": 8781.06,
+              "total": 8781.060000000001,
               "txCount": 5,
               "transactions": [
                 {
@@ -17059,7 +16919,7 @@
             },
             {
               "name": "EMILY A. RALPH",
-              "total": 201.52,
+              "total": 201.51999999999998,
               "txCount": 2,
               "transactions": [
                 {
@@ -17082,7 +16942,7 @@
             },
             {
               "name": "KAITLYN N. EVOE",
-              "total": 193.04,
+              "total": 193.04000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -17197,7 +17057,7 @@
             },
             {
               "name": "MADISON SHULTZ",
-              "total": 146.54,
+              "total": 146.54000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -17243,7 +17103,7 @@
             },
             {
               "name": "SUMMER WOODMAN",
-              "total": 80.76,
+              "total": 80.75999999999999,
               "txCount": 2,
               "transactions": [
                 {
@@ -17326,29 +17186,6 @@
               ]
             },
             {
-              "name": "MI Unemployment Tax",
-              "total": -0.02,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2024-10-11",
-                  "type": "Payroll Adjustment",
-                  "num": "",
-                  "memo": "MI Unemployment Tax",
-                  "split": "-Split-",
-                  "amount": -0.01
-                },
-                {
-                  "date": "2024-10-25",
-                  "type": "Payroll Adjustment",
-                  "num": "",
-                  "memo": "MI Unemployment Tax",
-                  "split": "-Split-",
-                  "amount": -0.01
-                }
-              ]
-            },
-            {
               "name": "MI Unemployment Insurance Agency",
               "total": -0.11,
               "txCount": 1,
@@ -17364,10 +17201,18 @@
               ]
             },
             {
-              "name": "Employer Taxes",
-              "total": -99.03,
-              "txCount": 1,
+              "name": "Unknown",
+              "total": -99.05000000000001,
+              "txCount": 3,
               "transactions": [
+                {
+                  "date": "2024-10-11",
+                  "type": "Payroll Adjustment",
+                  "num": "",
+                  "memo": "MI Unemployment Tax",
+                  "split": "-Split-",
+                  "amount": -0.01
+                },
                 {
                   "date": "2024-10-11",
                   "type": "Payroll Adjustment",
@@ -17375,6 +17220,14 @@
                   "memo": "Employer Taxes",
                   "split": "-Split-",
                   "amount": -99.03
+                },
+                {
+                  "date": "2024-10-25",
+                  "type": "Payroll Adjustment",
+                  "num": "",
+                  "memo": "MI Unemployment Tax",
+                  "split": "-Split-",
+                  "amount": -0.01
                 }
               ]
             }
@@ -17487,7 +17340,7 @@
             },
             {
               "name": "HERITAGE ANIMAL HOSPITAL",
-              "total": 747.82,
+              "total": 747.8199999999999,
               "txCount": 4,
               "transactions": [
                 {
@@ -17745,7 +17598,7 @@
           "payees": [
             {
               "name": "Marathon Petroleum",
-              "total": 252.71,
+              "total": 252.70999999999998,
               "txCount": 5,
               "transactions": [
                 {
@@ -17792,7 +17645,7 @@
             },
             {
               "name": "Unknown",
-              "total": 63.82,
+              "total": 63.82000000000001,
               "txCount": 2,
               "transactions": [
                 {
@@ -17890,28 +17743,13 @@
           "group": "Office expenses",
           "total": 175.0,
           "pctOfTotal": 0.2,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 4,
           "payees": [
             {
-              "name": "Charge Back",
-              "total": 100.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-10-10",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "CHARGE BACK",
-                  "split": "First Merchants Bank",
-                  "amount": 100.0
-                }
-              ]
-            },
-            {
               "name": "Unknown",
-              "total": 75.0,
-              "txCount": 3,
+              "total": 175.0,
+              "txCount": 4,
               "transactions": [
                 {
                   "date": "2024-10-01",
@@ -17936,6 +17774,14 @@
                   "memo": "Square Inc/SQ241002 Humane Socie Square Inc/SQ241002 Humane Society of Monr",
                   "split": "First Merchants Bank",
                   "amount": 35.0
+                },
+                {
+                  "date": "2024-10-10",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "CHARGE BACK",
+                  "split": "First Merchants Bank",
+                  "amount": 100.0
                 }
               ]
             }
@@ -18019,13 +17865,13 @@
           "group": "Contributed income",
           "total": 32557.5,
           "pctOfTotal": 71.2,
-          "payeeCount": 16,
+          "payeeCount": 15,
           "txCount": 48,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 23078.52,
-              "txCount": 9,
+              "name": "Unknown",
+              "total": 23170.17,
+              "txCount": 10,
               "transactions": [
                 {
                   "date": "2024-11-04",
@@ -18076,6 +17922,14 @@
                   "amount": 545.0
                 },
                 {
+                  "date": "2024-11-15",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "My Tribute Gift/Bill.com My Trib My Tribute Gift/Bill.com My Tribute Gift Foundation, I",
+                  "split": "First Merchants Bank",
+                  "amount": 91.65
+                },
+                {
                   "date": "2024-11-19",
                   "type": "Deposit",
                   "num": "",
@@ -18103,7 +17957,7 @@
             },
             {
               "name": "BETTER UNITE",
-              "total": 3347.68,
+              "total": 3347.6800000000003,
               "txCount": 9,
               "transactions": [
                 {
@@ -18435,21 +18289,6 @@
               ]
             },
             {
-              "name": "Unknown",
-              "total": 91.65,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-11-15",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "My Tribute Gift/Bill.com My Trib My Tribute Gift/Bill.com My Tribute Gift Foundation, I",
-                  "split": "First Merchants Bank",
-                  "amount": 91.65
-                }
-              ]
-            },
-            {
               "name": "Michael Robinson",
               "total": 48.36,
               "txCount": 2,
@@ -18529,8 +18368,8 @@
           "txCount": 22,
           "payees": [
             {
-              "name": "Square Inc",
-              "total": 8094.31,
+              "name": "Unknown",
+              "total": 8094.309999999999,
               "txCount": 22,
               "transactions": [
                 {
@@ -18722,8 +18561,8 @@
           "txCount": 6,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 5086.56,
+              "name": "Unknown",
+              "total": 5086.5599999999995,
               "txCount": 5,
               "transactions": [
                 {
@@ -18792,12 +18631,12 @@
           "group": "Staff",
           "total": 50000.25,
           "pctOfTotal": 66.3,
-          "payeeCount": 23,
+          "payeeCount": 19,
           "txCount": 66,
           "payees": [
             {
               "name": "QuickBooks Payments",
-              "total": 16345.39,
+              "total": 16345.390000000001,
               "txCount": 22,
               "transactions": [
                 {
@@ -18980,8 +18819,8 @@
             },
             {
               "name": "Unknown",
-              "total": 7390.49,
-              "txCount": 11,
+              "total": 10221.529999999999,
+              "txCount": 15,
               "transactions": [
                 {
                   "date": "2024-11-01",
@@ -19054,6 +18893,38 @@
                   "memo": "CHECK REF#4151",
                   "split": "First Merchants Bank",
                   "amount": 1100.0
+                },
+                {
+                  "date": "2024-11-22",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 43765006/PAYROLL HUMANE S INTUIT 43765006/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 80.03
+                },
+                {
+                  "date": "2024-11-22",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 43765006/PAYROLL HUMANE S INTUIT 43765006/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 1035.17
+                },
+                {
+                  "date": "2024-11-22",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 43765006/PAYROLL HUMANE S INTUIT 43765006/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 902.7
+                },
+                {
+                  "date": "2024-11-22",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 43765006/PAYROLL HUMANE S INTUIT 43765006/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 813.14
                 },
                 {
                   "date": "2024-11-26",
@@ -19289,21 +19160,6 @@
               ]
             },
             {
-              "name": "*EVOE, KAITLYN N",
-              "total": 1035.17,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-11-22",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 43765006/PAYROLL HUMANE S INTUIT 43765006/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 1035.17
-                }
-              ]
-            },
-            {
               "name": "ANGELA ORTNER",
               "total": 939.45,
               "txCount": 1,
@@ -19315,21 +19171,6 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 939.45
-                }
-              ]
-            },
-            {
-              "name": "CUNNINGHAM, MYA",
-              "total": 902.7,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-11-22",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 43765006/PAYROLL HUMANE S INTUIT 43765006/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 902.7
                 }
               ]
             },
@@ -19353,21 +19194,6 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 215.02
-                }
-              ]
-            },
-            {
-              "name": "*ORTNER, ANGELA J",
-              "total": 813.14,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-11-22",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 43765006/PAYROLL HUMANE S INTUIT 43765006/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 813.14
                 }
               ]
             },
@@ -19451,21 +19277,6 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 90.84
-                }
-              ]
-            },
-            {
-              "name": "Stines, Paige A",
-              "total": 80.03,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-11-22",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 43765006/PAYROLL HUMANE S INTUIT 43765006/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 80.03
                 }
               ]
             },
@@ -19682,7 +19493,7 @@
             },
             {
               "name": "SHAUN HALSEY",
-              "total": 203.04,
+              "total": 203.04000000000002,
               "txCount": 2,
               "transactions": [
                 {
@@ -19751,7 +19562,7 @@
             },
             {
               "name": "DAYGAN A WORTLEY",
-              "total": 178.09,
+              "total": 178.08999999999997,
               "txCount": 2,
               "transactions": [
                 {
@@ -19797,7 +19608,7 @@
             },
             {
               "name": "EMILY A. RALPH",
-              "total": 114.6,
+              "total": 114.60000000000001,
               "txCount": 2,
               "transactions": [
                 {
@@ -19835,7 +19646,7 @@
             },
             {
               "name": "SUMMER WOODMAN",
-              "total": 63.9,
+              "total": 63.900000000000006,
               "txCount": 2,
               "transactions": [
                 {
@@ -19873,7 +19684,7 @@
             },
             {
               "name": "ANGELICA M. DENNIS",
-              "total": 46.52,
+              "total": 46.519999999999996,
               "txCount": 2,
               "transactions": [
                 {
@@ -19940,7 +19751,7 @@
               ]
             },
             {
-              "name": "MI Unemployment Tax",
+              "name": "Unknown",
               "total": -0.01,
               "txCount": 1,
               "transactions": [
@@ -19966,7 +19777,7 @@
           "payees": [
             {
               "name": "Unknown",
-              "total": 4967.17,
+              "total": 4967.170000000001,
               "txCount": 6,
               "transactions": [
                 {
@@ -20225,13 +20036,13 @@
           "group": "Veterinary & Medical Care",
           "total": 3983.66,
           "pctOfTotal": 5.3,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 4,
           "payees": [
             {
               "name": "Unknown",
-              "total": 3952.44,
-              "txCount": 3,
+              "total": 3983.6599999999994,
+              "txCount": 4,
               "transactions": [
                 {
                   "date": "2024-11-12",
@@ -20253,24 +20064,17 @@
                   "date": "2024-11-25",
                   "type": "Expenditure",
                   "num": "",
-                  "memo": "Walgreens #5321 Monroe Mi",
+                  "memo": "Bedford Wellness Pharm Lambertville Mi",
                   "split": "First Merchants Creditcard",
-                  "amount": 133.97
-                }
-              ]
-            },
-            {
-              "name": "Bedford Wellness Pharm Lambertville Mi",
-              "total": 31.22,
-              "txCount": 1,
-              "transactions": [
+                  "amount": 31.22
+                },
                 {
                   "date": "2024-11-25",
                   "type": "Expenditure",
                   "num": "",
-                  "memo": "Bedford Wellness Pharm Lambertville Mi",
+                  "memo": "Walgreens #5321 Monroe Mi",
                   "split": "First Merchants Creditcard",
-                  "amount": 31.22
+                  "amount": 133.97
                 }
               ]
             }
@@ -20326,7 +20130,7 @@
           "payees": [
             {
               "name": "Unknown",
-              "total": 1571.8,
+              "total": 1571.7999999999997,
               "txCount": 9,
               "transactions": [
                 {
@@ -20613,28 +20417,13 @@
           "group": "Office expenses",
           "total": 55.0,
           "pctOfTotal": 0.1,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 2,
           "payees": [
             {
-              "name": "Deposit Correction",
-              "total": 45.0,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-11-19",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "DEPOSIT CORRECTION",
-                  "split": "First Merchants Bank",
-                  "amount": 45.0
-                }
-              ]
-            },
-            {
-              "name": "Tiffany Henry",
-              "total": 10.0,
-              "txCount": 1,
+              "name": "Unknown",
+              "total": 55.0,
+              "txCount": 2,
               "transactions": [
                 {
                   "date": "2024-11-01",
@@ -20643,6 +20432,14 @@
                   "memo": "BANKCARD/MTHLY FEES HUMANE SOCIE BANKCARD/MTHLY FEES HUMANE SOCIETY OF MONR",
                   "split": "First Merchants Bank",
                   "amount": 10.0
+                },
+                {
+                  "date": "2024-11-19",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "DEPOSIT CORRECTION",
+                  "split": "First Merchants Bank",
+                  "amount": 45.0
                 }
               ]
             }
@@ -20693,14 +20490,22 @@
           "group": "Contributed income",
           "total": 41243.93,
           "pctOfTotal": 68.3,
-          "payeeCount": 53,
+          "payeeCount": 52,
           "txCount": 145,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 28363.01,
-              "txCount": 6,
+              "name": "Unknown",
+              "total": 33604.11,
+              "txCount": 7,
               "transactions": [
+                {
+                  "date": "2024-12-02",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "PAYPAL/TRANSFER",
+                  "split": "First Merchants Bank",
+                  "amount": 5241.1
+                },
                 {
                   "date": "2024-12-03",
                   "type": "Deposit",
@@ -20748,21 +20553,6 @@
                   "memo": "DEPOSIT",
                   "split": "First Merchants Bank",
                   "amount": 2655.84
-                }
-              ]
-            },
-            {
-              "name": "PayPal Giving Fund",
-              "total": 5241.1,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-12-02",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "PAYPAL/TRANSFER",
-                  "split": "First Merchants Bank",
-                  "amount": 5241.1
                 }
               ]
             },
@@ -21164,7 +20954,7 @@
             },
             {
               "name": "Lisa Groulx",
-              "total": 98.76,
+              "total": 98.75999999999999,
               "txCount": 6,
               "transactions": [
                 {
@@ -22059,7 +21849,7 @@
             },
             {
               "name": "Cynthia Lucas",
-              "total": 20.52,
+              "total": 20.520000000000003,
               "txCount": 3,
               "transactions": [
                 {
@@ -22238,8 +22028,8 @@
           "txCount": 8,
           "payees": [
             {
-              "name": "Branch Deposit Batch",
-              "total": 10187.19,
+              "name": "Unknown",
+              "total": 10187.189999999999,
               "txCount": 7,
               "transactions": [
                 {
@@ -22322,13 +22112,13 @@
           "group": "Adoptions and events",
           "total": 7561.39,
           "pctOfTotal": 12.5,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 27,
           "payees": [
             {
-              "name": "Square Inc",
-              "total": 6953.6,
-              "txCount": 22,
+              "name": "Unknown",
+              "total": 7561.389999999999,
+              "txCount": 27,
               "transactions": [
                 {
                   "date": "2024-12-02",
@@ -22454,6 +22244,14 @@
                   "date": "2024-12-23",
                   "type": "Deposit",
                   "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 135.0
+                },
+                {
+                  "date": "2024-12-23",
+                  "type": "Deposit",
+                  "num": "",
                   "memo": "Square Inc/0202 SQUAR",
                   "split": "First Merchants Bank",
                   "amount": 467.22
@@ -22478,9 +22276,33 @@
                   "date": "2024-12-26",
                   "type": "Deposit",
                   "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 30.0
+                },
+                {
+                  "date": "2024-12-26",
+                  "type": "Deposit",
+                  "num": "",
                   "memo": "Square Inc/0202 SQUAR",
                   "split": "First Merchants Bank",
                   "amount": 294.82
+                },
+                {
+                  "date": "2024-12-27",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 245.0
+                },
+                {
+                  "date": "2024-12-27",
+                  "type": "Deposit",
+                  "num": "",
+                  "memo": "DEPOSIT",
+                  "split": "First Merchants Bank",
+                  "amount": 172.79
                 },
                 {
                   "date": "2024-12-27",
@@ -22502,56 +22324,17 @@
                   "date": "2024-12-30",
                   "type": "Deposit",
                   "num": "",
-                  "memo": "Square Inc/0202 SQUAR",
-                  "split": "First Merchants Bank",
-                  "amount": 1192.45
-                }
-              ]
-            },
-            {
-              "name": "Branch Deposit Batch",
-              "total": 607.79,
-              "txCount": 5,
-              "transactions": [
-                {
-                  "date": "2024-12-23",
-                  "type": "Deposit",
-                  "num": "",
                   "memo": "DEPOSIT",
                   "split": "First Merchants Bank",
-                  "amount": 135.0
-                },
-                {
-                  "date": "2024-12-26",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "DEPOSIT",
-                  "split": "First Merchants Bank",
-                  "amount": 30.0
-                },
-                {
-                  "date": "2024-12-27",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "DEPOSIT",
-                  "split": "First Merchants Bank",
-                  "amount": 245.0
-                },
-                {
-                  "date": "2024-12-27",
-                  "type": "Deposit",
-                  "num": "",
-                  "memo": "DEPOSIT",
-                  "split": "First Merchants Bank",
-                  "amount": 172.79
+                  "amount": 25.0
                 },
                 {
                   "date": "2024-12-30",
                   "type": "Deposit",
                   "num": "",
-                  "memo": "DEPOSIT",
+                  "memo": "Square Inc/0202 SQUAR",
                   "split": "First Merchants Bank",
-                  "amount": 25.0
+                  "amount": 1192.45
                 }
               ]
             }
@@ -22564,12 +22347,12 @@
           "group": "Staff",
           "total": 55142.02,
           "pctOfTotal": 66.8,
-          "payeeCount": 18,
+          "payeeCount": 17,
           "txCount": 73,
           "payees": [
             {
               "name": "INTUIT",
-              "total": 14625.21,
+              "total": 14625.210000000001,
               "txCount": 19,
               "transactions": [
                 {
@@ -22728,8 +22511,8 @@
             },
             {
               "name": "Unknown",
-              "total": 8853.19,
-              "txCount": 15,
+              "total": 9379.550000000001,
+              "txCount": 16,
               "transactions": [
                 {
                   "date": "2024-12-02",
@@ -22850,12 +22633,20 @@
                   "memo": "CHECK REF#4163",
                   "split": "First Merchants Bank",
                   "amount": 357.01
+                },
+                {
+                  "date": "2024-12-31",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "INTUIT 48079995/PAYROLL HUMANE S INTUIT 48079995/PAYROLL HUMANE SOCIETY OF MONR",
+                  "split": "First Merchants Bank",
+                  "amount": 526.36
                 }
               ]
             },
             {
               "name": "QUICKBOOKS",
-              "total": 5430.58,
+              "total": 5430.580000000001,
               "txCount": 7,
               "transactions": [
                 {
@@ -23003,7 +22794,7 @@
             },
             {
               "name": "KAITLYN N. EVOE",
-              "total": 2591.47,
+              "total": 2591.4700000000003,
               "txCount": 2,
               "transactions": [
                 {
@@ -23026,7 +22817,7 @@
             },
             {
               "name": "DAYGAN A WORTLEY",
-              "total": 2576.07,
+              "total": 2576.0699999999997,
               "txCount": 2,
               "transactions": [
                 {
@@ -23049,7 +22840,7 @@
             },
             {
               "name": "MADISON SHULTZ",
-              "total": 1942.72,
+              "total": 1942.7199999999998,
               "txCount": 3,
               "transactions": [
                 {
@@ -23157,7 +22948,7 @@
             },
             {
               "name": "ANGELICA M. DENNIS",
-              "total": 1162.66,
+              "total": 1162.6599999999999,
               "txCount": 3,
               "transactions": [
                 {
@@ -23229,21 +23020,6 @@
                   "memo": "Gross Pay - This is not a legal pay stub",
                   "split": "Direct Deposit Payable",
                   "amount": 609.0
-                }
-              ]
-            },
-            {
-              "name": "*DENNIS, ANGELICA M",
-              "total": 526.36,
-              "txCount": 1,
-              "transactions": [
-                {
-                  "date": "2024-12-31",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "INTUIT 48079995/PAYROLL HUMANE S INTUIT 48079995/PAYROLL HUMANE SOCIETY OF MONR",
-                  "split": "First Merchants Bank",
-                  "amount": 526.36
                 }
               ]
             },
@@ -23505,7 +23281,7 @@
             },
             {
               "name": "DAYGAN A WORTLEY",
-              "total": 197.08,
+              "total": 197.07999999999998,
               "txCount": 2,
               "transactions": [
                 {
@@ -23551,7 +23327,7 @@
             },
             {
               "name": "MYA CUNNINGHAM",
-              "total": 153.04,
+              "total": 153.04000000000002,
               "txCount": 3,
               "transactions": [
                 {
@@ -23815,14 +23591,22 @@
           "group": "Animal Care Supplies",
           "total": 1199.66,
           "pctOfTotal": 71.7,
-          "payeeCount": 2,
+          "payeeCount": 1,
           "txCount": 16,
           "payees": [
             {
               "name": "Unknown",
-              "total": 1070.55,
-              "txCount": 14,
+              "total": 1199.6599999999999,
+              "txCount": 16,
               "transactions": [
+                {
+                  "date": "2024-12-02",
+                  "type": "Expenditure",
+                  "num": "",
+                  "memo": "Dollar Tree Monroe Mi",
+                  "split": "First Merchants Creditcard",
+                  "amount": 13.18
+                },
                 {
                   "date": "2024-12-02",
                   "type": "Expenditure",
@@ -23915,6 +23699,14 @@
                   "date": "2024-12-17",
                   "type": "Expenditure",
                   "num": "",
+                  "memo": "Dollar Tree Monroe Mi",
+                  "split": "First Merchants Creditcard",
+                  "amount": 115.93
+                },
+                {
+                  "date": "2024-12-17",
+                  "type": "Expenditure",
+                  "num": "",
                   "memo": "Amazon Mktpl*z13nd1pc0 Amzn.com/bill Wa",
                   "split": "First Merchants Creditcard",
                   "amount": 22.56
@@ -23934,29 +23726,6 @@
                   "memo": "Wm Supercenter #1790 Monroe Mi",
                   "split": "First Merchants Creditcard",
                   "amount": 51.84
-                }
-              ]
-            },
-            {
-              "name": "Dollar Tree Monroe Mi",
-              "total": 129.11,
-              "txCount": 2,
-              "transactions": [
-                {
-                  "date": "2024-12-02",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Dollar Tree Monroe Mi",
-                  "split": "First Merchants Creditcard",
-                  "amount": 13.18
-                },
-                {
-                  "date": "2024-12-17",
-                  "type": "Expenditure",
-                  "num": "",
-                  "memo": "Dollar Tree Monroe Mi",
-                  "split": "First Merchants Creditcard",
-                  "amount": 115.93
                 }
               ]
             }
@@ -24179,7 +23948,7 @@
           "payees": [
             {
               "name": "Marathon Petroleum",
-              "total": 92.79,
+              "total": 92.78999999999999,
               "txCount": 2,
               "transactions": [
                 {
@@ -24251,7 +24020,7 @@
           "txCount": 1,
           "payees": [
             {
-              "name": "Lisa Cielinski",
+              "name": "Unknown",
               "total": 50.0,
               "txCount": 1,
               "transactions": [

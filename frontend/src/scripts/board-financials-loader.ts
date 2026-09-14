@@ -275,7 +275,7 @@ function hydrateExecutiveBanner(meta: any) {
     const d = raw ? new Date(`${raw.slice(0, 10)}T00:00:00`) : null;
     cutoffEl.textContent = d && !Number.isNaN(d.getTime())
       ? `Closed ${d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
-      : 'Closed August 31';
+      : 'Closed ' + (raw || 'recently');
   }
 }
 
@@ -338,7 +338,7 @@ function hydrateHeadlineKpis(kpis: any) {
 
   const cashRunway = document.getElementById('kpi-cash-runway');
   if (cashRunway) {
-    cashRunway.textContent = 'Balance at August 31.';
+    cashRunway.textContent = 'Balance at ' + (meta?.cutoff_date || 'August 31') + '.';
   }
 
   const opCash = document.getElementById('kpi-operating-cash');
@@ -1079,7 +1079,7 @@ function hydratePositionAndCash(position: any) {
 
 type BankPackState = {
   token: string;
-  august: any;
+  latestMonth: any;
   months: Record<string, any>;
   meta: any;
   selected: string;
@@ -1188,8 +1188,9 @@ function applyBankMonth(key: string): void {
   bankPackState.selected = key;
   bankPackState.year = yearFromMonthKey(key);
   const rec = bankPackState.months[key];
-  const stmt = key === '2026-08' && bankPackState.august?.metadata
-    ? bankPackState.august
+  const latestMonthKey = bankPackState.latestMonth?.metadata?.statement_date?.substring(0, 7);
+  const stmt = key === latestMonthKey && bankPackState.latestMonth?.metadata
+    ? bankPackState.latestMonth
     : monthRecToStatement(rec, bankPackState.meta);
   if (stmt) hydrateBankStatement(stmt, bankPackState.token);
 }
@@ -1198,32 +1199,33 @@ function hydrateBankStatements(data: any, token: string): void {
   const pack = data.bank_statements || {};
   const months: Record<string, any> = { ...(pack.months || {}) };
   const meta = pack.meta || {};
-  const august = data.bank_statement || null;
-  if (august?.metadata && !months['2026-08']) {
-    months['2026-08'] = {
-      id: '2026-08',
-      monthName: 'Aug 2026',
-      begin: august.metadata.statement_beginning_balance,
-      credits: august.metadata.total_deposits_amount,
-      credit_count: august.metadata.total_deposits_count,
-      debits: august.metadata.total_withdrawals_amount,
-      debit_count: august.metadata.total_withdrawals_count,
-      end: august.metadata.statement_ending_balance,
-      statement_file: 'First_Merchant_Chkng_XXXXXX8478_08312026.pdf',
-      statement_period: august.metadata.statement_period,
-      statement_date: august.metadata.statement_date,
-      deposits: august.deposits,
-      withdrawals: august.withdrawals,
+  const latestMonth = data.bank_statement || null;
+  const latestMonthKey = latestMonth?.metadata?.statement_date?.substring(0, 7) || '2026-08';
+  if (latestMonth?.metadata && !months[latestMonthKey]) {
+    months[latestMonthKey] = {
+      id: latestMonthKey,
+      monthName: latestMonth.metadata.statement_period || 'Latest',
+      begin: latestMonth.metadata.statement_beginning_balance,
+      credits: latestMonth.metadata.total_deposits_amount,
+      credit_count: latestMonth.metadata.total_deposits_count,
+      debits: latestMonth.metadata.total_withdrawals_amount,
+      debit_count: latestMonth.metadata.total_withdrawals_count,
+      end: latestMonth.metadata.statement_ending_balance,
+      statement_file: `First_Merchant_Chkng_XXXXXX8478_${latestMonthKey.replace('-', '')}.pdf`,
+      statement_period: latestMonth.metadata.statement_period,
+      statement_date: latestMonth.metadata.statement_date,
+      deposits: latestMonth.deposits,
+      withdrawals: latestMonth.withdrawals,
       has_daily_balances: true,
       has_recon: true,
     };
   }
   bankPackState = {
     token,
-    august,
+    latestMonth,
     months,
     meta,
-    selected: '2026-08',
+    selected: Object.keys(months).sort().pop() || '2026-08',
     year: '2026',
   };
   (window as any).__HSMC_BANK_PACK__ = bankPackState;

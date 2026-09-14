@@ -220,7 +220,7 @@
     "month": 1,
     "period": "2026-01",
     "beginning_balance": 129224.11,
-    "ending_balance": 123186.73,
+    "ending_balance": 132112.23,
     "last_txn_date": "2026-01-30",
     "n_lines": 135
   },
@@ -228,8 +228,8 @@
     "year": 2026,
     "month": 2,
     "period": "2026-02",
-    "beginning_balance": 123186.73,
-    "ending_balance": 129301.47,
+    "beginning_balance": 132112.23,
+    "ending_balance": 149510.14,
     "last_txn_date": "2026-02-27",
     "n_lines": 109
   },
@@ -237,8 +237,8 @@
     "year": 2026,
     "month": 3,
     "period": "2026-03",
-    "beginning_balance": 129301.47,
-    "ending_balance": 104986.54,
+    "beginning_balance": 149510.14,
+    "ending_balance": 141288.69,
     "last_txn_date": "2026-03-31",
     "n_lines": 109
   },
@@ -246,8 +246,8 @@
     "year": 2026,
     "month": 4,
     "period": "2026-04",
-    "beginning_balance": 104986.54,
-    "ending_balance": 131328.97,
+    "beginning_balance": 141288.69,
+    "ending_balance": 201093.81,
     "last_txn_date": "2026-04-30",
     "n_lines": 109
   },
@@ -255,8 +255,8 @@
     "year": 2026,
     "month": 5,
     "period": "2026-05",
-    "beginning_balance": 131328.97,
-    "ending_balance": 114642.77,
+    "beginning_balance": 201093.81,
+    "ending_balance": 192973.69,
     "last_txn_date": "2026-05-29",
     "n_lines": 94
   },
@@ -264,8 +264,8 @@
     "year": 2026,
     "month": 6,
     "period": "2026-06",
-    "beginning_balance": 114642.77,
-    "ending_balance": 112968.7,
+    "beginning_balance": 192973.69,
+    "ending_balance": 199481.86,
     "last_txn_date": "2026-06-30",
     "n_lines": 99
   },
@@ -273,8 +273,8 @@
     "year": 2026,
     "month": 7,
     "period": "2026-07",
-    "beginning_balance": 112968.7,
-    "ending_balance": 54262.48,
+    "beginning_balance": 199481.86,
+    "ending_balance": 147459.09,
     "last_txn_date": "2026-07-31",
     "n_lines": 130
   },
@@ -282,18 +282,18 @@
     "year": 2026,
     "month": 8,
     "period": "2026-08",
-    "beginning_balance": 54262.48,
-    "ending_balance": 25065.66,
+    "beginning_balance": 147459.09,
+    "ending_balance": 129848.37,
     "last_txn_date": "2026-08-31",
-    "n_lines": 107
+    "n_lines": 109
   },
   {
     "year": 2026,
     "month": 9,
     "period": "2026-09",
-    "beginning_balance": 25065.66,
-    "ending_balance": 26159.98,
+    "beginning_balance": 129848.37,
+    "ending_balance": 116160.38,
     "last_txn_date": "2026-09-11",
-    "n_lines": 27
+    "n_lines": 47
   }
 ]

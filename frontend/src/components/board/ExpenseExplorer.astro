@@ -31,7 +31,7 @@ interface Props {
   statementPeriod?: string;
 }
 
-const { withdrawals = [], deposits = [], statementPeriod = 'August 2026' } = Astro.props;
+const { withdrawals = [], deposits = [], statementPeriod = 'Latest Period' } = Astro.props;
 
 // ── EXPENSE CATEGORY DEFINITIONS FOR AUG BANK REC ─────────────────────────
 const EXPENSE_CATEGORY_DEFS = [

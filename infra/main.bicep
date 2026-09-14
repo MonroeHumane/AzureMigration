@@ -237,7 +237,7 @@ resource directusApp 'Microsoft.App/containerApps@2024-03-01' = {
     }
     template: {
       scale: {
-        minReplicas: 1
+        minReplicas: 0
         maxReplicas: 2
       }
       containers: [
@@ -300,7 +300,7 @@ resource arcadeApp 'Microsoft.App/containerApps@2024-03-01' = {
     }
     template: {
       scale: {
-        minReplicas: 1
+        minReplicas: 0
         maxReplicas: 2
       }
       containers: [
@@ -380,12 +380,11 @@ resource staticWebApp 'Microsoft.Web/staticSites@2023-01-01' = {
   name: swaName
   location: 'eastus2'
   sku: {
-    name: 'Standard'
-    tier: 'Standard'
+    name: 'Free'
+    tier: 'Free'
   }
   properties: {
     allowConfigFileUpdates: true
-    stagingEnvironmentPolicy: 'Enabled'
   }
 }
 
