@@ -28,12 +28,14 @@ import '../styles/monroe-home.css';
 import '../styles/monroe-home-widgets.css';
 
 import { getSiteSettings, getEventFlyers, getNewsletterIssues, getFeaturedNewsletterIssue } from '../lib/directus';
-import { hasLetterBody, renderLetterHtml } from '../scripts/newsletter-hydrate';
-const pets = (await getPets()).slice(0, 6);
-const settings = await getSiteSettings();
-const events = await getEventFlyers();
-const newsletters = await getNewsletterIssues();
-const featuredNewsletter = await getFeaturedNewsletterIssue();
+const [petsData, settings, events, newsletters, featuredNewsletter] = await Promise.all([
+  getPets(),
+  getSiteSettings(),
+  getEventFlyers(),
+  getNewsletterIssues(),
+  getFeaturedNewsletterIssue(),
+]);
+const pets = petsData.slice(0, 6);
 const now = new Date();
 
 // Spotlight the soonest genuinely upcoming flyer event, not just whichever
@@ -43,8 +45,6 @@ const latestEvent = events
   .filter((e) => e.event_date && new Date(e.event_date) >= now)
   .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime())[0];
 const latestNewsletter = featuredNewsletter || newsletters[0] || null;
-const latestLetterHtml = renderLetterHtml(latestNewsletter);
-const showHomeLetter = hasLetterBody(latestNewsletter);
 
 // "Next event" widget: spotlight the soonest upcoming event from event flyers if present,
 // falling back to home.next_event.

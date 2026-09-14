@@ -91,7 +91,7 @@ const petChips = (p: Pet) => [
                           decoding="async"
                           width={280}
                           height={350}
-                          onerror="this.onerror=null;this.src='/assets/recovered/images/placeholder.svg';"
+                          onerror="this.setAttribute('src', '/assets/recovered/images/placeholder.svg'); this.removeAttribute('onerror');"
                         />
                       </div>
                     </div>
@@ -136,7 +136,7 @@ const petChips = (p: Pet) => [
                           decoding="async"
                           width={280}
                           height={350}
-                          onerror="this.onerror=null;this.src='/assets/recovered/images/placeholder.svg';"
+                          onerror="this.setAttribute('src', '/assets/recovered/images/placeholder.svg'); this.removeAttribute('onerror');"
                         />
                       </div>
                     </div>

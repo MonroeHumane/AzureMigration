@@ -34,7 +34,7 @@ const subNavItems = [
     <ExecutiveBanner />
 
     <!-- Modular Financial Sub-Navigation Bar (Sticky) -->
-    <StaffSubNav items={subNavItems} activeId="snapshot" ariaLabel="Financial modules subnavigation" />
+    <StaffSubNav items={subNavItems} ariaLabel="Financial modules subnavigation" />
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
       <div id="board-data-status" class="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-950" role="status">
@@ -97,6 +97,7 @@ const subNavItems = [
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" is:inline defer></script>
   <script>
     import { initBoardDashboard } from '../../../scripts/board-financials-loader';
 

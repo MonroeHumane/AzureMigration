@@ -683,7 +683,6 @@ const monthsMap: Record<string, any> = {};
           const totOther = statements.reduce((a: number, b: any) => a + b.other_exp, 0);
           const totExp = statements.reduce((a: number, b: any) => a + b.total_exp, 0);
           const totNet = statements.reduce((a: number, b: any) => a + b.net_margin, 0);
-          const totMarginPct = (totNet / totRev) * 100;
 
           rows.push([
             '"Combined statement total"',

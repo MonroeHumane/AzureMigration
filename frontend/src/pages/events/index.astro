@@ -2,8 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getEventFlyers, getPets } from '../../lib/directus';
 
-const eventData = await getEventFlyers();
-const petsData = await getPets();
+const [eventData, petsData] = await Promise.all([getEventFlyers(), getPets()]);
 const activePets = petsData.slice(0, 10);
 
 const now = new Date();

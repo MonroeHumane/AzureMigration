@@ -1,7 +1,7 @@
 // Headless tuning harness for Puppy Skater — runs the real engine + levelgen
 // with seeded bots and reports difficulty/fairness stats.
 // Usage: node tools/tune_puppy_skater.mjs [runs] [seed]
-import { PHYS, WORLD, MILESTONES } from '../public/games/puppy-skater/src/config.js';
+import { PHYS, MILESTONES } from '../public/games/puppy-skater/src/config.js';
 import { createGame, startRun, update } from '../public/games/puppy-skater/src/engine.js';
 import { difficultyKey } from '../public/games/puppy-skater/src/levelgen.js';
 import { mulberry32, oracleAct, makeHuman, describe } from '../public/games/puppy-skater/dev/bots.js';

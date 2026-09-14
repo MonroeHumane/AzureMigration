@@ -93,7 +93,7 @@ async function getFinancialDataBundle() {
   }
   try {
     const res = await fetch(FINANCIAL_DATA_BLOB_URL);
-    if (!res.ok) throw new Error(\lob storage returned \\);
+    if (!res.ok) throw new Error(`blob storage returned ${res.status}`);
     const json = await res.json();
     financialDataCache = { bundle: json, fetchedAt: Date.now() };
     

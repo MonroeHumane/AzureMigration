@@ -31,7 +31,7 @@ interface Props {
   statementPeriod?: string;
 }
 
-const { withdrawals = [], deposits = [], statementPeriod = 'Latest Period' } = Astro.props;
+const { withdrawals = [], deposits = [] } = Astro.props;
 
 // ── EXPENSE CATEGORY DEFINITIONS FOR AUG BANK REC ─────────────────────────
 const EXPENSE_CATEGORY_DEFS = [
@@ -876,12 +876,6 @@ function cc(color: string): ColorSet {
     if (bridgeEl) {
       bridgeEl.classList.toggle('hidden', monthId !== 'month_2026_7');
     }
-
-    const catRevSum = (monthObj.revenueCategories || []).reduce((s, c) => s + (c.total || 0), 0);
-    const catExpSum = (monthObj.expenseCategories || []).reduce((s, c) => s + (c.total || 0), 0);
-    const impliedNet = Math.round((catRevSum - catExpSum) * 100) / 100;
-    const certifiedNet = Math.round((monthObj.net_margin || 0) * 100) / 100;
-    const netGap = Math.round((impliedNet - certifiedNet) * 100) / 100;
 
     const netVal = monthObj.net_margin;
     if (varLabel) varLabel.textContent = `${monthObj.monthName} leftover`;

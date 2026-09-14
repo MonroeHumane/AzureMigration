@@ -128,56 +128,6 @@ function itemsToExplorerCats(items: any[], total: number, kind: 'expense' | 'rev
   }));
 }
 
-function groupBankRows(rows: any[], nameKey: string): any[] {
-  const byCat = new Map<string, any>();
-  for (const row of rows || []) {
-    const catName = row.category || 'Uncategorized';
-    if (!byCat.has(catName)) {
-      byCat.set(catName, {
-        name: catName,
-        group: row.group || catName,
-        total: 0,
-        payees: new Map<string, any>(),
-      });
-    }
-    const cat = byCat.get(catName);
-    const amount = Math.abs(Number(row.amount) || 0);
-    cat.total += amount;
-    const payeeName = row[nameKey] || row.payee || row.channel || row.description || 'Unknown';
-    if (!cat.payees.has(payeeName)) {
-      cat.payees.set(payeeName, { name: payeeName, total: 0, txCount: 0, transactions: [] });
-    }
-    const payee = cat.payees.get(payeeName);
-    payee.total += amount;
-    payee.txCount += 1;
-    payee.transactions.push({
-      date: row.date || '',
-      memo: row.description || row.relational_notes || payeeName,
-      type: row.type || row.channel || '',
-      num: row.check_number || '',
-      amount,
-    });
-  }
-
-  const cats = Array.from(byCat.values()).map((cat) => {
-    const payees = Array.from(cat.payees.values()).sort((a: any, b: any) => b.total - a.total);
-    return {
-      name: cat.name,
-      group: cat.group,
-      total: cat.total,
-      pctOfTotal: '0.0',
-      payeeCount: payees.length,
-      txCount: payees.reduce((n: number, p: any) => n + p.txCount, 0),
-      payees,
-    };
-  });
-  const grand = cats.reduce((n, c) => n + c.total, 0);
-  for (const cat of cats) {
-    cat.pctOfTotal = grand > 0 ? ((cat.total / grand) * 100).toFixed(1) : '0.0';
-  }
-  return cats.sort((a, b) => b.total - a.total);
-}
-
 function yearFromMonthId(id: string): string | null {
   const m = /^month_(\d{4})_\d+$/.exec(id || '');
   return m ? m[1] : null;
@@ -1312,7 +1262,6 @@ function hydrateBankStatement(stmt: any, token: string) {
   }
 
   // Draw the ECharts waterfall!
-  const hasEchartsFunction = typeof (window as any).renderBankWaterfallEChart === 'function' || true; // hoisted or just call it if available
   renderBankWaterfallEChart(stmt.metadata?.statement_ending_balance, book, floatAmt, stmt.has_recon);
 
   updateBankMonthChrome(monthKey);

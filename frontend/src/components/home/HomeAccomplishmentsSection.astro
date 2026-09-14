@@ -68,6 +68,7 @@ const activeYear = defaultYear ?? accomplishmentYears[0];
     <div
       class="home-acc-widget mx-auto mt-0 flex w-full max-w-[min(920px,100%)] flex-col items-center gap-[clamp(2.25rem,5vw,3rem)]"
       data-monroe-accomplishments-widget
+      x-data={`{ activeYear: '${activeYear}' }`}
     >
       <div
         class="m-0 inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-teal-700/12 bg-teal-700/10 p-[0.3rem] shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]"
@@ -78,13 +79,12 @@ const activeYear = defaultYear ?? accomplishmentYears[0];
           accomplishmentYears.map((year) => (
             <button
               type="button"
-              class:list={[
-                'monroe-accomplishments-widget__tab home-acc-tab',
-                year === activeYear && 'is-active',
-              ]}
+              class="monroe-accomplishments-widget__tab home-acc-tab"
+              :class={`activeYear === '${year}' ? 'is-active' : ''`}
+              :aria-selected={`activeYear === '${year}'`}
+              @click={`activeYear = '${year}'`}
               role="tab"
               id={`monroe-accomplishments-tab-${year}`}
-              aria-selected={year === activeYear ? 'true' : 'false'}
               aria-controls={`monroe-accomplishments-panel-${year}`}
               data-accomplishments-year={year}
             >
@@ -97,18 +97,16 @@ const activeYear = defaultYear ?? accomplishmentYears[0];
       {
         accomplishmentYears.map((year) => {
           const stats = years[year] ?? [];
-          const isActive = year === activeYear;
           return (
             <div
-              class:list={[
-                'monroe-accomplishments-widget__panel m-0 w-full p-0',
-                isActive ? 'is-active' : '',
-              ]}
+              class="monroe-accomplishments-widget__panel m-0 w-full p-0"
+              :class={`activeYear === '${year}' ? 'is-active' : ''`}
+              x-show={`activeYear === '${year}'`}
+              x-cloak
               role="tabpanel"
               id={`monroe-accomplishments-panel-${year}`}
               aria-labelledby={`monroe-accomplishments-tab-${year}`}
               data-accomplishments-panel={year}
-              hidden={!isActive}
             >
               <div class="home-acc-stats">
                 {stats.map((s) => (
@@ -346,24 +344,6 @@ const activeYear = defaultYear ?? accomplishmentYears[0];
     } catch {
       /* ignore bad localStorage */
     }
-
-    accWidget.querySelectorAll('[data-accomplishments-year]').forEach((tab) => {
-      if (!(tab instanceof HTMLButtonElement)) return;
-      tab.addEventListener('click', () => {
-        const year = tab.dataset.accomplishmentsYear;
-        accWidget.querySelectorAll('[data-accomplishments-year]').forEach((t) => {
-          const active = t === tab;
-          t.classList.toggle('is-active', active);
-          t.setAttribute('aria-selected', String(active));
-        });
-        accWidget.querySelectorAll('[data-accomplishments-panel]').forEach((panel) => {
-          if (!(panel instanceof HTMLElement)) return;
-          const active = panel.dataset.accomplishmentsPanel === year;
-          panel.classList.toggle('is-active', active);
-          panel.hidden = !active;
-        });
-      });
-    });
   }
 
   const countEls = document.querySelectorAll(

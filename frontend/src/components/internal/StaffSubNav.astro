@@ -8,11 +8,10 @@ interface SubNavItem {
 
 interface Props {
   items: SubNavItem[];
-  activeId?: string;
   ariaLabel?: string;
 }
 
-const { items, activeId = items[0]?.id, ariaLabel = 'Section navigation' } = Astro.props;
+const { items, ariaLabel = 'Section navigation' } = Astro.props;
 ---
 
 <div class="bg-[#061815]/95 backdrop-blur-md border-b border-teal-800/80 sticky top-[57px] z-30 shadow-md">

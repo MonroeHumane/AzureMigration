@@ -98,8 +98,8 @@ export function applyRosterCounts(data: {
 
   // Render ECharts Capacity Gauges
   // Assuming a max capacity of 50 dogs and 80 cats
-  renderCapacityGauge('echarts-dog-capacity', dogs.length, 50, 'Dogs', '#f59e0b'); // amber-500
-  renderCapacityGauge('echarts-cat-capacity', cats.length, 80, 'Cats', '#14b8a6'); // teal-500
+  renderCapacityGauge('echarts-dog-capacity', dogs.length, 50, '#f59e0b'); // amber-500
+  renderCapacityGauge('echarts-cat-capacity', cats.length, 80, '#14b8a6'); // teal-500
 }
 
 export function inflatePetRows(
@@ -401,7 +401,7 @@ export async function loadStaffPetRoster(
   applyRosterCounts(result.data);
   return true;
 }
-function renderCapacityGauge(containerId: string, value: number, max: number, name: string, color: string) {
+function renderCapacityGauge(containerId: string, value: number, max: number, color: string) {
   const container = document.getElementById(containerId);
   if (!container || typeof (window as any).echarts === 'undefined') return;
 
