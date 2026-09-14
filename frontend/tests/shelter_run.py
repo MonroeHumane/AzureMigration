@@ -141,9 +141,16 @@ def main():
               page.evaluate("() => window.__sr.treatsRun") >= 1)
 
         # ── Two-strike chase ──────────────────────────────────────────────
-        # Strike one: forced hit while clean → pack releases (chase.active).
+        # Deterministic setup: the cat may have stumbled on natural spawns
+        # during the earlier sections. Clear the field, freeze the spawn
+        # frontier, and reset chase/lives so the injected wall is truly
+        # strike one — not a random second strike.
         page.evaluate("""() => {
           const g = window.__sr;
+          g.obstacles = [];
+          g.nextSpawnZ = g.cameraZ + 1e9;
+          g.lives = 2;
+          g.chase.active = false; g.chase.t = 0; g.chase.intensity = 0;
           g.invincibleT = 0; g.effects = { magnet: 0, ghost: 0, boost: 0 };
           g.obstacles.push({ id: 9991, type: 'lane_block', lane: g.targetLane,
                              worldZ: g.cameraZ + 205, passed: false, variant: 0 });

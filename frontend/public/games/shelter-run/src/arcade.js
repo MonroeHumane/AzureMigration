@@ -37,6 +37,7 @@ export function ensureSession() {
   if (sessionPromise) return sessionPromise;
   sessionPromise = fetch(apiBase() + 'session/anonymous', {
     method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    signal: AbortSignal.timeout(8000),
   }).then(r => (r.ok ? r.json() : null)).catch(() => { sessionPromise = null; return null; });
   return sessionPromise;
 }
@@ -45,13 +46,14 @@ async function post(path, body) {
   const res = await fetch(apiBase() + path.replace(/^\//, ''), {
     method: 'POST', credentials: 'include',
     headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}),
+    signal: AbortSignal.timeout(8000),
   });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
 }
 
 async function get(path) {
-  const res = await fetch(apiBase() + path.replace(/^\//, ''), { credentials: 'include' });
+  const res = await fetch(apiBase() + path.replace(/^\//, ''), { credentials: 'include', signal: AbortSignal.timeout(8000) });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
 }

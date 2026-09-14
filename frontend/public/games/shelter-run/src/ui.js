@@ -266,6 +266,9 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat, onBuyUpgrade
       show(start); hide(over);
     },
     hideStart() { hide(start); },
+    setStartBest(best) {
+      start.querySelector('[data-best]').textContent = best > 0 ? `Personal best: ${best} m` : '';
+    },
     selectCat,
 
     showGameOver({ score, meters, best, isNewBest, leaders, unopenedPacks, rescued, caught }) {

@@ -479,26 +479,28 @@ function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } cat
   // Pet catalog warms in parallel — run is playable without it
   pets.fetchPets().then(list => { if (!petDeck.length) newPetDeck(); }).catch(() => {});
 
+  // Start overlay goes up immediately — never hold it on network calls.
+  newPetDeck();
+  ui.showStart(best, catId);
+  requestAnimationFrame(frame);
+
   arcade.ensureSession();
-  const cloud = await arcade.loadCloudSave().catch(() => null);
-  if (cloud) {
-    if ((cloud.best | 0) > best) { best = cloud.best | 0; g.best = best; writeLS(LS.best, best); }
+  // Cloud save streams in; repaint the best line if the cloud copy wins.
+  arcade.loadCloudSave().then(cloud => {
+    if (!cloud) return;
+    if ((cloud.best | 0) > best) { best = cloud.best | 0; g.best = best; writeLS(LS.best, best); ui.setStartBest(best); }
     if (Array.isArray(cloud.claimedMilestones)) {
       claimedThisDevice = Array.from(new Set([...claimedThisDevice, ...cloud.claimedMilestones]));
       writeLS(LS.claimed, claimedThisDevice);
     }
-    if (cloud.catId && CATS.some(c => c.id === cloud.catId) && !localStorage.getItem(LS.cat)) catId = cloud.catId;
+    if (cloud.catId && CATS.some(c => c.id === cloud.catId) && !localStorage.getItem(LS.cat)) { catId = cloud.catId; ui.selectCat(catId); }
     gamesPlayed = cloud.gamesPlayed || 0;
     totalMeters = cloud.totalMeters || 0;
     if (cloud.totalRescued) { rescuesTotal = Math.max(rescuesTotal, cloud.totalRescued | 0); writeLS(LS.rescues, rescuesTotal); }
-  }
+  }).catch(() => null);
 
   // Progression + wallet — applies upgrade levels, multiplier, claimed
   // objectives into the engine and paints the store/objectives panels.
   refreshProgress();
   refreshWallet();
-
-  newPetDeck();
-  ui.showStart(best, catId);
-  requestAnimationFrame(frame);
 })();
