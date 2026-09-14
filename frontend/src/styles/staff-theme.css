@@ -8,6 +8,9 @@
 
 :root,
 :root[data-staff-theme="light"] {
+  /* Prevent SSG HTML flash for internal routes until JS Auth Guard runs */
+  --sp-auth-display: none;
+  
   /* Core surfaces — Tailwind-friendly aliases noted in STAFF_THEME_NOTES.md */
   --sp-bg: #f4f7f5;
   --sp-surface: #ffffff;

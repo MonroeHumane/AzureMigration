@@ -53,7 +53,7 @@ const qbChecking = kpis?.operating_checking_first_merchants ?? null;
       <span id="kpi-total-liquidity" class="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
         {qbChecking != null ? formatCents(qbChecking) : '--'}
       </span>
-      <a href="#bank-statement-viewer" data-goto-section="audit" class="text-sm font-semibold text-teal-800 hover:text-teal-950 dark:text-emerald-300">See bank</a>
+      <a href="#bank-statement-viewer" @click="activeSection = 'audit'; window.history.replaceState({}, '', '?section=audit'); window.scrollTo({top: 0, behavior: 'smooth'})" class="text-sm font-semibold text-teal-800 hover:text-teal-950 dark:text-emerald-300">See bank</a>
     </div>
     <p id="kpi-cash-runway" class="mt-2 text-sm text-slate-600 dark:text-teal-200/80">
       Balance at period end.

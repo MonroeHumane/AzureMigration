@@ -28,7 +28,7 @@ const subNavItems = [
   description="Humane Society of Monroe County Executive Board Financial Portal & Operating Statements."
   activeTab="financials"
 >
-  <div>
+  <div x-data="{ activeSection: (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('section') : 'snapshot') || 'snapshot' }">
 
     <!-- Executive Banner -->
     <ExecutiveBanner />
@@ -44,7 +44,7 @@ const subNavItems = [
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8" id="financials-main-content">
       <!-- Section 1: Headline KPI Grid + Position/Cash + Operating Bridge (Bento Box) -->
-      <section id="sec-snapshot" class="financial-module scroll-mt-20">
+      <section id="sec-snapshot" class="financial-module scroll-mt-20" x-show="activeSection === 'snapshot'" x-cloak>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-3">
             <HeadlineKpiGrid />
@@ -72,22 +72,22 @@ const subNavItems = [
       </section>
 
       <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
-      <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20 hidden">
+      <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'statement'" x-cloak>
         <MonthlyStatementTable />
       </section>
 
       <!-- Section 3: Money detail (books, not bank cash) -->
-      <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20 hidden">
+      <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'expenses'" x-cloak>
         <ExpenseExplorer statementPeriod="Year-To-Date" />
       </section>
 
       <!-- Section 4: Checking account -->
-      <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20 hidden">
+      <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'audit'" x-cloak>
         <BankStatementViewer />
       </section>
 
       <!-- Section 5: Checking balance trend -->
-      <section id="sec-trend" class="financial-module space-y-6 scroll-mt-20 hidden">
+      <section id="sec-trend" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'trend'" x-cloak>
         <CheckingBalanceTrend />
       </section>
 
@@ -100,80 +100,8 @@ const subNavItems = [
   <script>
     import { initBoardDashboard } from '../../../scripts/board-financials-loader';
 
-    function initFinancialSubNav() {
-      const pills = document.querySelectorAll('[data-subnav-target]');
-      const sections = document.querySelectorAll('.financial-module');
-
-      function setActiveModule(targetId: string, scroll = true) {
-        const allowed = new Set(['snapshot', 'statement', 'expenses', 'audit', 'trend']);
-        if (targetId === 'all' || !allowed.has(targetId)) targetId = 'snapshot';
-
-        pills.forEach((p) => {
-          const isTarget = p.getAttribute('data-subnav-target') === targetId;
-          if (isTarget) {
-            p.classList.add('active', 'bg-[#173a39]', 'dark:bg-emerald-500/20', 'text-white', 'dark:text-emerald-300', 'border-[#173a39]', 'dark:border-emerald-500/40', 'shadow-xs', 'font-bold');
-            p.classList.remove('bg-slate-100/90', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200/90', 'border-slate-200/80', 'dark:border-teal-800/70');
-          } else {
-            p.classList.remove('active', 'bg-[#173a39]', 'dark:bg-emerald-500/20', 'text-white', 'dark:text-emerald-300', 'border-[#173a39]', 'dark:border-emerald-500/40', 'shadow-xs', 'font-bold');
-            p.classList.add('bg-slate-100/90', 'dark:bg-teal-950/60', 'text-slate-700', 'dark:text-teal-200/90', 'border-slate-200/80', 'dark:border-teal-800/70');
-          }
-        });
-
-        sections.forEach((sec) => {
-          if (sec.id === `sec-${targetId}`) {
-            sec.classList.remove('hidden');
-            if (scroll) {
-              sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          } else {
-            sec.classList.add('hidden');
-          }
-        });
-      }
-
-      (window as any).__setBoardSection = (id: string, scroll = true) => {
-        setActiveModule(id, scroll);
-        const url = new URL(window.location.href);
-        if (id === 'snapshot') url.searchParams.delete('section');
-        else url.searchParams.set('section', id);
-        window.history.replaceState({}, '', url.toString());
-      };
-
-      pills.forEach((pill) => {
-        if ((pill as HTMLElement).dataset.bound === '1') return;
-        (pill as HTMLElement).dataset.bound = '1';
-        pill.addEventListener('click', () => {
-          const target = pill.getAttribute('data-subnav-target');
-          if (target) (window as any).__setBoardSection(target, true);
-        });
-      });
-
-      if (!(document.body as HTMLElement).dataset.boardGotoBound) {
-        (document.body as HTMLElement).dataset.boardGotoBound = '1';
-        document.addEventListener('click', (event) => {
-          const link = (event.target as HTMLElement | null)?.closest('[data-goto-section]');
-          if (!link) return;
-          const target = link.getAttribute('data-goto-section');
-          if (!target) return;
-          event.preventDefault();
-          (window as any).__setBoardSection(target, true);
-        });
-      }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const initialSec = urlParams.get('section');
-      if (initialSec) {
-        setActiveModule(initialSec, false);
-      } else if (window.location.hash === '#bank-statement-viewer') {
-        setActiveModule('audit', true);
-      } else {
-        setActiveModule('snapshot', false);
-      }
-    }
-
     function runInit() {
       initBoardDashboard();
-      initFinancialSubNav();
     }
 
     document.addEventListener('astro:page-load', runInit);

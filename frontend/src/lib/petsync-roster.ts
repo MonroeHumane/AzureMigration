@@ -443,7 +443,7 @@ function renderCapacityGauge(containerId: string, value: number, max: number, na
           borderRadius: 8,
           offsetCenter: [0, '20%'],
           valueAnimation: true,
-          formatter: function (value) {
+          formatter: function (value: any) {
             return '{value|' + value.toFixed(0) + '}{unit|/' + max + '}';
           },
           rich: {

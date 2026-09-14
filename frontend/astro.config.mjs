@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import partytown from '@astrojs/partytown';
 import tailwindcss from '@tailwindcss/vite';
+import alpinejs from '@astrojs/alpinejs';
 
 const DIRECTUS_URL =
   process.env.PUBLIC_DIRECTUS_URL ||
@@ -38,6 +39,7 @@ export default defineConfig({
       ],
     }),
     partytown(),
+    alpinejs(),
   ],
 
   vite: {

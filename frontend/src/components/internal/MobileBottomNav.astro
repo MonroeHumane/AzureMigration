@@ -1,7 +1,9 @@
 ---
 import '../../styles/staff-theme.css';
+import { STAFF_NAV } from '../../config/navigation';
+
 interface Props {
-  activeTab?: 'overview' | 'pets' | 'financials' | 'grants' | 'donors' | 'content' | 'newsletter';
+  activeTab?: 'overview' | 'pets' | 'financials' | 'grants' | 'donors' | 'content' | 'newsletter' | 'petsync';
 }
 
 const { activeTab = 'overview' } = Astro.props;
@@ -14,79 +16,21 @@ const { activeTab = 'overview' } = Astro.props;
   aria-label="Staff Portal Mobile Navigation"
 >
   <div class="max-w-md mx-auto grid grid-cols-5 gap-1 items-center text-center">
-    <!-- Tab 1: Hub / Overview -->
-    <a
-      href="/internal/"
-      data-astro-prefetch="hover"
-      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
-        activeTab === 'overview'
-          ? 'text-white font-bold bg-teal-800/50 border border-teal-600/50 shadow-inner'
-          : 'text-slate-400 hover:text-white hover:bg-white/5'
-      }`}
-      aria-current={activeTab === 'overview' ? 'page' : undefined}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect width="7" height="9" x="3" y="3" rx="1"></rect>
-        <rect width="7" height="5" x="14" y="3" rx="1"></rect>
-        <rect width="7" height="9" x="14" y="12" rx="1"></rect>
-        <rect width="7" height="5" x="3" y="16" rx="1"></rect>
-      </svg>
-      <span class="text-[10px] tracking-tight leading-none">Hub</span>
-    </a>
-
-    <!-- Tab 2: Shelter Animals / PetSync -->
-    <a
-      href="/internal/pets/"
-      data-astro-prefetch="hover"
-      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
-        activeTab === 'pets'
-          ? 'text-white font-bold bg-teal-800/50 border border-teal-600/50 shadow-inner'
-          : 'text-slate-400 hover:text-white hover:bg-white/5'
-      }`}
-      aria-current={activeTab === 'pets' ? 'page' : undefined}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <path d="m10 15 5-3-5-3v6Z"></path>
-      </svg>
-      <span class="text-[10px] tracking-tight leading-none">Animals</span>
-    </a>
-
-    <!-- Tab 3: Finance / Board -->
-    <a
-      href="/internal/board/"
-      data-astro-prefetch="hover"
-      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
-        activeTab === 'financials'
-          ? 'text-white font-bold bg-teal-800/50 border border-teal-600/50 shadow-inner'
-          : 'text-slate-400 hover:text-white hover:bg-white/5'
-      }`}
-      aria-current={activeTab === 'financials' ? 'page' : undefined}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="1" x2="12" y2="23"></line>
-        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-      </svg>
-      <span class="text-[10px] tracking-tight leading-none">Finance</span>
-    </a>
-
-    <!-- Tab 4: Grants -->
-    <a
-      href="/internal/grants/"
-      data-astro-prefetch="hover"
-      class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
-        activeTab === 'grants'
-          ? 'text-white font-bold bg-teal-800/50 border border-teal-600/50 shadow-inner'
-          : 'text-slate-400 hover:text-white hover:bg-white/5'
-      }`}
-      aria-current={activeTab === 'grants' ? 'page' : undefined}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-        <polyline points="14 2 14 8 20 8"></polyline>
-      </svg>
-      <span class="text-[10px] tracking-tight leading-none">Grants</span>
-    </a>
+    {STAFF_NAV.slice(0, 4).map((item: any) => (
+      <a
+        href={item.href}
+        data-astro-prefetch="hover"
+        class={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition cursor-pointer select-none ${
+          activeTab === item.id || (activeTab === 'petsync' && item.id === 'pets')
+            ? 'text-white font-bold bg-teal-800/50 border border-teal-600/50 shadow-inner'
+            : 'text-slate-400 hover:text-white hover:bg-white/5'
+        }`}
+        aria-current={activeTab === item.id || (activeTab === 'petsync' && item.id === 'pets') ? 'page' : undefined}
+      >
+        <div class="w-5 h-5 mb-0.5 flex items-center justify-center" set:html={item.icon}></div>
+        <span class="text-[10px] tracking-tight leading-none">{item.shortLabel}</span>
+      </a>
+    ))}
 
     <!-- Tab 5: More Utilities Drawer -->
     <button

@@ -1,9 +1,10 @@
 ---
 interface Props {
-  activeTab?: 'petsync' | 'pets' | 'financials' | 'grants' | 'donors' | 'overview' | 'content' | 'newsletter';
+  activeTab?: 'overview' | 'pets' | 'financials' | 'grants' | 'donors' | 'content' | 'newsletter' | 'petsync';
 }
 
 const { activeTab = 'overview' } = Astro.props;
+import { STAFF_NAV } from '../../config/navigation';
 
 const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/admin';
 ---
@@ -147,127 +148,21 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
     <!-- Desktop Navigation Tabs -->
     <nav class="hidden md:flex flex-wrap items-center gap-1.5 mt-2.5 pt-2.5 border-t border-slate-200 dark:border-teal-800/80" aria-label="Staff Portal Modules">
-      <a
-        href="/internal/"
-        data-astro-prefetch="hover"
-        data-nav-tab="overview"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          activeTab === 'overview'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="7" height="9" x="3" y="3" rx="1"></rect>
-          <rect width="7" height="5" x="14" y="3" rx="1"></rect>
-          <rect width="7" height="9" x="14" y="12" rx="1"></rect>
-          <rect width="7" height="5" x="3" y="16" rx="1"></rect>
-        </svg>
-        Overview
-      </a>
-
-      <a
-        href="/internal/pets/"
-        data-astro-prefetch="hover"
-        data-nav-tab="petsync"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          activeTab === 'petsync' || activeTab === 'pets'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="m10 15 5-3-5-3v6Z"></path>
-        </svg>
-        Shelter Animals & Census
-      </a>
-
-      <a
-        href="/internal/board/"
-        data-astro-prefetch="hover"
-        data-nav-tab="financials"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          activeTab === 'financials'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="1" x2="12" y2="23"></line>
-          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-        </svg>
-        Board Financials & Treasury
-      </a>
-
-      <a
-        href="/internal/grants/"
-        data-astro-prefetch="hover"
-        data-nav-tab="grants"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          activeTab === 'grants'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
-        Grants Pipeline
-      </a>
-
-      <a
-        href="/internal/donors/"
-        data-astro-prefetch="hover"
-        data-nav-tab="donors"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          activeTab === 'donors'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-        </svg>
-        Donors & Giving
-      </a>
-
-      <a
-        href="/internal/newsletter/"
-        data-astro-prefetch="hover"
-        data-nav-tab="newsletter"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          activeTab === 'newsletter'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <line x1="16" y1="13" x2="8" y2="13"></line>
-          <line x1="16" y1="17" x2="8" y2="17"></line>
-        </svg>
-        Newsletter
-      </a>
-
-      <a
-        href="/internal/content/"
-        data-astro-prefetch="hover"
-        data-nav-tab="content"
-        class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          activeTab === 'content'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 20h9"></path>
-          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-        </svg>
-        Site Content
-      </a>
+      {STAFF_NAV.map((item: any) => (
+        <a
+          href={item.href}
+          data-astro-prefetch="hover"
+          data-nav-tab={item.id}
+          class={`staff-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+            activeTab === item.id || (activeTab === 'petsync' && item.id === 'pets')
+              ? 'bg-teal-800/60 text-white border border-teal-600/60 shadow-xs font-bold'
+              : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:hover:text-white dark:border-teal-800/70'
+          }`}
+        >
+          <div class="w-3.5 h-3.5 text-teal-700 dark:text-teal-300 flex items-center justify-center" set:html={item.icon}></div>
+          {item.label}
+        </a>
+      ))}
 
       <a
         href={directusAdminUrl}
@@ -290,120 +185,20 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       class="hidden pt-3 pb-2 space-y-1.5 border-t border-slate-200 dark:border-teal-800/80 mt-2.5 transition-all duration-200"
       aria-label="Mobile Staff Modules"
     >
-      <a
-        href="/internal/"
-        data-astro-prefetch="hover"
-        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
-          activeTab === 'overview'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect width="7" height="9" x="3" y="3" rx="1"></rect>
-          <rect width="7" height="5" x="14" y="3" rx="1"></rect>
-          <rect width="7" height="9" x="14" y="12" rx="1"></rect>
-          <rect width="7" height="5" x="3" y="16" rx="1"></rect>
-        </svg>
-        Overview Hub
-      </a>
-
-      <a
-        href="/internal/pets/"
-        data-astro-prefetch="hover"
-        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
-          activeTab === 'petsync' || activeTab === 'pets'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="m10 15 5-3-5-3v6Z"></path>
-        </svg>
-        Shelter Animals & Census
-      </a>
-
-      <a
-        href="/internal/board/"
-        data-astro-prefetch="hover"
-        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
-          activeTab === 'financials'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="12" y1="1" x2="12" y2="23"></line>
-          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-        </svg>
-        Board Financials & Treasury
-      </a>
-
-      <a
-        href="/internal/grants/"
-        data-astro-prefetch="hover"
-        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
-          activeTab === 'grants'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
-        Grants Pipeline
-      </a>
-
-      <a
-        href="/internal/donors/"
-        data-astro-prefetch="hover"
-        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
-          activeTab === 'donors'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-        </svg>
-        Donors & Giving
-      </a>
-
-      <a
-        href="/internal/newsletter/"
-        data-astro-prefetch="hover"
-        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
-          activeTab === 'newsletter'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <line x1="16" y1="13" x2="8" y2="13"></line>
-          <line x1="16" y1="17" x2="8" y2="17"></line>
-        </svg>
-        Newsletter
-      </a>
-
-      <a
-        href="/internal/content/"
-        data-astro-prefetch="hover"
-        class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
-          activeTab === 'content'
-            ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
-            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-700 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 20h9"></path>
-          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-        </svg>
-        Site Content
-      </a>
+      {STAFF_NAV.map((item: any) => (
+        <a
+          href={item.href}
+          data-astro-prefetch="hover"
+          class={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
+            activeTab === item.id || (activeTab === 'petsync' && item.id === 'pets')
+              ? 'bg-teal-800/60 text-white border border-teal-600/60 font-bold'
+              : 'bg-slate-100 text-slate-700 hover:bg-teal-50 border border-slate-200 dark:bg-teal-950/60 dark:text-slate-300 dark:hover:bg-teal-900 dark:border-teal-800/70'
+          }`}
+        >
+          <div class="w-4 h-4 text-teal-700 dark:text-teal-300 flex items-center justify-center" set:html={item.icon}></div>
+          {item.label}
+        </a>
+      ))}
 
       <div class="pt-2.5 border-t border-slate-200 dark:border-teal-800/80 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 px-1">
         <a href="/" data-astro-reload class="hover:text-teal-800 dark:hover:text-white transition">

@@ -7,14 +7,21 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
   id="mobile-more-sheet"
   class="staff-more-sheet"
   aria-label="Staff Portal Secondary Menu"
+  x-data="moreSheet"
+  @open-more-sheet.window="open()"
+  @close-more-sheet.window="close()"
+  @keydown.escape.window="close()"
+  @click="if ($event.target === $el) close()"
 >
   <div
     id="mobile-more-sheet-panel"
     class="staff-more-sheet__panel w-full bg-white dark:bg-[#071a17] text-slate-900 dark:text-white rounded-t-3xl border-t border-slate-200 dark:border-teal-700/80 shadow-2xl max-h-[88vh] overflow-y-auto"
     role="document"
+    @touchstart="touchStartY = $event.touches[0].clientY"
+    @touchend="handleTouchEnd($event)"
   >
       <!-- Drag handle indicator -->
-      <div class="pt-3.5 pb-1 flex justify-center cursor-pointer" id="mobile-more-sheet-handle" data-close-more-sheet>
+      <div class="pt-3.5 pb-1 flex justify-center cursor-pointer" @click="close()">
         <span class="w-12 h-1.5 bg-slate-300 dark:bg-teal-800 rounded-full"></span>
       </div>
 
@@ -31,8 +38,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         </div>
         <button
           type="button"
-          id="close-mobile-more-sheet-btn"
-          data-close-more-sheet
+          @click="close()"
           class="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-teal-300 dark:hover:text-white dark:hover:bg-teal-900/60 transition cursor-pointer"
           aria-label="Close sheet"
         >
@@ -49,25 +55,22 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <div class="p-3 bg-slate-50 dark:bg-[#0b2420] rounded-2xl border border-slate-200 dark:border-teal-800/80 shadow-md">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-teal-800 dark:text-teal-200">Mobile Navigation Mode</span>
-            <span id="sheet-nav-mode-indicator" class="sheet-mode-chip text-[10px] font-bold uppercase px-2 py-0.5 rounded">
-              Bottom Dock
+            <span class="sheet-mode-chip text-[10px] font-bold uppercase px-2 py-0.5 rounded" x-text="navMode === 'bottom-bar' ? 'Bottom Dock' : 'Hamburger'">
             </span>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              id="sheet-set-bottom-bar-btn"
-              data-nav-choice="bottom-bar"
-              data-active="true"
+              @click="setNavMode('bottom-bar')"
+              :data-active="navMode === 'bottom-bar'"
               class="sheet-choice-btn py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>Bottom Bar</span>
             </button>
             <button
               type="button"
-              id="sheet-set-hamburger-btn"
-              data-nav-choice="hamburger"
-              data-active="false"
+              @click="setNavMode('hamburger')"
+              :data-active="navMode === 'hamburger'"
               class="sheet-choice-btn py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>Hamburger</span>
@@ -79,25 +82,22 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <div class="p-3 bg-slate-50 dark:bg-[#0b2420] rounded-2xl border border-slate-200 dark:border-teal-800/80 shadow-md">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-teal-800 dark:text-teal-200">Portal Theme</span>
-            <span id="sheet-theme-indicator" class="sheet-mode-chip text-[10px] font-bold uppercase px-2 py-0.5 rounded">
-              Light Monroe
+            <span class="sheet-mode-chip text-[10px] font-bold uppercase px-2 py-0.5 rounded" x-text="theme === 'light' ? 'Light Monroe' : 'Dark Ops'">
             </span>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              id="sheet-set-light-theme-btn"
-              data-theme-choice="light"
-              data-active="true"
+              @click="setTheme('light')"
+              :data-active="theme === 'light'"
               class="sheet-choice-btn py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>Light Monroe</span>
             </button>
             <button
               type="button"
-              id="sheet-set-dark-theme-btn"
-              data-theme-choice="dark"
-              data-active="false"
+              @click="setTheme('dark')"
+              :data-active="theme === 'dark'"
               class="sheet-choice-btn py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>Dark Ops</span>
@@ -109,6 +109,8 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         <div
           id="pwa-install-container"
           class="pwa-install-card p-3 rounded-2xl flex items-center justify-between gap-3"
+          x-show="showInstallCard"
+          :data-pwa-state="pwaState"
         >
           <div class="flex items-center gap-2.5 min-w-0">
             <div class="pwa-install-icon w-9 h-9 rounded-xl flex items-center justify-center shrink-0">
@@ -121,17 +123,16 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
               <div class="pwa-install-title font-bold text-xs">
                 Install HSMC Ops App
               </div>
-              <div class="pwa-install-desc text-[11px] leading-snug" id="pwa-install-desc">
-                Home screen icon &amp; offline census
+              <div class="pwa-install-desc text-[11px] leading-snug" x-text="installDesc">
               </div>
             </div>
           </div>
           <button
             type="button"
-            id="pwa-install-btn"
+            @click="handleInstallClick()"
             class="pwa-install-btn px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
+            x-text="installBtnText"
           >
-            Install
           </button>
         </div>
 
@@ -191,7 +192,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           </svg>
         </a>
 
-        <!-- Website Content Manager -->
+        <!-- Public Content Manager -->
         <a
           href="/internal/content/"
           data-astro-prefetch="hover"
@@ -200,12 +201,6 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800/80 flex items-center justify-center shadow-xs">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-              </svg>
-            </div>
-            <div>
-              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-teal-200 text-xs">
                 Site Content Manager
               </div>
               <div class="text-[11px] text-slate-500 dark:text-slate-300">
@@ -352,8 +347,6 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         </button>
       </div>
     </div>
-</dialog>
-
 <script>
   import { getStaffTheme, setStaffTheme } from '../../lib/staff-theme';
   import { logoutStaff } from '../../lib/staff-auth';
@@ -365,260 +358,155 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     shouldHideInstallCard,
   } from '../../lib/staff-pwa';
 
-  function liveSheet(): HTMLDialogElement | null {
-    const nodes = Array.from(document.querySelectorAll('#mobile-more-sheet')) as HTMLDialogElement[];
-    if (!nodes.length) return null;
-    const incoming = nodes.find((node) => node.parentElement !== document.body) || nodes[nodes.length - 1];
-    nodes.forEach((node) => {
-      if (node === incoming) return;
-      try { if (node.open) node.close(); } catch { /* ignore */ }
-      node.remove();
-    });
-    if (incoming.parentElement !== document.body) {
-      document.body.appendChild(incoming);
-    }
-    return incoming;
-  }
+  document.addEventListener('alpine:init', () => {
+    // @ts-ignore
+    Alpine.data('moreSheet', () => ({
+      navMode: 'bottom-bar',
+      theme: 'light',
+      userEmail: 'staff@monroe-humane.org',
+      userInitials: 'SP',
+      
+      showInstallCard: false,
+      pwaState: 'hint',
+      installDesc: 'Home screen icon & offline census',
+      installBtnText: 'Install',
+      
+      touchStartY: 0,
+      deferredPrompt: null as any,
 
-  function livePanel(): HTMLElement | null {
-    return liveSheet()?.querySelector('#mobile-more-sheet-panel') || document.getElementById('mobile-more-sheet-panel');
-  }
+      init() {
+        this.syncNavModeUI();
+        this.syncThemeModeUI();
+        this.syncSignedInUser();
+        
+        // Setup PWA events
+        const isIos = /iPad|iPhone|iPod/i.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          forgetPwaInstalled();
+          this.deferredPrompt = e;
+          this.syncInstallCard(isIos);
+        });
 
-  function syncNavModeUI() {
-    const current = document.documentElement.getAttribute('data-nav-style') || localStorage.getItem('monroe-nav-pref') || 'bottom-bar';
-    const modeIndicator = document.getElementById('sheet-nav-mode-indicator');
-    if (modeIndicator) {
-      modeIndicator.textContent = current === 'bottom-bar' ? 'Bottom Dock' : 'Hamburger';
-    }
-    document.getElementById('sheet-set-bottom-bar-btn')?.setAttribute('data-active', current === 'bottom-bar' ? 'true' : 'false');
-    document.getElementById('sheet-set-hamburger-btn')?.setAttribute('data-active', current === 'hamburger' ? 'true' : 'false');
-  }
+        window.addEventListener('appinstalled', () => {
+          rememberPwaInstalled();
+          this.deferredPrompt = null;
+          this.syncInstallCard(isIos);
+        });
 
-  function syncThemeModeUI() {
-    const current = getStaffTheme();
-    const themeIndicator = document.getElementById('sheet-theme-indicator');
-    if (themeIndicator) {
-      themeIndicator.textContent = current === 'light' ? 'Light Monroe' : 'Dark Ops';
-    }
-    document.getElementById('sheet-set-light-theme-btn')?.setAttribute('data-active', current === 'light' ? 'true' : 'false');
-    document.getElementById('sheet-set-dark-theme-btn')?.setAttribute('data-active', current === 'dark' ? 'true' : 'false');
-  }
+        this.syncInstallCard(isIos);
+      },
 
-  function syncSignedInUser() {
-    const email = localStorage.getItem('mchs_staff_user') || sessionStorage.getItem('mchs_staff_user') || 'staff@monroe-humane.org';
-    const emailEl = document.getElementById('sheet-user-email');
-    const avatarEl = document.getElementById('sheet-user-avatar');
-    if (emailEl) emailEl.textContent = email;
-    if (avatarEl && email) {
-      const parts = email.split('@')[0].split(/[._-]/);
-      const initials = (parts.length > 1 ? parts[0][0] + parts[1][0] : parts[0].slice(0, 2)).toUpperCase();
-      avatarEl.textContent = initials;
-    }
-  }
+      open() {
+        this.syncNavModeUI();
+        this.syncThemeModeUI();
+        this.syncSignedInUser();
+        const el = (this as any).$el as HTMLDialogElement;
+        if (!el.open) {
+          try {
+            el.showModal();
+          } catch {
+            document.body.appendChild(el);
+            if (!el.open) el.showModal();
+          }
+        }
+        this.updateMoreButtonState(true);
+      },
 
-  function getDeferredPrompt(): any {
-    return (window as any).__pwaInstallPrompt || null;
-  }
+      close() {
+        const el = (this as any).$el as HTMLDialogElement;
+        if (el.open) el.close();
+        this.updateMoreButtonState(false);
+      },
 
-  function setDeferredPrompt(value: any) {
-    (window as any).__pwaInstallPrompt = value;
-  }
+      handleTouchEnd(e: TouchEvent) {
+        const deltaY = e.changedTouches[0].clientY - this.touchStartY;
+        const el = (this as any).$el as HTMLElement;
+        const panel = el.querySelector('#mobile-more-sheet-panel') as HTMLElement;
+        if (deltaY > 50 && panel && panel.scrollTop <= 5) {
+          this.close();
+        }
+      },
 
-  function isIos(): boolean {
-    const ua = navigator.userAgent || '';
-    return /iPad|iPhone|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }
+      setNavMode(mode: string) {
+        this.navMode = mode;
+        localStorage.setItem('monroe-nav-pref', mode);
+        document.documentElement.setAttribute('data-nav-style', mode);
+      },
 
-  async function syncInstallCard() {
-    const installContainer = document.getElementById('pwa-install-container');
-    const installBtn = document.getElementById('pwa-install-btn');
-    const installDesc = document.getElementById('pwa-install-desc');
-    if (!installContainer) return;
-    markPwaDisplay();
-    const hide = await shouldHideInstallCard();
-    if (hide) {
-      installContainer.classList.add('hidden');
-      installContainer.setAttribute('data-pwa-state', isStandaloneDisplay() ? 'standalone' : 'installed');
-      return;
-    }
-    installContainer.classList.remove('hidden');
-    if (isIos()) {
-      installContainer.setAttribute('data-pwa-state', 'ios');
-      if (installDesc) installDesc.textContent = 'iPhone: Share → Add to Home Screen';
-      if (installBtn) installBtn.textContent = 'How';
-    } else if (getDeferredPrompt()) {
-      installContainer.setAttribute('data-pwa-state', 'ready');
-      if (installDesc) installDesc.textContent = 'Home screen icon & offline census';
-      if (installBtn) installBtn.textContent = 'Install';
-    } else {
-      installContainer.setAttribute('data-pwa-state', 'hint');
-      if (installDesc) installDesc.textContent = 'Home screen icon & offline census';
-      if (installBtn) installBtn.textContent = 'Install';
-    }
-  }
+      setTheme(t: string) {
+        this.theme = t;
+        setStaffTheme(t as 'light'|'dark');
+      },
 
-  function setMoreButtonState(open: boolean) {
-    document.querySelectorAll<HTMLElement>('[data-open-more-sheet]').forEach((btn) => {
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      btn.classList.toggle('is-more-open', open);
-    });
-  }
+      async handleLogout() {
+        this.close();
+        await logoutStaff();
+      },
 
-  function openSheet() {
-    const sheetDialog = liveSheet();
-    if (!sheetDialog) return;
-    syncNavModeUI();
-    syncThemeModeUI();
-    syncSignedInUser();
-    void syncInstallCard();
-    try {
-      if (!sheetDialog.open) sheetDialog.showModal();
-    } catch {
-      document.body.appendChild(sheetDialog);
-      if (!sheetDialog.open) sheetDialog.showModal();
-    }
-    setMoreButtonState(true);
-    bindSheetChrome(sheetDialog);
-  }
+      async handleInstallClick() {
+        if (this.deferredPrompt) {
+          this.deferredPrompt.prompt();
+          const choice = await this.deferredPrompt.userChoice;
+          if (choice.outcome === 'accepted') {
+            rememberPwaInstalled();
+            this.showInstallCard = false;
+          }
+          this.deferredPrompt = null;
+          return;
+        }
+        const isIos = /iPad|iPhone|iPod/i.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        this.installDesc = isIos
+          ? 'Tap Share, then Add to Home Screen'
+          : 'Browser menu → Install app (Chrome or Edge)';
+      },
 
-  function closeSheet() {
-    const sheetDialog = liveSheet();
-    if (sheetDialog?.open) sheetDialog.close();
-    setMoreButtonState(false);
-  }
+      syncNavModeUI() {
+        this.navMode = document.documentElement.getAttribute('data-nav-style') || localStorage.getItem('monroe-nav-pref') || 'bottom-bar';
+      },
 
-  function bindSheetChrome(sheetDialog: HTMLDialogElement) {
-    const panel = livePanel();
-    if (panel && panel.dataset.swipeBound !== '1') {
-      panel.dataset.swipeBound = '1';
-      let touchStartY = 0;
-      panel.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-      }, { passive: true });
-      panel.addEventListener('touchend', (e) => {
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        if (deltaY > 50 && panel.scrollTop <= 5) closeSheet();
-      }, { passive: true });
-    }
+      syncThemeModeUI() {
+        this.theme = getStaffTheme();
+      },
 
-    if (sheetDialog.dataset.dialogBound === '1') return;
-    sheetDialog.dataset.dialogBound = '1';
-    sheetDialog.addEventListener('click', (e) => {
-      if (e.target === sheetDialog) closeSheet();
-    });
-    sheetDialog.addEventListener('close', () => setMoreButtonState(false));
-    sheetDialog.addEventListener('cancel', () => setMoreButtonState(false));
-  }
+      syncSignedInUser() {
+        const email = localStorage.getItem('mchs_staff_user') || sessionStorage.getItem('mchs_staff_user') || 'staff@monroe-humane.org';
+        this.userEmail = email;
+        const parts = email.split('@')[0].split(/[._-]/);
+        this.userInitials = (parts.length > 1 ? parts[0][0] + parts[1][0] : parts[0].slice(0, 2)).toUpperCase();
+      },
 
-  async function handleInstallClick() {
-    const promptEvent = getDeferredPrompt();
-    if (promptEvent) {
-      promptEvent.prompt();
-      const choice = await promptEvent.userChoice;
-      if (choice.outcome === 'accepted') {
-        rememberPwaInstalled();
-        document.getElementById('pwa-install-container')?.classList.add('hidden');
+      async syncInstallCard(isIos: boolean) {
+        markPwaDisplay();
+        const hide = await shouldHideInstallCard();
+        if (hide) {
+          this.showInstallCard = false;
+          this.pwaState = isStandaloneDisplay() ? 'standalone' : 'installed';
+          return;
+        }
+        this.showInstallCard = true;
+        if (isIos) {
+          this.pwaState = 'ios';
+          this.installDesc = 'iPhone: Share → Add to Home Screen';
+          this.installBtnText = 'How';
+        } else if (this.deferredPrompt) {
+          this.pwaState = 'ready';
+          this.installDesc = 'Home screen icon & offline census';
+          this.installBtnText = 'Install';
+        } else {
+          this.pwaState = 'hint';
+          this.installDesc = 'Home screen icon & offline census';
+          this.installBtnText = 'Install';
+        }
+      },
+
+      updateMoreButtonState(open: boolean) {
+        document.querySelectorAll<HTMLElement>('[data-open-more-sheet]').forEach((btn) => {
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          btn.classList.toggle('is-more-open', open);
+        });
       }
-      setDeferredPrompt(null);
-      return;
-    }
-    const installDesc = document.getElementById('pwa-install-desc');
-    if (installDesc) {
-      installDesc.textContent = isIos()
-        ? 'Tap Share, then Add to Home Screen'
-        : 'Browser menu → Install app (Chrome or Edge)';
-    }
-  }
-
-  function bindGlobalMoreSheet() {
-    const win = window as any;
-    win.openMobileMoreSheet = openSheet;
-    win.closeMobileMoreSheet = closeSheet;
-
-    if (win.__hsmcMoreSheetDelegated) return;
-    win.__hsmcMoreSheetDelegated = true;
-
-    document.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-
-      if (target.closest('[data-open-more-sheet]')) {
-        e.preventDefault();
-        e.stopPropagation();
-        const sheet = liveSheet();
-        if (sheet?.open) closeSheet();
-        else openSheet();
-        return;
-      }
-
-      if (target.closest('[data-close-more-sheet]')) {
-        e.preventDefault();
-        closeSheet();
-        return;
-      }
-
-      const navChoice = target.closest<HTMLElement>('[data-nav-choice]');
-      if (navChoice) {
-        const value = navChoice.getAttribute('data-nav-choice') === 'hamburger' ? 'hamburger' : 'bottom-bar';
-        localStorage.setItem('monroe-nav-pref', value);
-        document.documentElement.setAttribute('data-nav-style', value);
-        syncNavModeUI();
-        return;
-      }
-
-      const themeChoice = target.closest<HTMLElement>('[data-theme-choice]');
-      if (themeChoice) {
-        setStaffTheme(themeChoice.getAttribute('data-theme-choice') === 'dark' ? 'dark' : 'light');
-        syncThemeModeUI();
-        return;
-      }
-
-      if (target.closest('#sheet-logout-btn')) {
-        e.preventDefault();
-        closeSheet();
-        void logoutStaff();
-        return;
-      }
-
-      if (target.closest('#pwa-install-btn')) {
-        e.preventDefault();
-        void handleInstallClick();
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && liveSheet()?.open) closeSheet();
-    });
-
-    ['standalone', 'fullscreen', 'minimal-ui', 'window-controls-overlay'].forEach((mode) => {
-      const mq = window.matchMedia(`(display-mode: ${mode})`);
-      const onChange = () => { void syncInstallCard(); };
-      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', onChange);
-      else (mq as any).addListener?.(onChange);
-    });
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      forgetPwaInstalled();
-      setDeferredPrompt(e);
-      void syncInstallCard();
-    });
-
-    window.addEventListener('appinstalled', () => {
-      rememberPwaInstalled();
-      setDeferredPrompt(null);
-      void syncInstallCard();
-    });
-  }
-
-  function setupMobileMoreSheet() {
-    bindGlobalMoreSheet();
-    const sheet = liveSheet();
-    if (sheet) bindSheetChrome(sheet);
-    syncNavModeUI();
-    syncThemeModeUI();
-    void syncInstallCard();
-  }
-
-  document.addEventListener('astro:page-load', setupMobileMoreSheet);
+    }));
+  });
 </script>
