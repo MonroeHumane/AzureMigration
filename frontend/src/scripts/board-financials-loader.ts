@@ -1131,11 +1131,11 @@ function statementMonthKey(stmt: any): string {
   if (iso) return `${iso[1]}-${iso[2]}`;
   const us = date.match(/(\d{2})\/\d{2}\/(\d{4})/);
   if (us) return `${us[2]}-${us[1]}`;
-  return '2026-08';
+  return bankPackState?.selected || String(new Date().getFullYear()) + '-01';
 }
 
 function yearFromMonthKey(monthKey: string): string {
-  return String(monthKey || '2026-08').slice(0, 4);
+  return String(monthKey || bankPackState?.selected || new Date().getFullYear()).slice(0, 4);
 }
 
 function monthsForYear(year: string): string[] {
@@ -1148,12 +1148,14 @@ function monthsForYear(year: string): string[] {
 function ytdForYear(year: string): any {
   const byYear = bankPackState?.meta?.ytd_by_year;
   if (byYear && byYear[year]) return byYear[year];
-  if (year === '2026') return bankPackState?.meta?.ytd || null;
+  const currentYear = bankPackState?.year || String(new Date().getFullYear());
+  if (year === currentYear) return bankPackState?.meta?.ytd || null;
   return null;
 }
 
 function ytdLabelForYear(year: string): string {
-  return year === '2026' ? '2026 YTD bank' : `${year} bank`;
+  const currentYear = bankPackState?.year || String(new Date().getFullYear());
+  return year === currentYear ? `${year} YTD bank` : `${year} bank`;
 }
 
 function renderBankYearSelect(year: string): void {
@@ -1205,7 +1207,9 @@ function hydrateBankStatements(data: any, token: string): void {
   const months: Record<string, any> = { ...(pack.months || {}) };
   const meta = pack.meta || {};
   const latestMonth = data.bank_statement || null;
-  const latestMonthKey = latestMonth?.metadata?.statement_date?.substring(0, 7) || '2026-08';
+  const fallbackYear = String(new Date().getFullYear());
+  const fallbackKey = fallbackYear + '-01';
+  const latestMonthKey = latestMonth?.metadata?.statement_date?.substring(0, 7) || fallbackKey;
   if (latestMonth?.metadata && !months[latestMonthKey]) {
     months[latestMonthKey] = {
       id: latestMonthKey,
@@ -1225,13 +1229,15 @@ function hydrateBankStatements(data: any, token: string): void {
       has_recon: true,
     };
   }
+  const defaultSelected = Object.keys(months).sort().pop() || latestMonthKey;
+  const defaultYear = defaultSelected.slice(0, 4);
   bankPackState = {
     token,
     latestMonth,
     months,
     meta,
-    selected: Object.keys(months).sort().pop() || '2026-08',
-    year: '2026',
+    selected: defaultSelected,
+    year: defaultYear,
   };
   (window as any).__HSMC_BANK_PACK__ = bankPackState;
   (window as any).__switchBankMonth = (key: string) => {
@@ -1241,9 +1247,9 @@ function hydrateBankStatements(data: any, token: string): void {
     const next = defaultMonthForYear(String(year));
     if (next) applyBankMonth(next);
   };
-  renderBankYearSelect('2026');
-  renderBankMonthPager('2026', '2026-08');
-  applyBankMonth('2026-08');
+  renderBankYearSelect(defaultYear);
+  renderBankMonthPager(defaultYear, defaultSelected);
+  applyBankMonth(defaultSelected);
 }
 
 function updateBankMonthChrome(monthKey: string): void {
@@ -1273,7 +1279,6 @@ function hydrateBankStatement(stmt: any, token: string) {
   };
 
   const monthKey = statementMonthKey(stmt);
-  const isAugust = monthKey === '2026-08';
   const period = stmt.metadata.statement_period || stmt.metadata.month_name || '';
   const acct = stmt.metadata.account_number ? `••••${String(stmt.metadata.account_number).slice(-4)}` : 'on file';
   const bankEnd = stmt.metadata.statement_ending_balance;
@@ -1287,7 +1292,7 @@ function hydrateBankStatement(stmt: any, token: string) {
     setEl('bank-stat-cash', '—');
   }
 
-  if (isAugust && floatAmt != null) {
+  if (stmt.has_recon && floatAmt != null) {
     const floatAbs = Math.abs(Number(floatAmt));
     setEl('bank-recon-badge', 'Outstanding checks');
     setEl('bank-stat-recon', formatCents(floatAbs));
@@ -1299,7 +1304,7 @@ function hydrateBankStatement(stmt: any, token: string) {
     );
   } else {
     setEl('bank-recon-badge', 'Bank PDF');
-    setEl('bank-stat-recon', 'See Aug 2026');
+    setEl('bank-stat-recon', 'See Latest');
     setEl('bank-stat-recon-sub', '');
     setEl(
       'bank-stat-meta-note',
@@ -1307,7 +1312,7 @@ function hydrateBankStatement(stmt: any, token: string) {
     );
     setEl(
       'bank-recon-explain',
-      'This month is checking in and out from the bank PDF. August is the month with outstanding checks explained.'
+      'This month is checking in and out from the bank PDF. Go to the latest certified month to see outstanding checks explained.'
     );
   }
 
@@ -1444,11 +1449,11 @@ function hydrateBankStatement(stmt: any, token: string) {
       const pct = Math.max(5, Math.round((d.balance / maxBal) * 100));
 
       let note = 'Routine operating deposits & debits';
-      if (d.date === '2026-08-03') note = '+$12.6k branch cash, weekend adoptions & donor drops';
-      if (d.date === '2026-08-14') note = 'Mid-month caregiver payroll & tax batch (-$19.7k)';
-      if (d.date === '2026-08-21') note = 'Monroe Fencing capital play yard installation (-$7.1k)';
-      if (d.date === '2026-08-28') note = 'End-of-month caregiver payroll run (-$17.5k)';
-      if (d.date === '2026-08-31') note = 'August statement close & final reconciliation locking';
+      if (delta > 5000) note = 'Significant batch deposits or major donation';
+      if (delta < -15000) note = 'Major outflow (typically payroll/tax batch)';
+      if (delta < -5000 && delta >= -15000) note = 'Large operating expense or capital purchase';
+      const isLastDay = stmt.daily_balances.indexOf(d) === stmt.daily_balances.length - 1;
+      if (isLastDay) note = 'Statement close & final reconciliation locking';
 
       const tr = document.createElement('tr');
       tr.className = 'hover:bg-slate-50/80 transition';
@@ -1504,9 +1509,14 @@ async function fetchStatementPdfBlob(doc: 'bank' | 'qbo', token: string, monthKe
     },
   });
   if (!res.ok) return null;
-  const expected = doc === 'qbo'
-    ? 'QBO_Reconciliation_Report_08312026.pdf'
-    : bankPackState?.months?.[monthKey]?.statement_file;
+  const stmtRec = bankPackState?.months?.[monthKey];
+  let expected = '';
+  if (doc === 'qbo' && stmtRec?.statement_date) {
+    const rawDate = stmtRec.statement_date.replace(/-/g, '');
+    expected = `QBO_Reconciliation_Report_${rawDate.slice(4,8)}${rawDate.slice(0,4)}.pdf`;
+  } else {
+    expected = stmtRec?.statement_file || '';
+  }
   const disposition = res.headers.get('Content-Disposition') || '';
   if (expected && disposition && !disposition.includes(expected)) {
     return null;
@@ -1525,7 +1535,7 @@ function applyStatementPdfChrome(monthKey: string, bankUrl: string | null, qboUr
   }
 
   const btnQbo = document.getElementById('btn-pdf-qbo');
-  const hasQbo = monthKey === '2026-08' && !!qboUrl;
+  const hasQbo = !!qboUrl;
   if (btnQbo) {
     btnQbo.classList.toggle('hidden', !hasQbo);
     if (qboUrl) btnQbo.setAttribute('data-pdf-url', qboUrl);
@@ -1560,8 +1570,9 @@ async function attachStatementPdfBlobs(token: string, monthKey: string): Promise
       return;
     }
 
+    const stmtRec = bankPackState?.months?.[monthKey];
     const bankUrl = await fetchStatementPdfBlob('bank', token, monthKey);
-    const qboUrl = monthKey === '2026-08' ? await fetchStatementPdfBlob('qbo', token, monthKey) : null;
+    const qboUrl = stmtRec?.has_recon ? await fetchStatementPdfBlob('qbo', token, monthKey) : null;
     if (gen !== pdfAttachGen) {
       if (bankUrl) URL.revokeObjectURL(bankUrl);
       if (qboUrl) URL.revokeObjectURL(qboUrl);
