@@ -95,6 +95,11 @@ export function applyRosterCounts(data: {
   const othersCount = active.length - dogs.length - cats.length;
   const dailyCost = (dogs.length * 22) + (cats.length * 14) + (othersCount * 10);
   setText('petsync-daily-care-cost', `$${dailyCost.toLocaleString()}`);
+
+  // Render ECharts Capacity Gauges
+  // Assuming a max capacity of 50 dogs and 80 cats
+  renderCapacityGauge('echarts-dog-capacity', dogs.length, 50, 'Dogs', '#f59e0b'); // amber-500
+  renderCapacityGauge('echarts-cat-capacity', cats.length, 80, 'Cats', '#14b8a6'); // teal-500
 }
 
 export function inflatePetRows(
@@ -395,4 +400,61 @@ export async function loadStaffPetRoster(
   inflatePetRows(result.data.pets, tbody, mobileContainer);
   applyRosterCounts(result.data);
   return true;
+}
+function renderCapacityGauge(containerId: string, value: number, max: number, name: string, color: string) {
+  const container = document.getElementById(containerId);
+  if (!container || typeof (window as any).echarts === 'undefined') return;
+
+  // Cleanup any old instance if it exists
+  const existingChart = (window as any).echarts.getInstanceByDom(container);
+  if (existingChart) existingChart.dispose();
+
+  const chart = (window as any).echarts.init(container);
+  const option = {
+    series: [
+      {
+        type: 'gauge',
+        startAngle: 180,
+        endAngle: 0,
+        min: 0,
+        max: max,
+        splitNumber: 5,
+        itemStyle: {
+          color: color,
+          shadowColor: 'rgba(0,138,255,0.45)',
+          shadowBlur: 10,
+          shadowOffsetX: 2,
+          shadowOffsetY: 2
+        },
+        progress: { show: true, roundCap: true, width: 14 },
+        pointer: { show: false },
+        axisLine: { roundCap: true, lineStyle: { width: 14, color: [[1, '#e2e8f0']] } },
+        axisTick: { show: false },
+        splitLine: { show: false },
+        axisLabel: { show: false },
+        title: { show: false },
+        detail: {
+          backgroundColor: '#f8fafc',
+          borderColor: color,
+          borderWidth: 2,
+          width: '60%',
+          lineHeight: 20,
+          height: 20,
+          borderRadius: 8,
+          offsetCenter: [0, '20%'],
+          valueAnimation: true,
+          formatter: function (value) {
+            return '{value|' + value.toFixed(0) + '}{unit|/' + max + '}';
+          },
+          rich: {
+            value: { fontSize: 18, fontWeight: 'bolder', color: '#334155' },
+            unit: { fontSize: 10, color: '#94a3b8', padding: [0, 0, -4, 2] }
+          }
+        },
+        data: [{ value: value }]
+      }
+    ]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
 }

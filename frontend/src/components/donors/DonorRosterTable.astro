@@ -51,6 +51,43 @@ const { donors = [] } = Astro.props;
 ---
 
 <div class="space-y-4" id="donor-roster-container">
+  
+  <!-- Bento Box Dashboard Header -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4">
+    
+    <!-- Left Column: KPI Grid -->
+    <div class="lg:col-span-1 grid grid-cols-2 gap-3">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Donors</div>
+        <div id="donor-kpi-total" class="mt-1 font-mono font-bold text-2xl text-slate-900">--</div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Active (12mo)</div>
+        <div id="donor-kpi-active" class="mt-1 font-mono font-bold text-xl text-emerald-600">--</div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Avg Gift</div>
+        <div id="donor-kpi-avg-gift" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Recurring</div>
+        <div id="donor-kpi-recurring" class="mt-1 font-mono font-bold text-lg text-purple-600">--</div>
+      </div>
+    </div>
+
+    <!-- Right Column: Charts -->
+    <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Donor Retention</h3>
+        <div id="echarts-donor-status" class="w-full grow h-40"></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Giving Tiers</h3>
+        <div id="echarts-donor-tiers" class="w-full grow h-40"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Controls: Search, Filter, Sort, Pagination, Export -->
   <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3.5 print:hidden">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
@@ -574,7 +611,102 @@ const { donors = [] } = Astro.props;
     });
 
     currentPage = 1;
+    renderDonorDashboard(filteredDonors);
     renderTable();
+  }
+
+  function renderDonorDashboard(donorsList) {
+    let active = 0, recurring = 0, totalGiftVal = 0, totalGiftCount = 0;
+    const tierCounts = {};
+    const statusCounts = { active: 0, lapsed: 0, lost: 0 };
+    
+    const currentYear = new Date().getFullYear();
+    const lastYear = currentYear - 1;
+    
+    for (const d of donorsList) {
+      if (d.isAggregate) continue; // Skip aggregate buckets like "Cash Box"
+      
+      const yrStr = (d.latestGiftDate || '').substring(0, 4);
+      const yr = parseInt(yrStr, 10);
+      
+      if (yr === currentYear || yr === lastYear) {
+        active++;
+        statusCounts.active++;
+      } else if (yr === lastYear - 1) {
+        statusCounts.lapsed++;
+      } else {
+        statusCounts.lost++;
+      }
+      
+      if (d.isRecurring) recurring++;
+      totalGiftVal += d.lifetimeTotal || 0;
+      totalGiftCount += d.transactionsCount || 0;
+      
+      const tier = d.givingTier || 'Uncategorized';
+      tierCounts[tier] = (tierCounts[tier] || 0) + 1;
+    }
+    
+    const totalDonors = donorsList.filter(d => !d.isAggregate).length;
+    
+    // Update KPI metrics
+    const setT = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    setT('donor-kpi-total', totalDonors.toLocaleString());
+    setT('donor-kpi-active', active.toLocaleString());
+    setT('donor-kpi-recurring', recurring.toLocaleString());
+    setT('donor-kpi-avg-gift', totalGiftCount > 0 ? '$' + Math.round(totalGiftVal / totalGiftCount).toLocaleString() : '--');
+    
+    // Draw ECharts
+    if (typeof window['echarts'] === 'undefined') return;
+    
+    // Donor Status Doughnut
+    const containerStatus = document.getElementById('echarts-donor-status');
+    if (containerStatus) {
+      let chartStatus = window['echarts'].getInstanceByDom(containerStatus);
+      if (!chartStatus) chartStatus = window['echarts'].init(containerStatus);
+      chartStatus.setOption({
+        tooltip: { trigger: 'item' },
+        legend: { bottom: 0, icon: 'circle', itemWidth: 8, textStyle: { fontSize: 10, color: '#64748b' } },
+        color: ['#10b981', '#f59e0b', '#94a3b8'],
+        series: [{
+          type: 'pie',
+          radius: ['40%', '70%'],
+          avoidLabelOverlap: false,
+          itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
+          label: { show: false, position: 'center' },
+          emphasis: { label: { show: true, fontSize: 12, fontWeight: 'bold' } },
+          data: [
+            { value: statusCounts.active, name: 'Active' },
+            { value: statusCounts.lapsed, name: 'Lapsed' },
+            { value: statusCounts.lost, name: 'Lost' }
+          ]
+        }]
+      });
+      window.addEventListener('resize', () => chartStatus.resize());
+    }
+
+    // Tier Distribution Bar Chart
+    const containerTiers = document.getElementById('echarts-donor-tiers');
+    if (containerTiers) {
+      let chartTiers = window['echarts'].getInstanceByDom(containerTiers);
+      if (!chartTiers) chartTiers = window['echarts'].init(containerTiers);
+      
+      const orderedTiers = ['Visionary', 'Benefactor', 'Patron', 'Sustainer', 'Friend', 'Supporter'];
+      const dataTiers = orderedTiers.map(t => tierCounts[t] || 0).reverse();
+      
+      chartTiers.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { top: 10, right: 20, bottom: 20, left: 60 },
+        xAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#f1f5f9' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } },
+        yAxis: { type: 'category', data: [...orderedTiers].reverse(), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#64748b', fontSize: 10 } },
+        series: [{
+          type: 'bar',
+          data: dataTiers,
+          itemStyle: { color: '#173a39', borderRadius: [0, 4, 4, 0] },
+          label: { show: true, position: 'right', color: '#64748b', fontSize: 10 }
+        }]
+      });
+      window.addEventListener('resize', () => chartTiers.resize());
+    }
   }
 
   function renderTable() {

@@ -3,50 +3,48 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
 ---
 
 <div class="space-y-6" id="petsync-portal-root">
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-    <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="text-xs text-slate-500">Active</div>
-      <div id="petsync-active-count-badge" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
-      <div id="petsync-active-breakdown" class="text-xs text-slate-500 mt-0.5">-- dogs, -- cats</div>
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="text-xs text-slate-500">Archived</div>
-      <div id="petsync-archived-count-badge" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="text-xs text-slate-500">Total</div>
-      <div id="petsync-total-count-badge" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="flex items-center justify-between">
-        <div class="text-xs text-slate-500">Last sync</div>
-        <span id="petsync-live-badge" class="hidden"></span>
+  <!-- Bento Box Dashboard Header -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    
+    <!-- Left Column: KPI Grid -->
+    <div class="lg:col-span-1 grid grid-cols-2 gap-3">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Active</div>
+        <div id="petsync-active-count-badge" class="mt-1 font-mono font-bold text-2xl text-slate-900">--</div>
       </div>
-      <div id="petsync-last-sync" class="mt-1 font-mono font-bold text-lg text-slate-900 truncate" title="">
-        --
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center relative overflow-hidden">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Sync Status</div>
+        <div id="petsync-last-sync" class="mt-1 font-mono font-bold text-xs text-slate-900 truncate">--</div>
+        <span id="petsync-live-badge" class="absolute top-3 right-3 hidden"></span>
       </div>
-      <div id="petsync-sync-error" class="hidden text-xs text-rose-600 mt-1 font-medium leading-tight"></div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Avg Stay</div>
+        <div id="petsync-avg-stay" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+        <div id="petsync-avg-stay-detail" class="text-[10px] text-slate-400 mt-0.5">Dogs -- · Cats --</div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Long Stay</div>
+        <div id="petsync-longstay-count" class="mt-1 font-mono font-bold text-lg text-rose-600">--</div>
+        <div class="text-[10px] text-slate-400 mt-0.5">&gt;60 days in care</div>
+      </div>
     </div>
-  </div>
 
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-    <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="text-xs text-slate-500">2026 served</div>
-      <div id="petsync-total-served" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
-      <div id="petsync-ytd-adoptions" class="text-xs text-slate-500">-- adopted</div>
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="text-xs text-slate-500">Avg stay</div>
-      <div id="petsync-avg-stay" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
-      <div id="petsync-avg-stay-detail" class="text-xs text-slate-500">Dogs -- · cats --</div>
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="text-xs text-slate-500">Care / day</div>
-      <div id="petsync-daily-care-cost" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="text-xs text-slate-500">&gt;60 days</div>
-      <div id="petsync-longstay-count" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+    <!-- Right Column: Capacity Gauges -->
+    <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col items-center justify-between">
+        <div class="w-full flex items-center justify-between mb-2">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Dog Capacity</h3>
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        </div>
+        <div id="echarts-dog-capacity" class="w-full h-40"></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col items-center justify-between">
+        <div class="w-full flex items-center justify-between mb-2">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Cat Capacity</h3>
+          <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+        </div>
+        <div id="echarts-cat-capacity" class="w-full h-40"></div>
+      </div>
     </div>
   </div>
 

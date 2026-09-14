@@ -1826,22 +1826,16 @@ function hydrateFooter(meta: any) {
     footerChecksum.textContent = `Source Data Canonical Checksum: ${meta.sha256_checksum} · Accounting System: QuickBooks Online (Accrual)`;
   }
 }
-function renderCashRunwayEChart(history) {
+function renderCashRunwayEChart(history: any[]) {
   if (!history || !Array.isArray(history) || history.length === 0) return;
   const container = document.getElementById('echarts-runway-container');
   if (!container) return;
   
-  // Remove loading state
   const loading = document.getElementById('echarts-runway-loading');
   if (loading) loading.remove();
 
-  // Make sure echarts is loaded
-  if (typeof (window as any).echarts === 'undefined') {
-    console.error('ECharts not loaded');
-    return;
-  }
+  if (typeof (window as any).echarts === 'undefined') return;
 
-  // Sort history chronologically
   const sorted = [...history].sort((a, b) => a.date.localeCompare(b.date));
   const dates = sorted.map(d => {
     const [yyyy, mm] = d.date.split('-');
@@ -1856,11 +1850,11 @@ function renderCashRunwayEChart(history) {
     grid: { top: 30, right: 20, bottom: 30, left: 60 },
     tooltip: {
       trigger: 'axis',
-      formatter: (params) => {
+      formatter: (params: any) => {
         const val = params[0].value;
         const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
-        return <div style="font-weight:bold;font-size:12px;color:#173a39;">\</div>
-                <div style="color:#64748b;font-size:11px;">Balance: <strong style="color:#0f766e;">\</strong></div>;
+        return `<div style="font-weight:bold;font-size:12px;color:#173a39;">${params[0].name}</div>
+                <div style="color:#64748b;font-size:11px;">Balance: <strong style="color:#0f766e;">${formatted}</strong></div>`;
       }
     },
     xAxis: {
@@ -1876,7 +1870,7 @@ function renderCashRunwayEChart(history) {
       splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } },
       axisLabel: { 
         color: '#64748b', fontSize: 10,
-        formatter: (value) => '$' + (value / 1000) + 'k'
+        formatter: (value: number) => '$' + (value / 1000) + 'k'
       }
     },
     series: [
@@ -1907,7 +1901,8 @@ function renderCashRunwayEChart(history) {
   chart.setOption(option);
   window.addEventListener('resize', () => chart.resize());
 }
-function renderBankWaterfallEChart(bankBal, bookBal, floatAmt, hasRecon) {
+
+function renderBankWaterfallEChart(bankBal: number, bookBal: number, floatAmt: number, hasRecon: boolean) {
   const container = document.getElementById('echarts-waterfall-container');
   if (!container) return;
   
@@ -1918,7 +1913,7 @@ function renderBankWaterfallEChart(bankBal, bookBal, floatAmt, hasRecon) {
     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:12px;">Go to the latest certified month to see the reconciliation waterfall.</div>';
     return;
   }
-  container.innerHTML = ''; // clear message
+  container.innerHTML = '';
 
   if (typeof (window as any).echarts === 'undefined') return;
 
@@ -1933,12 +1928,12 @@ function renderBankWaterfallEChart(bankBal, bookBal, floatAmt, hasRecon) {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      formatter: (params) => {
+      formatter: (params: any) => {
         let tar = params[1];
         if (!tar || tar.value === '-') tar = params[0];
         const val = tar.value;
         const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
-        return \<br/><strong style="color:\">\</strong>;
+        return `${tar.name}<br/><strong style="color:${tar.color}">${formatted}</strong>`;
       }
     },
     xAxis: {
@@ -1951,7 +1946,7 @@ function renderBankWaterfallEChart(bankBal, bookBal, floatAmt, hasRecon) {
     },
     yAxis: {
       type: 'value',
-      axisLabel: { formatter: (val) => '$' + (val / 1000) + 'k', color: '#64748b', fontSize: 10 },
+      axisLabel: { formatter: (val: number) => '$' + (val / 1000) + 'k', color: '#64748b', fontSize: 10 },
       splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } }
     },
     series: [
@@ -1969,7 +1964,7 @@ function renderBankWaterfallEChart(bankBal, bookBal, floatAmt, hasRecon) {
         stack: 'Total',
         label: {
           show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 10,
-          formatter: (p) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(p.value)
+          formatter: (p: any) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(p.value)
         },
         data: [
           { value: bank, itemStyle: { color: '#0f766e' } }, // Teal
@@ -1983,13 +1978,13 @@ function renderBankWaterfallEChart(bankBal, bookBal, floatAmt, hasRecon) {
   chart.setOption(option);
   window.addEventListener('resize', () => chart.resize());
 }
-function renderExpenseEChart(monthsData) {
+
+function renderExpenseEChart(monthsData: Record<string, any>) {
   const container = document.getElementById('echarts-expense-container');
   if (!container) return;
 
   if (typeof (window as any).echarts === 'undefined') return;
 
-  // Filter for actual months (e.g. 2026-01, 2026-02), exclude 'all_2026'
   const monthlyKeys = Object.keys(monthsData).filter(k => k.match(/^\d{4}-\d{2}$/)).sort();
   if (monthlyKeys.length === 0) return;
 
@@ -1997,15 +1992,14 @@ function renderExpenseEChart(monthsData) {
 
   const chart = (window as any).echarts.init(container);
   
-  // Group categories into high level buckets: Payroll, Operations, Medical, Capital
-  const seriesData = {
+  const seriesData: Record<string, number[]> = {
     'Payroll': [],
     'Operations': [],
     'Medical': [],
     'Capital': []
   };
 
-  const dates = [];
+  const dates: string[] = [];
 
   for (const k of monthlyKeys) {
     const month = monthsData[k];
@@ -2032,16 +2026,16 @@ function renderExpenseEChart(monthsData) {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      formatter: (params) => {
+      formatter: (params: any) => {
         let total = 0;
-        let s = <strong>\</strong><br/>;
-        params.forEach(p => {
+        let s = `<strong>${params[0].axisValue}</strong><br/>`;
+        params.forEach((p: any) => {
           if (p.value > 0) {
-            s += \ \: $\<br/>;
+            s += `${p.marker} ${p.seriesName}: $${Math.round(p.value).toLocaleString()}<br/>`;
             total += p.value;
           }
         });
-        s += <strong>Total: $\</strong>;
+        s += `<strong>Total: $${Math.round(total).toLocaleString()}</strong>`;
         return s;
       }
     },
@@ -2064,7 +2058,7 @@ function renderExpenseEChart(monthsData) {
       splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } },
       axisLabel: { 
         color: '#64748b', fontSize: 10,
-        formatter: (val) => '$' + (val / 1000) + 'k'
+        formatter: (val: number) => '$' + (val / 1000) + 'k'
       }
     },
     series: [
