@@ -438,6 +438,13 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       photoWrap.style.maxHeight = `${Math.round(height)}px`;
     }
     petPhoto.addEventListener('load', fitPhotoFrame);
+    petPhoto.addEventListener('error', () => {
+      const fallback = '/placeholder.svg';
+      if (!petPhoto.src.endsWith(fallback)) {
+        petPhoto.src = fallback;
+        petBackdrop.src = fallback;
+      }
+    });
     window.addEventListener('resize', fitPhotoFrame);
 
     // The one QR code on the page: static, always the shelter's
@@ -528,8 +535,17 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       currentIndex = (index + pets.length) % pets.length;
       const pet = pets[currentIndex];
 
-      const applyChanges = () => {
+      const applyChanges = async () => {
         const photoSrc = pet.image || '/assets/recovered/images/placeholder.svg';
+        
+        // Preload image so View Transition captures the fully loaded state
+        await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = resolve;
+          img.src = photoSrc;
+        });
+
         petPhoto.classList.remove('zooming');
         petPhoto.src = photoSrc;
         petPhoto.alt = pet.name;
@@ -549,8 +565,8 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
         transition.finished.catch(() => {});
       } else {
         petCard.classList.add('is-transitioning');
-        setTimeout(() => {
-          applyChanges();
+        setTimeout(async () => {
+          await applyChanges();
           petCard.classList.remove('is-transitioning');
         }, 220);
       }
@@ -603,20 +619,37 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
     setInterval(async () => {
       try {
         const res = await fetch(
-          'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/items/pets?filter[archived_at][_null]=true&limit=-1'
+          'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/items/pets?filter[archived_at][_null]=true&limit=-1',
+          { signal: AbortSignal.timeout(8000) }
         );
         if (!res.ok) return;
         const data = await res.json();
         if (data.data && data.data.length > 0) {
           pets = data.data
-            .map((p: Pet) => ({ ...p, image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg' }))
+            .map((p: Pet) => ({ ...p, image: p.image_url || p.image || '/placeholder.svg' }))
             .filter((p: Pet) => p.image && !p.image.includes('placeholder'));
         }
       } catch {}
     }, 15 * 60 * 1000);
 
-    showPet(0);
-    startRotation();
+    // If SSR provided no pets (e.g. build-time API hiccup), pull the static fallback roster
+    if (!pets.length) {
+      fetch('/shelter-pets.json', { signal: AbortSignal.timeout(4000) })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            pets = data
+              .map((p: Pet) => ({ ...p, image: p.image_url || p.image || '/placeholder.svg' }))
+              .filter((p: Pet) => p.image && !p.image.includes('placeholder'));
+            showPet(0);
+            startRotation();
+          }
+        })
+        .catch(() => {});
+    } else {
+      showPet(0);
+      startRotation();
+    }
   </script>
 </body>
 </html>

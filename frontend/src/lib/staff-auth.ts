@@ -229,6 +229,136 @@ async function exchangeDirectusTokenForStaffSession(email: string, directusToken
   return sData && sData.token ? sData.token : null;
 }
 
+export interface EntraClientPrincipal {
+  identityProvider: string;
+  userId: string;
+  userDetails: string;
+  userRoles: string[];
+  claims?: Array<{ typ: string; val: string }>;
+}
+
+/**
+ * Persists authenticated staff session to storage and updates HTML class.
+ */
+export function persistStaffSession(
+  email: string,
+  staffToken: string,
+  directusPayload: any = null,
+  rememberMe: boolean = true
+): void {
+  if (typeof window === 'undefined') return;
+
+  if (rememberMe) {
+    try {
+      localStorage.setItem(STAFF_AUTH_FLAG, 'true');
+      localStorage.setItem(STAFF_USER_KEY, email);
+      localStorage.setItem(STAFF_REMEMBER_KEY, 'true');
+      localStorage.setItem(STAFF_TOKEN_KEY, staffToken);
+      if (directusPayload) {
+        localStorage.setItem(DIRECTUS_AUTH_KEY, JSON.stringify(directusPayload));
+      }
+    } catch (e) {
+      console.warn('[StaffAuth] Failed to write to localStorage:', e);
+    }
+  } else {
+    try {
+      localStorage.removeItem(STAFF_AUTH_FLAG);
+      localStorage.removeItem(STAFF_TOKEN_KEY);
+      localStorage.removeItem(STAFF_REMEMBER_KEY);
+      localStorage.removeItem(STAFF_USER_KEY);
+      localStorage.removeItem(DIRECTUS_AUTH_KEY);
+    } catch {}
+  }
+
+  try {
+    sessionStorage.setItem(STAFF_AUTH_FLAG, 'true');
+    sessionStorage.setItem(STAFF_USER_KEY, email);
+    sessionStorage.setItem(STAFF_TOKEN_KEY, staffToken);
+    if (directusPayload) {
+      sessionStorage.setItem(DIRECTUS_AUTH_KEY, JSON.stringify(directusPayload));
+    }
+  } catch (e) {
+    console.warn('[StaffAuth] Failed to write to sessionStorage:', e);
+  }
+
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.add('staff-authenticated');
+  }
+}
+
+/**
+ * Checks if the user is authenticated via Azure Static Web Apps' Microsoft Entra ID integration.
+ * If authenticated with an authorized @monroe-humane.org account, exchanges the identity with
+ * /api/session to obtain and persist the HMAC staff session token.
+ */
+export async function syncEntraAuthSession(): Promise<{
+  authenticated: boolean;
+  email?: string;
+  error?: string;
+}> {
+  if (typeof window === 'undefined') return { authenticated: false };
+
+  try {
+    const res = await fetch('/.auth/me', {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!res.ok) return { authenticated: isStaffAuthenticated() };
+
+    const data = await res.json();
+    const principal: EntraClientPrincipal | null = data?.clientPrincipal || null;
+
+    if (!principal || !principal.userDetails) {
+      return { authenticated: isStaffAuthenticated() };
+    }
+
+    const email = principal.userDetails.trim().toLowerCase();
+
+    // Enforce @monroe-humane.org organization accounts
+    if (!email.endsWith('@monroe-humane.org')) {
+      return {
+        authenticated: false,
+        email,
+        error: `Access is restricted to @monroe-humane.org accounts. You are currently signed in as ${email}.`,
+      };
+    }
+
+    // If we already have an active staff token for this email, we are good to go!
+    if (isStaffAuthenticated() && getStaffUserEmail().toLowerCase() === email) {
+      return { authenticated: true, email };
+    }
+
+    // Exchange with /api/session (SWA automatically passes x-ms-client-principal)
+    const sessionRes = await fetchWithTimeout('/api/session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ entra_email: email }),
+    }, 6000);
+
+    if (sessionRes.ok) {
+      const sData = await sessionRes.json();
+      if (sData?.token && isStaffHmacToken(sData.token)) {
+        persistStaffSession(email, sData.token, null, true);
+        return { authenticated: true, email };
+      }
+    } else if (sessionRes.status === 403) {
+      const errData = await sessionRes.json().catch(() => null);
+      return {
+        authenticated: false,
+        email,
+        error: errData?.error || `Access restricted to @monroe-humane.org accounts.`,
+      };
+    }
+  } catch (err) {
+    console.warn('[StaffAuth] Failed to sync Entra session:', err);
+  }
+
+  return { authenticated: isStaffAuthenticated() };
+}
+
 /**
  * Sign in through /api/login. That Function already authenticates against Directus
  * and returns both the HMAC staff token and Directus tokens — do not call
@@ -357,45 +487,7 @@ export async function loginStaff(opts: {
   }
 
   // 3. Persist tokens respecting Remember Me security preferences:
-  // If rememberMe is true: persist to localStorage (persistent across browser restarts) & sessionStorage.
-  // If rememberMe is false (shared workstation): persist ONLY to sessionStorage and purge localStorage.
-  if (rememberMe) {
-    try {
-      localStorage.setItem(STAFF_AUTH_FLAG, 'true');
-      localStorage.setItem(STAFF_USER_KEY, email);
-      localStorage.setItem(STAFF_REMEMBER_KEY, 'true');
-      localStorage.setItem(STAFF_TOKEN_KEY, staffToken);
-      if (directusPayload) {
-        localStorage.setItem(DIRECTUS_AUTH_KEY, JSON.stringify(directusPayload));
-      }
-    } catch (e) {
-      console.warn('[StaffAuth] Failed to write to localStorage:', e);
-    }
-  } else {
-    try {
-      localStorage.removeItem(STAFF_AUTH_FLAG);
-      localStorage.removeItem(STAFF_TOKEN_KEY);
-      localStorage.removeItem(STAFF_REMEMBER_KEY);
-      localStorage.removeItem(STAFF_USER_KEY);
-      localStorage.removeItem(DIRECTUS_AUTH_KEY);
-    } catch {}
-  }
-
-  try {
-    sessionStorage.setItem(STAFF_AUTH_FLAG, 'true');
-    sessionStorage.setItem(STAFF_USER_KEY, email);
-    sessionStorage.setItem(STAFF_TOKEN_KEY, staffToken);
-    if (directusPayload) {
-      sessionStorage.setItem(DIRECTUS_AUTH_KEY, JSON.stringify(directusPayload));
-    }
-  } catch (e) {
-    console.warn('[StaffAuth] Failed to write to sessionStorage:', e);
-  }
-
-  // Update HTML class immediately for zero-flicker UI
-  if (typeof document !== 'undefined') {
-    document.documentElement.classList.add('staff-authenticated');
-  }
+  persistStaffSession(email, staffToken, directusPayload, rememberMe);
 }
 
 function resetLogoutButtons(): void {
@@ -458,6 +550,12 @@ export async function logoutStaff(redirectUrl: string = '/internal/'): Promise<v
 
   const passwordInput = document.getElementById('unified-password') as HTMLInputElement | null;
   if (passwordInput) passwordInput.value = '';
+
+  // In production SWA, clear the Microsoft Entra session cookie via /.auth/logout
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    window.location.replace(`/.auth/logout?post_logout_redirect_uri=${encodeURIComponent(redirectUrl)}`);
+    return;
+  }
 
   if (isStaffHubPath(window.location.pathname) && isStaffHubPath(redirectUrl.replace(/\?.*$/, ''))) {
     document.documentElement.classList.remove('staff-authenticated');

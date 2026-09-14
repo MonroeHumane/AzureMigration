@@ -1,6 +1,6 @@
-const SHELL_CACHE = 'hsmc-shell-cache-v10';
-const PET_DATA_CACHE = 'hsmc-pet-data-cache-v4';
-const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v4';
+const SHELL_CACHE = 'hsmc-shell-cache-v11';
+const PET_DATA_CACHE = 'hsmc-pet-data-cache-v5';
+const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v5';
 const KNOWN_CACHES = [SHELL_CACHE, PET_DATA_CACHE, PET_PHOTO_CACHE];
 
 const DIRECTUS_ORIGIN = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
@@ -157,11 +157,17 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) return cachedResponse;
-        return fetch(event.request).then((networkResponse) => {
-          cacheOpaquePut(PET_PHOTO_CACHE, event.request, networkResponse);
-          trimCache(PET_PHOTO_CACHE, PET_PHOTO_CACHE_MAX_ENTRIES);
-          return networkResponse;
-        });
+        return fetch(event.request)
+          .then((networkResponse) => {
+            cacheOpaquePut(PET_PHOTO_CACHE, event.request, networkResponse);
+            trimCache(PET_PHOTO_CACHE, PET_PHOTO_CACHE_MAX_ENTRIES);
+            return networkResponse;
+          })
+          .catch(async () => {
+            const placeholder = await caches.match('/placeholder.svg');
+            if (placeholder) return placeholder;
+            return fetch('/placeholder.svg');
+          });
       })
     );
     return;
@@ -188,17 +194,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets (images, CSS, JS, fonts) - Stale-while-revalidate
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
-        .then((networkResponse) => {
+  // Same-origin static assets only (images, CSS, JS, fonts)
+  // Cross-origin assets (Google Fonts, analytics, external sponsor logos) MUST NOT be intercepted
+  // so the browser fetches them natively without service worker connect-src restrictions or null Response errors.
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          fetch(event.request)
+            .then((networkResponse) => {
+              safeCachePut(SHELL_CACHE, event.request, networkResponse);
+            })
+            .catch(() => {});
+          return cachedResponse;
+        }
+
+        return fetch(event.request).then((networkResponse) => {
           safeCachePut(SHELL_CACHE, event.request, networkResponse);
           return networkResponse;
-        })
-        .catch(() => null);
-
-      return cachedResponse || fetchPromise;
-    })
-  );
+        });
+      })
+    );
+  }
 });

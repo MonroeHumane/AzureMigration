@@ -100,7 +100,43 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
         </div>
       </div>
 
-      <!-- Interactive Form -->
+      <!-- Primary: Microsoft Entra ID (Azure AD) Single Sign-On -->
+      <div class="mb-5 space-y-2.5">
+        <a
+          id="entra-signin-btn"
+          href="/.auth/login/aad?post_login_redirect_uri=/internal/"
+          class="w-full py-3.5 px-5 rounded-xl bg-[#0d2a26] hover:bg-[#123933] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3 border border-teal-700/80 cursor-pointer group select-none active:scale-[0.99]"
+        >
+          <!-- Microsoft 4-square logo -->
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+            <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+            <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+          </svg>
+          <span class="truncate">Sign in with Microsoft 365</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+        <p class="text-[11px] text-center text-slate-500 dark:text-teal-300/80">
+          Fast, 1-click Single Sign-On for <strong class="text-teal-800 dark:text-teal-200 font-semibold">@monroe-humane.org</strong>
+        </p>
+      </div>
+
+      <!-- Divider -->
+      <div class="relative my-5">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-slate-200 dark:border-teal-900/80"></div>
+        </div>
+        <div class="relative flex justify-center text-[11px] uppercase tracking-wider font-semibold">
+          <span class="bg-white dark:bg-[#071a17] px-3 text-slate-400 dark:text-slate-500 transition-colors">
+            or sign in with password
+          </span>
+        </div>
+      </div>
+
+      <!-- Interactive Form (Directus Credential Fallback) -->
       <form id="unified-login-form" class="space-y-4">
         <div>
           <label for="unified-email" class="auth-label block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -577,7 +613,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 </style>
 
 <script>
-  import { loginStaff, getStaffUserEmail, getRememberedStaffEmail, isStaffAuthenticated, staffClient } from '../../lib/staff-auth';
+  import { loginStaff, getStaffUserEmail, getRememberedStaffEmail, isStaffAuthenticated, syncEntraAuthSession, staffClient } from '../../lib/staff-auth';
   import { fetchStaffFinancials, firstMerchantsChecking, formatUsd, publishedLabel, refreshStaffFinancials, setStaffDataStatus } from '../../lib/staff-financials';
   import { fetchStaffPets } from '../../lib/staff-pets';
   import { initStaffThemeToggle } from '../../lib/staff-theme';
@@ -861,10 +897,14 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
     // Dynamic destination badge if redirected from a protected route
     const redirect = urlParams.get('redirect');
-    if (redirect && redirect.startsWith('/internal') && redirect !== '/internal/' && redirect !== '/internal') {
+    const entraBtn = document.getElementById('entra-signin-btn') as HTMLAnchorElement | null;
+    if (redirect && redirect.startsWith('/internal')) {
+      if (entraBtn) {
+        entraBtn.href = `/.auth/login/aad?post_login_redirect_uri=${encodeURIComponent(redirect)}`;
+      }
       const destEl = document.getElementById('login-redirect-dest');
       const noticeEl = document.getElementById('login-redirect-notice');
-      if (destEl && noticeEl) {
+      if (destEl && noticeEl && redirect !== '/internal/' && redirect !== '/internal') {
         let name = 'Protected Operations Console';
         if (redirect.includes('/board/print')) name = 'Board Financials Print Packet';
         else if (redirect.includes('/board')) name = 'Board Financials & Treasury';
@@ -955,7 +995,33 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       });
     }
 
-    // Load financials if already authenticated
+    // Check for Microsoft Entra ID session (Azure Static Web Apps)
+    void syncEntraAuthSession().then((result) => {
+      if (result.authenticated) {
+        document.documentElement.classList.add('staff-authenticated');
+        if (staffUserEmail && result.email) {
+          staffUserEmail.textContent = result.email;
+        }
+        const destRedirect = urlParams.get('redirect');
+        if (destRedirect && destRedirect.startsWith('/internal') && destRedirect !== '/internal/' && destRedirect !== '/internal') {
+          window.location.replace(destRedirect);
+          return;
+        }
+        loadFinancialMetrics();
+        void loadCensusSnapshot();
+        void loadGrantsSnapshot();
+      } else if (result.error) {
+        if (errorText) errorText.textContent = result.error;
+        if (errorAlert) {
+          errorAlert.classList.remove('hidden');
+          errorAlert.classList.remove('animate-shake');
+          void errorAlert.offsetWidth;
+          errorAlert.classList.add('animate-shake');
+        }
+      }
+    });
+
+    // Load financials if already authenticated locally
     if (isStaffAuthenticated()) {
       document.documentElement.classList.add('staff-authenticated');
       if (urlParams.has('reauth')) {

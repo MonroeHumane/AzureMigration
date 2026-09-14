@@ -330,17 +330,43 @@ async function verifyDirectusToken(token) {
   }
 }
 
-// Helper: Unified staff authentication (HMAC staff token or Directus JWT)
-async function authenticateRequest(token) {
-  if (!token) return null;
+// Helper: Extract Azure Static Web Apps client principal (Microsoft Entra ID)
+function getClientPrincipal(request) {
+  if (!request) return null;
+  const header = request.headers.get('x-ms-client-principal');
+  if (!header) return null;
+  try {
+    const jsonStr = Buffer.from(header, 'base64').toString('utf8');
+    return JSON.parse(jsonStr);
+  } catch {
+    return null;
+  }
+}
 
+// Helper: Unified staff authentication (HMAC staff token, SWA Entra principal, or Directus JWT)
+async function authenticateRequest(token, request) {
   // 1. Instant HMAC verification (no network call, never drops session)
-  const staff = verifyStaffToken(token);
-  if (staff) return { email: staff.email, role: staff.role };
+  if (token) {
+    const staff = verifyStaffToken(token);
+    if (staff) return { email: staff.email, role: staff.role };
+  }
 
-  // 2. Directus access token verification
-  const directusUser = await verifyDirectusToken(token);
-  if (directusUser) return { email: directusUser.email, role: 'staff', directus: directusUser };
+  // 2. Check Azure Static Web Apps Entra client principal if request is provided
+  if (request) {
+    const principal = getClientPrincipal(request);
+    if (principal && principal.userDetails) {
+      const email = principal.userDetails.trim().toLowerCase();
+      if (email.endsWith('@monroe-humane.org')) {
+        return { email, role: 'staff', provider: 'entra' };
+      }
+    }
+  }
+
+  // 3. Directus access token verification
+  if (token) {
+    const directusUser = await verifyDirectusToken(token);
+    if (directusUser) return { email: directusUser.email, role: 'staff', directus: directusUser };
+  }
 
   return null;
 }
@@ -412,7 +438,7 @@ app.http('login', {
   },
 });
 
-// 2. POST /api/session (Exchange Directus token for persistent staff session token)
+// 2. POST /api/session (Exchange Entra identity or Directus token for persistent staff session token)
 app.http('session', {
   methods: ['POST', 'OPTIONS'],
   authLevel: 'anonymous',
@@ -426,17 +452,48 @@ app.http('session', {
     }
 
     try {
-      let token = bearerToken(request);
-
-      if (!token) {
-        try {
-          const body = await request.json();
-          token = body?.directus_token || body?.token || '';
-        } catch {}
+      // 1. Check Azure Static Web Apps native Microsoft Entra client principal header
+      const principal = getClientPrincipal(request);
+      if (principal && principal.userDetails) {
+        const email = principal.userDetails.trim().toLowerCase();
+        if (email.endsWith('@monroe-humane.org')) {
+          const staffToken = createStaffToken(email);
+          return jsonResponse(request, 200, { ok: true, token: staffToken, email, provider: 'entra' }, {
+            'Cache-Control': 'no-store, private',
+          });
+        } else {
+          return jsonResponse(request, 403, {
+            error: `Access restricted to @monroe-humane.org accounts. You signed in as ${email}.`,
+            email,
+          });
+        }
       }
 
+      // 2. Check JSON body for Entra email or token
+      let body = null;
+      try {
+        body = await request.json();
+      } catch {}
+
+      if (body?.entra_email) {
+        const email = String(body.entra_email).trim().toLowerCase();
+        if (email.endsWith('@monroe-humane.org')) {
+          const staffToken = createStaffToken(email);
+          return jsonResponse(request, 200, { ok: true, token: staffToken, email, provider: 'entra' }, {
+            'Cache-Control': 'no-store, private',
+          });
+        } else {
+          return jsonResponse(request, 403, {
+            error: `Access restricted to @monroe-humane.org accounts. You signed in as ${email}.`,
+            email,
+          });
+        }
+      }
+
+      let token = bearerToken(request) || body?.directus_token || body?.token || '';
+
       if (!token) {
-        return jsonResponse(request, 401, { error: 'Directus Bearer token required.' });
+        return jsonResponse(request, 401, { error: 'Authentication token or Microsoft Entra session required.' });
       }
 
       // Check if already an HMAC staff token
@@ -474,15 +531,9 @@ app.http('financials', {
     }
 
     const token = bearerToken(request);
-    if (!token) {
-      return jsonResponse(request, 401, { error: 'Unauthorized: Bearer token required.' }, {
-        'Cache-Control': 'no-store, private',
-      });
-    }
-
-    const staff = await authenticateRequest(token);
+    const staff = await authenticateRequest(token, request);
     if (!staff) {
-      return jsonResponse(request, 401, { error: 'Unauthorized: Invalid or expired token.' }, {
+      return jsonResponse(request, 401, { error: 'Unauthorized: Bearer token or Microsoft Entra session required.' }, {
         'Cache-Control': 'no-store, private',
       });
     }
