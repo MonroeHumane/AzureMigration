@@ -32,6 +32,7 @@ function applyDashboard(data: any, token: string | null): void {
   }
   hydrateExpenseExplorer(data);
   hydrateCheckingTrend(data.checking_balance_history);
+  renderCashRunwayEChart(data.checking_balance_history);
   hydrateFooter(data.meta);
 }
 
@@ -238,6 +239,11 @@ function hydrateExpenseExplorer(data: any): void {
     const hydrate = (window as any).__hydrateExpenseExplorer;
     if (typeof hydrate === 'function') {
       hydrate(months);
+    }
+    
+    // Draw ECharts stacked bar for expenses
+    if (typeof (window as any).renderExpenseEChart === 'function' || true) {
+      renderExpenseEChart(months);
     }
     return;
   }
@@ -1298,23 +1304,16 @@ function hydrateBankStatement(stmt: any, token: string) {
     setEl('bank-stat-recon', formatCents(floatAbs));
     setEl('bank-stat-recon-sub', '');
     setEl('bank-stat-meta-note', `Account ${acct} · ${period}`);
-    setEl(
-      'bank-recon-explain',
-      `The books are ${formatCents(floatAbs)} behind the bank because of checks that have not cleared. QuickBooks shows $0.00 leftover after that.`
-    );
   } else {
     setEl('bank-recon-badge', 'Bank PDF');
     setEl('bank-stat-recon', 'See Latest');
     setEl('bank-stat-recon-sub', '');
-    setEl(
-      'bank-stat-meta-note',
-      `Account ${acct} · ${period}`
-    );
-    setEl(
-      'bank-recon-explain',
-      'This month is checking in and out from the bank PDF. Go to the latest certified month to see outstanding checks explained.'
-    );
+    setEl('bank-stat-meta-note', `Account ${acct} · ${period}`);
   }
+
+  // Draw the ECharts waterfall!
+  const hasEchartsFunction = typeof (window as any).renderBankWaterfallEChart === 'function' || true; // hoisted or just call it if available
+  renderBankWaterfallEChart(stmt.metadata?.statement_ending_balance, book, floatAmt, stmt.has_recon);
 
   updateBankMonthChrome(monthKey);
 
@@ -1826,4 +1825,256 @@ function hydrateFooter(meta: any) {
   if (footerChecksum) {
     footerChecksum.textContent = `Source Data Canonical Checksum: ${meta.sha256_checksum} · Accounting System: QuickBooks Online (Accrual)`;
   }
+}
+function renderCashRunwayEChart(history) {
+  if (!history || !Array.isArray(history) || history.length === 0) return;
+  const container = document.getElementById('echarts-runway-container');
+  if (!container) return;
+  
+  // Remove loading state
+  const loading = document.getElementById('echarts-runway-loading');
+  if (loading) loading.remove();
+
+  // Make sure echarts is loaded
+  if (typeof (window as any).echarts === 'undefined') {
+    console.error('ECharts not loaded');
+    return;
+  }
+
+  // Sort history chronologically
+  const sorted = [...history].sort((a, b) => a.date.localeCompare(b.date));
+  const dates = sorted.map(d => {
+    const [yyyy, mm] = d.date.split('-');
+    const mName = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mm, 10)-1];
+    return mName + ' ' + yyyy.substring(2);
+  });
+  const balances = sorted.map(d => d.balance);
+
+  const chart = (window as any).echarts.init(container);
+  
+  const option = {
+    grid: { top: 30, right: 20, bottom: 30, left: 60 },
+    tooltip: {
+      trigger: 'axis',
+      formatter: (params) => {
+        const val = params[0].value;
+        const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+        return <div style="font-weight:bold;font-size:12px;color:#173a39;">\</div>
+                <div style="color:#64748b;font-size:11px;">Balance: <strong style="color:#0f766e;">\</strong></div>;
+      }
+    },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: '#cbd5e1' } },
+      axisLabel: { color: '#64748b', fontSize: 10, margin: 12 },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } },
+      axisLabel: { 
+        color: '#64748b', fontSize: 10,
+        formatter: (value) => '$' + (value / 1000) + 'k'
+      }
+    },
+    series: [
+      {
+        data: balances,
+        type: 'line',
+        smooth: 0.3,
+        symbol: 'circle',
+        symbolSize: 6,
+        itemStyle: { color: '#0f766e', borderWidth: 2, borderColor: '#fff' },
+        lineStyle: { color: '#0f766e', width: 3 },
+        areaStyle: {
+          color: new (window as any).echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(15, 118, 110, 0.4)' },
+            { offset: 1, color: 'rgba(15, 118, 110, 0.0)' }
+          ])
+        },
+        markLine: {
+          symbol: 'none',
+          data: [{ yAxis: 50000, name: 'Min Reserve' }],
+          lineStyle: { color: '#f43f5e', type: 'dotted', width: 2 },
+          label: { show: true, position: 'insideEndTop', formatter: 'Reserve', color: '#f43f5e', fontSize: 10 }
+        }
+      }
+    ]
+  };
+  
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+}
+function renderBankWaterfallEChart(bankBal, bookBal, floatAmt, hasRecon) {
+  const container = document.getElementById('echarts-waterfall-container');
+  if (!container) return;
+  
+  const loading = document.getElementById('echarts-waterfall-loading');
+  if (loading) loading.style.display = 'none';
+
+  if (!hasRecon) {
+    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:12px;">Go to the latest certified month to see the reconciliation waterfall.</div>';
+    return;
+  }
+  container.innerHTML = ''; // clear message
+
+  if (typeof (window as any).echarts === 'undefined') return;
+
+  const chart = (window as any).echarts.init(container);
+  
+  const floatAbs = Math.abs(Number(floatAmt) || 0);
+  const bank = Number(bankBal) || 0;
+  const book = Number(bookBal) || 0;
+
+  const option = {
+    grid: { top: 20, right: 20, bottom: 20, left: 20, containLabel: true },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        let tar = params[1];
+        if (!tar || tar.value === '-') tar = params[0];
+        const val = tar.value;
+        const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+        return \<br/><strong style="color:\">\</strong>;
+      }
+    },
+    xAxis: {
+      type: 'category',
+      data: ['Bank Balance', 'Outstanding Checks', 'Book Balance'],
+      splitLine: { show: false },
+      axisLabel: { color: '#475569', fontSize: 11, fontWeight: 'bold' },
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: '#cbd5e1' } }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { formatter: (val) => '$' + (val / 1000) + 'k', color: '#64748b', fontSize: 10 },
+      splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } }
+    },
+    series: [
+      {
+        name: 'Placeholder',
+        type: 'bar',
+        stack: 'Total',
+        itemStyle: { borderColor: 'transparent', color: 'transparent' },
+        emphasis: { itemStyle: { borderColor: 'transparent', color: 'transparent' } },
+        data: [0, book, 0]
+      },
+      {
+        name: 'Amount',
+        type: 'bar',
+        stack: 'Total',
+        label: {
+          show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 10,
+          formatter: (p) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(p.value)
+        },
+        data: [
+          { value: bank, itemStyle: { color: '#0f766e' } }, // Teal
+          { value: floatAbs, itemStyle: { color: '#f59e0b' } }, // Amber
+          { value: book, itemStyle: { color: '#059669' } } // Emerald
+        ]
+      }
+    ]
+  };
+  
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+}
+function renderExpenseEChart(monthsData) {
+  const container = document.getElementById('echarts-expense-container');
+  if (!container) return;
+
+  if (typeof (window as any).echarts === 'undefined') return;
+
+  // Filter for actual months (e.g. 2026-01, 2026-02), exclude 'all_2026'
+  const monthlyKeys = Object.keys(monthsData).filter(k => k.match(/^\d{4}-\d{2}$/)).sort();
+  if (monthlyKeys.length === 0) return;
+
+  container.classList.remove('hidden');
+
+  const chart = (window as any).echarts.init(container);
+  
+  // Group categories into high level buckets: Payroll, Operations, Medical, Capital
+  const seriesData = {
+    'Payroll': [],
+    'Operations': [],
+    'Medical': [],
+    'Capital': []
+  };
+
+  const dates = [];
+
+  for (const k of monthlyKeys) {
+    const month = monthsData[k];
+    const exp = month.expenseCategories || [];
+    
+    let payroll = 0, ops = 0, med = 0, cap = 0;
+    
+    for (const cat of exp) {
+      const g = (cat.group || '').toLowerCase();
+      if (g.includes('payroll')) payroll += Number(cat.total) || 0;
+      else if (g.includes('medical') || g.includes('vet')) med += Number(cat.total) || 0;
+      else if (g.includes('capital')) cap += Number(cat.total) || 0;
+      else ops += Number(cat.total) || 0;
+    }
+
+    dates.push(month.monthName || k);
+    seriesData['Payroll'].push(payroll);
+    seriesData['Medical'].push(med);
+    seriesData['Capital'].push(cap);
+    seriesData['Operations'].push(ops);
+  }
+
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        let total = 0;
+        let s = <strong>\</strong><br/>;
+        params.forEach(p => {
+          if (p.value > 0) {
+            s += \ \: $\<br/>;
+            total += p.value;
+          }
+        });
+        s += <strong>Total: $\</strong>;
+        return s;
+      }
+    },
+    legend: {
+      data: ['Payroll', 'Medical', 'Operations', 'Capital'],
+      bottom: 0,
+      icon: 'circle',
+      textStyle: { fontSize: 11, color: '#64748b' }
+    },
+    grid: { top: 20, right: 20, bottom: 40, left: 50 },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      axisLine: { lineStyle: { color: '#cbd5e1' } },
+      axisLabel: { color: '#64748b', fontSize: 10 },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } },
+      axisLabel: { 
+        color: '#64748b', fontSize: 10,
+        formatter: (val) => '$' + (val / 1000) + 'k'
+      }
+    },
+    series: [
+      { name: 'Payroll', type: 'bar', stack: 'total', itemStyle: { color: '#f59e0b' }, data: seriesData['Payroll'] },
+      { name: 'Medical', type: 'bar', stack: 'total', itemStyle: { color: '#14b8a6' }, data: seriesData['Medical'] },
+      { name: 'Operations', type: 'bar', stack: 'total', itemStyle: { color: '#64748b' }, data: seriesData['Operations'] },
+      { name: 'Capital', type: 'bar', stack: 'total', itemStyle: { color: '#10b981' }, data: seriesData['Capital'] }
+    ]
+  };
+
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
 }

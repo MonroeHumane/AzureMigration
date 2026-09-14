@@ -305,19 +305,17 @@ function cc(color: string): ColorSet {
       <div>
         <div class="flex items-center gap-2 mb-1">
           <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-200">
-            From the books
+            P&L Detail
           </span>
-          <span class="text-[11px] text-slate-400 font-medium" id="ee-period-subtitle">
-            From the books, not the bank.
-          </span>
+          <span class="text-[11px] text-slate-400 font-medium" id="ee-period-subtitle"></span>
         </div>
         <h2 class="text-xl font-bold text-slate-800 tracking-tight" id="ee-title">
           Where the money went
         </h2>
-        <p class="text-xs text-slate-500 mt-0.5" id="ee-desc">
-          From the books, not the bank.
-        </p>
       </div>
+    </div>
+    
+    <div id="echarts-expense-container" class="w-full h-72 mt-4 hidden"></div>
 
       <!-- Net Monthly Variance Callout -->
       <div class="flex items-center gap-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200 shrink-0" id="ee-variance-card">
