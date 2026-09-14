@@ -23,7 +23,7 @@ import {
 function applyDashboard(data: any, token: string | null): void {
   if (!data) return;
   hydrateExecutiveBanner(data.meta);
-  hydrateHeadlineKpis(data.headline_kpis);
+  hydrateHeadlineKpis(data.headline_kpis, data.meta);
   hydrateOperatingBridge(data.headline_kpis, data.bridge_composition);
   hydrateMonthlyStatements(data.monthly_statements, data.monthly_drilldown?.months);
   hydratePositionAndCash(data.statement_of_position);
@@ -279,7 +279,7 @@ function hydrateExecutiveBanner(meta: any) {
   }
 }
 
-function hydrateHeadlineKpis(kpis: any) {
+function hydrateHeadlineKpis(kpis: any, meta: any) {
   if (!kpis) return;
 
   const allInNet = document.getElementById('kpi-all-in-net');
@@ -338,7 +338,12 @@ function hydrateHeadlineKpis(kpis: any) {
 
   const cashRunway = document.getElementById('kpi-cash-runway');
   if (cashRunway) {
-    cashRunway.textContent = 'Balance at ' + (meta?.cutoff_date || 'August 31') + '.';
+    const raw = String(meta?.cutoff_date || '');
+    const d = raw ? new Date(`${raw.slice(0, 10)}T00:00:00`) : null;
+    const formatted = d && !Number.isNaN(d.getTime()) 
+      ? d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) 
+      : (raw || 'recently');
+    cashRunway.textContent = 'Balance at ' + formatted + '.';
   }
 
   const opCash = document.getElementById('kpi-operating-cash');
@@ -1469,8 +1474,8 @@ function hydrateBankStatement(stmt: any, token: string) {
     dailyTbody.innerHTML = `
       <tr>
         <td colspan="5" class="py-8 text-center text-slate-500 text-xs">
-          Daily balances, uncleared float, and QBO recon are certified for August 2026 only.
-          Select Aug 2026 for the float schedule (bank ${formatCents(24526.34)} vs book ${formatCents(23469.20)}).
+          Daily balances and QBO reconciliation are only available for the latest certified statement month.
+          Select the most recent month in the Bank Statement viewer to see the float schedule.
         </td>
       </tr>
     `;

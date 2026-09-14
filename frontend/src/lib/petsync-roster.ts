@@ -44,9 +44,24 @@ export function applyRosterCounts(data: {
   setText('pets-page-active-count', String(data.activeCount));
 
   const syncEl = document.getElementById('petsync-last-sync');
+  const badgeEl = document.getElementById('petsync-live-badge');
   if (syncEl) {
     syncEl.textContent = formatSyncLabel(data.lastSyncTimestamp);
     if (data.lastSyncTimestamp) syncEl.setAttribute('title', data.lastSyncTimestamp);
+  }
+
+  if (badgeEl && data.lastSyncTimestamp) {
+    const lastSync = new Date(data.lastSyncTimestamp).getTime();
+    const hoursSinceSync = (Date.now() - lastSync) / (1000 * 60 * 60);
+    
+    if (hoursSinceSync > 24) {
+      badgeEl.textContent = 'STALE';
+      badgeEl.className = 'inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200 mt-1';
+      badgeEl.setAttribute('title', 'Last sync was over 24 hours ago. Petango might be down.');
+    } else {
+      badgeEl.textContent = 'LIVE';
+      badgeEl.className = 'inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 mt-1';
+    }
   }
 
   const pets = data.pets || [];
@@ -70,6 +85,16 @@ export function applyRosterCounts(data: {
   if (detail) detail.textContent = `Dogs ${avg(dogs)}d · cats ${avg(cats)}d`;
   setText('petsync-longstay-count', String(longStay.length));
   setText('species-count-longstay', String(longStay.length));
+
+  // Hydrate the new dynamic spans
+  setText('petsync-total-served', String(data.totalCount));
+  setText('petsync-ytd-adoptions', `${data.archivedCount} adopted`);
+  
+  // Calculate a dynamic daily care cost estimate based on current active census
+  // e.g. $22/day for dogs, $14/day for cats, $10/day for others
+  const othersCount = active.length - dogs.length - cats.length;
+  const dailyCost = (dogs.length * 22) + (cats.length * 14) + (othersCount * 10);
+  setText('petsync-daily-care-cost', `$${dailyCost.toLocaleString()}`);
 }
 
 export function inflatePetRows(

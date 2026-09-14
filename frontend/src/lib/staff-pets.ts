@@ -4,6 +4,7 @@ export type StaffPetsOk = {
   ok: true;
   data: {
     lastSyncTimestamp: string | null;
+    syncError?: string | null;
     activeCount: number;
     archivedCount: number;
     totalCount: number;

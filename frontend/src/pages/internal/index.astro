@@ -577,11 +577,12 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 </style>
 
 <script>
-  import { loginStaff, getStaffUserEmail, getRememberedStaffEmail, isStaffAuthenticated, staffClient } from '../../lib/staff-auth';
+  import { loginStaff, getStaffUserEmail, getRememberedStaffEmail, isStaffAuthenticated, staffClient, initIdleTimeout } from '../../lib/staff-auth';
   import { fetchStaffFinancials, firstMerchantsChecking, formatUsd, publishedLabel, refreshStaffFinancials, setStaffDataStatus } from '../../lib/staff-financials';
   import { fetchStaffPets } from '../../lib/staff-pets';
   import { initStaffThemeToggle } from '../../lib/staff-theme';
   import { readItems } from '@directus/sdk';
+
 
   function applyDonorUnavailable() {
     const volumeEls = ['metric-donor-volume', 'card-donor-volume'];
@@ -661,7 +662,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
     const auditEl = document.getElementById('metric-audit-diff');
     if (auditEl) {
-      auditEl.textContent = checking != null ? ('Balance at ' + (data.meta?.cutoff_date || 'August 31') + '.') : '';
+      auditEl.textContent = checking != null ? ('Balance at ' + (data.meta?.cutoff_date || 'period end') + '.') : '';
     }
 
     const finPill = document.getElementById('hub-status-financials');
@@ -1006,6 +1007,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     // Check URL parameters for backward compatibility with ?tab=petsync
     if (urlParams.get('reauth') === '1' && !isStaffAuthenticated() && errorAlert && errorText) {
       errorText.textContent = 'Your staff session expired. Sign in again to load financials and the donor registry.';
+      errorAlert.classList.remove('hidden');
+    }
+    if (urlParams.get('reauth') === 'idle' && !isStaffAuthenticated() && errorAlert && errorText) {
+      errorText.textContent = 'You were signed out automatically after 15 minutes of inactivity. Sign in again to continue.';
       errorAlert.classList.remove('hidden');
     }
     if (urlParams.get('tab') === 'petsync' || window.location.hash === '#section-petsync') {

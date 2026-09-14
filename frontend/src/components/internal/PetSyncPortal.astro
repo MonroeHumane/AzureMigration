@@ -7,6 +7,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
     <div class="bg-white rounded-xl border border-slate-200 p-3">
       <div class="text-xs text-slate-500">Active</div>
       <div id="petsync-active-count-badge" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+      <div id="petsync-active-breakdown" class="text-xs text-slate-500 mt-0.5">-- dogs, -- cats</div>
     </div>
     <div class="bg-white rounded-xl border border-slate-200 p-3">
       <div class="text-xs text-slate-500">Archived</div>
@@ -17,11 +18,14 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
       <div id="petsync-total-count-badge" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
     </div>
     <div class="bg-white rounded-xl border border-slate-200 p-3">
-      <div class="text-xs text-slate-500">Last sync</div>
-      <div id="petsync-last-sync" class="mt-1 text-sm text-slate-900 truncate" title="">
+      <div class="flex items-center justify-between">
+        <div class="text-xs text-slate-500">Last sync</div>
+        <span id="petsync-live-badge" class="hidden"></span>
+      </div>
+      <div id="petsync-last-sync" class="mt-1 font-mono font-bold text-lg text-slate-900 truncate" title="">
         --
       </div>
-      <span id="petsync-live-badge" class="hidden">RUNNING</span>
+      <div id="petsync-sync-error" class="hidden text-xs text-rose-600 mt-1 font-medium leading-tight"></div>
     </div>
   </div>
 

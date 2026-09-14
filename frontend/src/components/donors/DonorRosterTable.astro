@@ -899,9 +899,9 @@ const { donors = [] } = Astro.props;
       `"${(d.email || '').replace(/"/g, '""')}"`,
       `"${(d.phone || '').replace(/"/g, '""')}"`,
       `"${formatDisplayAddress(d.address).replace(/"/g, '""')}"`,
-      d.lifetimeTotal.toFixed(2),
-      d.transactionsCount,
-      `"${d.givingTier}"`,
+      (d.lifetimeTotal || 0).toFixed(2),
+      d.transactionsCount || 0,
+      `"${d.givingTier || ''}"`,
       `"${(d.platformsList || []).join('; ')}"`,
       d.firstGiftDate || '',
       d.latestGiftDate || '',
@@ -932,8 +932,8 @@ const { donors = [] } = Astro.props;
         ['Mailing Address', `"${formatDisplayAddress(donor.address).replace(/"/g, '""')}"`],
         ['Lifetime Total', (donor.lifetimeTotal || 0).toFixed(2)],
         ['Itemized Total', (typeof donor.itemizedTotal === 'number' ? donor.itemizedTotal : (donor.gifts || []).reduce((s, g) => s + (g.amount || 0), 0)).toFixed(2)],
-        ['Giving Tier', donor.givingTier],
-        ['Total Gifts', donor.transactionsCount],
+        ['Giving Tier', donor.givingTier || ''],
+        ['Total Gifts', donor.transactionsCount || 0],
         [],
         ['Date', 'How', 'For', 'Amount', 'Note', 'Check']
       ];

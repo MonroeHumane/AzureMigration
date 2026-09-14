@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const reportData = require('../data/published_2026_ytd.json');
-const statementData = require('../data/statement_2026_08.json');
+let reportData = loadJsonOptional('../data/published_2026_ytd.json') || {};
+let statementData = loadJsonOptional('../data/statement_2026_08.json') || {};
 
 /**
  * Loads an optional local data file without ever taking down the whole
@@ -59,19 +59,19 @@ async function getDonorDatabase() {
   }
 }
 
-const checkingBalanceHistory = loadJsonOptional('../data/checking_balance_2024_2026.json');
-const monthlyDrilldown2026 = loadJsonOptional('../data/monthly_drilldown_2026.json');
-const bankInOutData = loadJsonOptional('../data/bank_in_out_2026.json');
-const bankInOut2024 = loadJsonOptional('../data/bank_in_out_2024.json');
-const bankInOut2025 = loadJsonOptional('../data/bank_in_out_2025.json');
+let checkingBalanceHistory = loadJsonOptional('../data/checking_balance_2024_2026.json');
+let monthlyDrilldown2026 = loadJsonOptional('../data/monthly_drilldown_2026.json');
+let bankInOutData = loadJsonOptional('../data/bank_in_out_2026.json');
+let bankInOut2024 = loadJsonOptional('../data/bank_in_out_2024.json');
+let bankInOut2025 = loadJsonOptional('../data/bank_in_out_2025.json');
 
 // 2024 and 2025 transaction-level drilldown -- optional add-ons alongside the
 // always-present 2026 file/report data. Missing files degrade gracefully to
 // 2026-only, same as every other optional load in this file.
-const published2024 = loadJsonOptional('../data/published_2024_ytd.json');
-const monthlyDrilldown2024 = loadJsonOptional('../data/monthly_drilldown_2024.json');
-const published2025 = loadJsonOptional('../data/published_2025_ytd.json');
-const monthlyDrilldown2025 = loadJsonOptional('../data/monthly_drilldown_2025.json');
+let published2024 = loadJsonOptional('../data/published_2024_ytd.json');
+let monthlyDrilldown2024 = loadJsonOptional('../data/monthly_drilldown_2024.json');
+let published2025 = loadJsonOptional('../data/published_2025_ytd.json');
+let monthlyDrilldown2025 = loadJsonOptional('../data/monthly_drilldown_2025.json');
 
 /**
  * Merges monthly_statements arrays and monthly_drilldown.months objects
@@ -84,6 +84,38 @@ const monthlyDrilldown2025 = loadJsonOptional('../data/monthly_drilldown_2025.js
  * (summed totals, not just concatenated arrays) -- easier to keep that one
  * real implementation than have two.
  */
+const FINANCIAL_DATA_BLOB_URL = (process.env.FINANCIAL_DATA_BLOB_URL || '').trim();
+let financialDataCache = { bundle: null, fetchedAt: 0 };
+async function getFinancialDataBundle() {
+  if (!FINANCIAL_DATA_BLOB_URL) return null;
+  if (financialDataCache.bundle && Date.now() - financialDataCache.fetchedAt < DONOR_DATA_CACHE_TTL_MS) {
+    return financialDataCache.bundle;
+  }
+  try {
+    const res = await fetch(FINANCIAL_DATA_BLOB_URL);
+    if (!res.ok) throw new Error(\lob storage returned \\);
+    const json = await res.json();
+    financialDataCache = { bundle: json, fetchedAt: Date.now() };
+    
+    reportData = json['published_2026_ytd.json'] || reportData;
+    statementData = json['statement_2026_08.json'] || statementData;
+    monthlyDrilldown2026 = json['monthly_drilldown_2026.json'] || monthlyDrilldown2026;
+    checkingBalanceHistory = json['checking_balance_2024_2026.json'] || checkingBalanceHistory;
+    bankInOutData = json['bank_in_out_2026.json'] || bankInOutData;
+    bankInOut2025 = json['bank_in_out_2025.json'] || bankInOut2025;
+    bankInOut2024 = json['bank_in_out_2024.json'] || bankInOut2024;
+    published2025 = json['published_2025_ytd.json'] || published2025;
+    monthlyDrilldown2025 = json['monthly_drilldown_2025.json'] || monthlyDrilldown2025;
+    published2024 = json['published_2024_ytd.json'] || published2024;
+    monthlyDrilldown2024 = json['monthly_drilldown_2024.json'] || monthlyDrilldown2024;
+
+    return json;
+  } catch (err) {
+    console.error('[FinancialData] Failed to refresh from blob storage:', err && err.message);
+    return null;
+  }
+}
+
 function mergeMultiYearFinancials() {
   const yearData = [
     { year: 2026, statements: reportData.monthly_statements || [], drilldown: monthlyDrilldown2026 },
@@ -455,6 +487,7 @@ app.http('financials', {
       });
     }
 
+    await getFinancialDataBundle();
     let payload;
     try {
       payload = {
@@ -726,18 +759,28 @@ app.http('staffPets', {
     }
 
     try {
-      const result = await directusJson(
-        '/items/pets?limit=-1&sort=-last_seen_at',
-        { method: 'GET', signal: AbortSignal.timeout(15000) },
-        serviceToken
-      );
-      if (!result.ok || !result.json || !Array.isArray(result.json.data)) {
-        return jsonResponse(request, result.status || 502, {
-          error: 'Could not load shelter census.',
-        }, { 'Cache-Control': 'no-store, private' });
+      const allPets = [];
+      let page = 0;
+      const PAGE_SIZE = 500;
+
+      while (true) {
+        const result = await directusJson(
+          `/items/pets?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}&sort=-last_seen_at`,
+          { method: 'GET', signal: AbortSignal.timeout(15000) },
+          serviceToken
+        );
+        if (!result.ok || !result.json || !Array.isArray(result.json.data)) {
+          return jsonResponse(request, result.status || 502, {
+            error: 'Could not load shelter census.',
+          }, { 'Cache-Control': 'no-store, private' });
+        }
+
+        allPets.push(...result.json.data);
+        if (result.json.data.length < PAGE_SIZE) break;
+        page++;
       }
 
-      const pets = result.json.data.map((p) => ({
+      const pets = allPets.map((p) => ({
         id: p.id,
         name: p.name,
         type: p.type,
@@ -1594,6 +1637,7 @@ app.http('health', {
       return corsPreflight(request, 'GET, OPTIONS');
     }
 
+    await getFinancialDataBundle();
     let directusReachable = false;
     try {
       const pingController = new AbortController();

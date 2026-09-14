@@ -239,6 +239,25 @@ export async function loginStaff(opts: {
   password: string;
   rememberMe?: boolean;
 }): Promise<void> {
+  // Frontend Rate Limiting for Login
+  const LOCKOUT_KEY = 'mchs_login_lockout';
+  const ATTEMPTS_KEY = 'mchs_login_attempts';
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_DURATION_MS = 5 * 60 * 1000;
+
+  try {
+    const lockoutUntil = parseInt(localStorage.getItem(LOCKOUT_KEY) || '0', 10);
+    if (lockoutUntil > Date.now()) {
+      const minLeft = Math.ceil((lockoutUntil - Date.now()) / 60000);
+      throw new Error(`Too many failed attempts. Please try again in ${minLeft} minute(s).`);
+    } else if (lockoutUntil !== 0) {
+      localStorage.removeItem(LOCKOUT_KEY);
+      localStorage.removeItem(ATTEMPTS_KEY);
+    }
+  } catch (e: any) {
+    if (e.message.includes('Too many failed')) throw e;
+  }
+
   const { password, rememberMe = true } = opts;
   const email = (opts.email || '').trim().toLowerCase();
 
@@ -257,15 +276,36 @@ export async function loginStaff(opts: {
       if (data && data.token) {
         staffToken = data.token;
         directusPayload = data.directus ? normalizeDirectusAuth(data.directus) : null;
+        localStorage.removeItem(ATTEMPTS_KEY);
+        localStorage.removeItem(LOCKOUT_KEY);
       }
     } else if (res.status === 401) {
       throw new Error('Invalid email or password. Please verify your credentials.');
+    } else if (res.status === 429) {
+      throw new Error('Too many login attempts. Please wait a moment and try again.');
     }
   } catch (err: any) {
+    if (err.message && err.message.includes('Too many failed')) {
+      throw err;
+    }
+    
+    // Increment failed attempts on 401 or generic failure
+    try {
+      let attempts = parseInt(localStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
+      localStorage.setItem(ATTEMPTS_KEY, attempts.toString());
+      if (attempts >= MAX_ATTEMPTS) {
+        localStorage.setItem(LOCKOUT_KEY, (Date.now() + LOCKOUT_DURATION_MS).toString());
+        throw new Error(`Too many failed attempts. Please try again in 5 minutes.`);
+      }
+    } catch {}
+
     if (err.name === 'AbortError') {
       throw new Error('Authentication request timed out. Please check your network connection and try again.');
     }
     if (err.message && err.message.includes('Invalid email or password')) {
+      throw err;
+    }
+    if (err.message && err.message.includes('Too many login attempts')) {
       throw err;
     }
     console.warn('[StaffAuth] /api/login call failed, falling back to Directus SDK:', err);
@@ -289,9 +329,20 @@ export async function loginStaff(opts: {
         try {
           const stored = getAuthStorage().get();
           if (stored) directusPayload = stored;
+          localStorage.removeItem(ATTEMPTS_KEY);
+          localStorage.removeItem(LOCKOUT_KEY);
         } catch {}
       }
     } catch (sdkErr: any) {
+      try {
+        let attempts = parseInt(localStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
+        localStorage.setItem(ATTEMPTS_KEY, attempts.toString());
+        if (attempts >= MAX_ATTEMPTS) {
+          localStorage.setItem(LOCKOUT_KEY, (Date.now() + LOCKOUT_DURATION_MS).toString());
+          throw new Error(`Too many failed attempts. Please try again in 5 minutes.`);
+        }
+      } catch {}
+
       if (sdkErr?.name === 'AbortError') {
         throw new Error('Authentication request timed out. Please check your network connection and try again.');
       }
@@ -445,4 +496,32 @@ export async function getStaffToken(): Promise<string | null> {
   } catch {}
 
   return null;
+}
+
+/**
+ * Idle Session Timeout
+ * Logs out staff automatically after 15 minutes of inactivity.
+ */
+export function initIdleTimeout(timeoutMinutes = 15): void {
+  if (typeof window === 'undefined') return;
+
+  const IDLE_TIMEOUT_MS = timeoutMinutes * 60 * 1000;
+  let idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function resetIdleTimer() {
+    if (idleTimer) clearTimeout(idleTimer);
+    if (!isStaffAuthenticated()) return;
+    
+    idleTimer = setTimeout(() => {
+      console.warn(`[StaffAuth] Idle timeout reached (${timeoutMinutes}m). Signing out.`);
+      logoutStaff('/internal/?reauth=idle');
+    }, IDLE_TIMEOUT_MS);
+  }
+
+  // Monitor basic interaction events
+  const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+  events.forEach(evt => document.addEventListener(evt, resetIdleTimer, { passive: true }));
+  
+  // Call once to initialize
+  resetIdleTimer();
 }

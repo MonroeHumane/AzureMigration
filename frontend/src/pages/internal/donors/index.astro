@@ -262,6 +262,11 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
         const buttons = row.querySelectorAll('button');
         buttons.forEach((b) => (b as HTMLButtonElement).disabled = true);
         const status = row.querySelector('.dup-status');
+        
+        if (status) {
+          status.textContent = 'Saving...';
+          status.classList.remove('hidden');
+        }
 
         const ok = await postMergeDecision(row.dataset.aId!, row.dataset.bId!, isMerge ? 'merge' : 'not_duplicate');
         if (ok) {
