@@ -221,7 +221,7 @@
       </div>
       <h1>Humane Society of Monroe County</h1>
       <div id="print-period-title" style="font-size:10.5px; font-weight:600; color:#334155;">
-        2026 board finances
+        Board finances
       </div>
     </div>
     <div style="text-align:right;">
@@ -592,7 +592,7 @@
 
         if (data.meta) {
           const cutoff = data.meta.cutoff_date || 'Closed';
-          const periodTitle = data.meta.period_title || '2026 board finances';
+          const periodTitle = data.meta.period_title || 'Board finances';
           setEl('print-period-title', `${periodTitle} · ${cutoff}`);
           setEl('print-cutoff-date', cutoff);
           setEl('print-publisher', `Prepared By: ${data.meta.published_by}`);

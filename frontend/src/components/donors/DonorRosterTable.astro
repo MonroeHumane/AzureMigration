@@ -168,9 +168,9 @@ const { donors = [] } = Astro.props;
           class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
         >
           <option value="all">Any year</option>
-          <option value="2026">Gave in 2026</option>
-          <option value="2025">Gave in 2025 (lapsed)</option>
-          <option value="earlier">Before 2025 (long-lapsed)</option>
+          <option value="this-year">Gave this year</option>
+          <option value="last-year">Gave last year (lapsed)</option>
+          <option value="earlier">Before last year (long-lapsed)</option>
         </select>
       </div>
 
@@ -553,9 +553,11 @@ const { donors = [] } = Astro.props;
       // Recency
       if (rec !== 'all') {
         const yr = (d.latestGiftDate || '').substring(0, 4);
-        if (rec === '2026' && yr !== '2026') return false;
-        if (rec === '2025' && yr !== '2025') return false;
-        if (rec === 'earlier' && (yr === '2026' || yr === '2025')) return false;
+        const currentYear = String(new Date().getFullYear());
+        const lastYear = String(new Date().getFullYear() - 1);
+        if (rec === 'this-year' && yr !== currentYear) return false;
+        if (rec === 'last-year' && yr !== lastYear) return false;
+        if (rec === 'earlier' && (yr === currentYear || yr === lastYear)) return false;
       }
 
       return true;
@@ -637,9 +639,10 @@ const { donors = [] } = Astro.props;
         ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-teal-50 text-teal-800 border border-teal-200" title="Gifts spread across 3+ months -- a sustained supporter, not a one-time gift">Recurring</span>`
         : '';
 
-      const isLapsed = !donor.isAggregate && donor.latestGiftDate && !donor.latestGiftDate.startsWith('2026');
+      const currentYear = String(new Date().getFullYear());
+      const isLapsed = !donor.isAggregate && donor.latestGiftDate && !donor.latestGiftDate.startsWith(currentYear);
       const lapsedBadge = isLapsed
-        ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-800 border border-orange-200" title="No gift yet in 2026 -- worth a re-engagement outreach">Lapsed</span>`
+        ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-800 border border-orange-200" title="No gift yet this year -- worth a re-engagement outreach">Lapsed</span>`
         : '';
 
       // Main Row

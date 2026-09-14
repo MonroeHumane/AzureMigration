@@ -32,7 +32,7 @@ export function firstMerchantsChecking(data: any): number | null {
 export function publishedLabel(data: any): string {
   const meta = data?.meta;
   if (!meta?.period_title && !meta?.cutoff_date) return 'Board packet';
-  const period = meta.period_title || '2026 YTD';
+  const period = meta.period_title || 'Year-To-Date';
   const cut = meta.cutoff_date ? ` · closed ${meta.cutoff_date}` : '';
   return `${period}${cut}`;
 }
