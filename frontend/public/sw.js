@@ -1,6 +1,6 @@
-const SHELL_CACHE = 'hsmc-shell-cache-v11';
-const PET_DATA_CACHE = 'hsmc-pet-data-cache-v5';
-const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v5';
+const SHELL_CACHE = 'hsmc-shell-cache-v12';
+const PET_DATA_CACHE = 'hsmc-pet-data-cache-v6';
+const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v6';
 const KNOWN_CACHES = [SHELL_CACHE, PET_DATA_CACHE, PET_PHOTO_CACHE];
 
 const DIRECTUS_ORIGIN = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
@@ -164,9 +164,13 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           })
           .catch(async () => {
-            const placeholder = await caches.match('/placeholder.svg');
-            if (placeholder) return placeholder;
-            return fetch('/placeholder.svg');
+            try {
+              const placeholder = await caches.match('/placeholder.svg');
+              if (placeholder) return placeholder;
+              return await fetch('/placeholder.svg');
+            } catch {
+              return new Response('', { status: 204, headers: { 'Content-Type': 'image/svg+xml' } });
+            }
           });
       })
     );

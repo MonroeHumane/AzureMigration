@@ -13,10 +13,8 @@ interface GameItem {
   leaderboardId?: string;
   needsDex: boolean;
   perks: string[];
-  gradientBg: string;
-  glowBorder: string;
-  accentText: string;
-  cover: string;
+  coverPng: string;
+  coverWebp: string;
 }
 
 
@@ -28,118 +26,107 @@ const LEGACY_GAMES: { title: string; href: string; note: string }[] = [
   { title: 'Shelter Run Classic', href: '/games/shelter-run-temple/index.html', note: 'Original Phaser build' },
 ];
 
-const GAMES: GameItem[] = [
+const ARCADE_GAMES: GameItem[] = [
   {
     id: 'booster',
     title: 'Pet Booster Packs',
-    badge: '✨ Collectible Cards',
-    desc: 'Rip open shiny foil packs to collect adorable cards of real shelter pets! Find rare holographic cards and build your ultimate pet album.',
+    badge: 'Card Packs',
+    desc: 'Rip open shiny foil packs to collect cards of real shelter pets! Discover rare holographic pulls.',
     action: 'Open Booster Packs',
     icon: '✨',
     url: '/games/booster/index.html?embed=1',
     needsDex: true,
-    perks: ['🧩 Match & Win Packs', '🐾🐾✨ Holographic Rares'],
-    gradientBg: 'from-amber-500 via-orange-500 to-rose-600',
-    glowBorder: 'hover:border-amber-400/80 hover:shadow-[0_12px_40px_-8px_rgba(245,158,11,0.45)]',
-    accentText: 'text-amber-300',
-    cover: '/assets/game-covers/cover-booster.png'
+    perks: ['🧩 Match & Win Packs', '✨ Holographic Rares'],
+    coverPng: '/assets/game-covers/cover-booster.png',
+    coverWebp: '/assets/game-covers/cover-booster.webp'
   },
   {
     id: 'match',
     title: 'Pet Match Memory',
-    badge: '🧩 Match & Earn Packs',
-    desc: 'Flip cards to find pairs of adoptable dogs and cats! Match companions and beat levels to earn free Pet Booster Packs.',
+    badge: 'Memory Match',
+    desc: 'Flip cards to find matching pairs of adoptable dogs and cats! Beat levels to earn free booster packs.',
     action: 'Play Pet Match',
     icon: '🧩',
     url: '/games/match/match.html?embed=1',
     leaderboardId: 'match',
     needsDex: true,
     perks: ['🎁 Free Pack on Milestones', '🐾 Real Shelter Profiles'],
-    gradientBg: 'from-teal-600 via-emerald-600 to-cyan-700',
-    glowBorder: 'hover:border-emerald-400/80 hover:shadow-[0_12px_40px_-8px_rgba(16,185,129,0.45)]',
-    accentText: 'text-emerald-300',
-    cover: '/assets/game-covers/cover-match.png'
+    coverPng: '/assets/game-covers/cover-match.png',
+    coverWebp: '/assets/game-covers/cover-match.webp'
   },
   {
     id: 'flappy',
     title: 'Flappy Cat',
-    badge: '🐱 Tap to Fly ✦',
-    desc: 'Tap to fly! Flap your paws and guide a brave shelter cat home through floating yarn balls, scratching posts, and flying fish treats.',
+    badge: 'Arcade Flyer',
+    desc: 'Tap to fly! Guide a brave shelter cat home through floating yarn balls, scratching posts, and flying fish treats.',
     action: 'Play Flappy Cat',
     icon: '🐱',
     url: '/games/flappy-cat-2/index.html?embed=1',
     leaderboardId: 'flappy_cat',
     needsDex: false,
     perks: ['🏆 Endless High Scores', '🐟 Collect Fish Treats'],
-    gradientBg: 'from-sky-600 via-indigo-600 to-purple-700',
-    glowBorder: 'hover:border-sky-400/80 hover:shadow-[0_12px_40px_-8px_rgba(56,189,248,0.45)]',
-    accentText: 'text-sky-300',
-    cover: '/assets/game-covers/cover-flappy.png'
+    coverPng: '/assets/game-covers/cover-flappy.png',
+    coverWebp: '/assets/game-covers/cover-flappy.webp'
   },
   {
     id: 'catwalk',
     title: 'Catwalk Night Patrol',
-    badge: '🌙 Vector Arcade ✦',
-    desc: 'Guide a vector shelter cat home through midnight streets! Dodge oncoming traffic, hop across fishbone rivers, and rescue all nine lives.',
+    badge: 'Vector Arcade',
+    desc: 'Guide an agile cat across midnight rooftops! Dodge obstacles, hop fishbone rivers, and save all nine lives.',
     action: 'Play Catwalk',
     icon: '🐾',
     url: '/games/catwalk?embed=1',
     leaderboardId: 'catwalk',
     needsDex: false,
     perks: ['🎮 Vector CRT Lines', '📱 Mobile Touch D-Pad'],
-    gradientBg: 'from-emerald-600 via-teal-700 to-green-800',
-    glowBorder: 'hover:border-emerald-400/80 hover:shadow-[0_12px_40px_-8px_rgba(16,185,129,0.45)]',
-    accentText: 'text-emerald-300',
-    cover: '/assets/game-covers/cover-catwalk.png'
+    coverPng: '/assets/game-covers/cover-catwalk.png',
+    coverWebp: '/assets/game-covers/cover-catwalk.webp'
   },
   {
     id: 'shelter_run',
     title: 'Shelter Run',
-    badge: '🏃 Endless Runner',
-    desc: 'Sprint through Monroe County trails! Jump over obstacles, slide under branches, and rescue runaway pets along your journey.',
+    badge: 'Endless Runner',
+    desc: 'Sprint Monroe County trails! Jump over obstacles, slide under branches, and rescue runaway pets.',
     action: 'Play Shelter Run',
     icon: '🏃',
     url: '/games/shelter-run/index.html?embed=1',
     leaderboardId: 'shelter_run',
     needsDex: true,
     perks: ['🏆 Distance Milestones', '🐾 Rescue Pets On-the-Run'],
-    gradientBg: 'from-violet-600 via-purple-700 to-indigo-800',
-    glowBorder: 'hover:border-purple-400/80 hover:shadow-[0_12px_40px_-8px_rgba(168,85,247,0.45)]',
-    accentText: 'text-purple-300',
-    cover: '/assets/game-covers/cover-shelterrun.png'
+    coverPng: '/assets/game-covers/cover-shelterrun.png',
+    coverWebp: '/assets/game-covers/cover-shelterrun.webp'
   },
   {
     id: 'puppy_skater',
     title: 'Puppy Skater',
-    badge: '🛹 Retro Skater ✦',
-    desc: 'Ollie over block stacks, duck under hanging walls, and dodge flying fish on a city-side skate run. A two-button tribute to the classic handheld skating mini-game.',
+    badge: 'Retro Skater',
+    desc: 'Ollie over blocks, duck under walls, and dodge flying fish on a seaside skate run. Handheld arcade fun.',
     action: 'Play Puppy Skater',
     icon: '🛹',
     url: '/games/puppy-skater/index.html?embed=1',
     leaderboardId: 'puppy_skater',
     needsDex: true,
-    perks: ['🏆 Endless High Scores', '🐟 Fish & Whale Hazards', '🐾 Rescue Pets On-the-Roll'],
-    gradientBg: 'from-sky-500 via-cyan-600 to-blue-700',
-    glowBorder: 'hover:border-sky-400/80 hover:shadow-[0_12px_40px_-8px_rgba(56,189,248,0.45)]',
-    accentText: 'text-sky-300',
-    cover: '/assets/game-covers/cover-puppyskater.png'
-  },
-  {
-    id: 'dex',
-    title: 'Pet Discovery Binder',
-    badge: '📖 Your Collection',
-    desc: 'Open your binder to flip through every companion you\u2019ve discovered. Track Species Scout milestones, spend coins on packs, and admire your foil pulls.',
-    action: 'Open Your Binder',
-    icon: '📖',
-    url: '/games/dex/album.html?embed=1',
-    needsDex: true,
-    perks: ['🎴 Foil Card Showcase', '🏅 Scout Milestones'],
-    gradientBg: 'from-teal-700 via-cyan-700 to-sky-800',
-    glowBorder: 'hover:border-teal-400/80 hover:shadow-[0_12px_40px_-8px_rgba(45,212,191,0.45)]',
-    accentText: 'text-teal-300',
-    cover: '/assets/game-covers/cover-album.png'
+    perks: ['🏆 Endless High Scores', '🛹 Jump & Duck Tricks'],
+    coverPng: '/assets/game-covers/cover-puppyskater.png',
+    coverWebp: '/assets/game-covers/cover-puppyskater.webp'
   }
 ];
+
+const COLLECTION_BINDER = {
+  id: 'dex',
+  title: 'Pet Discovery Binder',
+  badge: 'Companion Album',
+  desc: 'Flip through every companion you\u2019ve discovered across Monroe Humane games. Admire rare holographic cards, track your Species Scout badges, and spend your earned coins on booster packs.',
+  action: 'Open Your Binder',
+  icon: '📖',
+  url: '/games/dex/album.html?embed=1',
+  needsDex: true,
+  perks: ['✨ Holographic Pulls', '🏅 Scout Milestones', '🐾 Real Shelter Profiles'],
+  coverPng: '/assets/game-covers/cover-album.png',
+  coverWebp: '/assets/game-covers/cover-album.webp'
+};
+
+const GAMES = ARCADE_GAMES;
 
 const MASCOTS = [
   { id: 'smokey', icon: '🐱', name: 'Smokey', desc: 'Curious Explorer' },
@@ -266,6 +253,15 @@ const MASCOTS = [
             </div>
           </div>
 
+          <!-- Pass Tip Banner (Fills vertical void with player guidance) -->
+          <div class="px-4 py-2.5 mx-4 sm:mx-5 rounded-2xl bg-stone-50 dark:bg-[#061d19] border border-stone-200/80 dark:border-teal-800/60 flex items-center justify-between text-xs text-slate-600 dark:text-teal-100">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">🎁</span>
+              <span class="text-[11px] leading-tight">Play games to unlock free packs &amp; discover real companions!</span>
+            </div>
+            <span class="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider shrink-0 bg-teal-50 dark:bg-teal-900/60 px-2 py-0.5 rounded-md border border-teal-200/60 dark:border-teal-700/60">Free Play</span>
+          </div>
+
           <!-- Nickname + Stats -->
           <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             <div class="relative flex-1">
@@ -310,90 +306,208 @@ const MASCOTS = [
     </div>
     <!-- ════════════════════════════════════════════════════════ -->
 
-    <!-- The 5 Flagship Game Cards Section -->
+    <!-- ══════════════════════════════════════════════════════════
+         The 6 Flagship Arcade Games Grid (Symmetrical 3x2)
+    ══════════════════════════════════════════════════════════ -->
     <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-2">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {GAMES.map((game) => (
-          <div class={`group relative rounded-3xl overflow-hidden flex flex-col bg-white dark:bg-gradient-to-b dark:from-[#0b2823] dark:to-[#071d1a] border border-stone-200/90 dark:border-teal-800/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${game.glowBorder} justify-between`}>
+          <div class="group relative rounded-3xl overflow-hidden flex flex-col bg-white dark:bg-[#0c2420] border border-stone-200/90 dark:border-teal-800/70 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 hover:border-emerald-500/60 dark:hover:border-teal-500/60">
 
-            <!-- Cover art banner -->
-            <div class="relative h-44 sm:h-48 shrink-0">
-              <img
-                src={game.cover}
-                alt=""
-                loading="lazy"
-                class="w-full h-full object-cover rounded-t-3xl transition-transform duration-500 group-hover:scale-[1.04]"
-              />
-              <div class="absolute inset-0 rounded-t-3xl bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none"></div>
-              <!-- Icon chip overlapping the cover -->
-              <div class="absolute -bottom-5 left-6 w-12 h-12 rounded-2xl bg-white dark:bg-[#061e1a] border border-stone-200 dark:border-teal-700/60 flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition-transform">
-                {game.icon}
+            <!-- 16:9 Cinematic Cover Art Banner -->
+            <div class="relative aspect-[16/9] w-full overflow-hidden shrink-0 bg-stone-100 dark:bg-[#061d19]">
+              <picture>
+                <source srcset={game.coverWebp} type="image/webp" />
+                <img
+                  src={game.coverPng}
+                  alt={game.title}
+                  loading="lazy"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+              </picture>
+              <!-- Ambient vignette overlay for high contrast & image bleed -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent pointer-events-none"></div>
+
+              <!-- Sleek Category / Genre Pill (Top Left) -->
+              <div class="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold tracking-wide shadow-sm select-none">
+                <span class="text-sm leading-none">{game.icon}</span>
+                <span>{game.badge}</span>
               </div>
-              <!-- Badges float on the cover -->
-              <div class="absolute top-3 right-3 flex items-center gap-1.5">
-                {game.leaderboardId && (
+
+              <!-- High Scores Button on Cover (Top Right) -->
+              {game.leaderboardId && (
+                <button
+                  type="button"
+                  data-open-leaderboard
+                  data-leaderboard-game={game.leaderboardId}
+                  class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-400/95 hover:bg-amber-300 text-amber-950 border border-amber-300/80 shadow-sm transition backdrop-blur-md cursor-pointer flex items-center gap-1 select-none active:scale-95"
+                  title="View High Scores"
+                >
+                  <span>🏆</span>
+                  <span>Scores</span>
+                </button>
+              )}
+            </div>
+
+            <!-- Card Content Body -->
+            <div class="p-5 sm:p-6 flex flex-col flex-1 justify-between">
+              <div>
+                <!-- Title -->
+                <h3 class="text-xl font-bold font-sans text-slate-900 dark:text-white tracking-tight leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-teal-300 transition-colors" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                  {game.title}
+                </h3>
+                <!-- Equalized Description (Strict 2-line clamp + min-height for uniform row alignment) -->
+                <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed mb-4 font-normal line-clamp-2 min-h-[2.5rem]">
+                  {game.desc}
+                </p>
+
+                <!-- Micro Perks / Highlights (Standardized 2 chips) -->
+                <div class="flex flex-wrap items-center gap-1.5 mb-5">
+                  {game.perks.slice(0, 2).map((perk) => (
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-[#061e1b] border border-stone-200/80 dark:border-teal-900/80 text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                      {perk}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <!-- Unified Monroe Humane Action Bar (Zero Gaping Void, Mathematically Balanced) -->
+              <div class="pt-4 border-t border-stone-100 dark:border-teal-900/60 flex items-center gap-2 mt-auto">
+                <button
+                  type="button"
+                  data-launch-game={game.id}
+                  data-game-url={game.url}
+                  data-game-title={game.title}
+                  data-game-icon={game.icon}
+                  class="flex-1 py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-emerald-800 via-teal-800 to-[#0c3c35] hover:from-emerald-700 hover:via-teal-700 hover:to-[#0f4940] transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] group/btn"
+                >
+                  <span>{game.action}</span>
+                  <span class="text-sm transition-transform group-hover/btn:translate-x-1">&rarr;</span>
+                </button>
+
+                {game.leaderboardId ? (
                   <button
                     type="button"
                     data-open-leaderboard
                     data-leaderboard-game={game.leaderboardId}
-                    class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-400/90 text-amber-950 border border-amber-300 shadow-sm hover:bg-amber-300 transition cursor-pointer backdrop-blur-sm"
-                    title="View High Scores"
+                    class="shrink-0 px-3 py-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 active:scale-95"
+                    title={`View ${game.title} High Scores`}
+                    aria-label={`View ${game.title} High Scores`}
                   >
-                    🏆 Scores
+                    <span>🏆</span>
+                    <span class="hidden sm:inline text-[11px]">Scores</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    id="btn-booster-album-link"
+                    class="shrink-0 px-3 py-3 rounded-xl bg-teal-50 dark:bg-teal-900/40 hover:bg-teal-100 dark:hover:bg-teal-900/70 text-teal-700 dark:text-teal-200 border border-teal-200 dark:border-teal-700/60 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 active:scale-95"
+                    title="View Pet Album"
+                    aria-label="View Pet Album"
+                  >
+                    <span>📖</span>
+                    <span class="hidden sm:inline text-[11px]">Album</span>
                   </button>
                 )}
-                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-black/45 text-white border border-white/25 backdrop-blur-sm shadow-sm">
-                  {game.badge}
-                </span>
               </div>
-            </div>
-
-            <div class="p-6 sm:p-7 pt-8">
-              <!-- Title & Description -->
-              <h3 class="text-2xl font-serif font-black text-slate-900 dark:text-white tracking-tight mb-2.5">
-                {game.title}
-              </h3>
-              <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
-                {game.desc}
-              </p>
-
-              <!-- Micro Perks / Highlights -->
-              <div class="space-y-1.5 mb-8">
-                {game.perks.map((perk) => (
-                  <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-50 dark:bg-[#041512] border border-stone-200 dark:border-teal-900/80 text-[11px] font-medium text-slate-600 dark:text-slate-300 mr-1.5 mb-1">
-                    <span>{perk}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <!-- Primary Action Button -->
-            <div class="mx-6 sm:mx-7 mb-6 sm:mb-7 mt-auto pt-4 border-t border-stone-100 dark:border-teal-900/60 space-y-2">
-              <button
-                type="button"
-                data-launch-game={game.id}
-                data-game-url={game.url}
-                data-game-title={game.title}
-                data-game-icon={game.icon}
-                class={`w-full py-3.5 px-5 rounded-2xl font-bold text-xs uppercase tracking-wider text-white bg-gradient-to-r ${game.gradientBg} hover:opacity-95 transition-all shadow-md flex items-center justify-between group-hover:shadow-lg cursor-pointer active:scale-[0.98]`}
-              >
-                <span>{game.action}</span>
-                <span class="text-lg leading-none transition-transform group-hover:translate-x-1">&rarr;</span>
-              </button>
-
-              {game.id === 'booster' && (
-                <button
-                  type="button"
-                  id="btn-booster-album-link"
-                  class="w-full py-1.5 text-center text-[11px] font-semibold text-amber-300 hover:text-amber-200 transition cursor-pointer flex items-center justify-center gap-1"
-                >
-                  <span>🎴 View Pet Album &amp; Rare Cards</span>
-                  <span>↗</span>
-                </button>
-              )}
             </div>
           </div>
         ))}
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         Pet Discovery Binder Feature Showcase (Elevated Centerpiece)
+    ══════════════════════════════════════════════════════════ -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 mt-8 sm:mt-10">
+      <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#103a35] via-[#164a44] to-[#0c2f2a] border border-teal-700/50 text-white p-6 sm:p-8 shadow-xl">
+        <!-- Ambient atmospheric glow -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-amber-400/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+          <!-- Binder Cover Preview Image -->
+          <div class="lg:col-span-5 order-2 lg:order-1">
+            <div
+              class="relative aspect-[16/9] sm:aspect-[16/10] rounded-2xl overflow-hidden border border-teal-600/40 shadow-2xl group cursor-pointer"
+              data-launch-game={COLLECTION_BINDER.id}
+              data-game-url={COLLECTION_BINDER.url}
+              data-game-title={COLLECTION_BINDER.title}
+              data-game-icon={COLLECTION_BINDER.icon}
+            >
+              <picture>
+                <source srcset={COLLECTION_BINDER.coverWebp} type="image/webp" />
+                <img
+                  src={COLLECTION_BINDER.coverPng}
+                  alt="Pet Discovery Binder Showcase"
+                  loading="lazy"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </picture>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                <span class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white">
+                  📖 Interactive Album
+                </span>
+                <span class="text-xs font-bold text-amber-300 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Tap to Inspect &rarr;
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Binder Info & Controls -->
+          <div class="lg:col-span-7 order-1 lg:order-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-bold uppercase tracking-wider text-amber-300 mb-3">
+              <span>🎴 Companion Album</span>
+              <span>·</span>
+              <span class="text-teal-200 font-normal">Species Scout</span>
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl font-bold font-sans tracking-tight mb-2.5 text-white" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+              {COLLECTION_BINDER.title}
+            </h2>
+
+            <p class="text-sm text-teal-100/85 leading-relaxed mb-5 max-w-xl">
+              {COLLECTION_BINDER.desc}
+            </p>
+
+            <!-- Feature Pills -->
+            <div class="flex flex-wrap items-center gap-2 mb-6">
+              {COLLECTION_BINDER.perks.map((perk) => (
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs text-teal-100 font-medium">
+                  <span>{perk}</span>
+                </div>
+              ))}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                data-launch-game={COLLECTION_BINDER.id}
+                data-game-url={COLLECTION_BINDER.url}
+                data-game-title={COLLECTION_BINDER.title}
+                data-game-icon={COLLECTION_BINDER.icon}
+                class="px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-950 bg-amber-400 hover:bg-amber-300 transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
+              >
+                <span>{COLLECTION_BINDER.action}</span>
+                <span class="text-base">&rarr;</span>
+              </button>
+
+              <button
+                type="button"
+                data-launch-game="booster"
+                data-game-url="/games/booster/index.html?embed=1"
+                data-game-title="Pet Booster Packs"
+                data-game-icon="✨"
+                class="px-5 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-teal-100 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+              >
+                <span>Open Booster Packs</span>
+                <span class="text-sm">✨</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
