@@ -16,45 +16,13 @@ env:
   IMAGE_PREFIX: monroehumane/monroe-humane
 
 jobs:
-  build_and_push:
+  changes:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    strategy:
-      matrix:
-        service:
-          - name: directus
-            context: ./backend
-          - name: arcade
-            context: ./arcade
-          - name: petsync
-            context: ./cron
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ${{ matrix.service.context }}
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service.name }}:latest
-          provenance: false
-          sbom: false
-
-  deploy:
-    needs: build_and_push
-    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.set.outputs.backend }}
+      arcade: ${{ steps.set.outputs.arcade }}
+      cron: ${{ steps.set.outputs.cron }}
+      matrix: ${{ steps.set.outputs.matrix }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -70,6 +38,63 @@ jobs:
               - 'arcade/**'
             cron:
               - 'cron/**'
+
+      - name: Compute build matrix + deploy flags
+        id: set
+        env:
+          CHANGED: ${{ steps.filter.outputs.changes }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          dirs = {'backend': ('directus', './backend'), 'arcade': ('arcade', './arcade'), 'cron': ('petsync', './cron')}
+          changed = list(dirs) if os.environ['EVENT'] == 'workflow_dispatch' else json.loads(os.environ['CHANGED'] or '[]')
+          for d in dirs:
+              print(f"{d}={'true' if d in changed else 'false'}")
+          svc = [{'name': n, 'context': c} for d, (n, c) in dirs.items() if d in changed]
+          if not svc:
+              svc = [{'name': 'noop', 'context': './arcade'}]  # empty matrix is an error
+          print('matrix=' + json.dumps({'service': svc}))
+          PY
+
+  build_and_push:
+    needs: changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix: ${{ fromJSON(needs.changes.outputs.matrix) }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        if: matrix.service.name != 'noop'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        if: matrix.service.name != 'noop'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.service.context }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service.name }}:latest
+          provenance: false
+          sbom: false
+
+  deploy:
+    needs: [changes, build_and_push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Log in to Azure
         uses: azure/login@v2
@@ -87,14 +112,14 @@ jobs:
       # --image` should preserve existing env and secrets. --min-replicas 1 is
       # passed in case the CLI resets scale (Directus/Arcade must stay warm).
       - name: Deploy Directus (only if backend/** changed)
-        if: steps.filter.outputs.backend == 'true'
+        if: needs.changes.outputs.backend == 'true'
         uses: azure/cli@v2
         with:
           inlineScript: |
             az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image directus/directus:11.5.0 --revision-suffix gha${{ github.run_number }} --min-replicas 1 --max-replicas 2
 
       - name: Deploy Arcade (only if arcade/** changed)
-        if: steps.filter.outputs.arcade == 'true'
+        if: needs.changes.outputs.arcade == 'true'
         uses: azure/cli@v2
         with:
           inlineScript: |
@@ -105,7 +130,7 @@ jobs:
       # public read endpoint (exercises PHP + DB) until the revision serves;
       # fail the run if it never does so the deploy can't go green silently.
       - name: Verify Arcade API is serving
-        if: steps.filter.outputs.arcade == 'true'
+        if: needs.changes.outputs.arcade == 'true'
         uses: azure/cli@v2
         with:
           inlineScript: |
@@ -126,7 +151,7 @@ jobs:
             echo "Arcade API healthy"
 
       - name: Deploy PetSync job (only if cron/** changed)
-        if: steps.filter.outputs.cron == 'true'
+        if: needs.changes.outputs.cron == 'true'
         uses: azure/cli@v2
         with:
           inlineScript: |

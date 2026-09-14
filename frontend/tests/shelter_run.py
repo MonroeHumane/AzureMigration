@@ -238,6 +238,22 @@ def main():
         check("no page errors", not errors, "; ".join(errors[:3]) or "clean")
         browser.close()
 
+        # ── API-down resilience: the start overlay + a run must not depend ──
+        # on the arcade API. Route every API call to hang forever.
+        browser2 = p.chromium.launch(channel="chrome", headless=True)
+        page2 = browser2.new_page(viewport={"width": 432, "height": 800})
+        page2.route("**/arcade-api/**", lambda r: None)  # never fulfilled
+        page2.goto(GAME, wait_until="domcontentloaded")
+        page2.wait_for_timeout(2500)
+        check("overlay shows with API down", page2.is_visible(".sr-start.is-open"))
+        page2.click("[data-start]")
+        page2.wait_for_timeout(400)
+        page2.keyboard.press("ArrowUp")
+        page2.wait_for_timeout(1200)
+        check("game runs with API down",
+              page2.evaluate("() => window.__sr.state") == "PLAYING")
+        browser2.close()
+
     failed = [n for n, ok in RESULTS if not ok]
     print(f"\n{len(RESULTS) - len(failed)} passed, {len(failed)} failed")
     for n in failed:

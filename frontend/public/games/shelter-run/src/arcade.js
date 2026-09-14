@@ -1,6 +1,6 @@
 // Azure arcade API client — anonymous session, scores, cloud save sync,
 // Adoptédex economy (milestones → packs/coins, pack open, pet discovery).
-import { GAME_ID, SAVE_SLOT, SCHEMA_VERSION } from './config.js';
+import { GAME_ID, SAVE_SLOT, SCHEMA_VERSION, UPGRADES } from './config.js';
 
 function apiBase() {
   if (typeof MonroeAdoptedex !== 'undefined') {
@@ -147,12 +147,19 @@ export async function openPack(tier = 'standard') {
 
 export async function fetchProfile() {
   const user = dexUser();
-  if (!user) return null;
-  if (typeof MonroeAdoptedex !== 'undefined' && MonroeAdoptedex.fetchDex) {
-    try { return await MonroeAdoptedex.fetchDex(apiBase(), user); } catch (e) { return null; }
+  if (user) {
+    if (typeof MonroeAdoptedex !== 'undefined' && MonroeAdoptedex.fetchDex) {
+      try {
+        const p = await MonroeAdoptedex.fetchDex(apiBase(), user);
+        if (p) return p;
+      } catch (e) { /* fall through */ }
+    }
+    try {
+      const r = await get(`adoptedex/${encodeURIComponent(user)}`);
+      if (r.ok) return r.data;
+    } catch (e) { /* fall through */ }
   }
-  const r = await get(`adoptedex/${encodeURIComponent(user)}`);
-  return r.ok ? r.data : null;
+  return { ok: true, coin_balance: localCoins(), local: true };
 }
 
 // Batch-report rescued pets → Adoptédex discoveries (server dedupes).
@@ -178,12 +185,16 @@ export async function reportDiscoveries(petIds) {
 // Server-authoritative coin award — reason value comes from COIN_AWARD_REASONS.
 export async function awardCoins(reason = 'game_award') {
   const user = dexUser();
-  if (!user) return null;
-  try {
-    await ensureSession();
-    const r = await post(`adoptedex/${encodeURIComponent(user)}/coins/award`, { reason });
-    return r.ok && r.data && r.data.ok ? r.data : null;
-  } catch (e) { return null; }
+  if (user) {
+    try {
+      await ensureSession();
+      const r = await post(`adoptedex/${encodeURIComponent(user)}/coins/award`, { reason });
+      if (r.ok) return r.data && r.data.ok ? r.data : null;
+    } catch (e) { /* fall through to local */ }
+  }
+  if (reason !== 'game_award') return null;
+  const awarded = localAwardCoins(LOCAL_GAME_AWARD, 'game');
+  return { ok: true, awarded, coin_balance: localCoins(), local: true };
 }
 
 // ── Game progress — upgrades + objectives + multiplier ──────────────────────
@@ -195,6 +206,53 @@ function readLocalProgress() {
 }
 function writeLocalProgress(p) {
   try { localStorage.setItem(LS_PROGRESS, JSON.stringify(p)); } catch (e) {}
+}
+
+// ── Guest-local economy ─────────────────────────────────────────────────────
+// Signed-out players get a device-only wallet so the full loop (earn → buy)
+// works without a Binder account. Values mirror the server's tables; nothing
+// here can create server-side value — signing in switches to the real wallet.
+const LS_COINS = 'sr_coins';
+const LS_COIN_DAY = 'sr_coins_day';
+const LOCAL_DONATION_VALUES = [0, 8, 16, 26, 40, 60];
+const LOCAL_GAME_AWARD = 5;
+const LOCAL_GAME_DAILY_CAP = 25;
+const LOCAL_DONATION_POOL_CAP = 100;
+
+function localCoins() {
+  try { return Math.max(0, JSON.parse(localStorage.getItem(LS_COINS)) | 0); } catch (e) { return 0; }
+}
+function writeLocalCoins(n) {
+  try { localStorage.setItem(LS_COINS, JSON.stringify(Math.max(0, n | 0))); } catch (e) {}
+}
+function localCoinDay() {
+  const day = new Date().toISOString().slice(0, 10);
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_COIN_DAY) || 'null');
+    if (d && d.day === day) return d;
+  } catch (e) {}
+  return { day, game: 0, pool: 0 };
+}
+function writeLocalCoinDay(d) {
+  try { localStorage.setItem(LS_COIN_DAY, JSON.stringify(d)); } catch (e) {}
+}
+function localUpgradeLevel(upgrade) {
+  const p = readLocalProgress();
+  const lvl = p && p.upgrades ? p.upgrades[upgrade] : null;
+  return (lvl && typeof lvl === 'object' ? lvl.level : lvl) | 0;
+}
+function localAwardCoins(delta, kind) {
+  // kind: 'game' (game_award cap) | 'pool' (shared donation pool cap)
+  const day = localCoinDay();
+  if (kind === 'game' && day.game + delta > LOCAL_GAME_DAILY_CAP) delta = Math.max(0, LOCAL_GAME_DAILY_CAP - day.game);
+  if (day.pool + delta > LOCAL_DONATION_POOL_CAP) delta = Math.max(0, LOCAL_DONATION_POOL_CAP - day.pool);
+  if (delta > 0) {
+    if (kind === 'game') day.game += delta;
+    day.pool += delta;
+    writeLocalCoinDay(day);
+    writeLocalCoins(localCoins() + delta);
+  }
+  return delta;
 }
 
 // Server truth, with a localStorage fallback so upgrades work for guests.
@@ -219,16 +277,31 @@ export async function buyUpgrade(upgrade) {
     try {
       await ensureSession();
       const r = await post(`adoptedex/${encodeURIComponent(user)}/game/upgrades/buy`, { game_id: GAME_ID, upgrade });
-      if (r.ok && r.data && r.data.ok) {
-        const p = readLocalProgress() || {};
-        p.upgrades = Object.assign(p.upgrades || {}, { [upgrade]: { level: r.data.level } });
-        writeLocalProgress(p);
+      if (r.ok) {
+        if (r.data && r.data.ok) {
+          const p = readLocalProgress() || {};
+          p.upgrades = Object.assign(p.upgrades || {}, { [upgrade]: { level: r.data.level } });
+          writeLocalProgress(p);
+        }
+        return r.data; // business rejections (insufficient/maxed) stand
       }
-      return r.data;
-    } catch (e) { return null; }
+      // Request itself failed (auth/network) → degrade to the local wallet.
+    } catch (e) { /* fall through to local */ }
   }
-  // Guest fallback — local coins can't buy server-side, so deny politely.
-  return { ok: false, code: 'guest', message: 'Sign in with your Binder name to buy upgrades.' };
+  // Local fallback — buy against the device wallet (costs mirror the
+  // server's UPGRADE_DEFS table in config.js).
+  const def = UPGRADES[upgrade];
+  if (!def) return { ok: false, code: 'bad_request', message: 'Unknown upgrade' };
+  const level = localUpgradeLevel(upgrade);
+  if (level >= def.costs.length) return { ok: false, code: 'maxed', message: 'Upgrade already maxed' };
+  const cost = def.costs[level];
+  const balance = localCoins();
+  if (balance < cost) return { ok: false, code: 'insufficient', message: 'Not enough coins', coin_balance: balance };
+  writeLocalCoins(balance - cost);
+  const p = readLocalProgress() || {};
+  p.upgrades = Object.assign(p.upgrades || {}, { [upgrade]: { level: level + 1 } });
+  writeLocalProgress(p);
+  return { ok: true, upgrade, level: level + 1, cost, coin_balance: localCoins(), local: true };
 }
 
 export async function claimObjective(key) {
@@ -260,12 +333,18 @@ export async function claimObjective(key) {
 // Donation pickup → server awards level-scaled coins.
 export async function donation() {
   const user = dexUser();
-  if (!user) return null;
-  try {
-    await ensureSession();
-    const r = await post(`adoptedex/${encodeURIComponent(user)}/coins/donation`, { game_id: GAME_ID });
-    return r.ok && r.data && r.data.ok ? r.data : null;
-  } catch (e) { return null; }
+  if (user) {
+    try {
+      await ensureSession();
+      const r = await post(`adoptedex/${encodeURIComponent(user)}/coins/donation`, { game_id: GAME_ID });
+      if (r.ok) return r.data && r.data.ok ? r.data : null;
+    } catch (e) { /* fall through to local */ }
+  }
+  const level = localUpgradeLevel('donation');
+  const delta = LOCAL_DONATION_VALUES[Math.max(0, Math.min(5, level))] | 0;
+  if (delta <= 0) return { ok: false, message: 'Donation Burst not owned' };
+  const awarded = localAwardCoins(delta, 'pool');
+  return { ok: true, awarded, level, local: true };
 }
 
 export async function spendCoins(amount, reason) {
