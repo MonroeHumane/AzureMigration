@@ -50,7 +50,7 @@ function formatDollar(val?: number): string {
             <div>
               <div class="flex items-center gap-1.5">
                 <span class="text-emerald-950 font-semibold">Bank Statement Verified Cash</span>
-                <a href="#bank-statement-viewer" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-200 text-emerald-900 hover:bg-emerald-300 transition" title="Inspect Bank Statement and Reconciliation Report">
+                <a href="#bank-statement-viewer" @click="activeSection = 'audit'; window.history.replaceState({}, '', '?section=audit'); window.scrollTo({top: 0, behavior: 'smooth'})" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-200 text-emerald-900 hover:bg-emerald-300 transition" title="Inspect Bank Statement and Reconciliation Report">
                   Statement &amp; Rec &rarr;
                 </a>
               </div>

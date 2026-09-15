@@ -43,32 +43,10 @@ const subNavItems = [
     </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8" id="financials-main-content">
-      <!-- Section 1: Headline KPI Grid + Position/Cash + Operating Bridge (Bento Box) -->
-      <section id="sec-snapshot" class="financial-module scroll-mt-20" x-show="activeSection === 'snapshot'" x-cloak>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="lg:col-span-3">
-            <HeadlineKpiGrid />
-          </div>
-          <div class="lg:col-span-3">
-            <PositionAndCashCard />
-          </div>
-          <div class="lg:col-span-3 flex flex-col gap-6">
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full min-h-[420px]">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">Cash Runway & Burn Trend</h3>
-                <span class="p-1.5 bg-emerald-50 text-emerald-600 rounded-md shadow-xs">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                  </svg>
-                </span>
-              </div>
-              <div id="echarts-runway-container" class="grow w-full relative">
-                <!-- ECharts Canvas injects here -->
-                <div class="absolute inset-0 flex items-center justify-center text-xs text-slate-400" id="echarts-runway-loading">Loading trend data...</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Section 1: Headline KPI Grid + Position/Cash + Operating Bridge -->
+      <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'snapshot'" x-cloak>
+        <HeadlineKpiGrid />
+        <PositionAndCashCard />
       </section>
 
       <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
@@ -97,7 +75,6 @@ const subNavItems = [
     </main>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" is:inline defer></script>
   <script>
     import { initBoardDashboard } from '../../../scripts/board-financials-loader';
 

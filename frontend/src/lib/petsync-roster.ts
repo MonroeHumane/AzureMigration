@@ -403,58 +403,55 @@ export async function loadStaffPetRoster(
 }
 function renderCapacityGauge(containerId: string, value: number, max: number, color: string) {
   const container = document.getElementById(containerId);
-  if (!container || typeof (window as any).echarts === 'undefined') return;
+  if (!container) return;
 
-  // Cleanup any old instance if it exists
-  const existingChart = (window as any).echarts.getInstanceByDom(container);
-  if (existingChart) existingChart.dispose();
+  const pct = Math.min(100, Math.max(0, Math.round((value / max) * 100)));
+  const statusLabel = pct >= 90 ? 'Near Capacity' : pct >= 70 ? 'High' : pct >= 40 ? 'Optimal' : 'Low';
+  const statusColor = pct >= 90
+    ? 'text-rose-700 bg-rose-50 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+    : pct >= 70
+    ? 'text-amber-800 bg-amber-50 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+    : 'text-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
 
-  const chart = (window as any).echarts.init(container);
-  const option = {
-    series: [
-      {
-        type: 'gauge',
-        startAngle: 180,
-        endAngle: 0,
-        min: 0,
-        max: max,
-        splitNumber: 5,
-        itemStyle: {
-          color: color,
-          shadowColor: 'rgba(0,138,255,0.45)',
-          shadowBlur: 10,
-          shadowOffsetX: 2,
-          shadowOffsetY: 2
-        },
-        progress: { show: true, roundCap: true, width: 14 },
-        pointer: { show: false },
-        axisLine: { roundCap: true, lineStyle: { width: 14, color: [[1, '#e2e8f0']] } },
-        axisTick: { show: false },
-        splitLine: { show: false },
-        axisLabel: { show: false },
-        title: { show: false },
-        detail: {
-          backgroundColor: '#f8fafc',
-          borderColor: color,
-          borderWidth: 2,
-          width: '60%',
-          lineHeight: 20,
-          height: 20,
-          borderRadius: 8,
-          offsetCenter: [0, '20%'],
-          valueAnimation: true,
-          formatter: function (value: any) {
-            return '{value|' + value.toFixed(0) + '}{unit|/' + max + '}';
-          },
-          rich: {
-            value: { fontSize: 18, fontWeight: 'bolder', color: '#334155' },
-            unit: { fontSize: 10, color: '#94a3b8', padding: [0, 0, -4, 2] }
-          }
-        },
-        data: [{ value: value }]
-      }
-    ]
-  };
-  chart.setOption(option);
-  window.addEventListener('resize', () => chart.resize());
+  const r = 54;
+  const arcLength = Math.PI * r;
+  const strokeDashoffset = arcLength * (1 - pct / 100);
+
+  container.innerHTML = `
+    <div class="flex flex-col items-center justify-center w-full h-full pt-1 pb-1">
+      <div class="relative flex items-center justify-center">
+        <svg viewBox="0 0 140 85" class="w-36 h-22">
+          <!-- Background track -->
+          <path
+            d="M 16 75 A 54 54 0 0 1 124 75"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="12"
+            stroke-linecap="round"
+            class="text-slate-100 dark:text-slate-800"
+          />
+          <!-- Progress arc -->
+          <path
+            d="M 16 75 A 54 54 0 0 1 124 75"
+            fill="none"
+            stroke="${color}"
+            stroke-width="12"
+            stroke-linecap="round"
+            stroke-dasharray="${arcLength.toFixed(1)}"
+            stroke-dashoffset="${strokeDashoffset.toFixed(1)}"
+            style="transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);"
+          />
+        </svg>
+        <div class="absolute bottom-1 flex flex-col items-center">
+          <span class="text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white leading-none">${pct}%</span>
+          <span class="text-[10px] text-slate-400 mt-0.5">${value} / ${max} kennels</span>
+        </div>
+      </div>
+      <div class="mt-2 flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusColor}">
+          ${statusLabel}
+        </span>
+      </div>
+    </div>
+  `;
 }
