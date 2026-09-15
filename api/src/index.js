@@ -1523,7 +1523,7 @@ app.http('statement', {
       return jsonResponse(request, 404, { error: 'Requested statement file not found.' });
     }
 
-    const fileBuffer = fs.readFileSync(filePath);
+    const fileBuffer = await fs.promises.readFile(filePath);
     return {
       status: 200,
       headers: corsHeaders(request, {

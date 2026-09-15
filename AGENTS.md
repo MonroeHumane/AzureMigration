@@ -33,3 +33,6 @@
 ## Windows/headless traps
 - `> nul` creates a real file named `nul`. cp1252 consoles can't print emoji/→ (sanitize test output). MSYS mangles paths — `MSYS_NO_PATHCONV=1` when needed.
 - `typeof null === 'object'` — guard nullable lookups before `.level` etc.
+
+## Frontend architecture traps
+- **Astro View Transitions break Alpine.js**: The @astrojs/alpinejs integration drops state across ClientRouter navigations (e.g., window.history.replaceState). Do not use Alpine directives (x-data, x-show, etc.) for DOM-toggling or interactive components in the Astro site. Use Vanilla JS scripts instead.

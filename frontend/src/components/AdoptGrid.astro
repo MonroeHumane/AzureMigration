@@ -634,6 +634,13 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
 
     // Two-way SWR sync: Prune adopted pets and dynamically mount newly ingested pets
     async function syncLiveCatalog() {
+      if (typeof window !== 'undefined' && (window as any).__mchsAdoptCache) {
+        const cache = (window as any).__mchsAdoptCache;
+        if (Date.now() - cache.at < 5 * 60 * 1000) {
+          applyLivePets(cache.data);
+          return;
+        }
+      }
       try {
         const res = await fetch(`${DIRECTUS_URL}/items/pets?filter[archived_at][_null]=true&limit=-1`, {
           signal: AbortSignal.timeout(5000),
@@ -642,8 +649,17 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
         const json = await res.json();
         if (!json.data || !Array.isArray(json.data)) return;
 
-        const livePets = json.data;
-        const liveIds = new Set(livePets.map((p: any) => String(p.id)));
+        if (typeof window !== 'undefined') {
+          (window as any).__mchsAdoptCache = { data: json.data, at: Date.now() };
+        }
+        applyLivePets(json.data);
+      } catch {
+        // Offline or Directus cold-starting — static build remains active fallback
+      }
+    }
+
+    function applyLivePets(livePets: any[]) {
+      const liveIds = new Set(livePets.map((p: any) => String(p.id)));
         let changed = false;
 
         // 1. Prune archived/adopted pets
@@ -758,10 +774,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
           });
         }
 
-        if (changed) apply(false);
-      } catch {
-        // Offline or Directus cold-starting — static build remains active fallback
-      }
+          if (changed) apply(false);
     }
 
     syncLiveCatalog();

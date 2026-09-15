@@ -52,8 +52,18 @@ function cacheAge(): number | null {
   }
 }
 
+let memoryCache: any | null = null;
+let memoryCacheAt: number = 0;
+
+export function getCachedFinancialsAge(): number | null {
+  if (memoryCacheAt > 0) return Date.now() - memoryCacheAt;
+  return cacheAge();
+}
+
 export function clearCachedFinancials(): void {
   if (typeof window === 'undefined') return;
+  memoryCache = null;
+  memoryCacheAt = 0;
   try {
     sessionStorage.removeItem(FINANCIALS_CACHE_KEY);
     localStorage.removeItem(FINANCIALS_CACHE_KEY);
@@ -64,16 +74,25 @@ export function clearCachedFinancials(): void {
 
 export function getCachedFinancials(): any | null {
   if (typeof window === 'undefined') return null;
+  
+  // ClientRouter keeps JS context alive. Use in-memory cache to avoid 
+  // blocking the main thread with a 5MB+ JSON.parse() on every page swap.
+  if (memoryCache && (Date.now() - memoryCacheAt < FINANCIALS_CACHE_TTL_MS)) {
+    return memoryCache;
+  }
+  
   try {
     const raw = sessionStorage.getItem(FINANCIALS_CACHE_KEY) || localStorage.getItem(FINANCIALS_CACHE_KEY);
     if (!raw) return null;
-    // A cache with no stamp predates the TTL and is of unknown age; drop it.
     const age = cacheAge();
     if (age === null || age > FINANCIALS_CACHE_TTL_MS) {
       clearCachedFinancials();
       return null;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    memoryCache = parsed;
+    memoryCacheAt = Date.now() - age; // preserve original fetch timestamp
+    return parsed;
   } catch {
     return null;
   }
@@ -81,6 +100,10 @@ export function getCachedFinancials(): any | null {
 
 export function setCachedFinancials(data: any): void {
   if (typeof window === 'undefined' || !data) return;
+  
+  memoryCache = data;
+  memoryCacheAt = Date.now();
+  
   try {
     const str = JSON.stringify(data);
     const now = String(Date.now());
@@ -88,6 +111,8 @@ export function setCachedFinancials(data: any): void {
     localStorage.setItem(FINANCIALS_CACHE_KEY, str);
     sessionStorage.setItem(FINANCIALS_CACHE_STAMP_KEY, now);
     localStorage.setItem(FINANCIALS_CACHE_STAMP_KEY, now);
-  } catch {}
+  } catch (err) {
+    console.warn('[StaffFinancials] Failed to write cache to Web Storage (quota exceeded?):', err);
+  }
 }
 

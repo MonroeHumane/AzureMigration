@@ -14,7 +14,14 @@ export type StaffPetsOk = {
 
 export type StaffPetsErr = { ok: false; status: number; error: string };
 
-export async function fetchStaffPets(): Promise<StaffPetsOk | StaffPetsErr> {
+let petsMemoryCache: StaffPetsOk | null = null;
+let petsMemoryCacheAt = 0;
+
+export async function fetchStaffPets(force = false): Promise<StaffPetsOk | StaffPetsErr> {
+  if (!force && petsMemoryCache && (Date.now() - petsMemoryCacheAt < 5 * 60 * 1000)) {
+    return petsMemoryCache;
+  }
+
   const token = await getStaffToken();
   if (!token) {
     return { ok: false, status: 401, error: 'No staff session' };
@@ -37,7 +44,7 @@ export async function fetchStaffPets(): Promise<StaffPetsOk | StaffPetsErr> {
     if (!data || !Array.isArray(data.pets)) {
       return { ok: false, status: 502, error: 'Empty census response' };
     }
-    return {
+    const result: StaffPetsOk = {
       ok: true,
       data: {
         lastSyncTimestamp: data.lastSyncTimestamp || null,
@@ -47,6 +54,9 @@ export async function fetchStaffPets(): Promise<StaffPetsOk | StaffPetsErr> {
         pets: data.pets,
       },
     };
+    petsMemoryCache = result;
+    petsMemoryCacheAt = Date.now();
+    return result;
   } catch {
     return { ok: false, status: 0, error: 'Network error loading census' };
   }

@@ -1,5 +1,6 @@
 import { getStaffToken } from './staff-auth';
-import { getCachedFinancials, setCachedFinancials } from './api';
+import { getCachedFinancials, setCachedFinancials, getCachedFinancialsAge } from './api';
+import { FinancialPayloadSchema } from './schemas';
 
 /**
  * `staleAuth` means the live call was rejected (401/403) and we fell back to a
@@ -115,10 +116,14 @@ export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}):
       }
       return { ok: false, status: res.status, error: `Financials unavailable (${res.status})` };
     }
-    const data = await res.json();
-    if (!data) {
+    const rawData = await res.json();
+    if (!rawData) {
       return { ok: false, status: 502, error: 'Empty financials response' };
     }
+    
+    // Parse using our strict Zod schemas to ensure end-to-end type safety
+    const data = FinancialPayloadSchema.parse(rawData);
+    
     setCachedFinancials(data);
     return { ok: true, data, fromCache: false };
   } catch {
@@ -130,6 +135,16 @@ export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}):
   }
 }
 
-export async function refreshStaffFinancials(): Promise<StaffFinancialsOk | StaffFinancialsErr> {
+export async function refreshStaffFinancials(force: boolean = false): Promise<StaffFinancialsOk | StaffFinancialsErr> {
+  if (!force) {
+    const age = getCachedFinancialsAge();
+    // 5MB payloads: If less than 5 minutes old, skip network and return from memory cache
+    if (age !== null && age < 5 * 60 * 1000) {
+      const cached = getCachedFinancials();
+      if (cached) {
+        return { ok: true, data: cached, fromCache: true };
+      }
+    }
+  }
   return fetchStaffFinancials({ allowCache: false });
 }

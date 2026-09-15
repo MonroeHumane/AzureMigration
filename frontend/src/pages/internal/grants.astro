@@ -857,6 +857,10 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
     if (statSyncNote) statSyncNote.textContent = note || 'Checking grant records…';
   }
 
+  // Module-scoped cache to survive astro:page-load transitions
+  let grantsMemoryCache: any[] | null = null;
+  let grantsMemoryCacheAt = 0;
+
   function initGrantsPortal() {
     const dashboardView = document.getElementById('dashboard-view') as HTMLElement | null;
     const grantsContainer = document.getElementById('grants-container') as HTMLElement | null;
@@ -1296,7 +1300,16 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
       return payload.data;
     }
 
-    async function loadGrants() {
+    async function loadGrants(force = false) {
+      if (!force && grantsMemoryCache && (Date.now() - grantsMemoryCacheAt < 5 * 60 * 1000)) {
+        currentGrants = grantsMemoryCache;
+        normalizedGrants = currentGrants.map(normalizeGrantData);
+        renderGrantsTable();
+        updateSummaryCards();
+        setGrantSyncState('ready');
+        return;
+      }
+
       setGrantSyncState('connecting');
       if (grantsContainer && !grantsContainer.querySelector('[data-status], table')) {
         grantsContainer.innerHTML = `
@@ -1309,7 +1322,10 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
       }
 
       try {
-        currentGrants = await fetchGrantsFromDirectus();
+        const fresh = await fetchGrantsFromDirectus();
+        grantsMemoryCache = fresh;
+        grantsMemoryCacheAt = Date.now();
+        currentGrants = fresh;
         normalizedGrants = currentGrants.map(normalizeGrantData);
 
         const statusRank = (status: string) => {

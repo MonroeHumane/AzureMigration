@@ -43,3 +43,6 @@ against that container/blob and update the setting with
 
 - No sample donor rows, credentials, tokens, or connection strings belong in this folder or this README.
 - Removing historical blobs from git history requires a separate, coordinated history rewrite — not part of ordinary hygiene PRs.
+
+## PII Masking
+Always run `python ../../scripts/fetch_and_mask_donors.py` after downloading a fresh production database locally to scrub PII from your machine.
