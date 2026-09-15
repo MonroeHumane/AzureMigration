@@ -57,37 +57,37 @@ const { donors = [] } = Astro.props;
     
     <!-- Left Column: KPI Grid -->
     <div class="lg:col-span-1 grid grid-cols-2 gap-3">
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Donors</div>
-        <div id="donor-kpi-total" class="mt-1 font-mono font-bold text-2xl text-slate-900">--</div>
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Total Donors</div>
+        <div id="donor-kpi-total" class="mt-1 font-mono font-bold text-2xl text-slate-900 dark:text-white">--</div>
       </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Active (12mo)</div>
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Active (12mo)</div>
         <div id="donor-kpi-active" class="mt-1 font-mono font-bold text-xl text-emerald-600">--</div>
       </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Avg Gift</div>
-        <div id="donor-kpi-avg-gift" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Avg Gift</div>
+        <div id="donor-kpi-avg-gift" class="mt-1 font-mono font-bold text-lg text-slate-900 dark:text-white">--</div>
       </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Recurring</div>
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Recurring</div>
         <div id="donor-kpi-recurring" class="mt-1 font-mono font-bold text-lg text-purple-600">--</div>
       </div>
     </div>
 
     <!-- Right Column: Visual Insights -->
     <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl shadow-sm border border-slate-200 dark:border-teal-800/80 p-4 flex flex-col justify-between">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Donor Retention</h3>
-          <span class="text-[10px] text-slate-400 font-medium">Activity Status</span>
+          <h3 class="text-xs font-bold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Donor Retention</h3>
+          <span class="text-[10px] text-slate-400 dark:text-teal-500 font-medium">Activity Status</span>
         </div>
         <div id="donor-retention-visual" class="w-full grow flex flex-col justify-center"></div>
       </div>
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl shadow-sm border border-slate-200 dark:border-teal-800/80 p-4 flex flex-col justify-between">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Giving Tiers</h3>
-          <span class="text-[10px] text-slate-400 font-medium">By Gift Level</span>
+          <h3 class="text-xs font-bold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Giving Tiers</h3>
+          <span class="text-[10px] text-slate-400 dark:text-teal-500 font-medium">By Gift Level</span>
         </div>
         <div id="donor-tiers-visual" class="w-full grow flex flex-col justify-center"></div>
       </div>
@@ -95,11 +95,11 @@ const { donors = [] } = Astro.props;
   </div>
 
   <!-- Controls: Search, Filter, Sort, Pagination, Export -->
-  <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3.5 print:hidden">
+  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-xs space-y-3.5 print:hidden">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
       <!-- Search Input -->
       <div class="relative flex-1 min-w-[240px]">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-teal-500">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.3-4.3"></path>
@@ -109,12 +109,12 @@ const { donors = [] } = Astro.props;
           type="text"
           id="donor-search-input"
           placeholder="Search by name, email, or city"
-          class="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-slate-900 transition outline-none"
+          class="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#071a17] focus:bg-white dark:bg-[#0b2420]/85 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition outline-none"
         />
         <button
           id="donor-search-clear-btn"
           type="button"
-          class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600"
+          class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 dark:text-teal-500 hover:text-slate-600 dark:text-slate-300"
           title="Clear search"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -130,10 +130,10 @@ const { donors = [] } = Astro.props;
           id="print-roster-btn"
           type="button"
           onclick="window.print()"
-          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition shadow-xs cursor-pointer print:hidden dark:bg-[#071a17] dark:hover:bg-[#0b2420] dark:text-slate-200 dark:border-teal-800/80"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white dark:bg-[#0b2420]/85 hover:bg-slate-50 dark:bg-[#071a17] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-teal-800/80 transition shadow-xs cursor-pointer print:hidden dark:bg-[#071a17] dark:hover:bg-[#0b2420] dark:text-slate-200 dark:border-teal-800/80"
           title="Print official donor registry roster"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 6 2 18 2 18 9"></polyline>
             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
             <rect x="6" y="14" width="12" height="8"></rect>
@@ -160,10 +160,10 @@ const { donors = [] } = Astro.props;
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 pt-2 border-t border-slate-100 text-xs">
       <!-- Tier Filter -->
       <div>
-        <label for="filter-tier" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Giving Tier</label>
+        <label for="filter-tier" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-teal-300 mb-1">Giving Tier</label>
         <select
           id="filter-tier"
-          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#071a17] text-slate-800 dark:text-slate-100 focus:bg-white dark:bg-[#0b2420]/85 focus:border-emerald-600 outline-none text-xs"
         >
           <option value="all">All Tiers</option>
           <option value="visionary">Visionary ($10k+)</option>
@@ -177,10 +177,10 @@ const { donors = [] } = Astro.props;
 
       <!-- Platform Filter -->
       <div>
-        <label for="filter-platform" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">How they gave</label>
+        <label for="filter-platform" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-teal-300 mb-1">How they gave</label>
         <select
           id="filter-platform"
-          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#071a17] text-slate-800 dark:text-slate-100 focus:bg-white dark:bg-[#0b2420]/85 focus:border-emerald-600 outline-none text-xs"
         >
           <option value="all">All ways</option>
           <option value="BetterUnite">BetterUnite</option>
@@ -192,10 +192,10 @@ const { donors = [] } = Astro.props;
 
       <!-- Address Status Filter -->
       <div>
-        <label for="filter-address" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Address</label>
+        <label for="filter-address" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-teal-300 mb-1">Address</label>
         <select
           id="filter-address"
-          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#071a17] text-slate-800 dark:text-slate-100 focus:bg-white dark:bg-[#0b2420]/85 focus:border-emerald-600 outline-none text-xs"
         >
           <option value="all">Anyone</option>
           <option value="has_address">Has mailing address</option>
@@ -205,10 +205,10 @@ const { donors = [] } = Astro.props;
 
       <!-- Recency Filter -->
       <div>
-        <label for="filter-recency" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">When</label>
+        <label for="filter-recency" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-teal-300 mb-1">When</label>
         <select
           id="filter-recency"
-          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#071a17] text-slate-800 dark:text-slate-100 focus:bg-white dark:bg-[#0b2420]/85 focus:border-emerald-600 outline-none text-xs"
         >
           <option value="all">Any year</option>
           <option value="this-year">Gave this year</option>
@@ -219,10 +219,10 @@ const { donors = [] } = Astro.props;
 
       <!-- Sort Filter -->
       <div>
-        <label for="filter-sort" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Sort By</label>
+        <label for="filter-sort" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-teal-300 mb-1">Sort By</label>
         <select
           id="filter-sort"
-          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:bg-white focus:border-emerald-600 outline-none text-xs font-medium"
+          class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#071a17] text-slate-800 dark:text-slate-100 focus:bg-white dark:bg-[#0b2420]/85 focus:border-emerald-600 outline-none text-xs font-medium"
         >
           <option value="lifetime_desc">Largest first</option>
           <option value="lifetime_asc">Smallest first</option>
@@ -233,23 +233,23 @@ const { donors = [] } = Astro.props;
       </div>
     </div>
     <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1">
-      <label class="inline-flex items-center gap-2 text-[11px] text-slate-600 cursor-pointer select-none">
-        <input id="filter-show-batches" type="checkbox" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-500/30">
+      <label class="inline-flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300 cursor-pointer select-none">
+        <input id="filter-show-batches" type="checkbox" class="rounded border-slate-300 dark:border-teal-700/60 text-emerald-700 focus:ring-emerald-500/30">
         <span>Include event totals and unnamed bank deposits</span>
       </label>
-      <label class="inline-flex items-center gap-2 text-[11px] text-slate-600 cursor-pointer select-none">
-        <input id="filter-recurring-only" type="checkbox" class="rounded border-slate-300 text-teal-700 focus:ring-teal-500/30">
+      <label class="inline-flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300 cursor-pointer select-none">
+        <input id="filter-recurring-only" type="checkbox" class="rounded border-slate-300 dark:border-teal-700/60 text-teal-700 focus:ring-teal-500/30">
         <span>Recurring supporters only</span>
       </label>
     </div>
   </div>
 
   <!-- Table Container -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-xs overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse text-xs">
         <thead>
-          <tr class="bg-slate-50/90 text-slate-600 border-b border-slate-200 font-semibold uppercase tracking-wider text-[10px]">
+          <tr class="bg-slate-50 dark:bg-[#071a17]/90 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-teal-800/80 font-semibold uppercase tracking-wider text-[10px]">
             <th class="py-3 px-4 w-10 text-center"></th>
             <th class="py-3 px-4">Donor</th>
             <th class="py-3 px-4">Tier</th>
@@ -260,29 +260,29 @@ const { donors = [] } = Astro.props;
             <th class="py-3 px-4 text-center w-24"></th>
           </tr>
         </thead>
-        <tbody id="donor-table-body" class="divide-y divide-slate-100">
+        <tbody id="donor-table-body" class="divide-y divide-slate-100 dark:divide-teal-900/60">
           <!-- Populated client-side via JavaScript for fast sorting/filtering/pagination -->
         </tbody>
       </table>
     </div>
 
     <!-- Empty State -->
-    <div id="donor-empty-state" class="hidden py-12 text-center text-slate-500 space-y-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div id="donor-empty-state" class="hidden py-12 text-center text-slate-500 dark:text-teal-300 space-y-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-slate-400 dark:text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
       </svg>
-      <div class="text-sm font-semibold text-slate-700">No matching donors</div>
-      <p class="text-xs text-slate-500">Clear the search box or reset the filters.</p>
+      <div class="text-sm font-semibold text-slate-700 dark:text-slate-200">No matching donors</div>
+      <p class="text-xs text-slate-500 dark:text-teal-300">Clear the search box or reset the filters.</p>
     </div>
 
     <!-- Pagination & Stats Footer -->
-    <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs text-slate-600 print:hidden">
+    <div class="px-4 py-3 bg-slate-50 dark:bg-[#071a17] border-t border-slate-200 dark:border-teal-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs text-slate-600 dark:text-slate-300 print:hidden">
       <div class="flex items-center gap-2">
-        <span>Showing <strong id="page-start" class="text-slate-900 font-bold">1</strong> to <strong id="page-end" class="text-slate-900 font-bold">50</strong> of <strong id="total-filtered-count" class="text-slate-900 font-bold">0</strong> donors</span>
+        <span>Showing <strong id="page-start" class="text-slate-900 dark:text-white font-bold">1</strong> to <strong id="page-end" class="text-slate-900 dark:text-white font-bold">50</strong> of <strong id="total-filtered-count" class="text-slate-900 dark:text-white font-bold">0</strong> donors</span>
         <span class="text-slate-300">|</span>
-        <label for="page-size" class="text-slate-500">Per page:</label>
-        <select id="page-size" class="py-1 px-2 rounded border border-slate-200 bg-white text-xs text-slate-800 outline-none">
+        <label for="page-size" class="text-slate-500 dark:text-teal-300">Per page:</label>
+        <select id="page-size" class="py-1 px-2 rounded border border-slate-200 dark:border-teal-800/80 bg-white dark:bg-[#0b2420]/85 text-xs text-slate-800 dark:text-slate-100 outline-none">
           <option value="25">25</option>
           <option value="50" selected>50</option>
           <option value="100">100</option>
@@ -294,15 +294,15 @@ const { donors = [] } = Astro.props;
         <button
           id="pagination-prev-btn"
           type="button"
-          class="px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
+          class="px-2.5 py-1 rounded-md border border-slate-200 dark:border-teal-800/80 bg-white dark:bg-[#0b2420]/85 hover:bg-slate-100 dark:bg-[#0b2420]/60 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
         >
           Previous
         </button>
-        <span id="page-indicator" class="px-2 font-medium text-slate-700">Page 1 of 1</span>
+        <span id="page-indicator" class="px-2 font-medium text-slate-700 dark:text-slate-200">Page 1 of 1</span>
         <button
           id="pagination-next-btn"
           type="button"
-          class="px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
+          class="px-2.5 py-1 rounded-md border border-slate-200 dark:border-teal-800/80 bg-white dark:bg-[#0b2420]/85 hover:bg-slate-100 dark:bg-[#0b2420]/60 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition"
         >
           Next
         </button>
@@ -519,7 +519,7 @@ const { donors = [] } = Astro.props;
 
   function getTierBadge(tierId, label) {
     let dotColor = 'bg-slate-400';
-    let badgeBg = 'bg-slate-50 border-slate-200 text-slate-700';
+    let badgeBg = 'bg-slate-50 dark:bg-[#071a17] border-slate-200 dark:border-teal-800/80 text-slate-700 dark:text-slate-200';
 
     if (tierId === 'visionary') {
       dotColor = 'bg-purple-500';
@@ -548,7 +548,7 @@ const { donors = [] } = Astro.props;
 
   function getPlatformPill(p) {
     const label = shortChannel(p);
-    let color = 'bg-slate-100 text-slate-600 border-slate-200';
+    let color = 'bg-slate-100 dark:bg-[#0b2420]/60 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-teal-800/80';
     if (label === 'BetterUnite') color = 'bg-teal-50 text-teal-700 border-teal-200';
     else if (label === 'PayPal') color = 'bg-indigo-50 text-indigo-700 border-indigo-200';
     else if (label === 'Check') color = 'bg-amber-50 text-amber-800 border-amber-200';
@@ -681,21 +681,21 @@ const { donors = [] } = Astro.props;
                 <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                 <span class="text-[10px] font-bold text-emerald-900 dark:text-emerald-300 uppercase">Active</span>
               </div>
-              <div class="font-mono font-bold text-sm text-emerald-950 dark:text-white mt-0.5">${statusCounts.active} <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400">(${activePct}%)</span></div>
+              <div class="font-mono font-bold text-sm text-emerald-950 dark:text-white mt-0.5">${statusCounts.active} <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400 dark:text-teal-500">(${activePct}%)</span></div>
             </div>
             <div class="p-2 rounded-lg bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/50">
               <div class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
                 <span class="text-[10px] font-bold text-amber-900 dark:text-amber-300 uppercase">Lapsed</span>
               </div>
-              <div class="font-mono font-bold text-sm text-amber-950 dark:text-white mt-0.5">${statusCounts.lapsed} <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400">(${lapsedPct}%)</span></div>
+              <div class="font-mono font-bold text-sm text-amber-950 dark:text-white mt-0.5">${statusCounts.lapsed} <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400 dark:text-teal-500">(${lapsedPct}%)</span></div>
             </div>
             <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
               <div class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
                 <span class="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase">Lost</span>
               </div>
-              <div class="font-mono font-bold text-sm text-slate-900 dark:text-white mt-0.5">${statusCounts.lost} <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400">(${lostPct}%)</span></div>
+              <div class="font-mono font-bold text-sm text-slate-900 dark:text-white mt-0.5">${statusCounts.lost} <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400 dark:text-teal-500">(${lostPct}%)</span></div>
             </div>
           </div>
         </div>
@@ -781,7 +781,7 @@ const { donors = [] } = Astro.props;
 
       const kind = aggregateKind(donor);
       const kindBadge = kind === 'bank'
-        ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">Bank deposit</span>`
+        ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-[#0b2420]/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-teal-800/80">Bank deposit</span>`
         : kind === 'event'
           ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">Event total</span>`
           : '';
@@ -800,13 +800,13 @@ const { donors = [] } = Astro.props;
       const mainRow = `
         <tr
           id="row-${donor.id}"
-          class="hover:bg-slate-50/80 transition cursor-pointer ${isEven ? 'bg-white' : 'bg-slate-50/40'} ${isOpen ? 'bg-emerald-50/20' : ''}"
+          class="hover:bg-slate-50 dark:bg-[#071a17]/80 transition cursor-pointer ${isEven ? 'bg-white dark:bg-[#0b2420]/85' : 'bg-slate-50 dark:bg-[#071a17]/40'} ${isOpen ? 'bg-emerald-50/20' : ''}"
           data-donor-id="${donor.id}"
         >
           <td class="py-3 px-4 text-center">
             <button
               type="button"
-              class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition cursor-pointer"
+              class="w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-teal-500 hover:text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 transition cursor-pointer"
               aria-expanded="${isOpen}"
               title="${isOpen ? 'Collapse Details' : 'Expand Details'}"
             >
@@ -816,15 +816,15 @@ const { donors = [] } = Astro.props;
             </button>
           </td>
           <td class="py-3 px-4">
-            <div class="font-bold text-slate-900 text-xs flex items-center gap-2">
+            <div class="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-2">
               <span>${escapeHtml(donor.name)}</span>
               ${tributeBadge}
               ${recurringBadge}
               ${lapsedBadge}
               ${kindBadge}
             </div>
-            <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 mt-0.5">
-              ${donor.email ? `<span class="text-slate-600 font-mono text-[10px]">${escapeHtml(donor.email)}</span>` : ''}
+            <div class="text-[11px] text-slate-500 dark:text-teal-300 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 mt-0.5">
+              ${donor.email ? `<span class="text-slate-600 dark:text-slate-300 font-mono text-[10px]">${escapeHtml(donor.email)}</span>` : ''}
               ${donor.phone ? `<span>&bull; ${escapeHtml(donor.phone)}</span>` : ''}
               ${displayAddr ? `<span class="truncate max-w-[280px]" title="${escapeHtml(displayAddr)}">&bull; ${escapeHtml(displayAddr)}</span>` : ''}
             </div>
@@ -837,19 +837,19 @@ const { donors = [] } = Astro.props;
               ${(donor.platformsList || []).map(p => getPlatformPill(p)).join('')}
             </div>
           </td>
-          <td class="py-3 px-4 text-center font-semibold text-slate-700">
+          <td class="py-3 px-4 text-center font-semibold text-slate-700 dark:text-slate-200">
             ${donor.transactionsCount}
           </td>
-          <td class="py-3 px-4 text-slate-600 whitespace-nowrap text-[11px]">
+          <td class="py-3 px-4 text-slate-600 dark:text-slate-300 whitespace-nowrap text-[11px]">
             ${formatDate(donor.latestGiftDate)}
           </td>
           <td class="py-3 px-4 text-right whitespace-nowrap">
-            <span class="font-bold font-mono text-slate-900 text-xs">${formatMoney(donor.lifetimeTotal)}</span>
+            <span class="font-bold font-mono text-slate-900 dark:text-white text-xs">${formatMoney(donor.lifetimeTotal)}</span>
           </td>
           <td class="py-3 px-4 text-center whitespace-nowrap">
             <button
               type="button"
-              class="inspect-donor-btn px-2.5 py-1 rounded text-[11px] font-semibold transition border ${isOpen ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'}"
+              class="inspect-donor-btn px-2.5 py-1 rounded text-[11px] font-semibold transition border ${isOpen ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-100 dark:bg-[#0b2420]/60 hover:bg-slate-200 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-teal-800/80'}"
             >
               ${isOpen ? 'Close' : 'View'}
             </button>
@@ -875,13 +875,13 @@ const { donors = [] } = Astro.props;
           descHtml.push(`<div class="text-slate-700 dark:text-slate-200">${escapeHtml(desc)}</div>`);
         }
         return `
-          <tr class="${gIdx % 2 === 0 ? 'bg-white dark:bg-[#0b2420]/40' : 'bg-slate-50/50 dark:bg-[#061815]/80'} text-slate-700 dark:text-slate-200 hover:bg-teal-50/40 dark:hover:bg-teal-950/40 transition align-top">
+          <tr class="${gIdx % 2 === 0 ? 'bg-white dark:bg-[#0b2420]/40' : 'bg-slate-50 dark:bg-[#071a17]/50 dark:bg-[#061815]/80'} text-slate-700 dark:text-slate-200 hover:bg-teal-50/40 dark:hover:bg-teal-950/40 transition align-top">
             <td class="py-2 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap">${formatDate(g.date)}</td>
             <td class="py-2 px-3">${getPlatformPill(g.platform)}</td>
             <td class="py-2 px-3 font-medium text-slate-800 dark:text-slate-100">${escapeHtml(g.campaign || 'Gift')}</td>
             <td class="py-2 px-3 font-mono font-bold text-slate-900 dark:text-white text-right whitespace-nowrap">${formatMoney(g.amount)}</td>
             <td class="py-2 px-3 text-[11px] text-slate-600 dark:text-slate-300 max-w-[280px]" title="${escapeHtml(desc || dedication || '')}">
-              ${descHtml.join('') || '<span class="text-slate-400 dark:text-slate-500">—</span>'}
+              ${descHtml.join('') || '<span class="text-slate-400 dark:text-slate-500 dark:text-teal-300">—</span>'}
             </td>
             <td class="py-2 px-3 font-mono text-[11px] text-slate-700 dark:text-teal-200 text-right whitespace-nowrap">${escapeHtml(checkLabel || '—')}</td>
           </tr>
@@ -898,7 +898,7 @@ const { donors = [] } = Astro.props;
       }
       if (giftsList.length === 0) {
         historyHtml += `
-          <div class="py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+          <div class="py-4 text-center text-xs text-slate-500 dark:text-slate-400 dark:text-teal-500">
             ${escapeHtml(emptyHistoryCopy(donor))}
           </div>
         `;
@@ -910,11 +910,11 @@ const { donors = [] } = Astro.props;
             <div class="space-y-1.5">
               ${showYearHeads ? `<div class="flex items-center justify-between gap-2 px-0.5">
                 <h5 class="text-[11px] font-bold text-teal-800 dark:text-teal-300">${escapeHtml(year)}</h5>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400">${yearGifts.length} gift${yearGifts.length === 1 ? '' : 's'} · ${formatMoney(yearSum)}</span>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 dark:text-teal-500">${yearGifts.length} gift${yearGifts.length === 1 ? '' : 's'} · ${formatMoney(yearSum)}</span>
               </div>` : ''}
               <div class="overflow-x-auto border border-slate-200 dark:border-teal-800/80 rounded-lg">
                 <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-50/90 dark:bg-[#061815] text-slate-600 dark:text-teal-300 font-semibold text-[11px] border-b border-slate-200 dark:border-teal-900/60">
+                  <thead class="bg-slate-50 dark:bg-[#071a17]/90 dark:bg-[#061815] text-slate-600 dark:text-teal-300 font-semibold text-[11px] border-b border-slate-200 dark:border-teal-900/60">
                     <tr>
                       <th class="py-2 px-3">Date</th>
                       <th class="py-2 px-3">How</th>
@@ -945,12 +945,12 @@ const { donors = [] } = Astro.props;
         contactBits.push(`<div class="leading-snug">${escapeHtml(displayAddr)}</div>`);
       }
       const contactPanel = contactBits.length
-        ? `<div class="text-xs bg-slate-50/60 dark:bg-[#061815] p-3 rounded-lg border border-slate-100 dark:border-teal-900/60 text-slate-700 dark:text-slate-200 space-y-0.5">${contactBits.join('')}</div>`
+        ? `<div class="text-xs bg-slate-50 dark:bg-[#071a17]/60 dark:bg-[#061815] p-3 rounded-lg border border-slate-100 dark:border-teal-900/60 text-slate-700 dark:text-slate-200 space-y-0.5">${contactBits.join('')}</div>`
         : '';
 
       const drawerRow = `
         ${mainRow}
-        <tr id="drawer-${donor.id}" class="bg-slate-100/70 dark:bg-[#061815] border-b-2 border-emerald-600/30 dark:border-teal-800/80">
+        <tr id="drawer-${donor.id}" class="bg-slate-100 dark:bg-[#0b2420]/60/70 dark:bg-[#061815] border-b-2 border-emerald-600/30 dark:border-teal-800/80">
           <td colspan="8" class="p-4 sm:p-5">
             <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-4 space-y-4">
               <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-teal-900/60">
@@ -967,7 +967,7 @@ const { donors = [] } = Astro.props;
                 </div>
                 <button
                   type="button"
-                  class="export-single-donor-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-[#061815] dark:hover:bg-teal-950/80 dark:text-slate-200 transition border border-slate-200 dark:border-teal-800/80 cursor-pointer"
+                  class="export-single-donor-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-[#0b2420]/60 hover:bg-slate-200 text-slate-700 dark:text-slate-200 dark:bg-[#061815] dark:hover:bg-teal-950/80 dark:text-slate-200 transition border border-slate-200 dark:border-teal-800/80 cursor-pointer"
                   data-donor-id="${donor.id}"
                   title="Download this donor as CSV"
                 >

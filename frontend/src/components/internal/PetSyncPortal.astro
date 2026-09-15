@@ -8,39 +8,39 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
     
     <!-- Left Column: KPI Grid -->
     <div class="lg:col-span-1 grid grid-cols-2 gap-3">
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Active</div>
-        <div id="petsync-active-count-badge" class="mt-1 font-mono font-bold text-2xl text-slate-900">--</div>
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Total Active</div>
+        <div id="petsync-active-count-badge" class="mt-1 font-mono font-bold text-2xl text-slate-900 dark:text-white">--</div>
       </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center relative overflow-hidden">
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Sync Status</div>
-        <div id="petsync-last-sync" class="mt-1 font-mono font-bold text-xs text-slate-900 truncate">--</div>
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center relative overflow-hidden">
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Sync Status</div>
+        <div id="petsync-last-sync" class="mt-1 font-mono font-bold text-xs text-slate-900 dark:text-white truncate">--</div>
         <span id="petsync-live-badge" class="absolute top-3 right-3 hidden"></span>
       </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Avg Stay</div>
-        <div id="petsync-avg-stay" class="mt-1 font-mono font-bold text-lg text-slate-900">--</div>
-        <div id="petsync-avg-stay-detail" class="text-[10px] text-slate-400 mt-0.5">Dogs -- · Cats --</div>
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Avg Stay</div>
+        <div id="petsync-avg-stay" class="mt-1 font-mono font-bold text-lg text-slate-900 dark:text-white">--</div>
+        <div id="petsync-avg-stay-detail" class="text-[10px] text-slate-400 dark:text-teal-500 mt-0.5">Dogs -- · Cats --</div>
       </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col justify-center">
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Long Stay</div>
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Long Stay</div>
         <div id="petsync-longstay-count" class="mt-1 font-mono font-bold text-lg text-rose-600">--</div>
-        <div class="text-[10px] text-slate-400 mt-0.5">&gt;60 days in care</div>
+        <div class="text-[10px] text-slate-400 dark:text-teal-500 mt-0.5">&gt;60 days in care</div>
       </div>
     </div>
 
     <!-- Right Column: Capacity Gauges -->
     <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col items-center justify-between">
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl shadow-sm border border-slate-200 dark:border-teal-800/80 p-4 flex flex-col items-center justify-between">
         <div class="w-full flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Dog Capacity</h3>
+          <h3 class="text-xs font-bold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Dog Capacity</h3>
           <span class="w-2 h-2 rounded-full bg-amber-500"></span>
         </div>
         <div id="echarts-dog-capacity" class="w-full h-40"></div>
       </div>
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col items-center justify-between">
+      <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl shadow-sm border border-slate-200 dark:border-teal-800/80 p-4 flex flex-col items-center justify-between">
         <div class="w-full flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Cat Capacity</h3>
+          <h3 class="text-xs font-bold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Cat Capacity</h3>
           <span class="w-2 h-2 rounded-full bg-teal-500"></span>
         </div>
         <div id="echarts-cat-capacity" class="w-full h-40"></div>
@@ -49,9 +49,9 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
   </div>
 
   <!-- Main Roster Explorer -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4">
+  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-xs p-5 space-y-4">
     <!-- Filter Bar & Search -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 dark:bg-[#071a17] p-3 rounded-lg border border-slate-200 dark:border-teal-800/80">
       <!-- Status Filter Tabs -->
       <div class="flex flex-wrap items-center gap-1.5 text-xs">
         <span class="sr-only">Roster</span>
@@ -67,7 +67,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
           type="button"
           data-status-filter="archived"
           id="petsync-pill-archived"
-          class="petsync-status-pill px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-purple-800 hover:bg-purple-50 transition"
+          class="petsync-status-pill px-3 py-1 rounded-md font-semibold bg-white dark:bg-[#0b2420]/85 border border-slate-200 dark:border-teal-800/80 text-purple-800 hover:bg-purple-50 transition"
         >
           Archived / Past (<span id="petsync-pill-archived-count">--</span>)
         </button>
@@ -75,7 +75,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
           type="button"
           data-status-filter="all"
           id="petsync-pill-all"
-          class="petsync-status-pill px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition"
+          class="petsync-status-pill px-3 py-1 rounded-md font-semibold bg-white dark:bg-[#0b2420]/85 border border-slate-200 dark:border-teal-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:bg-[#0b2420]/60 transition"
         >
           All Tracked (<span id="petsync-pill-all-count">--</span>)
         </button>
@@ -86,9 +86,9 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
         <button
           type="button"
           id="export-csv-btn"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-xs"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-white dark:bg-[#0b2420]/85 border border-slate-300 dark:border-teal-700/60 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:bg-[#0b2420]/60 transition shadow-xs"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500 dark:text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -100,7 +100,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
 
     <!-- Quick 1-Tap Species Filter Pills -->
     <div class="flex flex-wrap items-center gap-1.5 text-xs pb-1">
-      <span class="text-[11px] font-semibold text-slate-500 mr-1">Quick Species:</span>
+      <span class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 mr-1">Quick Species:</span>
       <button
         type="button"
         data-species-pill=""
@@ -111,21 +111,21 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
       <button
         type="button"
         data-species-pill="dog"
-        class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+        class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white dark:bg-[#0b2420]/85 border border-slate-200 dark:border-teal-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-[#071a17] transition"
       >
         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block mr-1"></span> Dogs (<span id="species-count-dog">--</span>)
       </button>
       <button
         type="button"
         data-species-pill="cat"
-        class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+        class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white dark:bg-[#0b2420]/85 border border-slate-200 dark:border-teal-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-[#071a17] transition"
       >
         <span class="w-1.5 h-1.5 rounded-full bg-teal-500 inline-block mr-1"></span> Cats (<span id="species-count-cat">--</span>)
       </button>
       <button
         type="button"
         data-species-pill="other"
-        class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+        class="petsync-species-btn px-3 py-1 rounded-md font-semibold bg-white dark:bg-[#0b2420]/85 border border-slate-200 dark:border-teal-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-[#071a17] transition"
       >
         <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block mr-1"></span> Other (<span id="species-count-other">--</span>)
       </button>
@@ -150,7 +150,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 text-xs">
       <!-- Search (2 cols on md) -->
       <div class="relative sm:col-span-2 md:col-span-2">
-        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 dark:text-teal-500">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -160,7 +160,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
           type="text"
           id="petsync-search-input"
           placeholder="Search name, ID, breed, color, foster..."
-          class="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-[#173a39] focus:border-[#173a39]"
+          class="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-slate-300 dark:border-teal-700/60 bg-white dark:bg-[#0b2420]/85 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-[#173a39] focus:border-[#173a39]"
         />
       </div>
 
@@ -168,7 +168,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
       <div>
         <select
           id="petsync-location-filter"
-          class="w-full py-1.5 px-2.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-[#173a39]"
+          class="w-full py-1.5 px-2.5 text-xs rounded-md border border-slate-300 dark:border-teal-700/60 bg-white dark:bg-[#0b2420]/85 text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-[#173a39]"
         >
           <option value="">All Placements</option>
           <option value="shelter">Shelter Facility (On-Site)</option>
@@ -180,7 +180,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
       <div>
         <select
           id="petsync-duration-filter"
-          class="w-full py-1.5 px-2.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-[#173a39]"
+          class="w-full py-1.5 px-2.5 text-xs rounded-md border border-slate-300 dark:border-teal-700/60 bg-white dark:bg-[#0b2420]/85 text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-[#173a39]"
         >
           <option value="">All Stay Durations</option>
           <option value="new">New Intakes (&lt; 14 days)</option>
@@ -195,7 +195,7 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
         <button
           type="button"
           id="petsync-reset-btn"
-          class="w-full py-1.5 px-3 text-xs rounded-md border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition"
+          class="w-full py-1.5 px-3 text-xs rounded-md border border-slate-200 dark:border-teal-800/80 bg-slate-100 dark:bg-[#0b2420]/60 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-semibold transition"
         >
           Reset Filters
         </button>
@@ -203,20 +203,20 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
     </div>
 
     <!-- Live Counter -->
-    <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+    <div class="flex items-center justify-between text-xs text-slate-500 dark:text-teal-300 px-1">
       <div>
-        Showing <span id="petsync-filtered-count" class="font-bold text-slate-800">--</span> of <span id="petsync-showing-total">--</span> total animals
+        Showing <span id="petsync-filtered-count" class="font-bold text-slate-800 dark:text-slate-100">--</span> of <span id="petsync-showing-total">--</span> total animals
       </div>
-      <div class="text-[11px] text-slate-400">
+      <div class="text-[11px] text-slate-400 dark:text-teal-500">
         Click PetPoint link to open PetPoint WebServices record
       </div>
     </div>
 
     <!-- Desktop Roster Table -->
-    <div class="hidden md:block border border-slate-200 rounded-lg overflow-x-auto">
+    <div class="hidden md:block border border-slate-200 dark:border-teal-800/80 rounded-lg overflow-x-auto">
       <table class="w-full text-left border-collapse text-xs">
         <thead>
-          <tr class="bg-slate-100/80 text-slate-700 font-semibold border-b border-slate-200">
+          <tr class="bg-slate-100 dark:bg-[#0b2420]/60/80 text-slate-700 dark:text-slate-200 font-semibold border-b border-slate-200 dark:border-teal-800/80">
             <th class="py-2.5 px-3 w-14">Photo</th>
             <th class="py-2.5 px-3">Pet ID & PetPoint</th>
             <th class="py-2.5 px-3">Name & Species</th>
@@ -228,9 +228,9 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
             <th class="py-2.5 px-3 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody id="petsync-tbody" class="divide-y divide-slate-100">
+        <tbody id="petsync-tbody" class="divide-y divide-slate-100 dark:divide-teal-900/60">
           <tr id="petsync-loading-row">
-            <td colspan="9" class="py-10 text-center text-slate-500">Loading shelter census…</td>
+            <td colspan="9" class="py-10 text-center text-slate-500 dark:text-teal-300">Loading shelter census…</td>
           </tr>
         </tbody>
       </table>
@@ -238,13 +238,13 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
 
     <!-- Mobile Animal Roster (Card View) -->
     <div id="petsync-mobile-container" class="md:hidden space-y-3">
-      <p id="petsync-mobile-loading" class="text-center text-slate-500 py-6">Loading shelter census…</p>
+      <p id="petsync-mobile-loading" class="text-center text-slate-500 dark:text-teal-300 py-6">Loading shelter census…</p>
     </div>
 
     <!-- Empty State -->
-    <div id="petsync-empty-state" class="hidden text-center py-10 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-      <p class="font-semibold text-slate-700">No animals match your search or filter</p>
-      <p class="text-xs text-slate-400 mt-1">Try resetting the filters or clearing the search query.</p>
+    <div id="petsync-empty-state" class="hidden text-center py-10 text-slate-500 dark:text-teal-300 bg-slate-50 dark:bg-[#071a17] rounded-lg border border-dashed border-slate-300 dark:border-teal-700/60">
+      <p class="font-semibold text-slate-700 dark:text-slate-200">No animals match your search or filter</p>
+      <p class="text-xs text-slate-400 dark:text-teal-500 mt-1">Try resetting the filters or clearing the search query.</p>
     </div>
   </div>
 
@@ -426,10 +426,10 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
 
         speciesPills.forEach((p) => {
           p.classList.remove('active', 'bg-[#173a39]', 'text-white');
-          p.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+          p.classList.add('bg-white dark:bg-[#0b2420]/85', 'text-slate-700 dark:text-slate-200', 'border', 'border-slate-200 dark:border-teal-800/80');
         });
         pill.classList.add('active', 'bg-[#173a39]', 'text-white');
-        pill.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        pill.classList.remove('bg-white dark:bg-[#0b2420]/85', 'text-slate-700 dark:text-slate-200', 'border', 'border-slate-200 dark:border-teal-800/80');
 
         applyFilters();
       });
@@ -443,10 +443,10 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
 
         statusPills.forEach((p) => {
           p.classList.remove('active', 'bg-[#173a39]', 'text-white');
-          p.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+          p.classList.add('bg-white dark:bg-[#0b2420]/85', 'text-slate-700 dark:text-slate-200', 'border', 'border-slate-200 dark:border-teal-800/80');
         });
         pill.classList.add('active', 'bg-[#173a39]', 'text-white');
-        pill.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        pill.classList.remove('bg-white dark:bg-[#0b2420]/85', 'text-slate-700 dark:text-slate-200', 'border', 'border-slate-200 dark:border-teal-800/80');
 
         if (val === 'archived' || val === 'all') {
           ensureArchivedInflated();
@@ -495,10 +495,10 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
           const isAll = (p.getAttribute('data-species-pill') || '') === '';
           if (isAll) {
             p.classList.add('active', 'bg-[#173a39]', 'text-white');
-            p.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+            p.classList.remove('bg-white dark:bg-[#0b2420]/85', 'text-slate-700 dark:text-slate-200', 'border', 'border-slate-200 dark:border-teal-800/80');
           } else {
             p.classList.remove('active', 'bg-[#173a39]', 'text-white');
-            p.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+            p.classList.add('bg-white dark:bg-[#0b2420]/85', 'text-slate-700 dark:text-slate-200', 'border', 'border-slate-200 dark:border-teal-800/80');
           }
         });
 
@@ -506,10 +506,10 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
           const isAct = p.getAttribute('data-status-filter') === 'active';
           if (isAct) {
             p.classList.add('active', 'bg-[#173a39]', 'text-white');
-            p.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+            p.classList.remove('bg-white dark:bg-[#0b2420]/85', 'text-slate-700 dark:text-slate-200', 'border', 'border-slate-200 dark:border-teal-800/80');
           } else {
             p.classList.remove('active', 'bg-[#173a39]', 'text-white');
-            p.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+            p.classList.add('bg-white dark:bg-[#0b2420]/85', 'text-slate-700 dark:text-slate-200', 'border', 'border-slate-200 dark:border-teal-800/80');
           }
         });
 

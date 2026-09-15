@@ -102,7 +102,7 @@
     }
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
       margin-bottom: 8px;
     }
@@ -237,14 +237,19 @@
       <div id="print-runway-sub" class="kpi-sub" style="color:#115e59;">Balance at period end.</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-title">This year leftover</div>
-      <div id="print-allin-net" class="kpi-val text-rose">--</div>
-      <div id="print-allin-margin" class="kpi-sub">Money in / money out</div>
+      <div class="kpi-title">Operating Reserve</div>
+      <div id="print-fidelity-reserve" class="kpi-val" style="color:#4338ca;">--</div>
+      <div class="kpi-sub">Fidelity Board Designated</div>
+    </div>
+    <div class="kpi-card" style="border-color:#6ee7b7; background:#f0fdf4;">
+      <div class="kpi-title" style="color:#047857;">Total Liquid Reserves</div>
+      <div id="print-total-liquid-combined" class="kpi-val" style="color:#047857;">--</div>
+      <div class="kpi-sub" style="color:#065f46;">Full liquidity runway</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-title">Animal care</div>
-      <div id="print-prog-ratio" class="kpi-val text-emerald">--</div>
-      <div class="kpi-sub">Of every dollar spent</div>
+      <div class="kpi-title">YTD Net &amp; Mission Spend</div>
+      <div id="print-allin-net" class="kpi-val">--</div>
+      <div id="print-allin-margin-and-ratio" class="kpi-sub">Money in / out</div>
     </div>
   </div>
 
@@ -605,12 +610,18 @@
 
         if (data.headline_kpis) {
           const k = data.headline_kpis;
-          setEl('print-allin-net', formatDollar(k.all_in_net));
-          setEl('print-allin-margin', `${formatDollar(k.all_in_revenue)} in · ${formatDollar(k.all_in_expenditures)} out`);
-          setEl('print-prog-ratio', `${Math.round(k.program_ratio_pct)}¢ of every dollar spent`);
+          const allInNetEl = document.getElementById('print-allin-net');
+          if (allInNetEl) {
+            allInNetEl.textContent = formatDollar(k.all_in_net);
+            allInNetEl.className = `kpi-val ${k.all_in_net >= 0 ? 'text-emerald' : 'text-rose'}`;
+          }
+          setEl('print-allin-margin-and-ratio', `${formatDollar(k.all_in_revenue)} in · ${formatDollar(k.all_in_expenditures)} out (${Math.round(k.program_ratio_pct)}¢/dollar care)`);
 
           const qbChecking = k.operating_checking_first_merchants || 0;
+          const fid = k.fidelity_reserve || 0;
           setEl('print-total-liq', formatCents(qbChecking));
+          setEl('print-fidelity-reserve', formatDollar(fid));
+          setEl('print-total-liquid-combined', formatDollar(qbChecking + fid));
           const cutoffLabel = data.meta?.cutoff_date || 'period end';
           setEl('print-runway-sub', `Balance at ${cutoffLabel}.`);
         }
