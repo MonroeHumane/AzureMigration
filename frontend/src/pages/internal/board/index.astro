@@ -3,7 +3,6 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
 import StaffSubNav from '../../../components/internal/StaffSubNav.astro';
 import ExecutiveBanner from '../../../components/board/ExecutiveBanner.astro';
 import HeadlineKpiGrid from '../../../components/board/HeadlineKpiGrid.astro';
-import PositionAndCashCard from '../../../components/board/PositionAndCashCard.astro';
 import MonthlyStatementTable from '../../../components/board/MonthlyStatementTable.astro';
 import BankStatementViewer from '../../../components/board/BankStatementViewer.astro';
 import ExpenseExplorer from '../../../components/board/ExpenseExplorer.astro';
@@ -28,7 +27,7 @@ const subNavItems = [
   description="Humane Society of Monroe County Executive Board Financial Portal & Operating Statements."
   activeTab="financials"
 >
-  <div x-data="{ activeSection: (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('section') : 'snapshot') || 'snapshot' }">
+  <div>
 
     <!-- Executive Banner -->
     <ExecutiveBanner />
@@ -44,28 +43,27 @@ const subNavItems = [
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8" id="financials-main-content">
       <!-- Section 1: Headline KPI Grid + Position/Cash + Operating Bridge -->
-      <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'snapshot'" x-cloak>
+      <section id="sec-snapshot" class="financial-module space-y-6 scroll-mt-20" data-tab-content="snapshot">
         <HeadlineKpiGrid />
-        <PositionAndCashCard />
       </section>
 
       <!-- Section 2: Month-by-Month Operating Statement with Accordion Drawers -->
-      <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'statement'" x-cloak>
+      <section id="sec-statement" class="financial-module space-y-6 scroll-mt-20 hidden" data-tab-content="statement">
         <MonthlyStatementTable />
       </section>
 
       <!-- Section 3: Money detail (books, not bank cash) -->
-      <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'expenses'" x-cloak>
+      <section id="sec-expenses" class="financial-module space-y-6 scroll-mt-20 hidden" data-tab-content="expenses">
         <ExpenseExplorer statementPeriod="Year-To-Date" />
       </section>
 
       <!-- Section 4: Checking account -->
-      <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'audit'" x-cloak>
+      <section id="sec-audit" class="financial-module space-y-6 scroll-mt-20 hidden" data-tab-content="audit">
         <BankStatementViewer />
       </section>
 
       <!-- Section 5: Checking balance trend -->
-      <section id="sec-trend" class="financial-module space-y-6 scroll-mt-20" x-show="activeSection === 'trend'" x-cloak>
+      <section id="sec-trend" class="financial-module space-y-6 scroll-mt-20 hidden" data-tab-content="trend">
         <CheckingBalanceTrend />
       </section>
 
@@ -80,6 +78,45 @@ const subNavItems = [
 
     function runInit() {
       initBoardDashboard();
+      
+      const setTab = (section: string) => {
+        const params = new URLSearchParams(window.location.search);
+        params.set('section', section);
+        window.history.replaceState({}, '', '?' + params.toString());
+        
+        // Update visibility of sections
+        document.querySelectorAll('[data-tab-content]').forEach(el => {
+          if (el.getAttribute('data-tab-content') === section) {
+            el.classList.remove('hidden');
+          } else {
+            el.classList.add('hidden');
+          }
+        });
+        
+        // Update subnav styling
+        document.querySelectorAll('.subnav-pill').forEach(btn => {
+          if (btn.getAttribute('data-tab-id') === section) {
+            btn.className = 'subnav-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition cursor-pointer shrink-0 border active bg-[#173a39] text-white dark:bg-emerald-500/20 dark:text-emerald-300 border-[#173a39] dark:border-emerald-500/40 shadow-xs font-bold';
+            const badge = btn.querySelector('.nav-badge');
+            if (badge) badge.className = 'nav-badge ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-white/20 dark:bg-emerald-500/30 text-white dark:text-emerald-200';
+          } else {
+            btn.className = 'subnav-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 border bg-slate-100/90 dark:bg-teal-950/60 text-slate-700 dark:text-teal-200/90 hover:bg-slate-200 dark:hover:bg-teal-900/80 border-slate-200 dark:border-teal-800/70';
+            const badge = btn.querySelector('.nav-badge');
+            if (badge) badge.className = 'nav-badge ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-slate-200 dark:bg-teal-900 text-slate-600 dark:text-teal-300';
+          }
+        });
+      };
+      
+      (window as any).__setBoardSection = (section: string, noScroll?: boolean) => {
+        setTab(section);
+        if (!noScroll) {
+          window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+      };
+      
+      // Initialize tab based on URL or default
+      const initialTab = new URLSearchParams(window.location.search).get('section') || 'snapshot';
+      setTab(initialTab);
     }
 
     document.addEventListener('astro:page-load', runInit);

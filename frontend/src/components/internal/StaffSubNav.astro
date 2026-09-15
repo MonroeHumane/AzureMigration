@@ -20,14 +20,14 @@ const { items, ariaLabel = 'Section navigation' } = Astro.props;
       {items.map((it) => (
         <button
           type="button"
-          @click={`activeSection = '${it.id}'; window.history.replaceState({}, '', '?section=${it.id}'); window.scrollTo({top: 0, behavior: 'smooth'})`}
-          :class={`activeSection === '${it.id}' ? 'active bg-[#173a39] text-white dark:bg-emerald-500/20 dark:text-emerald-300 border-[#173a39] dark:border-emerald-500/40 shadow-xs font-bold' : 'bg-slate-100/90 dark:bg-teal-950/60 text-slate-700 dark:text-teal-200/90 hover:bg-slate-200 dark:hover:bg-teal-900/80 border-slate-200 dark:border-teal-800/70'`}
-          class="subnav-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 border"
+          data-tab-id={it.id}
+          onclick={`if (typeof window.__setBoardSection === 'function') window.__setBoardSection('${it.id}')`}
+          class="subnav-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 border bg-slate-100/90 dark:bg-teal-950/60 text-slate-700 dark:text-teal-200/90 hover:bg-slate-200 dark:hover:bg-teal-900/80 border-slate-200 dark:border-teal-800/70"
         >
           {it.icon && <span class="text-sm leading-none">{it.icon}</span>}
           <span>{it.label}</span>
           {it.count !== undefined && (
-            <span :class={`activeSection === '${it.id}' ? 'bg-white/20 dark:bg-emerald-500/30 text-white dark:text-emerald-200' : 'bg-slate-200 dark:bg-teal-900 text-slate-600 dark:text-teal-300'`} class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold">
+            <span class="nav-badge ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-slate-200 dark:bg-teal-900 text-slate-600 dark:text-teal-300">
               {it.count}
             </span>
           )}

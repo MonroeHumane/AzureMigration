@@ -124,8 +124,13 @@ const monthsMap: Record<string, any> = {};
                   <td class={`py-3 px-3 text-right font-mono font-bold whitespace-nowrap ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}`}>
                     {isSurplus ? '+' : ''}{formatDollar(m.net_margin)}
                   </td>
-                  <td class={`py-3 px-3 text-right font-semibold whitespace-nowrap ${isSurplus ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {m.margin_pct.toFixed(1)}%
+                  <td class={`py-3 px-3 text-right font-semibold whitespace-nowrap ${isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    <div class="flex items-center justify-end gap-2">
+                      <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-teal-900/60 overflow-hidden flex" style={`flex-direction: ${isSurplus ? 'row' : 'row-reverse'};`}>
+                        <div class={`h-full ${isSurplus ? 'bg-emerald-500' : 'bg-rose-500'}`} style={`width: ${Math.min(Math.abs(m.margin_pct), 100)}%`}></div>
+                      </div>
+                      <span class="w-[38px] text-right">{m.margin_pct.toFixed(1)}%</span>
+                    </div>
                   </td>
                   <td class="py-3 px-4 text-xs text-slate-500 whitespace-nowrap flex items-center justify-between">
                     <span class="truncate max-w-[140px] sm:max-w-xs" title={m.driver}>{m.driver}</span>

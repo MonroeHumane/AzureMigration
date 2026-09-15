@@ -282,15 +282,12 @@ function cc(color: string): ColorSet {
 <div id="expense-explorer-root" class="space-y-4">
 
   <!-- ── Mode Switcher & Flow Summary ──────────────────────────────────────── -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-4 sm:p-5">
+  <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-xs p-4 sm:p-5 transition-colors">
     
-    <!-- Month-to-Month Period Selector Tabs -- built at hydrate time from
-         whatever years/months are actually in the payload (see
-         renderPeriodButtons in the script below), not a fixed list, so a
-         newly-closed month or an added year shows up without a code change. -->
-    <div id="ee-period-selector" class="flex items-center gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-slate-100 text-xs scrollbar-thin">
-      <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1.5 flex items-center gap-1.5">
-        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Month-to-Month Period Selector Tabs -->
+    <div id="ee-period-selector" class="flex items-center gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-slate-100 dark:border-teal-800/60 text-xs scrollbar-thin">
+      <span class="text-[11px] font-bold text-slate-400 dark:text-teal-500/80 uppercase tracking-wider shrink-0 mr-1.5 flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-slate-400 dark:text-teal-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"></line>
           <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"></line>
@@ -304,12 +301,12 @@ function cc(color: string): ColorSet {
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <div class="flex items-center gap-2 mb-1">
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-200">
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
             P&L Detail
           </span>
-          <span class="text-[11px] text-slate-400 font-medium" id="ee-period-subtitle"></span>
+          <span class="text-[11px] text-slate-400 dark:text-teal-300/80 font-medium" id="ee-period-subtitle"></span>
         </div>
-        <h2 class="text-xl font-bold text-slate-800 tracking-tight" id="ee-title">
+        <h2 class="text-xl font-bold text-slate-800 dark:text-white tracking-tight" id="ee-title">
           Where the money went
         </h2>
       </div>

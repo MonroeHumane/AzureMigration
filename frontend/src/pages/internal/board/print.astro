@@ -286,92 +286,41 @@
     </tfoot>
   </table>
 
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-    <div>
-      <h2>2. From shelter operations to the bottom line</h2>
-      <table>
-        <tbody>
-          <tr>
-            <td><strong>Shelter operations</strong></td>
-            <td id="print-bridge-qbo-net" class="text-right font-mono" style="font-weight:700;">--</td>
-          </tr>
-          <tr id="print-bridge-endowment-row">
-            <td>(+) Endowment</td>
-            <td id="print-bridge-endowment" class="text-right font-mono text-emerald">--</td>
-          </tr>
-          <tr>
-            <td>(+) Bottle recycling</td>
-            <td id="print-bridge-recycling-bottles" class="text-right font-mono text-emerald">--</td>
-          </tr>
-          <tr>
-            <td>(+) Kroger / Meijer rebates</td>
-            <td id="print-bridge-recycling-rebates" class="text-right font-mono text-emerald">--</td>
-          </tr>
-          <tr>
-            <td>(-) Van fuel</td>
-            <td id="print-bridge-fleet" class="text-right font-mono text-rose">--</td>
-          </tr>
-          <tr style="background:#f1f5f9; font-weight:700;">
-            <td>After van costs</td>
-            <td id="print-bridge-net-adj" class="text-right font-mono">--</td>
-          </tr>
-          <tr style="background:#ffe4e6; font-weight:800;">
-            <td>Bottom line</td>
-            <td id="print-bridge-allin" class="text-right font-mono text-rose">--</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="note-box">
-        County animal-control pay is already in shelter operations. This card is only recycling, rebates, and the van.
-      </div>
-    </div>
-
-    <div>
-      <h2>3. Statement of Financial Position</h2>
-      <table>
-        <tbody>
-          <tr style="background:#f0fdf4; font-weight:700;">
-            <td>Verified First Merchants Bank Checking</td>
-            <td id="print-pos-checking-bank" class="text-right font-mono" style="color:#166534;">--</td>
-          </tr>
-          <tr>
-            <td>Board-Designated Reserve (Fidelity)</td>
-            <td id="print-pos-fidelity" class="text-right font-mono" style="font-weight:600; color:#4338ca;">--</td>
-          </tr>
-          <tr style="background:#e0f2fe; font-weight:800;">
-            <td>Total Bank Cash & Reserves (Available)</td>
-            <td id="print-pos-total-liquid-cash" class="text-right font-mono" style="color:#0369a1;">--</td>
-          </tr>
-          <tr>
-            <td>GL Book Checking Cash</td>
-            <td id="print-pos-checking-book" class="text-right font-mono">--</td>
-          </tr>
-          <tr>
-            <td>Sales Tax Holding Escrow (Separate)</td>
-            <td id="print-pos-tax-escrow" class="text-right font-mono">--</td>
-          </tr>
-          <tr>
-            <td>Shelter Property & Equipment (Net)</td>
-            <td id="print-pos-fixed" class="text-right font-mono">--</td>
-          </tr>
-          <tr style="background:#f1f5f9; font-weight:700;">
-            <td>Total Balance Sheet Assets (QBO)</td>
-            <td id="print-pos-total-assets" class="text-right font-mono text-emerald" style="font-weight:800;">--</td>
-          </tr>
-          <tr style="background:#fef2f2; font-weight:700;">
-            <td>Current Bills & Obligations (AP + CC + LOC)</td>
-            <td id="print-pos-obligations" class="text-right font-mono text-rose">--</td>
-          </tr>
-          <tr style="background:#ede9fe; font-weight:700;">
-            <td>Net Worth & Reserves (Total Equity)</td>
-            <td id="print-pos-total-equity" class="text-right font-mono" style="color:#5b21b6; font-weight:800;">--</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="note-box">
-        <strong>✓ Balanced:</strong> Total Assets equal Liabilities + Equity when the certified packet loads.
-      </div>
-    </div>
+  <h2>2. From shelter operations to the bottom line</h2>
+  <table>
+    <tbody>
+      <tr>
+        <td><strong>Shelter operations</strong></td>
+        <td id="print-bridge-qbo-net" class="text-right font-mono" style="font-weight:700;">--</td>
+      </tr>
+      <tr id="print-bridge-endowment-row">
+        <td>(+) Endowment</td>
+        <td id="print-bridge-endowment" class="text-right font-mono text-emerald">--</td>
+      </tr>
+      <tr>
+        <td>(+) Bottle recycling</td>
+        <td id="print-bridge-recycling-bottles" class="text-right font-mono text-emerald">--</td>
+      </tr>
+      <tr>
+        <td>(+) Kroger / Meijer rebates</td>
+        <td id="print-bridge-recycling-rebates" class="text-right font-mono text-emerald">--</td>
+      </tr>
+      <tr>
+        <td>(-) Van fuel</td>
+        <td id="print-bridge-fleet" class="text-right font-mono text-rose">--</td>
+      </tr>
+      <tr style="background:#f1f5f9; font-weight:700;">
+        <td>After van costs</td>
+        <td id="print-bridge-net-adj" class="text-right font-mono">--</td>
+      </tr>
+      <tr style="background:#ffe4e6; font-weight:800;">
+        <td>Bottom line</td>
+        <td id="print-bridge-allin" class="text-right font-mono text-rose">--</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note-box">
+    County animal-control pay is already in shelter operations. This card is only recycling, rebates, and the van.
   </div>
 
   <div class="footer">
@@ -672,20 +621,6 @@
           setEl('print-bridge-allin', formatCents(data.headline_kpis.all_in_net));
         }
 
-        if (data.statement_of_position) {
-          const pos = data.statement_of_position;
-          const bankCash = pos.assets.operating_checking_bank_register || 0;
-          const fidCash = pos.assets.fidelity_board_designated_reserve || 0;
-          setEl('print-pos-checking-bank', formatDollar(bankCash));
-          setEl('print-pos-fidelity', formatDollar(fidCash));
-          setEl('print-pos-total-liquid-cash', formatDollar(bankCash + fidCash));
-          setEl('print-pos-checking-book', formatDollar(pos.assets.operating_checking_first_merchants));
-          setEl('print-pos-tax-escrow', formatDollar(pos.assets.tax_holding_escrow));
-          setEl('print-pos-fixed', formatDollar(pos.assets.fixed_assets_net));
-          setEl('print-pos-total-assets', formatDollar(pos.assets.total_assets));
-          setEl('print-pos-obligations', formatDollar(pos.liabilities.total_operating_obligations_current));
-          setEl('print-pos-total-equity', formatDollar(pos.net_assets.total_equity_qbo));
-        }
 
         if (data.accounts_payable_schedule) {
           const ap = data.accounts_payable_schedule;
