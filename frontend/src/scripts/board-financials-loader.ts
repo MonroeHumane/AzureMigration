@@ -301,6 +301,9 @@ function hydrateHeadlineKpis(kpis: any, meta: any) {
 
   const fidRes = document.getElementById('kpi-fidelity-reserve');
   if (fidRes) fidRes.textContent = formatDollar(kpis.fidelity_reserve);
+
+  const totComb = document.getElementById('kpi-total-liquid-combined');
+  if (totComb) totComb.textContent = formatDollar(qbChecking + Number(kpis.fidelity_reserve || 0));
 }
 
 function hydrateOperatingBridge(kpis: any, bridge: any) {

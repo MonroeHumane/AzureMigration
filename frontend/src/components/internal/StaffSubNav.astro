@@ -14,20 +14,20 @@ interface Props {
 const { items, ariaLabel = 'Section navigation' } = Astro.props;
 ---
 
-<div class="bg-[#061815]/95 backdrop-blur-md border-b border-teal-800/80 sticky top-[57px] z-30 shadow-md">
+<div class="bg-white/95 dark:bg-[#061815]/95 backdrop-blur-md border-b border-slate-200 dark:border-teal-800/80 sticky top-[57px] lg:top-0 z-30 shadow-xs dark:shadow-md transition-colors duration-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-2.5 scrollbar-none" aria-label={ariaLabel}>
       {items.map((it) => (
         <button
           type="button"
           @click={`activeSection = '${it.id}'; window.history.replaceState({}, '', '?section=${it.id}'); window.scrollTo({top: 0, behavior: 'smooth'})`}
-          :class={`activeSection === '${it.id}' ? 'active bg-[#173a39] dark:bg-emerald-500/20 text-white dark:text-emerald-300 border-[#173a39] dark:border-emerald-500/40 shadow-xs font-bold' : 'bg-slate-100/90 dark:bg-teal-950/60 text-slate-700 dark:text-teal-200/90 hover:bg-slate-200 dark:hover:bg-teal-900 border-slate-200/80 dark:border-teal-800/70'`}
+          :class={`activeSection === '${it.id}' ? 'active bg-[#173a39] text-white dark:bg-emerald-500/20 dark:text-emerald-300 border-[#173a39] dark:border-emerald-500/40 shadow-xs font-bold' : 'bg-slate-100/90 dark:bg-teal-950/60 text-slate-700 dark:text-teal-200/90 hover:bg-slate-200 dark:hover:bg-teal-900/80 border-slate-200 dark:border-teal-800/70'`}
           class="subnav-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 border"
         >
           {it.icon && <span class="text-sm leading-none">{it.icon}</span>}
           <span>{it.label}</span>
           {it.count !== undefined && (
-            <span :class={`activeSection === '${it.id}' ? 'bg-emerald-500/30 text-emerald-200' : 'bg-teal-900 text-teal-300'`} class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold">
+            <span :class={`activeSection === '${it.id}' ? 'bg-white/20 dark:bg-emerald-500/30 text-white dark:text-emerald-200' : 'bg-slate-200 dark:bg-teal-900 text-slate-600 dark:text-teal-300'`} class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold">
               {it.count}
             </span>
           )}

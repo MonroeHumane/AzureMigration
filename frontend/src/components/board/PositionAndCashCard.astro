@@ -24,48 +24,60 @@ function formatDollar(val?: number): string {
 ---
 
 <div class="space-y-6">
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
     <!-- Col 1: Liquid Assets & Cash Stack -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
+    <div class="bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 border-t-4 border-t-emerald-500 shadow-xs p-5 sm:p-6 flex flex-col justify-between h-full transition-colors">
       <div>
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39]">Shelter Assets & Cash</h3>
-          <span id="pos-total-assets-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-teal-900/60 mb-3.5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39] dark:text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+            Shelter Assets &amp; Cash
+          </h3>
+          <span id="pos-total-assets-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-700/60">
             Total: {formatDollar(assets.total_assets)}
           </span>
         </div>
 
-        <div class="space-y-2.5 text-xs">
-          <!-- Line 1: General Ledger Book Cash -->
-          <div class="flex justify-between py-1 border-b border-slate-50">
-            <div>
-              <span class="text-slate-800 font-semibold">Book Checking Cash (General Ledger)</span>
-              <p class="text-[10px] text-slate-400">Recorded cash balance in accounting ledger</p>
-            </div>
-            <span id="pos-checking-book" class="font-mono font-medium text-slate-900">{formatDollar(assets.operating_checking_first_merchants)}</span>
-          </div>
-
-          <!-- Line 2: Bank Statement Ending Cash (Certified & Reconciled) -->
-          <div class="flex justify-between items-center py-1.5 border-b border-slate-50 bg-emerald-50/70 px-2 rounded border border-emerald-200/60">
+        <div class="space-y-2 text-xs">
+          <!-- Bank Statement Ending Cash (Certified & Reconciled) -->
+          <div class="flex justify-between items-center py-2 px-2.5 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/70">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-emerald-950 font-semibold">Bank Statement Verified Cash</span>
-                <a href="#bank-statement-viewer" @click="activeSection = 'audit'; window.history.replaceState({}, '', '?section=audit'); window.scrollTo({top: 0, behavior: 'smooth'})" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-200 text-emerald-900 hover:bg-emerald-300 transition" title="Inspect Bank Statement and Reconciliation Report">
+                <span class="text-emerald-950 dark:text-emerald-200 font-bold">Bank Statement Verified Cash</span>
+                <a href="#bank-statement-viewer" @click="activeSection = 'audit'; window.history.replaceState({}, '', '?section=audit'); window.scrollTo({top: 0, behavior: 'smooth'})" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-200 dark:bg-emerald-800/80 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-300 transition" title="Inspect Bank Statement and Reconciliation Report">
                   Statement &amp; Rec &rarr;
                 </a>
               </div>
-              <p class="text-[10px] text-emerald-800">Certified &amp; locked to statement close</p>
+              <p class="text-[10px] text-emerald-800 dark:text-emerald-300/80">Certified &amp; locked to statement close</p>
             </div>
-            <span id="pos-checking-register" class="font-mono font-bold text-emerald-900">{formatDollar(assets.operating_checking_bank_register)}</span>
+            <span id="pos-checking-register" class="font-mono font-bold text-emerald-900 dark:text-emerald-200 text-sm">{formatDollar(assets.operating_checking_bank_register)}</span>
+          </div>
+
+          <!-- Outstanding Checks Float Bridge -->
+          <div class="flex justify-between items-center py-1 px-2 border-b border-slate-100 dark:border-teal-900/40">
+            <div>
+              <span class="text-slate-600 dark:text-teal-200/90 font-medium">(&minus;) Outstanding Checks Float</span>
+              <p class="text-[10px] text-slate-400 dark:text-teal-400/60">10 checks issued but not yet cashed at bank</p>
+            </div>
+            <span class="font-mono font-semibold text-rose-600 dark:text-rose-400 text-xs">($23,379.38)</span>
+          </div>
+
+          <!-- General Ledger Book Cash -->
+          <div class="flex justify-between items-center py-1 px-2 border-b border-slate-100 dark:border-teal-900/40">
+            <div>
+              <span class="text-slate-800 dark:text-white font-semibold">(=) Book Checking Cash (General Ledger)</span>
+              <p class="text-[10px] text-slate-400 dark:text-teal-400/60">Recorded cash balance in accounting ledger</p>
+            </div>
+            <span id="pos-checking-book" class="font-mono font-medium text-slate-900 dark:text-white">{formatDollar(assets.operating_checking_first_merchants)}</span>
           </div>
 
           <!-- Total Real Liquid Bank Cash & Reserves -->
-          <div class="flex justify-between py-1.5 bg-emerald-50/80 border border-emerald-200/80 px-2 rounded font-semibold text-[#173a39]">
+          <div class="flex justify-between items-center py-2 px-2.5 bg-emerald-50/80 dark:bg-teal-950/60 border border-emerald-200/80 dark:border-teal-800/60 rounded-xl font-semibold text-[#173a39] dark:text-white">
             <div>
-              <span class="text-emerald-950 font-bold">Total Bank Cash & Reserves</span>
-              <p class="text-[10px] text-emerald-800 font-normal">First Merchants Bank ($24.5k) + Fidelity Reserve ($205.1k)</p>
+              <span class="text-emerald-950 dark:text-emerald-200 font-bold">Total Bank Cash &amp; Reserves</span>
+              <p class="text-[10px] text-emerald-800 dark:text-teal-300/80 font-normal">First Merchants Bank ($24.5k) + Fidelity Reserve ($205.1k)</p>
             </div>
-            <span id="pos-total-liquid-cash" class="font-mono text-emerald-900 font-bold text-sm">{formatDollar((assets.operating_checking_bank_register || 24526.34) + (assets.fidelity_board_designated_reserve || 205144))}</span>
+            <span id="pos-total-liquid-cash" class="font-mono text-emerald-900 dark:text-emerald-300 font-bold text-sm">{formatDollar((assets.operating_checking_bank_register || 24526.34) + (assets.fidelity_board_designated_reserve || 205144))}</span>
           </div>
 
           <!-- Hidden stubs to preserve script compatibility -->
@@ -73,164 +85,170 @@ function formatDollar(val?: number): string {
           <span id="pos-petty-cash" class="hidden">{formatDollar(assets.petty_cash)}</span>
           <span id="pos-total-book-cash" class="hidden">{formatDollar(assets.total_book_operating_cash)}</span>
 
-          <div class="flex justify-between py-1 border-b border-slate-50">
+          <div class="flex justify-between items-center py-1 px-2 border-b border-slate-100 dark:border-teal-900/40">
             <div>
-              <span class="text-slate-700 font-medium">Sales Tax Holding Escrow</span>
-              <p class="text-[10px] text-slate-400">Sales tax collected on retail/adoptions held for state remittance</p>
+              <span class="text-slate-700 dark:text-teal-200 font-medium">Sales Tax Holding Escrow</span>
+              <p class="text-[10px] text-slate-400 dark:text-teal-400/60">Sales tax collected on retail/adoptions held for state remittance</p>
             </div>
-            <span id="pos-tax-escrow" class="font-mono font-medium text-slate-800">{formatDollar(assets.tax_holding_escrow)}</span>
+            <span id="pos-tax-escrow" class="font-mono font-medium text-slate-800 dark:text-white">{formatDollar(assets.tax_holding_escrow)}</span>
           </div>
 
-          <div class="flex justify-between py-1 border-b border-slate-50">
+          <div class="flex justify-between items-center py-1 px-2 border-b border-slate-100 dark:border-teal-900/40">
             <div>
-              <span class="text-slate-700 font-medium">Fidelity Board Operating Reserve</span>
-              <p class="text-[10px] text-slate-400">Emergency reserve fund set aside by Board vote</p>
+              <span class="text-slate-700 dark:text-teal-200 font-medium">Fidelity Board Operating Reserve</span>
+              <p class="text-[10px] text-slate-400 dark:text-teal-400/60">Emergency reserve fund set aside by Board vote</p>
             </div>
-            <span id="pos-fidelity-reserve" class="font-mono font-medium text-indigo-700">{formatDollar(assets.fidelity_board_designated_reserve)}</span>
+            <span id="pos-fidelity-reserve" class="font-mono font-medium text-indigo-700 dark:text-indigo-300">{formatDollar(assets.fidelity_board_designated_reserve)}</span>
           </div>
 
-          <div class="flex justify-between py-1 border-b border-slate-50">
+          <div class="flex justify-between items-center py-1 px-2 border-b border-slate-100 dark:border-teal-900/40">
             <div>
-              <span class="text-slate-700 font-medium">Shelter Property & Equipment (Net)</span>
-              <p class="text-[10px] text-slate-400">Shelter building, land, play yards & van net of depreciation</p>
+              <span class="text-slate-700 dark:text-teal-200 font-medium">Shelter Property &amp; Equipment (Net)</span>
+              <p class="text-[10px] text-slate-400 dark:text-teal-400/60">Shelter building, land, play yards &amp; van net of depreciation</p>
             </div>
-            <span id="pos-fixed-assets" class="font-mono font-medium text-slate-900">{formatDollar(assets.fixed_assets_net)}</span>
+            <span id="pos-fixed-assets" class="font-mono font-medium text-slate-900 dark:text-white">{formatDollar(assets.fixed_assets_net)}</span>
           </div>
         </div>
       </div>
 
-      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-[#173a39]">
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-teal-900/60 flex justify-between items-center text-xs font-bold text-[#173a39] dark:text-white">
         <span>Total Shelter Assets:</span>
-        <span id="pos-total-assets" class="font-mono text-slate-950 text-sm">{formatDollar(assets.total_assets)}</span>
+        <span id="pos-total-assets" class="font-mono text-slate-950 dark:text-emerald-300 text-sm font-bold">{formatDollar(assets.total_assets)}</span>
       </div>
     </div>
 
     <!-- Col 2: Current Liabilities & Operating Obligations -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
+    <div class="bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 border-t-4 border-t-rose-500 shadow-xs p-5 sm:p-6 flex flex-col justify-between h-full transition-colors">
       <div>
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39]">Current Bills & Obligations</h3>
-          <span id="pos-total-liab-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-teal-900/60 mb-3.5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39] dark:text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
+            Current Bills &amp; Obligations
+          </h3>
+          <span id="pos-total-liab-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300 border border-rose-200/80 dark:border-rose-700/60">
             Current: {formatDollar(liab.total_operating_obligations_current)}
           </span>
         </div>
 
         <div class="space-y-2.5 text-xs">
-          <div class="flex justify-between py-1 border-b border-slate-50">
+          <div class="flex justify-between items-center py-1 px-2 border-b border-slate-100 dark:border-teal-900/40">
             <div>
-              <span class="text-slate-700 font-medium">Accounts Payable (Vendor Invoices)</span>
-              <p class="text-[10px] text-slate-400">Active bills for veterinary clinics, sanitation, food & utilities</p>
+              <span class="text-slate-700 dark:text-teal-200 font-medium">Accounts Payable (Vendor Invoices)</span>
+              <p class="text-[10px] text-slate-400 dark:text-teal-400/60">Active bills for veterinary clinics, sanitation, food &amp; utilities</p>
             </div>
-            <span id="pos-accounts-payable" class="font-mono font-semibold text-rose-700">{formatDollar(liab.accounts_payable)}</span>
+            <span id="pos-accounts-payable" class="font-mono font-semibold text-rose-700 dark:text-rose-400">{formatDollar(liab.accounts_payable)}</span>
           </div>
 
-          <div class="flex justify-between py-1 border-b border-slate-50">
+          <div class="flex justify-between items-center py-1 px-2 border-b border-slate-100 dark:border-teal-900/40">
             <div>
-              <span class="text-slate-700 font-medium">First Merchants Credit Card</span>
-              <p class="text-[10px] text-slate-400">Monthly shelter supplies and veterinary pharmacy charges</p>
+              <span class="text-slate-700 dark:text-teal-200 font-medium">First Merchants Credit Card</span>
+              <p class="text-[10px] text-slate-400 dark:text-teal-400/60">Monthly shelter supplies and veterinary pharmacy charges</p>
             </div>
-            <span id="pos-merchants-cc" class="font-mono font-medium text-slate-900">{formatDollar(liab.first_merchants_credit_card)}</span>
+            <span id="pos-merchants-cc" class="font-mono font-medium text-slate-900 dark:text-white">{formatDollar(liab.first_merchants_credit_card)}</span>
           </div>
 
-          <div class="flex justify-between py-1 border-b border-slate-50">
+          <div class="flex justify-between items-center py-1 px-2 border-b border-slate-100 dark:border-teal-900/40">
             <div>
-              <span class="text-slate-700 font-medium">Drawn Line of Credit</span>
-              <p class="text-[10px] text-slate-400">Active revolving line balance ($0 currently borrowed)</p>
+              <span class="text-slate-700 dark:text-teal-200 font-medium">Drawn Line of Credit</span>
+              <p class="text-[10px] text-slate-400 dark:text-teal-400/60">Active revolving line balance ($0 currently borrowed)</p>
             </div>
-            <span id="pos-line-of-credit" class="font-mono font-semibold text-amber-700">{formatDollar(liab.drawn_line_of_credit)}</span>
+            <span id="pos-line-of-credit" class="font-mono font-semibold text-emerald-700 dark:text-emerald-400">{formatDollar(liab.drawn_line_of_credit)}</span>
           </div>
 
-          <div class="p-2.5 rounded bg-slate-50 border border-slate-200 mt-2">
-            <div class="flex justify-between text-slate-700 font-semibold mb-1">
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-[#061815]/60 border border-slate-200 dark:border-teal-900/60 mt-3 space-y-1">
+            <div class="flex justify-between text-slate-700 dark:text-teal-200 font-semibold mb-1">
               <span>Payroll Direct Deposit Clearing</span>
-              <span id="pos-payroll-payable" class="font-mono text-slate-500">{formatDollar(liab.payroll_clearing_direct_deposit_payable)}</span>
+              <span id="pos-payroll-payable" class="font-mono text-slate-500 dark:text-teal-400">{formatDollar(liab.payroll_clearing_direct_deposit_payable)}</span>
             </div>
-            <p class="text-[11px] text-slate-500 leading-tight">
+            <p class="text-[11px] text-slate-500 dark:text-teal-300/80 leading-tight">
               <strong>Status:</strong> <span id="pos-payroll-clearing-note">{liab.payroll_clearing_footnote || 'All caregiver payroll paychecks for August cleared through the bank on time with zero unpaid liabilities.'}</span>
             </p>
           </div>
 
-          <div class="p-2 rounded bg-slate-50 border border-slate-200 text-[11px] text-slate-600 leading-tight">
-            All vendor invoices and credit cards are current with no past-due penalties.
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-[#061815]/60 border border-slate-200 dark:border-teal-900/60 text-[11px] text-slate-600 dark:text-teal-200/80 leading-tight">
+            <strong>Credit standing:</strong> All vendor invoices and credit cards are current with zero past-due penalties.
           </div>
         </div>
       </div>
 
-      <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
-        <span>Total Current Bills & Debt:</span>
-        <span id="pos-total-liabilities" class="font-mono font-semibold text-slate-800">{formatDollar(liab.total_operating_obligations_current)}</span>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-teal-900/60 text-xs text-slate-500 dark:text-teal-300/80 flex justify-between items-center font-semibold">
+        <span>Total Current Bills &amp; Debt:</span>
+        <span id="pos-total-liabilities" class="font-mono font-bold text-slate-800 dark:text-white text-sm">{formatDollar(liab.total_operating_obligations_current)}</span>
       </div>
     </div>
 
     <!-- Col 3: Net Assets Structure & Equity -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
+    <div class="bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 border-t-4 border-t-purple-500 shadow-xs p-5 sm:p-6 flex flex-col justify-between h-full transition-colors">
       <div>
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39]">Net Worth & Reserves (Equity)</h3>
-          <span id="pos-total-equity-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-teal-900/60 mb-3.5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-[#173a39] dark:text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0"></span>
+            Net Worth &amp; Reserves (Equity)
+          </h3>
+          <span id="pos-total-equity-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200/80 dark:border-purple-700/60">
             Total Net Worth: {formatDollar(netAssets.total_equity_qbo)}
           </span>
         </div>
 
         <div class="space-y-2 text-xs">
           <!-- Exact Net Assets Walk Lines -->
-          <div class="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-1">
-            <div class="flex justify-between font-semibold text-slate-800">
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-[#061815]/60 border border-slate-200 dark:border-teal-900/60 space-y-1.5">
+            <div class="flex justify-between font-semibold text-slate-800 dark:text-white">
               <div>
-                <span>Unrestricted Reserves & Capital</span>
-                <p class="text-[10px] text-slate-400 font-normal">Fidelity designated reserve + general operating capital</p>
+                <span>Unrestricted Reserves &amp; Capital</span>
+                <p class="text-[10px] text-slate-400 dark:text-teal-400/60 font-normal">Fidelity designated reserve + general operating capital</p>
               </div>
               <span id="pos-net-without-restrictions" class="font-mono">{formatDollar(nodonor.total_without_donor_restrictions)}</span>
             </div>
 
-            <div class="flex justify-between font-semibold text-purple-900 pt-1 border-t border-slate-200">
+            <div class="flex justify-between font-semibold text-purple-900 dark:text-purple-300 pt-1 border-t border-slate-200 dark:border-teal-900/60">
               <div>
                 <span>(+) Donor-Restricted Program Funds</span>
-                <p class="text-[10px] text-purple-700/80 font-normal">Dedicated gifts for ANGELS medical care & cat room expansion</p>
+                <p class="text-[10px] text-purple-700/80 dark:text-purple-400/80 font-normal">Dedicated gifts for ANGELS medical care &amp; cat room expansion</p>
               </div>
               <span id="pos-net-with-restrictions" class="font-mono">{formatDollar(withdonor.total_with_donor_restrictions)}</span>
             </div>
 
-            <div class="flex justify-between text-rose-700">
+            <div class="flex justify-between text-rose-700 dark:text-rose-400">
               <div>
-                <span>(-) Historical Conversion Balance</span>
-                <p class="text-[10px] text-rose-500/80">One-time bookkeeping balance from initial QuickBooks setup</p>
+                <span>(&minus;) Historical Conversion Balance</span>
+                <p class="text-[10px] text-rose-500/80 dark:text-rose-400/70">One-time bookkeeping balance from initial QuickBooks setup</p>
               </div>
               <span id="pos-opening-equity" class="font-mono">{formatDollar(netAssets.opening_balance_equity)}</span>
             </div>
 
-            <div class="flex justify-between text-slate-700">
+            <div class="flex justify-between text-slate-700 dark:text-teal-200">
               <div>
                 <span>(+) Prior Years Accumulated Reserves</span>
-                <p class="text-[10px] text-slate-400">Surplus reserves built up from prior operating years</p>
+                <p class="text-[10px] text-slate-400 dark:text-teal-400/60">Surplus reserves built up from prior operating years</p>
               </div>
               <span id="pos-retained-earnings" class="font-mono">{formatDollar(netAssets.retained_earnings_historical)}</span>
             </div>
 
-            <div class="flex justify-between text-rose-700">
+            <div class="flex justify-between text-rose-700 dark:text-rose-400">
               <div>
-                <span>(-) Year-to-Date Operating Deficit</span>
-                <p class="text-[10px] text-rose-500/80">Seasonal net deficit through period end funded from reserves</p>
+                <span>(&minus;) Year-to-Date Operating Deficit</span>
+                <p class="text-[10px] text-rose-500/80 dark:text-rose-400/70">Seasonal net deficit through period end funded from reserves</p>
               </div>
               <span id="pos-current-net" class="font-mono">{formatDollar(netAssets.current_year_net_margin)}</span>
             </div>
 
-            <div class="pt-1.5 border-t-2 border-slate-300 flex justify-between font-bold text-slate-900">
-              <span>(=) Total Net Worth & Reserves</span>
-              <span id="pos-total-equity" class="font-mono text-[#1c746c]">{formatDollar(netAssets.total_equity_qbo)}</span>
+            <div class="pt-2 border-t-2 border-slate-300 dark:border-teal-700/80 flex justify-between font-bold text-slate-900 dark:text-white">
+              <span>(=) Total Net Worth &amp; Reserves</span>
+              <span id="pos-total-equity" class="font-mono text-[#1c746c] dark:text-emerald-300 text-sm font-bold">{formatDollar(netAssets.total_equity_qbo)}</span>
             </div>
           </div>
 
           <!-- Balance Sheet Equilibrium Confirmation -->
-          <div class="p-2 rounded bg-emerald-50 border border-emerald-200 text-[10.5px] text-emerald-900 leading-tight">
-            <strong>✓ Balanced:</strong> Total Assets equal Liabilities + Net Worth (<strong>$0.00 variance</strong>).
+          <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[10.5px] text-emerald-900 dark:text-emerald-300 leading-tight">
+            <strong>&check; Balanced:</strong> Total Assets equal Liabilities + Net Worth (<strong>$0.00 variance</strong>).
           </div>
         </div>
       </div>
 
-      <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-[#173a39]">
-        <span>Total Liabilities & Net Worth:</span>
-        <span id="pos-total-eq-assets" class="font-mono text-slate-950 text-sm">{formatDollar(assets.total_assets)}</span>
+      <div class="mt-3 pt-2 border-t border-slate-100 dark:border-teal-900/60 flex justify-between items-center text-xs font-bold text-[#173a39] dark:text-white">
+        <span>Total Liabilities &amp; Net Worth:</span>
+        <span id="pos-total-eq-assets" class="font-mono text-slate-950 dark:text-emerald-300 text-sm font-bold">{formatDollar(assets.total_assets)}</span>
       </div>
     </div>
   </div>

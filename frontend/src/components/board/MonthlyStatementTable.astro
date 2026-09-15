@@ -47,13 +47,13 @@ const totalMarginPct = totalRev > 0 ? (totalNet / totalRev) * 100 : 0;
 const monthsMap: Record<string, any> = {};
 ---
 
-<div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" id="monthly-statement-root" data-statements={statements.length ? JSON.stringify(statements) : ''}>
-  <div class="px-5 py-4 border-b border-slate-100 bg-[#f5efe3]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+<div class="bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 shadow-xs overflow-hidden transition-colors" id="monthly-statement-root" data-statements={statements.length ? JSON.stringify(statements) : ''}>
+  <div class="px-5 py-4 border-b border-slate-100 dark:border-teal-800/80 bg-[#f5efe3]/50 dark:bg-[#061815]/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     <div>
-      <h3 class="text-base font-semibold text-[#173a39]">
+      <h3 class="text-base font-semibold text-[#173a39] dark:text-white">
         Month by month
       </h3>
-      <p class="text-xs text-slate-500 mt-0.5">
+      <p class="text-xs text-slate-500 dark:text-teal-300/80 mt-0.5">
         Click a month to see where the money came from and went.
       </p>
     </div>
@@ -61,10 +61,10 @@ const monthsMap: Record<string, any> = {};
       <button
         id="export-statement-csv-btn"
         type="button"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#173a39] border border-slate-300 hover:bg-slate-50 hover:border-slate-400 shadow-xs transition cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-teal-950/60 text-[#173a39] dark:text-teal-200 border border-slate-300 dark:border-teal-800/80 hover:bg-slate-50 dark:hover:bg-teal-900 shadow-xs transition cursor-pointer"
         title="Download the month-by-month spreadsheet"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <polyline points="7 10 12 15 17 10"></polyline>
           <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -77,7 +77,7 @@ const monthsMap: Record<string, any> = {};
   <!-- Desktop Table View -->
   <div class="hidden md:block overflow-x-auto">
     <table class="w-full text-left text-xs sm:text-sm">
-      <thead class="bg-slate-100/80 text-slate-600 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
+      <thead class="bg-slate-100/80 dark:bg-teal-950/80 text-slate-600 dark:text-teal-200 font-semibold text-xs uppercase tracking-wider border-b border-slate-200 dark:border-teal-800/80 sticky top-0 z-10">
         <tr>
           <th scope="col" class="py-3 px-4">Month</th>
           <th scope="col" class="py-3 px-3 text-right">Money in</th>
@@ -89,7 +89,7 @@ const monthsMap: Record<string, any> = {};
           <th scope="col" class="py-3 px-4">Why</th>
         </tr>
       </thead>
-      <tbody id="statement-rows-tbody" class="divide-y divide-slate-200/70">
+      <tbody id="statement-rows-tbody" class="divide-y divide-slate-200/70 dark:divide-teal-900/40">
         {statements.length > 0 ? (
           statements.map((m) => {
             const isSurplus = m.net_margin >= 0;
@@ -100,24 +100,24 @@ const monthsMap: Record<string, any> = {};
             return (
               <>
                 <tr
-                  class="hover:bg-slate-50/80 transition cursor-pointer group"
+                  class="hover:bg-slate-50/80 dark:hover:bg-teal-900/40 transition cursor-pointer group"
                   id={`row-${m.id}`}
                   data-target={`drawer-${m.id}`}
                   title="Click to toggle month drilldown"
                 >
-                  <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap flex items-center gap-2">
-                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition transform group-[.is-open]:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <td class="py-3 px-4 font-semibold text-slate-900 dark:text-white whitespace-nowrap flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-emerald-300 transition transform group-[.is-open]:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                     <span>{m.month}</span>
                     {m.is_partial && (
-                      <span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded border border-amber-200">
+                      <span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-700/60">
                         Partial
                       </span>
                     )}
                   </td>
-                  <td class="py-3 px-3 text-right font-mono font-medium text-slate-900 whitespace-nowrap">{formatDollar(m.revenue)}</td>
-                  <td class="py-3 px-3 text-right font-mono text-slate-700 whitespace-nowrap">{formatDollar(m.cogs)}</td>
+                  <td class="py-3 px-3 text-right font-mono font-medium text-slate-900 dark:text-white whitespace-nowrap">{formatDollar(m.revenue)}</td>
+                  <td class="py-3 px-3 text-right font-mono text-slate-700 dark:text-teal-200 whitespace-nowrap">{formatDollar(m.cogs)}</td>
                   <td class="py-3 px-3 text-right font-mono text-slate-700 whitespace-nowrap">{formatDollar(m.operating_exp)}</td>
                   <td class="py-3 px-3 text-right font-mono text-slate-700 whitespace-nowrap">{formatDollar(m.other_exp)}</td>
                   <td class="py-3 px-3 text-right font-mono font-medium text-slate-900 whitespace-nowrap">{formatDollar(m.total_exp)}</td>
@@ -138,20 +138,20 @@ const monthsMap: Record<string, any> = {};
                 </tr>
 
                 {/* 3-Level Interactive Drawer */}
-                <tr id={`drawer-${m.id}`} class="hidden bg-[#fbf9f5] border-y border-slate-200/80">
+                <tr id={`drawer-${m.id}`} class="hidden bg-[#fbf9f5] dark:bg-[#061815]/80 border-y border-slate-200/80 dark:border-teal-800/80">
                   <td colspan="9" class="p-4 sm:p-6">
                     <div class="space-y-4">
                       {/* Top Bar: Title, Live Search, Action to Jump to Certified P&L */}
-                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200 dark:border-teal-900/60">
                         <div>
                           <div class="flex items-center gap-2">
-                            <span class="text-sm font-bold text-slate-900">{m.month} Hierarchical Drilldown</span>
-                            <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">QuickBooks Verified</span>
-                            <span class="text-[11px] text-slate-500">
+                            <span class="text-sm font-bold text-slate-900 dark:text-white">{m.month} Hierarchical Drilldown</span>
+                            <span class="text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-700/60 font-medium">QuickBooks Verified</span>
+                            <span class="text-[11px] text-slate-500 dark:text-teal-300/80">
                               ({drilldown?.totalExpenseTxs || 0} spend txs · {drilldown?.totalRevenueTxs || 0} inflow txs)
                             </span>
                           </div>
-                          <p class="text-xs text-slate-500 mt-0.5">
+                          <p class="text-xs text-slate-500 dark:text-teal-300/80 mt-0.5">
                             Level 1: Categories with cost · Level 2: Bundled payees &amp; vendors · Level 3: Individual transactions
                           </p>
                         </div>
@@ -162,10 +162,10 @@ const monthsMap: Record<string, any> = {};
                             <input
                               type="text"
                               placeholder="Filter categories, payees, checks..."
-                              class="drawer-search-input w-full pl-7 pr-2 py-1.5 text-xs rounded-md border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-teal-600 focus:border-teal-600"
+                              class="drawer-search-input w-full pl-7 pr-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-teal-800/80 bg-white dark:bg-teal-950/80 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-teal-400/60 focus:outline-hidden focus:ring-1 focus:ring-teal-600 dark:focus:ring-emerald-400 focus:border-teal-600 dark:focus:border-emerald-400"
                               data-drawer-id={`drawer-${m.id}`}
                             />
-                            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 text-slate-400 dark:text-teal-400 absolute left-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                           </div>
@@ -173,7 +173,7 @@ const monthsMap: Record<string, any> = {};
                           {/* Action to Jump to Section 3 (Certified P&L) */}
                           <button
                             type="button"
-                            class="jump-to-explorer-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-[#173a39] text-white hover:bg-teal-900 transition shadow-xs cursor-pointer"
+                            class="jump-to-explorer-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#173a39] text-white hover:bg-teal-900 dark:bg-teal-800 dark:hover:bg-teal-700 transition shadow-xs cursor-pointer"
                             data-month-id={m.id}
                             title="Open this month in the certified P&L explorer with search & export"
                           >
@@ -427,7 +427,7 @@ const monthsMap: Record<string, any> = {};
         )}
       </tbody>
       {/* Certified Footing Row */}
-      <tfoot class="certified-footing bg-[#173a39] text-white font-semibold text-xs border-t-2 border-[#0f766e]">
+      <tfoot class="certified-footing bg-[#173a39] dark:bg-[#061815] text-white font-semibold text-xs border-t-2 border-[#0f766e] dark:border-teal-700">
         <tr>
           <td class="py-3 px-4 font-bold text-white uppercase tracking-wider">
             Combined statement total
@@ -445,7 +445,7 @@ const monthsMap: Record<string, any> = {};
   </div>
 
   <!-- Mobile Stacked Card View (hidden on md+) -->
-  <div id="monthly-statement-mobile-container" class="md:hidden divide-y divide-slate-200 bg-slate-50/50">
+  <div id="monthly-statement-mobile-container" class="md:hidden divide-y divide-slate-200 dark:divide-teal-900/40 bg-slate-50/50 dark:bg-[#061815]/60">
     {statements.length > 0 ? (
       statements.map((m) => {
         const isSurplus = m.net_margin >= 0;
@@ -454,18 +454,18 @@ const monthsMap: Record<string, any> = {};
         const expCats = drilldown?.expenseCategories || [];
 
         return (
-          <div class="p-4 bg-white hover:bg-slate-50/80 transition" id={`mobile-card-${m.id}`}>
+          <div class="p-4 bg-white dark:bg-[#0b2420]/85 hover:bg-slate-50/80 dark:hover:bg-teal-900/40 transition" id={`mobile-card-${m.id}`}>
             <div class="flex items-start justify-between gap-2 mb-2">
               <div>
-                <div class="flex items-center gap-1.5 font-bold text-slate-900 text-sm">
+                <div class="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white text-sm">
                   <span>{m.month}</span>
                   {m.is_partial && (
-                    <span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded border border-amber-200">
+                    <span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-700/60">
                       Partial
                     </span>
                   )}
                 </div>
-                <div class="text-[11px] text-slate-500 mt-0.5" title={m.driver}>
+                <div class="text-[11px] text-slate-500 dark:text-teal-300/80 mt-0.5" title={m.driver}>
                   {m.driver}
                 </div>
               </div>
