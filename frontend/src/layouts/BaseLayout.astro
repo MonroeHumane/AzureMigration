@@ -267,9 +267,49 @@ const schemaOrg = {
         });
       })();
     </script>
+    <script is:inline>
+      (function() {
+        function syncMembershipNav(doc) {
+          try {
+            var raw = localStorage.getItem('mchs_site_content_v2');
+            if (raw) {
+              var parsed = JSON.parse(raw);
+              if (parsed && parsed.membership && parsed.membership.enabled === false) {
+                doc.querySelectorAll('[data-nav-membership]').forEach(function(el) {
+                  el.textContent = 'Membership (coming soon)';
+                  el.classList.add('text-stone-400');
+                });
+                doc.querySelectorAll('[data-footer-membership]').forEach(function(el) {
+                  el.textContent = 'Membership (coming soon)';
+                });
+                doc.querySelectorAll('[data-bottom-sheet-membership]').forEach(function(el) {
+                  el.textContent = 'Membership (coming soon)';
+                  el.classList.add('text-stone-400');
+                });
+                doc.querySelectorAll('[data-donate-membership]').forEach(function(el) {
+                  el.textContent = 'Membership (coming soon)';
+                });
+                doc.querySelectorAll('[data-resources-membership]').forEach(function(el) {
+                  el.textContent = 'Membership (coming soon)';
+                });
+              }
+            }
+          } catch(e) {}
+        }
+        syncMembershipNav(document);
+        document.addEventListener('astro:before-swap', function(e) {
+          syncMembershipNav(e.newDocument);
+        });
+      })();
+    </script>
     <script>
       import { initErrorReporter } from '../lib/error-reporter';
-      document.addEventListener('astro:page-load', initErrorReporter);
+      import { initMembershipSync } from '../lib/membership-sync';
+      document.addEventListener('astro:page-load', () => {
+        initErrorReporter();
+        initMembershipSync();
+      });
+      initMembershipSync();
     </script>
 
     <!-- Progressive Web App Service Worker Registration -->

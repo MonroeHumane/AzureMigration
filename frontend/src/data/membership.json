@@ -1,0 +1,31 @@
+{
+  "enabled": true,
+  "label": "2026 Memberships Now Open",
+  "title": "Join the Monroe Humane Pack",
+  "disabledLabel": "Under Development",
+  "disabledTitle": "Program Details Are Under Development",
+  "disabledNotice": "Our annual membership program is currently undergoing review. Specific tiers, pricing, and perks have not yet been finalized by our board and staff for this cycle. Shirts and merch are sold at the shelter, and direct tax-deductible gifts can be made today.",
+  "zeffyUrl": "https://www.zeffy.com/en-US/donation-form/donate-to-change-lives-22422",
+  "tiers": {
+    "kitty-circle": {
+      "enabled": true,
+      "name": "Kitty Circle"
+    },
+    "beagle-buddies": {
+      "enabled": true,
+      "name": "Beagle Buddies"
+    },
+    "spaniel-squad": {
+      "enabled": true,
+      "name": "Spaniel Squad"
+    },
+    "saint-bernard": {
+      "enabled": true,
+      "name": "The Saint Bernard Society"
+    },
+    "lifetime-guardian": {
+      "enabled": true,
+      "name": "Lifetime Guardian"
+    }
+  }
+}

@@ -329,16 +329,26 @@ const MEMORIAL_EMAIL = 'jackie@monroe-humane.org';
 </BaseLayout>
 
 <script>
-  // Re-initialize Zeffy embed if visitor navigates via View Transitions
+  // Re-initialize Zeffy embed after View Transitions navigation by re-injecting the script tag.
+  // Zeffy v2 does not expose a Zeffy.embed.init() API — the script must be reloaded fresh.
   document.addEventListener('astro:page-load', () => {
-    const w = window as any;
-    if (w.Zeffy?.embed?.init) {
-      try {
-        w.Zeffy.embed.init();
-      } catch {
-        // Fallback active
-      }
-    }
+    const embedEl = document.querySelector('[data-zeffy-embed]');
+    if (!embedEl) return; // Not on this page
+
+    const existing = document.querySelector('script[src*="zeffy-embed.js"]');
+    if (existing) existing.remove();
+
+    const s = document.createElement('script');
+    s.src = 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
+    s.onerror = () => {
+      document.querySelectorAll('[data-zeffy-embed-fallback]').forEach((el) => {
+        (el as HTMLElement).style.display = 'block';
+        el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach((f) => {
+          (f as HTMLIFrameElement).src = f.getAttribute('data-zeffy-embed-src') ?? '';
+        });
+      });
+    };
+    document.head.appendChild(s);
   });
 </script>
 

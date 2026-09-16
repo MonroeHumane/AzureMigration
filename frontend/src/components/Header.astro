@@ -55,7 +55,7 @@ const NAV: NavItem[] = [
     overviewHref: '/resources',
     children: [
       { label: 'Shop (coming soon)', href: '/shop' },
-      { label: 'Membership (coming soon)', href: '/membership' },
+      { label: 'Membership', href: '/membership' },
       { label: 'FAQ', href: '/faq' },
       { label: 'Newsletter archive', href: '/newsletter' },
       { label: 'Latest newsletter', href: '/#Newsletter' },
@@ -148,6 +148,7 @@ const isCurrent = (item: NavItem) => {
                       <a
                         class="monroe-global-nav__link"
                         href={child.href}
+                        {...(child.href === '/membership' ? { 'data-nav-membership': '' } : {})}
                         {...(child.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                       >
                         {child.label}

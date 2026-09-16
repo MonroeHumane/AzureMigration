@@ -25,7 +25,7 @@ export const HeadlineKpisSchema = z.object({
   runway_reserve_months: z.number().default(0),
   average_monthly_burn: z.number().default(0),
   baseline_monthly_burn: z.number().default(0)
-}).passthrough();
+}).catchall(z.any());
 
 export const RevenueExpenseItemSchema = z.object({
   name: z.string(),
@@ -48,7 +48,7 @@ export const MonthlyStatementSchema = z.object({
   driver: z.string().default(''),
   rev_items: z.array(RevenueExpenseItemSchema).default([]),
   exp_items: z.array(RevenueExpenseItemSchema).default([])
-}).passthrough();
+}).catchall(z.any());
 
 export const CheckingBalanceHistorySchema = z.object({
   years: z.record(z.string(), z.array(z.number())),
@@ -59,8 +59,8 @@ export const CheckingBalanceHistorySchema = z.object({
     has_partial_cutoff: z.boolean().optional(),
     source: z.string().optional(),
     basis: z.string().optional()
-  }).passthrough().optional()
-}).passthrough();
+  }).catchall(z.any()).optional()
+}).catchall(z.any());
 
 export const FinancialPayloadSchema = z.object({
   meta: z.any().optional(),
@@ -72,4 +72,4 @@ export const FinancialPayloadSchema = z.object({
   bank_statements: z.any().optional(),
   donors: z.array(z.any()).optional(),
   donor_meta: z.any().optional()
-}).passthrough();
+}).catchall(z.any());

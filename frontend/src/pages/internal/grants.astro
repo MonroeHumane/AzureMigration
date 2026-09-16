@@ -1301,15 +1301,6 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
     }
 
     async function loadGrants(force = false) {
-      if (!force && grantsMemoryCache && (Date.now() - grantsMemoryCacheAt < 5 * 60 * 1000)) {
-        currentGrants = grantsMemoryCache;
-        normalizedGrants = currentGrants.map(normalizeGrantData);
-        renderGrantsTable();
-        updateSummaryCards();
-        setGrantSyncState('ready');
-        return;
-      }
-
       setGrantSyncState('connecting');
       if (grantsContainer && !grantsContainer.querySelector('[data-status], table')) {
         grantsContainer.innerHTML = `
@@ -1322,9 +1313,14 @@ import StaffPortalLayout from "../../layouts/StaffPortalLayout.astro";
       }
 
       try {
-        const fresh = await fetchGrantsFromDirectus();
-        grantsMemoryCache = fresh;
-        grantsMemoryCacheAt = Date.now();
+        let fresh;
+        if (!force && grantsMemoryCache && (Date.now() - grantsMemoryCacheAt < 5 * 60 * 1000)) {
+          fresh = grantsMemoryCache;
+        } else {
+          fresh = await fetchGrantsFromDirectus();
+          grantsMemoryCache = fresh;
+          grantsMemoryCacheAt = Date.now();
+        }
         currentGrants = fresh;
         normalizedGrants = currentGrants.map(normalizeGrantData);
 

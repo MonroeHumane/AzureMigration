@@ -55,8 +55,11 @@ class AdoptedexController
             'album_25'   => ['packs' => 1, 'coins' => 10, 'tier' => 'duo'],
         ],
         'petsnake' => [
-            'score_20' => ['packs' => 1, 'coins' => 2, 'tier' => 'standard'],
-            'score_50' => ['packs' => 1, 'coins' => 5, 'tier' => 'standard'],
+            'score_20'   => ['packs' => 1, 'coins' => 2,  'tier' => 'standard'],
+            'score_50'   => ['packs' => 1, 'coins' => 5,  'tier' => 'standard'],
+            'floor_5'    => ['packs' => 1, 'coins' => 2,  'tier' => 'standard'],
+            'floor_10'   => ['packs' => 1, 'coins' => 5,  'tier' => 'duo'],
+            'boss_clear' => ['packs' => 1, 'coins' => 15, 'tier' => 'deluxe'],
         ],
         'shelter_run' => [
             'distance_500'  => ['packs' => 1, 'coins' => 1, 'tier' => 'standard'],

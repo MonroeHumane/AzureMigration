@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f766e">
+  <title>Pet Snake Adventure | Monroe Humane Arcade</title>
+  <script src="../embed.js"></script>
+  <script src="../theme.js?v=2"></script>
+  <link rel="stylesheet" href="../humane-game-system.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="game-shell" class="ps-shell">
+    <canvas id="game-canvas" tabindex="0" aria-label="Pet Snake Adventure playfield"></canvas>
+
+    <div id="ui-root" class="ps-ui-root" aria-live="polite"></div>
+
+    <div class="ps-mobile-dpad" id="ps-mobile-dpad" aria-hidden="true">
+      <div class="ps-dpad-row">
+        <button type="button" class="ps-dpad-btn ps-dpad-up" data-snake-dir="up" aria-label="Up">▲</button>
+      </div>
+      <div class="ps-dpad-row">
+        <button type="button" class="ps-dpad-btn ps-dpad-left" data-snake-dir="left" aria-label="Left">◀</button>
+        <button type="button" class="ps-dpad-btn ps-dpad-down" data-snake-dir="down" aria-label="Down">▼</button>
+        <button type="button" class="ps-dpad-btn ps-dpad-right" data-snake-dir="right" aria-label="Right">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared.js"></script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

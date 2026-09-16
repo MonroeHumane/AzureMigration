@@ -22,7 +22,7 @@ const {
   <div class="home-editable-donate-card overflow-visible rounded-[28px] border border-[rgba(36,72,67,0.12)] shadow-[0_28px_60px_rgba(31,53,51,0.1)]">
     <div
       id="Membership"
-      class="monroe-membership-plans-shared monroe-membership-plans-shared--under-construction"
+      class="monroe-membership-plans-shared"
     >
       <div class="home-editable-membership-intro">
         <p class="home-editable-section-label m-0 mb-3 font-['Jost','Segoe_UI',sans-serif] text-[0.8rem] font-bold uppercase tracking-[0.16em] text-teal-700">
@@ -32,8 +32,76 @@ const {
           {title}
         </h2>
       </div>
-      <div class="monroe-membership-under-construction" role="status">
-        <p>{underConstruction}</p>
+      <!-- Active 2026 Membership Showcase -->
+      <div data-home-membership-active class="monroe-membership-preview p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-teal-900/5 via-emerald-900/5 to-amber-900/5 border border-teal-900/10 text-center">
+        <p class="max-w-2xl mx-auto text-sm sm:text-base text-gray-700 leading-relaxed mb-6">
+          {underConstruction}
+        </p>
+
+        <!-- 5 Tiers Mini Showcase -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 max-w-4xl mx-auto mb-6 text-left">
+          <div class="bg-white p-3.5 rounded-xl border border-teal-900/10 shadow-2xs hover:-translate-y-1 hover:shadow-md hover:border-teal-700/30 transition-all duration-200">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-teal-700 block">Tier 1 &bull; $5/mo</span>
+            <div class="font-bold text-teal-950 text-sm">Kitty Circle</div>
+            <div class="text-xs text-gray-500 mt-0.5">$60+ / year</div>
+          </div>
+          <div class="bg-white p-3.5 rounded-xl border border-teal-900/10 shadow-2xs hover:-translate-y-1 hover:shadow-md hover:border-teal-700/30 transition-all duration-200">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-teal-700 block">Tier 2 &bull; $10/mo</span>
+            <div class="font-bold text-teal-950 text-sm">Beagle Buddies</div>
+            <div class="text-xs text-gray-500 mt-0.5">$120+ / year</div>
+          </div>
+          <div class="bg-white p-3.5 rounded-xl border border-teal-900/10 shadow-2xs hover:-translate-y-1 hover:shadow-md hover:border-teal-700/30 transition-all duration-200">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-teal-700 block">Tier 3 &bull; $20/mo</span>
+            <div class="font-bold text-teal-950 text-sm">Spaniel Squad</div>
+            <div class="text-xs text-gray-500 mt-0.5">$240+ / year</div>
+          </div>
+          <div class="bg-teal-900 text-white p-3.5 rounded-xl border border-teal-700 shadow-xs relative overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-200">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">Featured Tier</span>
+            <div class="font-bold text-white text-sm">Saint Bernard</div>
+            <div class="text-xs text-teal-200 mt-0.5">$480+ / year</div>
+          </div>
+          <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-300/80 shadow-2xs col-span-2 sm:col-span-1 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">Legacy Honor</span>
+            <div class="font-bold text-amber-950 text-sm">Lifetime Guardian</div>
+            <div class="text-xs text-amber-700 mt-0.5">$10,000+ overall</div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="/membership"
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-8 py-3.5 rounded-full bg-teal-800 text-white hover:bg-teal-900 transition-all shadow-sm text-xs min-h-[44px]"
+          >
+            Explore 2026 Membership Levels &amp; Perks &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Paused / Under Development View (Toggled when disabled in Content Manager) -->
+      <div data-home-membership-paused class="hidden monroe-membership-under-construction p-6 sm:p-8 rounded-2xl bg-amber-50/70 border border-amber-300/80 text-center" role="status">
+        <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto mb-3 border border-amber-300">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-amber-950 mb-2">Program Details Are Under Development</h3>
+        <p data-home-membership-notice-text class="max-w-2xl mx-auto text-xs sm:text-sm text-amber-900 leading-relaxed mb-6">
+          Our annual membership program is currently undergoing review. Specific tiers, pricing, and perks have not yet been finalized by our board and staff for this cycle.
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="/donate"
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-7 py-3 rounded-full bg-teal-800 text-white hover:bg-teal-900 transition-all text-xs"
+          >
+            Support Animals Today &rarr;
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center justify-center font-bold uppercase tracking-wider px-6 py-3 rounded-full bg-white text-slate-800 border border-slate-300 hover:bg-slate-100 transition-all text-xs"
+          >
+            Contact Shelter
+          </a>
+        </div>
       </div>
     </div>
   </div>
