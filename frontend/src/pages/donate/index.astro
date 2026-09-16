@@ -156,27 +156,23 @@ const DONATE_ZEFFY_URL = SITE.integrations.zeffy.donationForm;
 </BaseLayout>
 
 <script>
-  // Re-initialize Zeffy embed after View Transitions navigation
+  // Re-initialize Zeffy embed after View Transitions navigation by re-injecting the script tag
   document.addEventListener('astro:page-load', () => {
     const embedEl = document.querySelector('[data-zeffy-embed]');
     if (!embedEl) return;
 
-    if (window.Zeffy?.embed?.init) {
-      window.Zeffy.embed.init();
-    } else {
-      const existing = document.querySelector('script[src*="zeffy-embed.js"]');
-      if (existing) existing.remove();
-      const s = document.createElement('script');
-      s.src = 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
-      s.onerror = () => {
-        document.querySelectorAll('[data-zeffy-embed-fallback]').forEach((el) => {
-          (el as HTMLElement).style.display = 'block';
-          el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach((f) => {
-            (f as HTMLIFrameElement).src = f.getAttribute('data-zeffy-embed-src') ?? '';
-          });
+    const existing = document.querySelector('script[src*="zeffy-embed.js"]');
+    if (existing) existing.remove();
+    const s = document.createElement('script');
+    s.src = 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
+    s.onerror = () => {
+      document.querySelectorAll('[data-zeffy-embed-fallback]').forEach((el) => {
+        (el as HTMLElement).style.display = 'block';
+        el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach((f) => {
+          (f as HTMLIFrameElement).src = f.getAttribute('data-zeffy-embed-src') ?? '';
         });
-      };
-      document.head.appendChild(s);
-    }
+      });
+    };
+    document.head.appendChild(s);
   });
 </script>
