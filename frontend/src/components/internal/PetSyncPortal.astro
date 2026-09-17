@@ -674,4 +674,11 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
   }
 
   document.addEventListener('astro:page-load', initPetSyncPortal);
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPetSyncPortal);
+    } else {
+      initPetSyncPortal();
+    }
+  }
 </script>

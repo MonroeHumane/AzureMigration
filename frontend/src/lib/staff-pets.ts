@@ -59,20 +59,33 @@ export async function fetchStaffPets(force = false): Promise<StaffPetsOk | Staff
     // network error loading /api/staff-pets, proceed to static fallback
   }
 
-  // Fallback to static /shelter-pets.json for $0 static hosting
+  // Fallback to static endpoints for $0 static hosting
   try {
     const staticRes = await fetch('/shelter-pets.json', { signal: AbortSignal.timeout(5000) });
     if (staticRes.ok) {
       const pets = await staticRes.json();
       if (Array.isArray(pets)) {
+        let allPets = [...pets];
+        let archivedCount = 0;
+        try {
+          const archRes = await fetch('/archived-pets.json', { signal: AbortSignal.timeout(3000) });
+          if (archRes.ok) {
+            const archData = await archRes.json();
+            if (Array.isArray(archData)) {
+              archivedCount = archData.length;
+              allPets = allPets.concat(archData.slice(0, 150));
+            }
+          }
+        } catch {}
+
         const result: StaffPetsOk = {
           ok: true,
           data: {
             lastSyncTimestamp: pets[0]?.last_seen_at || null,
             activeCount: pets.length,
-            archivedCount: 0,
-            totalCount: pets.length,
-            pets,
+            archivedCount,
+            totalCount: pets.length + archivedCount,
+            pets: allPets,
           },
         };
         petsMemoryCache = result;

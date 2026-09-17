@@ -1,6 +1,7 @@
 import { getStaffToken } from './staff-auth';
 import { getCachedFinancials, setCachedFinancials, getCachedFinancialsAge } from './api';
 import { FinancialPayloadSchema } from './schemas';
+import bundledFinancials from '../data/published_2026_ytd.json';
 
 /**
  * `staleAuth` means the live call was rejected (401/403) and we fell back to a
@@ -114,6 +115,9 @@ export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}):
       if (fallbackCache?.headline_kpis) {
         return { ok: true, data: fallbackCache, fromCache: true };
       }
+      if ((bundledFinancials as any)?.headline_kpis) {
+        return { ok: true, data: bundledFinancials, fromCache: true };
+      }
       return { ok: false, status: res.status, error: `Financials unavailable (${res.status})` };
     }
     const rawData = await res.json();
@@ -130,6 +134,9 @@ export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}):
     const fallbackCache = getCachedFinancials();
     if (fallbackCache?.headline_kpis) {
       return { ok: true, data: fallbackCache, fromCache: true };
+    }
+    if ((bundledFinancials as any)?.headline_kpis) {
+      return { ok: true, data: bundledFinancials, fromCache: true };
     }
     return { ok: false, status: 0, error: 'Network error loading financials' };
   }
