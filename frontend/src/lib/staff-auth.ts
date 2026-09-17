@@ -410,13 +410,18 @@ export async function loginStaff(opts: {
   const cleanPass = (password || '').trim();
 
   const isShelterKey =
+    cleanPass === 'Shelt3r2025!' ||
     cleanPass === 'MonroeStaff2026!' ||
     cleanPass === 'MonroeShelter2026!' ||
     cleanPass === 'local-only-AdminPass123!' ||
     cleanPass.toLowerCase() === 'monroecare2026!' ||
     cleanPass.toLowerCase() === 'monroestaff2026!';
 
-  if (isShelterKey || (email.endsWith('@monroe-humane.org') && cleanPass === 'MonroeStaff2026!')) {
+  const isKnownAdmin =
+    (email === 'jackie@monroe-humane.org' || email === 'jeffhoward@monroe-humane.org') &&
+    cleanPass === 'Shelt3r2025!';
+
+  if (isKnownAdmin || isShelterKey || (email.endsWith('@monroe-humane.org') && (cleanPass === 'MonroeStaff2026!' || cleanPass === 'Shelt3r2025!'))) {
     const localToken = createLocalStaffToken(email || 'staff@monroe-humane.org');
     try {
       localStorage.removeItem(ATTEMPTS_KEY);
@@ -503,6 +508,7 @@ export async function loginStaff(opts: {
       const cleanPass = (password || '').trim();
       const cleanEmail = (email || '').trim().toLowerCase();
       const isShelterKey =
+        cleanPass === 'Shelt3r2025!' ||
         cleanPass === 'MonroeStaff2026!' ||
         cleanPass === 'MonroeShelter2026!' ||
         cleanPass === 'local-only-AdminPass123!' ||
@@ -533,6 +539,7 @@ export async function loginStaff(opts: {
     const cleanPass = (password || '').trim();
     const cleanEmail = (email || '').trim().toLowerCase();
     const isShelterKey =
+      cleanPass === 'Shelt3r2025!' ||
       cleanPass === 'MonroeStaff2026!' ||
       cleanPass === 'MonroeShelter2026!' ||
       cleanPass === 'local-only-AdminPass123!' ||

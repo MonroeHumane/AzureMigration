@@ -58,9 +58,9 @@ def main():
         check("password input present", page.is_visible("#unified-password"))
         page.screenshot(path=str(SHOTS / "staff_gate.png"))
 
-        # 2. Authenticate with Shelter Staff Credentials
-        page.fill("#unified-email", "staff@monroe-humane.org")
-        page.fill("#unified-password", "MonroeStaff2026!")
+        # 2. Authenticate with Administrator / Staff Credentials (Shelt3r2025!)
+        page.fill("#unified-email", "jackie@monroe-humane.org")
+        page.fill("#unified-password", "Shelt3r2025!")
         page.click("#unified-submit-btn")
         try:
             page.wait_for_selector("html.staff-authenticated", timeout=8000)
