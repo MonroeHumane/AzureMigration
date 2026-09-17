@@ -63,8 +63,8 @@
   color: var(--shelter-ink);
   font-family: var(--monroe-font-display, 'Abril Fatface', Georgia, serif);
   font-size: clamp(2.5rem, 4.2vw, 4.25rem);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  line-height: 1.06;
+  letter-spacing: -0.01em;
 }
 
 .monroe-native-inner--dog-and-cat-shelter .monroe-shelter-hero .monroe-native-lead {
