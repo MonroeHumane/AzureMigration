@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /internal/
 
-Sitemap: https://monroe-humane.org/sitemap.xml
+Sitemap: https://monroe-humane.org/sitemap-index.xml
 Sitemap: https://monroe-humane.org/newsletter/sitemap.xml
+

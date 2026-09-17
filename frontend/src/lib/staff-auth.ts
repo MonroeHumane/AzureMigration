@@ -376,10 +376,38 @@ export async function syncEntraAuthSession(): Promise<{
   return { authenticated: isStaffAuthenticated() };
 }
 
+const PASSKEY_SALT = 'mchs_auth_salt_2026:';
+const AUTHORIZED_PASSKEY_HASHES = new Set([
+  '81d67611cacb1c57e3dcaad10149527c15e5d8c0d688387a89ab2103f395adea', // Shelt3r2025!
+  '132dc4358c04abc3ec4deadd7e97a0093e6dd2964652165a9fe7ac42606cefec', // MonroeStaff2026!
+  'adcc5590a29c3e8acd51b454cfdfbc60f6a333005830000145b78fd10a699ce7', // monroestaff2026!
+  'd88bfa47c664f94d2c53244c6dc0cfe5cafac93dd1f35499cc9f80b1844928bc', // MonroeShelter2026!
+  'bd1ecc303ac5d6c87e1ec715daa987a3659e047ba7dcddeb682c99cba9d3ef9c', // monroeshelter2026!
+  '49edc24e035cc3047300a56491c1aba1b636c3af44cc242824a77f13419f1c09', // monroecare2026!
+  '7ad9fca9842975f74137ea4f21c06f6e718c17031ad61c2d2cfd9de98fe7c173', // MonroeCare2026!
+]);
+
+export async function isAuthorizedPasskey(pass: string): Promise<boolean> {
+  const clean = (pass || '').trim();
+  if (!clean) return false;
+  try {
+    const salted = PASSKEY_SALT + clean;
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+      const data = new TextEncoder().encode(salted);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashHex = Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+      return AUTHORIZED_PASSKEY_HASHES.has(hashHex);
+    }
+  } catch (e) {
+    console.error('[StaffAuth] Passkey hash verification error:', e);
+  }
+  return false;
+}
+
 /**
- * Sign in through /api/login. That Function already authenticates against Directus
- * and returns both the HMAC staff token and Directus tokens — do not call
- * Directus /auth/login again on the happy path (it doubles wait time and can 429).
+ * Sign in through /api/login or local verified shelter passkey.
  */
 export async function loginStaff(opts: {
   email: string;
@@ -409,19 +437,10 @@ export async function loginStaff(opts: {
   const email = (opts.email || '').trim().toLowerCase();
   const cleanPass = (password || '').trim();
 
-  const isShelterKey =
-    cleanPass === 'Shelt3r2025!' ||
-    cleanPass === 'MonroeStaff2026!' ||
-    cleanPass === 'MonroeShelter2026!' ||
-    cleanPass === 'local-only-AdminPass123!' ||
-    cleanPass.toLowerCase() === 'monroecare2026!' ||
-    cleanPass.toLowerCase() === 'monroestaff2026!';
+  // Validate salted passkey hash asynchronously
+  const hasValidPasskey = await isAuthorizedPasskey(cleanPass);
 
-  const isKnownAdmin =
-    (email === 'jackie@monroe-humane.org' || email === 'jeffhoward@monroe-humane.org') &&
-    cleanPass === 'Shelt3r2025!';
-
-  if (isKnownAdmin || isShelterKey || (email.endsWith('@monroe-humane.org') && (cleanPass === 'MonroeStaff2026!' || cleanPass === 'Shelt3r2025!'))) {
+  if (hasValidPasskey) {
     const localToken = createLocalStaffToken(email || 'staff@monroe-humane.org');
     try {
       localStorage.removeItem(ATTEMPTS_KEY);
@@ -431,6 +450,7 @@ export async function loginStaff(opts: {
     return;
   }
 
+  // If not a recognized local passkey, attempt cloud identity service (if online)
   let staffToken: string | null = null;
   let directusPayload: any = null;
 
@@ -439,7 +459,7 @@ export async function loginStaff(opts: {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
-    }, 12000);
+    }, 4000);
 
     if (res.ok) {
       const data = await res.json();
@@ -449,48 +469,20 @@ export async function loginStaff(opts: {
         localStorage.removeItem(ATTEMPTS_KEY);
         localStorage.removeItem(LOCKOUT_KEY);
       }
-    } else if (res.status === 401) {
-      throw new Error('Invalid email or password. Please verify your credentials.');
-    } else if (res.status === 429) {
-      throw new Error('Too many login attempts. Please wait a moment and try again.');
     }
-  } catch (err: any) {
-    if (err.message && err.message.includes('Too many failed')) {
-      throw err;
-    }
-    
-    // Increment failed attempts on 401 or generic failure
-    try {
-      let attempts = parseInt(localStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
-      localStorage.setItem(ATTEMPTS_KEY, attempts.toString());
-      if (attempts >= MAX_ATTEMPTS) {
-        localStorage.setItem(LOCKOUT_KEY, (Date.now() + LOCKOUT_DURATION_MS).toString());
-        throw new Error(`Too many failed attempts. Please try again in 5 minutes.`);
-      }
-    } catch {}
-
-    if (err.name === 'AbortError') {
-      throw new Error('Authentication request timed out. Please check your network connection and try again.');
-    }
-    if (err.message && err.message.includes('Invalid email or password')) {
-      throw err;
-    }
-    if (err.message && err.message.includes('Too many login attempts')) {
-      throw err;
-    }
-    console.warn('[StaffAuth] /api/login call failed, falling back to Directus SDK:', err);
+  } catch (apiErr) {
+    // Cloud API offline/unavailable, continue to Directus or rejection
   }
 
-  // Fallback only when Azure login did not issue a staff session.
-  if (!isStaffHmacToken(staffToken)) {
-    let sdkTimer: ReturnType<typeof setTimeout> | undefined;
+  if (!staffToken) {
+    let sdkTimer: any = null;
     try {
       await Promise.race([
         staffClient.login({ email, password }),
         new Promise((_, reject) => {
           sdkTimer = setTimeout(() => {
             reject(Object.assign(new Error('Directus login timed out'), { name: 'AbortError' }));
-          }, 10000);
+          }, 4000);
         }),
       ]);
       const dt = await staffClient.getToken();
@@ -504,57 +496,26 @@ export async function loginStaff(opts: {
         } catch {}
       }
     } catch (sdkErr: any) {
-      console.warn('[StaffAuth] Directus SDK login unavailable, checking fallback:', sdkErr);
-      const cleanPass = (password || '').trim();
-      const cleanEmail = (email || '').trim().toLowerCase();
-      const isShelterKey =
-        cleanPass === 'Shelt3r2025!' ||
-        cleanPass === 'MonroeStaff2026!' ||
-        cleanPass === 'MonroeShelter2026!' ||
-        cleanPass === 'local-only-AdminPass123!' ||
-        cleanPass.toLowerCase() === 'monroecare2026!' ||
-        cleanPass.toLowerCase() === 'monroestaff2026!';
-
-      if (!isShelterKey && !(cleanEmail.endsWith('@monroe-humane.org') && cleanPass.length >= 6)) {
-        try {
-          let attempts = parseInt(localStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
-          localStorage.setItem(ATTEMPTS_KEY, attempts.toString());
-          if (attempts >= MAX_ATTEMPTS) {
-            localStorage.setItem(LOCKOUT_KEY, (Date.now() + LOCKOUT_DURATION_MS).toString());
-            throw new Error(`Too many failed attempts. Please try again in 5 minutes.`);
-          }
-        } catch {}
-
-        if (sdkErr?.name === 'AbortError') {
-          throw new Error('Authentication request timed out. Please check your network connection and try again.');
+      // Cloud identity failed or offline and not a valid shelter passkey
+      try {
+        let attempts = parseInt(localStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
+        localStorage.setItem(ATTEMPTS_KEY, attempts.toString());
+        if (attempts >= MAX_ATTEMPTS) {
+          localStorage.setItem(LOCKOUT_KEY, (Date.now() + LOCKOUT_DURATION_MS).toString());
+          throw new Error(`Too many failed attempts. Please try again in 5 minutes.`);
         }
-        throw sdkErr;
+      } catch (lockoutErr: any) {
+        if (lockoutErr.message?.includes('Too many failed')) throw lockoutErr;
       }
+
+      throw new Error('Invalid credentials. Please verify your staff email and shelter passkey.');
     } finally {
       if (sdkTimer) clearTimeout(sdkTimer);
     }
   }
 
   if (!isStaffHmacToken(staffToken)) {
-    const cleanPass = (password || '').trim();
-    const cleanEmail = (email || '').trim().toLowerCase();
-    const isShelterKey =
-      cleanPass === 'Shelt3r2025!' ||
-      cleanPass === 'MonroeStaff2026!' ||
-      cleanPass === 'MonroeShelter2026!' ||
-      cleanPass === 'local-only-AdminPass123!' ||
-      cleanPass.toLowerCase() === 'monroecare2026!' ||
-      cleanPass.toLowerCase() === 'monroestaff2026!';
-
-    if (isShelterKey || (cleanEmail.endsWith('@monroe-humane.org') && cleanPass.length >= 6)) {
-      staffToken = createLocalStaffToken(cleanEmail);
-      try {
-        localStorage.removeItem(ATTEMPTS_KEY);
-        localStorage.removeItem(LOCKOUT_KEY);
-      } catch {}
-    } else {
-      throw new Error('Could not connect to authentication services. If cloud identity is offline, please use the shelter passkey.');
-    }
+    throw new Error('Invalid credentials or authentication service offline.');
   }
 
   // 3. Persist tokens respecting Remember Me security preferences:

@@ -1,4 +1,4 @@
-name: Deploy Astro Frontend to GitHub Pages (Standby Backup)
+name: Deploy Astro Frontend to GitHub Pages (Production)
 
 on:
   push:
@@ -7,6 +7,11 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/deploy-pages.yml'
+  repository_dispatch:
+    types: [cms_rebuild]
+  schedule:
+    # Daily rebuild at 03:00 UTC so pet listings and dynamic data stay fresh
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
 permissions:
@@ -48,6 +53,11 @@ jobs:
             if ! node --check "$f"; then fail=1; fi
           done < <(find public/games -name '*.js' -type f)
           exit $fail
+
+      - name: Typecheck Astro Site
+        run: |
+          cd frontend
+          npm run check
 
       - name: Build Astro Static Site
         run: |
