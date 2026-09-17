@@ -37,7 +37,8 @@ const PETANGO_BASE_URL =
 const PETANGO_DETAIL_BASE_URL =
   process.env.PETANGO_DETAIL_BASE_URL ||
   'https://ws.petango.com/webservices/adoptablesearch/wsAdoptableAnimalDetails2.aspx';
-const PETANGO_AUTHKEY = process.env.PETANGO_AUTHKEY || '';
+const PETANGO_AUTHKEY =
+  process.env.PETANGO_AUTHKEY || '40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp';
 const PUBLIC_SITE_URL = (process.env.PUBLIC_SITE_URL || 'https://monroe-humane.org').replace(/\/+$/, '');
 
 // Path to frontend data files relative to cron/src

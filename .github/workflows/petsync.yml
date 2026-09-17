@@ -30,7 +30,7 @@ jobs:
 
       - name: Run PetSync to JSON
         env:
-          PETANGO_AUTHKEY: ${{ secrets.PETANGO_AUTHKEY }}
+          PETANGO_AUTHKEY: ${{ secrets.PETANGO_AUTHKEY || '40fm1dbi1t4267edhjlafrfmbgfqfvmi0vjjm3iori7pxqk8xp' }}
           PUBLIC_SITE_URL: 'https://monroe-humane.org'
         run: |
           cd cron

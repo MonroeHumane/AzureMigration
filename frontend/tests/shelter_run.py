@@ -103,6 +103,9 @@ def main():
         meters = page.evaluate("() => window.__sr ? window.__sr.meters : -1")
         check("meters advancing", meters > 1, f"meters={meters:.0f}")
 
+        # Clear natural obstacles during input checks so random hits cannot disrupt poses
+        page.evaluate("() => { if (window.__sr) { window.__sr.obstacles = []; window.__sr.invincibleT = 0; } }")
+
         # Lane changes + slide + jump shouldn't throw and cat should animate
         page.keyboard.press("ArrowLeft")
         page.wait_for_timeout(300)
@@ -112,20 +115,22 @@ def main():
         page.wait_for_timeout(220)
         check("slide pose active", page.evaluate("() => window.__sr.action") == "sliding")
         page.screenshot(path=str(SHOTS / "sr_slide.png"))
-        page.wait_for_timeout(600)
+        page.wait_for_timeout(400)
         page.keyboard.press("ArrowUp")
         page.wait_for_timeout(180)
         check("jump pose active", page.evaluate("() => window.__sr.action") == "jumping")
         page.screenshot(path=str(SHOTS / "sr_jump.png"))
+        page.wait_for_timeout(450)
 
         # Rescue pickup: drop a pet token in the player's lane at the plane.
         rescued_before = page.evaluate("() => window.__sr.rescuedCount")
         page.evaluate("""() => {
           const g = window.__sr;
+          g.obstacles = [];
           g.collectibles.push({ id: 8888, kind: 'pet', lane: g.targetLane,
-                                worldZ: g.cameraZ + 130, collected: false, pet: null });
+                                worldZ: g.cameraZ + 200, collected: false, pet: null });
         }""")
-        page.wait_for_timeout(600)
+        page.wait_for_timeout(300)
         check("rescue pickup counted",
               page.evaluate("() => window.__sr.rescuedCount") > rescued_before)
 
@@ -133,10 +138,10 @@ def main():
         page.evaluate("""() => {
           const g = window.__sr;
           g.collectibles.push({ id: 8889, kind: 'treat', lane: g.targetLane,
-                                worldZ: g.cameraZ + 130, collected: false,
+                                worldZ: g.cameraZ + 200, collected: false,
                                 tier: 'bronze', value: 1 });
         }""")
-        page.wait_for_timeout(600)
+        page.wait_for_timeout(300)
         check("treat pickup counted",
               page.evaluate("() => window.__sr.treatsRun") >= 1)
 

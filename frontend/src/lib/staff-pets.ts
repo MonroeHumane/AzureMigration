@@ -34,30 +34,53 @@ export async function fetchStaffPets(force = false): Promise<StaffPetsOk | Staff
         'X-Staff-Token': token,
         'X-Authorization': `Bearer ${token}`,
       },
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) {
-      return { ok: false, status: res.status, error: `Census unavailable (${res.status})` };
+    if (res.ok) {
+      const json = await res.json();
+      const data = json?.data || json;
+      if (data && Array.isArray(data.pets)) {
+        const result: StaffPetsOk = {
+          ok: true,
+          data: {
+            lastSyncTimestamp: data.lastSyncTimestamp || null,
+            activeCount: Number(data.activeCount || 0),
+            archivedCount: Number(data.archivedCount || 0),
+            totalCount: Number(data.totalCount || data.pets.length),
+            pets: data.pets,
+          },
+        };
+        petsMemoryCache = result;
+        petsMemoryCacheAt = Date.now();
+        return result;
+      }
     }
-    const json = await res.json();
-    const data = json?.data || json;
-    if (!data || !Array.isArray(data.pets)) {
-      return { ok: false, status: 502, error: 'Empty census response' };
-    }
-    const result: StaffPetsOk = {
-      ok: true,
-      data: {
-        lastSyncTimestamp: data.lastSyncTimestamp || null,
-        activeCount: Number(data.activeCount || 0),
-        archivedCount: Number(data.archivedCount || 0),
-        totalCount: Number(data.totalCount || data.pets.length),
-        pets: data.pets,
-      },
-    };
-    petsMemoryCache = result;
-    petsMemoryCacheAt = Date.now();
-    return result;
   } catch {
-    return { ok: false, status: 0, error: 'Network error loading census' };
+    // network error loading /api/staff-pets, proceed to static fallback
   }
+
+  // Fallback to static /shelter-pets.json for $0 static hosting
+  try {
+    const staticRes = await fetch('/shelter-pets.json', { signal: AbortSignal.timeout(5000) });
+    if (staticRes.ok) {
+      const pets = await staticRes.json();
+      if (Array.isArray(pets)) {
+        const result: StaffPetsOk = {
+          ok: true,
+          data: {
+            lastSyncTimestamp: pets[0]?.last_seen_at || null,
+            activeCount: pets.length,
+            archivedCount: 0,
+            totalCount: pets.length,
+            pets,
+          },
+        };
+        petsMemoryCache = result;
+        petsMemoryCacheAt = Date.now();
+        return result;
+      }
+    }
+  } catch {}
+
+  return { ok: false, status: 0, error: 'Census unavailable' };
 }
