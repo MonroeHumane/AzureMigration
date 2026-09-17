@@ -1,19 +1,12 @@
 name: Build and Deploy Containers to Azure Container Apps
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
-      - 'arcade/**'
-      - 'cron/**'
-      - '.github/workflows/deploy-containers.yml'
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: monroehumane/monroe-humane
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
 
 jobs:
   changes:
