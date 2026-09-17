@@ -1,0 +1,1 @@
+import{n as e}from"./newsletter-hydrate.C3yFta_Q.js";function t(){e()}document.addEventListener(`astro:page-load`,t);

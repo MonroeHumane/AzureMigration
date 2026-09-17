@@ -1,0 +1,170 @@
+/* Adoptédex shared reward toast + pack overlay
+   Tokens align with shared-styles / humane-game-system (teal, cream, treat). */
+:root {
+	--adx-teal: #1a4f4b;
+	--adx-teal-deep: #0f3d32;
+	--adx-treat: #ffb347;
+	--adx-cream: #fffaf3;
+	--adx-ink: #2c1c19;
+	--adx-touch: 44px;
+}
+
+#monroe-adoptedex-toast-root {
+	position: fixed;
+	inset: auto 0 0 0;
+	z-index: 2147483000;
+	pointer-events: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 12px;
+	padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+	padding-left: max(12px, env(safe-area-inset-left, 0px));
+	padding-right: max(12px, env(safe-area-inset-right, 0px));
+}
+
+.adx-toast {
+	pointer-events: auto;
+	min-width: min(92vw, 320px);
+	max-width: min(96vw, 420px);
+	background: linear-gradient(160deg, var(--adx-teal-deep) 0%, #08241f 55%, #041814 100%);
+	color: #fef6ea;
+	border: 2px solid rgba(255, 179, 71, 0.85);
+	border-radius: 16px;
+	box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+	padding: 14px 16px;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.adx-toast--rare {
+	border-color: #fef08a;
+}
+
+.adx-toast__cta,
+.adx-toast__dismiss,
+.adx-overlay-actions button,
+.adx-overlay-actions a,
+.binder-shop-btn,
+.binder-pack-pill__btn {
+	min-height: var(--adx-touch);
+	min-width: var(--adx-touch);
+	touch-action: manipulation;
+}
+
+.binder-shop-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin-top: 8px;
+}
+
+.binder-shop-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 8px 14px;
+	border-radius: 999px;
+	border: 1.5px solid rgba(26, 79, 75, 0.25);
+	background: rgba(255, 250, 243, 0.95);
+	color: var(--adx-ink);
+	font-weight: 800;
+	cursor: pointer;
+	font-size: 0.88rem;
+}
+
+.binder-shop-btn--primary,
+.binder-shop-btn:disabled {
+	background: var(--adx-teal);
+	color: var(--adx-cream);
+	border-color: transparent;
+}
+
+.binder-shop-btn:disabled {
+	opacity: 0.65;
+	cursor: not-allowed;
+}
+
+.binder-pack-reveal {
+	position: fixed;
+	inset: 0;
+	z-index: 12000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+		max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+	background: rgba(8, 20, 16, 0.72);
+	backdrop-filter: blur(4px);
+}
+
+.binder-pack-reveal[hidden] {
+	display: none !important;
+}
+
+.binder-pack-reveal__panel {
+	background: linear-gradient(180deg, #fffaf3, #fef6ea);
+	color: var(--adx-ink);
+	border-radius: 20px;
+	max-width: min(96vw, 520px);
+	width: 100%;
+	padding: 18px 16px 16px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+	border: 2px solid rgba(26, 79, 75, 0.25);
+	text-align: center;
+}
+
+.binder-pack-reveal__badge {
+	display: inline-block;
+	margin: 0 0 6px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: rgba(26, 79, 75, 0.12);
+	font-weight: 800;
+	font-size: 0.8rem;
+}
+
+.binder-pack-reveal__rarity {
+	margin: 0 0 12px;
+	color: #4b5563;
+}
+
+.binder-pack-reveal__rarity.is-rare {
+	color: #b45309;
+	font-weight: 800;
+}
+
+.binder-pack-reveal__grid {
+	list-style: none;
+	margin: 0 0 14px;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	justify-content: center;
+}
+
+.binder-card--foil-flex,
+.adoptedex-card-wrap--foil-flex .adoptedex-card {
+	animation: adxFoilPulse 2.4s ease-in-out infinite;
+	box-shadow: 0 0 0 2px rgba(254, 240, 138, 0.55), 0 12px 28px rgba(255, 179, 71, 0.28);
+}
+
+@keyframes adxFoilPulse {
+	0%, 100% { filter: saturate(1) brightness(1); }
+	50% { filter: saturate(1.25) brightness(1.08); }
+}
+
+@media (max-width: 640px) {
+	.binder-shop-row {
+		width: 100%;
+		justify-content: stretch;
+	}
+	.binder-shop-btn {
+		flex: 1 1 auto;
+	}
+}

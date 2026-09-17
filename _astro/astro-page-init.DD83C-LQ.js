@@ -1,0 +1,1 @@
+function e(e){let t;document.addEventListener(`astro:page-load`,()=>{typeof t==`function`&&t(),t=e()})}export{e as t};

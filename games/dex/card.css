@@ -1,0 +1,420 @@
+/* 🐾 MonroeCard — shared Adoptédex card visuals.
+   One card design for binder, inspector, reveals and booster.
+   Foil sheen is driven by --pointer-x/--pointer-y/--pointer-deg set by
+   MonroeCard.bindTilt (or album.js tilt — same var names). */
+
+:root {
+	--mhc-green-900: #06211c;
+	--mhc-green-800: #0a2922;
+	--mhc-green-700: #0f3d32;
+	--mhc-green-600: #14524a;
+	--mhc-green-500: #1a6e5f;
+	--mhc-gold-400: #ffb347;
+	--mhc-gold-300: #ffd07a;
+	--mhc-cream: #fdf8ee;
+	--mhc-ink: #2c1c19;
+	--mhc-teal: #2dd4bf;
+}
+
+/* ── Card frame ────────────────────────────────────────────────────────── */
+.mhc-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+	border-radius: 14px;
+	overflow: hidden;
+	background:
+		linear-gradient(180deg, #fffdf7 0%, var(--mhc-cream) 60%, #f3e9d2 100%);
+	border: 2px solid #b89b5e;
+	box-shadow:
+		inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+		0 6px 18px rgba(6, 24, 20, 0.35);
+	color: var(--mhc-ink);
+	font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	transform: translateZ(0);
+}
+
+/* Illustrated frame overlay (generated art per rarity) — sits on top of the
+   card's CSS frame; hides itself via onerror if the asset is missing. */
+.mhc-card__frame {
+	position: absolute;
+	inset: -1px;
+	width: calc(100% + 2px);
+	height: calc(100% + 2px);
+	z-index: 6;
+	pointer-events: none;
+	object-fit: fill;
+}
+
+/* Canvas specular layer for foil pulls (drawn by bindFoilFx) */
+.mhc-card__foil-fx {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 4;
+	pointer-events: none;
+	border-radius: inherit;
+	mix-blend-mode: screen;
+	opacity: .85;
+}
+
+/* Foil treatment frame accents */
+.mhc-card.foil-aurora { border-color: #7dd3fc; box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), 0 0 0 2px rgba(125,211,252,.35), 0 6px 18px rgba(6,24,20,.35); }
+.mhc-card.foil-cosmos { border-color: #a78bfa; box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), 0 0 0 2px rgba(167,139,250,.4), 0 6px 18px rgba(6,24,20,.35); }
+.mhc-card.foil-gold   { border-color: var(--mhc-gold-400); box-shadow: inset 0 0 0 1px rgba(255,255,255,.65), 0 0 0 2px rgba(255,179,71,.5), 0 8px 22px rgba(255,179,71,.22); }
+.mhc-card.foil-prism  { border-color: #f0abfc; box-shadow: inset 0 0 0 1px rgba(255,255,255,.65), 0 0 0 2px rgba(240,171,252,.45), 0 8px 22px rgba(240,171,252,.2); }
+
+/* Pointer-driven sheen + ambient shimmer (foil tiers only) */
+.mhc-card__foil {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	pointer-events: none;
+	border-radius: inherit;
+	opacity: 0;
+	mix-blend-mode: screen;
+	background:
+		linear-gradient(115deg, transparent 30%, rgba(255,255,255,.55) 46%, rgba(255,255,255,.18) 52%, transparent 66%);
+	background-size: 260% 260%;
+	background-position: calc(var(--pointer-x, 50%) * 1.4 - 20%) calc(var(--pointer-y, 50%) * 1.4 - 20%);
+	transition: opacity .25s ease;
+}
+.foil-gold .mhc-card__foil,
+.foil-prism .mhc-card__foil,
+.foil-cosmos .mhc-card__foil,
+.foil-aurora .mhc-card__foil { opacity: .5; }
+.is-tilting .mhc-card__foil { opacity: .85; }
+
+.foil-prism .mhc-card__foil {
+	background:
+		linear-gradient(115deg at var(--pointer-x, 50%) var(--pointer-y, 50%),
+			transparent 25%, rgba(255,119,168,.35) 38%, rgba(255,215,130,.4) 47%,
+			rgba(125,211,252,.4) 56%, rgba(167,139,250,.35) 65%, transparent 78%);
+	background-size: 100% 100%;
+}
+.foil-aurora .mhc-card__foil {
+	background:
+		linear-gradient(125deg at var(--pointer-x, 50%) var(--pointer-y, 50%),
+			transparent 30%, rgba(45,212,191,.4) 44%, rgba(125,211,252,.45) 52%,
+			rgba(196,181,253,.35) 62%, transparent 76%);
+	background-size: 100% 100%;
+}
+.foil-cosmos .mhc-card__foil {
+	background:
+		linear-gradient(105deg at var(--pointer-x, 50%) var(--pointer-y, 50%),
+			transparent 28%, rgba(99,102,241,.42) 42%, rgba(217,180,255,.4) 52%,
+			rgba(56,189,248,.35) 64%, transparent 78%);
+	background-size: 100% 100%;
+}
+.foil-gold .mhc-card__foil {
+	background:
+		linear-gradient(110deg at var(--pointer-x, 50%) var(--pointer-y, 50%),
+			transparent 30%, rgba(255,215,130,.5) 45%, rgba(255,244,214,.55) 52%,
+			rgba(255,179,71,.4) 62%, transparent 78%);
+	background-size: 100% 100%;
+}
+
+/* ── Header plate ──────────────────────────────────────────────────────── */
+.mhc-card__head {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 9px;
+	background: linear-gradient(180deg, var(--mhc-green-600), var(--mhc-green-700));
+	color: #fffdf4;
+	border-bottom: 2px solid rgba(184, 155, 94, 0.85);
+}
+.mhc-card__dex {
+	font-size: 0.62rem;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	color: var(--mhc-gold-300);
+	background: rgba(0, 0, 0, 0.25);
+	border-radius: 999px;
+	padding: 2px 6px;
+	flex: 0 0 auto;
+}
+.mhc-card__name {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-weight: 800;
+	font-size: clamp(0.78rem, 2.4vw, 1rem);
+	line-height: 1.1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin: 0;
+}
+h2.mhc-card__name { font-size: clamp(1rem, 3vw, 1.3rem); }
+.mhc-card__species { flex: 0 0 auto; }
+.mhc-ico { display: inline-flex; width: 1em; height: 1em; vertical-align: -0.12em; }
+.mhc-ico svg { width: 100%; height: 100%; display: block; }
+.mhc-card__species .mhc-ico, .mhc-ico.mhc-card__species { width: 1.15em; height: 1.15em; color: var(--mhc-gold-300); }
+.mhc-ico--dog { color: #93c5fd; }
+.mhc-ico--cat { color: var(--mhc-gold-300); }
+.mhc-ico--other { color: #a7f3d0; }
+.mhc-ico--move { color: var(--mhc-green-500); }
+
+/* ── Photo window ──────────────────────────────────────────────────────── */
+.mhc-card__photo {
+	position: relative;
+	z-index: 1;
+	margin: 7px 8px 0;
+	aspect-ratio: 1 / 0.92;
+	border-radius: 9px;
+	overflow: hidden;
+	background: var(--mhc-green-800);
+	border: 2px solid #b89b5e;
+	box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.35);
+}
+.mhc-card__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transform: scale(1.02);
+}
+.mhc-card__img.is-placeholder { object-fit: contain; padding: 12%; }
+.mhc-card__rarity {
+	position: absolute;
+	left: 6px;
+	bottom: 6px;
+	z-index: 2;
+	font-size: 0.58rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 3px 7px;
+	border-radius: 999px;
+	color: #fffbe8;
+	background: rgba(10, 41, 34, 0.85);
+	border: 1px solid rgba(255, 208, 122, 0.55);
+	backdrop-filter: blur(2px);
+}
+.foil-gold .mhc-card__rarity { background: rgba(120, 75, 8, 0.9); }
+.foil-prism .mhc-card__rarity { background: rgba(112, 26, 117, 0.88); }
+.foil-cosmos .mhc-card__rarity { background: rgba(49, 46, 129, 0.88); }
+.foil-aurora .mhc-card__rarity { background: rgba(14, 90, 96, 0.88); }
+.mhc-card__adopted {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	z-index: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 0.6rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 3px 8px;
+	border-radius: 999px;
+	color: #052e22;
+	background: linear-gradient(180deg, #86efac, #4ade80);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Body ──────────────────────────────────────────────────────────────── */
+.mhc-card__body {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	padding: 7px 9px 9px;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+.mhc-card__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 3px;
+}
+.mhc-card__chip {
+	font-size: 0.56rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	padding: 2px 6px;
+	border-radius: 999px;
+	background: rgba(15, 61, 50, 0.1);
+	border: 1px solid rgba(15, 61, 50, 0.22);
+	color: var(--mhc-green-700);
+	white-space: nowrap;
+}
+.mhc-card__chip--status.is-available { background: rgba(74, 222, 128, 0.18); border-color: rgba(34, 197, 94, 0.45); color: #14532d; }
+.mhc-card__chip--status.is-adopted { background: rgba(167, 139, 250, 0.16); border-color: rgba(139, 92, 246, 0.4); color: #4c1d95; }
+.mhc-card__breed {
+	font-size: 0.68rem;
+	font-weight: 600;
+	font-style: italic;
+	color: #6b5148;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.mhc-card__move {
+	font-size: 0.62rem;
+	font-weight: 700;
+	color: var(--mhc-green-700);
+	background: linear-gradient(90deg, rgba(255, 179, 71, 0.16), rgba(255, 179, 71, 0.05));
+	border-left: 3px solid var(--mhc-gold-400);
+	border-radius: 5px;
+	padding: 4px 6px;
+}
+.mhc-card__move-effect {
+	margin: 2px 0 0;
+	font-weight: 500;
+	font-size: 0.6rem;
+	line-height: 1.35;
+	color: #6b5148;
+}
+.mhc-card__stats {
+	display: flex;
+	gap: 4px;
+	margin-top: auto;
+}
+.mhc-card__stat {
+	flex: 1 1 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1px;
+	padding: 4px 2px 5px;
+	border-radius: 7px;
+	background: linear-gradient(180deg, rgba(15, 61, 50, 0.09), rgba(15, 61, 50, 0.05));
+	border: 1px solid rgba(15, 61, 50, 0.18);
+}
+.mhc-card__stat .mhc-ico { width: 0.95em; height: 0.95em; color: var(--mhc-gold-400); }
+.mhc-card__stat b { font-size: 0.72rem; line-height: 1; color: var(--mhc-green-800); }
+.mhc-card__stat i { font-style: normal; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #7c6a60; }
+.mhc-card__stamp {
+	font-size: 0.52rem;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: #93a39d;
+	text-align: center;
+	padding-top: 3px;
+}
+
+/* ── Back face ─────────────────────────────────────────────────────────── */
+.mhc-card--back {
+	background:
+		radial-gradient(circle at 50% 18%, rgba(45, 212, 191, 0.14), transparent 55%),
+		linear-gradient(170deg, var(--mhc-green-700) 0%, var(--mhc-green-800) 55%, var(--mhc-green-900) 100%);
+	border-color: rgba(255, 179, 71, 0.55);
+	color: #eafaf4;
+	padding: 12px 11px;
+	gap: 8px;
+}
+.mhc-card--back .mhc-card__back-head { text-align: center; }
+.mhc-card--back .mhc-card__back-head .mhc-ico { width: 1.7em; height: 1.7em; color: var(--mhc-gold-400); }
+.mhc-card--back h3 { margin: 3px 0 1px; font-size: 1.05rem; color: #fff8e7; }
+.mhc-card__back-sub { font-size: 0.62rem; color: #9fe8d8; font-weight: 600; }
+.mhc-card__back-bio {
+	font-size: 0.64rem;
+	line-height: 1.45;
+	color: #d7f5ea;
+	background: rgba(4, 20, 16, 0.4);
+	border: 1px solid rgba(45, 212, 191, 0.25);
+	border-radius: 9px;
+	padding: 8px;
+	flex: 1 1 auto;
+	overflow: hidden;
+}
+.mhc-card__back-bio strong { color: var(--mhc-gold-300); display: block; margin-bottom: 3px; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.mhc-card__back-bio p { margin: 0; display: -webkit-box; -webkit-line-clamp: 7; -webkit-box-orient: vertical; overflow: hidden; }
+.mhc-card__back-traits { display: flex; flex-wrap: wrap; gap: 4px; }
+.mhc-card__trait {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 0.55rem;
+	font-weight: 700;
+	padding: 3px 7px;
+	border-radius: 999px;
+	background: rgba(45, 212, 191, 0.12);
+	border: 1px solid rgba(45, 212, 191, 0.3);
+	color: #b6f4e6;
+}
+.mhc-card__trait .mhc-ico { width: 0.9em; height: 0.9em; color: var(--mhc-gold-300); }
+.mhc-card__back-foot {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 0.52rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #6fae9e;
+}
+.mhc-card__back-foot .mhc-ico { width: 0.9em; height: 0.9em; margin-right: 2px; }
+
+/* ── Flip scene (shared) ───────────────────────────────────────────────── */
+.mhc-card-scene {
+	perspective: 900px;
+	width: 100%;
+	height: 100%;
+	/* Self-sizing when the host gives only a width (reveal fan, overlays). */
+	aspect-ratio: 320 / 495;
+}
+.mhc-card-flip {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	transform-style: preserve-3d;
+	transition: transform 0.55s cubic-bezier(0.22, 0.9, 0.28, 1.05);
+	-webkit-tap-highlight-color: transparent;
+}
+.mhc-card-flip.is-flipped { transform: rotateY(180deg); }
+.mhc-card-face {
+	position: absolute;
+	inset: 0;
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	border-radius: 14px;
+}
+.mhc-card-face--back { transform: rotateY(180deg); }
+.mhc-card-face .mhc-card { height: 100%; }
+
+/* Adopted cards get a gentle desaturated warmth */
+.mhc-card--adopted .mhc-card__img { filter: saturate(0.92) sepia(0.12); }
+
+/* Inspector (large) variant */
+.mhc-card--inspector { border-width: 3px; border-radius: 18px; }
+.mhc-card--inspector .mhc-card__photo { margin: 10px 12px 0; border-width: 3px; }
+.mhc-card--inspector .mhc-card__body { padding: 10px 12px 12px; gap: 7px; }
+.mhc-card--inspector .mhc-card__chip { font-size: 0.66rem; padding: 3px 8px; }
+.mhc-card--inspector .mhc-card__breed { font-size: 0.8rem; }
+.mhc-card--inspector .mhc-card__move { font-size: 0.74rem; padding: 6px 8px; }
+.mhc-card--inspector .mhc-card__move-effect { font-size: 0.7rem; }
+.mhc-card--inspector .mhc-card__stat b { font-size: 0.9rem; }
+.mhc-card--inspector .mhc-card__stat i { font-size: 0.58rem; }
+.mhc-card--inspector .mhc-card__rarity { font-size: 0.68rem; }
+
+/* Reveal pop-in used by pack opens */
+@keyframes mhcCardPop {
+	0% { opacity: 0; transform: translateY(26px) scale(0.82) rotateY(24deg); }
+	60% { opacity: 1; transform: translateY(-4px) scale(1.03) rotateY(-4deg); }
+	100% { opacity: 1; transform: none; }
+}
+/* 'backwards' (not 'both'): a permanently-held fill flattens preserve-3d in
+   Chrome, which makes the back face paint over the front (mirrored). */
+.mhc-card-scene--pop .mhc-card-flip { animation: mhcCardPop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; animation-delay: var(--pop-delay, 0s); }
+
+@media (prefers-reduced-motion: reduce) {
+	.mhc-card-flip { transition: none; }
+	.mhc-card__foil { transition: none; }
+	.mhc-card-scene--pop .mhc-card-flip { animation: none; }
+}

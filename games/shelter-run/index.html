@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#63b8d8">
+  <title>Shelter Run | Humane Arcade</title>
+  <script src="../embed.js"></script>
+  <script src="../theme.js?v=2"></script>
+  <link rel="stylesheet" href="../humane-game-system.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="game-shell">
+    <canvas id="game-canvas" tabindex="0" aria-label="Shelter Run playfield"></canvas>
+
+    <div id="ui-root" aria-live="polite"></div>
+
+    <button type="button" id="sr-mute" class="sr-mute-btn" aria-label="Toggle sound">🔊</button>
+
+    <div class="sr-pads" id="sr-pads" aria-hidden="true">
+      <div class="sr-pads-cluster sr-pads-left">
+        <button type="button" id="sr-pad-left" class="sr-pad" aria-label="Move left">◀</button>
+        <button type="button" id="sr-pad-right" class="sr-pad" aria-label="Move right">▶</button>
+      </div>
+      <div class="sr-pads-cluster sr-pads-right">
+        <button type="button" id="sr-pad-slide" class="sr-pad sr-pad-slide" aria-label="Slide">⤓</button>
+        <button type="button" id="sr-pad-jump" class="sr-pad sr-pad-jump" aria-label="Jump">⤒</button>
+      </div>
+    </div>
+
+    <div class="sr-hints" id="sr-hints" aria-hidden="true"></div>
+  </div>
+
+  <script src="../shared.js"></script>
+  <script src="../dex/dex-shared.js?v=6"></script>
+  <script src="../dex/card-model.js?v=1"></script>
+  <script src="../dex/card.js?v=1"></script>
+  <link rel="stylesheet" href="../dex/card.css?v=1" />
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

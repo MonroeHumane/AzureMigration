@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#5ec8e4">
+  <title>Puppy Skater | Humane Arcade</title>
+  <script src="../embed.js"></script>
+  <script src="../theme.js?v=2"></script>
+  <link rel="stylesheet" href="../humane-game-system.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="game-shell">
+    <canvas id="game-canvas" tabindex="0" aria-label="Puppy Skater playfield"></canvas>
+
+    <div id="ui-root" aria-live="polite"></div>
+
+    <button type="button" id="ps-mute" class="ps-mute-btn" aria-label="Toggle sound">🔊</button>
+
+    <div class="ps-pads" id="ps-pads" aria-hidden="true">
+      <div class="ps-pads-cluster ps-pads-left">
+        <button type="button" id="ps-pad-duck" class="ps-pad ps-pad-duck" aria-label="Duck">⤓</button>
+      </div>
+      <div class="ps-pads-cluster ps-pads-right">
+        <button type="button" id="ps-pad-jump" class="ps-pad ps-pad-jump" aria-label="Ollie">⤒</button>
+      </div>
+    </div>
+
+    <div class="ps-hints" id="ps-hints" aria-hidden="true"></div>
+  </div>
+
+  <script src="../shared.js"></script>
+  <script src="../dex/dex-shared.js?v=6"></script>
+  <script src="../dex/card-model.js?v=1"></script>
+  <script src="../dex/card.js?v=1"></script>
+  <link rel="stylesheet" href="../dex/card.css?v=1" />
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Puppy Skater — sheet baker</title>
+<style>
+  body { background:#0b1020; color:#dfe7f5; font:13px/1.5 ui-monospace,Menlo,Consolas,monospace; padding:18px; }
+  h1 { font-size:16px; color:#ffd166; margin:0 0 4px; }
+  .sub { color:#7c8db0; margin-bottom:12px; }
+  button { background:#1d2f52; color:#dfe7f5; border:1px solid #33507f; border-radius:8px; padding:8px 12px; font:inherit; cursor:pointer; margin-right:8px; }
+  button:hover { background:#27406e; }
+  #strip { margin-top:14px; background:repeating-conic-gradient(#23304d 0 25%, #1a2340 0 50%) 0 0/24px 24px; border-radius:8px; image-rendering:pixelated; }
+  .row { margin:10px 0; color:#7c8db0; }
+  label { margin-right:14px; }
+  b { color:#dfe7f5; }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<h1>Sheet baker — cartoon dog · classic deck</h1>
+<div class="sub">8×170×150 → dog sheet (0-5 ride · 6 ollie · 7 duck), transparent PNG, cel-outlined.</div>
+<div class="row" id="coats"></div>
+<div class="row">
+  <label>head <input id="hs" type="range" min="1" max="1.6" step="0.05" value="1.2" style="width:90px;vertical-align:middle"></label>
+  <b id="hsv2">1.20</b>
+</div>
+<button id="bake">🍞 Bake sheet</button>
+<button id="dl" disabled>⬇ Download PNG</button>
+<canvas id="strip" width="1360" height="150" style="width:680px"></canvas>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const loader = new GLTFLoader();
+const params = new URLSearchParams(location.search);
+const MODEL = params.get('model') || 'dog';
+const BOARD = params.get('board') || 'classic';
+
+// supersampled 3× like the PIL pipeline, downscale on composite
+const SS = 3, FW = 170, FH = 150;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setSize(FW * SS, FH * SS);
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xffffff, 0x9a8a6c, 1.5));
+const sun = new THREE.DirectionalLight(0xfff3c4, 1.9);
+sun.position.set(3, 7, 6);
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0xbcd8ff, 0.8);
+rim.position.set(-4, 3, -5);
+scene.add(rim);
+
+// ortho side camera — flat 2D sprite semantics
+const VIEW_W = 1.72, VIEW_H = VIEW_W * FH / FW; // ≈1.52 — pup fills ~2/3 of cell
+const camera = new THREE.OrthographicCamera(-VIEW_W / 2, VIEW_W / 2, VIEW_H / 2, -VIEW_H / 2, 0.01, 50);
+camera.position.set(0, 0.66, 6);
+camera.lookAt(0, 0.66, 0);
+
+// ── pup ──
+const dog = await loader.loadAsync(`./models/${MODEL}.glb`);
+dog.scene.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
+const holder = new THREE.Group();
+const pupFx = new THREE.Group();
+pupFx.add(dog.scene);
+holder.add(pupFx);
+scene.add(holder);
+
+const mixer = new THREE.AnimationMixer(dog.scene);
+const actions = {};
+const short = n => n.split('|').pop();
+for (const clip of dog.animations) { const k = short(clip.name); if (!actions[k]) actions[k] = mixer.clipAction(clip); }
+const RIDE = actions.Run || actions.Gallop || actions.Walk;
+const JUMP = actions.Jump_Start || actions.Gallop_Jump || actions.Run_Jump;
+const headBones = [];
+dog.scene.traverse(o => { if (o.isBone && /head/i.test(o.name)) headBones.push(o); });
+const applyHead = () => {
+  const v = parseFloat(document.getElementById('hs').value);
+  document.getElementById('hsv2').textContent = v.toFixed(2);
+  headBones.forEach(b => b.scale.setScalar(v));
+};
+document.getElementById('hs').oninput = applyHead;
+
+// measure skinned bounds across the ride cycle (same recipe as the viewer)
+const skins = [];
+holder.traverse(o => { if (o.isSkinnedMesh) skins.push(o); });
+const bbox = new THREE.Box3(), tmp = new THREE.Box3();
+RIDE.play();
+const measure = () => { scene.updateMatrixWorld(true); for (const m of skins) { m.computeBoundingBox(); tmp.copy(m.boundingBox).applyMatrix4(m.matrixWorld); bbox.union(tmp); } };
+const dur = RIDE.getClip().duration;
+for (let s = 0; s <= 12; s++) { RIDE.time = dur * s / 12; mixer.update(0); measure(); }
+let size = bbox.getSize(new THREE.Vector3());
+if (size.z > size.x) { dog.scene.rotation.y = Math.PI / 2; bbox.makeEmpty(); RIDE.time = 0.2; mixer.update(0); measure(); size = bbox.getSize(new THREE.Vector3()); }
+const scale = Math.min(1.7 / size.x, 1.12 / size.y);
+holder.scale.setScalar(scale);
+const c = bbox.getCenter(new THREE.Vector3()).multiplyScalar(scale);
+
+// ── board ──
+const bd = await loader.loadAsync(`./models/boards/${BOARD}.glb`);
+bd.scene.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
+const boardWrap = new THREE.Group();
+boardWrap.add(bd.scene);
+scene.add(boardWrap);
+const bbOf = () => { bd.scene.updateMatrixWorld(true); return new THREE.Box3().setFromObject(bd.scene); };
+let bb = bbOf(), s = bb.getSize(new THREE.Vector3());
+if (s.y >= s.x && s.y >= s.z) bd.scene.rotation.z = Math.PI / 2;
+else if (s.z >= s.x && s.z >= s.y) bd.scene.rotation.y = Math.PI / 2;
+bb = bbOf(); s = bb.getSize(new THREE.Vector3());
+if (s.y > s.z) bd.scene.rotation.x = Math.PI / 2;
+bb = bbOf(); s = bb.getSize(new THREE.Vector3());
+const bsc = 1.35 / s.x;
+boardWrap.scale.setScalar(bsc);
+const bc = bb.getCenter(new THREE.Vector3()).multiplyScalar(bsc);
+boardWrap.position.set(-bc.x, -bb.min.y * bsc, -bc.z);
+const boardTop = s.y * bsc;
+const boardBaseY = boardWrap.position.y;
+
+// pup feet → deck top, body centered on deck
+holder.position.set(-c.x, boardTop - bbox.min.y * scale, -c.z);
+
+// ── coat variants — recolor the shared texture atlas, not just multiply ──
+// roster coats = canvas filter presets applied to Atlas.png
+const COATS = {
+  natural: { label: 'natural', filter: null },
+  barnaby: { label: 'barnaby · golden', filter: 'saturate(1.2) brightness(1.18) hue-rotate(-10deg)' },
+  daisy:   { label: 'daisy · cream',    filter: 'saturate(0.45) brightness(1.45)' },
+  pepper:  { label: 'pepper · charcoal',filter: 'saturate(0.12) brightness(0.42)' },
+  patches: { label: 'patches · rust',   filter: 'hue-rotate(-22deg) saturate(1.6) brightness(1.1)' },
+};
+let COAT = params.get('coat') || 'natural';
+const coatBox = document.getElementById('coats');
+for (const [k, v] of Object.entries(COATS)) {
+  const b = document.createElement('button');
+  b.textContent = v.label;
+  b.style.padding = '4px 10px';
+  b.style.background = k === COAT ? '#2f6f4f' : '#1d2f52';
+  b.onclick = () => { params.set('coat', k); location.search = '?' + params; };
+  coatBox.appendChild(b);
+}
+const atlasMat = (() => { let m = null; dog.scene.traverse(o => { if (!m && o.isMesh && o.material && o.material.map) m = o.material; }); return m; })();
+const origMap = atlasMat && atlasMat.map;
+function applyCoat() {
+  const c = COATS[COAT];
+  if (!atlasMat) return;
+  if (!c.filter) { atlasMat.map = origMap; atlasMat.needsUpdate = true; return; }
+  const img = origMap.image;
+  const cv = document.createElement('canvas');
+  cv.width = img.width; cv.height = img.height;
+  const cx = cv.getContext('2d');
+  cx.filter = c.filter;
+  cx.drawImage(img, 0, 0);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.flipY = false;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.magFilter = origMap.magFilter; tex.minFilter = origMap.minFilter;
+  atlasMat.map = tex;
+  atlasMat.needsUpdate = true;
+}
+
+// ── cel outline via silhouette underlay (matches PIL sheets' ink edge) ──
+const cellC = document.createElement('canvas');
+cellC.width = FW * SS; cellC.height = FH * SS;
+const cellCtx = cellC.getContext('2d');
+const silC = document.createElement('canvas');
+silC.width = FW * SS; silC.height = FH * SS;
+const silCtx = silC.getContext('2d');
+const OUT = 7 * SS / 3; // outline px at supersample res
+
+const strip = document.getElementById('strip');
+const stripCtx = strip.getContext('2d');
+const cellD = document.createElement('canvas');
+cellD.width = FW; cellD.height = FH;
+
+function captureFrame() {
+  renderer.render(scene, camera);
+  // frame into cell canvas (SS downscale happens at strip composite)
+  cellCtx.clearRect(0, 0, cellC.width, cellC.height);
+  cellCtx.drawImage(renderer.domElement, 0, 0, cellC.width, cellC.height);
+  // silhouette: ink-dark copy of alpha
+  silCtx.clearRect(0, 0, silC.width, silC.height);
+  silCtx.drawImage(cellC, 0, 0);
+  silCtx.globalCompositeOperation = 'source-in';
+  silCtx.fillStyle = '#2b2118';
+  silCtx.fillRect(0, 0, silC.width, silC.height);
+  silCtx.globalCompositeOperation = 'source-over';
+  // downscale composite into the strip cell: outline ring under art
+  cellD.getContext('2d').clearRect(0, 0, FW, FH);
+  const dc = cellD.getContext('2d');
+  for (const [ox, oy] of [[-OUT, 0], [OUT, 0], [0, -OUT], [0, OUT], [-OUT, -OUT], [OUT, -OUT], [-OUT, OUT], [OUT, OUT]]) {
+    dc.drawImage(silC, 0, 0, cellC.width, cellC.height, ox / SS, oy / SS, FW, FH);
+  }
+  dc.drawImage(cellC, 0, 0, cellC.width, cellC.height, 0, 0, FW, FH);
+  return cellD;
+}
+
+function drawCell(i) {
+  const img = captureFrame();
+  stripCtx.clearRect(i * FW, 0, FW, FH);
+  stripCtx.drawImage(img, i * FW, 0);
+}
+
+const once = a => { a.reset(); a.setLoop(THREE.LoopOnce); a.clampWhenFinished = true; a.play(); };
+
+function bake() {
+  applyCoat();
+  applyHead();
+  stripCtx.clearRect(0, 0, strip.width, strip.height);
+  boardWrap.rotation.z = 0; boardWrap.position.y = boardBaseY;
+  pupFx.rotation.set(0, 0, 0); pupFx.scale.set(1, 1, 1); pupFx.position.set(0, 0, 0);
+
+  // frames 0-5: six samples across the ride cycle
+  const rd = RIDE.getClip().duration;
+  RIDE.reset(); RIDE.setLoop(THREE.LoopRepeat); RIDE.play();
+  for (let i = 0; i < 6; i++) {
+    RIDE.time = rd * i / 6;
+    mixer.update(0); applyHead();
+    scene.updateMatrixWorld(true);
+    drawCell(i);
+  }
+
+  // frame 6: ollie — jump clip mid-air tuck + board pitch/hop
+  pupFx.position.y = 0.32;
+  pupFx.rotation.z = 0.14;
+  boardWrap.position.y = boardBaseY + 0.18;
+  boardWrap.rotation.z = 0.2;
+  if (JUMP) {
+    const ja = JUMP, jd = ja.getClip().duration;
+    RIDE.stop(); ja.reset(); ja.setLoop(THREE.LoopOnce); ja.clampWhenFinished = true; ja.play();
+    ja.time = jd * 0.55;
+    mixer.update(0); applyHead();
+  } else {
+    RIDE.time = rd * 0.15; mixer.update(0); applyHead();
+  }
+  scene.updateMatrixWorld(true);
+  drawCell(6);
+
+  // frame 7: duck — squash pose on a planted-feet ride frame
+  pupFx.position.y = 0; pupFx.rotation.z = 0;
+  boardWrap.position.y = boardBaseY; boardWrap.rotation.z = 0;
+  pupFx.scale.y = 0.66;
+  if (JUMP) JUMP.stop();
+  RIDE.reset(); RIDE.play(); RIDE.time = rd * 0.3; mixer.update(0); applyHead();
+  scene.updateMatrixWorld(true);
+  drawCell(7);
+
+  pupFx.scale.y = 1;
+  document.getElementById('dl').disabled = false;
+  return strip.toDataURL('image/png');
+}
+
+document.getElementById('bake').onclick = bake;
+document.getElementById('dl').onclick = () => {
+  const a = document.createElement('a');
+  a.href = strip.toDataURL('image/png');
+  a.download = `dog_${MODEL}_${BOARD}${COAT === 'natural' ? '' : '_' + COAT}.png`;
+  a.click();
+};
+window.__bake = bake;
+window.__ready = true;
+</script>
+</body>
+</html>

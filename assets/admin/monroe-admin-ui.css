@@ -1,0 +1,575 @@
+/* Monroe admin UI kit - shared visual system for custom wp-admin screens.
+   Lives inside standard wp-admin chrome (left menu + admin bar stay).
+   Same brand tokens as assets/staff/staff-portal.css, wp-admin density. */
+
+.monroe-admin-ui {
+  --madmin-font: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --madmin-teal: #0d9488;
+  --madmin-teal-deep: #0f766e;
+  --madmin-teal-soft: #e1f5ee;
+  --madmin-teal-ink: #0b3b36;
+  --madmin-coral: #e8734a;
+  --madmin-coral-deep: #c4552f;
+  --madmin-ink: #1f2b29;
+  --madmin-ink-soft: #5c6b68;
+  --madmin-ink-muted: #8a978f;
+  --madmin-surface: #ffffff;
+  --madmin-surface-sunken: #f6f5f0;
+  --madmin-border: #e7e3d8;
+  --madmin-border-strong: #d8d3c4;
+  --madmin-radius-sm: 8px;
+  --madmin-radius-md: 12px;
+  --madmin-radius-lg: 18px;
+  --madmin-shadow-sm: 0 1px 2px rgba(20, 30, 28, 0.05);
+  --madmin-shadow-md: 0 8px 20px rgba(20, 30, 28, 0.08);
+  --madmin-focus: 0 0 0 3px rgba(13, 148, 136, 0.25);
+  --madmin-ok-bg: #e1f5ee;
+  --madmin-ok-ink: #085041;
+  --madmin-warn-bg: #fdf1e2;
+  --madmin-warn-ink: #92600f;
+  --madmin-err-bg: #fdeaea;
+  --madmin-err-ink: #9a2c2c;
+  font-family: var(--madmin-font);
+}
+
+/* ---- Section header ---- */
+
+.monroe-admin-ui .madmin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0.25rem 0 1.5rem;
+}
+
+.monroe-admin-ui .madmin-header__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--madmin-ink);
+}
+
+.monroe-admin-ui .madmin-header__subtitle {
+  margin: 0;
+  color: var(--madmin-ink-soft);
+  font-size: 0.92rem;
+  max-width: 46rem;
+  line-height: 1.55;
+}
+
+/* ---- Status card grid ---- */
+
+.monroe-admin-ui .madmin-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.75rem;
+}
+
+.monroe-admin-ui .madmin-status-card {
+  background: var(--madmin-surface);
+  border: 1px solid var(--madmin-border);
+  border-radius: var(--madmin-radius-md);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--madmin-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.monroe-admin-ui .madmin-status-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.monroe-admin-ui .madmin-status-card__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--madmin-ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.monroe-admin-ui .madmin-status-card__value {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--madmin-ink);
+  line-height: 1.3;
+}
+
+.monroe-admin-ui .madmin-status-card__meta {
+  font-size: 0.82rem;
+  color: var(--madmin-ink-muted);
+  line-height: 1.45;
+}
+
+.monroe-admin-ui .madmin-status-card__meta a {
+  color: var(--madmin-teal-deep);
+  font-weight: 600;
+}
+
+/* ---- Badge / pill ---- */
+
+.monroe-admin-ui .madmin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.monroe-admin-ui .madmin-badge--ok { background: var(--madmin-ok-bg); color: var(--madmin-ok-ink); }
+.monroe-admin-ui .madmin-badge--warn { background: var(--madmin-warn-bg); color: var(--madmin-warn-ink); }
+.monroe-admin-ui .madmin-badge--err { background: var(--madmin-err-bg); color: var(--madmin-err-ink); }
+.monroe-admin-ui .madmin-badge--neutral { background: var(--madmin-surface-sunken); color: var(--madmin-ink-muted); }
+
+.monroe-admin-ui .madmin-badge svg { width: 11px; height: 11px; flex: none; }
+
+/* ---- Action groups ---- */
+
+.monroe-admin-ui .madmin-action-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.monroe-admin-ui .madmin-action-group {
+  background: var(--madmin-surface);
+  border: 1px solid var(--madmin-border);
+  border-radius: var(--madmin-radius-md);
+  padding: 1.1rem 1.15rem;
+  box-shadow: var(--madmin-shadow-sm);
+}
+
+.monroe-admin-ui .madmin-action-group h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--madmin-ink);
+}
+
+.monroe-admin-ui .madmin-action-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.monroe-admin-ui .madmin-action-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.5rem;
+  border-radius: var(--madmin-radius-sm);
+  color: var(--madmin-ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.monroe-admin-ui .madmin-action-list a:hover {
+  background: var(--madmin-surface-sunken);
+  color: var(--madmin-teal-deep);
+}
+
+.monroe-admin-ui .madmin-action-list a svg {
+  flex: none;
+  opacity: 0.65;
+  width: 15px;
+  height: 15px;
+}
+
+.monroe-admin-ui .madmin-action-list .madmin-action-list__desc {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--madmin-ink-muted);
+  margin-top: 0.1rem;
+}
+
+/* ---- Cards / panels ---- */
+
+.monroe-admin-ui .madmin-card {
+  background: var(--madmin-surface);
+  border: 1px solid var(--madmin-border);
+  border-radius: var(--madmin-radius-md);
+  padding: 1.25rem 1.4rem;
+  box-shadow: var(--madmin-shadow-sm);
+  margin-bottom: 1.25rem;
+}
+
+.monroe-admin-ui .madmin-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--madmin-ink);
+}
+
+/* ---- Settings page layout: 2-column card grid + 3-column product
+   sub-grid, desktop only. Single column on mobile (default). ---- */
+
+.monroe-admin-ui .madmin-product-grid {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.monroe-admin-ui .madmin-product {
+  padding: 0.9rem 1rem 0.2rem;
+  border: 1px solid var(--madmin-border);
+  border-radius: var(--madmin-radius-sm);
+  background: var(--madmin-surface-sunken);
+}
+
+.monroe-admin-ui .madmin-product h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--madmin-ink-soft);
+}
+
+.monroe-admin-ui .madmin-settings-grid {
+  display: grid;
+  gap: 1.1rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .monroe-admin-ui .madmin-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .monroe-admin-ui .madmin-settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .monroe-admin-ui .madmin-settings-grid > .madmin-card {
+    margin-bottom: 0;
+  }
+}
+
+.monroe-admin-ui .madmin-card p.description {
+  color: var(--madmin-ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+/* ---- Buttons (repaint default wp-admin .button inside our screens) ---- */
+
+.monroe-admin-ui .button,
+.monroe-admin-ui .button-secondary {
+  font-family: inherit !important;
+  border-radius: var(--madmin-radius-sm) !important;
+  border-color: var(--madmin-border-strong) !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+.monroe-admin-ui .button:hover {
+  border-color: var(--madmin-teal) !important;
+  color: var(--madmin-teal-deep) !important;
+}
+
+.monroe-admin-ui .button-primary {
+  background: linear-gradient(180deg, var(--madmin-coral) 0%, var(--madmin-coral-deep) 100%) !important;
+  border-color: transparent !important;
+  box-shadow: 0 6px 16px rgba(196, 85, 47, 0.28) !important;
+}
+
+.monroe-admin-ui .button-primary:hover {
+  filter: brightness(1.04);
+}
+
+/* ---- Form fields inside our cards ---- */
+
+.monroe-admin-ui .madmin-field {
+  margin-bottom: 1.1rem;
+}
+
+.monroe-admin-ui .madmin-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--madmin-ink-soft);
+  margin-bottom: 0.4rem;
+}
+
+.monroe-admin-ui .madmin-field input[type="text"],
+.monroe-admin-ui .madmin-field input[type="url"],
+.monroe-admin-ui .madmin-field input[type="password"],
+.monroe-admin-ui .madmin-field input[type="number"] {
+  width: 100%;
+  max-width: 32rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid var(--madmin-border);
+  border-radius: var(--madmin-radius-sm);
+  background: var(--madmin-surface-sunken);
+  color: var(--madmin-ink);
+}
+
+.monroe-admin-ui .madmin-field input:focus {
+  outline: none;
+  border-color: var(--madmin-teal);
+  background: var(--madmin-surface);
+  box-shadow: var(--madmin-focus);
+}
+
+.monroe-admin-ui .madmin-field .description {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--madmin-ink-muted);
+}
+
+/* ================================================================
+   Content Hub reskin (wp-admin density; touch-first version lives
+   in assets/staff/staff-portal.css under .monroe-staff-hub-wrap)
+   ================================================================ */
+
+.monroe-content-hub-wrap .mch-tabs {
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  padding: 0.3rem;
+  background: #fff;
+  border: 1px solid var(--madmin-border, #e7e3d8);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(20, 30, 28, 0.05);
+}
+
+.monroe-content-hub-wrap .mch-tab {
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  font-weight: 600;
+  color: #5c6b68;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.monroe-content-hub-wrap .mch-tab:hover {
+  background: #f6f5f0;
+  color: #1f2b29;
+}
+
+.monroe-content-hub-wrap .mch-tab.is-active {
+  background: #0d9488;
+  border-color: #0d9488;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(13, 148, 136, 0.28);
+}
+
+.monroe-content-hub-wrap .mch-panel {
+  background: #fff;
+  border: 1px solid #e7e3d8;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(20, 30, 28, 0.05);
+}
+
+.monroe-content-hub-wrap .mch-list__btn {
+  border: 1px solid #e7e3d8;
+  background: #f6f5f0;
+  border-radius: 8px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.monroe-content-hub-wrap .mch-list__btn:hover {
+  border-color: #d8d3c4;
+  background: #fff;
+}
+
+.monroe-content-hub-wrap .mch-list__btn.is-active {
+  border-color: #0d9488;
+  background: #e1f5ee;
+  box-shadow: inset 3px 0 0 #0d9488;
+  padding-left: calc(0.65rem - 3px);
+}
+
+.monroe-content-hub-wrap .mch-badge {
+  background: #0f766e;
+  border-radius: 999px;
+}
+
+.monroe-content-hub-wrap .mch-badge--draft {
+  background: #8a978f;
+}
+
+.monroe-content-hub-wrap .mch-section__title {
+  font-weight: 700;
+  color: #1f2b29;
+}
+
+.monroe-content-hub-wrap .mch-section__hint,
+.monroe-content-hub-wrap .mch-field__hint {
+  color: #8a978f;
+}
+
+.monroe-content-hub-wrap .mch-field input[type="text"],
+.monroe-content-hub-wrap .mch-field input[type="url"],
+.monroe-content-hub-wrap .mch-field input[type="date"],
+.monroe-content-hub-wrap .mch-field input[type="number"],
+.monroe-content-hub-wrap .mch-field textarea,
+.monroe-content-hub-wrap .mch-field select {
+  border: 1.5px solid #e7e3d8;
+  border-radius: 8px;
+  background: #f6f5f0;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.monroe-content-hub-wrap .mch-field input:focus,
+.monroe-content-hub-wrap .mch-field textarea:focus,
+.monroe-content-hub-wrap .mch-field select:focus {
+  outline: none;
+  border-color: #0d9488;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.25);
+}
+
+.monroe-content-hub-wrap .mch-block,
+.monroe-content-hub-wrap .mch-list-item,
+.monroe-content-hub-wrap .mch-gallery-item,
+.monroe-content-hub-wrap .mch-advanced,
+.monroe-content-hub-wrap .mch-nav-child,
+.monroe-content-hub-wrap .mch-nav-cta,
+.monroe-content-hub-wrap .mch-membership-benefit {
+  border-color: #e7e3d8;
+  border-radius: 8px;
+  background: #f6f5f0;
+}
+
+.monroe-content-hub-wrap .mch-nav-section,
+.monroe-content-hub-wrap .mch-membership-tier {
+  border-color: #e7e3d8;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(20, 30, 28, 0.05);
+}
+
+.monroe-content-hub-wrap .mch-list-item__num {
+  background: #0d9488;
+}
+
+.monroe-content-hub-wrap .mch-status--ok {
+  background: #e1f5ee;
+  border-color: #6ee7b7;
+  color: #085041;
+}
+
+.monroe-content-hub-wrap .mch-status--err {
+  background: #fdeaea;
+  border-color: #f0a3a3;
+  color: #9a2c2c;
+}
+
+.monroe-content-hub-wrap .mch-flyer-card.is-active {
+  border-color: #0d9488;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.18);
+}
+
+.monroe-content-hub-wrap .button-primary {
+  background: linear-gradient(180deg, #e8734a 0%, #c4552f 100%) !important;
+  border-color: transparent !important;
+  box-shadow: 0 6px 16px rgba(196, 85, 47, 0.28) !important;
+  text-shadow: none !important;
+}
+
+.monroe-content-hub-wrap .button-primary:hover {
+  filter: brightness(1.04);
+}
+
+/* ================================================================
+   Mobile (matches wp-admin's own collapse breakpoint) - staff check
+   these dashboards from a phone as often as a desk, so touch targets
+   and type scale here get the same deliberate attention as desktop.
+   ================================================================ */
+
+@media (max-width: 782px) {
+  .monroe-admin-ui .madmin-header {
+    margin-bottom: 1.1rem;
+  }
+
+  .monroe-admin-ui .madmin-header__title {
+    font-size: 1.3rem;
+  }
+
+  .monroe-admin-ui .madmin-status-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .monroe-admin-ui .madmin-status-card {
+    padding: 1rem 1.1rem;
+  }
+
+  .monroe-admin-ui .madmin-status-card__value {
+    font-size: 1.15rem;
+  }
+
+  .monroe-admin-ui .madmin-action-groups {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .monroe-admin-ui .madmin-action-list a {
+    min-height: 3rem;
+    padding: 0.75rem 0.6rem;
+  }
+
+  .monroe-admin-ui .madmin-card {
+    padding: 1.1rem;
+  }
+
+  .monroe-admin-ui .madmin-field input[type="text"],
+  .monroe-admin-ui .madmin-field input[type="url"],
+  .monroe-admin-ui .madmin-field input[type="password"],
+  .monroe-admin-ui .madmin-field input[type="number"] {
+    max-width: 100%;
+    min-height: 2.85rem;
+    font-size: 16px;
+  }
+
+  .monroe-admin-ui .button,
+  .monroe-admin-ui .button-secondary,
+  .monroe-admin-ui .button-primary {
+    min-height: 2.85rem !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .monroe-admin-ui p > .button + .button {
+    margin-top: 0.5rem;
+  }
+
+  .monroe-content-hub-wrap .mch-tab {
+    min-height: 2.85rem;
+  }
+
+  .monroe-content-hub-wrap .mch-list__btn {
+    min-height: 2.85rem;
+  }
+
+  .monroe-content-hub-wrap .mch-field input[type="text"],
+  .monroe-content-hub-wrap .mch-field input[type="url"],
+  .monroe-content-hub-wrap .mch-field input[type="date"],
+  .monroe-content-hub-wrap .mch-field input[type="number"],
+  .monroe-content-hub-wrap .mch-field textarea,
+  .monroe-content-hub-wrap .mch-field select {
+    min-height: 2.85rem;
+    font-size: 16px;
+  }
+
+  .monroe-content-hub-wrap .button,
+  .monroe-content-hub-wrap .button-primary {
+    min-height: 2.85rem !important;
+  }
+}

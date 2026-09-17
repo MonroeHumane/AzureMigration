@@ -1,0 +1,5 @@
+import{a as e,n as t}from"./newsletter-hydrate.C3yFta_Q.js";function n(){let e=document.querySelector(`[data-newsletter-issue]`),t=document.getElementById(`nl-shell`);if(!e||document.getElementById(`nl-missing`)){t?.classList.add(`hidden`);return}t?.classList.add(`hidden`);let n=document.createElement(`div`);n.id=`nl-missing`,n.className=`max-w-xl mx-auto text-center py-24`,n.innerHTML=`
+      <h1 class="text-3xl font-serif text-teal-900 mb-4">Issue not found</h1>
+      <p class="text-gray-600 mb-8">That newsletter is not published, or the link is out of date.</p>
+      <a class="text-teal-700 font-bold uppercase tracking-wider text-sm hover:text-emerald-600" href="/newsletter">Back to archive</a>
+    `,e.prepend(n)}var r=!1;async function i(){r||(r=!0,await t(e())||n())}document.addEventListener(`astro:page-load`,i);

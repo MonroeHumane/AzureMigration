@@ -1,0 +1,152 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Humane Society of Monroe County//Events Calendar//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Monroe Humane Events & Fundraisers
+X-WR-TIMEZONE:America/Detroit
+X-WR-CALDESC:Community fundraisers, adoption clinics, and events supporting the Humane Society of Monroe County.
+BEGIN:VEVENT
+UID:event-193@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260531
+DTEND;VALUE=DATE:20260601
+SUMMARY:Cars & Critters Car Show
+DESCRIPTION:Classic cars\, trucks\, motorcycles\, adoptable pets\, barbecue\, and awards! Family fun in the park supporting our humane shelter.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-238@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260620
+DTEND;VALUE=DATE:20260621
+SUMMARY:Wheels for Whiskers
+DESCRIPTION:Annual charity motorcycle run and community pet parade through Monroe County\, ending with refreshments and adoption stories.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-241@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260629
+DTEND;VALUE=DATE:20260630
+SUMMARY:Dine to Donate
+DESCRIPTION:Community dining partnership supporting Monroe Humane Society. Enjoy a great meal while giving back to shelter animals.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-319@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260728
+DTEND;VALUE=DATE:20260729
+SUMMARY:Humane Society Open House
+DESCRIPTION:Shelter open house and community pet adoption day from 12:00 PM to 5:00 PM. Meet adoptable dogs and cats and tour our facility.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-320@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260801
+DTEND;VALUE=DATE:20260802
+SUMMARY:Pavlov's Brewing Co. Pint Night
+DESCRIPTION:Join us at Pavlov's Brewing Co. from 4:00 PM to 9:00 PM. A portion of beverage sales directly benefits emergency shelter veterinary care.
+LOCATION:Monroe County\, MI
+URL:https://www.facebook.com/pavlovsbrew/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-321@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260804
+DTEND;VALUE=DATE:20260805
+SUMMARY:Humane Society Community Day
+DESCRIPTION:Community adoption and shelter outreach day from 12:00 PM to 5:00 PM with pet resources\, merchandise\, and volunteer sign-ups.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-322@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260808
+DTEND;VALUE=DATE:20260809
+SUMMARY:Jerry's Frenchtown Bar Benefit Night
+DESCRIPTION:Charity benefit at Jerry's Frenchtown Bar from 11:00 AM to 8:00 PM. Great food\, raffles\, and community advocacy for shelter pets.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-323@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260810
+DTEND;VALUE=DATE:20260811
+SUMMARY:Mugsy's Sports Grill & Bar
+DESCRIPTION:Heart Sale & Burger Day at Mugsy's Sports Grill from 11:00 AM to 9:00 PM supporting our emergency medical and surgical fund.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-324@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260813
+DTEND;VALUE=DATE:20260814
+SUMMARY:Michigan Beer & Wine Portal Benefit
+DESCRIPTION:Evening community benefit at Michigan Beer and Wine Portal from 5:00 PM to 9:00 PM supporting Monroe Humane rescue missions.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-325@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260814
+DTEND;VALUE=DATE:20260815
+SUMMARY:Casa de Margarita Charity Dinner
+DESCRIPTION:Fiesta for the animals! Casa de Margarita hosts an authentic dinner night from 4:00 PM to 8:00 PM donating a portion of all dining sales.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-326@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260822
+DTEND;VALUE=DATE:20260823
+SUMMARY:Dirty Birdie Charity Golf Outing
+DESCRIPTION:Premier summer scramble golf outing\, raffles\, dinner buffet\, and awards from 2:00 PM to 7:00 PM benefiting Monroe animals.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-327@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260827
+DTEND;VALUE=DATE:20260828
+SUMMARY:Applebee's Dine to Donate
+DESCRIPTION:Dine to Donate evening at Applebee's of Monroe from 4:00 PM to 9:00 PM! 15% of dining checks support shelter medical care.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-223@monroe-humane.org
+DTSTAMP:20260917T022611Z
+DTSTART;VALUE=DATE:20260827
+DTEND;VALUE=DATE:20260828
+SUMMARY:Applebee's Dine to Donate and Vote!
+DESCRIPTION:Cast your vote for our annual shelter t-shirt design while dining at Applebee's of Monroe on August 27th! Community fun supporting the animals.
+LOCATION:Monroe County\, MI
+URL:https://monroe-humane.org/events
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Puppy Skater — Tuning Sim</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0b1020; color: #dfe7f5; font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; }
+  #wrap { display: flex; gap: 14px; padding: 14px; height: 100vh; }
+  #stage { position: relative; }
+  canvas { display: block; border-radius: 10px; background: #12203a; }
+  #view { width: 324px; height: 576px; }           /* 432x768 @ 0.75 */
+  #hist { width: 324px; height: 110px; margin-top: 10px; }
+  #side { flex: 1; min-width: 300px; max-width: 460px; overflow: auto; }
+  h1 { font-size: 16px; margin: 0 0 10px; color: #ffd166; }
+  h2 { font-size: 12px; margin: 16px 0 6px; color: #8ecae6; text-transform: uppercase; letter-spacing: .08em; }
+  .row { display: flex; gap: 8px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
+  button, select { background: #1d2f52; color: #dfe7f5; border: 1px solid #33507f; border-radius: 7px; padding: 5px 10px; font: inherit; cursor: pointer; }
+  button:hover, select:hover { background: #27406e; }
+  button.on { background: #2f6f4f; border-color: #4fae82; }
+  #stats { white-space: pre-wrap; background: #101a30; border: 1px solid #22360f00; border-radius: 8px; padding: 10px; }
+  .legend span { display: inline-block; margin-right: 10px; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { padding: 2px 6px; text-align: right; border-bottom: 1px solid #1d2f52; }
+  th { color: #8ecae6; text-align: left; }
+  td:first-child { text-align: left; }
+  .muted { color: #7c8db0; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <canvas id="view" width="432" height="768"></canvas>
+    <canvas id="hist" width="648" height="220"></canvas>
+  </div>
+  <div id="side">
+    <h1>Puppy Skater — tuning sim</h1>
+    <div class="row">
+      <button id="bPlay" class="on">⏸ pause</button>
+      <label>speed <select id="speed"><option>1</option><option selected>4</option><option>16</option><option>48</option></select></label>
+      <label>runs <select id="runs"><option>120</option><option selected>300</option><option>600</option><option>1000</option></select></label>
+      <button id="bRestart">↻ restart</button>
+    </div>
+    <div class="row">
+      <label>bots <select id="mix"><option value="human">human mix</option><option value="oracle">oracle only</option><option value="blend">90/10 blend</option></select></label>
+      <button id="bGhost" class="on">ghosts ✓</button>
+      <button id="bObs" class="on">obstacles ✓</button>
+    </div>
+    <div id="stats">…</div>
+    <h2>Death causes (this session)</h2>
+    <table id="causes"></table>
+    <div class="legend" style="margin-top:10px">
+      <span><i class="sw" style="background:#7ee0a3"></i>running</span>
+      <span><i class="sw" style="background:#8ecae6"></i>jumping</span>
+      <span><i class="sw" style="background:#f4a261"></i>ducking</span>
+      <span><i class="sw" style="background:#ff5d5d"></i>hit/dying</span>
+      <span><i class="sw" style="background:#ffffff"></i>oracle</span>
+    </div>
+    <p class="muted">Each ghost is an independent seeded run (real engine + levelgen + bot).
+    The histogram stacks deaths by obstacle; white lines = milestones (500/1500/3000m).
+    The solid pup is the current leader; its obstacles render solid, everyone else renders as a ghost at their own jump height.</p>
+  </div>
+</div>
+<script type="module" src="./sim.js"></script>
+</body>
+</html>
