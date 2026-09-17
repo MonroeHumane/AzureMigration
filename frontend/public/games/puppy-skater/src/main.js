@@ -363,20 +363,30 @@ function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } cat
   // Pet catalog warms in parallel — run is playable without it
   pets.fetchPets().then(list => { if (!petDeck.length) newPetDeck(); }).catch(() => {});
 
+  // Start overlay goes up immediately — never hold it on network calls.
+  newPetDeck();
+  ui.showStart(best, dogId);
+  requestAnimationFrame(frame);
+
   arcade.ensureSession();
-  const cloud = await arcade.loadCloudSave().catch(() => null);
-  if (cloud) {
-    if ((cloud.best | 0) > best) { best = cloud.best | 0; g.best = best; writeLS(LS.best, best); }
+  // Cloud save streams in; repaint the best line if the cloud copy wins.
+  arcade.loadCloudSave().then(cloud => {
+    if (!cloud) return;
+    if ((cloud.best | 0) > best) {
+      best = cloud.best | 0;
+      g.best = best;
+      writeLS(LS.best, best);
+      ui.showStart(best, dogId);
+    }
     if (Array.isArray(cloud.claimedMilestones)) {
       claimedThisDevice = Array.from(new Set([...claimedThisDevice, ...cloud.claimedMilestones]));
       writeLS(LS.claimed, claimedThisDevice);
     }
-    if (cloud.dogId && DOGS.some(d => d.id === cloud.dogId) && !localStorage.getItem(LS.dog)) dogId = cloud.dogId;
+    if (cloud.dogId && DOGS.some(d => d.id === cloud.dogId) && !localStorage.getItem(LS.dog)) {
+      dogId = cloud.dogId;
+      ui.selectDog(dogId);
+    }
     gamesPlayed = cloud.gamesPlayed || 0;
     totalMeters = cloud.totalMeters || 0;
-  }
-
-  newPetDeck();
-  ui.showStart(best, dogId);
-  requestAnimationFrame(frame);
+  }).catch(() => null);
 })();

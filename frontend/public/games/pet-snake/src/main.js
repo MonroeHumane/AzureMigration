@@ -152,33 +152,26 @@ engine.on('run:end', async (summary) => {
   localStorage.setItem('petSnakeBestScore', String(bestScore));
   localStorage.setItem('petSnakeBestFloor', String(bestFloor));
 
-  // Submit to Azure ACA API
-  try {
-    await arcade.submitScore(summary.score, {
-      floor: summary.floor,
-      victory: summary.victory,
-      treats: summary.treatsCollected
-    });
-  } catch (e) {}
+  // Show Field Journal immediately — never block UI on network
+  ui.showFieldJournal(summary);
 
-  // Report rescued shelter pets to Adoptédex
+  // Submit results asynchronously in the background
+  arcade.submitScore(summary.score, {
+    floor: summary.floor,
+    victory: summary.victory,
+    treats: summary.treatsCollected
+  }).catch(() => {});
+
   if (summary.rescuedPets.length > 0) {
     const petIds = summary.rescuedPets.map(p => p.id);
-    try {
-      await arcade.reportDiscoveries(petIds);
-    } catch (e) {}
+    arcade.reportDiscoveries(petIds).catch(() => {});
   }
 
-  // Cloud Save push
-  try {
-    await arcade.pushCloudSave({
-      best: bestScore,
-      bestFloor: bestFloor,
-      gamesPlayed: 1
-    });
-  } catch (e) {}
-
-  ui.showFieldJournal(summary);
+  arcade.pushCloudSave({
+    best: bestScore,
+    bestFloor: bestFloor,
+    gamesPlayed: 1
+  }).catch(() => {});
 });
 
 // ── Input Controls ──────────────────────────────────────────────────────────
@@ -253,22 +246,20 @@ async function boot() {
     await pets.fetchPets();
   } catch (e) {}
 
-  // Initialize session & load cloud save
-  try {
-    await arcade.ensureSession();
-    const cloud = await arcade.loadCloudSave();
-    if (cloud) {
-      if (cloud.best) localStorage.setItem('petSnakeBestScore', String(cloud.best));
-      if (cloud.bestFloor) localStorage.setItem('petSnakeBestFloor', String(cloud.bestFloor));
-    }
-  } catch (e) {}
-
-  // Show title screen
+  // Show title screen immediately — never block UI on network
   ui.showTitleScreen({
     bestScore: localStorage.getItem('petSnakeBestScore') || 0,
     bestFloor: localStorage.getItem('petSnakeBestFloor') || 1,
     coins: arcade.localCoins()
   });
+
+  // Warm up session & stream cloud save in background
+  arcade.ensureSession().then(() => arcade.loadCloudSave()).then(cloud => {
+    if (cloud) {
+      if (cloud.best) localStorage.setItem('petSnakeBestScore', String(cloud.best));
+      if (cloud.bestFloor) localStorage.setItem('petSnakeBestFloor', String(cloud.bestFloor));
+    }
+  }).catch(() => {});
 
   // RAF Loop
   let lastTime = performance.now();

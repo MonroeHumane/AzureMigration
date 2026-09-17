@@ -1,6 +1,12 @@
 name: Deploy Astro Frontend to GitHub Pages (Standby Backup)
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -30,6 +36,15 @@ jobs:
         run: |
           cd frontend
           npm ci
+
+      - name: Game JS syntax check
+        run: |
+          cd frontend
+          fail=0
+          while IFS= read -r f; do
+            if ! node --check "$f"; then fail=1; fi
+          done < <(find public/games -name '*.js' -type f)
+          exit $fail
 
       - name: Build Astro Static Site
         run: |

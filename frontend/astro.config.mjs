@@ -54,6 +54,8 @@ export default defineConfig({
     domains: [
       'mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io',
       'mchsstorage2urwob6xh6j6s.blob.core.windows.net',
+      'g.petango.com',
+      'images.petango.com',
     ],
   },
 });

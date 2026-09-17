@@ -36,8 +36,8 @@ def main():
             page.on("pageerror", lambda e: errors.append(str(e)))
 
             # stub: 5 real cats + 4 real dogs (album joins met_ids to catalog)
-            met_ids = ["61388848","61447464","61410143","61410096","61410078",
-                       "61461825","61448087","61447973","61447319"]
+            met_ids = ["61410096","61410064","61410143","61269043","61269073",
+                       "60623628","61710891","61546627","61507642"]
             def route_profile(r):
                 r.fulfill(status=200, content_type="application/json", body=json.dumps({
                     "ok": True, "met_ids": met_ids, "unopened_packs": 0,

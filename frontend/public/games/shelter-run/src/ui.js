@@ -251,6 +251,9 @@ export function createUI({ onStart, onRetry, onOpenPack, onPickCat, onBuyUpgrade
     setTimeout(() => { t.classList.remove('in'); setTimeout(() => t.remove(), 400); }, opts.ms || 3400);
   }
 
+  renderStore(null, 0);
+  renderObjectives(null);
+
   return {
     updateLeaderboard(leaders, score) { renderLeaders(leaders, score); },
     setPacks,
