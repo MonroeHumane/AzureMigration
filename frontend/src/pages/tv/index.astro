@@ -613,19 +613,15 @@ const pets = allPets.filter((p) => p.image && !p.image.includes('placeholder'));
       });
     }
 
-    // Background refresh from the live Directus feed — the same one
-    // PetSync writes to every 30 minutes — so the kiosk tracks new
-    // arrivals/archives without a restart.
+    // Background refresh from /shelter-pets.json — updated by PetSync —
+    // so the kiosk tracks new arrivals/archives without a restart.
     setInterval(async () => {
       try {
-        const res = await fetch(
-          'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io/items/pets?filter[archived_at][_null]=true&limit=-1',
-          { signal: AbortSignal.timeout(8000) }
-        );
+        const res = await fetch('/shelter-pets.json', { signal: AbortSignal.timeout(8000) });
         if (!res.ok) return;
         const data = await res.json();
-        if (data.data && data.data.length > 0) {
-          pets = data.data
+        if (Array.isArray(data) && data.length > 0) {
+          pets = data
             .map((p: Pet) => ({ ...p, image: p.image_url || p.image || '/placeholder.svg' }))
             .filter((p: Pet) => p.image && !p.image.includes('placeholder'));
         }

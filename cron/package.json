@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/sync-pets.js",
     "dev": "tsx src/sync-pets.ts",
+    "sync-json": "tsx src/sync-to-json.ts",
     "migrate-legacy": "tsx src/migrate-legacy.ts"
   },
   "dependencies": {

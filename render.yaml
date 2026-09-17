@@ -1,0 +1,71 @@
+# ==============================================================================
+# Render.com Blueprint for Monroe County Humane Society ($0 Free Tier Stack)
+# ==============================================================================
+# Deploy this repository directly on Render (https://render.com)
+#
+# Free Tier Features:
+# - Free Web Services (runs Docker containers from Git)
+# - Automatic SSL & custom domain support
+# - Zero credit card required for free tier services
+# ==============================================================================
+
+services:
+  # 1. Humane Arcade API (PHP Flight + Leaderboard)
+  - type: web
+    name: mchs-arcade-api
+    runtime: docker
+    dockerfilePath: ./arcade/Dockerfile
+    dockerContext: ./arcade
+    plan: free
+    region: ohio
+    envVars:
+      - key: PORT
+        value: 80
+      - key: DB_HOST
+        sync: false
+      - key: DB_NAME
+        value: arcade_db
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: DB_PORT
+        value: 3306
+      - key: CLEANUP_SECRET
+        generateValue: true
+
+  # 2. Directus Headless CMS (Staff Content & Governance)
+  - type: web
+    name: mchs-directus
+    runtime: image
+    image:
+      url: directus/directus:11.5.0
+    plan: free
+    region: ohio
+    envVars:
+      - key: PORT
+        value: 8055
+      - key: DB_CLIENT
+        value: mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        value: directus_db
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: KEY
+        generateValue: true
+      - key: SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ENABLED
+        value: "true"
+      - key: CORS_ORIGIN
+        value: "https://monroe-humane.org,https://delightful-dune-0d730f70f.7.azurestaticapps.net,http://localhost:4321"

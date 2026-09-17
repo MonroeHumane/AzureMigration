@@ -116,14 +116,14 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --image directus/directus:11.5.0 --revision-suffix gha${{ github.run_number }} --min-replicas 1 --max-replicas 2
+            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --container-name directus --image directus/directus:11.5.0 --revision-suffix gha${{ github.run_number }} --min-replicas 1 --max-replicas 2
 
       - name: Deploy Arcade (only if arcade/** changed)
         if: needs.changes.outputs.arcade == 'true'
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest --revision-suffix gha${{ github.run_number }} --min-replicas 1
+            az containerapp update --name mchs-arcade-api --resource-group MCHS-Platform-RG --container-name arcade-api --image ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-arcade:latest --revision-suffix gha${{ github.run_number }} --min-replicas 1
 
       # The entrypoint runs Phinx migrations before Apache starts, so the new
       # revision only becomes ready once the DB schema is current. Poll a
