@@ -7,7 +7,7 @@ const suite = typeof window !== 'undefined' && window.HumaneAudio?.getSuite
 
 let isMuted = false;
 let currentMusic = null;
-let deathAudio = null;
+let lastTrackName = 'default1.mp3';
 
 // Procedural Web Audio context for fallback/supplementary SFX
 let audioCtx = null;
@@ -24,11 +24,16 @@ function getAudioCtx() {
 
 export function setMuted(muted) {
   isMuted = !!muted;
-  if (currentMusic) {
-    currentMusic.muted = isMuted;
-  }
-  if (deathAudio) {
-    deathAudio.muted = isMuted;
+  if (isMuted) {
+    if (currentMusic) currentMusic.pause();
+    stopDeathMusic();
+  } else {
+    if (currentMusic) {
+      currentMusic.muted = false;
+      currentMusic.play().catch(() => {});
+    } else if (lastTrackName) {
+      playMusic(lastTrackName);
+    }
   }
 }
 
@@ -142,16 +147,17 @@ export const sfx = {
 
 // ── Music Tracks ────────────────────────────────────────────────────────────
 export function playMusic(trackName = 'default1.mp3') {
+  lastTrackName = trackName;
   if (currentMusic) {
     currentMusic.pause();
     currentMusic = null;
   }
+  if (isMuted) return;
 
   try {
     currentMusic = new Audio(`../music/${trackName}`);
     currentMusic.loop = true;
-    currentMusic.volume = isMuted ? 0 : 0.35;
-    currentMusic.muted = isMuted;
+    currentMusic.volume = 0.35;
     currentMusic.play().catch(() => {});
   } catch (err) {
     // Silently fall back if autoplay blocked
@@ -165,19 +171,90 @@ export function stopMusic() {
   }
 }
 
+let deathNodes = [];
+
 export function playDeathMusic() {
   stopMusic();
-  try {
-    deathAudio = new Audio('../music/death.mp3');
-    deathAudio.volume = isMuted ? 0 : 0.45;
-    deathAudio.muted = isMuted;
-    deathAudio.play().catch(() => {});
-  } catch (err) {}
+  stopDeathMusic();
+  if (isMuted) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const masterGain = ctx.createGain();
+  masterGain.gain.setValueAtTime(0.35, now);
+  masterGain.connect(ctx.destination);
+  deathNodes.push(masterGain);
+
+  // Somber, atmospheric 8-bit game over arpeggio / sequence:
+  // Descending minor progression: D4 (293.66), Bb3 (233.08), G3 (196.00), Eb3 (155.56), D3 (146.83)
+  const leadNotes = [
+    { freq: 293.66, start: 0.00, dur: 0.45 },
+    { freq: 261.63, start: 0.45, dur: 0.45 },
+    { freq: 233.08, start: 0.90, dur: 0.45 },
+    { freq: 196.00, start: 1.35, dur: 0.60 },
+    { freq: 174.61, start: 1.95, dur: 0.40 },
+    { freq: 146.83, start: 2.35, dur: 1.20 }
+  ];
+
+  leadNotes.forEach(({ freq, start, dur }) => {
+    const t0 = now + start;
+    const t1 = t0 + dur;
+    const osc = ctx.createOscillator();
+    const noteGain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, t0);
+    if (dur > 0.5) {
+      osc.frequency.setValueAtTime(freq, t0 + 0.2);
+      osc.frequency.linearRampToValueAtTime(freq - 3, t1);
+    }
+
+    noteGain.gain.setValueAtTime(0.001, t0);
+    noteGain.gain.linearRampToValueAtTime(0.28, t0 + 0.04);
+    noteGain.gain.setValueAtTime(0.25, t1 - 0.08);
+    noteGain.gain.exponentialRampToValueAtTime(0.001, t1);
+
+    osc.connect(noteGain);
+    noteGain.connect(masterGain);
+
+    osc.start(t0);
+    osc.stop(t1);
+    deathNodes.push(osc, noteGain);
+  });
+
+  // Deep resonant bass pad undertone (D2 = 73.42Hz, slowly decaying)
+  const bassOsc = ctx.createOscillator();
+  const bassGain = ctx.createGain();
+  const bassFilter = ctx.createBiquadFilter();
+
+  bassOsc.type = 'sawtooth';
+  bassOsc.frequency.setValueAtTime(73.42, now);
+  bassOsc.frequency.exponentialRampToValueAtTime(36.71, now + 3.5);
+
+  bassFilter.type = 'lowpass';
+  bassFilter.frequency.setValueAtTime(220, now);
+  bassFilter.frequency.linearRampToValueAtTime(80, now + 3.0);
+
+  bassGain.gain.setValueAtTime(0.001, now);
+  bassGain.gain.linearRampToValueAtTime(0.22, now + 0.08);
+  bassGain.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
+
+  bassOsc.connect(bassFilter);
+  bassFilter.connect(bassGain);
+  bassGain.connect(masterGain);
+
+  bassOsc.start(now);
+  bassOsc.stop(now + 3.5);
+  deathNodes.push(bassOsc, bassGain, bassFilter);
 }
 
 export function stopDeathMusic() {
-  if (deathAudio) {
-    deathAudio.pause();
-    deathAudio = null;
-  }
+  deathNodes.forEach(node => {
+    try {
+      if (node.stop) node.stop();
+      if (node.disconnect) node.disconnect();
+    } catch (_) {}
+  });
+  deathNodes = [];
 }

@@ -515,14 +515,79 @@ html, body {
 }
 
 /* ── Embed mode ─────────────────────────────────────────────────────────── */
-.is-embedded body, .humane-embed body { background: transparent; }
+html.is-embedded,
+html.is-embedded body,
+html.humane-embed,
+html.humane-embed body {
+	height: 100% !important;
+	max-height: 100% !important;
+	min-height: 100% !important;
+	overflow: hidden !important;
+	scrollbar-width: none !important;
+	-ms-overflow-style: none !important;
+	background: transparent;
+}
+html.is-embedded::-webkit-scrollbar,
+html.is-embedded body::-webkit-scrollbar,
+html.humane-embed::-webkit-scrollbar,
+html.humane-embed body::-webkit-scrollbar {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
+}
 .is-embedded .booster-header, .humane-embed .booster-header { display: none; }
 .is-embedded .booster-app, .humane-embed .booster-app {
+	height: 100% !important;
+	max-height: 100% !important;
+	min-height: 0 !important;
+	overflow: hidden !important;
 	background: var(--booster-bg);
 	border-radius: 0;
+	padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+	justify-content: center;
 }
 .is-embedded .booster-header__logo { height: 26px; }
 .is-embedded .booster-key-hints { display: none; }
+
+/* Dynamic sizing for pack & card reveal in cabinet viewports */
+.is-embedded .pack-stage,
+.humane-embed .pack-stage {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.is-embedded .pack-body,
+.humane-embed .pack-body {
+	max-height: min(360px, 48vh);
+	width: auto;
+	aspect-ratio: 5 / 7;
+}
+.is-embedded .pack-reveal-stage,
+.humane-embed .pack-reveal-stage {
+	height: 100%;
+	max-height: 100%;
+	padding: 4px 0;
+	justify-content: center;
+	gap: clamp(4px, 1.5vh, 14px);
+}
+.is-embedded .pack-reveal-head,
+.humane-embed .pack-reveal-head {
+	margin-bottom: 2px;
+}
+.is-embedded .pack-reveal-cell .mhc-card-scene,
+.humane-embed .pack-reveal-cell .mhc-card-scene {
+	max-height: min(330px, 44vh);
+	width: auto;
+	aspect-ratio: 5 / 7;
+}
+.is-embedded .pack-reveal-fan--multi .pack-reveal-cell .mhc-card-scene,
+.humane-embed .pack-reveal-fan--multi .pack-reveal-cell .mhc-card-scene {
+	max-height: min(280px, 38vh);
+	width: auto;
+	aspect-ratio: 5 / 7;
+}
 
 /* ── Responsive / small ─────────────────────────────────────────────────── */
 @media (max-width: 480px) {

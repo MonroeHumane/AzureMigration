@@ -31,7 +31,10 @@ export class PackView {
 				</div>
 				<div class="pack-perf" aria-hidden="true"><span class="pack-perf__line"></span><span class="pack-perf__scissors">✂</span></div>
 				<div class="pack-face">
-					<img class="pack-face__art" src="/assets/cards/pack-${this.tier}.png" alt="" draggable="false">
+					<picture class="pack-face__art">
+						<source srcset="/assets/cards/pack-${this.tier}.webp" type="image/webp">
+						<img src="/assets/cards/pack-${this.tier}.png" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;display:block;">
+					</picture>
 					<div class="pack-face__sheen" aria-hidden="true"></div>
 				</div>
 			</div>

@@ -249,11 +249,15 @@ function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } cat
   document.getElementById('fc-mute').textContent = muted ? '🔇' : '🔊';
   await Promise.all(allImages.map(loadImage));
 
+  // Start overlay goes up immediately — never hold it on network calls.
+  ui.showStart(best, catId);
+  requestAnimationFrame(frame);
+
   // Arcade session + cloud save restore (best score wins across devices)
   arcade.ensureSession();
-  const cloud = await arcade.loadCloudSave().catch(() => null);
-  if (cloud) {
-    if ((cloud.best | 0) > best) { best = cloud.best | 0; g.best = best; writeLS(LS.best, best); }
+  arcade.loadCloudSave().then(cloud => {
+    if (!cloud) return;
+    if ((cloud.best | 0) > best) { best = cloud.best | 0; g.best = best; writeLS(LS.best, best); ui.showStart(best, catId); }
     if (Array.isArray(cloud.claimedMilestones)) {
       claimedThisDevice = Array.from(new Set([...claimedThisDevice, ...cloud.claimedMilestones]));
       writeLS(LS.claimed, claimedThisDevice);
@@ -261,8 +265,5 @@ function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } cat
     if (cloud.catId && CATS.some(c => c.id === cloud.catId) && !localStorage.getItem(LS.cat)) catId = cloud.catId;
     gamesPlayed = cloud.gamesPlayed || 0;
     totalScore = cloud.totalScore || 0;
-  }
-
-  ui.showStart(best, catId);
-  requestAnimationFrame(frame);
+  }).catch(() => null);
 })();

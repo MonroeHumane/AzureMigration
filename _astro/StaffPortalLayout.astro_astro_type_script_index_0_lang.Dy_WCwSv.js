@@ -1,0 +1,1 @@
+import{s as e}from"./staff-auth.Bc2ruAL0.js";document.addEventListener(`astro:page-load`,()=>{e(30)});

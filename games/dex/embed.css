@@ -3,15 +3,57 @@
 
 html.humane-embed {
 	height: 100%;
+	overflow: hidden;
 }
 
 html.humane-embed body {
 	height: 100%;
 	min-height: 100%;
 	overflow-y: auto;
+	overflow-x: hidden;
+	overscroll-behavior: contain;
 	user-select: none;
 	-webkit-user-select: none;
 	-webkit-tap-highlight-color: transparent;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(94, 234, 212, 0.4) transparent;
+}
+
+html.humane-embed.pm-theme-light body {
+	scrollbar-color: rgba(15, 118, 110, 0.35) transparent;
+}
+
+/* Custom sleek webkit scrollbar for desktop Chrome / Edge */
+html.humane-embed body::-webkit-scrollbar {
+	width: 6px;
+}
+html.humane-embed body::-webkit-scrollbar-track {
+	background: transparent;
+}
+html.humane-embed:not(.pm-theme-light) body::-webkit-scrollbar-thumb {
+	background: rgba(94, 234, 212, 0.35);
+	border-radius: 999px;
+}
+html.humane-embed:not(.pm-theme-light) body::-webkit-scrollbar-thumb:hover {
+	background: rgba(94, 234, 212, 0.6);
+}
+html.humane-embed.pm-theme-light body::-webkit-scrollbar-thumb {
+	background: rgba(15, 118, 110, 0.3);
+	border-radius: 999px;
+}
+html.humane-embed.pm-theme-light body::-webkit-scrollbar-thumb:hover {
+	background: rgba(15, 118, 110, 0.55);
+}
+
+/* On touch devices, hide the track entirely for full-bleed feel */
+@media (pointer: coarse) {
+	html.humane-embed body {
+		scrollbar-width: none;
+	}
+	html.humane-embed body::-webkit-scrollbar {
+		display: none;
+		width: 0;
+	}
 }
 
 /* Colour rules below are dark-only; html.pm-theme-light takes over in dex.css. */
