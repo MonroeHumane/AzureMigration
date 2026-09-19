@@ -683,6 +683,7 @@ const MASCOTS = [
         id="cabinet-game-iframe"
         class="w-full h-full border-0 block overscroll-none touch-manipulation"
         title="Humane Game Player"
+        scrolling="no"
         allow="autoplay; fullscreen; gamepad"
         style="touch-action: manipulation;"
       ></iframe>
@@ -754,6 +755,30 @@ const MASCOTS = [
         <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Run</span>
       </button>
 
+      <button
+        type="button"
+        data-dock-game="puppy_skater"
+        data-dock-url="/games/puppy-skater/index.html?embed=1"
+        data-dock-title="Puppy Skater"
+        data-dock-icon="🛹"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border border-transparent flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+      >
+        <span class="text-base sm:text-sm">🛹</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Skater</span>
+      </button>
+
+      <button
+        type="button"
+        data-dock-game="pet_snake"
+        data-dock-url="/games/pet-snake/index.html?embed=1"
+        data-dock-title="Pet Snake Adventure"
+        data-dock-icon="🐍"
+        class="cabinet-dock-btn flex-1 sm:flex-initial min-w-0 sm:min-w-[80px] sm:shrink-0 px-0.5 sm:px-3 py-1.5 rounded-xl border border-transparent flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 transition cursor-pointer text-center snap-start"
+      >
+        <span class="text-base sm:text-sm">🐍</span>
+        <span class="text-[9px] sm:text-xs font-bold leading-tight truncate max-w-full">Snake</span>
+      </button>
+
       <div class="h-6 w-px bg-teal-800/80 mx-0.5 shrink-0 hidden sm:block"></div>
 
       <button
@@ -821,6 +846,23 @@ const MASCOTS = [
   }
   #cabinet-game-iframe {
     overscroll-behavior: none;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  #cabinet-game-iframe::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  #cabinet-quick-dock {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  #cabinet-quick-dock::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 
   .cabinet-dock-btn.dock-active {

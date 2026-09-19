@@ -52,19 +52,33 @@ html.humane-embed body.adventure-page .screen {
 	padding-right: max(8px, env(safe-area-inset-right, 0px));
 }
 
-/* Full-bleed game roots: fill the cabinet iframe without double chrome. */
+/* Full-bleed game roots: fill the cabinet iframe without double chrome or scrollbars. */
 html.humane-embed,
 html.humane-embed body {
-	height: 100%;
-	min-height: 100%;
-	min-height: 100dvh;
-	overflow: hidden;
+	height: 100% !important;
+	min-height: 100% !important;
+	max-height: 100% !important;
+	overflow: hidden !important;
+	scrollbar-width: none !important;
+	-ms-overflow-style: none !important;
+}
+
+html.humane-embed::-webkit-scrollbar,
+html.humane-embed body::-webkit-scrollbar {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
 }
 
 html.humane-embed .hg-game-root,
-html.humane-embed .site-shell {
-	min-height: 100%;
-	min-height: 100dvh;
+html.humane-embed .site-shell,
+html.humane-embed #game-shell,
+html.humane-embed #game-container,
+html.humane-embed .ps-shell {
+	height: 100% !important;
+	min-height: 100% !important;
+	max-height: 100% !important;
+	overflow: hidden !important;
 }
 
 /* The cabinet's Light/Dark button is the only theme control in the arcade.

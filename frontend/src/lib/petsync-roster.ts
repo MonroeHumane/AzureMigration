@@ -133,7 +133,7 @@ export function inflatePetRows(
     const daysAtShelter = pet.intake_date
       ? Math.floor((Date.now() - new Date(pet.intake_date).getTime()) / 86400000)
       : null;
-    const photoUrl = pet.image || '/assets/recovered/images/placeholder.svg';
+    const photoUrl = pet.thumb_webp || pet.image_webp || pet.image || pet.image_url || '/placeholder.svg';
     const publicUrl = `/adopt/${encodeURIComponent(pet.id)}`;
     const petPointUrl = pet.url && !/authkey=/i.test(pet.url) ? pet.url : publicUrl;
     const formattedIntake = pet.intake_date
@@ -205,17 +205,18 @@ export function inflatePetRows(
               alt="${safeName}"
               loading="lazy"
               class="w-full h-full object-cover group-hover:scale-110 transition duration-200"
-              data-fallback="/assets/recovered/images/placeholder.svg"
+              data-fallback="/placeholder.svg"
             />
           </div>
         </td>
         <td class="py-2 px-3 whitespace-nowrap">
           <div class="flex items-center gap-1">
-            <span class="font-mono font-bold text-slate-900">${safeId}</span>
+            <span class="font-mono font-bold text-slate-900 dark:text-slate-100">${safeId}</span>
             <button
               type="button"
-              class="copy-pet-id-btn text-slate-400 hover:text-teal-700 p-0.5 rounded hover:bg-slate-100 transition cursor-pointer"
+              class="copy-pet-id-btn text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 p-0.5 rounded hover:bg-slate-100 dark:hover:bg-teal-900/60 transition cursor-pointer"
               title="Copy Animal ID"
+              aria-label="Copy Animal ID ${safeId}"
               data-copy-id="${safeId}"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -312,7 +313,7 @@ export function inflatePetRows(
               alt="${safeName}"
               loading="lazy"
               class="w-full h-full object-cover"
-              data-fallback="/assets/recovered/images/placeholder.svg"
+              data-fallback="/placeholder.svg"
             />
           </div>
           <div class="flex-1 min-w-0">
@@ -321,12 +322,13 @@ export function inflatePetRows(
                 <span class="w-2 h-2 rounded-full ${speciesDot} inline-block mr-1"></span>
                 <span>${safeName}</span>
               </h3>
-              <span class="font-mono font-bold text-[11px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 border border-slate-200">
+              <span class="font-mono font-bold text-[11px] text-slate-600 dark:text-teal-300 bg-slate-100 dark:bg-[#061815] px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 border border-slate-200 dark:border-teal-900/80">
                 #${safeId}
                 <button
                   type="button"
-                  class="copy-pet-id-btn text-slate-400 hover:text-teal-700 cursor-pointer"
+                  class="copy-pet-id-btn text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer"
                   title="Copy ID"
+                  aria-label="Copy Animal ID ${safeId}"
                   data-copy-id="${safeId}"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

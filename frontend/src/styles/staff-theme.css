@@ -2012,3 +2012,67 @@ html[data-pwa="standalone"] #pwa-install-container {
 :root:not([data-staff-theme="dark"]) a[href*="/internal/board/print/"] [class*="text-emerald-300"] {
   color: #6ee7b7 !important;
 }
+
+/* ==========================================================================
+   Operational Print Stylesheet (Executive Board, Donors & Grants)
+   ========================================================================== */
+@media print {
+  /* Suppress UI navigation, sidebars, floating widgets & ambient glows */
+  .sidebar-root,
+  #mobile-bottom-nav-dock,
+  #mobile-more-sheet,
+  #fab-container,
+  #cmd-k-dialog,
+  .staff-theme-toggle-btn,
+  .staff-nav-header,
+  header.staff-portal-header,
+  [data-open-more-sheet],
+  .fixed.blur-3xl,
+  #staff-portal-content > .fixed {
+    display: none !important;
+  }
+
+  /* Reset layout padding so document uses full printable paper width */
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+  }
+
+  .lg\:pl-64,
+  div[class*="lg:pl-64"] {
+    padding-left: 0 !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Prevent awkward page-breaks across table rows, cards, or metric tiles */
+  tr,
+  .dashboard-section,
+  .kpi-card,
+  .table-section,
+  .grants-cards,
+  .tool-card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Force dark cards to printable clean white background with black text */
+  .bg-white,
+  [class*="dark:bg-"] {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure links are readable */
+  a {
+    text-decoration: none !important;
+    color: #0f172a !important;
+  }
+}

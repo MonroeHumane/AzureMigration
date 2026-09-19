@@ -82,4 +82,12 @@ const {
 
   <!-- Floating Action Menu (Desktop FAB) -->
   <FloatingActionMenu />
+
+  <!-- Client-Side Workstation Security (Idle Session Auto-Lock) -->
+  <script>
+    import { initIdleTimeout } from '../lib/staff-auth';
+    document.addEventListener('astro:page-load', () => {
+      initIdleTimeout(30);
+    });
+  </script>
 </BaseLayout>

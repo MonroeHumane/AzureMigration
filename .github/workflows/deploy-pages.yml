@@ -59,6 +59,14 @@ jobs:
           cd frontend
           npm run check
 
+      - name: Compile and Encrypt Financial Vault
+        run: |
+          node scripts/compile_financial_vault.cjs
+
+      - name: Verify Financial Vault Cryptographic Integrity
+        run: |
+          node scripts/verify_financial_vault.cjs
+
       - name: Build Astro Static Site
         run: |
           cd frontend

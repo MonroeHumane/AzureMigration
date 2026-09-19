@@ -22,7 +22,7 @@ const { pet, related } = Astro.props;
 const genderLabel = pet.gender === 'female' ? 'Female' : pet.gender === 'male' ? 'Male' : 'Unknown';
 const genderIcon = pet.gender === 'female' ? '♀' : pet.gender === 'male' ? '♂' : '?';
 const speciesTag = pet.type === 'dog' ? 'Dog' : pet.type === 'cat' ? 'Cat' : pet.species_label || 'Pet';
-const photo = pet.image_url || pet.image || '/assets/recovered/images/placeholder.svg';
+const photo = pet.image_webp || pet.image_url || pet.image || '/placeholder.svg';
 
 const chipClasses: Record<string, string> = {
   dog: 'bg-sky-100 text-sky-800',
@@ -41,6 +41,46 @@ if (pet.intake_date) {
 const bio = pet.description && pet.description.trim() && pet.description !== pet.location
   ? pet.description
   : `${pet.name} is currently staying at our shelter${pet.location ? ` in the ${pet.location}` : ''}. ${pet.name} is looking for a loving forever home in Monroe County. Visit during shelter hours or submit an online adoption application today!`;
+
+// Adoptédex Companion Card computation (matching card-model.js)
+const isCat = pet.type === 'cat';
+const ageLower = (pet.age_display || pet.age || '').toLowerCase();
+const isBaby = ageLower.includes('puppy') || ageLower.includes('kitten') || ageLower.includes('baby') || ageLower.includes('month');
+const isSenior = ageLower.includes('7 year') || ageLower.includes('8 year') || ageLower.includes('9 year') || ageLower.includes('10 year') || ageLower.includes('senior');
+
+let rarityLabel = 'Shelter Companion';
+let rarityKey = 'common';
+let signatureMove = isCat
+  ? { name: 'Purr Motor Surge', effect: 'Emits a soothing 45 Hz frequency that eases human stress instantly.' }
+  : { name: 'Tail Wiggle Storm', effect: 'Wags tail at lightning speed, spreading enthusiasm throughout the shelter.' };
+
+if (pet.archived_at) {
+  rarityKey = 'alumni';
+  rarityLabel = 'Adopted Alumni';
+  signatureMove = { name: 'Forever Home Glow', effect: 'Fills the room with endless joy and unlocks unforgettable alumni memories.' };
+} else if (isSenior) {
+  rarityKey = 'golden_senior';
+  rarityLabel = 'Golden Senior';
+  signatureMove = { name: 'Gentle Soul Radiance', effect: 'Bestows utter peacefulness, granting maximum cuddle priority.' };
+} else if (isBaby) {
+  rarityKey = 'tiny_wonder';
+  rarityLabel = 'Tiny Wonder';
+  signatureMove = isCat
+    ? { name: 'Pounce of Curiosity', effect: 'Darts across the room chasing phantom dust motes with 200% agility.' }
+    : { name: 'Puppy Eyes Beam', effect: 'Instantly disarms all human skepticism, securing extra belly rubs.' };
+} else if (pet.location === 'Foster Care') {
+  rarityKey = 'longtimer';
+  rarityLabel = 'Shelter Champion';
+  signatureMove = { name: 'Shelter Champion Bond', effect: 'Guarantees unyielding lifelong loyalty and warm welcoming greetings.' };
+}
+
+// Deterministic attributes based on pet ID
+const hashNum = (pet.id || '0').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+const stats = {
+  energy: 65 + (hashNum % 30),
+  cuddle: 75 + ((hashNum * 3) % 24),
+  loyalty: 80 + ((hashNum * 7) % 20),
+};
 ---
 
 <BaseLayout
@@ -98,6 +138,112 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════
+         Interactive Adoptédex Companion Card Showcase (Kennel Bridge)
+         ══════════════════════════════════════════════════════════ -->
+    <section class="mb-16 bg-gradient-to-br from-stone-900 via-teal-950 to-slate-950 rounded-3xl p-6 sm:p-10 text-white shadow-xl border border-teal-800/40 relative overflow-hidden">
+      <!-- Background Ambient Glow -->
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Left: Explainer & Action -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold uppercase tracking-wider">
+            <span>✨</span>
+            <span>Official Adoptédex Collector Card</span>
+          </div>
+
+          <h2 class="text-2xl sm:text-3xl font-serif text-white tracking-tight">
+            Collect {pet.name} as a Virtual Companion
+          </h2>
+
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Scanning a kennel card in person or visiting {pet.name} online? You can officially discover and add {pet.name} to your Monroe Humane <strong>Adoptédex Binder</strong>! Collect companion cards to unlock them across our free arcade games.
+          </p>
+
+          <!-- Attributes Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Rarity Tier</span>
+              <span class="text-sm font-bold text-teal-300 capitalize">{rarityLabel}</span>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Signature Move</span>
+              <span class="text-sm font-bold text-amber-300 truncate block">{signatureMove.name}</span>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3 col-span-2 sm:col-span-1">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Companion Stats</span>
+              <span class="text-xs font-semibold text-slate-200">⚡{stats.energy} · 💖{stats.cuddle} · ⭐{stats.loyalty}</span>
+            </div>
+          </div>
+
+          <!-- Collect Action -->
+          <div class="pt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              id="btn-collect-pet-dex"
+              data-pet-id={pet.id}
+              data-pet-name={pet.name}
+              class="px-6 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 transition-all shadow-lg hover:shadow-teal-500/25 flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <span>🐾</span>
+              <span id="collect-btn-text">Collect in My Adoptédex (+50 🪙)</span>
+            </button>
+
+            <a
+              href="/games/dex/album.html"
+              class="px-5 py-3 rounded-full font-bold text-xs uppercase tracking-wider bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all flex items-center gap-1.5"
+            >
+              <span>📖 Open Binder &rarr;</span>
+            </a>
+          </div>
+
+          <div id="collect-toast" class="hidden text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+            <span>✓</span>
+            <span id="collect-toast-msg">{pet.name} has been added to your Adoptédex Album!</span>
+          </div>
+        </div>
+
+        <!-- Right: 3D Holographic Card Preview -->
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="w-full max-w-[280px] sm:max-w-[300px] aspect-[5/7] relative rounded-2xl overflow-hidden border-2 border-teal-500/50 shadow-2xl bg-gradient-to-b from-stone-900 to-stone-950 p-3.5 flex flex-col justify-between group cursor-pointer hover:border-amber-400/70 transition-all duration-300" data-rarity={rarityKey}>
+            <!-- Card Header -->
+            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs">🐾</span>
+                <span class="font-bold text-sm text-white tracking-wide">{pet.name}</span>
+              </div>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-900/60 border border-teal-500/40 text-teal-200">
+                #{pet.id.slice(-4)}
+              </span>
+            </div>
+
+            <!-- Card Art / Photo -->
+            <div class="relative w-full aspect-square rounded-xl overflow-hidden my-2 border border-white/10 bg-black/40">
+              <img src={photo} alt={pet.name} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-bold text-amber-300 border border-amber-400/40 capitalize">
+                {rarityLabel}
+              </div>
+            </div>
+
+            <!-- Card Move & Stats Footer -->
+            <div class="space-y-1.5 pt-1 border-t border-white/10">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="text-teal-300 font-bold">{signatureMove.name}</span>
+                <span class="text-slate-400 text-[10px]">{speciesTag}</span>
+              </div>
+              <p class="text-[10px] text-slate-300 leading-tight line-clamp-2">{signatureMove.effect}</p>
+              <div class="flex justify-between text-[10px] font-bold text-slate-300 pt-1">
+                <span>⚡ Energy: {stats.energy}</span>
+                <span>💖 Cuddle: {stats.cuddle}</span>
+                <span>⭐ Loyalty: {stats.loyalty}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     {related.length > 0 && (
       <section class="mt-16 border-t border-gray-200 pt-16">
         <h2 class="text-3xl font-serif text-teal-900 mb-10 text-center">More {speciesTag.toLowerCase()}s waiting for homes</h2>
@@ -195,4 +341,55 @@ const bio = pet.description && pet.description.trim() && pet.description !== pet
   }
 
   document.addEventListener('astro:page-load', initDetailFavorite);
+</script>
+
+<script>
+  function setupDexCollection() {
+    const btn = document.getElementById('btn-collect-pet-dex');
+    const toast = document.getElementById('collect-toast');
+    const btnText = document.getElementById('collect-btn-text');
+    if (!btn || !btnText) return;
+
+    const petId = btn.getAttribute('data-pet-id') || '';
+
+    // Check if already collected
+    try {
+      const discovered = JSON.parse(localStorage.getItem('monroe_discovered_pets') || '[]');
+      if (discovered.includes(String(petId))) {
+        btnText.textContent = '✓ In Your Adoptédex Binder';
+        btn.classList.remove('from-teal-500', 'to-emerald-500', 'hover:from-teal-400', 'hover:to-emerald-400');
+        btn.classList.add('bg-teal-900/80', 'text-teal-200', 'border', 'border-teal-500/50', 'pointer-events-none');
+      }
+    } catch (_) {}
+
+    if (btn.dataset.dexWired) return;
+    btn.dataset.dexWired = 'true';
+
+    btn.addEventListener('click', () => {
+      try {
+        const discovered = JSON.parse(localStorage.getItem('monroe_discovered_pets') || '[]');
+        if (!discovered.includes(String(petId))) {
+          discovered.push(String(petId));
+          localStorage.setItem('monroe_discovered_pets', JSON.stringify(discovered));
+
+          // Award +50 coins to local wallet
+          const curCoins = parseInt(localStorage.getItem('monroeDexCoins') || '0', 10);
+          localStorage.setItem('monroeDexCoins', String((isNaN(curCoins) ? 0 : curCoins) + 50));
+
+          btnText.textContent = '✓ Added to Binder (+50 🪙)';
+          btn.classList.remove('from-teal-500', 'to-emerald-500', 'hover:from-teal-400', 'hover:to-emerald-400');
+          btn.classList.add('bg-teal-900/80', 'text-teal-200', 'border', 'border-teal-500/50', 'pointer-events-none');
+
+          if (toast) {
+            toast.classList.remove('hidden');
+          }
+        }
+      } catch (e) {
+        console.error('Failed to collect companion:', e);
+      }
+    });
+  }
+
+  setupDexCollection();
+  document.addEventListener('astro:page-load', setupDexCollection);
 </script>

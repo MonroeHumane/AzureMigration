@@ -3,8 +3,12 @@ import bundledArchivedPets from '../data/archived-pets.json';
 import eventFlyersData from '../data/event-flyers.json';
 import memorialTributesData from '../data/memorial-tributes.json';
 import boardGovernanceData from '../data/board-governance.json';
+import newslettersData from '../data/newsletters.json';
 
-const DIRECTUS_URL = import.meta.env.DIRECTUS_URL || 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
+// Pure Static Architecture v3: Directus CMS has been decommissioned in favor of
+// Git-backed JSON and client-side AES-256-GCM vaults ($0/month permanent operation).
+// Set DIRECTUS_URL or PUBLIC_DIRECTUS_URL only if connecting to an external instance.
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIRECTUS_URL || '';
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || '';
 
 export interface Pet {
@@ -21,6 +25,8 @@ export interface Pet {
   location?: string;
   image?: string;
   image_url?: string;
+  image_webp?: string;
+  thumb_webp?: string;
   url: string;
   description?: string;
   intake_date?: string;
@@ -83,6 +89,17 @@ let cachedPets: Pet[] | null = null;
 export async function getPets(): Promise<Pet[]> {
   if (cachedPets) return cachedPets;
 
+  // In pure static builds without explicit live Directus URL, use local bundled dataset
+  if (!DIRECTUS_URL || process.env.CI) {
+    cachedPets = (bundledPets as Pet[]).map((p) => ({
+      ...p,
+      image: p.image_webp || (p.id ? '/pets/pet_' + p.id + '.webp' : '') || p.image || p.image_url || '/assets/recovered/images/placeholder.svg',
+      image_webp: p.image_webp || (p.id ? '/pets/pet_' + p.id + '.webp' : ''),
+      thumb_webp: p.thumb_webp || (p.id ? '/pets/pet_' + p.id + '_thumb.webp' : ''),
+    }));
+    return cachedPets;
+  }
+
   try {
     const headers: Record<string, string> = {};
     if (DIRECTUS_STATIC_TOKEN) {
@@ -103,7 +120,7 @@ export async function getPets(): Promise<Pet[]> {
       }
     }
   } catch (err) {
-    console.warn('[Directus] Live API unavailable or warming up, using bundled pet fallback data.');
+    console.warn('[Directus] Live API unavailable, using bundled pet data.');
   }
 
   cachedPets = (bundledPets as Pet[]).map((p) => ({
@@ -134,38 +151,40 @@ let cachedStaffPetSync: PetSyncSummary | null = null;
 export async function getStaffPetSyncData(): Promise<PetSyncSummary> {
   if (cachedStaffPetSync) return cachedStaffPetSync;
 
-  try {
-    const headers: Record<string, string> = {};
-    if (DIRECTUS_STATIC_TOKEN) {
-      headers['Authorization'] = `Bearer ${DIRECTUS_STATIC_TOKEN}`;
-    }
-    const res = await fetch(`${DIRECTUS_URL}/items/pets?limit=-1&sort=-last_seen_at`, {
-      headers,
-      signal: AbortSignal.timeout(8000),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.data && Array.isArray(data.data)) {
-        const pets: StaffPetRecord[] = data.data.map((p: any) => ({
-          ...p,
-          image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg',
-        }));
-        const activeCount = pets.filter((p) => !p.archived_at).length;
-        const archivedCount = pets.filter((p) => !!p.archived_at).length;
-        const lastSyncTimestamp = pets[0]?.last_seen_at || new Date().toISOString();
-
-        cachedStaffPetSync = {
-          lastSyncTimestamp,
-          activeCount,
-          archivedCount,
-          totalCount: pets.length,
-          pets,
-        };
-        return cachedStaffPetSync;
+  if (DIRECTUS_URL && !process.env.CI) {
+    try {
+      const headers: Record<string, string> = {};
+      if (DIRECTUS_STATIC_TOKEN) {
+        headers['Authorization'] = `Bearer ${DIRECTUS_STATIC_TOKEN}`;
       }
+      const res = await fetch(`${DIRECTUS_URL}/items/pets?limit=-1&sort=-last_seen_at`, {
+        headers,
+        signal: AbortSignal.timeout(8000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && Array.isArray(data.data)) {
+          const pets: StaffPetRecord[] = data.data.map((p: any) => ({
+            ...p,
+            image: p.image_url || p.image || '/assets/recovered/images/placeholder.svg',
+          }));
+          const activeCount = pets.filter((p) => !p.archived_at).length;
+          const archivedCount = pets.filter((p) => !!p.archived_at).length;
+          const lastSyncTimestamp = pets[0]?.last_seen_at || new Date().toISOString();
+
+          cachedStaffPetSync = {
+            lastSyncTimestamp,
+            activeCount,
+            archivedCount,
+            totalCount: pets.length,
+            pets,
+          };
+          return cachedStaffPetSync;
+        }
+      }
+    } catch (err) {
+      console.warn('[Directus] Live pet sync query unavailable, falling back to bundled data.');
     }
-  } catch (err) {
-    console.warn('[Directus] Live pet sync query unavailable, falling back to bundled data.');
   }
 
   // Fallback using bundled active and archived pets
@@ -203,19 +222,21 @@ let cachedFlyers: EventFlyer[] | null = null;
 export async function getEventFlyers(): Promise<EventFlyer[]> {
   if (cachedFlyers) return cachedFlyers;
 
-  try {
-    const res = await fetch(`${DIRECTUS_URL}/items/event_flyers?filter[status][_eq]=published&sort=sort_order`, {
-      signal: AbortSignal.timeout(2500),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.data && data.data.length > 0) {
-        cachedFlyers = data.data;
-        return cachedFlyers!;
+  if (DIRECTUS_URL && !process.env.CI) {
+    try {
+      const res = await fetch(`${DIRECTUS_URL}/items/event_flyers?filter[status][_eq]=published&sort=sort_order`, {
+        signal: AbortSignal.timeout(2500),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+          cachedFlyers = data.data;
+          return cachedFlyers!;
+        }
       }
+    } catch (e) {
+      // Fallback
     }
-  } catch (e) {
-    // Fallback: the 13 real flyers (mirror-sourced).
   }
   cachedFlyers = eventFlyersData as EventFlyer[];
   return cachedFlyers;
@@ -225,19 +246,21 @@ let cachedTributes: MemorialTribute[] | null = null;
 export async function getMemorialTributes(): Promise<MemorialTribute[]> {
   if (cachedTributes) return cachedTributes;
 
-  try {
-    const res = await fetch(`${DIRECTUS_URL}/items/memorial_tributes?filter[status][_eq]=published&sort=-id`, {
-      signal: AbortSignal.timeout(2500),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.data && data.data.length > 0) {
-        cachedTributes = data.data;
-        return cachedTributes!;
+  if (DIRECTUS_URL && !process.env.CI) {
+    try {
+      const res = await fetch(`${DIRECTUS_URL}/items/memorial_tributes?filter[status][_eq]=published&sort=-id`, {
+        signal: AbortSignal.timeout(2500),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+          cachedTributes = data.data;
+          return cachedTributes!;
+        }
       }
+    } catch (e) {
+      // Fallback
     }
-  } catch (e) {
-    // Fallback: the 111 real tributes (mirror-sourced).
   }
   cachedTributes = (memorialTributesData as Array<{ variant: string; line: string; name: string; year?: string }>).map(
     (t, i) => ({
@@ -252,16 +275,6 @@ export async function getMemorialTributes(): Promise<MemorialTribute[]> {
 }
 
 let cachedIssues: NewsletterIssue[] | null = null;
-const NEWSLETTER_STUB: NewsletterIssue = {
-  id: 'stub',
-  title: 'Monroe Humane Society Newsletter',
-  slug: '2025-in-review',
-  issue_date: '2026-01-15',
-  byline: 'Humane Society of Monroe County',
-  hero_image: '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png',
-  excerpt: 'Stories, updates, and highlights from shelter care and community support.',
-  featured: true,
-};
 
 function mapNewsletterIssue(row: any): NewsletterIssue {
   const blocks = Array.isArray(row?.blocks)
@@ -298,6 +311,12 @@ function mapNewsletterIssue(row: any): NewsletterIssue {
 export async function getNewsletterIssues(): Promise<NewsletterIssue[]> {
   if (cachedIssues) return cachedIssues;
 
+  // In CI or static builds without explicit live Directus URL, use the git-backed dataset directly
+  if (process.env.CI || !process.env.PUBLIC_DIRECTUS_URL) {
+    cachedIssues = (newslettersData as any[]).map(mapNewsletterIssue);
+    return cachedIssues;
+  }
+
   try {
     const res = await fetch(
       `${DIRECTUS_URL}/items/newsletter_issues?filter[status][_eq]=published&sort=-issue_date,-id`,
@@ -305,33 +324,22 @@ export async function getNewsletterIssues(): Promise<NewsletterIssue[]> {
     );
     if (res.ok) {
       const data = await res.json();
-      cachedIssues = Array.isArray(data.data) ? data.data.map(mapNewsletterIssue) : [];
-      return cachedIssues!;
+      if (Array.isArray(data.data) && data.data.length > 0) {
+        cachedIssues = data.data.map(mapNewsletterIssue);
+        return cachedIssues!;
+      }
     }
   } catch (e) {
-    // Directus down — tiny stub for SSG, not the duplicated 2025 letters.
+    // Directus unavailable — fallback to git-backed archive
   }
-  cachedIssues = [NEWSLETTER_STUB];
+  cachedIssues = (newslettersData as any[]).map(mapNewsletterIssue);
   return cachedIssues;
 }
 
 export async function getFeaturedNewsletterIssue(): Promise<NewsletterIssue | null> {
-  try {
-    const res = await fetch(
-      `${DIRECTUS_URL}/items/newsletter_issues?filter[status][_eq]=published&filter[featured][_eq]=true&limit=1`,
-      { signal: AbortSignal.timeout(2500) }
-    );
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data.data) && data.data[0]) {
-        return mapNewsletterIssue(data.data[0]);
-      }
-    }
-  } catch (e) {
-    // fall through to latest published
-  }
   const issues = await getNewsletterIssues();
-  return issues[0] || null;
+  const featured = issues.find((iss) => iss.featured && iss.status === 'published');
+  return featured || issues[0] || null;
 }
 
 let cachedSettings: SiteSettings | null = null;

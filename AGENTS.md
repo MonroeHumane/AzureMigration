@@ -19,6 +19,7 @@
 
 ## Ops runbook
 - Prod: RG `MCHS-Platform-RG`, ACA `mchs-arcade-api` (env `mchs-aca-env-prod`), MySQL `mchs-mysql-2urwob6xh6j6s`, db `arcade_db`, user `monroeadmin`. DB password lives in the ACA secret `db-pass`.
+- **Directus CMS Decommissioned**: Legacy `mchs-directus` container and its associated database tables are retired. All CMS content (newsletters, flyers, governance, tributes) is 100% static Git-backed JSON (`frontend/src/data/`). Confidential financials and donor records run via client-side AES-256-GCM envelopes in `frontend/public/internal/vault/`.
 - **Migrations**: run automatically in the container entrypoint before Apache. If a prod DB predates phinx tracking, seed `phinxlog` rows for applied migrations first (empty phinxlog = phinx replays everything → crash loop). This exact outage happened 2026-09-14.
 - **Direct DB access**: temp firewall rule via ARM REST (`az mysql flexible-server firewall-rule create` intermittently 500s), then `az mysql flexible-server execute`. Remove the rule after. Firewall should only ever contain `AllowAzureServices`.
 - **`az containerapp exec` is broken** on `mchs-aca-env-prod` (500 at the exec endpoint) — use the DB path or `containerapp logs show`.

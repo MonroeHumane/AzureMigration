@@ -1,6 +1,7 @@
-import { getStaffToken } from './staff-auth';
+import { getStaffToken, getStoredVaultPasskey, setStoredVaultPasskey } from './staff-auth';
 import { getCachedFinancials, setCachedFinancials, getCachedFinancialsAge } from './api';
 import { FinancialPayloadSchema } from './schemas';
+import { decryptFinancialVault } from './staff-vault';
 
 /**
  * `staleAuth` means the live call was rejected (401/403) and we fell back to a
@@ -56,7 +57,7 @@ export function setStaffDataStatus(
   el.className = [
     'staff-data-status',
     state === 'loading' ? 'staff-data-status--loading' : 'staff-data-status--error',
-    'rounded-xl px-4 py-3 text-sm flex items-center justify-between gap-3',
+    'rounded-xl px-4 py-3 text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3',
   ].join(' ');
 
   const text = document.createElement('span');
@@ -67,7 +68,32 @@ export function setStaffDataStatus(
       : 'Could not load board financials. Check your session and try again.');
   el.replaceChildren(text);
 
-  if (state === 'error' && onRetry) {
+  if (state === 'error' && message?.includes('passkey')) {
+    const form = document.createElement('form');
+    form.className = 'flex items-center gap-2 mt-2 sm:mt-0 flex-wrap sm:flex-nowrap';
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = form.querySelector('input') as HTMLInputElement | null;
+      if (input && input.value.trim()) {
+        setStoredVaultPasskey(input.value.trim(), true);
+        if (onRetry) onRetry();
+      }
+    });
+
+    const input = document.createElement('input');
+    input.type = 'password';
+    input.placeholder = 'Shelter passkey';
+    input.className = 'px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-teal-700 bg-white dark:bg-[#081a17] text-slate-900 dark:text-emerald-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-teal-500';
+
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'submit';
+    submitBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#173a39] text-white hover:bg-teal-900 transition cursor-pointer';
+    submitBtn.textContent = 'Unlock Vault';
+
+    form.appendChild(input);
+    form.appendChild(submitBtn);
+    el.appendChild(form);
+  } else if (state === 'error' && onRetry) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'staff-data-status__retry';
@@ -78,8 +104,36 @@ export function setStaffDataStatus(
 }
 
 /**
+ * Attempts to load and decrypt the AES-256-GCM financial vault bundle
+ * using the authorized session passkey in zero-backend / static environments.
+ */
+async function tryLoadDecryptedVault(): Promise<any | null> {
+  try {
+    const passkey = getStoredVaultPasskey();
+    if (!passkey) {
+      return null;
+    }
+    const res = await fetch('/internal/vault/financials.enc.json', {
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) {
+      return null;
+    }
+    const vaultBundle = await res.json();
+    const decrypted = await decryptFinancialVault(vaultBundle, passkey);
+    if (!decrypted) return null;
+    const validated = FinancialPayloadSchema.parse(decrypted);
+    setCachedFinancials(validated);
+    return validated;
+  } catch (err) {
+    console.warn('[StaffFinancials] Vault decryption/validation failed:', err);
+    return null;
+  }
+}
+
+/**
  * Single authenticated fetch for hub, board, and donor pages.
- * Uses the in-browser cache, then refreshes from GET /api/financials.
+ * Uses the in-browser cache, then refreshes from GET /api/financials or encrypted vault.
  */
 export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}): Promise<StaffFinancialsOk | StaffFinancialsErr> {
   const allowCache = opts.allowCache !== false;
@@ -93,46 +147,54 @@ export async function fetchStaffFinancials(opts: { allowCache?: boolean } = {}):
     return { ok: false, status: 401, error: 'No staff session' };
   }
 
-  try {
-    const res = await fetch('/api/financials', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'X-Staff-Token': token,
-        'X-Authorization': `Bearer ${token}`,
-      },
-    });
-    if (res.status === 401 || res.status === 403) {
-      console.warn('[StaffFinancials] /api/financials returned', res.status);
-      const fallbackCache = getCachedFinancials();
-      if (fallbackCache?.headline_kpis) {
-        return { ok: true, data: fallbackCache, fromCache: true, staleAuth: true };
-      }
-      return { ok: false, status: res.status, error: 'Unauthorized to load live financials.' };
+  // 1. Zero-backend AES-256-GCM vault (GitHub Pages Permanent $0 stack)
+  // When an authorized passkey is active, decrypt directly in-browser without throwing 404s
+  if (getStoredVaultPasskey()) {
+    const vaultData = await tryLoadDecryptedVault();
+    if (vaultData?.headline_kpis) {
+      return { ok: true, data: vaultData, fromCache: false };
     }
-    if (!res.ok) {
-      const fallbackCache = getCachedFinancials();
-      if (fallbackCache?.headline_kpis) {
-        return { ok: true, data: fallbackCache, fromCache: true };
-      }
-      return { ok: false, status: res.status, error: `Financials unavailable (${res.status})` };
-    }
-    const rawData = await res.json();
-    if (!rawData) {
-      return { ok: false, status: 502, error: 'Empty financials response' };
-    }
-    
-    // Parse using our strict Zod schemas to ensure end-to-end type safety
-    const data = FinancialPayloadSchema.parse(rawData);
-    
-    setCachedFinancials(data);
-    return { ok: true, data, fromCache: false };
-  } catch {
-    const fallbackCache = getCachedFinancials();
-    if (fallbackCache?.headline_kpis) {
-      return { ok: true, data: fallbackCache, fromCache: true };
-    }
-    return { ok: false, status: 0, error: 'Network error loading financials' };
   }
+
+  // 2. Attempt live API endpoint only if running in a server-backed environment
+  const isServerEnv = typeof window !== 'undefined' &&
+    (window.location.hostname.includes('azure') || Boolean((window as any).__MCHS_API_URL__));
+  if (isServerEnv) {
+    try {
+      const res = await fetch('/api/financials', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-Staff-Token': token,
+          'X-Authorization': `Bearer ${token}`,
+        },
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.ok) {
+        const rawData = await res.json();
+        if (rawData) {
+          const data = FinancialPayloadSchema.parse(rawData);
+          setCachedFinancials(data);
+          return { ok: true, data, fromCache: false };
+        }
+      }
+    } catch {
+      // API endpoint unavailable or timed out; fall through to vault/cache
+    }
+  }
+
+  // 3. Fallback attempt to decrypt vault
+  const vaultData = await tryLoadDecryptedVault();
+  if (vaultData?.headline_kpis) {
+    return { ok: true, data: vaultData, fromCache: false };
+  }
+
+  // 3. Fall back to cached copy if available
+  const fallbackCache = getCachedFinancials();
+  if (fallbackCache?.headline_kpis) {
+    return { ok: true, data: fallbackCache, fromCache: true };
+  }
+
+  return { ok: false, status: 0, error: 'Financials unavailable. Please verify your shelter passkey.' };
 }
 
 export async function refreshStaffFinancials(force: boolean = false): Promise<StaffFinancialsOk | StaffFinancialsErr> {

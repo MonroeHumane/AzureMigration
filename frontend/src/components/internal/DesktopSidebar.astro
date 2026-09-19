@@ -95,6 +95,7 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
       target="_blank"
       rel="noopener noreferrer"
       class="sidebar-nav-link flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition group"
+      title="Directus Cloud CMS Admin (Azure Standby)"
     >
       <div class="flex items-center gap-3">
         <div class="sidebar-nav-icon p-1.5 rounded-lg transition">
@@ -104,7 +105,10 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
             <line x1="12" y1="17" x2="12" y2="21"></line>
           </svg>
         </div>
-        Directus CMS
+        <div class="flex items-center gap-2">
+          <span>Directus CMS</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-slate-100 dark:bg-teal-950/80 text-slate-500 dark:text-teal-400 border border-slate-200 dark:border-teal-800">Cloud</span>
+        </div>
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" class="sidebar-external-arrow w-3.5 h-3.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
     </a>
@@ -128,6 +132,15 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 
   <!-- User Profile & Sign Out Footer (Bottom Left) -->
   <div class="sidebar-footer p-4 border-t shrink-0">
+    <!-- Real-time Reactive System Network / Vault Status -->
+    <div class="sidebar-net-status flex items-center justify-between px-2.5 py-1.5 mb-3 rounded-lg text-[11px] font-medium bg-slate-50 dark:bg-[#071a17] border border-slate-200 dark:border-teal-800/80">
+      <div class="flex items-center gap-2">
+        <span id="sidebar-net-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span id="sidebar-net-text" class="text-slate-700 dark:text-slate-200 font-semibold">System Online</span>
+      </div>
+      <span class="text-[9px] font-mono text-slate-400 dark:text-teal-400 uppercase">AES-256</span>
+    </div>
+
     <div class="flex items-center gap-3 min-w-0 mb-3">
       <div id="sidebar-user-avatar" class="sidebar-user-avatar w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
         SP
@@ -185,10 +198,14 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
 <script>
   import { logoutStaff, getStaffUserEmail } from '../../lib/staff-auth';
   import { initStaffThemeToggle } from '../../lib/staff-theme';
+  import { initNetworkMonitor } from '../../lib/network-status';
 
   function initSidebar() {
     // 0. Initialize Top-Left Theme Switcher
     initStaffThemeToggle();
+
+    // 1. Reactive Network & Vault Connectivity Monitor
+    initNetworkMonitor();
 
     const email = getStaffUserEmail();
     const emailEl = document.getElementById('sidebar-user-email');

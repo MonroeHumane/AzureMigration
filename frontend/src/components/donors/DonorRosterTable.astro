@@ -63,7 +63,7 @@ const { donors = [] } = Astro.props;
       </div>
       <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
         <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Active (12mo)</div>
-        <div id="donor-kpi-active" class="mt-1 font-mono font-bold text-xl text-emerald-600">--</div>
+        <div id="donor-roster-kpi-active" class="mt-1 font-mono font-bold text-xl text-emerald-600">--</div>
       </div>
       <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-3 flex flex-col justify-center">
         <div class="text-[11px] font-semibold text-slate-500 dark:text-teal-300 uppercase tracking-wider">Avg Gift</div>
@@ -657,7 +657,7 @@ const { donors = [] } = Astro.props;
     // Update KPI metrics
     const setT = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
     setT('donor-kpi-total', totalDonors.toLocaleString());
-    setT('donor-kpi-active', active.toLocaleString());
+    setT('donor-roster-kpi-active', active.toLocaleString());
     setT('donor-kpi-recurring', recurring.toLocaleString());
     setT('donor-kpi-avg-gift', totalGiftCount > 0 ? '$' + Math.round(totalGiftVal / totalGiftCount).toLocaleString() : '--');
     
@@ -800,14 +800,15 @@ const { donors = [] } = Astro.props;
       const mainRow = `
         <tr
           id="row-${donor.id}"
-          class="hover:bg-slate-50 dark:bg-[#071a17]/80 transition cursor-pointer ${isEven ? 'bg-white dark:bg-[#0b2420]/85' : 'bg-slate-50 dark:bg-[#071a17]/40'} ${isOpen ? 'bg-emerald-50/20' : ''}"
+          class="donor-row hover:bg-slate-50 dark:bg-[#071a17]/80 transition cursor-pointer ${isEven ? 'bg-white dark:bg-[#0b2420]/85' : 'bg-slate-50 dark:bg-[#071a17]/40'} ${isOpen ? 'bg-emerald-50/20' : ''}"
           data-donor-id="${donor.id}"
         >
           <td class="py-3 px-4 text-center">
             <button
               type="button"
-              class="w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-teal-500 hover:text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 transition cursor-pointer"
+              class="donor-drawer-toggle w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-teal-500 hover:text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 transition cursor-pointer"
               aria-expanded="${isOpen}"
+              data-donor-toggle="${donor.id}"
               title="${isOpen ? 'Collapse Details' : 'Expand Details'}"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-90 text-emerald-600' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -950,7 +951,7 @@ const { donors = [] } = Astro.props;
 
       const drawerRow = `
         ${mainRow}
-        <tr id="drawer-${donor.id}" class="bg-slate-100 dark:bg-[#0b2420]/60/70 dark:bg-[#061815] border-b-2 border-emerald-600/30 dark:border-teal-800/80">
+        <tr id="drawer-${donor.id}" class="donor-drawer bg-slate-100 dark:bg-[#0b2420]/60/70 dark:bg-[#061815] border-b-2 border-emerald-600/30 dark:border-teal-800/80">
           <td colspan="8" class="p-4 sm:p-5">
             <div class="bg-white dark:bg-[#0b2420]/85 rounded-xl border border-slate-200 dark:border-teal-800/80 shadow-sm p-4 space-y-4">
               <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-teal-900/60">
@@ -1226,5 +1227,10 @@ const { donors = [] } = Astro.props;
     });
   }
 
-  document.addEventListener('astro:page-load', initDonorRosterTable);
-</script>
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDonorRosterTable);
+    } else {
+      initDonorRosterTable();
+    }
+    document.addEventListener('astro:page-load', initDonorRosterTable);
+  </script>

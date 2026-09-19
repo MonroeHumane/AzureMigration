@@ -566,6 +566,11 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
       modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.add('hidden');
       });
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      });
     }
 
     if (printBtn) {
@@ -651,19 +656,48 @@ import PrintableKennelCardModal from './PrintableKennelCardModal.astro';
       }
     });
 
-    // Copy animal ID to clipboard
-    root.addEventListener('click', (e) => {
+    // Copy animal ID to clipboard with resilient fallback
+    root.addEventListener('click', async (e) => {
       const btn = (e.target as HTMLElement)?.closest('.copy-pet-id-btn') as HTMLButtonElement | null;
       if (!btn) return;
       const id = btn.getAttribute('data-copy-id');
       if (!id) return;
-      navigator.clipboard.writeText(id).then(() => {
+
+      const triggerCopiedFeedback = () => {
         const originalHtml = btn.innerHTML;
-        btn.innerHTML = `<span class="text-emerald-700 font-bold text-[9px]">✓</span>`;
+        const originalTitle = btn.getAttribute('title') || '';
+        btn.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] leading-none inline-flex items-center">✓</span>`;
+        btn.setAttribute('title', `Copied #${id}!`);
+        btn.setAttribute('aria-label', `Copied Animal ID ${id}`);
         setTimeout(() => {
           btn.innerHTML = originalHtml;
-        }, 1200);
-      });
+          if (originalTitle) btn.setAttribute('title', originalTitle);
+        }, 1400);
+      };
+
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        try {
+          await navigator.clipboard.writeText(id);
+          triggerCopiedFeedback();
+          return;
+        } catch (err) {
+          // Clipboard API failed (e.g. permission or non-secure origin), fallback below
+        }
+      }
+
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = id;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        triggerCopiedFeedback();
+      } catch (err) {
+        console.warn('Unable to copy pet ID:', err);
+      }
     });
 
     void (async () => {

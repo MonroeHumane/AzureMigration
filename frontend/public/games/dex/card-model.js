@@ -162,8 +162,13 @@
 
 	// ── Photo URL normalization ────────────────────────────────────────────
 	function photoUrlFor(pet) {
-		var url = (pet && (pet.image_url || pet.file || pet.photo || pet.image)) || '';
-		return String(url);
+		if (!pet) return '/placeholder.svg';
+		if (pet.image_webp) return String(pet.image_webp);
+		if (pet.id && (typeof pet.id === 'number' || /^\d+$/.test(String(pet.id)))) {
+			return '/pets/pet_' + pet.id + '.webp';
+		}
+		var url = pet.image_url || pet.file || pet.photo || pet.image || '';
+		return String(url || '/placeholder.svg');
 	}
 
 	// ── Full card attributes ───────────────────────────────────────────────

@@ -7,6 +7,33 @@ export const STAFF_AUTH_FLAG = 'mchs_staff_auth';
 export const STAFF_USER_KEY = 'mchs_staff_user';
 export const STAFF_TOKEN_KEY = 'mchs_staff_token';
 export const STAFF_REMEMBER_KEY = 'mchs_staff_remember';
+export const STAFF_VAULT_PASSKEY_KEY = 'mchs_vault_passkey';
+
+export function getStoredVaultPasskey(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return (
+      sessionStorage.getItem(STAFF_VAULT_PASSKEY_KEY) ||
+      (localStorage.getItem(STAFF_REMEMBER_KEY) === 'true'
+        ? localStorage.getItem(STAFF_VAULT_PASSKEY_KEY)
+        : null)
+    );
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredVaultPasskey(passkey: string, rememberMe = false): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(STAFF_VAULT_PASSKEY_KEY, passkey);
+    if (rememberMe) {
+      localStorage.setItem(STAFF_VAULT_PASSKEY_KEY, passkey);
+    } else {
+      localStorage.removeItem(STAFF_VAULT_PASSKEY_KEY);
+    }
+  } catch {}
+}
 
 /**
  * Storage adapter for Directus authentication SDK.
@@ -188,6 +215,8 @@ export function clearStaffClientSession(preserveRememberedUser = false): void {
     sessionStorage.removeItem(STAFF_USER_KEY);
     sessionStorage.removeItem(STAFF_TOKEN_KEY);
     sessionStorage.removeItem(STAFF_REMEMBER_KEY);
+    sessionStorage.removeItem(STAFF_VAULT_PASSKEY_KEY);
+    localStorage.removeItem(STAFF_VAULT_PASSKEY_KEY);
     sessionStorage.removeItem('mchs_financials_cache_v1');
     sessionStorage.removeItem('mchs_financials_cache_v1_at');
 
@@ -314,6 +343,12 @@ export async function syncEntraAuthSession(): Promise<{
   error?: string;
 }> {
   if (typeof window === 'undefined') return { authenticated: false };
+
+  // Skip Azure EasyAuth check if not running on an Azure domain
+  const isAzureHost = window.location.hostname.includes('azurestaticapps.net');
+  if (!isAzureHost) {
+    return { authenticated: isStaffAuthenticated(), email: getStaffUserEmail() || undefined };
+  }
 
   try {
     const res = await fetch('/.auth/me', {
@@ -446,6 +481,7 @@ export async function loginStaff(opts: {
       localStorage.removeItem(ATTEMPTS_KEY);
       localStorage.removeItem(LOCKOUT_KEY);
     } catch {}
+    setStoredVaultPasskey(cleanPass, rememberMe);
     persistStaffSession(email || 'staff@monroe-humane.org', localToken, null, rememberMe);
     return;
   }
@@ -519,6 +555,7 @@ export async function loginStaff(opts: {
   }
 
   // 3. Persist tokens respecting Remember Me security preferences:
+  setStoredVaultPasskey(cleanPass, rememberMe);
   persistStaffSession(email, staffToken, directusPayload, rememberMe);
 }
 
@@ -630,28 +667,33 @@ export async function getStaffToken(): Promise<string | null> {
 
 /**
  * Idle Session Timeout
- * Logs out staff automatically after 15 minutes of inactivity.
+ * Logs out staff automatically after 30 minutes of inactivity to protect
+ * confidential shelter, financial, and donor records on shared workstations.
  */
-export function initIdleTimeout(timeoutMinutes = 15): void {
+export function initIdleTimeout(timeoutMinutes = 30): void {
   if (typeof window === 'undefined') return;
 
   const IDLE_TIMEOUT_MS = timeoutMinutes * 60 * 1000;
-  let idleTimer: ReturnType<typeof setTimeout> | null = null;
+  let idleTimer: ReturnType<typeof setTimeout> | null = (window as any).__hsmc_idle_timer || null;
 
   function resetIdleTimer() {
     if (idleTimer) clearTimeout(idleTimer);
     if (!isStaffAuthenticated()) return;
-    
+
     idleTimer = setTimeout(() => {
       console.warn(`[StaffAuth] Idle timeout reached (${timeoutMinutes}m). Signing out.`);
       logoutStaff('/internal/?reauth=idle');
     }, IDLE_TIMEOUT_MS);
+    (window as any).__hsmc_idle_timer = idleTimer;
   }
 
-  // Monitor basic interaction events
-  const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
-  events.forEach(evt => document.addEventListener(evt, resetIdleTimer, { passive: true }));
-  
-  // Call once to initialize
+  // Monitor basic interaction events (bound only once across View Transitions)
+  if (!(window as any).__hsmc_idle_bound) {
+    (window as any).__hsmc_idle_bound = true;
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+    events.forEach((evt) => document.addEventListener(evt, resetIdleTimer, { passive: true }));
+  }
+
+  // Call once to initialize/refresh timer on route change
   resetIdleTimer();
 }

@@ -535,7 +535,9 @@ async function init() {
 	else if (cards === '1') state.tier = 'standard';
 
 	renderHeader();
-	await fetchPackTiers();
+	renderStage(); // Render immediately from local state — never block UI on network
+
+	fetchPackTiers().catch(() => {});
 	// Register/refresh this device's profile (new profiles get a rescue PIN).
 	if (Dex && typeof Dex.ensureProfile === 'function' && identity.dexUser !== 'guest') {
 		Dex.ensureProfile(identity.dexApi, identity.dexUser, identity.dexDisplay).then((prof) => {
@@ -549,9 +551,12 @@ async function init() {
 			}
 		}).catch(() => {});
 	}
-	await refreshFromServer();
-	await maybeClaimFirstPack();
-	renderStage();
+	refreshFromServer().then(async () => {
+		await maybeClaimFirstPack();
+		renderStage();
+	}).catch(() => {
+		renderStage();
+	});
 }
 
 init();

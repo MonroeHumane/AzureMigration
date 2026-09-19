@@ -27,36 +27,41 @@ export async function fetchStaffPets(force = false): Promise<StaffPetsOk | Staff
     return { ok: false, status: 401, error: 'No staff session' };
   }
 
-  try {
-    const res = await fetch('/api/staff-pets', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'X-Staff-Token': token,
-        'X-Authorization': `Bearer ${token}`,
-      },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      const data = json?.data || json;
-      if (data && Array.isArray(data.pets)) {
-        const result: StaffPetsOk = {
-          ok: true,
-          data: {
-            lastSyncTimestamp: data.lastSyncTimestamp || null,
-            activeCount: Number(data.activeCount || 0),
-            archivedCount: Number(data.archivedCount || 0),
-            totalCount: Number(data.totalCount || data.pets.length),
-            pets: data.pets,
-          },
-        };
-        petsMemoryCache = result;
-        petsMemoryCacheAt = Date.now();
-        return result;
+  const isServerEnv = typeof window !== 'undefined' &&
+    (window.location.hostname.includes('azure') || Boolean((window as any).__MCHS_API_URL__));
+
+  if (isServerEnv) {
+    try {
+      const res = await fetch('/api/staff-pets', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-Staff-Token': token,
+          'X-Authorization': `Bearer ${token}`,
+        },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const data = json?.data || json;
+        if (data && Array.isArray(data.pets)) {
+          const result: StaffPetsOk = {
+            ok: true,
+            data: {
+              lastSyncTimestamp: data.lastSyncTimestamp || null,
+              activeCount: Number(data.activeCount || 0),
+              archivedCount: Number(data.archivedCount || 0),
+              totalCount: Number(data.totalCount || data.pets.length),
+              pets: data.pets,
+            },
+          };
+          petsMemoryCache = result;
+          petsMemoryCacheAt = Date.now();
+          return result;
+        }
       }
+    } catch {
+      // network error loading /api/staff-pets, proceed to static fallback
     }
-  } catch {
-    // network error loading /api/staff-pets, proceed to static fallback
   }
 
   // Fallback to static endpoints for $0 static hosting

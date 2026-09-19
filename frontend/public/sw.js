@@ -1,6 +1,6 @@
-const SHELL_CACHE = 'hsmc-shell-cache-v12';
-const PET_DATA_CACHE = 'hsmc-pet-data-cache-v6';
-const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v6';
+const SHELL_CACHE = 'hsmc-shell-cache-v14';
+const PET_DATA_CACHE = 'hsmc-pet-data-cache-v7';
+const PET_PHOTO_CACHE = 'hsmc-pet-photo-cache-v7';
 const KNOWN_CACHES = [SHELL_CACHE, PET_DATA_CACHE, PET_PHOTO_CACHE];
 
 const DIRECTUS_ORIGIN = 'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
@@ -12,7 +12,12 @@ const ASSETS_TO_CACHE = [
   '/internal/',
   '/internal/pets/',
   '/internal/board/',
+  '/internal/board/print/',
   '/internal/grants/',
+  '/internal/donors/',
+  '/internal/content/',
+  '/internal/newsletter/',
+  '/internal/vault/financials.enc.json',
   '/adopt/',
   '/adopt/dogs/',
   '/adopt/cats/',
@@ -152,8 +157,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Pet photos (Azure Blob Storage) - Cache first, capped
-  if (url.hostname.endsWith(PET_PHOTO_HOST_SUFFIX)) {
+  // Pet photos (Local WebP /pets/, Petango CDN, or Azure Blob Storage) - Cache first, capped
+  if (
+    url.pathname.startsWith('/pets/') ||
+    url.hostname.includes('petango.com') ||
+    url.hostname.endsWith(PET_PHOTO_HOST_SUFFIX)
+  ) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) return cachedResponse;
@@ -219,5 +228,41 @@ self.addEventListener('fetch', (event) => {
         });
       })
     );
+  }
+});
+
+// PWA Background Sync Event Listener
+// Broadcasts sync trigger to open window clients so pending local queues can be drained.
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'mchs-background-sync') {
+    // 1. Broadcast via BroadcastChannel if supported
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('mchs-background-sync');
+        bc.postMessage({ type: 'MCHS_BACKGROUND_SYNC_TRIGGER' });
+        bc.close();
+      }
+    } catch {}
+
+    // 2. Broadcast to top-level window clients (excluding third-party Partytown proxy iframes)
+    event.waitUntil(
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+        clients.forEach((client) => {
+          if (client.url && (client.url.includes('~partytown') || client.url.includes('partytown-sandbox'))) {
+            return;
+          }
+          try {
+            client.postMessage({ type: 'MCHS_BACKGROUND_SYNC_TRIGGER' });
+          } catch {}
+        });
+      })
+    );
+  }
+});
+
+// PWA Service Worker Message Channel
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 });

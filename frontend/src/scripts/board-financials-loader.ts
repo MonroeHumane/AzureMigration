@@ -1225,6 +1225,7 @@ function updateBankMonthChrome(monthKey: string): void {
 
 function hydrateBankStatement(stmt: any, token: string) {
   if (!stmt || !stmt.metadata) return;
+  (window as any).__HSMC_CURRENT_BANK_STMT__ = stmt;
 
   const setEl = (id: string, text: string) => {
     const el = document.getElementById(id);

@@ -67,6 +67,131 @@
 
 	var arcadeSessionPromise = null;
 
+	// ---------------------------------------------------------------------------
+	// Offline Mutation Queue
+	// Serialise failed reward/coin calls to localStorage and replay on reconnect.
+	// Key: mchs_arcade_offline_queue  Value: JSON array of queued mutations
+	// ---------------------------------------------------------------------------
+	var OFFLINE_QUEUE_KEY = 'mchs_arcade_offline_queue';
+	var _draining = false;
+
+	function _getOfflineQueue() {
+		try {
+			var raw = localStorage.getItem(OFFLINE_QUEUE_KEY);
+			if (!raw) return [];
+			var parsed = JSON.parse(raw);
+			return Array.isArray(parsed) ? parsed : [];
+		} catch (e) { return []; }
+	}
+
+	function _saveOfflineQueue(q) {
+		try { localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(q)); } catch (e) {}
+	}
+
+	function _enqueueOffline(type, base, user, payload) {
+		var q = _getOfflineQueue();
+		q.push({
+			id: 'omq_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+			type: type,
+			base: base,
+			user: user,
+			payload: payload,
+			createdAt: new Date().toISOString(),
+			retries: 0,
+		});
+		_saveOfflineQueue(q);
+	}
+
+	function _applyOptimisticLocal(type, payload) {
+		try {
+			if (type === 'claimReward') {
+				// Optimistically bump packs/coins from extra fields
+				var pExtra = payload.extra || {};
+				var packs = typeof pExtra.count === 'number' ? pExtra.count : (pExtra.tier ? 1 : 0);
+				var coins = typeof pExtra.coins === 'number' ? pExtra.coins : 0;
+				if (packs > 0) {
+					var cur = parseInt(localStorage.getItem('monroeDexPacks') || '0', 10);
+					if (isNaN(cur)) cur = 0;
+					localStorage.setItem('monroeDexPacks', String(cur + packs));
+				}
+				if (coins > 0) {
+					var curC = parseInt(localStorage.getItem('monroeDexCoins') || '0', 10);
+					if (isNaN(curC)) curC = 0;
+					localStorage.setItem('monroeDexCoins', String(curC + coins));
+				}
+			} else if (type === 'awardCoins') {
+				var amt = typeof payload.amount === 'number' ? payload.amount : 0;
+				if (amt > 0) {
+					var curCo = parseInt(localStorage.getItem('monroeDexCoins') || '0', 10);
+					if (isNaN(curCo)) curCo = 0;
+					localStorage.setItem('monroeDexCoins', String(curCo + amt));
+				}
+			}
+		} catch (e) {}
+	}
+
+	/**
+	 * Drain (replay) any queued offline mutations against the live API.
+	 * Safe to call speculatively; skips if already draining or offline.
+	 * Removes each entry once the server responds 2xx or 409 (already claimed).
+	 * Leaves entries in the queue on network error so they survive page reloads.
+	 */
+	function drainArcadeOfflineQueue(base, user) {
+		if (_draining) return;
+		if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+		var q = _getOfflineQueue();
+		if (!q.length) return;
+		_draining = true;
+
+		// Replay serially to preserve server-side dedup
+		var resolved = Promise.resolve();
+		q.forEach(function (entry, idx) {
+			resolved = resolved.then(function () {
+				var targetBase = base || entry.base;
+				var targetUser = user || entry.user;
+				var url, body;
+				if (entry.type === 'claimReward') {
+					var p = entry.payload;
+					body = Object.assign({ game_id: p.game_id, reward_key: p.reward_key }, p.extra || {});
+					url = apiUrl(targetBase, 'adoptedex/' + encodeURIComponent(targetUser) + '/rewards/claim');
+				} else if (entry.type === 'awardCoins') {
+					body = { amount: entry.payload.amount, reason: entry.payload.reason || 'game_award' };
+					url = apiUrl(targetBase, 'adoptedex/' + encodeURIComponent(targetUser) + '/coins/award');
+				} else {
+					// Unknown type — discard
+					var qNow = _getOfflineQueue();
+					qNow.splice(qNow.findIndex(function (x) { return x.id === entry.id; }), 1);
+					_saveOfflineQueue(qNow);
+					return;
+				}
+				return fetch(url, {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(body),
+				}).then(function (res) {
+					// 2xx = replayed OK; 409 = already claimed (dedup) — either way discard
+					if (res.ok || res.status === 409 || res.status === 422) {
+						var qNow2 = _getOfflineQueue();
+						var i = qNow2.findIndex(function (x) { return x.id === entry.id; });
+						if (i !== -1) qNow2.splice(i, 1);
+						_saveOfflineQueue(qNow2);
+						console.info('[Adoptedex] Drained offline mutation', entry.id, res.status);
+					} else {
+						// Leave for next drain attempt; increment retries
+						var qNow3 = _getOfflineQueue();
+						var ei = qNow3.findIndex(function (x) { return x.id === entry.id; });
+						if (ei !== -1) qNow3[ei].retries = (qNow3[ei].retries || 0) + 1;
+						_saveOfflineQueue(qNow3);
+					}
+				}).catch(function () {
+					// Network error — keep in queue
+				});
+			});
+		});
+		resolved.finally(function () { _draining = false; });
+	}
+
 	function ensureArcadeSession(base) {
 		if (arcadeSessionPromise) {
 			return arcadeSessionPromise;
@@ -79,6 +204,10 @@
 		}).then(function (res) {
 			if (!res.ok) {
 				arcadeSessionPromise = null;
+			} else {
+				// Session established — drain any queued offline mutations
+				var params = getParams();
+				setTimeout(function () { drainArcadeOfflineQueue(base, params.dexUser); }, 800);
 			}
 			return res;
 		}).catch(function (err) {
@@ -86,6 +215,17 @@
 			throw err;
 		});
 		return arcadeSessionPromise;
+	}
+
+	// Drain on network recovery
+	if (typeof window !== 'undefined') {
+		window.addEventListener('online', function () {
+			var params = getParams();
+			var defaultApi = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+				? 'https://mchs-arcade-api.livelyfield-d0a70609.eastus.azurecontainerapps.io/arcade-api/v1/'
+				: (window.location.origin + '/arcade-api/v1/');
+			drainArcadeOfflineQueue(defaultApi, params.dexUser);
+		});
 	}
 
 	function fetchDex(base, user) {
@@ -249,9 +389,11 @@
 			}
 			return data;
 		}).catch(function (err) {
-			// Honest failure — never mint phantom packs into the local mirror.
-			console.warn('[Adoptedex] claimReward failed:', err);
-			return { ok: false, claimed: false, offline: true, error: (err && err.message) || 'offline' };
+			// Network/timeout failure — enqueue for later replay and apply optimistic local bump
+			console.warn('[Adoptedex] claimReward offline — queuing for replay:', err);
+			_enqueueOffline('claimReward', base, user, { game_id: gameId, reward_key: rewardKey, extra: extra || {} });
+			_applyOptimisticLocal('claimReward', { extra: extra || {} });
+			return { ok: false, claimed: false, offline: true, queued: true, error: (err && err.message) || 'offline' };
 		});
 	}
 
@@ -294,6 +436,12 @@
 				throw new Error('Could not award coins.');
 			}
 			return res.json();
+		}).catch(function (err) {
+			// Network failure — queue optimistically
+			console.warn('[Adoptedex] awardCoins offline — queuing for replay:', err);
+			_enqueueOffline('awardCoins', base, user, { amount: amount, reason: reason || 'game_award' });
+			_applyOptimisticLocal('awardCoins', { amount: amount });
+			return { ok: false, offline: true, queued: true, error: (err && err.message) || 'offline' };
 		});
 	}
 
@@ -1022,5 +1170,7 @@
 		syncLocalPacksFromProfile: syncLocalPacksFromProfile,
 		foilFromRarity: foilFromRarity,
 		ensureToastStyles: ensureToastStyles,
+		drainArcadeOfflineQueue: drainArcadeOfflineQueue,
+		getOfflineQueueLength: function () { return _getOfflineQueue().length; },
 	};
 })(window);

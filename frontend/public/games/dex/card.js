@@ -99,7 +99,10 @@
 				(opts.inspector ? ' mhc-card--inspector' : '') + '" data-rarity="' + escapeHtml(card.rarity) + '">' +
 			'<div class="mhc-card__foil" aria-hidden="true"></div>' +
 			(foil !== 'none' ? '<canvas class="mhc-card__foil-fx" aria-hidden="true"></canvas>' : '') +
-			'<img class="mhc-card__frame" src="/assets/cards/frame-' + escapeHtml(card.rarity) + '.png" alt="" aria-hidden="true" onerror="this.style.display=\'none\'">' +
+			'<picture class="mhc-card__frame">' +
+				'<source srcset="/assets/cards/frame-' + escapeHtml(card.rarity) + '.webp" type="image/webp">' +
+				'<img src="/assets/cards/frame-' + escapeHtml(card.rarity) + '.png" alt="" aria-hidden="true" onerror="this.closest(\'picture\').style.display=\'none\'">' +
+			'</picture>' +
 			'<div class="mhc-card__head">' +
 				'<span class="mhc-card__dex">' + escapeHtml(card.dexNumber || '') + '</span>' +
 				'<' + nameTag + ' class="mhc-card__name">' + escapeHtml(card.name) + '</' + nameTag + '>' +

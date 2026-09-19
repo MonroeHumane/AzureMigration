@@ -2,6 +2,13 @@ export async function reportClientError(error: unknown, extra?: Record<string, a
   if (typeof window === 'undefined') return;
   const msg = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error ? error.stack || '' : '';
+
+  const isServerEnv = window.location.hostname.includes('azure') || Boolean((window as any).__MCHS_API_URL__);
+  if (!isServerEnv) {
+    console.warn('[ClientError]', msg, extra || '');
+    return Promise.resolve();
+  }
+
   try {
     return fetch('/api/client-error', {
       method: 'POST',
@@ -25,34 +32,14 @@ export function initErrorReporter(): void {
   (window as any).reportClientError = reportClientError;
 
   window.addEventListener('error', (event) => {
-    try {
-      fetch('/api/client-error', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          page: window.location.pathname,
-          error: event.message,
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno,
-          stack: event.error?.stack || ''
-        }),
-      }).catch(() => {});
-    } catch {}
+    reportClientError(event.error || event.message, {
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    });
   });
 
   window.addEventListener('unhandledrejection', (event) => {
-    try {
-      fetch('/api/client-error', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          page: window.location.pathname,
-          error: 'Unhandled Promise Rejection',
-          message: event.reason?.message || String(event.reason),
-          stack: event.reason?.stack || ''
-        }),
-      }).catch(() => {});
-    } catch {}
+    reportClientError(event.reason || 'Unhandled Promise Rejection');
   });
 }

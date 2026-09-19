@@ -114,6 +114,19 @@
           </svg>
           Print packet
         </a>
+        <button
+          id="btn-export-bank-csv"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-50 dark:bg-teal-950/60 border border-teal-300 dark:border-teal-700/80 text-teal-900 dark:text-emerald-300 hover:bg-teal-100 dark:hover:bg-teal-900 transition shadow-xs cursor-pointer"
+          title="Download the bank statement and reconciliation audit spreadsheet"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-700 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Export Bank CSV</span>
+        </button>
       </div>
     </div>
 
@@ -581,6 +594,131 @@
     if (btnPdfQbo && btnPdfQbo.dataset.bound !== '1') {
       btnPdfQbo.dataset.bound = '1';
       btnPdfQbo.addEventListener('click', () => setPdfDocument(btnPdfQbo));
+    }
+
+    // CSV Export Handler for Bank Statement & Reconciliation Audit
+    const exportBankBtn = document.getElementById('btn-export-bank-csv');
+    if (exportBankBtn && exportBankBtn.dataset.bound !== '1') {
+      exportBankBtn.dataset.bound = '1';
+      exportBankBtn.addEventListener('click', () => {
+        try {
+          const stmt = (window as any).__HSMC_CURRENT_BANK_STMT__;
+          const meta = stmt?.metadata || {};
+          const period = meta.statement_period || meta.month_name || 'Period';
+          const monthKey = meta.month_key || (document.querySelector('.bank-month-btn.active')?.getAttribute('data-bank-month')) || 'Statement';
+          const bankBalance = meta.statement_ending_balance != null ? Number(meta.statement_ending_balance).toFixed(2) : (document.getElementById('bank-stat-balance')?.textContent?.trim().replace(/[^0-9.-]/g, '') || '0.00');
+          const bookBalance = meta.qbo_register_balance != null ? Number(meta.qbo_register_balance).toFixed(2) : (document.getElementById('bank-stat-cash')?.textContent?.trim().replace(/[^0-9.-]/g, '') || '0.00');
+          const reconFloat = meta.reconciled_float != null ? Number(meta.reconciled_float).toFixed(2) : (document.getElementById('bank-stat-recon')?.textContent?.trim().replace(/[^0-9.-]/g, '') || '0.00');
+          const totDep = meta.total_deposits_amount != null ? Number(meta.total_deposits_amount).toFixed(2) : (document.getElementById('stmt-total-deposits')?.textContent?.trim().replace(/[^0-9.-]/g, '') || '0.00');
+          const totWd = meta.total_withdrawals_amount != null ? Number(meta.total_withdrawals_amount).toFixed(2) : (document.getElementById('stmt-total-withdrawals')?.textContent?.trim().replace(/[^0-9.-]/g, '') || '0.00');
+
+          const rows: string[][] = [
+            ['Humane Society of Monroe County - Bank Statement & Reconciliation Audit'],
+            ['Institution', 'First Merchants Bank'],
+            ['Account', 'Commercial Operating Checking (••••2187)'],
+            ['Statement Period', `"${period.replace(/"/g, '""')}"`],
+            ['Statement Ending Bank Balance ($)', bankBalance],
+            ['General Ledger Book Register Balance ($)', bookBalance],
+            ['Reconciled Uncleared Float / Outstanding Checks ($)', reconFloat],
+            ['Total Deposits & Credits ($)', totDep],
+            ['Total Withdrawals & Debits ($)', totWd],
+            [],
+            ['STATEMENT TRANSACTIONS LEDGER'],
+            ['Date', 'Payee / Entity', 'Check #', 'Type', 'Category', 'Relational Link / Account', 'Amount ($)', 'Running Balance ($)', 'Memo / Description']
+          ];
+
+          if (stmt && (stmt.deposits || stmt.withdrawals)) {
+            const deps = (stmt.deposits || []).map((d: any) => ({
+              date: d.date,
+              payee: d.channel ? `${d.channel} Transfer` : 'Deposit',
+              checkNum: '',
+              type: d.channel === 'Branch' ? 'Branch Deposit' : d.channel === 'Square' ? 'Merchant Card' : 'Electronic Credit',
+              category: d.category || 'Revenue',
+              relLink: d.relational_account || '',
+              amount: Number(d.amount) || 0,
+              desc: d.description || ''
+            }));
+            const wds = (stmt.withdrawals || []).map((w: any) => ({
+              date: w.date,
+              payee: w.payee || 'Withdrawal',
+              checkNum: w.check_number || '',
+              type: w.type || 'Debit',
+              category: w.category || 'Operating Expense',
+              relLink: w.relational_link || '',
+              amount: -Math.abs(Number(w.amount) || 0),
+              desc: w.description || w.relational_notes || ''
+            }));
+            const all = [...deps, ...wds].sort((a, b) => {
+              if (a.date === b.date) return b.amount - a.amount;
+              return a.date.localeCompare(b.date);
+            });
+            let running = Number(meta.statement_beginning_balance) || 0;
+            all.forEach((tx) => {
+              running = Math.round((running + tx.amount) * 100) / 100;
+              rows.push([
+                tx.date,
+                `"${tx.payee.replace(/"/g, '""')}"`,
+                tx.checkNum ? `"${tx.checkNum}"` : '',
+                `"${tx.type.replace(/"/g, '""')}"`,
+                `"${tx.category.replace(/"/g, '""')}"`,
+                `"${tx.relLink.replace(/"/g, '""')}"`,
+                tx.amount.toFixed(2),
+                running.toFixed(2),
+                `"${tx.desc.replace(/"/g, '""')}"`
+              ]);
+            });
+          } else {
+            const trs = document.querySelectorAll('#statement-tbody tr');
+            trs.forEach(tr => {
+              const tds = tr.querySelectorAll('td');
+              if (tds.length >= 6) {
+                const date = tds[0]?.textContent?.trim() || '';
+                const payee = tds[1]?.querySelector('.font-medium span')?.textContent?.trim() || tds[1]?.textContent?.trim() || '';
+                const checkTag = tds[1]?.querySelector('.bg-indigo-100')?.textContent?.trim() || '';
+                const desc = tds[1]?.querySelector('.font-mono')?.textContent?.trim() || '';
+                const type = tds[2]?.querySelector('span')?.textContent?.trim() || '';
+                const category = tds[2]?.querySelectorAll('span')[1]?.textContent?.trim() || '';
+                const rel = tds[3]?.querySelector('.font-mono')?.textContent?.trim() || '';
+                const amt = tds[4]?.textContent?.trim().replace(/[^0-9.-]/g, '') || '';
+                const bal = tds[5]?.textContent?.trim().replace(/[^0-9.-]/g, '') || '';
+                rows.push([
+                  date,
+                  `"${payee.replace(/"/g, '""')}"`,
+                  checkTag ? `"${checkTag}"` : '',
+                  `"${type.replace(/"/g, '""')}"`,
+                  `"${category.replace(/"/g, '""')}"`,
+                  `"${rel.replace(/"/g, '""')}"`,
+                  amt,
+                  bal,
+                  `"${desc.replace(/"/g, '""')}"`
+                ]);
+              }
+            });
+          }
+
+          if (stmt?.daily_balances && stmt.daily_balances.length) {
+            rows.push([]);
+            rows.push(['DAILY ENDING BALANCES WATERFALL']);
+            rows.push(['Date', 'Ending Balance ($)']);
+            stmt.daily_balances.forEach((d: any) => {
+              rows.push([d.date, (Number(d.balance) || 0).toFixed(2)]);
+            });
+          }
+
+          const csvString = rows.map(r => r.join(',')).join('\r\n');
+          const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `HSMC_Bank_Statement_${String(monthKey).replace(/[^a-zA-Z0-9_-]/g, '_')}_Audit.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error('Failed to export bank CSV:', err);
+        }
+      });
     }
 
     applyTableFilters();

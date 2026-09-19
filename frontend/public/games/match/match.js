@@ -951,7 +951,7 @@
 					const mapped = list.map((p) => {
 						const name = p.name || 'Shelter Pet';
 						const breed = p.breed || p.species_label || 'Companion';
-						const file = p.image || p.image_url || p.photo || p.file || '';
+						const file = p.image_webp || (p.id ? '/pets/pet_' + p.id + '.webp' : '') || (p.id ? '/pets/' + p.id + '.webp' : '') || p.image || p.image_url || p.photo || p.file || '';
 						return {
 							id: String(p.id || name),
 							name: name,
@@ -986,7 +986,7 @@
 						name: p.name,
 						breed: p.breed || 'Companion',
 						type: p.type || 'companion',
-						file: p.image || p.image_url || p.photo || p.file || '',
+						file: p.image_webp || (p.id ? '/pets/pet_' + p.id + '.webp' : '') || (p.id ? '/pets/' + p.id + '.webp' : '') || p.image || p.image_url || p.photo || p.file || '',
 						alt: `${p.name} (${p.breed || 'Companion'})`,
 						url: p.url || ('/adopt/' + encodeURIComponent(p.id)),
 						rarity: p.rarity || p.rarity_key || p.tier || ''

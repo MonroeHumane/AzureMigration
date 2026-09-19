@@ -62,7 +62,7 @@ const qbChecking = kpis?.operating_checking_first_merchants ?? null;
     </div>
     <div class="mt-3 pt-3 border-t border-slate-100 dark:border-teal-900/60 flex items-center justify-between text-xs">
       <span id="kpi-cash-runway" class="text-slate-500 dark:text-teal-300/80 text-[11px]">Balance at period close</span>
-      <a href="#bank-statement-viewer" @click="activeSection = 'audit'; window.history.replaceState({}, '', '?section=audit'); window.scrollTo({top: 0, behavior: 'smooth'})" class="font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 hover:underline transition flex items-center gap-1 text-[11px]" title="View Certified Bank Statement & Reconciliation">
+      <a href="#bank-statement-viewer" onclick="if (window.__setBoardSection) window.__setBoardSection('audit'); return false;" class="font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 hover:underline transition flex items-center gap-1 text-[11px]" title="View Certified Bank Statement & Reconciliation">
         Statement &amp; Rec &rarr;
       </a>
     </div>

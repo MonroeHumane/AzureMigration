@@ -49,9 +49,9 @@ export const CATS = [
 
 export const MASCOT_TO_CAT = { smokey: 'tabby', marmalade: 'ginger' };
 
-// Frames 3-5 had chopped edge art repaired by shifting content left inside
-// the cell; sample that many px earlier so the sprite lands identically.
-export const FRAME_SHIFT = { 3: 6, 4: 6, 5: 6 };
+// Cat sprite sheets contain 6 self-contained 160x140 cells (960x140 total).
+// Every cell has at least 2px padding on all sides, preserving the natural snout curve.
+export const FRAME_SHIFT = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
 export const IMAGES = {
   cats: CATS.map(c => c.sheet),

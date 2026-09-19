@@ -416,7 +416,7 @@
 
   <script>
     import { isStaffAuthenticated, getStaffToken } from '../../../lib/staff-auth';
-    import { getCachedFinancials } from '../../../lib/api';
+    import { fetchStaffFinancials } from '../../../lib/staff-financials';
 
     function formatDollar(val: number, maxDigits = 0): string {
       const isNeg = val < 0;
@@ -516,25 +516,12 @@
       }
 
       try {
-        const res = await fetch('/api/financials', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'X-Staff-Token': token,
-            'X-Authorization': `Bearer ${token}`,
-          }
-        });
-
-        let data = null;
-        if (res.status === 401 || res.status === 403) {
-          console.warn('[PrintView] /api/financials returned', res.status, '- using cached financials');
-          data = getCachedFinancials();
-        } else if (res.ok) {
-          data = await res.json();
-        } else {
-          console.warn('[PrintView] /api/financials returned', res.status, '- attempting cache fallback');
-          data = getCachedFinancials();
+        const finResult = await fetchStaffFinancials();
+        if (!finResult.ok || !finResult.data) {
+          console.warn('[PrintView] Failed to load financials:', finResult);
+          return;
         }
-        if (!data) return;
+        const data = finResult.data;
 
         const loading = document.getElementById('print-loading-banner');
         if (loading) loading.remove();
@@ -659,6 +646,11 @@
       }
     }
 
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPrintView);
+    } else {
+      initPrintView();
+    }
     document.addEventListener('astro:page-load', initPrintView);
   </script>
 </body>

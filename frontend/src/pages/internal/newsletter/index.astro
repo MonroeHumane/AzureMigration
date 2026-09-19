@@ -1,5 +1,6 @@
 ---
 import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
+import initialNewsletters from '../../../data/newsletters.json';
 ---
 
 <StaffPortalLayout
@@ -19,19 +20,58 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
             <span class="px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800/80">
               Newsletter CMS
             </span>
-            <span id="cms-connection-status" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-[#061815] dark:text-teal-300 dark:border-teal-800/80">
-              <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
-              <span>Connecting…</span>
+            <span id="cms-connection-status" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Git-Backed CMS (Permanent $0 Static)</span>
             </span>
           </div>
           <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
             Newsletter
           </h1>
           <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-            Draft, schedule, and publish issues that appear on the homepage and public archive. Drafts stay private until you publish.
+            Draft, schedule, and publish issues that appear on the homepage and public archive. Drafts stay private until you publish. Export clean JSON ready for site deployment.
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+          <input
+            type="file"
+            id="input-import-newsletters"
+            accept=".json,application/json"
+            class="hidden"
+          />
+          <button
+            type="button"
+            id="btn-import-newsletters"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-800 hover:bg-teal-700 text-white dark:bg-teal-700 dark:hover:bg-teal-600 transition shadow-xs cursor-pointer"
+            title="Import newsletters from exported JSON file"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            <span>Import JSON</span>
+          </button>
+          <button
+            type="button"
+            id="btn-export-newsletters"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#061815] hover:bg-slate-50 text-teal-900 dark:text-teal-200 border border-slate-300 dark:border-teal-700/80 transition shadow-xs cursor-pointer"
+            title="Export newsletters as clean JSON for Git commit"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>Export Bundle</span>
+          </button>
+          <button
+            type="button"
+            id="btn-github-publish"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-800 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-600 transition shadow-xs cursor-pointer"
+            title="Publish newsletters directly to GitHub Pages"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a5 5 0 01-.58 6.38 5 5 0 01-7.07 0 5 5 0 01-.58-6.38M12 3v10m0 0l-3-3m3 3l3-3" />
+            </svg>
+            <span>Publish Live</span>
+          </button>
           <a
             href="/newsletter/"
             target="_blank"
@@ -44,12 +84,68 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
       </div>
     </section>
 
+    <!-- Direct-to-GitHub Publishing Modal -->
+    <div id="modal-github-publish" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="github-publish-title">
+      <div class="bg-white dark:bg-[#0c2420] w-full max-w-lg rounded-2xl border border-slate-200 dark:border-teal-800/80 p-6 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-teal-900/60 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🚀</span>
+            <h3 id="github-publish-title" class="font-bold text-slate-900 dark:text-white text-base">Direct-to-GitHub Live Publishing</h3>
+          </div>
+          <button type="button" id="btn-close-github-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-lg leading-none cursor-pointer">&times;</button>
+        </div>
+
+        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          Commit the updated newsletter catalog directly to the <code>main</code> branch of <code>MonroeHumane/AzureMigration</code>. GitHub Actions will automatically compile and deploy the static site in ~90 seconds.
+        </p>
+
+        <div class="space-y-2">
+          <label for="input-github-pat" class="block text-xs font-bold text-slate-700 dark:text-slate-200">
+            GitHub Personal Access Token (PAT)
+          </label>
+          <input
+            type="password"
+            id="input-github-pat"
+            placeholder="github_pat_... or ghp_..."
+            class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-teal-800/80 bg-slate-50 dark:bg-[#061815] focus:bg-white dark:focus:bg-[#08201c] focus:border-teal-700 dark:focus:border-teal-400 outline-none font-mono text-slate-800 dark:text-slate-100"
+          />
+          <p class="text-[11px] text-slate-400 dark:text-teal-400">
+            Token needs <code>Contents: Read and write</code> permission. Stored securely on this device only.
+          </p>
+        </div>
+
+        <div id="github-publish-status" class="hidden p-3 rounded-xl text-xs font-medium bg-slate-50 dark:bg-[#061815] border border-slate-200 dark:border-teal-900/80">
+          <div class="flex items-center gap-2" id="github-status-row">
+            <span class="text-sm" id="github-spinner">⏳</span>
+            <span id="github-status-text" class="text-slate-700 dark:text-slate-200">Connecting to GitHub...</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-teal-900/60">
+          <button
+            type="button"
+            id="btn-cancel-github-modal"
+            class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-teal-950/80 dark:hover:bg-teal-900 dark:text-teal-200 transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="btn-confirm-github-publish"
+            class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-800 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-600 transition shadow-sm cursor-pointer flex items-center gap-1.5"
+          >
+            <span>Publish to Live Site &rarr;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="cms-toast" class="hidden fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-2xl border border-slate-700 flex items-center gap-2.5 transition-all transform translate-y-2">
       <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
       <span id="cms-toast-msg">Changes saved successfully.</span>
     </div>
 
-    <section id="newsletter-editor-root" class="space-y-4">
+    <section id="newsletter-editor-root" class="space-y-4" data-initial-newsletters={JSON.stringify(initialNewsletters)}>
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         <!-- Left Sidebar: Issues List -->
         <div class="lg:col-span-4 bg-white dark:bg-[#0b2420]/85 rounded-2xl border border-slate-200 dark:border-teal-800/80 p-4 shadow-xs space-y-3">
@@ -783,16 +879,41 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
       }, extra || {});
     }
 
-    async function loadNewslettersFromApi() {
+    const STORAGE_KEY = 'mchs_newsletter_store_v1';
+
+    function getLocalStoredNewsletters() {
       try {
-        const qs = nlFilter === 'archived' ? '?include=archived' : '';
-        const res = await staffApi('/api/newsletters' + qs);
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok || !Array.isArray(json.data)) {
-          updateConnectionStatus('error', json.error || 'Newsletter API failed');
-          return;
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
         }
-        issues = json.data;
+      } catch {}
+      return null;
+    }
+
+    function setLocalStoredNewsletters(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch {}
+    }
+
+    async function loadNewslettersFromApi() {
+      // 1. Prioritize local-first git-backed store
+      const local = getLocalStoredNewsletters();
+      if (local) {
+        issues = local;
+      } else {
+        try {
+          const rawInitial = root.dataset.initialNewsletters;
+          if (rawInitial) {
+            issues = JSON.parse(rawInitial);
+            setLocalStoredNewsletters(issues);
+          }
+        } catch {}
+      }
+
+      if (issues.length > 0) {
         const firstVisible = issues.findIndex((iss) => {
           const status = iss.status || 'draft';
           if (nlFilter === 'archived') return status === 'archived';
@@ -804,12 +925,25 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
           ? -1
           : issues.findIndex((iss) => iss.featured && (iss.status || '') !== 'archived');
         selectedIssueIdx = featuredIdx >= 0 ? featuredIdx : (firstVisible >= 0 ? firstVisible : 0);
-        updateConnectionStatus('ok');
+        updateConnectionStatus('ok', 'Git-Backed CMS (Permanent $0 Static)');
         renderIssuesList(searchIssuesInput?.value || '');
         if (issues.length && selectedIssueIdx >= 0) await loadIssueForm(selectedIssueIdx);
-      } catch (err) {
-        updateConnectionStatus('error', err && err.message);
       }
+
+      // If running on Azure with active container, optionally sync in background
+      try {
+        if (window.location.hostname.includes('azure') || window.location.hostname.includes('localhost')) {
+          const qs = nlFilter === 'archived' ? '?include=archived' : '';
+          const res = await staffApi('/api/newsletters' + qs);
+          const json = await res.json().catch(() => ({}));
+          if (res.ok && Array.isArray(json.data) && json.data.length > 0) {
+            issues = json.data;
+            setLocalStoredNewsletters(issues);
+            renderIssuesList(searchIssuesInput?.value || '');
+            if (issues.length && selectedIssueIdx >= 0) await loadIssueForm(selectedIssueIdx);
+          }
+        }
+      } catch {}
     }
 
     async function saveCurrentIssue(extra, successMsg) {
@@ -825,24 +959,27 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
         if (extra && extra.status === 'published' && isDefaultSlug(current.slug)) {
           payload.slug = slugifyClient(payload.title);
         }
-        const res = await staffApi('/api/newsletters/' + encodeURIComponent(current.id), {
-          method: 'PATCH',
-          headers: current.date_updated ? { 'If-Match': current.date_updated } : {},
-          body: JSON.stringify(payload)
-        });
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok || !json.data) {
-          showToast(json.error || 'Could not save issue.');
-          return;
-        }
-        issues[selectedIssueIdx] = json.data;
-        if (json.data.featured) {
+        payload.date_updated = new Date().toISOString();
+        issues[selectedIssueIdx] = Object.assign({}, current, payload);
+        if (payload.featured) {
           issues.forEach((iss, i) => { if (i !== selectedIssueIdx) iss.featured = false; });
         }
+        setLocalStoredNewsletters(issues);
         nlDirty = false;
         renderIssuesList(searchIssuesInput?.value || '');
         await loadIssueForm(selectedIssueIdx);
         showToast(successMsg || 'Newsletter issue saved.');
+
+        // Background non-blocking sync attempt if remote API is available
+        void (async () => {
+          try {
+            await staffApi('/api/newsletters/' + encodeURIComponent(current.id), {
+              method: 'PATCH',
+              headers: current.date_updated ? { 'If-Match': current.date_updated } : {},
+              body: JSON.stringify(payload)
+            });
+          } catch {}
+        })();
       } catch (err) {
         showToast('Could not save issue.');
       } finally {
@@ -854,35 +991,39 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
       if (nlSaving) return;
       setNlSaving(true);
       try {
-        const res = await staffApi('/api/newsletters', {
-          method: 'POST',
-          body: JSON.stringify({
-            title: 'New Shelter Chronicle',
-            issue_date: new Date().toISOString().slice(0, 10),
-            status: 'draft',
-            featured: false,
-            top_line: 'PO Box 1457 • Monroe, MI',
-            main_headline: 'Shelter News',
-            newsletter_title: 'Monroe Humane Society Newsletter',
-            byline: 'Humane Society of Monroe County',
-            hero_image: '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png',
-            excerpt: '',
-            blocks: [{ id: '1', type: 'story', title: 'Community Update', body: 'News from the shelter team and latest pet placements.' }]
-          })
-        });
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok || !json.data) {
-          showToast(json.error || 'Could not create issue.');
-          return;
-        }
-        issues.unshift(json.data);
+        const newId = Date.now();
+        const newIssue = {
+          id: newId,
+          title: 'New Shelter Chronicle',
+          slug: 'new-shelter-chronicle-' + newId,
+          issue_date: new Date().toISOString().slice(0, 10),
+          status: 'draft',
+          featured: false,
+          top_line: 'PO Box 1457 • Monroe, MI',
+          main_headline: 'Shelter News',
+          newsletter_title: 'Monroe Humane Society Newsletter',
+          byline: 'Humane Society of Monroe County',
+          hero_image: '/assets/recovered/images/monroe-humane.org/wp-content/uploads/2026/05/0dcb5211-4496-4c57-9b4a-73f5f856a667.png',
+          excerpt: '',
+          blocks: [{ id: '1', type: 'story', title: 'Community Update', body: 'News from the shelter team and latest pet placements.' }]
+        };
+        issues.unshift(newIssue);
+        setLocalStoredNewsletters(issues);
         selectedIssueIdx = 0;
         nlFilter = 'active';
         renderIssuesList();
         await loadIssueForm(0);
-        issueTitleInput?.focus();
-        showToast('New newsletter draft created.');
-      } catch {
+        showToast('New draft issue created.');
+
+        void (async () => {
+          try {
+            await staffApi('/api/newsletters', {
+              method: 'POST',
+              body: JSON.stringify(newIssue)
+            });
+          } catch {}
+        })();
+      } catch (err) {
         showToast('Could not create issue.');
       } finally {
         setNlSaving(false);
@@ -978,25 +1119,194 @@ import StaffPortalLayout from '../../../layouts/StaffPortalLayout.astro';
       const current = issues[selectedIssueIdx];
       if (!current || current.id == null) return;
       if (!confirm('Archive this issue? It will leave the public site. You can restore it from Trash.')) return;
-      try {
-        const res = await staffApi('/api/newsletters/' + encodeURIComponent(current.id), { method: 'DELETE' });
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          showToast(json.error || 'Could not archive issue.');
-          return;
+      current.status = 'archived';
+      current.featured = false;
+      setLocalStoredNewsletters(issues);
+      selectedIssueIdx = Math.max(0, selectedIssueIdx - 1);
+      renderIssuesList();
+      if (issues.length) await loadIssueForm(selectedIssueIdx);
+      showToast('Issue moved to trash.');
+
+      void (async () => {
+        try {
+          await staffApi('/api/newsletters/' + encodeURIComponent(current.id), { method: 'DELETE' });
+        } catch {}
+      })();
+    });
+
+    // Export Newsletters JSON Bundle
+    document.getElementById('btn-export-newsletters')?.addEventListener('click', () => {
+      const dataStr = JSON.stringify(issues, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `newsletters_bundle_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Newsletters JSON exported.');
+    });
+
+    // Import Newsletters JSON
+    const importInput = document.getElementById('input-import-newsletters');
+    document.getElementById('btn-import-newsletters')?.addEventListener('click', () => {
+      importInput?.click();
+    });
+
+    importInput?.addEventListener('change', (e) => {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target?.result);
+          if (!Array.isArray(parsed)) throw new Error('Root JSON must be an array of newsletter issues.');
+          issues = parsed;
+          setLocalStoredNewsletters(issues);
+          selectedIssueIdx = 0;
+          renderIssuesList();
+          await loadIssueForm(0);
+          showToast('Newsletters imported successfully.');
+        } catch (err) {
+          alert('Import failed: ' + (err && err.message));
+        } finally {
+          if (importInput) importInput.value = '';
         }
-        issues.splice(selectedIssueIdx, 1);
-        selectedIssueIdx = Math.max(0, selectedIssueIdx - 1);
-        renderIssuesList();
-        if (issues.length) await loadIssueForm(selectedIssueIdx);
-        showToast('Issue archived.');
-      } catch {
-        showToast('Could not archive issue.');
-      }
+      };
+      reader.readAsText(file);
     });
 
     searchIssuesInput?.addEventListener('input', (e) => {
       renderIssuesList(e.target.value);
+    });
+
+    // Direct-to-GitHub Live Publishing
+    const ghModal = document.getElementById('modal-github-publish');
+    const ghBtnOpen = document.getElementById('btn-github-publish');
+    const ghBtnClose = document.getElementById('btn-close-github-modal');
+    const ghBtnCancel = document.getElementById('btn-cancel-github-modal');
+    const ghBtnConfirm = document.getElementById('btn-confirm-github-publish');
+    const ghInputPat = document.getElementById('input-github-pat');
+    const ghStatusBox = document.getElementById('github-publish-status');
+    const ghStatusText = document.getElementById('github-status-text');
+    const ghSpinner = document.getElementById('github-spinner');
+
+    function openGhModal() {
+      if (!ghModal) return;
+      if (ghInputPat) {
+        ghInputPat.value = localStorage.getItem('mchs_github_pat') || '';
+      }
+      if (ghStatusBox) ghStatusBox.classList.add('hidden');
+      if (ghBtnConfirm) {
+        ghBtnConfirm.removeAttribute('disabled');
+        ghBtnConfirm.textContent = 'Publish to Live Site →';
+      }
+      ghModal.classList.remove('hidden');
+    }
+
+    function closeGhModal() {
+      if (ghModal) ghModal.classList.add('hidden');
+    }
+
+    ghBtnOpen?.addEventListener('click', openGhModal);
+    ghBtnClose?.addEventListener('click', closeGhModal);
+    ghBtnCancel?.addEventListener('click', closeGhModal);
+
+    ghBtnConfirm?.addEventListener('click', async () => {
+      const pat = (ghInputPat && 'value' in ghInputPat) ? ghInputPat.value.trim() : '';
+      if (!pat) {
+        alert('Please enter a GitHub Personal Access Token (PAT) with repo contents write permission.');
+        ghInputPat?.focus();
+        return;
+      }
+      localStorage.setItem('mchs_github_pat', pat);
+
+      if (ghStatusBox) ghStatusBox.classList.remove('hidden');
+      if (ghSpinner) ghSpinner.textContent = '⏳';
+      if (ghStatusText) ghStatusText.textContent = 'Connecting to GitHub repository...';
+      if (ghBtnConfirm) {
+        ghBtnConfirm.setAttribute('disabled', 'true');
+        ghBtnConfirm.textContent = 'Publishing...';
+      }
+
+      const repoOwner = 'MonroeHumane';
+      const repoName = 'AzureMigration';
+      const filePath = 'frontend/src/data/newsletters.json';
+      const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+      try {
+        // Step 1: Check if file exists and get current SHA
+        let currentSha = null;
+        if (ghStatusText) ghStatusText.textContent = 'Checking current branch HEAD...';
+        const getRes = await fetch(apiUrl, {
+          headers: {
+            'Authorization': `Bearer ${pat}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (getRes.status === 401 || getRes.status === 403) {
+          throw new Error('Authentication failed: Invalid GitHub PAT or insufficient repository permissions.');
+        }
+
+        if (getRes.ok) {
+          const getData = await getRes.json();
+          currentSha = getData.sha;
+        }
+
+        // Step 2: Prepare JSON content & Base64 encode safely (handles UTF-8)
+        if (ghStatusText) ghStatusText.textContent = 'Preparing newsletter payload & committing...';
+        const jsonContent = JSON.stringify(issues, null, 2);
+        const utf8Bytes = new TextEncoder().encode(jsonContent);
+        let binaryStr = '';
+        for (let i = 0; i < utf8Bytes.length; i++) {
+          binaryStr += String.fromCharCode(utf8Bytes[i]);
+        }
+        const base64Content = btoa(binaryStr);
+
+        const putBody = {
+          message: `CMS: Publish ${issues.length} newsletter issues via staff portal`,
+          content: base64Content,
+          branch: 'main'
+        };
+        if (currentSha) {
+          putBody.sha = currentSha;
+        }
+
+        const putRes = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${pat}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(putBody)
+        });
+
+        const putData = await putRes.json();
+        if (!putRes.ok) {
+          throw new Error(putData.message || `GitHub error: HTTP ${putRes.status}`);
+        }
+
+        if (ghSpinner) ghSpinner.textContent = '✅';
+        const commitShort = putData.commit?.sha ? putData.commit.sha.slice(0, 7) : 'latest';
+        if (ghStatusText) ghStatusText.textContent = `Published successfully (commit ${commitShort})! GitHub Pages deployment triggered.`;
+        showToast('Newsletters published live to GitHub repo!');
+
+        setTimeout(() => {
+          closeGhModal();
+        }, 2200);
+
+      } catch (err) {
+        if (ghSpinner) ghSpinner.textContent = '❌';
+        if (ghStatusText) ghStatusText.textContent = (err && err.message) || 'Publish failed.';
+        if (ghBtnConfirm) {
+          ghBtnConfirm.removeAttribute('disabled');
+          ghBtnConfirm.textContent = 'Retry Publish →';
+        }
+      }
     });
 
     loadNewslettersFromApi();

@@ -68,7 +68,6 @@ const activeYear = defaultYear ?? accomplishmentYears[0];
     <div
       class="home-acc-widget mx-auto mt-0 flex w-full max-w-[min(920px,100%)] flex-col items-center gap-[clamp(2.25rem,5vw,3rem)]"
       data-monroe-accomplishments-widget
-      x-data={`{ activeYear: '${activeYear}' }`}
     >
       <div
         class="m-0 inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-teal-700/12 bg-teal-700/10 p-[0.3rem] shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]"
@@ -76,33 +75,39 @@ const activeYear = defaultYear ?? accomplishmentYears[0];
         aria-label="Shelter outcome years"
       >
         {
-          accomplishmentYears.map((year) => (
-            <button
-              type="button"
-              class="monroe-accomplishments-widget__tab home-acc-tab"
-              :class={`activeYear === '${year}' ? 'is-active' : ''`}
-              :aria-selected={`activeYear === '${year}'`}
-              @click={`activeYear = '${year}'`}
-              role="tab"
-              id={`monroe-accomplishments-tab-${year}`}
-              aria-controls={`monroe-accomplishments-panel-${year}`}
-              data-accomplishments-year={year}
-            >
-              {year}
-            </button>
-          ))
+          accomplishmentYears.map((year) => {
+            const isInitialActive = year === activeYear;
+            return (
+              <button
+                type="button"
+                class:list={[
+                  'monroe-accomplishments-widget__tab home-acc-tab',
+                  isInitialActive && 'is-active',
+                ]}
+                aria-selected={isInitialActive ? 'true' : 'false'}
+                role="tab"
+                id={`monroe-accomplishments-tab-${year}`}
+                aria-controls={`monroe-accomplishments-panel-${year}`}
+                data-accomplishments-year={year}
+              >
+                {year}
+              </button>
+            );
+          })
         }
       </div>
 
       {
         accomplishmentYears.map((year) => {
           const stats = years[year] ?? [];
+          const isInitialActive = year === activeYear;
           return (
             <div
-              class="monroe-accomplishments-widget__panel m-0 w-full p-0"
-              :class={`activeYear === '${year}' ? 'is-active' : ''`}
-              x-show={`activeYear === '${year}'`}
-              x-cloak
+              class:list={[
+                'monroe-accomplishments-widget__panel m-0 w-full p-0',
+                isInitialActive && 'is-active',
+              ]}
+              hidden={!isInitialActive}
               role="tabpanel"
               id={`monroe-accomplishments-panel-${year}`}
               aria-labelledby={`monroe-accomplishments-tab-${year}`}
@@ -311,40 +316,89 @@ const activeYear = defaultYear ?? accomplishmentYears[0];
 </style>
 
 <script>
-  const accWidget = document.querySelector('[data-monroe-accomplishments-widget]');
-  if (accWidget instanceof HTMLElement && accWidget.dataset.bound !== '1') {
-    accWidget.dataset.bound = '1';
+  function initAccomplishmentsWidget() {
+    const accWidget = document.querySelector('[data-monroe-accomplishments-widget]');
+    if (!accWidget || !(accWidget instanceof HTMLElement)) return;
 
-    try {
-      const rawStored = localStorage.getItem('mchs_site_content_v2');
-      if (rawStored) {
-        const stored = JSON.parse(rawStored);
-        if (stored && stored.outcomes) {
-          Object.entries(stored.outcomes).forEach(([year, stats]) => {
-            const panel = accWidget.querySelector(`[data-accomplishments-panel="${year}"]`);
-            if (panel && Array.isArray(stats)) {
-              stats.forEach((s) => {
-                const statTile = Array.from(panel.querySelectorAll('[data-accomplishments-stat]')).find(
-                  (t) =>
-                    t.querySelector('[data-stat-label]')?.textContent?.trim().toLowerCase() ===
-                    String(s?.label || '').toLowerCase(),
-                );
-                if (statTile) {
-                  const valEl = statTile.querySelector('[data-stat-value]');
-                  if (valEl instanceof HTMLElement) {
-                    valEl.dataset.count = String(s.value);
-                    valEl.textContent = s.display || String(s.value);
-                  }
-                }
-              });
-            }
-          });
-        }
+    if (accWidget.dataset.bound !== '1') {
+      accWidget.dataset.bound = '1';
+
+      const tabs = Array.from(accWidget.querySelectorAll<HTMLButtonElement>('[data-accomplishments-year]'));
+      const panels = Array.from(accWidget.querySelectorAll<HTMLElement>('[data-accomplishments-panel]'));
+
+      function selectYear(targetYear: string) {
+        tabs.forEach((tab) => {
+          const isSelected = tab.dataset.accomplishmentsYear === targetYear;
+          tab.classList.toggle('is-active', isSelected);
+          tab.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        });
+        panels.forEach((panel) => {
+          const isMatch = panel.dataset.accomplishmentsPanel === targetYear;
+          panel.classList.toggle('is-active', isMatch);
+          if (isMatch) {
+            panel.removeAttribute('hidden');
+          } else {
+            panel.setAttribute('hidden', '');
+          }
+        });
       }
-    } catch {
-      /* ignore bad localStorage */
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => {
+          const year = tab.dataset.accomplishmentsYear;
+          if (year) selectYear(year);
+        });
+
+        tab.addEventListener('keydown', (e) => {
+          let newIndex = index;
+          if (e.key === 'ArrowRight') {
+            newIndex = (index + 1) % tabs.length;
+          } else if (e.key === 'ArrowLeft') {
+            newIndex = (index - 1 + tabs.length) % tabs.length;
+          } else {
+            return;
+          }
+          e.preventDefault();
+          tabs[newIndex]?.focus();
+          const year = tabs[newIndex]?.dataset.accomplishmentsYear;
+          if (year) selectYear(year);
+        });
+      });
+
+      try {
+        const rawStored = localStorage.getItem('mchs_site_content_v2');
+        if (rawStored) {
+          const stored = JSON.parse(rawStored);
+          if (stored && stored.outcomes) {
+            Object.entries(stored.outcomes).forEach(([year, stats]) => {
+              const panel = accWidget.querySelector(`[data-accomplishments-panel="${year}"]`);
+              if (panel && Array.isArray(stats)) {
+                stats.forEach((s: any) => {
+                  const statTile = Array.from(panel.querySelectorAll('[data-accomplishments-stat]')).find(
+                    (t) =>
+                      t.querySelector('[data-stat-label]')?.textContent?.trim().toLowerCase() ===
+                      String(s?.label || '').toLowerCase(),
+                  );
+                  if (statTile) {
+                    const valEl = statTile.querySelector('[data-stat-value]');
+                    if (valEl instanceof HTMLElement) {
+                      valEl.dataset.count = String(s.value);
+                      valEl.textContent = s.display || String(s.value);
+                    }
+                  }
+                });
+              }
+            });
+          }
+        }
+      } catch {
+        /* ignore bad localStorage */
+      }
     }
   }
+
+  initAccomplishmentsWidget();
+  document.addEventListener('astro:page-load', initAccomplishmentsWidget);
 
   const countEls = document.querySelectorAll(
     '[data-monroe-accomplishments-widget] [data-stat-value][data-count]',

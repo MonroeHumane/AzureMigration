@@ -382,6 +382,11 @@ import DonorRosterTable from '../../../components/donors/DonorRosterTable.astro'
       setStaffDataStatus('donor-api-status', 'hidden');
     }
 
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadDonors);
+    } else {
+      loadDonors();
+    }
     document.addEventListener('astro:page-load', loadDonors);
 
     // Tier chart bar colors are baked in at render time (not pure CSS), so

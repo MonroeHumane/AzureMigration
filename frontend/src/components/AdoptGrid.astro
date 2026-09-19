@@ -105,7 +105,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
     >
       <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
         <a href="" class="absolute inset-0 z-0" data-pet-link>
-          <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src="" alt="" loading="lazy" decoding="async" onerror="this.setAttribute('src', '/assets/recovered/images/placeholder.svg'); this.removeAttribute('onerror');" />
+          <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" src="" alt="" loading="lazy" decoding="async" onerror="this.setAttribute('src', '/placeholder.svg'); this.removeAttribute('onerror');" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none" aria-hidden="true"></div>
         </a>
         <span class="absolute top-3 left-3 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-teal-950 shadow-xs z-10 uppercase tracking-wider border border-white/60 pointer-events-none" data-pet-icon>Pet</span>
@@ -187,7 +187,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
       </header>
       <div class="pet-drawer__body">
         <div class="pet-drawer__media">
-          <img class="pet-drawer__img" src="/assets/recovered/images/placeholder.svg" alt="" data-drawer-img />
+          <img class="pet-drawer__img" src="/placeholder.svg" alt="" data-drawer-img />
           <div class="pet-drawer__media-gradient" aria-hidden="true"></div>
           <span class="pet-drawer__status-badge hidden" data-drawer-status></span>
         </div>
@@ -730,7 +730,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
             card.dataset.petName = pet.name || '';
             card.dataset.petBreed = pet.breed || '';
             card.dataset.petSpeciesTag = speciesLabel;
-            card.dataset.petImage = pet.image_url || pet.image || '/assets/recovered/images/placeholder.svg';
+            card.dataset.petImage = pet.image_webp || pet.image_url || pet.image || '/placeholder.svg';
             card.dataset.petLocation = pet.location || 'Shelter';
             card.dataset.petIntake = intakeDisplay;
             card.dataset.petDesc = pet.description || '';
@@ -745,7 +745,7 @@ const sizeOptions = [...new Set(scoped.map((p) => (p.size || '').toLowerCase()).
 
             const img = clone.querySelector<HTMLImageElement>('img');
             if (img) {
-              img.src = pet.image_url || pet.image || '/assets/recovered/images/placeholder.svg';
+              img.src = pet.image_webp || pet.image_url || pet.image || '/placeholder.svg';
               img.alt = pet.name || 'Shelter pet';
             }
 

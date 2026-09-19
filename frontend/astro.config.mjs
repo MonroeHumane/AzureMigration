@@ -2,30 +2,12 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import partytown from '@astrojs/partytown';
 import tailwindcss from '@tailwindcss/vite';
-import alpinejs from '@astrojs/alpinejs';
 
-const DIRECTUS_URL =
-  process.env.PUBLIC_DIRECTUS_URL ||
-  'https://mchs-directus.livelyfield-d0a70609.eastus.azurecontainerapps.io';
+import newslettersData from './src/data/newsletters.json';
 
-async function publishedNewsletterPages() {
-  try {
-    const res = await fetch(
-      `${DIRECTUS_URL}/items/newsletter_issues?filter[status][_eq]=published&fields=slug&limit=-1`,
-      { signal: AbortSignal.timeout(2500) }
-    );
-    if (!res.ok) return [];
-    const json = await res.json();
-    return (Array.isArray(json.data) ? json.data : [])
-      .map((row) => row && row.slug)
-      .filter(Boolean)
-      .map((slug) => `https://monroe-humane.org/newsletter/issue/${encodeURIComponent(slug)}`);
-  } catch {
-    return [];
-  }
-}
-
-const newsletterIssuePages = await publishedNewsletterPages();
+const newsletterIssuePages = (newslettersData || [])
+  .filter((row) => row && row.status === 'published' && row.slug)
+  .map((row) => `https://monroe-humane.org/newsletter/issue/${encodeURIComponent(row.slug)}`);
 
 export default defineConfig({
   site: 'https://monroe-humane.org',
@@ -39,7 +21,6 @@ export default defineConfig({
       ],
     }),
     partytown(),
-    alpinejs(),
   ],
 
   vite: {

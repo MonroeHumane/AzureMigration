@@ -39,16 +39,26 @@ jobs:
           cd cron
           npx tsx src/sync-to-json.ts
 
-      - name: Commit Updated Pet Data
+      - name: Install Frontend Dependencies
         run: |
-          # Check if shelter-pets.json or archived-pets.json changed
-          if git diff --quiet frontend/src/data/shelter-pets.json frontend/public/shelter-pets.json frontend/src/data/archived-pets.json; then
-            echo "No changes in pet adoption records. Skipping commit."
+          cd frontend
+          npm ci
+
+      - name: Transcode Pet Photos to High-Density WebP
+        run: |
+          cd frontend
+          npm run optimize:pets
+
+      - name: Commit Updated Pet Data & WebP Images
+        run: |
+          # Check if shelter-pets.json, archived-pets.json, or public/pets changed
+          if git diff --quiet frontend/src/data/shelter-pets.json frontend/public/shelter-pets.json frontend/src/data/archived-pets.json frontend/public/pets/; then
+            echo "No changes in pet adoption records or images. Skipping commit."
           else
-            echo "Changes detected in pet records. Committing and pushing..."
+            echo "Changes detected in pet records or photos. Committing and pushing..."
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add frontend/src/data/shelter-pets.json frontend/public/shelter-pets.json frontend/src/data/archived-pets.json
-            git commit -m "chore(petsync): update adoptable pet records from Petango"
+            git add frontend/src/data/shelter-pets.json frontend/public/shelter-pets.json frontend/src/data/archived-pets.json frontend/public/pets/
+            git commit -m "chore(petsync): update adoptable pet records and WebP photos from Petango"
             git push
           fi

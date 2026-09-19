@@ -8,16 +8,16 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "optimize:pets": "node ../scripts/optimize_pet_photos.cjs",
+    "optimize:covers": "node ../scripts/optimize_game_covers.cjs",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/alpinejs": "^1.0.0",
     "@astrojs/partytown": "^2.1.7",
     "@astrojs/sitemap": "^3.7.3",
     "@directus/sdk": "^25.0.1",
     "@nanostores/persistent": "^0.10.2",
     "@tailwindcss/vite": "^4.3.3",
-    "alpinejs": "^3.17.2",
     "astro": "^7.2.9",
     "nanostores": "^0.11.4",
     "qr-code-styling": "^1.9.2",

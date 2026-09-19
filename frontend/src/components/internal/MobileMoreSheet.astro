@@ -124,17 +124,19 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
           target="_blank"
           rel="noopener noreferrer"
           class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0b2420] hover:bg-teal-50 dark:hover:bg-teal-900/60 border border-slate-200 dark:border-teal-800/80 transition group"
+          title="Directus Cloud CMS Console (Azure Standby)"
         >
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-900 dark:text-emerald-300 dark:border-teal-700 flex items-center justify-center font-bold text-sm shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-800/80 flex items-center justify-center font-bold text-xs shadow-xs">
               CMS
             </div>
             <div>
-              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-emerald-300 text-xs">
-                Directus Headless CMS Console
+              <div class="font-bold text-slate-900 dark:text-white group-hover:text-teal-800 dark:group-hover:text-emerald-300 text-xs flex items-center gap-1.5">
+                <span>Directus Headless CMS</span>
+                <span class="text-[9px] px-1 py-0.2 rounded font-bold uppercase bg-slate-200 dark:bg-teal-900 text-slate-600 dark:text-teal-300">Cloud</span>
               </div>
               <div class="text-[11px] text-slate-500 dark:text-teal-300/70">
-                Manage animal records &amp; site assets
+                Manage animal records &amp; site assets (Azure Standby)
               </div>
             </div>
           </div>
@@ -358,6 +360,14 @@ const directusAdminUrl = 'https://mchs-directus.livelyfield-d0a70609.eastus.azur
     // Event handlers for open/close
     window.addEventListener('open-more-sheet', () => openSheet(dialog));
     window.addEventListener('close-more-sheet', () => closeSheet(dialog));
+    
+    document.addEventListener('click', (e) => {
+      const openBtn = (e.target as HTMLElement)?.closest('[data-open-more-sheet]');
+      if (openBtn) {
+        e.preventDefault();
+        openSheet(dialog);
+      }
+    });
     
     dialog.addEventListener('click', (e) => {
       if (e.target === dialog) closeSheet(dialog);

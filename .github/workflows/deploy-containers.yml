@@ -25,8 +25,6 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            backend:
-              - 'backend/**'
             arcade:
               - 'arcade/**'
             cron:
@@ -40,7 +38,7 @@ jobs:
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          dirs = {'backend': ('directus', './backend'), 'arcade': ('arcade', './arcade'), 'cron': ('petsync', './cron')}
+          dirs = {'arcade': ('arcade', './arcade'), 'cron': ('petsync', './cron')}
           changed = list(dirs) if os.environ['EVENT'] == 'workflow_dispatch' else json.loads(os.environ['CHANGED'] or '[]')
           for d in dirs:
               print(f"{d}={'true' if d in changed else 'false'}")
@@ -103,14 +101,7 @@ jobs:
       #
       # Image-only updates: do not pass --set-env-vars. `az containerapp update
       # --image` should preserve existing env and secrets. --min-replicas 1 is
-      # passed in case the CLI resets scale (Directus/Arcade must stay warm).
-      - name: Deploy Directus (only if backend/** changed)
-        if: needs.changes.outputs.backend == 'true'
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            az containerapp update --name mchs-directus --resource-group MCHS-Platform-RG --container-name directus --image directus/directus:11.5.0 --revision-suffix gha${{ github.run_number }} --min-replicas 1 --max-replicas 2
-
+      # passed in case the CLI resets scale (Arcade must stay warm).
       - name: Deploy Arcade (only if arcade/** changed)
         if: needs.changes.outputs.arcade == 'true'
         uses: azure/cli@v2
