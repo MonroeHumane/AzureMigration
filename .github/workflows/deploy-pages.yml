@@ -61,7 +61,15 @@ jobs:
 
       - name: Compile and Encrypt Financial Vault
         run: |
-          node scripts/compile_financial_vault.cjs
+          # Raw financial JSONs are gitignored (confidential board/donor data).
+          # When they are present (local run or secret-injected), recompile the vault.
+          # In standard CI the committed financials.enc.json is used as-is.
+          if [ -f api/data/published_2026_ytd.json ]; then
+            echo "Source data found — recompiling vault..."
+            node scripts/compile_financial_vault.cjs
+          else
+            echo "Source data not present in CI — using committed vault."
+          fi
 
       - name: Verify Financial Vault Cryptographic Integrity
         run: |
